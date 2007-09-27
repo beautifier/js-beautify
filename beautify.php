@@ -1,6 +1,9 @@
 <?php
 /*
 
+$Id$
+
+
 JS Beautifier
 
 (c) 2007, Einars "elfz" Lielmanis
