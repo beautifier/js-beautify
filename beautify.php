@@ -64,7 +64,9 @@ function js_beautify($js_source_text)
 {
     global $output, $token_text, $lasttok, $lastword, $in, $ins, $indent;
 
-    $js_utf8_array = array_from_string($js_source_text);
+    global $input, $input_length;
+
+    list($input, $input_length) = prepare_utf($js_source_text);
 
     $lastword = '';
 
@@ -72,7 +74,6 @@ function js_beautify($js_source_text)
     // simple hack for cases when lines aren't ending with semicolon.
     // feel free to tell me about the ones that need to be added. 
     $line_starters = explode(',', 'var,if,switch,for,while,break');
-
 
     // states showing if we are currently in expression (i.e. "if" case) - IN_EXPR, or in usual block (like, procedure), IN_BLOCK.
     // some formatting depends on that.
@@ -86,7 +87,7 @@ function js_beautify($js_source_text)
     $lasttok  = TK_EOF;
 
     while (true) {
-        list($token_text, $token_type) = get_next_token($js_utf8_array, $pos);
+        list($token_text, $token_type) = get_next_token($pos);
         if ($token_type == TK_EOF) {
             break;
         }
@@ -327,26 +328,25 @@ function make_array($str)
 
 
 
-function get_next_token(&$text, &$pos)
+function get_next_token(&$pos)
 {
     global $lasttok;
     global $whitespace, $wordchar, $punct;
+    global $input, $input_length;
 
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
     if (!$wordchar)   $wordchar   = make_array('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
     if (!$punct)      $punct      = make_array(".,=?:*&%^+-*<>!|");
 
-
-    $max_len      = sizeof($text);
     $num_newlines = 0;
 
     do {
-        if ($pos >= $max_len) {
+        if ($pos >= $input_length) {
             return array('', TK_EOF);
         }
 
-        $c = $text[$pos];
+        $c = $input[$pos];
         $pos += 1;
         if ($c == "\r") {
             $num_newlines += 1;
@@ -360,11 +360,11 @@ function get_next_token(&$text, &$pos)
 
 
     if (in_array($c, $wordchar)) {
-        if ($pos < $max_len) {
-            while (in_array($text[$pos], $wordchar)) {
-                $c .= $text[$pos];
+        if ($pos < $input_length) {
+            while (in_array($input[$pos], $wordchar)) {
+                $c .= $input[$pos];
                 $pos += 1;
-                if ($pos == $max_len) break;
+                if ($pos == $input_length) break;
             }
         }
         return array($c, TK_WORD);
@@ -392,26 +392,26 @@ function get_next_token(&$text, &$pos)
 
     if ($c == '/') {
         // peek for comment /* ... */
-        if ($text[$pos] == '*') {
+        if ($input[$pos] == '*') {
             $comment = '';
             $pos += 1;
-            if ($pos < $max_len){
-                while (!($text[$pos] == '*' && isset($text[$pos + 1]) && $text[$pos + 1] == '/') && $pos < $max_len) {
-                    $comment .= $text[$pos];
+            if ($pos < $input_length){
+                while (!($input[$pos] == '*' && isset($input[$pos + 1]) && $input[$pos + 1] == '/') && $pos < $input_length) {
+                    $comment .= $input[$pos];
                     $pos += 1;
-                    if ($pos >= $max_len) break;
+                    if ($pos >= $input_length) break;
                 }
             }
             $pos +=2;
             return array("/*$comment*/", TK_BLOCK_COMMENT);
         }
         // peek for comment // ...
-        if ($text[$pos] == '/') {
+        if ($input[$pos] == '/') {
             $comment = $c;
-            while ($text[$pos] != "\x0d" && $text[$pos] != "\x0a") {
-                $comment .= $text[$pos];
+            while ($input[$pos] != "\x0d" && $input[$pos] != "\x0a") {
+                $comment .= $input[$pos];
                 $pos += 1;
-                if ($pos >= $max_len) break;
+                if ($pos >= $input_length) break;
             }
             $pos += 1;
             return array($comment, TK_COMMENT);
@@ -426,17 +426,17 @@ function get_next_token(&$text, &$pos)
         $c   = '';
         $esc = false;
 
-        if ($pos < $max_len) {
+        if ($pos < $input_length) {
 
-            while ($esc || $text[$pos] != $sep) {
-                $c .= $text[$pos];
+            while ($esc || $input[$pos] != $sep) {
+                $c .= $input[$pos];
                 if (!$esc) {
-                    $esc = $text[$pos] == '\\';
+                    $esc = $input[$pos] == '\\';
                 } else {
                     $esc = false;
                 }
                 $pos += 1;
-                if ($pos >= $max_len) break;
+                if ($pos >= $input_length) break;
             }
 
         }
@@ -449,11 +449,11 @@ function get_next_token(&$text, &$pos)
     }
 
     if (in_array($c, $punct)) {
-        if ($pos < $max_len) {
-            while (in_array($text[$pos], $punct)) {
-                $c .= $text[$pos];
+        if ($pos < $input_length) {
+            while (in_array($input[$pos], $punct)) {
+                $c .= $input[$pos];
                 $pos += 1;
-                if ($pos >= $max_len) break;
+                if ($pos >= $input_length) break;
             }
         }
         return array($c, TK_PUNCT);
@@ -468,27 +468,22 @@ function get_next_token(&$text, &$pos)
 
 
 
-
-if (false and function_exists('mb_convert_case')) {
+if (function_exists('mb_convert_case')) {
     // transform UTF-8 string to array of characters
-    function array_from_string($str) 
+    function prepare_utf($str) 
     {
         $arr = array();
         for ($i = 0 ; $i < mb_strlen($str, 'UTF-8'); $i++) {
             $arr[] = mb_substr($str, $i, 1, 'UTF-8');
         }
-        return $arr;
+        return array($arr, mb_strlen($str));
     }
         
 } else {
-    // mb_functions not supported -- fallback
-    function array_from_string($str)
+    // mb_functions not supported -- fallback to just string
+    function prepare_utf($str)
     {
-        $arr = array();
-        for ($i = 0 ; $i < strlen($str); $i++) {
-            $arr[] = $str[$i];
-        }
-        return $arr;
+        return array($str, strlen($str));
     }
 }
 ?>
