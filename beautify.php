@@ -73,7 +73,7 @@ function js_beautify($js_source_text)
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
     // feel free to tell me about the ones that need to be added. 
-    $line_starters = explode(',', 'var,if,switch,for,while,break');
+    $line_starters = explode(',', 'var,if,switch,case,default,for,while,break');
 
     // states showing if we are currently in expression (i.e. "if" case) - IN_EXPR, or in usual block (like, procedure), IN_BLOCK.
     // some formatting depends on that.
@@ -102,7 +102,7 @@ function js_beautify($js_source_text)
                 }
             } elseif ($lasttok != TK_WORD && $lasttok != TK_START_EXPR && $lasttok != TK_PUNCT) {
                 space();
-            } elseif ($lastword == 'if' || $lastword == 'for'  || $lastword == 'while') { 
+            } elseif (in_array($token_text, $line_starters)) { 
                 space();
             }
             token();
@@ -271,6 +271,7 @@ function nl($ignore_repeated = true)
 
     $output .= "\n" . str_repeat('    ', $indent);
 }
+
 
 function space()
 {
