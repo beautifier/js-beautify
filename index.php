@@ -57,15 +57,6 @@ function remove_magic_quotes() {
     }
 }
 
-function ext_beautify($what) {
-    ob_start();
-    js_beautify($what); 
-    $c = ob_get_contents();
-    ob_end_clean();
-    return $c;
-}
-
-
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -107,8 +98,23 @@ code, .code {
 
 $c = get_raw('content');
 echo $c ? 
-     ext_beautify($c) : 
-     "/* paste in your own code and press Beautify button */\nvar test={\$last_modification:\"2007-05-26\";regexp=/^[a-z\/]+%/;/^test$/.match(test);d:function(x){return x}}var latest_changes=new Object({'2007-05-26':'Fixed regular expression detection at the start of line','2007-05-18':'Uninitialized string offset at the end of script bug fixed','2007-03-13':'Gave the code away','2007-02-08':'Initial release'});";
+     htmlspecialchars(js_beautify($c)) : 
+     preg_replace("/\n([^ ])/u", "\$1",
+"/*   paste in your own code and press Beautify button   */
+var nosemicolon=2 var test={regexp=/^[a-z\/]+%/;/^test$/.match(test);
+d:function(x){return x}}
+var latest_changes=new Object(
+{'2007-09-28':
+'Better handling of switch cases and lines not ending with semicolon; 
+                   UTF supported in strings and comments (мелочь, но приятно).',
+'2007-05-26':
+'Fixed regular expression detection at the start of line',
+'2007-05-18':
+'Uninitialized string offset at the end of script bug fixed',
+'2007-03-13':
+'Gave the code away',
+'2007-02-08':
+'Initial release'});");
 
 ?></textarea><br />
       <button type="submit">Beautify</button>
