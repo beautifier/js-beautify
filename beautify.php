@@ -1,8 +1,6 @@
-<?php
+<?php // $Id$
+
 /*
-
-$Id$
-
 
 JS Beautifier
 
