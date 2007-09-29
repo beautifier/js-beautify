@@ -13,7 +13,7 @@ You are free to use this in any way you want, in case you find this useful or wo
 
 Usage: 
     require('beautify.php'); 
-    echo js_beautify($js_source_text));
+    echo js_beautify($js_source_text);
 
 As of 2007-09-28, it returns normal usable text. Remember to htmlescape if printing from webpage.
 

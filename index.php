@@ -92,7 +92,7 @@ code, .code {
 </style>
 </head>
 <body>
-  <h1>My Great Online Beautifier for JavaScript</h1>
+  <h1>Beautify Javascript</h1>
   <form method="post" action="?">
       <textarea rows="30" cols="30" name="content"><?php 
 
@@ -118,11 +118,9 @@ var latest_changes=new Object(
 
 ?></textarea><br />
       <button type="submit">Beautify</button>
-      <p>Completely reformat the javascript source code to my liking so that it becomes a little bit readable.<br />
-      It can be useful to explore the scripts compacted in one line (<a href="http://createwebapp.com/">(now-ex) CAPXOUS</a> comes to my mind as <a href="http://createwebapp.com/javascripts/autocomplete.js">an example</a>).<br />
-      At least that's what I wrote it for&mdash;all the other beautifiers sucked and seemed to be written by guys who haven't seen any javascript lately.</p>
-      <p>PHP source for the curious can be <a href="beautify.phps">downloaded here</a>. It's messy&mdash;you've been warned.</p>
-      <p>In case of strange glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
+      <p>This script was intended to be useful to explore the scripts compacted in one line (<a href="http://createwebapp.com/">CAPXOUS autocomplete,</a> recently renamed to CreateWebApp for some stupid reason, is <a href="http://createwebapp.com/javascripts/autocomplete.js">a good example</a>). That's what I wrote it for&mdash;all the other beautifiers really sucked. As the time went, I improved to suit your pretty-formatting javascript needs better.</p>
+      <p>A messy (yet working: it's the same script that powers this page) PHP source for the curious can be <a href="beautify.phps">found here;</a> absolutely free&mdash;feel free to use and abuse.</p>
+      <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
   </form>
 <?php 
     printf('<img src="http://edev.uk.to/tmp/track?beautify&amp;ref=%s" style="display:none" alt="my tracker" />', isset($_SERVER['HTTP_REFERER']) ? urlencode($_SERVER['HTTP_REFERER']) : '');
