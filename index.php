@@ -119,7 +119,7 @@ var latest_changes=new Object(
 ?></textarea><br />
       <button type="submit">Beautify</button>
       <p>Completely reformat the javascript source code to my liking so that it becomes a little bit readable.<br />
-      It can be useful to explore the scripts compacted in one line (<a href="http://capxous.com/">CAPXOUS</a> comes to my mind as <a href="http://capxous.com/javascripts/autocomplete.js">an example</a>).<br />
+      It can be useful to explore the scripts compacted in one line (<a href="http://createwebapp.com/">(now-ex) CAPXOUS</a> comes to my mind as <a href="http://createwebapp.com/javascripts/autocomplete.js">an example</a>).<br />
       At least that's what I wrote it for&mdash;all the other beautifiers sucked and seemed to be written by guys who haven't seen any javascript lately.</p>
       <p>PHP source for the curious can be <a href="beautify.phps">downloaded here</a>. It's messy&mdash;you've been warned.</p>
       <p>In case of strange glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
