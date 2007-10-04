@@ -119,7 +119,7 @@ var latest_changes=new Object(
 ?></textarea><br />
       <button type="submit">Beautify</button>
       <p>This script was intended to be useful to explore the scripts compacted in one line (<a href="http://createwebapp.com/">CAPXOUS autocomplete,</a> recently renamed to CreateWebApp for some stupid reason, is <a href="http://createwebapp.com/javascripts/autocomplete.js">a good example</a>). That's what I wrote it for&mdash;all the other beautifiers really sucked. As the time went, I improved to suit your pretty-formatting javascript needs better.</p>
-      <p>A messy (yet working: it's the same script that powers this page) PHP source for the curious can be <a href="beautify.phps">found here;</a> absolutely free&mdash;feel free to use and abuse.</p>
+      <p>A messy (yet working: it's the same script that powers this page) PHP source for the curious can be <a href="beautify.phps">found here;</a> feel free to use and abuse.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
       <p style="border-top: 1px solid #ccc; margin-top: 30px;">Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though).</p>
   </form>
