@@ -346,7 +346,6 @@ function get_next_token(&$pos)
         if ($pos >= $input_length) {
             return array('', TK_EOF);
         }
-
         $c = $input[$pos];
         $pos += 1;
         if ($c == "\r") {
@@ -477,7 +476,7 @@ if (function_exists('mb_convert_case')) {
         for ($i = 0 ; $i < mb_strlen($str, 'UTF-8'); $i++) {
             $arr[] = mb_substr($str, $i, 1, 'UTF-8');
         }
-        return array($arr, mb_strlen($str));
+        return array($arr, sizeof($arr));
     }
         
 } else {
