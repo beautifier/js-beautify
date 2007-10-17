@@ -19,6 +19,7 @@ As of 2007-09-28, it returns normal usable text. Remember to htmlescape if print
 
 Recent changes:
 
+    2007-10-17 - various minor improvements thanks to me starting writing tests even for this little crapsticle
     2007-09-28 - better handling of switch cases and lines not ending with semicolons
                  function returns just a proper text, instead of printing or htmlescaping input
                  utf-8 support (not in the variable names, though it will look ok, probably)
@@ -39,7 +40,6 @@ define('IN_BLOCK',         ++$n);
 
 
 define('TK_UNKNOWN',       ++$n);
-define('TK_WHITESPACE',    ++$n);
 define('TK_WORD',          ++$n);
 define('TK_START_EXPR',    ++$n);
 define('TK_END_EXPR',      ++$n);
@@ -60,31 +60,36 @@ define('PRINT_SPACE',      ++$n);
 define('PRINT_NL',         ++$n);
 
 
-function js_beautify($js_source_text)
+function js_beautify($js_source_text, $tab_size = 4)
 {
-    global $output, $token_text, $lasttok, $lastword, $in, $ins, $indent;
+    global $output, $token_text, $last_type, $in, $ins, $indent, $tab_string;
 
     global $input, $input_length;
 
-    list($input, $input_length) = prepare_utf($js_source_text);
+    $tab_string = str_repeat(' ', $tab_size); 
 
-    $lastword = '';
+    $input = $js_source_text;
+    $input_length = strlen($input);
+
+    $last_word = ''; // last TK_WORD passed
+    $last_type  = TK_EOF; // last token type
+    $output = '';
 
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
     // feel free to tell me about the ones that need to be added. 
-    $line_starters = explode(',', 'var,if,switch,case,default,for,while,break');
+    $line_starters = explode(',', 'throw,return,var,if,switch,case,default,for,while,break');
 
     // states showing if we are currently in expression (i.e. "if" case) - IN_EXPR, or in usual block (like, procedure), IN_BLOCK.
     // some formatting depends on that.
     $in       = IN_BLOCK;
     $ins      = array($in);
 
+
     $indent   = 0;
 
-    $pos      = 0;
+    $pos      = 0; // parser position
 
-    $lasttok  = TK_EOF;
 
     while (true) {
         list($token_text, $token_type) = get_next_token($pos);
@@ -96,13 +101,11 @@ function js_beautify($js_source_text)
         case TK_START_EXPR:
 
             in(IN_EXPR);
-            if ($lasttok == TK_END_EXPR) {
-                if ($token_text != '[') {
-                    nl();
-                }
-            } elseif ($lasttok != TK_WORD && $lasttok != TK_START_EXPR && $lasttok != TK_PUNCT) {
+            if ($last_type == TK_END_EXPR or $last_type == TK_START_EXPR) {
+                // do nothing on (( and )( and ][ and ]( .. 
+            } elseif ($last_type != TK_WORD and $last_type != TK_PUNCT) {
                 space();
-            } elseif (in_array($token_text, $line_starters)) { 
+            } elseif (in_array($last_word, $line_starters)) { 
                 space();
             }
             token();
@@ -117,7 +120,7 @@ function js_beautify($js_source_text)
         case TK_START_BLOCK:
 
             in(IN_BLOCK);
-            if ($lasttok != TK_PUNCT) {
+            if ($last_type != TK_PUNCT and $last_type != TK_START_EXPR) {
                 space();
             }
             token();
@@ -126,13 +129,13 @@ function js_beautify($js_source_text)
 
         case TK_END_BLOCK:
 
-            if ($lasttok == TK_END_EXPR) {
+            if ($last_type == TK_END_EXPR) {
                 nl();
                 unindent();
-            } elseif ($lasttok == TK_END_BLOCK) {
+            } elseif ($last_type == TK_END_BLOCK) {
                 unindent();
                 nl();
-            } elseif ($lasttok == TK_START_BLOCK) {
+            } elseif ($last_type == TK_START_BLOCK) {
                 // nothing
                 unindent();
             } else {
@@ -144,36 +147,40 @@ function js_beautify($js_source_text)
             break;
 
         case TK_WORD:
-
+            
             $prefix = PRINT_NONE;
-            if ($lasttok == TK_END_BLOCK) {
-                if (strtolower($token_text) != 'else') {
+            if ($last_type == TK_END_BLOCK) {
+                if (!in_array(strtolower($token_text), array('else', 'catch', 'finally'))) {
                     $prefix = PRINT_NL;
                 } else {
                     $prefix = PRINT_SPACE;
                     space();
                 }
-            } elseif ($lasttok == TK_END_COMMAND && $in == IN_BLOCK) {
+            } elseif ($last_type == TK_END_COMMAND && $in == IN_BLOCK) {
                 $prefix = PRINT_NL;
-            } elseif ($lasttok == TK_END_COMMAND && $in == IN_EXPR) {
+            } elseif ($last_type == TK_END_COMMAND && $in == IN_EXPR) {
                 $prefix = PRINT_SPACE;
-            } elseif ($lasttok == TK_WORD) {
+            } elseif ($last_type == TK_WORD) {
                 $prefix = PRINT_SPACE; 
-            } elseif ($lasttok == TK_START_BLOCK) {
+            } elseif ($last_type == TK_START_BLOCK) {
                 $prefix = PRINT_NL;
-            } elseif ($lasttok == TK_END_EXPR) {
-                global $indent;
+            } elseif ($last_type == TK_END_EXPR) {
                 $indent++;
                 nl();
                 $indent--;
             }
 
             if (in_array($token_text, $line_starters) or $prefix == PRINT_NL) {
-                nl();
+                if ($last_type != TK_END_EXPR) {
+                    if ($last_type != TK_START_EXPR or $token_text != 'var') { // no need to force newline on 'var': for (var x = 0...)
+                        nl();
+                    }
+                }
             } elseif ($prefix == PRINT_SPACE) {
                 space();              
             }
             token();
+            $last_word = strtolower($token_text);
             break;
 
         case TK_END_COMMAND:
@@ -183,16 +190,15 @@ function js_beautify($js_source_text)
 
         case TK_STRING:
 
-            if ($lasttok == TK_START_BLOCK) {
+            if ($last_type == TK_START_BLOCK) {
                 nl();
-            } elseif ($lasttok == TK_WORD) {
+            } elseif ($last_type == TK_WORD) {
                 space();
             }
             token();
             break;
 
         case TK_PUNCT:
-
             $start_delim = true;
             $end_delim   = true;
             if ($token_text == ',') {
@@ -204,19 +210,29 @@ function js_beautify($js_source_text)
                     nl();
                 }
                 break;
-
-            } elseif ($lasttok == TK_PUNCT) {
+            } elseif ($token_text == '--' or $token_text == '++') { // unary operators special case
                 $start_delim = false;
                 $end_delim = false;
-
+            } elseif ($token_text == '!' and $last_type == TK_START_EXPR) {
+                // special case handling: if (!a)
+                $start_delim = false;
+                $end_delim = false;
+            } elseif ($last_type == TK_PUNCT) {
+                $start_delim = false;
+                $end_delim = false;
+            } elseif ($last_type == TK_END_EXPR) {
+                $start_delim = true;
+                $end_delim = true;
             } elseif ($token_text == '.') {
+                // decimal digits or object.property
                 $start_delim = false;
                 $end_delim   = false;
 
             } elseif ($token_text == ':') {
+                // zz: xx
+                // can't differentiate ternary op, so for now it's a ? b: c; without space before colon
                 $start_delim = false;
-
-            } elseif ($lasttok == TK_WORD) {
+            } elseif ($last_type == TK_WORD) {
             }
             if ($start_delim) {
                 space();
@@ -231,14 +247,14 @@ function js_beautify($js_source_text)
 
         case TK_BLOCK_COMMENT:
 
-            nl(); // was echo "\n"
+            nl();
             token();
             nl();
             break;
 
         case TK_COMMENT:
 
-            if ($lasttok != TK_COMMENT) {
+            if ($last_type != TK_COMMENT) {
                 nl();
             }
             token();
@@ -250,9 +266,7 @@ function js_beautify($js_source_text)
             break;
         }
 
-        $lasttok  = $token_type;
-        $lastword = strtolower($token_text);
-
+        $last_type  = $token_type;
     }
 
     return $output;
@@ -263,21 +277,26 @@ function js_beautify($js_source_text)
 
 function nl($ignore_repeated = true)
 {
-    global $indent, $output;
+    global $indent, $output, $tab_string;
+
+    if ($output == '') return; // no newline on start of file
 
     if ($ignore_repeated) {
         if ($output and substr($output, -1) == "\n") return;
     }
 
-    $output .= "\n" . str_repeat('    ', $indent);
+    $output .= "\n" . str_repeat($tab_string, $indent);
 }
 
 
 function space()
 {
     global $output;
-    $output .= ' ';
+    if ($output and substr($output, -1) != ' ') { // prevent occassional duplicate space
+        $output .= ' ';
+    }
 }
+
 
 function token()
 {
@@ -331,14 +350,14 @@ function make_array($str)
 
 function get_next_token(&$pos)
 {
-    global $lasttok;
+    global $last_type;
     global $whitespace, $wordchar, $punct;
     global $input, $input_length;
 
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
     if (!$wordchar)   $wordchar   = make_array('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
-    if (!$punct)      $punct      = make_array(".,=?:*&%^+-*<>!|");
+    if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != > < >= <= >> << >>> <<< >>= <<= &&  | || ! !! , : ?'); 
 
     $num_newlines = 0;
 
@@ -348,14 +367,14 @@ function get_next_token(&$pos)
         }
         $c = $input[$pos];
         $pos += 1;
-        if ($c == "\r") {
+        if ($c == "\n") {
             $num_newlines += 1;
         }
     } while (in_array($c, $whitespace));
 
     if ($num_newlines > 1) {
         // theoretically it should be js_beautify job to print something
-        for ($i = 1 ; $i < $num_newlines; $i++) nl(false);
+        for ($i = 1 ; $i <= $num_newlines; $i++) nl(false);
     }
 
 
@@ -421,7 +440,7 @@ function get_next_token(&$pos)
 
     if ($c == "'" || // string
         $c == '"' || // string
-        ($c == '/' && ($lasttok == TK_START_EXPR || $lasttok == TK_PUNCT || $lasttok == TK_EOF || $lasttok == TK_END_COMMAND))) { // regexp
+        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_PUNCT || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
         $sep = $c;
         $c   = '';
         $esc = false;
@@ -442,48 +461,22 @@ function get_next_token(&$pos)
         }
 
         $pos += 1;
-        if ($lasttok == TK_END_COMMAND) {
+        if ($last_type == TK_END_COMMAND) {
             nl();
         }
         return array($sep . $c . $sep, TK_STRING);
     }
 
     if (in_array($c, $punct)) {
-        if ($pos < $input_length) {
-            while (in_array($input[$pos], $punct)) {
-                $c .= $input[$pos];
-                $pos += 1;
-                if ($pos >= $input_length) break;
-            }
+        while (in_array($c . $input[$pos], $punct)) {
+            $c .= $input[$pos];
+            $pos += 1;
+            if ($pos >= $input_length) break;
         }
-        return array($c, TK_PUNCT);
-    }
-
-    if ($c == '/') {
         return array($c, TK_PUNCT);
     }
 
     return array($c, TK_UNKNOWN);
 }
 
-
-
-if (function_exists('mb_convert_case')) {
-    // transform UTF-8 string to array of characters
-    function prepare_utf($str) 
-    {
-        $arr = array();
-        for ($i = 0 ; $i < mb_strlen($str, 'UTF-8'); $i++) {
-            $arr[] = mb_substr($str, $i, 1, 'UTF-8');
-        }
-        return array($arr, sizeof($arr));
-    }
-        
-} else {
-    // mb_functions not supported -- fallback to just string
-    function prepare_utf($str)
-    {
-        return array($str, strlen($str));
-    }
-}
 ?>

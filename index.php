@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
 
-  (c) 2006: Einars "elfz" Lielmanis, 
+  (c) 2006-2007: Einars "elfz" Lielmanis, 
             elfz@laacz.lv
             http://elfz.laacz.lv/
 
@@ -89,6 +89,12 @@ code, .code {
     font-family: consolas, lucida console, courier new, courier, monospace;
     font-size: 12px;
 }
+pre {
+    font-size: 12px;
+    font-family: liberation mono, consolas, courier new, courier, monospace;
+    margin-left: 20px;
+    color: #777;
+}
 </style>
 </head>
 <body>
@@ -100,13 +106,14 @@ $c = get_raw('content');
 echo $c ? 
      htmlspecialchars(js_beautify($c)) : 
      preg_replace("/\n([^ ])/u", "\$1",
-"/*   paste in your own code and press Beautify button   */
-var nosemicolon=2 var test={regexp=/^[a-z\/]+%/;/^test$/.match(test);
-d:function(x){return x}}
+         <<<HTML
+/*   paste in your own code and press Beautify button   */
 var latest_changes=new Object(
-{'2007-09-28':
-'Better handling of switch cases and lines not ending with semicolon; 
-                   UTF supported in strings and comments (мелочь, но приятно).',
+{
+'2007-10-17':
+'Many, many fixes and improvements. Processing speed is also back.',
+'2007-09-28':
+'Better handling of switch cases and lines not ending with semicolon.',
 '2007-05-26':
 'Fixed regular expression detection at the start of line',
 '2007-05-18':
@@ -114,7 +121,9 @@ var latest_changes=new Object(
 '2007-03-13':
 'Gave the code away',
 '2007-02-08':
-'Initial release'});");
+'Initial release'});
+HTML
+);
 
 ?></textarea><br />
       <button type="submit">Beautify</button>
@@ -124,7 +133,14 @@ var latest_changes=new Object(
       <p style="border-top: 1px solid #ccc; margin-top: 30px;">Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though).</p>
   </form>
 <?php 
-    printf('<img src="http://edev.uk.to/tmp/track?beautify&amp;ref=%s" style="display:none" alt="my tracker" />', isset($_SERVER['HTTP_REFERER']) ? urlencode($_SERVER['HTTP_REFERER']) : '');
+if (file_exists('.svnlog')) {
+    printf("<pre>Latest messages from subversion (<a href=\"svn://edev.uk.to/beautify/\">svn://edev.uk.to/beautify/</a>) commit log:\n%s</pre>", 
+        htmlspecialchars(file_get_contents('.svnlog')));
+}
+
+
+
+printf('<img src="http://edev.uk.to/tmp/track?beautify&amp;ref=%s" style="display:none" alt="my tracker" />', isset($_SERVER['HTTP_REFERER']) ? urlencode($_SERVER['HTTP_REFERER']) : '');
 ?>
 </body>
 </html>
