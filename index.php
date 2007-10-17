@@ -140,5 +140,11 @@ if (file_exists('.svnlog')) {
 
 printf('<img src="http://edev.uk.to/tmp/track?beautify&amp;ref=%s" style="display:none" alt="my tracker" />', isset($_SERVER['HTTP_REFERER']) ? urlencode($_SERVER['HTTP_REFERER']) : '');
 ?>
+<script src="/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-2816767-1";
+if (window.urchinTracker) urchinTracker();
+</script>
 </body>
 </html>
