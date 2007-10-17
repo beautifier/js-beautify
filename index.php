@@ -78,15 +78,20 @@ textarea {
     height: 320px;
     border: 1px solid #ccc;
     padding: 3px;
-    font-family: consolas, courier new, courier, monospace;
+    font-family: liberation mono, consolas, courier new, courier, monospace;
     font-size: 12px;
 }
 h1 {
+    font-family: trebuchet ms, arial, sans-serif;
+    font-weight: normal;
+    font-size: 28px;
     color: #666;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #666;
 }
 button { width: 100%;}
 code, .code {
-    font-family: consolas, lucida console, courier new, courier, monospace;
+    font-family: liberation mono, consolas, lucida console, courier new, courier, monospace;
     font-size: 12px;
 }
 pre {
@@ -112,14 +117,7 @@ var latest_changes=new Object(
 {
 '2007-10-17':
 'Many, many fixes and improvements. Processing speed is also back.',
-'2007-09-28':
-'Better handling of switch cases and lines not ending with semicolon.',
-'2007-05-26':
-'Fixed regular expression detection at the start of line',
-'2007-05-18':
-'Uninitialized string offset at the end of script bug fixed',
-'2007-03-13':
-'Gave the code away',
+'... who cares ...',
 '2007-02-08':
 'Initial release'});
 HTML
@@ -127,14 +125,14 @@ HTML
 
 ?></textarea><br />
       <button type="submit">Beautify</button>
-      <p>This script was intended to be useful to explore the scripts compacted in one line (<a href="http://createwebapp.com/">CAPXOUS autocomplete,</a> recently renamed to CreateWebApp for some stupid reason, is <a href="http://createwebapp.com/javascripts/autocomplete.js">a good example</a>). That's what I wrote it for&mdash;all the other beautifiers really sucked. As the time went, I improved to suit your pretty-formatting javascript needs better.</p>
-      <p>A messy (yet working: it's the same script that powers this page) PHP source for the curious can be <a href="beautify.phps">found here;</a> feel free to use and abuse.</p>
+      <p>This script is useful to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>. All the other beautifiers mostly suck.</p>
+      <p>PHP source can be <a href="beautify.phps">seen online here</a> or fetched from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>. Feel free to use and abuse.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
-      <p style="border-top: 1px solid #ccc; margin-top: 30px;">Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though).</p>
+      <p>Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though, and the version of beautifier is kind of obsolete already).</p>
   </form>
 <?php 
 if (file_exists('.svnlog')) {
-    printf("<pre>Latest messages from subversion (<a href=\"svn://edev.uk.to/beautify/\">svn://edev.uk.to/beautify/</a>) commit log:\n%s</pre>", 
+    printf("<pre>Latest messages from my subversion (<a href=\"svn://edev.uk.to/beautify/\">svn://edev.uk.to/beautify/</a>) commit log:\n%s</pre>", 
         htmlspecialchars(file_get_contents('.svnlog')));
 }
 
