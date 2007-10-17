@@ -148,7 +148,9 @@ function js_beautify($js_source_text, $tab_size = 4)
             } elseif ($last_type == TK_END_COMMAND && $in == IN_EXPR) {
                 $prefix = PRINT_SPACE;
             } elseif ($last_type == TK_WORD) {
-                $prefix = PRINT_SPACE; 
+                if ($last_word != 'else') { // else if
+                    $prefix = PRINT_SPACE; 
+                }
             } elseif ($last_type == TK_START_BLOCK) {
                 $prefix = PRINT_NL;
             } elseif ($last_type == TK_END_EXPR) {
@@ -160,7 +162,12 @@ function js_beautify($js_source_text, $tab_size = 4)
             if (in_array($token_text, $line_starters) or $prefix == PRINT_NL) {
                 if ($last_type != TK_END_EXPR) {
                     if ($last_type != TK_START_EXPR or $token_text != 'var') { // no need to force newline on 'var': for (var x = 0...)
-                        nl();
+                        if ($token_text == 'if' and $last_type == TK_WORD and $last_word == 'else') {
+                            // no newline for } else if {
+                            space();
+                        } else {
+                            nl();
+                        }
                     }
                 }
             } elseif ($prefix == PRINT_SPACE) {

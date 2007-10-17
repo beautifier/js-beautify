@@ -89,6 +89,7 @@ bt('return(1)', 'return (1)');
 bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch(b) {\n    c();\n} finally {\n    d();\n}");
 bt('(xx)()'); // magic function call
 bt('a[1]()'); // another magic function call
+bt('if(a){b();}else if(', "if (a) {\n    b();\n} else if (");
 
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
