@@ -15,19 +15,6 @@ Usage:
     require('beautify.php'); 
     echo js_beautify($js_source_text);
 
-As of 2007-09-28, it returns normal usable text. Remember to htmlescape if printing from webpage.
-
-Recent changes:
-
-    2007-10-17 - various minor improvements thanks to me starting writing tests even for this little crapsticle
-    2007-09-28 - better handling of switch cases and lines not ending with semicolons
-                 function returns just a proper text, instead of printing or htmlescaping input
-                 utf-8 support (not in the variable names, though it will look ok, probably)
-    2007-05-26 - regular expression appearing on the start of line, fixed
-    2007-05-18 - error about uninitialized string offset in the end of the script fixed
-    2007-03-13 - a little cleanup for the public
-    2007-02-08 - created this stuff
-
 */
 
 error_reporting(E_ALL);
