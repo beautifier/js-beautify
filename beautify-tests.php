@@ -90,6 +90,8 @@ bt('(xx)()'); // magic function call
 bt('a[1]()'); // another magic function call
 bt('if(a){b();}else if(', "if (a) {\n    b();\n} else if (");
 bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
+bt('a !== b');
+bt('if (a) b(); else c();', "if (a)\n    b();\nelse\n    c();");
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
 

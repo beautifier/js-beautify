@@ -164,6 +164,14 @@ function js_beautify($js_source_text, $tab_size = 4)
             } elseif ($last_type == TK_WORD) {
                 if ($last_word != 'else') { // else if
                     $prefix = PRINT_SPACE; 
+                } else {
+                    if ($token_text == 'if') {
+                        $prefix = PRINT_SPACE;
+                    } else {
+                        $indent++;
+                        nl();
+                        $indent--;
+                    }
                 }
             } elseif ($last_type == TK_START_BLOCK) {
                 $prefix = PRINT_NL;
@@ -185,7 +193,7 @@ function js_beautify($js_source_text, $tab_size = 4)
                     }
                 }
             } elseif ($prefix == PRINT_SPACE) {
-                space();              
+                space();
             }
             token();
             $last_word = strtolower($token_text);
@@ -386,7 +394,7 @@ function get_next_token(&$pos)
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
     if (!$wordchar)   $wordchar   = make_array('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
-    if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != > < >= <= >> << >>> <<< >>= <<= &&  | || ! !! , : ?'); 
+    if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> <<< >>= <<= &&  | || ! !! , : ?'); 
 
     $num_newlines = 0;
 
