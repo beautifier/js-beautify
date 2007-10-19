@@ -58,9 +58,10 @@ function js_beautify($js_source_text, $tab_size = 4)
     $input = $js_source_text;
     $input_length = strlen($input);
 
-    $last_word = ''; // last TK_WORD passed
-    $last_type  = TK_EOF; // last token type
-    $output = '';
+    $last_word = '';     // last TK_WORD passed
+    $last_type = TK_EOF; // last token type
+    $last_text = '';     // last token text
+    $output    = '';
 
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
@@ -74,9 +75,8 @@ function js_beautify($js_source_text, $tab_size = 4)
 
 
     $indent   = 0;
-
     $pos      = 0; // parser position
-
+    $in_case  = false; // flag for parser that case/default has been processed, and next colon needs special attention
 
     while (true) {
         list($token_text, $token_type) = get_next_token($pos);
@@ -134,7 +134,21 @@ function js_beautify($js_source_text, $tab_size = 4)
             break;
 
         case TK_WORD:
-            
+
+            if ($token_text == 'case' or $token_text == 'default') {
+                if ($last_text == ':') {
+                    // switch cases following one another
+                    remove_indent();
+                } else {
+                    $indent--;
+                    nl();
+                    $indent++;
+                }
+                token();
+                $in_case = true;
+                break;
+            }
+
             $prefix = PRINT_NONE;
             if ($last_type == TK_END_BLOCK) {
                 if (!in_array(strtolower($token_text), array('else', 'catch', 'finally'))) {
@@ -161,7 +175,7 @@ function js_beautify($js_source_text, $tab_size = 4)
 
             if (in_array($token_text, $line_starters) or $prefix == PRINT_NL) {
                 if ($last_type != TK_END_EXPR) {
-                    if ($last_type != TK_START_EXPR or $token_text != 'var') { // no need to force newline on 'var': for (var x = 0...)
+                    if (($last_type != TK_START_EXPR or $token_text != 'var') and $last_text != ':') { // no need to force newline on 'var': for (var x = 0...)
                         if ($token_text == 'if' and $last_type == TK_WORD and $last_word == 'else') {
                             // no newline for } else if {
                             space();
@@ -195,6 +209,18 @@ function js_beautify($js_source_text, $tab_size = 4)
         case TK_PUNCT:
             $start_delim = true;
             $end_delim   = true;
+
+            if ($token_text == ':' and $in_case) {
+                token(); // colon really asks for separate treatment
+                nl();
+                $expecting_case = false;
+                break;
+            }
+
+            $in_case = false;
+
+            
+            
             if ($token_text == ',') {
                 if ($in == IN_EXPR) {
                     token();
@@ -226,7 +252,6 @@ function js_beautify($js_source_text, $tab_size = 4)
                 // zz: xx
                 // can't differentiate ternary op, so for now it's a ? b: c; without space before colon
                 $start_delim = false;
-            } elseif ($last_type == TK_WORD) {
             }
             if ($start_delim) {
                 space();
@@ -260,7 +285,8 @@ function js_beautify($js_source_text, $tab_size = 4)
             break;
         }
 
-        $last_type  = $token_type;
+        $last_type = $token_type;
+        $last_text = $token_text;
     }
 
     return $output;
@@ -313,6 +339,15 @@ function unindent()
     }
 }
 
+
+function remove_indent()
+{
+    global $tab_string, $output;
+    $tab_string_len = strlen($tab_string);
+    if (substr($output, -$tab_string_len) == $tab_string) {
+        $output = substr($output, 0, -$tab_string_len);
+    }
+}
 
 
 function in($where)

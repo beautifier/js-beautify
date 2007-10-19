@@ -3,7 +3,6 @@
 
 require_once('beautify.php');
 
-$tests_done = 0;
 $tests_passed = 0;
 $tests_failed = 0;
 
@@ -90,7 +89,7 @@ bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch(b) {\n    c
 bt('(xx)()'); // magic function call
 bt('a[1]()'); // another magic function call
 bt('if(a){b();}else if(', "if (a) {\n    b();\n} else if (");
-
+bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
 

@@ -70,36 +70,12 @@ window.onload = function() {
 </script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
-form {
-    margin: 0 10px 0 10px;
-}
-textarea {
-    width: 100%;
-    height: 320px;
-    border: 1px solid #ccc;
-    padding: 3px;
-    font-family: liberation mono, consolas, courier new, courier, monospace;
-    font-size: 12px;
-}
-h1 {
-    font-family: trebuchet ms, arial, sans-serif;
-    font-weight: normal;
-    font-size: 28px;
-    color: #666;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #666;
-}
-button { width: 100%;}
-code, .code {
-    font-family: liberation mono, consolas, lucida console, courier new, courier, monospace;
-    font-size: 12px;
-}
-pre {
-    font-size: 12px;
-    font-family: liberation mono, consolas, courier new, courier, monospace;
-    margin-left: 20px;
-    color: #777;
-}
+form     { margin: 0 10px 0 10px }
+textarea { width: 100%; height: 320px; border: 1px solid #ccc; padding: 3px; font-family: liberation mono, consolas, courier new, courier, monospace; font-size: 12px; }
+h1       { font-family: trebuchet ms, arial, sans-serif; font-weight: normal; font-size: 28px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #666; }
+button   { width: 100%; cursor: pointer;}
+code, .code { font-family: liberation mono, consolas, lucida console, courier new, courier, monospace; font-size: 12px; }
+pre      { font-size: 12px; font-family: liberation mono, consolas, courier new, courier, monospace; margin-left: 20px; color: #777; }
 </style>
 </head>
 <body>
@@ -120,15 +96,16 @@ var latest_changes=new Object(
 '... who cares ...',
 '2007-02-08':
 'Initial release'});
+var a=b?(c%d):e[f];
 HTML
 );
 
 ?></textarea><br />
       <button type="submit">Beautify</button>
-      <p>This script is useful to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>. All the other beautifiers mostly suck.</p>
+      <p>This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>, but you may want to pretty-format your own javascripts too, and they'll get nice and shiny.</p>
       <p>PHP source can be <a href="beautify.phps">seen online here</a> or fetched from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>. Feel free to use and abuse.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
-      <p>Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though, and the version of beautifier is kind of obsolete already).</p>
+      <p>Jia Liu has <a href="http://ayueer.spaces.live.com/Blog/cns!9E99E1260983291B!1136.entry">translated this to Ruby,</a> if you're into that kind of thing (the page is in chinese, though, and the version of beautifier is obsolete already).</p>
   </form>
 <?php 
 if (file_exists('.svnlog')) {
