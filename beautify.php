@@ -49,7 +49,7 @@ define('PRINT_NL',         ++$n);
 
 function js_beautify($js_source_text, $tab_size = 4)
 {
-    global $output, $token_text, $last_type, $in, $ins, $indent, $tab_string;
+    global $output, $token_text, $last_type, $in, $ins, $indent, $tab_string, $is_last_nl;
 
     global $input, $input_length;
 
@@ -59,9 +59,11 @@ function js_beautify($js_source_text, $tab_size = 4)
     $input_length = strlen($input);
 
     $last_word = '';     // last TK_WORD passed
-    $last_type = TK_EOF; // last token type
+    $last_type = TK_START_EXPR; // last token type
     $last_text = '';     // last token text
     $output    = '';
+
+    $is_last_nl = true;  // was the last character written a newline?
 
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
@@ -83,6 +85,9 @@ function js_beautify($js_source_text, $tab_size = 4)
         if ($token_type == TK_EOF) {
             break;
         }
+
+        //$output .= " [$token_type:$last_type]";
+
         switch($token_type) {
 
         case TK_START_EXPR:
@@ -281,9 +286,9 @@ function js_beautify($js_source_text, $tab_size = 4)
 
         case TK_COMMENT:
 
-            if ($last_type != TK_COMMENT) {
-                nl();
-            }
+            //if ($last_type != TK_COMMENT) {
+            nl();
+            //}
             token();
             nl();
             break;
@@ -293,9 +298,14 @@ function js_beautify($js_source_text, $tab_size = 4)
             break;
         }
 
-        $last_type = $token_type;
-        $last_text = $token_text;
+        if ($token_type != TK_COMMENT) {
+            $last_type = $token_type;
+            $last_text = $token_text;
+        }
     }
+
+    // clean empty lines from redundant spaces
+    $output = preg_replace('/^ +$/m', '', $output);
 
     return $output;
 }
@@ -305,21 +315,38 @@ function js_beautify($js_source_text, $tab_size = 4)
 
 function nl($ignore_repeated = true)
 {
-    global $indent, $output, $tab_string;
+    global $indent, $output, $tab_string, $is_last_nl;
 
     if ($output == '') return; // no newline on start of file
 
-    if ($ignore_repeated) {
-        if ($output and substr($output, -1) == "\n") return;
+    if ($ignore_repeated and $is_last_nl) {
+        return;
     }
+
+    $is_last_nl = true;
 
     $output .= "\n" . str_repeat($tab_string, $indent);
 }
 
 
+// ugly hack for correct multiple newline handling 
+function safe_nl()
+{
+    global $output, $is_last_nl;
+    if (preg_match('/\n( *)$/', $output, $matches)) {
+        $output .= "\n" . $matches[1];
+    } else {
+        $output .= "\n";
+    }
+}
+
+
 function space()
 {
-    global $output;
+    global $output, $is_last_nl;
+    
+    $is_last_nl = false;
+
     if ($output and substr($output, -1) != ' ') { // prevent occassional duplicate space
         $output .= ' ';
     }
@@ -328,8 +355,9 @@ function space()
 
 function token()
 {
-    global $token_text, $output;
+    global $token_text, $output, $is_last_nl;
     $output .= $token_text;
+    $is_last_nl = false;
 }
 
 function indent()
@@ -389,7 +417,7 @@ function get_next_token(&$pos)
 {
     global $last_type;
     global $whitespace, $wordchar, $punct;
-    global $input, $input_length;
+    global $input, $input_length, $is_last_nl;
 
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
@@ -410,8 +438,9 @@ function get_next_token(&$pos)
     } while (in_array($c, $whitespace));
 
     if ($num_newlines > 1) {
-        // theoretically it should be js_beautify job to print something
-        for ($i = 1 ; $i <= $num_newlines; $i++) nl(false);
+    
+        safe_nl();
+
     }
 
 
