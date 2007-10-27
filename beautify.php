@@ -39,7 +39,7 @@ define('TK_STRING',        ++$n);
 define('TK_BLOCK_COMMENT', ++$n);
 define('TK_COMMENT',       ++$n);
 
-define('TK_PUNCT',         ++$n);
+define('TK_OPERATOR',      ++$n);
 
 // internal flags
 define('PRINT_NONE',       ++$n);
@@ -95,7 +95,7 @@ function js_beautify($js_source_text, $tab_size = 4)
             in(IN_EXPR);
             if ($last_type == TK_END_EXPR or $last_type == TK_START_EXPR) {
                 // do nothing on (( and )( and ][ and ]( .. 
-            } elseif ($last_type != TK_WORD and $last_type != TK_PUNCT) {
+            } elseif ($last_type != TK_WORD and $last_type != TK_OPERATOR) {
                 space();
             } elseif (in_array($last_word, $line_starters)) { 
                 space();
@@ -112,7 +112,7 @@ function js_beautify($js_source_text, $tab_size = 4)
         case TK_START_BLOCK:
 
             in(IN_BLOCK);
-            if ($last_type != TK_PUNCT and $last_type != TK_START_EXPR) {
+            if ($last_type != TK_OPERATOR and $last_type != TK_START_EXPR) {
                 space();
             }
             token();
@@ -219,7 +219,7 @@ function js_beautify($js_source_text, $tab_size = 4)
             token();
             break;
 
-        case TK_PUNCT:
+        case TK_OPERATOR:
             $start_delim = true;
             $end_delim   = true;
 
@@ -250,7 +250,7 @@ function js_beautify($js_source_text, $tab_size = 4)
                 // special case handling: if (!a)
                 $start_delim = false;
                 $end_delim = false;
-            } elseif ($last_type == TK_PUNCT) {
+            } elseif ($last_type == TK_OPERATOR) {
                 $start_delim = false;
                 $end_delim = false;
             } elseif ($last_type == TK_END_EXPR) {
@@ -452,6 +452,9 @@ function get_next_token(&$pos)
                 if ($pos == $input_length) break;
             }
         }
+        if ($c == 'in') { // hack for 'in' operator
+            return array($c, TK_OPERATOR);
+        }
         return array($c, TK_WORD);
     }
 
@@ -506,7 +509,7 @@ function get_next_token(&$pos)
 
     if ($c == "'" || // string
         $c == '"' || // string
-        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_PUNCT || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
+        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_OPERATOR || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
         $sep = $c;
         $c   = '';
         $esc = false;
@@ -539,7 +542,7 @@ function get_next_token(&$pos)
             $pos += 1;
             if ($pos >= $input_length) break;
         }
-        return array($c, TK_PUNCT);
+        return array($c, TK_OPERATOR);
     }
 
     return array($c, TK_UNKNOWN);

@@ -99,6 +99,9 @@ bt('{
 
 }'); // newline messed up the closing brace
 
+bt('if (a in b)');
+bt('if (template.user[n] in bk)');
+
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
 
