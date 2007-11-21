@@ -68,7 +68,7 @@ function js_beautify($js_source_text, $tab_size = 4)
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
     // feel free to tell me about the ones that need to be added. 
-    $line_starters = explode(',', 'throw,return,var,if,switch,case,default,for,while,break');
+    $line_starters = explode(',', 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function');
 
     // states showing if we are currently in expression (i.e. "if" case) - IN_EXPR, or in usual block (like, procedure), IN_BLOCK.
     // some formatting depends on that.
@@ -97,7 +97,7 @@ function js_beautify($js_source_text, $tab_size = 4)
                 // do nothing on (( and )( and ][ and ]( .. 
             } elseif ($last_type != TK_WORD and $last_type != TK_OPERATOR) {
                 space();
-            } elseif (in_array($last_word, $line_starters)) { 
+            } elseif (in_array($last_word, $line_starters) and $last_word != 'function') { 
                 space();
             }
             token();
@@ -122,8 +122,8 @@ function js_beautify($js_source_text, $tab_size = 4)
         case TK_END_BLOCK:
 
             if ($last_type == TK_END_EXPR) {
-                nl();
                 unindent();
+                nl();
             } elseif ($last_type == TK_END_BLOCK) {
                 unindent();
                 nl();
@@ -167,36 +167,39 @@ function js_beautify($js_source_text, $tab_size = 4)
             } elseif ($last_type == TK_END_COMMAND && $in == IN_EXPR) {
                 $prefix = PRINT_SPACE;
             } elseif ($last_type == TK_WORD) {
-                if ($last_word != 'else') { // else if
-                    $prefix = PRINT_SPACE; 
+                if ($last_word == 'else') { // else if
+                    $prefix = PRINT_SPACE;
                 } else {
-                    if ($token_text == 'if') {
-                        $prefix = PRINT_SPACE;
-                    } else {
-                        $indent++;
-                        nl();
-                        $indent--;
-                    }
+                    $prefix = PRINT_SPACE; 
                 }
             } elseif ($last_type == TK_START_BLOCK) {
                 $prefix = PRINT_NL;
             } elseif ($last_type == TK_END_EXPR) {
-                $indent++;
-                nl();
-                $indent--;
+                space();
             }
 
             if (in_array($token_text, $line_starters) or $prefix == PRINT_NL) {
-                if ($last_type != TK_END_EXPR) {
-                    if (($last_type != TK_START_EXPR or $token_text != 'var') and $last_text != ':') { // no need to force newline on 'var': for (var x = 0...)
-                        if ($token_text == 'if' and $last_type == TK_WORD and $last_word == 'else') {
-                            // no newline for } else if {
-                            space();
-                        } else {
-                            nl();
+
+                if ($last_text == 'else') {
+                    // no need to force newline on else break
+                    // DONOTHING
+                    space();
+                } elseif (($last_type == TK_START_EXPR or $last_text == '=') and $token_text == 'function') {
+                    // no need to force newline on 'function': (function
+                    // DONOTHING
+                } else
+
+                    if ($last_type != TK_END_EXPR) {
+                        if (($last_type != TK_START_EXPR or $token_text != 'var') and $last_text != ':') { 
+                            // no need to force newline on 'var': for (var x = 0...)
+                            if ($token_text == 'if' and $last_type == TK_WORD and $last_word == 'else') {
+                                // no newline for } else if {
+                                space();
+                            } else {
+                                nl();
+                            }
                         }
                     }
-                }
             } elseif ($prefix == PRINT_SPACE) {
                 space();
             }
@@ -235,17 +238,28 @@ function js_beautify($js_source_text, $tab_size = 4)
             
             
             if ($token_text == ',') {
-                if ($in == IN_EXPR) {
-                    token();
-                    space();
-                } else {
+                if ($last_type == TK_END_BLOCK) {
                     token();
                     nl();
+                } else {
+                    if ($in == IN_BLOCK) {
+                        token();
+                        nl();
+                    } else {
+                        token();
+                        space();
+                    }
                 }
                 break;
             } elseif ($token_text == '--' or $token_text == '++') { // unary operators special case
-                $start_delim = false;
-                $end_delim = false;
+                if ($last_text == ';') {
+                    // space for (;; ++i)  
+                    $start_delim = true;
+                    $end_delim = false;
+                } else {                
+                    $start_delim = false;
+                    $end_delim = false;
+                }
             } elseif ($token_text == '!' and $last_type == TK_START_EXPR) {
                 // special case handling: if (!a)
                 $start_delim = false;
@@ -509,7 +523,7 @@ function get_next_token(&$pos)
 
     if ($c == "'" || // string
         $c == '"' || // string
-        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_OPERATOR || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
+        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_END_BLOCK || $last_type == TK_OPERATOR || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
         $sep = $c;
         $c   = '';
         $esc = false;
