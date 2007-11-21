@@ -123,16 +123,16 @@ function js_beautify($js_source_text, $tab_size = 4)
 
             if ($last_type == TK_END_EXPR) {
                 unindent();
-                nl();
+                nl(false);
             } elseif ($last_type == TK_END_BLOCK) {
                 unindent();
-                nl();
+                nl(false);
             } elseif ($last_type == TK_START_BLOCK) {
                 // nothing
                 unindent();
             } else {
                 unindent();
-                nl();
+                nl(false);
             }
             token();
             in_pop();
@@ -343,15 +343,14 @@ function nl($ignore_repeated = true)
 }
 
 
-// ugly hack for correct multiple newline handling 
-function safe_nl()
+// hack for correct multiple newline handling 
+function safe_nl($newlines = 1)
 {
-    global $output, $is_last_nl;
-    if (preg_match('/\n( *)$/', $output, $matches)) {
-        $output .= "\n" . $matches[1];
-    } else {
-        $output .= "\n";
+    global $output;
+    if ($newlines) {
+        $output .= str_repeat("\n", $newlines - 1);
     }
+    nl();
 }
 
 
@@ -438,8 +437,7 @@ function get_next_token(&$pos)
     if (!$wordchar)   $wordchar   = make_array('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
     if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> <<< >>= <<= &&  | || ! !! , : ?'); 
 
-    $num_newlines = 0;
-
+    $n_newlines = 0;
     do {
         if ($pos >= $input_length) {
             return array('', TK_EOF);
@@ -447,16 +445,13 @@ function get_next_token(&$pos)
         $c = $input[$pos];
         $pos += 1;
         if ($c == "\n") {
-            $num_newlines += 1;
+            $n_newlines += 1;
         }
     } while (in_array($c, $whitespace));
-
-    if ($num_newlines > 1) {
     
-        safe_nl();
-
+    if ($n_newlines) {
+        safe_nl($n_newlines);
     }
-
 
     if (in_array($c, $wordchar)) {
         if ($pos < $input_length) {
