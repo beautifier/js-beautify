@@ -86,7 +86,7 @@ function js_beautify($js_source_text, $tab_size = 4)
             break;
         }
 
-        //$output .= " [$token_type:$last_type]";
+        // $output .= " [$token_type:$last_type]";
 
         switch($token_type) {
 
@@ -113,7 +113,11 @@ function js_beautify($js_source_text, $tab_size = 4)
 
             in(IN_BLOCK);
             if ($last_type != TK_OPERATOR and $last_type != TK_START_EXPR) {
-                space();
+                if ($last_type == TK_START_BLOCK) {
+                    nl();
+                } else {
+                    space();
+                }
             }
             token();
             indent();
@@ -188,7 +192,6 @@ function js_beautify($js_source_text, $tab_size = 4)
                     // no need to force newline on 'function': (function
                     // DONOTHING
                 } else
-
                     if ($last_type != TK_END_EXPR) {
                         if (($last_type != TK_START_EXPR or $token_text != 'var') and $last_text != ':') { 
                             // no need to force newline on 'var': for (var x = 0...)
@@ -214,7 +217,7 @@ function js_beautify($js_source_text, $tab_size = 4)
 
         case TK_STRING:
 
-            if ($last_type == TK_START_BLOCK) {
+            if ($last_type == TK_START_BLOCK or $last_type == TK_END_BLOCK) {
                 nl();
             } elseif ($last_type == TK_WORD) {
                 space();
