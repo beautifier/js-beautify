@@ -49,7 +49,7 @@ define('PRINT_NL',         ++$n);
 
 function js_beautify($js_source_text, $tab_size = 4)
 {
-    global $output, $token_text, $last_type, $in, $ins, $indent, $tab_string, $is_last_nl;
+    global $output, $token_text, $last_type, $last_text, $in, $ins, $indent, $tab_string, $is_last_nl;
 
     global $input, $input_length;
 
@@ -431,7 +431,7 @@ function make_array($str)
 
 function get_next_token(&$pos)
 {
-    global $last_type;
+    global $last_type, $last_text;
     global $whitespace, $wordchar, $punct;
     global $input, $input_length, $is_last_nl;
 
@@ -521,7 +521,8 @@ function get_next_token(&$pos)
 
     if ($c == "'" || // string
         $c == '"' || // string
-        ($c == '/' && ($last_type == TK_START_EXPR || $last_type == TK_END_BLOCK || $last_type == TK_OPERATOR || $last_type == TK_EOF || $last_type == TK_END_COMMAND))) { // regexp
+        ($c == '/' && 
+            (($last_type == TK_WORD and $last_text == 'return') or ($last_type == TK_START_EXPR || $last_type == TK_END_BLOCK || $last_type == TK_OPERATOR || $last_type == TK_EOF || $last_type == TK_END_COMMAND)))) { // regexp
         $sep = $c;
         $c   = '';
         $esc = false;
