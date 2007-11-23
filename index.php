@@ -108,13 +108,10 @@ HTML
   </form>
 <?php 
 if (file_exists('.svnlog')) {
-    printf("<pre>Latest messages from my subversion (<a href=\"svn://edev.uk.to/beautify/\">svn://edev.uk.to/beautify/</a>) commit log:\n%s</pre>", 
+    printf("<pre>Latest commits from svn://edev.uk.to/beautify/:\n%s</pre>", 
         htmlspecialchars(file_get_contents('.svnlog')));
 }
 
-
-
-printf('<img src="http://edev.uk.to/tmp/track?beautify&amp;ref=%s" style="display:none" alt="my tracker" />', isset($_SERVER['HTTP_REFERER']) ? urlencode($_SERVER['HTTP_REFERER']) : '');
 ?>
 <script src="/urchin.js" type="text/javascript">
 </script>
