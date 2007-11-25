@@ -438,7 +438,7 @@ function get_next_token(&$pos)
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
     if (!$wordchar)   $wordchar   = make_array('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
-    if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> <<< >>= <<= &&  | || ! !! , : ? ^ ^= |='); 
+    if (!$punct)      $punct  = explode(' ', '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> <<< >>= <<= && &= | || ! !! , : ? ^ ^= |='); 
 
     $n_newlines = 0;
     do {
