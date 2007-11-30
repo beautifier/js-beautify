@@ -191,6 +191,9 @@ function js_beautify($js_source_text, $tab_size = 4)
                 } elseif (($last_type == TK_START_EXPR or $last_text == '=') and $token_text == 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
+                } elseif ($last_type == TK_WORD and ($last_text == 'return' or $last_text == 'throw')) {
+                    // no newline between 'return nnn'
+                    space();
                 } else
                     if ($last_type != TK_END_EXPR) {
                         if (($last_type != TK_START_EXPR or $token_text != 'var') and $last_text != ':') { 
