@@ -109,6 +109,8 @@ bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'
 bt('if (template.user[n] in bk)');
 bt('{{}/z/}', "{\n    {}\n    /z/\n}");
 bt('return 45', "return 45");
+bt('If[1]', "If[1]");
+bt('Then[1]', "Then[1]");
 
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now

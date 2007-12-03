@@ -160,7 +160,7 @@ function js_beautify($js_source_text, $tab_size = 4)
 
             $prefix = PRINT_NONE;
             if ($last_type == TK_END_BLOCK) {
-                if (!in_array(strtolower($token_text), array('else', 'catch', 'finally'))) {
+                if (!in_array($token_text, array('else', 'catch', 'finally'))) {
                     $prefix = PRINT_NL;
                 } else {
                     $prefix = PRINT_SPACE;
@@ -210,7 +210,7 @@ function js_beautify($js_source_text, $tab_size = 4)
                 space();
             }
             token();
-            $last_word = strtolower($token_text);
+            $last_word = $token_text;
             break;
 
         case TK_END_COMMAND:
