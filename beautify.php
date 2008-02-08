@@ -467,6 +467,15 @@ function get_next_token(&$pos)
                 if ($pos == $input_length) break;
             }
         }
+
+        // small and surprisingly unugly hack for 1E-10 representation
+        if ($pos != $input_length and preg_match('/^\d+[Ee]$/', $c) and $input[$pos] == '-') {
+            $pos += 1;
+            list($next_word, $next_type) = get_next_token($pos);
+            $c .= '-' . $next_word;
+            return array($c, TK_WORD);
+        }
+        
         if ($c == 'in') { // hack for 'in' operator
             return array($c, TK_OPERATOR);
         }
@@ -553,7 +562,7 @@ function get_next_token(&$pos)
     }
 
     if (in_array($c, $punct)) {
-        while (in_array($c . $input[$pos], $punct)) {
+        while ($pos < $input_length and in_array($c . $input[$pos], $punct)) {
             $c .= $input[$pos];
             $pos += 1;
             if ($pos >= $input_length) break;

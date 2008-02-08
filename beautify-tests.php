@@ -111,6 +111,13 @@ bt('{{}/z/}', "{\n    {}\n    /z/\n}");
 bt('return 45', "return 45");
 bt('If[1]', "If[1]");
 bt('Then[1]', "Then[1]");
+bt('a = 1e10', "a = 1e10");
+bt('a = 1.3e10', "a = 1.3e10");
+bt('a = 1.3e-10', "a = 1.3e-10");
+bt('a = -1.3e-10', "a = -1.3e-10");
+bt('a = 1e-10', "a = 1e-10");
+bt('a = e - 10', "a = e - 10");
+bt('a = 11-10', "a = 11 - 10");
 
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
