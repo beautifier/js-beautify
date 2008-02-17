@@ -57,6 +57,9 @@ function remove_magic_quotes() {
     }
 }
 
+$tab_size = (int)get_raw('tabsize');
+if ($tab_size <= 0) $tab_size = 4;
+
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -73,9 +76,11 @@ window.onload = function() {
 form     { margin: 0 10px 0 10px }
 textarea { width: 100%; height: 320px; border: 1px solid #ccc; padding: 3px; font-family: liberation mono, consolas, courier new, courier, monospace; font-size: 12px; }
 h1       { font-family: trebuchet ms, arial, sans-serif; font-weight: normal; font-size: 28px; color: #666; margin-bottom: 15px; border-bottom: 1px solid #666; }
-button   { width: 100%; cursor: pointer;}
+select   { width: 19%; }
+button   { width: 79%; cursor: pointer;}
 code, .code { font-family: liberation mono, consolas, lucida console, courier new, courier, monospace; font-size: 12px; }
 pre      { font-size: 12px; font-family: liberation mono, consolas, courier new, courier, monospace; margin-left: 20px; color: #777; }
+
 </style>
 </head>
 <body>
@@ -85,7 +90,7 @@ pre      { font-size: 12px; font-family: liberation mono, consolas, courier new,
 
 $c = get_raw('content');
 echo $c ? 
-     htmlspecialchars(js_beautify($c)) : 
+     htmlspecialchars(js_beautify($c, $tab_size)) : 
      preg_replace("/\n([^ ])/u", "\$1",
          <<<HTML
 /*   paste in your own code and press Beautify button   */
@@ -101,6 +106,11 @@ HTML
 );
 
 ?></textarea><br />
+<select name="tabsize">
+  <option value="2" <?php echo $tab_size == 2 ?'selected="selected"' : ''?>>indent with 2 spaces</option>
+  <option value="4" <?php echo $tab_size == 4 ?'selected="selected"' : ''?>>indent with 4 spaces</option>
+  <option value="8" <?php echo $tab_size == 8 ?'selected="selected"' : ''?>>indent with 8 spaces</option>
+</select>
       <button type="submit">Beautify</button>
       <p>This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>.</p>
       <p>PHP source can be <a href="beautify.phps">seen online here</a> or fetched from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>. Feel free to use and abuse.</p>
