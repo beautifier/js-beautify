@@ -106,15 +106,16 @@ HTML
 );
 
 ?></textarea><br />
+      <button type="submit">Beautify</button>
 <select name="tabsize">
   <option value="2" <?php echo $tab_size == 2 ?'selected="selected"' : ''?>>indent with 2 spaces</option>
   <option value="4" <?php echo $tab_size == 4 ?'selected="selected"' : ''?>>indent with 4 spaces</option>
   <option value="8" <?php echo $tab_size == 8 ?'selected="selected"' : ''?>>indent with 8 spaces</option>
 </select>
-      <button type="submit">Beautify</button>
       <p>This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>.</p>
       <p>PHP source can be <a href="beautify.phps">seen online here</a> or fetched from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>. Feel free to use and abuse.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
+      <p>If anyone would volunteer to convert current version to javascript, it would be also cool. There's really no reason for the converter to be server-side php, if it could be client-side (probably firefox-integratable) javascript.</p>
   </form>
 <?php 
 if (file_exists('.svnlog')) {
