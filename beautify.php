@@ -49,7 +49,7 @@ define('PRINT_NL',         ++$n);
 
 function js_beautify($js_source_text, $tab_size = 4)
 {
-    global $output, $token_text, $last_type, $last_text, $in, $ins, $indent, $tab_string, $is_last_nl;
+    global $output, $token_text, $last_type, $last_text, $in, $ins, $indent, $tab_string;
 
     global $input, $input_length;
 
@@ -62,8 +62,6 @@ function js_beautify($js_source_text, $tab_size = 4)
     $last_type = TK_START_EXPR; // last token type
     $last_text = '';     // last token text
     $output    = '';
-
-    $is_last_nl = true;  // was the last character written a newline?
 
     // words which should always start on new line. 
     // simple hack for cases when lines aren't ending with semicolon.
@@ -127,16 +125,16 @@ function js_beautify($js_source_text, $tab_size = 4)
 
             if ($last_type == TK_END_EXPR) {
                 unindent();
-                nl(false);
+                nl();
             } elseif ($last_type == TK_END_BLOCK) {
                 unindent();
-                nl(false);
+                nl();
             } elseif ($last_type == TK_START_BLOCK) {
                 // nothing
                 unindent();
             } else {
                 unindent();
-                nl(false);
+                nl();
             }
             token();
             in_pop();
@@ -335,37 +333,24 @@ function js_beautify($js_source_text, $tab_size = 4)
 
 function nl($ignore_repeated = true)
 {
-    global $indent, $output, $tab_string, $is_last_nl;
-
+    global $indent, $output, $tab_string;
+    
+    $output = rtrim($output, ' '); // remove possible indent
+    
     if ($output == '') return; // no newline on start of file
-
-    if ($ignore_repeated and $is_last_nl) {
-        return;
+    
+    if (substr($output, -1) != "\n" or !$ignore_repeated) {
+        $output .= "\n";
     }
-
-    $is_last_nl = true;
-
-    $output .= "\n" . str_repeat($tab_string, $indent);
+    $output .= str_repeat($tab_string, $indent);
 }
 
-
-// hack for correct multiple newline handling 
-function safe_nl($newlines = 1)
-{
-    global $output;
-    if ($newlines) {
-        $output .= str_repeat("\n", $newlines - 1);
-    }
-    nl();
-}
 
 
 function space()
 {
-    global $output, $is_last_nl;
+    global $output;
     
-    $is_last_nl = false;
-
     if ($output and substr($output, -1) != ' ') { // prevent occassional duplicate space
         $output .= ' ';
     }
@@ -374,9 +359,8 @@ function space()
 
 function token()
 {
-    global $token_text, $output, $is_last_nl;
+    global $token_text, $output;
     $output .= $token_text;
-    $is_last_nl = false;
 }
 
 function indent()
@@ -436,7 +420,7 @@ function get_next_token(&$pos)
 {
     global $last_type, $last_text;
     global $whitespace, $wordchar, $punct;
-    global $input, $input_length, $is_last_nl;
+    global $input, $input_length;
 
 
     if (!$whitespace) $whitespace = make_array("\n\r\t ");
@@ -451,14 +435,11 @@ function get_next_token(&$pos)
         $c = $input[$pos];
         $pos += 1;
         if ($c == "\n") {
+            nl($n_newlines == 0);
             $n_newlines += 1;
         }
     } while (in_array($c, $whitespace));
     
-    if ($n_newlines) {
-        safe_nl($n_newlines);
-    }
-
     if (in_array($c, $wordchar)) {
         if ($pos < $input_length) {
             while (in_array($input[$pos], $wordchar)) {

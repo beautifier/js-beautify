@@ -119,6 +119,8 @@ bt('a = 1e-10', "a = 1e-10");
 bt('a = e - 10', "a = e - 10");
 bt('a = 11-10', "a = 11 - 10");
 
+bt("if (a) {\n    do();\n}"); // extra space appended
+
 // known problems:
 # bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
 
