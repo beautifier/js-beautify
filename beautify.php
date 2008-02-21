@@ -49,13 +49,12 @@ define('PRINT_NL',         ++$n);
 
 function js_beautify($js_source_text, $tab_size = 4, $tab_character = ' ')
 {
-    global $output, $token_text, $last_type, $last_text, $in, $ins, $indent, $tab_string, $tab_char;
+    global $output, $token_text, $last_type, $last_text, $in, $ins, $indent, $tab_string;
 
 
     global $input, $input_length;
 
     $tab_string = str_repeat($tab_character, $tab_size); 
-    $tab_char = $tab_character;
 
     $input = $js_source_text;
     $input_length = strlen($input);
