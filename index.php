@@ -58,7 +58,9 @@ function remove_magic_quotes() {
 }
 
 $tab_size = (int)get_raw('tabsize');
+$tab_char = ' ';
 if ($tab_size <= 0) $tab_size = 4;
+if ($tab_size == 1) $tab_char = "\t";
 
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -90,7 +92,7 @@ pre      { font-size: 12px; font-family: liberation mono, consolas, courier new,
 
 $c = get_raw('content');
 echo $c ? 
-     htmlspecialchars(js_beautify($c, $tab_size)) : 
+     htmlspecialchars(js_beautify($c, $tab_size, $tab_char)) : 
      preg_replace("/\n([^ ])/u", "\$1",
          <<<HTML
 /*   paste in your own code and press Beautify button   */
@@ -108,6 +110,7 @@ HTML
 ?></textarea><br />
       <button type="submit">Beautify</button>
 <select name="tabsize">
+  <option value="1" <?php echo $tab_size == 1 ?'selected="selected"' : ''?>>indent with tab character</option>
   <option value="2" <?php echo $tab_size == 2 ?'selected="selected"' : ''?>>indent with 2 spaces</option>
   <option value="4" <?php echo $tab_size == 4 ?'selected="selected"' : ''?>>indent with 4 spaces</option>
   <option value="8" <?php echo $tab_size == 8 ?'selected="selected"' : ''?>>indent with 8 spaces</option>
