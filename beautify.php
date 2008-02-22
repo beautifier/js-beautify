@@ -334,7 +334,7 @@ function nl($ignore_repeated = true)
 {
     global $indent, $output, $tab_string;
     
-    $output = rtrim($output, ' '); // remove possible indent
+    $output = rtrim($output, " \t"); // remove possible indent
     
     if ($output == '') return; // no newline on start of file
     
