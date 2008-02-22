@@ -94,14 +94,7 @@ bt('a !== b');
 bt('if (a) b(); else c();', "if (a) b();\nelse c();");
 bt("// comment\n(function()"); // typical greasemonkey start
 bt("// comment\n(function something()"); // typical greasemonkey start
-/*
-// known problem, duplicate enter:
-bt('{
-
-    x();
-
-}');
- */
+bt("{\n\n    x();\n\n}"); // was: duplicating newlines
 bt('if (a in b)');
 //bt('var a, b');
 bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
@@ -118,11 +111,11 @@ bt('a = -1.3e-10', "a = -1.3e-10");
 bt('a = 1e-10', "a = 1e-10");
 bt('a = e - 10', "a = e - 10");
 bt('a = 11-10', "a = 11 - 10");
+bt("a = 1;// comment\n", "a = 1; // comment\n");
+bt("a = 1; // comment\n", "a = 1; // comment\n");
+bt("a = 1;\n // comment\n", "a = 1;\n// comment\n");
 
-bt("if (a) {\n    do();\n}"); // extra space appended
-
-// known problems:
-# bt('if(a)if(b)break', "if (a)\n    if (b)\n        break"); // won't fix, at least now
+bt("if (a) {\n    do();\n}"); // was: extra space appended
 
 results();
 

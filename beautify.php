@@ -305,9 +305,7 @@ function js_beautify($js_source_text, $tab_size = 4, $tab_character = ' ')
 
         case TK_COMMENT:
 
-            //if ($last_type != TK_COMMENT) {
-            nl();
-            //}
+            space();
             token();
             nl();
             break;
@@ -352,7 +350,7 @@ function space()
 {
     global $output;
     
-    if ($output and substr($output, -1) != ' ') { // prevent occassional duplicate space
+    if ($output and substr($output, -1) != ' ' and substr($output, -1) != "\n") { // prevent occassional duplicate space
         $output .= ' ';
     }
 }
