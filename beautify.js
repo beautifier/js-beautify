@@ -363,11 +363,13 @@ function js_beautify(js_source_text, indent_size, indent_character)
     {
         var n_newlines = 0;
         var c = '';
+
         do {
             if (parser_pos >= input.length) {
                 return ['', 'TK_EOF'];
             }
-            c = input[parser_pos];
+            c = input.charAt(parser_pos);
+
             parser_pos += 1;
             if (c == "\n") {
                 print_newline(n_newlines == 0);
@@ -378,15 +380,15 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
         if (in_array(c, wordchar)) {
             if (parser_pos < input.length) {
-                while (in_array(input[parser_pos], wordchar)) {
-                    c += input[parser_pos];
+                while (in_array(input.charAt(parser_pos), wordchar)) {
+                    c += input.charAt(parser_pos);
                     parser_pos += 1;
                     if (parser_pos == input.length) break;
                 }
             }
 
             // small and surprisingly unugly hack for 1E-10 representation
-            if (parser_pos != input.length && c.match(/^[0-9]+[Ee]$/) && input[parser_pos] == '-') {
+            if (parser_pos != input.length && c.match(/^[0-9]+[Ee]$/) && input.charAt(parser_pos) == '-') {
                 parser_pos += 1;
 
                 var t = get_next_token(parser_pos);
@@ -402,7 +404,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
             }
             return [c, 'TK_WORD'];
         }
-
+        
         if (c == '(' || c == '[') {
             return [c, 'TK_START_EXPR'];
         }
@@ -425,12 +427,12 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
         if (c == '/') {
             // peek for comment /* ... */
-            if (input[parser_pos] == '*') {
+            if (input.charAt(parser_pos) == '*') {
                 comment = '';
                 parser_pos += 1;
                 if (parser_pos < input.length) {
-                    while (! (input[parser_pos] == '*' && input[parser_pos + 1] && input[parser_pos + 1] == '/') && parser_pos < input.length) {
-                        comment += input[parser_pos];
+                    while (! (input.charAt(parser_pos) == '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) == '/') && parser_pos < input.length) {
+                        comment += input.charAt(parser_pos);
                         parser_pos += 1;
                         if (parser_pos >= input.length) break;
                     }
@@ -439,10 +441,10 @@ function js_beautify(js_source_text, indent_size, indent_character)
                 return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
             }
             // peek for comment // ...
-            if (input[parser_pos] == '/') {
+            if (input.charAt(parser_pos) == '/') {
                 comment = c;
-                while (input[parser_pos] != "\x0d" && input[parser_pos] != "\x0a") {
-                    comment += input[parser_pos];
+                while (input.charAt(parser_pos) != "\x0d" && input.charAt(parser_pos) != "\x0a") {
+                    comment += input.charAt(parser_pos);
                     parser_pos += 1;
                     if (parser_pos >= input.length) break;
                 }
@@ -462,10 +464,10 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
             if (parser_pos < input.length) {
 
-                while (esc || input[parser_pos] != sep) {
-                    c += input[parser_pos];
+                while (esc || input.charAt(parser_pos) != sep) {
+                    c += input.charAt(parser_pos);
                     if (!esc) {
-                        esc = input[parser_pos] == '\\';
+                        esc = input.charAt(parser_pos) == '\\';
                     } else {
                         esc = false;
                     }
@@ -483,8 +485,8 @@ function js_beautify(js_source_text, indent_size, indent_character)
         }
 
         if (in_array(c, punct)) {
-            while (parser_pos < input.length && in_array(c + input[parser_pos], punct)) {
-                c += input[parser_pos];
+            while (parser_pos < input.length && in_array(c + input.charAt(parser_pos), punct)) {
+                c += input.charAt(parser_pos);
                 parser_pos += 1;
                 if (parser_pos >= input.length) break;
             }

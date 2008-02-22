@@ -5,7 +5,7 @@ var test_result = '';
 
 function lazy_escape(str)
 {
-    return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br />');
 }
 
 function bt(input, expected)
