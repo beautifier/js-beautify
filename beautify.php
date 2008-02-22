@@ -434,10 +434,16 @@ function get_next_token(&$pos)
         $c = $input[$pos];
         $pos += 1;
         if ($c == "\n") {
-            nl($n_newlines == 0);
             $n_newlines += 1;
         }
     } while (in_array($c, $whitespace));
+
+    if ($n_newlines > 1) {
+        for ($i = 0 ; $i < $n_newlines; $i++) {
+            nl($i == 0);
+        }
+    }
+    $wanted_newline = $n_newlines == 1;
     
     if (in_array($c, $wordchar)) {
         if ($pos < $input_length) {
@@ -506,6 +512,7 @@ function get_next_token(&$pos)
                 if ($pos >= $input_length) break;
             }
             $pos += 1;
+            if ($wanted_newline) nl();
             return array($comment, TK_COMMENT);
         }
 

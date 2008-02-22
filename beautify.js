@@ -372,11 +372,18 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
             parser_pos += 1;
             if (c == "\n") {
-                print_newline(n_newlines == 0);
                 n_newlines += 1;
             }
         }
         while (in_array(c, whitespace));
+
+        if (n_newlines > 1) {
+            for (var i = 0; i < n_newlines; i++) {
+                print_newline(i == 0);
+            }
+        }
+        var wanted_newline = n_newlines == 1;
+
 
         if (in_array(c, wordchar)) {
             if (parser_pos < input.length) {
@@ -449,6 +456,9 @@ function js_beautify(js_source_text, indent_size, indent_character)
                     if (parser_pos >= input.length) break;
                 }
                 parser_pos += 1;
+                if (wanted_newline) {
+                    print_newline();
+                }
                 return [comment, 'TK_COMMENT'];
             }
 

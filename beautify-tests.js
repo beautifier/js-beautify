@@ -113,6 +113,7 @@ function test_js_beautify()
     bt("a = 1;\n // comment\n", "a = 1;\n// comment\n");
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
+    bt("if\n(a)\nb()", "if (a) b()"); // test for proper newline removal
 
     return results();
 }

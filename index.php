@@ -80,7 +80,12 @@ function do_js_beautify()
     tabsize = document.getElementById('tabsize').value;
     tabchar = ' ';
     if (tabsize == 1) tabchar = '\t'; 
+    
+    var start = new Date();
     document.getElementById('content').value = js_beautify(js_source, tabsize, tabchar);
+    var end = new Date();
+    document.getElementById('timing').innerHTML = '' + (end - start) + ' ms';
+    
     document.getElementById('beautify').disabled = false;
     return false;
 }
@@ -130,14 +135,14 @@ HTML
   <option value="4" <?php echo $tab_size == 4 ?'selected="selected"' : ''?>>indent with 4 spaces</option>
   <option value="8" <?php echo $tab_size == 8 ?'selected="selected"' : ''?>>indent with 8 spaces</option>
 </select>
-      <p>This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>, or just make scripts look more readable.</p>
+      <p><span id="timing"></span> This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>, or just make scripts look more readable.</p>
       <p>With <big>big</big> and awesome thanks to <a href="http://my.opera.com/Vital/blog/2007/11/21/javascript-beautify-on-javascript-translated">Vital,</a> there is now a pure javascript version of beautifier!</p>
       <p>Files of possible interest:</p>
       <ul>
 <li><a href="beautify.js">beautify.js,</a> javascript beautifier in javascript;</li>
 <li><a href="beautify.phps">beautify.phps,</a> javascript beautifier in php;</li>
 <li><a href="beautify-tests.js">beautify-tests.js,</a> beautifier tests, to make sure it's running as it should;</li>
-<li><a href="beautify.phps">beautify-tests.phps,</a> beautifier tests in php.</li>
+<li><a href="beautify-tests.phps">beautify-tests.phps,</a> beautifier tests in php.</li>
 </ul>
       <p>You can also always fetch the latest versions from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
