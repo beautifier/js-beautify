@@ -10,7 +10,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Online beautifier for javascript (js beautify, pretty-print)</title>
+<title>Online beautifier for javascript</title>
 <script type="text/javascript">
 window.onload = function() {
     var c = document.forms[0].content;
@@ -73,7 +73,7 @@ var a=b?(c%d):e[f];
 <li><a href="beautify-tests.js">beautify-tests.js,</a> beautifier tests, to make sure it's running as it should;</li>
 </ul>
       <p>You can also always fetch the latest versions from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>.</p>
-      <p>If you're writing javascript, <a href="http://jslint.coom/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>
+      <p>If you're writing javascript, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
   </form>
 <pre id="testresults">

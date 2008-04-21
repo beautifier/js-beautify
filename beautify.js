@@ -52,7 +52,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
     function print_space()
     {
         var last_output = output.length ? output[output.length - 1] : ' ';
-        if ( last_output !== ' ' && last_output !== '\n' && last_output != indent_string) { // prevent occassional duplicate space
+        if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
             output.push(' ');
         }
     }
@@ -79,7 +79,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
     function remove_indent()
     {
-        if (output.length && output[output.length - 1] == indent_string) {
+        if (output.length && output[output.length - 1] === indent_string) {
             output.pop();
         }
     }
@@ -281,7 +281,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
     last_word = ''; // last 'TK_WORD' passed
     last_type = 'TK_START_EXPR'; // last token type
     last_text = ''; // last token text
-    output = new Array();
+    output = [];
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
