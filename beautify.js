@@ -29,15 +29,21 @@ function js_beautify(js_source_text, indent_size, indent_character)
     function print_newline(ignore_repeated)
     {
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true: ignore_repeated;
-        output = output.replace(/[ \t]+$/, ''); // remove possible indent
-        if (!output) {
+
+        // remove trailing whitespace and indent
+        while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
+            output.pop();
+        }
+
+        if (!output.length) {
             return; // no newline on start of file
         }
-        if (output.substr(output.length - 1) !== "\n" || !ignore_repeated) {
-            output += "\n";
+
+        if (output[output.length - 1] !== "\n" || !ignore_repeated) {
+            output.push("\n");
         }
         for (var i = 0; i < indent_level; i++) {
-            output += indent_string;
+            output.push(indent_string);
         }
     }
 
@@ -45,15 +51,16 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
     function print_space()
     {
-        if (output && output.substr(output.length - 1) !== ' ' && output.substr(output.length - 1) !== '\n') { // prevent occassional duplicate space
-            output += ' ';
+        var last_output = output.length ? output[output.length - 1] : ' ';
+        if ( last_output !== ' ' && last_output !== '\n' && last_output != indent_string) { // prevent occassional duplicate space
+            output.push(' ');
         }
     }
 
 
     function print_token()
     {
-        output += token_text;
+        output.push(token_text);
     }
 
     function indent()
@@ -72,8 +79,8 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
     function remove_indent()
     {
-        if (output.substr(output.length - indent_string.length) === indent_string) {
-            output = output.substr(0, output.length - indent_string.length);
+        if (output.length && output[output.length - 1] == indent_string) {
+            output.pop();
         }
     }
 
@@ -274,7 +281,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
     last_word = ''; // last 'TK_WORD' passed
     last_type = 'TK_START_EXPR'; // last token type
     last_text = ''; // last token text
-    output = '';
+    output = new Array();
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
@@ -519,6 +526,6 @@ function js_beautify(js_source_text, indent_size, indent_character)
         last_text = token_text;
     }
 
-    return output;
+    return output.join('');
 
 }
