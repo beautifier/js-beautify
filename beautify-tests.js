@@ -114,6 +114,9 @@ function test_js_beautify()
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
     bt("if\n(a)\nb()", "if (a) b()"); // test for proper newline removal
+    
+    bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
+    bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
 
     return results();
 }
