@@ -2,6 +2,9 @@
 
  JS Beautifier
 ---------------
+  $Date$
+  $Revision$
+
 
   Written by Einars "elfz" Lielmanis, <elfz@laacz.lv> 
       http://elfz.laacz.lv/beautify/
@@ -14,7 +17,6 @@
 
   Usage:
     js_beautify(js_source_text);
-
 
 */
 
