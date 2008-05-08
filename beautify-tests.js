@@ -117,6 +117,8 @@ function test_js_beautify()
     
     bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
     bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
+    bt("if (a) b() else c()", "if (a) b()\nelse c()");
+    bt("if (a) b() else if c() d()", "if (a) b()\nelse if c() d()");
 
     return results();
 }

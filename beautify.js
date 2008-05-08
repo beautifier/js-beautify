@@ -393,7 +393,9 @@ function js_beautify(js_source_text, indent_size, indent_character)
                 prefix = 'NEWLINE';
             }
 
-            if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
+            if (last_type != 'TK_END_BLOCK' && in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
+                print_newline();
+            } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
 
                 if (last_text === 'else') {
                     // no need to force newline on else break
