@@ -69,6 +69,7 @@ function test_js_beautify()
     bt('a.b({c:d})', "a.b({\n    c: d\n})");
     bt('a=!b', 'a = !b');
     bt('a?b:c', 'a ? b: c'); // 'a ? b : c' would need too make parser more complex to differentiate between ternary op and object assignment
+    bt('a?1:2', 'a ? 1 : 2'); // 'a ? b : c' would need too make parser more complex to differentiate between ternary op and object assignment
     bt('a?(b):c', 'a ? (b) : c'); // this works, though
     bt('function void(void) {}');
     bt('if(!a)', 'if (!a)');
@@ -119,6 +120,15 @@ function test_js_beautify()
     bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
     bt("if (a) b() else c()", "if (a) b()\nelse c()");
     bt("if (a) b() else if c() d()", "if (a) b()\nelse if c() d()");
+
+    bt("{}");
+    bt("{\n\n}");
+    bt("do { a(); } while ( 1 );", "do {\n    a();\n} while ( 1 );");
+    bt("do {} while ( 1 );");
+    bt("do {\n} while ( 1 );", "do {} while ( 1 );");
+    bt("do {\n\n} while ( 1 );");
+    bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function() {},\nd = '';");
+    bt("var a = x(a, b, c)");
 
     return results();
 }

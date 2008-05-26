@@ -50,14 +50,7 @@ pre      { font-size: 12px; font-family: liberation mono, consolas, courier new,
   <form method="post" action="?">
       <textarea rows="30" cols="30" name="content" id="content">
 /*   paste in your own code and press Beautify button   */
-var latest_changes=new Object(
-{
-'2008-02-22':
-'Javascript beautifier rewrite in javascript.',
-'... boring history ...',
-'2007-02-08':
-'Initial release'});
-var a=b?(c%d):e[f];
+var latest_changes=new Object({'2008-02-22':'Javascript beautifier rewrite in javascript.','... boring history ...','2007-02-08':'Initial release'});var a=b?(c%d):e[f];
 </textarea><br />
       <button onclick="return do_js_beautify()" id="beautify">Beautify</button>
 <select name="tabsize" id="tabsize">

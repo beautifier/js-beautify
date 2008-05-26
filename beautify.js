@@ -26,16 +26,21 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
     var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_level, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case;
-    var prefix, token_type;
+    var prefix, token_type, do_block_just_closed, var_line, var_line_tainted;
+
+
+    function trim_output()
+    {
+        while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
+            output.pop();
+        }
+    }
 
     function print_newline(ignore_repeated)
     {
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true: ignore_repeated;
-
-        // remove trailing whitespace and indent
-        while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
-            output.pop();
-        }
+        
+        trim_output();
 
         if (!output.length) {
             return; // no newline on start of file
@@ -96,6 +101,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
     function restore_mode()
     {
+        do_block_just_closed = current_mode === 'DO_BLOCK';
         current_mode = modes.pop();
     }
 
@@ -285,6 +291,10 @@ function js_beautify(js_source_text, indent_size, indent_character)
     last_text = ''; // last token text
     output = [];
 
+    do_block_just_closed = false;
+    var_line = false;
+    var_line_tainted = false;
+
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
     punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |='.split(' ');
@@ -311,7 +321,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
         switch (token_type) {
 
         case 'TK_START_EXPR':
-
+            var_line = false;
             set_mode('EXPRESSION');
             if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR') {
                 // do nothing on (( and )( and ][ and ]( ..
@@ -324,14 +334,17 @@ function js_beautify(js_source_text, indent_size, indent_character)
             break;
 
         case 'TK_END_EXPR':
-
             print_token();
             restore_mode();
             break;
 
         case 'TK_START_BLOCK':
-
-            set_mode('BLOCK');
+            
+            if (last_word === 'do') {
+                set_mode('DO_BLOCK');
+            } else {
+                set_mode('BLOCK');
+            }
             if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                 if (last_type === 'TK_START_BLOCK') {
                     print_newline();
@@ -346,6 +359,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
         case 'TK_END_BLOCK':
             if (last_type === 'TK_START_BLOCK') {
                 // nothing
+                trim_output();
                 unindent();
             } else {
                 unindent();
@@ -356,6 +370,13 @@ function js_beautify(js_source_text, indent_size, indent_character)
             break;
 
         case 'TK_WORD':
+
+            if (do_block_just_closed) {
+                print_space();
+                print_token();
+                print_space();
+                break;
+            }
 
             if (token_text === 'case' || token_text === 'default') {
                 if (last_text === ':') {
@@ -372,6 +393,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
                 break;
             }
 
+
             prefix = 'NONE';
             if (last_type === 'TK_END_BLOCK') {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
@@ -380,7 +402,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
                     prefix = 'SPACE';
                     print_space();
                 }
-            } else if (last_type === 'TK_END_COMMAND' && current_mode === 'BLOCK') {
+            } else if (last_type === 'TK_END_COMMAND' && (current_mode === 'BLOCK' || current_mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';
             } else if (last_type === 'TK_END_COMMAND' && current_mode === 'EXPRESSION') {
                 prefix = 'SPACE';
@@ -393,7 +415,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
                 prefix = 'NEWLINE';
             }
 
-            if (last_type != 'TK_END_BLOCK' && in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
+            if (last_type !== 'TK_END_BLOCK' && in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                 print_newline();
             } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
 
@@ -422,11 +444,18 @@ function js_beautify(js_source_text, indent_size, indent_character)
             }
             print_token();
             last_word = token_text;
+
+            if (token_text === 'var') {
+                var_line = true;
+                var_line_tainted = false;
+            }
+
             break;
 
         case 'TK_END_COMMAND':
 
             print_token();
+            var_line = false;
             break;
 
         case 'TK_STRING':
@@ -443,6 +472,12 @@ function js_beautify(js_source_text, indent_size, indent_character)
 
             var start_delim = true;
             var end_delim = true;
+            if (var_line && token_text !== ',') {
+                var_line_tainted = true;
+                if (token_text === ':') {
+                    var_line = false;
+                }
+            }
 
             if (token_text === ':' && in_case) {
                 print_token(); // colon really asks for separate treatment
@@ -453,7 +488,16 @@ function js_beautify(js_source_text, indent_size, indent_character)
             in_case = false;
 
             if (token_text === ',') {
-                if (last_type === 'TK_END_BLOCK') {
+                if (var_line) {
+                    if (var_line_tainted) {
+                        print_token();
+                        print_newline();
+                        var_line_tainted = false;
+                    } else {
+                        print_token();
+                        print_space();
+                    }
+                } else if (last_type === 'TK_END_BLOCK') {
                     print_token();
                     print_newline();
                 } else {
@@ -461,6 +505,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
                         print_token();
                         print_newline();
                     } else {
+                        // EXPR od DO_BLOCK
                         print_token();
                         print_space();
                     }
@@ -493,7 +538,12 @@ function js_beautify(js_source_text, indent_size, indent_character)
             } else if (token_text === ':') {
                 // zz: xx
                 // can't differentiate ternary op, so for now it's a ? b: c; without space before colon
-                start_delim = false;
+                if (last_text.match(/^\d+$/)) {
+                    // a little help for ternary a ? 1 : 0;
+                    start_delim = true;
+                } else {
+                    start_delim = false;
+                }
             }
             if (start_delim) {
                 print_space();
