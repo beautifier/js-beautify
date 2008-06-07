@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
 
-  (c) 2006-2007: Einars "elfz" Lielmanis, 
+  (c) 2006-2008: Einars "elfz" Lielmanis, 
             elfz@laacz.lv
             http://elfz.laacz.lv/
 
