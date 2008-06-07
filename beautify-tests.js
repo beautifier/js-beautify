@@ -129,6 +129,8 @@ function test_js_beautify()
     bt("do {\n\n} while ( 1 );");
     bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function() {},\nd = '';");
     bt("var a = x(a, b, c)");
+    bt("delete x if (a) b();", "delete x\nif (a) b();");
+    bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
 
     return results();
 }
