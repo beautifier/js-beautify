@@ -23,9 +23,11 @@ function do_js_beautify()
     js_source = document.getElementById('content').value.replace(/^\s+/, '');
     tabsize = document.getElementById('tabsize').value;
     tabchar = ' ';
-    if (tabsize == 1) tabchar = '\t'; 
+    if (tabsize === 1) {
+        tabchar = '\t'; 
+    }
 
-    if (js_source && js_source[0] == '<') { 
+    if (js_source && js_source[0] === '<') { 
         document.getElementById('content').value = style_html(js_source, tabsize, tabchar, 80);
     } else {
         document.getElementById('content').value = js_beautify(js_source, tabsize, tabchar);
