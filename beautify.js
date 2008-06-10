@@ -21,12 +21,13 @@
 */
 
 
-function js_beautify(js_source_text, indent_size, indent_character)
+function js_beautify(js_source_text, indent_size, indent_character, indent_level)
 {
 
-    var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_level, indent_string;
+    var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case;
     var prefix, token_type, do_block_just_closed, var_line, var_line_tainted;
+
 
 
     function trim_output()
@@ -307,7 +308,7 @@ function js_beautify(js_source_text, indent_size, indent_character)
     current_mode = 'BLOCK';
     modes = [current_mode];
 
-    indent_level = 0;
+    indent_level = indent_level || 0;
     parser_pos = 0; // parser position
     in_case = false; // flag for parser that case/default has been processed, and next colon needs special attention
     while (true) {

@@ -29,7 +29,11 @@ function style_html(html_source, indent_size, indent_character, max_char) {
     this.pos = 0; //Parser position
     this.token = '';
     this.current_mode = 'CONTENT'; //reflects the current Parser mode: TAG/CONTENT
-    this.tags = {}; //An object to hold tags and their position
+    this.tags = { //An object to hold tags, their position, and their parent-tags, initiated with default values
+      parent: 'parent1',
+      parentcount: 1,
+      parent1: ''
+    };
     this.tag_type = '';
     this.token_text = this.last_token = this.last_text = this.token_type = '';
 
@@ -111,23 +115,34 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       return content.length?content.join(''):''; //we might not have any content at all
     }
     
-    this.record_tag = function (tag){
-      
-      if (this.tags[tag + 'count']) {
+    this.record_tag = function (tag){ //function to record a tag and its parent in this.tags Object
+      if (this.tags[tag + 'count']) { //check for the existence of this tag type
         this.tags[tag + 'count']++;
-        this.tags[tag + this.tags[tag + 'count']] = this.indent_level;
+        this.tags[tag + this.tags[tag + 'count']] = this.indent_level; //and record the present indent level
       }
-      else {
+      else { //otherwise initialize this tag type
         this.tags[tag + 'count'] = 1;
-        this.tags[tag + this.tags[tag + 'count']] = this.indent_level;
+        this.tags[tag + this.tags[tag + 'count']] = this.indent_level; //and record the present indent level
       }
+      this.tags[tag + this.tags[tag + 'count'] + 'parent'] = this.tags.parent; //set the parent (i.e. in the case of a div this.tags.div1parent)
+      this.tags.parent = tag + this.tags[tag + 'count']; //and make this the current parent (i.e. in the case of a div 'div1')
     }
     
-    this.retrieve_tag = function (tag) {
-      
-      if (this.tags[tag + 'count']) {
-        this.indent_level = this.tags[tag + this.tags[tag + 'count']];
-        delete this.tags[tag + this.tags[tag + 'count']]
+    this.retrieve_tag = function (tag) { //function to retrieve the opening tag to the corresponding closer
+      if (this.tags[tag + 'count']) { //if the openener is not in the Object we ignore it
+        var temp_parent = this.tags.parent; //check to see if it's a closable tag.
+        while (temp_parent) { //till we reach '' (the initial value);
+          if (tag + this.tags[tag + 'count'] === temp_parent) { //if this is it use it
+            break;
+          }
+          temp_parent = this.tags[temp_parent + 'parent']; //otherwise keep on climbing up the DOM Tree
+        }
+        if (temp_parent) { //if we caught something
+          this.indent_level = this.tags[tag + this.tags[tag + 'count']]; //set the indent_level accordingly
+          this.tags.parent = this.tags[temp_parent + 'parent']; //and set the current parent
+        }
+        delete this.tags[tag + this.tags[tag + 'count'] + 'parent']; //delete the closed tags parent reference...
+        delete this.tags[tag + this.tags[tag + 'count']]; //...and the tag itself
         if (this.tags[tag + 'count'] == 1) {
           delete this.tags[tag + 'count'];
         }
@@ -158,8 +173,10 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
         
         if (char === "'" || char === '"') {
-          char += this.get_unformatted(char);
-          space = true;
+          if (!content[1] || content[1] !== '!') {
+            char += this.get_unformatted(char);
+            space = true;
+          }
         }
         
         if (char === '=') { //no space before =
@@ -253,6 +270,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var space = true;
       do {
         
+        if (this.pos >= this.input.length) {
+          return content?content:'';
+        }
         char = this.input.charAt(this.pos);
         this.pos++
         
