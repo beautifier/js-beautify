@@ -23,7 +23,7 @@ function do_js_beautify()
     js_source = document.getElementById('content').value.replace(/^\s+/, '');
     tabsize = document.getElementById('tabsize').value;
     tabchar = ' ';
-    if (tabsize === 1) {
+    if (tabsize == 1) {
         tabchar = '\t'; 
     }
 

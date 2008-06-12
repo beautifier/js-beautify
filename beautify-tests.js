@@ -3,6 +3,9 @@ var tests_failed = 0;
 var test_result = '';
 
 
+var indent_size = 4;
+var indent_char = ' ';
+
 function lazy_escape(str)
 {
     return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
@@ -12,7 +15,7 @@ function bt(input, expected)
 {
     expected = expected || input;
 
-    result = js_beautify(input, 4, ' ');
+    result = js_beautify(input, indent_size, indent_char);
 
     if (result != expected) {
         test_result += 
@@ -132,5 +135,17 @@ function test_js_beautify()
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
 
+
+    indent_size = 1;
+    indent_char = ' ';
+    bt('{ one_char() }', "{\n one_char()\n}")
+
+    indent_size = 4;
+    indent_char = ' ';
+    bt('{ one_char() }', "{\n    one_char()\n}")
+
+    indent_size = 1;
+    indent_char = "\t";
+    bt('{ one_char() }', "{\n\tone_char()\n}")
     return results();
 }
