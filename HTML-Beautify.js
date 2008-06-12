@@ -100,10 +100,10 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var reg_match = new RegExp('\<\/script' + '\>', 'igm');
       reg_match.lastIndex = this.pos;
       var reg_array = reg_match.exec(this.input);
-      var end_script = reg_array?reg_array.index:this.input.length-1; //absolute end of script
+      var end_script = reg_array?reg_array.index:this.input.length; //absolute end of script
       while(this.pos < end_script) { //get everything in between the script tags
         if (this.pos >= this.input.length) {
-          return content.length?content.join(''):'';
+          return content.length?content.join(''):['', 'TK_EOF'];
         }
         
         char = this.input.charAt(this.pos);
@@ -173,7 +173,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
         
         if (char === "'" || char === '"') {
-          if (!content[1] || content[1] !== '!') {
+          if (!content[1] || content[1] !== '!') { //if we're in a comment strings don't get treated specially
             char += this.get_unformatted(char);
             space = true;
           }
@@ -186,10 +186,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         if (content.length && content[content.length-1] !== '=' && char !== '>'
             && space) { //no space after = or before >
           if (this.line_char_count >= this.max_char) {
-            content.push('\n');
-            for (var i=0; i<this.indent_level; i++) {
-              content.push(this.indent_string);
-            }
+            this.print_newline(false, content);
             this.line_char_count = 0;
           }
           else {
@@ -232,6 +229,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
         else if (tag_check.indexOf('[endif') != -1) {//peek for <!--[endif end conditional comment
           this.tag_type = 'END';
+          this.unindent();
         }
         else if (tag_check.indexOf('[cdata[') != -1) { //if it's a <[cdata[ comment...
           var comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
@@ -254,7 +252,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           this.tag_type = 'START';
         }
         if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
-          this.print_newline(true);
+          this.print_newline(true, this.output);
         }
       }
       return content.join(''); //returns fully formatted tag
@@ -270,9 +268,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var space = true;
       do {
         
-        if (this.pos >= this.input.length) {
-          return content?content:'';
-        }
+        
         char = this.input.charAt(this.pos);
         this.pos++
         
@@ -282,7 +278,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
             continue;
           }
           if (char === '\n' || char === '\r') {
-            content += char;
+            content += '\n';
             for (var i=0; i<this.indent_level; i++) {
               content += this.indent_string;
             }
@@ -305,6 +301,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       
       if (this.last_token === 'TK_TAG_SCRIPT') { //check if we need to format javascript
         var temp_token = this.get_script();
+        if (typeof temp_token !== 'string') {
+          return temp_token;
+        }
         token = js_beautify(temp_token, this.indent_size, this.indent_character, this.indent_level); //call the JS Beautifier
         return [token, 'TK_CONTENT'];
       }
@@ -345,19 +344,19 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         this.indent_string += this.indent_character;
       }
       
-      this.print_newline = function (ignore) {
+      this.print_newline = function (ignore, arr) {
         this.line_char_count = 0;
-        if (!this.output.length) {
+        if (!arr || !arr.length) {
           return;
         }
         if (!ignore) { //we might want the extra line
-          while (this.Utils.in_array(this.output[this.output.length-1], this.Utils.whitespace)) {
-            this.output.pop();
+          while (this.Utils.in_array(arr[arr.length-1], this.Utils.whitespace)) {
+            arr.pop();
           }
         }
-        this.output.push('\n');
+        arr.push('\n');
         for (var i=0; i<this.indent_level; i++) {
-          this.output.push(this.indent_string);
+          arr.push(this.indent_string);
         }
       }
       
@@ -392,7 +391,6 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var t = multi_parser.get_token();
       multi_parser.token_text = t[0];
       multi_parser.token_type = t[1];
-      
     
     if (multi_parser.token_type === 'TK_EOF') {
       break;
@@ -401,24 +399,24 @@ function style_html(html_source, indent_size, indent_character, max_char) {
 
     switch (multi_parser.token_type) {
       case 'TK_TAG_START': case 'TK_TAG_SCRIPT': case 'TK_TAG_STYLE':
-        multi_parser.print_newline();
+        multi_parser.print_newline(false, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.indent();
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_END':
-        multi_parser.print_newline(true);
+        multi_parser.print_newline(true, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_SINGLE':
-        multi_parser.print_newline();
+        multi_parser.print_newline(false, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_CONTENT':
         if (multi_parser.token_text !== '') {
-          multi_parser.print_newline();
+          multi_parser.print_newline(false, multi_parser.output);
           multi_parser.print_token(multi_parser.token_text);
         }
         multi_parser.current_mode = 'TAG';
