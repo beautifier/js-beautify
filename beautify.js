@@ -6,10 +6,10 @@
   $Revision$
 
 
-  Written by Einars "elfz" Lielmanis, <elfz@laacz.lv> 
+  Written by Einars "elfz" Lielmanis, <elfz@laacz.lv>
       http://elfz.laacz.lv/beautify/
 
-  Originally converted to javascript by Vital, <vital76@gmail.com> 
+  Originally converted to javascript by Vital, <vital76@gmail.com>
       http://my.opera.com/Vital/blog/2007/11/21/javascript-beautify-on-javascript-translated
 
 
@@ -40,7 +40,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
     function print_newline(ignore_repeated)
     {
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true: ignore_repeated;
-        
+
         trim_output();
 
         if (!output.length) {
@@ -171,7 +171,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             }
             return [c, 'TK_WORD'];
         }
-        
+
         if (c === '(' || c === '[') {
             return [c, 'TK_START_EXPR'];
         }
@@ -340,7 +340,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             break;
 
         case 'TK_START_BLOCK':
-            
+
             if (last_word === 'do') {
                 set_mode('DO_BLOCK');
             } else {
@@ -407,6 +407,8 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
                 prefix = 'NEWLINE';
             } else if (last_type === 'TK_END_COMMAND' && current_mode === 'EXPRESSION') {
                 prefix = 'SPACE';
+            } else if (last_type === 'TK_STRING') {
+                prefix = 'NEWLINE';
             } else if (last_type === 'TK_WORD') {
                 prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {

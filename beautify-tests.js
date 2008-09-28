@@ -18,10 +18,10 @@ function bt(input, expected)
     result = js_beautify(input, indent_size, indent_char);
 
     if (result != expected) {
-        test_result += 
+        test_result +=
             '\n---- input --------\n' + lazy_escape(input) +
-            '\n---- expected -----\n' + lazy_escape(expected) + 
-            '\n---- received -----\n' + lazy_escape(result) + 
+            '\n---- expected -----\n' + lazy_escape(expected) +
+            '\n---- received -----\n' + lazy_escape(result) +
             '\n-------------------';
         tests_failed += 1;
     } else {
@@ -118,7 +118,7 @@ function test_js_beautify()
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
     bt("if\n(a)\nb()", "if (a) b()"); // test for proper newline removal
-    
+
     bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
     bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
     bt("if (a) b() else c()", "if (a) b()\nelse c()");
@@ -135,6 +135,7 @@ function test_js_beautify()
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
 
+    bt("a = 'a'\nb = 'b'");
 
     indent_size = 1;
     indent_char = ' ';
