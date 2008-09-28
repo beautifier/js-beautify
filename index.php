@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
 
-  (c) 2006-2008: Einars "elfz" Lielmanis, 
+  (c) 2006-2008: Einars "elfz" Lielmanis,
             elfz@laacz.lv
             http://elfz.laacz.lv/
 
@@ -24,15 +24,15 @@ function do_js_beautify()
     tabsize = document.getElementById('tabsize').value;
     tabchar = ' ';
     if (tabsize == 1) {
-        tabchar = '\t'; 
+        tabchar = '\t';
     }
 
-    if (js_source && js_source[0] === '<') { 
+    if (js_source && js_source[0] === '<') {
         document.getElementById('content').value = style_html(js_source, tabsize, tabchar, 80);
     } else {
         document.getElementById('content').value = js_beautify(js_source, tabsize, tabchar);
     }
-    
+
     document.getElementById('beautify').disabled = false;
     return false;
 }
@@ -48,7 +48,7 @@ h1       { font-family: trebuchet ms, arial, sans-serif; font-weight: normal; fo
 select   { width: 19%; }
 button   { width: 40%; cursor: pointer;}
 code, .code { font-family: liberation mono, consolas, lucida console, courier new, courier, monospace; font-size: 12px; }
-pre      { font-size: 12px; font-family: liberation mono, consolas, courier new, courier, monospace; margin-left: 20px; color: #777; }
+pre      { font-size: 12px; font-family: liberation mono, consolas, courier new, courier, monospace; margin-left: 10px; color: #777; }
 
 </style>
 </head>
@@ -66,23 +66,16 @@ var latest_changes=new Object({'2008-02-22':'Javascript beautifier rewrite in ja
   <option value="4" selected="selected">indent with 4 spaces</option>
   <option value="8">indent with 8 spaces</option>
 </select>
-      <p>This script was intended to explore ugly javascripts, e.g <a href="http://createwebapp.com/javascripts/autocomplete.js">compacted in one line</a>, or just make scripts look more readable.</p>
-      <p>Now you can try to paste in code with &lt;script&gt; tags and (well-formed) HTML as well - say thanks to Nochum and his <a href="HTML-Beautify.js">experimental HTML beautifier!</a></p>
-      <p>Thanks to <a href="http://my.opera.com/Vital/blog/2007/11/21/javascript-beautify-on-javascript-translated">Vital,</a> there is now a pure javascript version of beautifier. It's now the only one: php version is not supported anymore.</p>
-      <ul>
-<li><a href="beautify.js">beautify.js,</a> javascript beautifier in javascript;</li>
-<li><a href="HTML-Beautify.js">HTML-Beautify.js,</a> Nochum's experimental HTML beautifier in javascript;</li>
-<li><a href="beautify-tests.js">beautify-tests.js,</a> beautifier tests, to make sure it's running as it should;</li>
-</ul>
-      <p>You can also always fetch the latest versions from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>.</p>
+      <p>You can always fetch the latest version of the code from subversion repository at <a href="svn://edev.uk.to/beautify/">svn://edev.uk.to/beautify</a>.</p>
       <p>If you're writing javascript, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
+      <p>Special thanks to Nochum, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Dave Vasilevsky, <a href="http://jason.diamond.name">Jason Diamond</a> for the help, ideas and the fixes!
   </form>
 <pre id="testresults">
    <a href="#" onclick="document.getElementById('testresults').innerHTML=test_js_beautify(); return false;">Run tests</a>
-<?php 
+<?php
 if (file_exists('.svnlog')) {
-    printf("<pre>Latest commits from svn://edev.uk.to/beautify/:\n%s</pre>", 
+    printf("<pre>Latest commits from svn://edev.uk.to/beautify/:\n%s</pre>",
         htmlspecialchars(file_get_contents('.svnlog')));
 }
 
