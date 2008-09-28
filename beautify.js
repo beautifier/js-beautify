@@ -189,7 +189,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
         }
 
         if (c === ';') {
-            return [c, 'TK_END_COMMAND'];
+            return [c, 'TK_SEMICOLON'];
         }
 
         if (c === '/') {
@@ -231,15 +231,15 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
         if (c === "'" || // string
         c === '"' || // string
         (c === '/' &&
-        ((last_type === 'TK_WORD' && last_text === 'return') || (last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EOF' || last_type === 'TK_END_COMMAND')))) { // regexp
+        ((last_type === 'TK_WORD' && last_text === 'return') || (last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
-            c = '';
+            resulting_string = '';
 
             if (parser_pos < input.length) {
 
                 while (esc || input.charAt(parser_pos) !== sep) {
-                    c += input.charAt(parser_pos);
+                    resulting_string += input.charAt(parser_pos);
                     if (!esc) {
                         esc = input.charAt(parser_pos) === '\\';
                     } else {
@@ -254,10 +254,17 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             }
 
             parser_pos += 1;
-            if (last_type === 'TK_END_COMMAND') {
-                print_newline();
+
+            resulting_string = sep + resulting_string + sep;
+
+            if (sep == '/') {
+                // regexps may have modifiers /regexp/MOD , so fetch those, too
+                while (parser_pos < input.length && in_array(input.charAt(parser_pos), wordchar)) {
+                    resulting_string += input.charAt(parser_pos);
+                    parser_pos += 1;
+                }
             }
-            return [sep + c + sep, 'TK_STRING'];
+            return [resulting_string, 'TK_STRING'];
         }
 
         if (in_array(c, punct)) {
@@ -403,9 +410,9 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
                     prefix = 'SPACE';
                     print_space();
                 }
-            } else if (last_type === 'TK_END_COMMAND' && (current_mode === 'BLOCK' || current_mode === 'DO_BLOCK')) {
+            } else if (last_type === 'TK_SEMICOLON' && (current_mode === 'BLOCK' || current_mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';
-            } else if (last_type === 'TK_END_COMMAND' && current_mode === 'EXPRESSION') {
+            } else if (last_type === 'TK_SEMICOLON' && current_mode === 'EXPRESSION') {
                 prefix = 'SPACE';
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
@@ -458,7 +465,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
             break;
 
-        case 'TK_END_COMMAND':
+        case 'TK_SEMICOLON':
 
             print_token();
             var_line = false;
@@ -466,7 +473,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
         case 'TK_STRING':
 
-            if (last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK') {
+            if (last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type == 'TK_SEMICOLON') {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_space();

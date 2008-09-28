@@ -136,6 +136,9 @@ function test_js_beautify()
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
 
     bt("a = 'a'\nb = 'b'");
+    bt("a = /reg/exp");
+    bt("a = /reg/");
+    bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 
     indent_size = 1;
     indent_char = ' ';
