@@ -70,6 +70,7 @@ function test_js_beautify()
     bt('a = [1, 2, 3, 4]');
     bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
     bt('a.b({c:d})', "a.b({\n    c: d\n})");
+    bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n    c: d\n})");
     bt('a=!b', 'a = !b');
     bt('a?b:c', 'a ? b: c'); // 'a ? b : c' would need too make parser more complex to differentiate between ternary op and object assignment
     bt('a?1:2', 'a ? 1 : 2'); // 'a ? b : c' would need too make parser more complex to differentiate between ternary op and object assignment

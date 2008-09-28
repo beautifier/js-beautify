@@ -26,9 +26,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
     var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case;
-    var prefix, token_type, do_block_just_closed, var_line, var_line_tainted;
-
-
+    var prefix, token_type, do_block_just_closed, var_line, var_line_tainted, if_line_flag;
 
     function trim_output()
     {
@@ -39,8 +37,10 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
     function print_newline(ignore_repeated)
     {
+
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true: ignore_repeated;
 
+        if_line_flag = false;
         trim_output();
 
         if (!output.length) {
@@ -169,6 +169,9 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             if (c === 'in') { // hack for 'in' operator
                 return [c, 'TK_OPERATOR'];
             }
+            if (wanted_newline && last_type !== 'TK_OPERATOR' && !if_line_flag) {
+                print_newline();
+            }
             return [c, 'TK_WORD'];
         }
 
@@ -234,7 +237,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
         ((last_type === 'TK_WORD' && last_text === 'return') || (last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
-            resulting_string = '';
+            var resulting_string = '';
 
             if (parser_pos < input.length) {
 
@@ -401,7 +404,6 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
                 break;
             }
 
-
             prefix = 'NONE';
             if (last_type === 'TK_END_BLOCK') {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
@@ -461,6 +463,10 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             if (token_text === 'var') {
                 var_line = true;
                 var_line_tainted = false;
+            }
+
+            if (token_text === 'if' || token_text === 'else') {
+                if_line_flag = true;
             }
 
             break;
