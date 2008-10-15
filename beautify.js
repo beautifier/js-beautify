@@ -308,7 +308,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
-    punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |='.split(' ');
+    punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
 
     // words which should always start on new line.
     line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
@@ -501,6 +501,12 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
             if (token_text === ':' && in_case) {
                 print_token(); // colon really asks for separate treatment
                 print_newline();
+                break;
+            }
+
+            if (token_text === '::') {
+                // no spaces around exotic namespacing syntax operator
+                print_token();
                 break;
             }
 
