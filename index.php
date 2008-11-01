@@ -66,7 +66,7 @@ var latest_changes=new Object({'2008-02-22':'Javascript beautifier rewrite in ja
   <option value="4" selected="selected">indent with 4 spaces</option>
   <option value="8">indent with 8 spaces</option>
 </select>
-      <p>You can always fetch the latest version of the code from subversion repository at <a href="svn://dev.spicausis.lv/beautify/">svn://edev.uk.to/beautify</a>.</p>
+      <p>You can always fetch the latest version of the code from subversion repository at <a href="svn://dev.spicausis.lv/beautify/">svn://dev.spicausis.lv/beautify</a>.</p>
       <p>If you're writing javascript, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>
       <p>In case of glitches you may wish to tell me about them&mdash;<code>elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</code></p>
       <p>Special thanks to Nochum, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Dave Vasilevsky, <a href="http://jason.diamond.name">Jason Diamond</a> for the help, ideas and the fixes!
@@ -75,7 +75,7 @@ var latest_changes=new Object({'2008-02-22':'Javascript beautifier rewrite in ja
    <a href="#" onclick="document.getElementById('testresults').innerHTML=test_js_beautify(); return false;">Run tests</a>
 <?php
 if (file_exists('.svnlog')) {
-    printf("<pre>Latest commits from svn://edev.uk.to/beautify/:\n%s</pre>",
+    printf("<pre>Latest commits from svn://dev.spicausis.lv/beautify/:\n%s</pre>",
         htmlspecialchars(file_get_contents('.svnlog')));
 }
 
