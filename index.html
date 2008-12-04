@@ -48,7 +48,7 @@ function do_js_beautify()
     button   { width: 40%; cursor: pointer;}
     textarea, pre, span.code { font-family: terminus, consolas, "lucida console", "courier new", courier, monospace;
                   font-size: 12px; }
-    pre { margin: 10px; color: #777 }
+    pre { margin: 20px 30px; color: #777 }
 
 </style>
 </head>
@@ -66,15 +66,14 @@ var latest_changes=new Object({'2008-12-04':'Moved to github.com','2008-02-22':'
         <option value="4" selected="selected">indent with 4 spaces</option>
         <option value="8">indent with 8 spaces</option>
       </select>
-      <p>You can always fetch the latest version of the code from subversion repository at <a href="svn://dev.spicausis.lv/beautify/">svn://dev.spicausis.lv/beautify</a>.</p>
+      <p>You can always see the latest version of the code in github — <a
+      href="http://github.com/einars/js-beautify">http://github.com/einars/js-beautify</a>.</p>
       <p>If you're writing javascript, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>
-      <p>In case of glitches you may wish to tell me about them &mdash;<span class="code">elfz<span style="color:#999">[at]</span>laacz<span style="color:#999">[dot]</span>lv</span></p>
+      <p>In case of glitches you may wish to tell me about them&mdash;<span class="code">einars<span style="color:#999">[at]</span>gmail.com.</span></p>
       <p>Special thanks to Nochum, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Dave Vasilevsky, <a href="http://jason.diamond.name">Jason Diamond</a> for the help, ideas and the fixes!</p>
   </form>
   <pre id="testresults">
 <a href="#" onclick="document.getElementById('testresults').innerHTML=test_js_beautify(); return false;">Run tests...</a>
-
-Moved source to <a href="http://github.com/einars/js-beautify">github.</a> Fetch it from there.
 </pre>
 
 <script src="/urchin.js" type="text/javascript"></script>
