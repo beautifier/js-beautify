@@ -18,17 +18,21 @@ window.onload = function() {
 function do_js_beautify()
 {
     document.getElementById('beautify').disabled = true;
-    js_source = document.getElementById('content').value.replace(/^\s+/, '');
-    tabsize = document.getElementById('tabsize').value;
-    tabchar = ' ';
-    if (tabsize == 1) {
-        tabchar = '\t';
+    var js_source = document.getElementById('content').value.replace(/^\s+/, '');
+    var indent_size = document.getElementById('tabsize').value;
+    var indent_char = ' ';
+    var preserve_newlines = document.getElementById('preserve-newlines').checked;
+
+    if (indent_size == 1) {
+        indent_char = '\t';
     }
 
+
     if (js_source && js_source[0] === '<') {
-        document.getElementById('content').value = style_html(js_source, tabsize, tabchar, 80);
+        document.getElementById('content').value = style_html(js_source, tabsize, indent_char, 80);
     } else {
-        document.getElementById('content').value = js_beautify(js_source, tabsize, tabchar);
+        document.getElementById('content').value =
+        js_beautify(js_source, {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines});
     }
 
     document.getElementById('beautify').disabled = false;
@@ -66,6 +70,8 @@ var latest_changes=new Object({'2008-12-04':'Moved to github.com','2008-02-22':'
         <option value="4" selected="selected">indent with 4 spaces</option>
         <option value="8">indent with 8 spaces</option>
       </select>
+      <input type="checkbox" id="preserve-newlines" /><label for="preserve-newlines"> Preserve existing line
+      breaks?</label>
       <p>You can always see the latest version of the code in github — <a
       href="http://github.com/einars/js-beautify">http://github.com/einars/js-beautify</a>.</p>
       <p>If you're writing javascript, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You should at least understand what and why it says about your code &mdash; to be a better person. Even if it hurts your feelings.</p>

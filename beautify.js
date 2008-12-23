@@ -6,7 +6,7 @@
   $Revision$
 
 
-  Written by Einars "elfz" Lielmanis, <elfz@laacz.lv>
+  Written by Einars Lielmanis, <einars@gmail.com>
       http://elfz.laacz.lv/beautify/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
@@ -17,16 +17,39 @@
 
   Usage:
     js_beautify(js_source_text);
+    js_beautify(js_source_text, options);
+
+  The options are:
+    indent_size (default 4) — indentation size,
+    indent_char (default space) — character to indent with,
+    preserve_newlines (default true) — whether existing line breaks should be preserved,
+    indent_level (default 0)  — initial indentation level, you probably won't need this ever,
+
+    e.g
+
+    js_beautify(js_source_text, {indent_size: 1, indent_char: '\t'});
+
 
 */
 
 
-function js_beautify(js_source_text, indent_size, indent_character, indent_level)
+
+function js_beautify(js_source_text, options)
 {
 
     var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case;
     var prefix, token_type, do_block_just_closed, var_line, var_line_tainted, if_line_flag;
+    var indent_level;
+
+
+    var options               = options || {};
+    var opt_indent_size       = options['indent_size'] || 4;
+    var opt_indent_char       = options['indent_char'] || ' ';
+    var opt_preserve_newlines =
+        typeof options['preserve_newlines'] === 'undefined' ? true : options['preserve_newlines'];
+    var opt_indent_level      = options['indent_level'] || 0; // starting indentation
+
 
     function trim_output()
     {
@@ -138,12 +161,16 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
         }
         while (in_array(c, whitespace));
 
-        if (n_newlines > 1) {
-            for (var i = 0; i < 2; i++) {
-                print_newline(i === 0);
+        var wanted_newline = false;
+
+        if (opt_preserve_newlines) {
+            if (n_newlines > 1) {
+                for (var i = 0; i < 2; i++) {
+                    print_newline(i === 0);
+                }
             }
+            wanted_newline = (n_newlines === 1);
         }
-        var wanted_newline = (n_newlines === 1);
 
 
         if (in_array(c, wordchar)) {
@@ -287,13 +314,12 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
 
     //----------------------------------
 
-    indent_character = indent_character || ' ';
-    indent_size = indent_size || 4;
-
     indent_string = '';
-    while (indent_size--) {
-        indent_string += indent_character;
+    while (opt_indent_size--) {
+        indent_string += opt_indent_char;
     }
+
+    indent_level = opt_indent_level;
 
     input = js_source_text;
 
@@ -303,8 +329,8 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
     output = [];
 
     do_block_just_closed = false;
-    var_line = false;
-    var_line_tainted = false;
+    var_line = false;         // currently drawing var .... ;
+    var_line_tainted = false; // false: var a = 5; true: var a = 5, b = 6
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
@@ -318,8 +344,7 @@ function js_beautify(js_source_text, indent_size, indent_character, indent_level
     current_mode = 'BLOCK';
     modes = [current_mode];
 
-    indent_level = indent_level || 0;
-    parser_pos = 0; // parser position
+    parser_pos = 0;
     in_case = false; // flag for parser that case/default has been processed, and next colon needs special attention
     while (true) {
         var t = get_next_token(parser_pos);

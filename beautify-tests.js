@@ -5,6 +5,7 @@ var test_result = '';
 
 var indent_size = 4;
 var indent_char = ' ';
+var preserve_newlines = true;
 
 function lazy_escape(str)
 {
@@ -15,7 +16,7 @@ function bt(input, expected)
 {
     expected = expected || input;
 
-    result = js_beautify(input, indent_size, indent_char);
+    result = js_beautify(input, {indent_size:indent_size, indent_char:indent_char, preserve_newlines:preserve_newlines});
 
     if (result != expected) {
         test_result +=
@@ -145,14 +146,21 @@ function test_js_beautify()
 
     indent_size = 1;
     indent_char = ' ';
-    bt('{ one_char() }', "{\n one_char()\n}")
+    bt('{ one_char() }', "{\n one_char()\n}");
 
     indent_size = 4;
     indent_char = ' ';
-    bt('{ one_char() }', "{\n    one_char()\n}")
+    bt('{ one_char() }', "{\n    one_char()\n}");
 
     indent_size = 1;
     indent_char = "\t";
-    bt('{ one_char() }', "{\n\tone_char()\n}")
+    bt('{ one_char() }', "{\n\tone_char()\n}");
+
+    preserve_newlines = false;
+    bt('var\na=dont_preserve_newlines', 'var a = dont_preserve_newlines');
+
+    preserve_newlines = true;
+    bt('var\na=do_preserve_newlines', 'var\na = do_preserve_newlines');
+
     return results();
 }

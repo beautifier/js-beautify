@@ -7,11 +7,11 @@
   Written by Nochum Sossonko, (nsossonko@hotmail.com)
     $Date$
     $Revision$
-  
-  Based on code initially developed by: Einars "elfz" Lielmanis, <elfz@laacz.lv> 
+
+  Based on code initially developed by: Einars "elfz" Lielmanis, <elfz@laacz.lv>
       http://elfz.laacz.lv/beautify/
 
-  
+
   You are free to use this in any way you want, in case you find this useful or working for you.
 
   Usage:
@@ -21,11 +21,11 @@
 
 function style_html(html_source, indent_size, indent_character, max_char) {
 //Wrapper function to invoke all the necessary constructors and deal with the output.
-  
+
   var Parser, multi_parser;
-  
+
   function Parser() {
-    
+
     this.pos = 0; //Parser position
     this.token = '';
     this.current_mode = 'CONTENT'; //reflects the current Parser mode: TAG/CONTENT
@@ -37,7 +37,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
     this.tag_type = '';
     this.token_text = this.last_token = this.last_text = this.token_type = '';
 
-    
+
     this.Utils = { //Uilities made available to the various functions
       whitespace: "\n\r\t ".split(''),
       single_token: 'br,input,link,meta,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed'.split(','), //all the single tags for HTML
@@ -51,9 +51,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         return false;
       }
     }
-    
+
     this.get_content = function () { //function to capture regular content between tags
-      
+
       var char = '';
       var content = [];
       var space = false; //if a space is needed
@@ -61,12 +61,12 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         if (this.pos >= this.input.length) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
-        
+
         char = this.input.charAt(this.pos);
         this.pos++;
         this.line_char_count++;
-        
-        
+
+
         if (this.Utils.in_array(char, this.Utils.whitespace)) {
           if (content.length) {
             space = true;
@@ -92,9 +92,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       }
       return content.length?content.join(''):'';
     }
-     
+
     this.get_script = function () { //get the full content of a script to pass to js_beautify
-      
+
       var char = '';
       var content = [];
       var reg_match = new RegExp('\<\/script' + '\>', 'igm');
@@ -105,16 +105,16 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         if (this.pos >= this.input.length) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
-        
+
         char = this.input.charAt(this.pos);
         this.pos++;
-        
-        
+
+
         content.push(char);
       }
       return content.length?content.join(''):''; //we might not have any content at all
     }
-    
+
     this.record_tag = function (tag){ //function to record a tag and its parent in this.tags Object
       if (this.tags[tag + 'count']) { //check for the existence of this tag type
         this.tags[tag + 'count']++;
@@ -127,7 +127,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       this.tags[tag + this.tags[tag + 'count'] + 'parent'] = this.tags.parent; //set the parent (i.e. in the case of a div this.tags.div1parent)
       this.tags.parent = tag + this.tags[tag + 'count']; //and make this the current parent (i.e. in the case of a div 'div1')
     }
-    
+
     this.retrieve_tag = function (tag) { //function to retrieve the opening tag to the corresponding closer
       if (this.tags[tag + 'count']) { //if the openener is not in the Object we ignore it
         var temp_parent = this.tags.parent; //check to see if it's a closable tag.
@@ -151,7 +151,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
       }
     }
-      
+
     this.get_tag = function () { //function to get a full tag and parse its type
       var char = '';
       var content = [];
@@ -161,28 +161,28 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         if (this.pos >= this.input.length) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
-        
+
         char = this.input.charAt(this.pos);
         this.pos++;
         this.line_char_count++;
-        
+
         if (this.Utils.in_array(char, this.Utils.whitespace)) { //don't want to insert unnecessary space
           space = true;
           this.line_char_count--;
           continue;
         }
-        
+
         if (char === "'" || char === '"') {
           if (!content[1] || content[1] !== '!') { //if we're in a comment strings don't get treated specially
             char += this.get_unformatted(char);
             space = true;
           }
         }
-        
+
         if (char === '=') { //no space before =
           space = false;
         }
-        
+
         if (content.length && content[content.length-1] !== '=' && char !== '>'
             && space) { //no space after = or before >
           if (this.line_char_count >= this.max_char) {
@@ -197,7 +197,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
         content.push(char); //inserts character at-a-time (or string)
       } while (char !== '>');
-      
+
       var tag_complete = content.join('');
       var tag_index;
       if (tag_complete.indexOf(' ') != -1) { //if there's whitespace, thats where the tag name ends
@@ -257,9 +257,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       }
       return content.join(''); //returns fully formatted tag
     }
-    
+
     this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
-      
+
       if (orig_tag && orig_tag.indexOf(delimiter) != -1) {
         return '';
       }
@@ -267,11 +267,11 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var content = '';
       var space = true;
       do {
-        
-        
+
+
         char = this.input.charAt(this.pos);
         this.pos++
-        
+
         if (this.Utils.in_array(char, this.Utils.whitespace)) {
           if (!space) {
             this.line_char_count--;
@@ -290,21 +290,22 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         content += char;
         this.line_char_count++;
         space = true;
-        
-        
+
+
       } while (content.indexOf(delimiter) == -1);
       return content;
     }
-    
+
     this.get_token = function () { //initial handler for token-retrieval
       var token;
-      
+
       if (this.last_token === 'TK_TAG_SCRIPT') { //check if we need to format javascript
         var temp_token = this.get_script();
         if (typeof temp_token !== 'string') {
           return temp_token;
         }
-        token = js_beautify(temp_token, this.indent_size, this.indent_character, this.indent_level); //call the JS Beautifier
+        token = js_beautify(temp_token,
+                {indent_size: this.indent_size, indent_char: this.indent_character, indent_level: this.indent_level}); //call the JS Beautifier
         return [token, 'TK_CONTENT'];
       }
       if (this.current_mode === 'CONTENT') {
@@ -316,7 +317,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           return [token, 'TK_CONTENT'];
         }
       }
-      
+
       if(this.current_mode === 'TAG') {
         token = this.get_tag();
         if (typeof token !== 'string') {
@@ -328,9 +329,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         }
       }
     }
-    
+
     this.printer = function (js_source, indent_character, indent_size, max_char) { //handles input/output and some other printing functions
-      
+
       this.input = js_source || ''; //gets the input for the Parser
       this.output = [];
       this.indent_character = indent_character || ' ';
@@ -339,11 +340,11 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       this.indent_level = 0;
       this.max_char = max_char || 70; //maximum amount of characters per line
       this.line_char_count = 0; //count to see if max_char was exceeded
-      
+
       for (var i=0; i<this.indent_size; i++) {
         this.indent_string += this.indent_character;
       }
-      
+
       this.print_newline = function (ignore, arr) {
         this.line_char_count = 0;
         if (!arr || !arr.length) {
@@ -359,16 +360,16 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           arr.push(this.indent_string);
         }
       }
-      
-      
+
+
       this.print_token = function (text) {
         this.output.push(text);
       }
-      
+
       this.indent = function () {
         this.indent_level++;
       }
-      
+
       this.unindent = function () {
         if (this.indent_level > 0) {
           this.indent_level--;
@@ -377,25 +378,25 @@ function style_html(html_source, indent_size, indent_character, max_char) {
     }
     return this;
   }
-  
+
   /*_____________________--------------------_____________________*/
-  
-  
-  
+
+
+
   multi_parser = new Parser(); //wrapping functions Parser
   multi_parser.printer(html_source, indent_character, indent_size); //initialize starting values
-  
-  
-  
+
+
+
   while (true) {
       var t = multi_parser.get_token();
       multi_parser.token_text = t[0];
       multi_parser.token_type = t[1];
-    
+
     if (multi_parser.token_type === 'TK_EOF') {
       break;
     }
-    
+
 
     switch (multi_parser.token_type) {
       case 'TK_TAG_START': case 'TK_TAG_SCRIPT': case 'TK_TAG_STYLE':
