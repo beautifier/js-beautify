@@ -29,7 +29,7 @@ function do_js_beautify()
 
 
     if (js_source && js_source[0] === '<') {
-        document.getElementById('content').value = style_html(js_source, tabsize, indent_char, 80);
+        document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80);
     } else {
         document.getElementById('content').value =
         js_beautify(js_source, {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines});
