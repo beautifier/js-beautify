@@ -142,6 +142,8 @@ function test_js_beautify()
     bt("a = /reg/");
     bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 
+    bt("something();(", "something();\n(");
+
     bt("function namespace::something()");
 
     indent_size = 1;

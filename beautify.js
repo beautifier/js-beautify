@@ -359,7 +359,9 @@ function js_beautify(js_source_text, options)
         case 'TK_START_EXPR':
             var_line = false;
             set_mode('EXPRESSION');
-            if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR') {
+            if (last_text === ';') {
+                print_newline();
+            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR') {
                 // do nothing on (( and )( and ][ and ]( ..
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_space();
