@@ -136,6 +136,9 @@ function test_js_beautify()
     bt("var a = x(a, b, c)");
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
+    bt("for(var a=1,b=2)", "for (var a = 1, b = 2)");
+    bt("for(var a=1,b=2,c=3)", "for (var a = 1, b = 2, c = 3)");
+    bt("for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)");
 
     bt("a = 'a'\nb = 'b'");
     bt("a = /reg/exp");

@@ -520,6 +520,10 @@ function js_beautify(js_source_text, options)
                     var_line = false;
                 }
             }
+            if (var_line && token_text === ',' && current_mode === 'EXPRESSION') {
+                // do not break on comma, for(var a = 1, b = 2)
+                var_line_tainted = false;
+            }
 
             if (token_text === ':' && in_case) {
                 print_token(); // colon really asks for separate treatment
