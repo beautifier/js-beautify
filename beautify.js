@@ -2,16 +2,12 @@
 
  JS Beautifier
 ---------------
-  $Date$
-  $Revision$
 
 
-  Written by Einars Lielmanis, <einars@gmail.com>
-      http://elfz.laacz.lv/beautify/
+  Written by Einar Lielmanis, <einars@gmail.com>
+      http://jsbeautifier.org/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
-      http://my.opera.com/Vital/blog/2007/11/21/javascript-beautify-on-javascript-translated
-
 
   You are free to use this in any way you want, in case you find this useful or working for you.
 
