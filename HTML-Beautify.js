@@ -3,13 +3,10 @@
  Style HTML
 ---------------
 
-
   Written by Nochum Sossonko, (nsossonko@hotmail.com)
-    $Date$
-    $Revision$
 
-  Based on code initially developed by: Einars "elfz" Lielmanis, <elfz@laacz.lv>
-      http://elfz.laacz.lv/beautify/
+  Based on code initially developed by: Einar Lielmanis, <elfz@laacz.lv>
+    http://jsbeautifier.org
 
 
   You are free to use this in any way you want, in case you find this useful or working for you.
@@ -54,7 +51,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
 
     this.get_content = function () { //function to capture regular content between tags
 
-      var char = '';
+      var input_char = '';
       var content = [];
       var space = false; //if a space is needed
       while (this.input.charAt(this.pos) !== '<') {
@@ -62,12 +59,12 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
 
-        char = this.input.charAt(this.pos);
+        input_char = this.input.charAt(this.pos);
         this.pos++;
         this.line_char_count++;
 
 
-        if (this.Utils.in_array(char, this.Utils.whitespace)) {
+        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
           if (content.length) {
             space = true;
           }
@@ -88,14 +85,14 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           }
           space = false;
         }
-        content.push(char); //letter at-a-time (or string) inserted to an array
+        content.push(input_char); //letter at-a-time (or string) inserted to an array
       }
       return content.length?content.join(''):'';
     }
 
     this.get_script = function () { //get the full content of a script to pass to js_beautify
 
-      var char = '';
+      var input_char = '';
       var content = [];
       var reg_match = new RegExp('\<\/script' + '\>', 'igm');
       reg_match.lastIndex = this.pos;
@@ -106,11 +103,11 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
 
-        char = this.input.charAt(this.pos);
+        input_char = this.input.charAt(this.pos);
         this.pos++;
 
 
-        content.push(char);
+        content.push(input_char);
       }
       return content.length?content.join(''):''; //we might not have any content at all
     }
@@ -153,7 +150,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
     }
 
     this.get_tag = function () { //function to get a full tag and parse its type
-      var char = '';
+      var input_char = '';
       var content = [];
       var space = false;
 
@@ -162,28 +159,28 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           return content.length?content.join(''):['', 'TK_EOF'];
         }
 
-        char = this.input.charAt(this.pos);
+        input_char = this.input.charAt(this.pos);
         this.pos++;
         this.line_char_count++;
 
-        if (this.Utils.in_array(char, this.Utils.whitespace)) { //don't want to insert unnecessary space
+        if (this.Utils.in_array(input_char, this.Utils.whitespace)) { //don't want to insert unnecessary space
           space = true;
           this.line_char_count--;
           continue;
         }
 
-        if (char === "'" || char === '"') {
+        if (input_char === "'" || input_char === '"') {
           if (!content[1] || content[1] !== '!') { //if we're in a comment strings don't get treated specially
-            char += this.get_unformatted(char);
+            input_char += this.get_unformatted(input_char);
             space = true;
           }
         }
 
-        if (char === '=') { //no space before =
+        if (input_char === '=') { //no space before =
           space = false;
         }
 
-        if (content.length && content[content.length-1] !== '=' && char !== '>'
+        if (content.length && content[content.length-1] !== '=' && input_char !== '>'
             && space) { //no space after = or before >
           if (this.line_char_count >= this.max_char) {
             this.print_newline(false, content);
@@ -195,8 +192,8 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           }
           space = false;
         }
-        content.push(char); //inserts character at-a-time (or string)
-      } while (char !== '>');
+        content.push(input_char); //inserts character at-a-time (or string)
+      } while (input_char !== '>');
 
       var tag_complete = content.join('');
       var tag_index;
@@ -263,21 +260,21 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       if (orig_tag && orig_tag.indexOf(delimiter) != -1) {
         return '';
       }
-      var char = '';
+      var input_char = '';
       var content = '';
       var space = true;
       do {
 
 
-        char = this.input.charAt(this.pos);
+        input_char = this.input.charAt(this.pos);
         this.pos++
 
-        if (this.Utils.in_array(char, this.Utils.whitespace)) {
+        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
           if (!space) {
             this.line_char_count--;
             continue;
           }
-          if (char === '\n' || char === '\r') {
+          if (input_char === '\n' || input_char === '\r') {
             content += '\n';
             for (var i=0; i<this.indent_level; i++) {
               content += this.indent_string;
@@ -287,7 +284,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
             continue;
           }
         }
-        content += char;
+        content += input_char;
         this.line_char_count++;
         space = true;
 
