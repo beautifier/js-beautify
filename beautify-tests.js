@@ -1,10 +1,10 @@
 var tests_passed = 0;
 var tests_failed = 0;
-var test_result = '';
+var test_result  = '';
 
 
-var indent_size = 4;
-var indent_char = ' ';
+var indent_size       = 4;
+var indent_char       = ' ';
 var preserve_newlines = true;
 
 function lazy_escape(str)
@@ -43,6 +43,12 @@ function results()
 
 function test_js_beautify()
 {
+    indent_size       = 4;
+    tests_passed      = 0;
+    tests_failed      = 0;
+    indent_char       = ' ';
+    test_result       = '';
+    preserve_newlines = true;
 
     bt('');
     bt('a        =          1', 'a = 1');
