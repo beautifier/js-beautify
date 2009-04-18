@@ -78,7 +78,10 @@ function js_beautify(js_source_text, options)
 
     function print_space()
     {
-        var last_output = output.length ? output[output.length - 1] : ' ';
+        var last_output = ' ';
+        if (output.length) {
+            last_output = output[output.length - 1]
+        }
         if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
             output.push(' ');
         }
@@ -142,20 +145,27 @@ function js_beautify(js_source_text, options)
     function get_next_token()
     {
         var n_newlines = 0;
-        var c = '';
 
-        do {
+        if (parser_pos >= input.length) {
+            return ['', 'TK_EOF'];
+        }
+
+        var c = input.charAt(parser_pos);
+        parser_pos += 1;
+
+        while (in_array(c, whitespace)) {
             if (parser_pos >= input.length) {
                 return ['', 'TK_EOF'];
             }
-            c = input.charAt(parser_pos);
 
-            parser_pos += 1;
             if (c === "\n") {
                 n_newlines += 1;
             }
+
+            c = input.charAt(parser_pos);
+            parser_pos += 1;
+
         }
-        while (in_array(c, whitespace));
 
         var wanted_newline = false;
 
@@ -181,11 +191,13 @@ function js_beautify(js_source_text, options)
             }
 
             // small and surprisingly unugly hack for 1E-10 representation
-            if (parser_pos !== input.length && c.match(/^[0-9]+[Ee]$/) && input.charAt(parser_pos) === '-') {
+            if (parser_pos !== input.length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
+
+                var sign = input.charAt(parser_pos);
                 parser_pos += 1;
 
                 var t = get_next_token(parser_pos);
-                c += '-' + t[0];
+                c += sign + t[0];
                 return [c, 'TK_WORD'];
             }
 

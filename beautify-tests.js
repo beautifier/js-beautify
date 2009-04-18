@@ -149,6 +149,10 @@ function test_js_beautify()
     bt("a = 'a'\nb = 'b'");
     bt("a = /reg/exp");
     bt("a = /reg/");
+
+    bt("a = 1e+2");
+    bt("a = 1e-2");
+
     bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 
     bt("something();(", "something();\n(");
