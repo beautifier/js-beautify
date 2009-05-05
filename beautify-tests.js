@@ -134,10 +134,10 @@ function test_js_beautify()
 
     bt("{}");
     bt("{\n\n}");
-    bt("do { a(); } while ( 1 );", "do {\n    a();\n} while ( 1 );");
-    bt("do {} while ( 1 );");
-    bt("do {\n} while ( 1 );", "do {} while ( 1 );");
-    bt("do {\n\n} while ( 1 );");
+    bt("do { a(); } while ( 1 );", "do {\n    a();\n} while (1);");
+    bt("do {} while (1);");
+    bt("do {\n} while (1);", "do {} while (1);");
+    bt("do {\n\n} while (1);");
     bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function() {},\nd = '';");
     bt("var a = x(a, b, c)");
     bt("delete x if (a) b();", "delete x\nif (a) b();");
@@ -152,6 +152,7 @@ function test_js_beautify()
 
     bt("a = 1e+2");
     bt("a = 1e-2");
+    bt("do{x()}while(a>1)", "do {\n    x()\n} while (a > 1)");
 
     bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 

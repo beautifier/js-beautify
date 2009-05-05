@@ -418,9 +418,11 @@ function js_beautify(js_source_text, options)
         case 'TK_WORD':
 
             if (do_block_just_closed) {
+                // do {} ## while ()
                 print_space();
                 print_token();
                 print_space();
+                do_block_just_closed = false;
                 break;
             }
 
