@@ -149,7 +149,10 @@ function test_js_beautify()
     bt("a = 'a'\nb = 'b'");
     bt("a = /reg/exp");
     bt("a = /reg/");
-
+    bt('/abc/.test()');
+    bt('/abc/i.test()');
+    bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
+ 
     bt("a = 1e+2");
     bt("a = 1e-2");
     bt("do{x()}while(a>1)", "do {\n    x()\n} while (a > 1)");
