@@ -34,7 +34,7 @@ function js_beautify(js_source_text, options)
 {
 
     var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_string;
-    var whitespace, wordchar, punct, parser_pos, line_starters, in_case;
+    var whitespace, wordchar, punct, parser_pos, line_starters, in_case, digits;
     var prefix, token_type, do_block_just_closed, var_line, var_line_tainted, if_line_flag;
     var indent_level;
 
@@ -272,7 +272,7 @@ function js_beautify(js_source_text, options)
         ((last_type === 'TK_WORD' && last_text === 'return') || (last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
-            var resulting_string = '';
+            var resulting_string = c;
 
             if (parser_pos < input.length) {
 
@@ -285,7 +285,9 @@ function js_beautify(js_source_text, options)
                     }
                     parser_pos += 1;
                     if (parser_pos >= input.length) {
-                        break;
+                        // incomplete string/rexp when end-of-file reached. 
+                        // bail out with what had been received so far.
+                        return [resulting_string, 'TK_STRING']
                     }
                 }
 
@@ -293,7 +295,7 @@ function js_beautify(js_source_text, options)
 
             parser_pos += 1;
 
-            resulting_string = sep + resulting_string + sep;
+            resulting_string += sep;
 
             if (sep == '/') {
                 // regexps may have modifiers /regexp/MOD , so fetch those, too
@@ -303,6 +305,25 @@ function js_beautify(js_source_text, options)
                 }
             }
             return [resulting_string, 'TK_STRING'];
+        }
+
+        if (c == '#') {
+            // Spidermonkey-specific sharp variables for circular references
+            // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
+            // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
+            var sharp = '#';
+            if (parser_pos < input.length && in_array(input.charAt(parser_pos), digits)) {
+                do {
+                    c = input.charAt(parser_pos);
+                    sharp += c;
+                    parser_pos += 1;
+                } while (parser_pos < input.length && c != '#' && c != '=');
+                if (c === '#') {
+                    return [sharp, 'TK_WORD'];
+                } else {
+                    return [sharp, 'TK_OPERATOR'];
+                }
+            }
         }
 
         if (in_array(c, punct)) {
@@ -342,6 +363,7 @@ function js_beautify(js_source_text, options)
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
+    digits = '0123456789'.split('');
     punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
 
     // words which should always start on new line.

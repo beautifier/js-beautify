@@ -152,6 +152,16 @@ function test_js_beautify()
     bt('/abc/.test()');
     bt('/abc/i.test()');
     bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
+
+    bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
+    bt('{a:#1={}}', '{\n    a: #1={}\n}');
+    bt('{a:#1#}', '{\n    a: #1#\n}');
+    bt('{a:#1', '{\n    a: #1'); // incomplete
+    bt('{a:#', '{\n    a: #'); // incomplete
+
+    bt('a=/regexp', 'a = /regexp'); // incomplete regexp
+
+    bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}');
  
     bt("a = 1e+2");
     bt("a = 1e-2");
