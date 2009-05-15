@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+
+  (c) 2006-2009: Einar Lielmanis, einars@gmail.com
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Online javascript beautifier</title>
+<script type="text/javascript">
+function add_onload_function(fn)
+{
+    var oe=window.onload;
+    window.onload = function() { if (oe) oe(); fn(); }
+}
+add_onload_function(function() {
+    var c = document.forms[0].content;
+    c && c.setSelectionRange && c.setSelectionRange(0, 0);
+    c && c.focus && c.focus();
+});
+
+function starts_with(str, what)
+{
+    return str.substr(0, what.length) === what;
+}
+
+function trim_leading_comments(str)
+{
+    // very basic. doesn't support /* ... */
+    str = str.replace(/^(\s*\/\/[^\n]*\n)+/, '');
+    str = str.replace(/^\s+/, '');
+    return str;
+}
+
+function unpacker_filter(source)
+{
+
+    if (document.getElementById('detect-packers').checked) {
+
+        stripped_source = trim_leading_comments(source);
+
+        if (starts_with(stripped_source.toLowerCase().replace(/ +/g, ''), 'eval(function(p,a,c,k')) {
+            try {
+                eval('var unpacked_source = ' + stripped_source.substring(4) + ';')
+                return unpacker_filter(unpacked_source);
+            } catch (error) {
+                source = '// jsbeautifier: unpacking failed\n' + source;
+            }
+        }
+    }
+    return source;
+
+}
+
+
+function do_js_beautify()
+{
+    document.getElementById('beautify').disabled = true;
+    var js_source = document.getElementById('content').value.replace(/^\s+/, '');
+    var indent_size = document.getElementById('tabsize').value;
+    var indent_char = ' ';
+    var preserve_newlines = document.getElementById('preserve-newlines').checked;
+
+    if (indent_size == 1) {
+        indent_char = '\t';
+    }
+
+
+    if (js_source && js_source[0] === '<' && js_source.substring(0, 4) !== '<!--') {
+        document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80);
+    } else {
+        document.getElementById('content').value =
+        js_beautify(unpacker_filter(js_source), {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines});
+    }
+
+    document.getElementById('beautify').disabled = false;
+    return false;
+}
+</script>
+<script type="text/javascript" src="beautify.js" ></script>
+<script type="text/javascript" src="beautify-tests.js" ></script>
+<script type="text/javascript" src="HTML-Beautify.js" ></script>
+
+<style type="text/css">
+/* I guess I need a CSS beautifer as well */
+form { 
+    margin: 0 10px 0 10px;
+}
+textarea { 
+    width: 100%; 
+    height: 320px; 
+    border: 1px solid #ccc; padding: 3px;
+}
+h1 { 
+    font-family: "trebuchet ms", arial, sans-serif; 
+    font-weight: normal; 
+    font-size: 28px;
+    color: #666; 
+    margin-bottom: 15px; 
+    border-bottom: 1px solid #666; 
+}
+a {
+    color: #36d;
+}
+select { 
+    width: 19%; 
+}
+button { 
+    width: 40%; 
+    cursor: pointer;
+}
+body, label, button, select { 
+    font-family: "myriad web", verdana, arial, helvetica, sans-serif; 
+    font-size: 14px;
+}
+textarea, pre, span.code { 
+    font-family: terminus, consolas, "lucida console", "courier new", courier, monospace;
+    font-size: 12px; 
+}
+div#bottom { 
+    color: #333;
+    margin: 20px; 
+}
+a#signature {
+    background: url(http://spicausis.lv/spic-sign-blog.png) no-repeat bottom right;
+    display:block;
+    width: 15px;
+    height: 21px;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+h2 {
+    color: #555;
+    font-size: 14px;
+    text-decoration: underline;
+    margin-top: 14px;
+}
+p { 
+    line-height: 150%;
+    font-size: 14px;
+    margin: 0;
+}
+div#footer {
+    margin: 20px 0 0 0;
+    font-size: 12px;
+    border-top: 1px solid #ddd;
+    padding-top: 16px;
+
+}
+
+</style>
+</head>
+<body>
+  <h1>Javascript beautifier</h1>
+  <form method="post" action="?">
+      <textarea rows="30" cols="30" name="content" id="content">
+/*   paste in your code and press Beautify button   */
+if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
+</textarea><br />
+      <button onclick="return do_js_beautify()" id="beautify">Beautify</button>
+      <select name="tabsize" id="tabsize">
+        <option value="1">indent with a tab character</option>
+        <option value="2">indent with 2 spaces</option>
+        <option value="3">indent with 3 spaces</option>
+        <option value="4" selected="selected">indent with 4 spaces</option>
+        <option value="8">indent with 8 spaces</option>
+      </select>
+      <input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve line breaks?</label>
+      <input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label>
+  </form>
+      <div id="bottom">
+      <p>This beautifier can process your messy or compacted javascript, making it all neatly and consistently formatted and
+      readable.</p>
+      <p>You can always see the latest version of the code in <a
+      href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
+      local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
+      <h2>Packed javascript, updated</h2>
+      <p>As many of you are using this beautifier to format the code after unpacking, I thought of making the job easier for you and added a simple unpacker right here. Yes, you may now paste (p,a,c,k,e,d) scripts and they'll hopefully get decoded — your feedback is welcome.</p>
+      <h2>Formatting from command-line</h2>
+      <p>If <a href="http://mozilla.com/rhino/">Rhino javascript engine</a> doesn't scare you, Patrick Hof made sure so that you can pretttify the files from the
+      command line. See the beautify-cl.js file.</p>
+      <h2>BBEdit</h2>
+      <p>Andreas Schneider <a href="bbedit/jsBeautify_BBED.scpt">adapted the script</a> for BBEdit editor. Your mac
+      will need the <a href="http://www.latenightsw.com/freeware/JavaScriptOSA/">JavaScript OSA extension</a> installed first.
+      <h2><a href="http://fiddler2.com/">Fiddler</a></h2>
+      <p>The popular web debugging proxy for Windows has a <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a> (based on this beautifier) which can reformat javascript on the fly.</p>
+      <h2>Other nice things</h2>
+      <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. Understanding what it says about your code can improve your skills greatly. It can hurt your feelings a little, though.</p>
+      <h2>Contacts</h2>
+      <p>If you find some problems with the generated javascript, adapt the script for your favourite editor, or something, my email is einars@gmail.com.</p>
+      <div id="footer">
+          <pre id="testresults"></pre>
+          Written by <a href="mailto:einars@gmail.com">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital</a> and others.
+          <a href="#" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=test_js_beautify(); return false;">Run tests?</a>
+
+      </div>
+</div>
+<a id="signature" href="http://spicausis.lv/"></a>
+
+<script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+if (window._gat) {
+    var tracker = _gat._getTracker("UA-7409939-1");
+    if (tracker && tracker._trackPageview) {
+        tracker._trackPageview();
+    }
+}
+</script>
+</body>
+</html>
