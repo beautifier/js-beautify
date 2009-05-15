@@ -326,6 +326,11 @@ function js_beautify(js_source_text, options)
             }
         }
 
+        if (c == '<' && input.substring(0, 4) === '<!--') {
+            parser_pos += 3;
+            return ['<!--', 'TK_COMMENT'];
+        }
+
         if (in_array(c, punct)) {
             while (parser_pos < input.length && in_array(c + input.charAt(parser_pos), punct)) {
                 c += input.charAt(parser_pos);
@@ -334,6 +339,7 @@ function js_beautify(js_source_text, options)
                     break;
                 }
             }
+
             return [c, 'TK_OPERATOR'];
         }
 
@@ -364,6 +370,8 @@ function js_beautify(js_source_text, options)
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
     digits = '0123456789'.split('');
+
+    // <!-- is a special case (ok, it's a minor hack actually)
     punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
 
     // words which should always start on new line.
@@ -668,6 +676,6 @@ function js_beautify(js_source_text, options)
         last_text = token_text;
     }
 
-    return output.join('');
+    return output.join('').replace(/\n+$/, '');
 
 }

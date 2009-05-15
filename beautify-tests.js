@@ -120,9 +120,9 @@ function test_js_beautify()
     bt('a = 1e-10', "a = 1e-10");
     bt('a = e - 10', "a = e - 10");
     bt('a = 11-10', "a = 11 - 10");
-    bt("a = 1;// comment\n", "a = 1; // comment\n");
-    bt("a = 1; // comment\n", "a = 1; // comment\n");
-    bt("a = 1;\n // comment\n", "a = 1;\n// comment\n");
+    bt("a = 1;// comment\n", "a = 1; // comment");
+    bt("a = 1; // comment\n", "a = 1; // comment");
+    bt("a = 1;\n // comment\n", "a = 1;\n// comment");
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
     bt("if\n(a)\nb()", "if (a) b()"); // test for proper newline removal
@@ -158,6 +158,8 @@ function test_js_beautify()
     bt('{a:#1#}', '{\n    a: #1#\n}');
     bt('{a:#1', '{\n    a: #1'); // incomplete
     bt('{a:#', '{\n    a: #'); // incomplete
+
+    bt('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
 
     bt('a=/regexp', 'a = /regexp'); // incomplete regexp
 
