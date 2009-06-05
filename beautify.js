@@ -472,6 +472,7 @@ function js_beautify(js_source_text, options)
             }
 
             prefix = 'NONE';
+
             if (last_type === 'TK_END_BLOCK') {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
@@ -500,7 +501,7 @@ function js_beautify(js_source_text, options)
                 if (last_text === 'else') {
                     // no need to force newline on else break
                     print_space();
-                } else if ((last_type === 'TK_START_EXPR' || last_text === '=') && token_text === 'function') {
+                } else if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
                 } else if (last_type === 'TK_WORD' && (last_text === 'return' || last_text === 'throw')) {

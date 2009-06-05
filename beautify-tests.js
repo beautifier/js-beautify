@@ -175,6 +175,11 @@ function test_js_beautify()
 
     bt("function namespace::something()");
 
+
+    bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function() {\n    alert(x);\n}');
+    bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction() {\n    alert(x);\n}');
+
+
     indent_size = 1;
     indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
