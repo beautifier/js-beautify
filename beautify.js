@@ -326,9 +326,17 @@ function js_beautify(js_source_text, options)
             }
         }
 
-        if (c == '<' && input.substring(0, 4) === '<!--') {
+        if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
             parser_pos += 3;
             return ['<!--', 'TK_COMMENT'];
+        }
+
+        if (c === '-' && input.substring(parser_pos - 1, parser_pos + 3) === '-->') {
+            parser_pos += 2;
+            if (wanted_newline) {
+                print_newline();
+            }
+            return ['-->', 'TK_COMMENT'];
         }
 
         if (in_array(c, punct)) {

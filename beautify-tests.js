@@ -175,6 +175,8 @@ function test_js_beautify()
 
     bt("function namespace::something()");
 
+    bt("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
+    bt("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
     bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function() {\n    alert(x);\n}');
     bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction() {\n    alert(x);\n}');
