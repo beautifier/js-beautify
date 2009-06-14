@@ -331,7 +331,7 @@ function js_beautify(js_source_text, options)
             return ['<!--', 'TK_COMMENT'];
         }
 
-        if (c === '-' && input.substring(parser_pos - 1, parser_pos + 3) === '-->') {
+        if (c === '-' && input.substring(parser_pos - 1, parser_pos + 2) === '-->') {
             parser_pos += 2;
             if (wanted_newline) {
                 print_newline();
