@@ -1,3 +1,4 @@
+/*jslint onevar: false */
 /*
 
  JS Beautifier
@@ -39,12 +40,12 @@ function js_beautify(js_source_text, options)
     var indent_level;
 
 
-    var options               = options || {};
-    var opt_indent_size       = options['indent_size'] || 4;
-    var opt_indent_char       = options['indent_char'] || ' ';
+    options               = options || {};
+    var opt_indent_size       = options.indent_size || 4;
+    var opt_indent_char       = options.indent_char || ' ';
     var opt_preserve_newlines =
-        typeof options['preserve_newlines'] === 'undefined' ? true : options['preserve_newlines'];
-    var opt_indent_level      = options['indent_level'] || 0; // starting indentation
+        typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
+    var opt_indent_level      = options.indent_level || 0; // starting indentation
 
 
     function trim_output()
@@ -69,7 +70,7 @@ function js_beautify(js_source_text, options)
         if (output[output.length - 1] !== "\n" || !ignore_repeated) {
             output.push("\n");
         }
-        for (var i = 0; i < indent_level; i++) {
+        for (var i = 0; i < indent_level; i += 1) {
             output.push(indent_string);
         }
     }
@@ -80,7 +81,7 @@ function js_beautify(js_source_text, options)
     {
         var last_output = ' ';
         if (output.length) {
-            last_output = output[output.length - 1]
+            last_output = output[output.length - 1];
         }
         if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
             output.push(' ');
@@ -95,14 +96,14 @@ function js_beautify(js_source_text, options)
 
     function indent()
     {
-        indent_level++;
+        indent_level += 1;
     }
 
 
     function unindent()
     {
         if (indent_level) {
-            indent_level--;
+            indent_level -= 1;
         }
     }
 
@@ -131,7 +132,7 @@ function js_beautify(js_source_text, options)
 
     function in_array(what, arr)
     {
-        for (var i = 0; i < arr.length; i++)
+        for (var i = 0; i < arr.length; i += 1)
         {
             if (arr[i] === what) {
                 return true;
@@ -171,7 +172,7 @@ function js_beautify(js_source_text, options)
 
         if (opt_preserve_newlines) {
             if (n_newlines > 1) {
-                for (var i = 0; i < 2; i++) {
+                for (var i = 0; i < 2; i += 1) {
                     print_newline(i === 0);
                 }
             }
@@ -287,7 +288,7 @@ function js_beautify(js_source_text, options)
                     if (parser_pos >= input.length) {
                         // incomplete string/rexp when end-of-file reached. 
                         // bail out with what had been received so far.
-                        return [resulting_string, 'TK_STRING']
+                        return [resulting_string, 'TK_STRING'];
                     }
                 }
 
@@ -297,7 +298,7 @@ function js_beautify(js_source_text, options)
 
             resulting_string += sep;
 
-            if (sep == '/') {
+            if (sep === '/') {
                 // regexps may have modifiers /regexp/MOD , so fetch those, too
                 while (parser_pos < input.length && in_array(input.charAt(parser_pos), wordchar)) {
                     resulting_string += input.charAt(parser_pos);
@@ -307,7 +308,7 @@ function js_beautify(js_source_text, options)
             return [resulting_string, 'TK_STRING'];
         }
 
-        if (c == '#') {
+        if (c === '#') {
             // Spidermonkey-specific sharp variables for circular references
             // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
@@ -317,7 +318,7 @@ function js_beautify(js_source_text, options)
                     c = input.charAt(parser_pos);
                     sharp += c;
                     parser_pos += 1;
-                } while (parser_pos < input.length && c != '#' && c != '=');
+                } while (parser_pos < input.length && c !== '#' && c !== '=');
                 if (c === '#') {
                     return [sharp, 'TK_WORD'];
                 } else {
@@ -358,8 +359,9 @@ function js_beautify(js_source_text, options)
     //----------------------------------
 
     indent_string = '';
-    while (opt_indent_size--) {
+    while (opt_indent_size > 0) {
         indent_string += opt_indent_char;
+        opt_indent_size -= 1;
     }
 
     indent_level = opt_indent_level;
@@ -555,7 +557,7 @@ function js_beautify(js_source_text, options)
 
         case 'TK_STRING':
 
-            if (last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type == 'TK_SEMICOLON') {
+            if (last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_space();
