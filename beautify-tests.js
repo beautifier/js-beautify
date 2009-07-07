@@ -101,7 +101,7 @@ function test_js_beautify()
     bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
     bt('a !== b');
     bt('if (a) b(); else c();', "if (a) b();\nelse c();");
-    bt("// comment\n(function()"); // typical greasemonkey start
+    bt("// comment\n(function()", "// comment\n(function ()"); // typical greasemonkey start
     bt("// comment\n(function something()"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
     bt('if (a in b)');
@@ -138,7 +138,7 @@ function test_js_beautify()
     bt("do {} while (1);");
     bt("do {\n} while (1);", "do {} while (1);");
     bt("do {\n\n} while (1);");
-    bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function() {},\nd = '';");
+    bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function () {},\nd = '';");
     bt("var a = x(a, b, c)");
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
@@ -181,8 +181,8 @@ function test_js_beautify()
     bt("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
     bt("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-    bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function() {\n    alert(x);\n}');
-    bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction() {\n    alert(x);\n}');
+    bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function () {\n    alert(x);\n}');
+    bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction () {\n    alert(x);\n}');
 
 
     indent_size = 1;

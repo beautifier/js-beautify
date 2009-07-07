@@ -411,7 +411,7 @@ function js_beautify(js_source_text, options)
                 // do nothing on (( and )( and ][ and ]( ..
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_space();
-            } else if (in_array(last_word, line_starters) && last_word !== 'function') {
+            } else if (in_array(last_word, line_starters)) {
                 print_space();
             }
             print_token();
