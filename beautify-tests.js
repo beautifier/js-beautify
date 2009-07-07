@@ -1,3 +1,4 @@
+/*global js_beautify */
 var tests_passed = 0;
 var tests_failed = 0;
 var test_result  = '';
@@ -16,9 +17,9 @@ function bt(input, expected)
 {
     expected = expected || input;
 
-    result = js_beautify(input, {indent_size:indent_size, indent_char:indent_char, preserve_newlines:preserve_newlines});
+    var result = js_beautify(input, {indent_size: indent_size, indent_char: indent_char, preserve_newlines: preserve_newlines});
 
-    if (result != expected) {
+    if (result !== expected) {
         test_result +=
             '\n---- input --------\n' + lazy_escape(input) +
             '\n---- expected -----\n' + lazy_escape(expected) +
@@ -33,7 +34,7 @@ function bt(input, expected)
 
 function results()
 {
-    if (tests_failed == 0) {
+    if (tests_failed === 0) {
         test_result += 'All ' + tests_passed + ' tests passed.';
     } else {
         test_result += '\n' + tests_failed + ' tests failed.';
