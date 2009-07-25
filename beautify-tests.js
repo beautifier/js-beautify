@@ -185,6 +185,12 @@ function test_js_beautify()
     bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function () {\n    alert(x);\n}');
     bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction () {\n    alert(x);\n}');
 
+    // regexps
+    bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
+    bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
+    bt('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
+    // allow unescaped / in char classes
+    bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 
     indent_size = 1;
     indent_char = ' ';

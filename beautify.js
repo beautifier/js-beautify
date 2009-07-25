@@ -276,21 +276,53 @@ function js_beautify(js_source_text, options)
             var resulting_string = c;
 
             if (parser_pos < input.length) {
+                if (sep === '/') {
+                    //
+                    // handle regexp separately...
+                    //
 
-                while (esc || input.charAt(parser_pos) !== sep) {
-                    resulting_string += input.charAt(parser_pos);
-                    if (!esc) {
-                        esc = input.charAt(parser_pos) === '\\';
-                    } else {
-                        esc = false;
+                    var in_char_class = false;
+                    while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
+                        resulting_string += input.charAt(parser_pos);
+                        if (!esc) {
+                            esc = input.charAt(parser_pos) === '\\';
+                            if (input.charAt(parser_pos) === '[') {
+                                in_char_class = true;
+                            } else if (input.charAt(parser_pos) === ']') {
+                                in_char_class = false;
+                            }
+                        } else {
+                            esc = false;
+                        }
+                        parser_pos += 1;
+                        if (parser_pos >= input.length) {
+                            // incomplete string/rexp when end-of-file reached. 
+                            // bail out with what had been received so far.
+                            return [resulting_string, 'TK_STRING'];
+                        }
                     }
-                    parser_pos += 1;
-                    if (parser_pos >= input.length) {
-                        // incomplete string/rexp when end-of-file reached. 
-                        // bail out with what had been received so far.
-                        return [resulting_string, 'TK_STRING'];
+
+                } else {
+                    //
+                    // and handle string also separately
+                    //
+                    while (esc || input.charAt(parser_pos) !== sep) {
+                        resulting_string += input.charAt(parser_pos);
+                        if (!esc) {
+                            esc = input.charAt(parser_pos) === '\\';
+                        } else {
+                            esc = false;
+                        }
+                        parser_pos += 1;
+                        if (parser_pos >= input.length) {
+                            // incomplete string/rexp when end-of-file reached. 
+                            // bail out with what had been received so far.
+                            return [resulting_string, 'TK_STRING'];
+                        }
                     }
                 }
+
+
 
             }
 
