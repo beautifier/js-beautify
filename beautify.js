@@ -691,10 +691,21 @@ function js_beautify(js_source_text, options)
                 break;
             } else if (token_text === '--' || token_text === '++') { // unary operators special case
                 if (last_text === ';') {
-                    // space for (;; ++i)
-                    start_delim = true;
-                    end_delim = false;
+                    if (current_mode === 'BLOCK') {
+                        // { foo; --i }
+                        print_newline();
+                        start_delim = true;
+                        end_delim = false;
+                    } else {
+                        // space for (;; ++i)
+                        start_delim = true;
+                        end_delim = false;
+                    }
                 } else {
+                    if (last_text === '{') {
+                        // {--i
+                        print_newline();
+                    }
                     start_delim = false;
                     end_delim = false;
                 }

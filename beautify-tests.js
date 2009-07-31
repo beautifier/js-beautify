@@ -193,6 +193,11 @@ function test_js_beautify()
     bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function () {\n    alert(x);\n}');
     bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction () {\n    alert(x);\n}');
 
+    bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
+    bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
+    bt('{--bar;}', '{\n    --bar;\n}');
+    bt('{++bar;}', '{\n    ++bar;\n}');
+
     // regexps
     bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
     bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
