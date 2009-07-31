@@ -1,4 +1,4 @@
-/*jslint onevar: false */
+/*jslint onevar: false, plusplus: false */
 /*
 
  JS Beautifier
@@ -167,7 +167,8 @@ function js_beautify(js_source_text, options)
                 if (level === 0) {
                     return false;
                 }
-                // fall through when level !== 0
+                level--;
+                break;
             case '(':
             case '[':
                 level--;
