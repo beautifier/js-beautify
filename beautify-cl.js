@@ -21,7 +21,8 @@ load("HTML-Beautify.js");
 
 
 function print_usage() {
-    print("Usage: java org.mozilla.javascript.tools.shell.Main beautify-cl.js [options] file || URL\n");
+    print("Usage: java org.mozilla.javascript.tools.shell.Main beautify-cl.js [options] [file || URL]\n");
+    print("Reads from standard input if no file or URL is specified.\n");
     print("Options:");
     print("-i NUM\tIndent size (1 for TAB)");
     print("-n\tPreserve newlines");
@@ -62,12 +63,24 @@ function parse_opts(args) {
 
 
 function do_js_beautify() {
-    var js_source; // Check if source argument is an URL
-    if (options.source.substring(0, 4) === 'http') {
-        js_source = readUrl(options.source);
-    } // Otherwise, read from file
-    else {
-        js_source = readFile(options.source);
+    var js_source = ''; 
+    if (options.source) { // Check if source argument is an URL
+        if (options.source.substring(0, 4) === 'http') {
+            js_source = readUrl(options.source);
+        } else { // Otherwise, read from file
+            js_source = readFile(options.source);
+        }
+    } else { // read from stdin
+        importPackage(java.io);
+        importPackage(java.lang);
+        var stdin = new BufferedReader(new InputStreamReader(System['in']));
+        var lines = [];
+     
+        // read stdin buffer until EOF
+        while (stdin.ready()) {
+            lines.push(stdin.readLine());
+        }
+        if (lines.length) js_source = lines.join("\n");
     }
     js_source = js_source.replace(/^\s+/, '');
     var indent_size = options.indent || 2;
