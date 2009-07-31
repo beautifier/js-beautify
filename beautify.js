@@ -141,6 +141,45 @@ function js_beautify(js_source_text, options)
         return false;
     }
 
+    // Walk backwards from the colon to find a '?' (colon is part of a ternary op)
+    // or a '{' (colon is part of a class literal).  Along the way, keep track of
+    // the blocks and expressions we pass so we only trigger on those chars in our
+    // own level, and keep track of the colons so we only trigger on the matching '?'.
+    function is_ternary_op() {
+        var level = 0, colon_count = 0;
+        for (var i = output.length - 1; i >= 0; i--) {
+            switch (output[i]) {
+            case ':':
+                if (level === 0) {
+                    colon_count++;
+                }
+                break;
+            case '?':
+                if (level === 0) {
+                    if (colon_count === 0) {
+                        return true;
+                    } else {
+                        colon_count--;
+                    }
+                } 
+                break;
+            case '{':
+                if (level === 0) {
+                    return false;
+                }
+                // fall through when level !== 0
+            case '(':
+            case '[':
+                level--;
+                break;
+            case ')':
+            case ']':
+            case '}':
+                level++;
+                break;
+            }
+        }
+    }
 
 
     function get_next_token()
@@ -439,7 +478,7 @@ function js_beautify(js_source_text, options)
         case 'TK_START_EXPR':
             var_line = false;
             set_mode('EXPRESSION');
-            if (last_text === ';') {
+            if (last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
             } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR') {
                 // do nothing on (( and )( and ][ and ]( ..
@@ -615,6 +654,7 @@ function js_beautify(js_source_text, options)
             if (token_text === ':' && in_case) {
                 print_token(); // colon really asks for separate treatment
                 print_newline();
+                in_case = false; 
                 break;
             }
 
@@ -623,8 +663,6 @@ function js_beautify(js_source_text, options)
                 print_token();
                 break;
             }
-
-            in_case = false;
 
             if (token_text === ',') {
                 if (var_line) {
@@ -659,7 +697,10 @@ function js_beautify(js_source_text, options)
                     start_delim = false;
                     end_delim = false;
                 }
-            } else if (token_text === '!' && last_type === 'TK_START_EXPR') {
+            } else if ((token_text === '!' || token_text === '+' || token_text === '-') && (last_text === 'return' || last_text === 'case')) {
+                start_delim = true;
+                end_delim = false;
+            } else if ((token_text === '!' || token_text === '+' || token_text === '-') && last_type === 'TK_START_EXPR') {
                 // special case handling: if (!a)
                 start_delim = false;
                 end_delim = false;
@@ -675,10 +716,7 @@ function js_beautify(js_source_text, options)
                 end_delim = false;
 
             } else if (token_text === ':') {
-                // zz: xx
-                // can't differentiate ternary op, so for now it's a ? b: c; without space before colon
-                if (last_text.match(/^\d+$/)) {
-                    // a little help for ternary a ? 1 : 0;
+                if (is_ternary_op()) {
                     start_delim = true;
                 } else {
                     start_delim = false;
