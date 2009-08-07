@@ -44,7 +44,7 @@ function parse_opts(args) {
                 options.indent = args.shift();
                 break;
             case "-p":
-                options.space_after_anon_function = true;
+                options.jslint_pedantic = true;
                 break;
             case "-n":
                 options.preserve_newlines = true;
@@ -100,7 +100,8 @@ function do_js_beautify() {
         result = js_beautify(js_source, {
             indent_size: indent_size,
             indent_char: indent_char,
-            preserve_newlines: preserve_newlines
+            preserve_newlines: preserve_newlines,
+            space_after_anon_function: options.jslint_pedantic
         });
     }
     return result;
