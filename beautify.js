@@ -22,6 +22,9 @@
     preserve_newlines (default true) — whether existing line breaks should be preserved,
     indent_level (default 0)  — initial indentation level, you probably won't need this ever,
 
+    space_after_anon_function (default true) — if true, then space is added between "function ()"
+            (jslint is happy about this); if false, then the common "function()" output is used.
+
     e.g
 
     js_beautify(js_source_text, {indent_size: 1, indent_char: '\t'});
@@ -40,12 +43,13 @@ function js_beautify(js_source_text, options)
     var indent_level;
 
 
-    options               = options || {};
+    options                   = options || {};
     var opt_indent_size       = options.indent_size || 4;
     var opt_indent_char       = options.indent_char || ' ';
     var opt_preserve_newlines =
         typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
     var opt_indent_level      = options.indent_level || 0; // starting indentation
+    var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
 
 
     function trim_output()
@@ -485,6 +489,11 @@ function js_beautify(js_source_text, options)
                 // do nothing on (( and )( and ][ and ]( ..
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_space();
+            } else if (last_word === 'function') {
+                // function() vs function ()
+                if (opt_space_after_anon_function) {
+                    print_space();
+                }
             } else if (in_array(last_word, line_starters)) {
                 print_space();
             }
@@ -586,13 +595,13 @@ function js_beautify(js_source_text, options)
                 } else if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
-                } else if (last_type === 'TK_WORD' && (last_text === 'return' || last_text === 'throw')) {
+                } else if (last_text === 'return' || last_text === 'throw') {
                     // no newline between 'return nnn'
                     print_space();
                 } else if (last_type !== 'TK_END_EXPR') {
                     if ((last_type !== 'TK_START_EXPR' || token_text !== 'var') && last_text !== ':') {
                         // no need to force newline on 'var': for (var x = 0...)
-                        if (token_text === 'if' && last_type === 'TK_WORD' && last_word === 'else') {
+                        if (token_text === 'if' && last_word === 'else') {
                             // no newline for } else if {
                             print_space();
                         } else {
@@ -683,7 +692,7 @@ function js_beautify(js_source_text, options)
                         print_token();
                         print_newline();
                     } else {
-                        // EXPR od DO_BLOCK
+                        // EXPR or DO_BLOCK
                         print_token();
                         print_space();
                     }

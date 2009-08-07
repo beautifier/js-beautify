@@ -72,7 +72,7 @@ function do_js_beautify()
         document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80);
     } else {
         document.getElementById('content').value =
-        js_beautify(unpacker_filter(js_source), {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines});
+        js_beautify(unpacker_filter(js_source), {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines, space_after_anon_function:true});
     }
 
     document.getElementById('beautify').disabled = false;

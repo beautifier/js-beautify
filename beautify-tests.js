@@ -7,6 +7,7 @@ var test_result  = '';
 var indent_size       = 4;
 var indent_char       = ' ';
 var preserve_newlines = true;
+var space_after_anon_function = true;
 
 function lazy_escape(str)
 {
@@ -17,7 +18,11 @@ function bt(input, expected)
 {
     expected = expected || input;
 
-    var result = js_beautify(input, {indent_size: indent_size, indent_char: indent_char, preserve_newlines: preserve_newlines});
+    var result = js_beautify(input, {
+        indent_size: indent_size,
+        indent_char: indent_char,
+        preserve_newlines: preserve_newlines,
+        space_after_anon_function: space_after_anon_function});
 
     if (result !== expected) {
         test_result +=
@@ -50,6 +55,7 @@ function test_js_beautify()
     indent_char       = ' ';
     test_result       = '';
     preserve_newlines = true;
+    space_after_anon_function = true;
 
     bt('');
     bt('a        =          1', 'a = 1');
@@ -106,7 +112,6 @@ function test_js_beautify()
     bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
     bt('a !== b');
     bt('if (a) b(); else c();', "if (a) b();\nelse c();");
-    bt("// comment\n(function()", "// comment\n(function ()"); // typical greasemonkey start
     bt("// comment\n(function something()"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
     bt('if (a in b)');
@@ -144,7 +149,6 @@ function test_js_beautify()
     bt("do {} while (1);");
     bt("do {\n} while (1);", "do {} while (1);");
     bt("do {\n\n} while (1);");
-    bt("var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function () {},\nd = '';");
     bt("var a = x(a, b, c)");
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
@@ -190,9 +194,6 @@ function test_js_beautify()
     bt("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
     bt("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-    bt('var o=$.extend(a,function(){alert(x);}', 'var o = $.extend(a, function () {\n    alert(x);\n}');
-    bt('var o=$.extend(a);function(){alert(x);}', 'var o = $.extend(a);\nfunction () {\n    alert(x);\n}');
-
     bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
     bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
     bt('{--bar;}', '{\n    --bar;\n}');
@@ -204,6 +205,20 @@ function test_js_beautify()
     bt('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
     // allow unescaped / in char classes
     bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+
+    space_after_anon_function = true;
+
+    bt("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
+    bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\nc = function () {},\nd = '';");
+    bt('var o1=$.extend(a,function(){alert(x);}', 'var o1 = $.extend(a, function () {\n    alert(x);\n}');
+    bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\nfunction () {\n    alert(x);\n}');
+
+    space_after_anon_function = false;
+
+    bt("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
+    bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\nc = function() {},\nd = '';");
+    bt('var o2=$.extend(a,function(){alert(x);}', 'var o2 = $.extend(a, function() {\n    alert(x);\n}');
+    bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\nfunction() {\n    alert(x);\n}');
 
     indent_size = 1;
     indent_char = ' ';
