@@ -26,6 +26,7 @@ function print_usage() {
     print("Options:");
     print("-i NUM\tIndent size (1 for TAB)");
     print("-n\tPreserve newlines");
+    print("-p\tJSLint-pedantic mode, currently only adds space between \"function ()\"");
     print("-h\tPrint this help\n");
     print("Examples:");
     print("beautify-cl.js -i 2 example.js");
@@ -41,6 +42,9 @@ function parse_opts(args) {
             switch (param) {
             case "-i":
                 options.indent = args.shift();
+                break;
+            case "-p":
+                options.space_after_anon_function = true;
                 break;
             case "-n":
                 options.preserve_newlines = true;
