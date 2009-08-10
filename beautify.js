@@ -22,7 +22,7 @@
     preserve_newlines (default true) — whether existing line breaks should be preserved,
     indent_level (default 0)  — initial indentation level, you probably won't need this ever,
 
-    space_after_anon_function (default true) — if true, then space is added between "function ()"
+    space_after_anon_function (default false) — if true, then space is added between "function ()"
             (jslint is happy about this); if false, then the common "function()" output is used.
 
     e.g
