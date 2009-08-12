@@ -482,7 +482,21 @@ function js_beautify(js_source_text, options)
 
         case 'TK_START_EXPR':
             var_line = false;
-            set_mode('EXPRESSION');
+
+            if (token_text === '[') {
+                if (current_mode === '[EXPRESSION]') {
+                    // multidimensional arrays
+                    // (more like two-dimensional, though: deeper levels are treated the same as the second)
+                    print_newline();
+                    output.push(indent_string);
+                }
+            }
+
+            if (token_text === '[') {
+                set_mode('[EXPRESSION]');
+            } else {
+                set_mode('(EXPRESSION)');
+            }
             if (last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
             } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR') {
@@ -501,8 +515,8 @@ function js_beautify(js_source_text, options)
             break;
 
         case 'TK_END_EXPR':
-            print_token();
             restore_mode();
+            print_token();
             break;
 
         case 'TK_START_BLOCK':
@@ -573,7 +587,7 @@ function js_beautify(js_source_text, options)
                 }
             } else if (last_type === 'TK_SEMICOLON' && (current_mode === 'BLOCK' || current_mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';
-            } else if (last_type === 'TK_SEMICOLON' && current_mode === 'EXPRESSION') {
+            } else if (last_type === 'TK_SEMICOLON' && (current_mode === '[EXPRESSION]' || current_mode === '(EXPRESSION)')) {
                 prefix = 'SPACE';
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
@@ -656,7 +670,7 @@ function js_beautify(js_source_text, options)
                     var_line = false;
                 }
             }
-            if (var_line && token_text === ',' && current_mode === 'EXPRESSION') {
+            if (var_line && token_text === ',' && (current_mode === '[EXPRESSION]' || current_mode === '(EXPRESSION)')) {
                 // do not break on comma, for(var a = 1, b = 2)
                 var_line_tainted = false;
             }
