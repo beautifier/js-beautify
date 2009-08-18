@@ -16,6 +16,13 @@ function add_onload_function(fn)
     window.onload = function() { if (oe) oe(); fn(); }
 }
 add_onload_function(function() {
+
+    var tabsize = get_var('tabsize');
+    if (tabsize) {
+        document.getElementById('tabsize').value = tabsize;
+    }
+
+
     var c = document.forms[0].content;
     c && c.setSelectionRange && c.setSelectionRange(0, 0);
     c && c.focus && c.focus();
@@ -78,6 +85,14 @@ function do_js_beautify()
     document.getElementById('beautify').disabled = false;
     return false;
 }
+
+
+function get_var( name )
+{
+    var res = new RegExp( "[\\?&]" + name + "=([^&#]*)" ).exec( window.location.href );
+    return res ? res[1] : "";
+}
+
 </script>
 <script type="text/javascript" src="beautify.js" ></script>
 <script type="text/javascript" src="beautify-tests.js" ></script>
