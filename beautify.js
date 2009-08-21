@@ -37,7 +37,7 @@
 function js_beautify(js_source_text, options)
 {
 
-    var input, output, token_text, last_type, last_text, last_word, current_mode, modes, indent_string;
+    var input, output, token_text, last_type, last_text, last_last_text, last_word, current_mode, modes, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case, digits;
     var prefix, token_type, do_block_just_closed, var_line, var_line_tainted, if_line_flag;
     var indent_level;
@@ -447,6 +447,7 @@ function js_beautify(js_source_text, options)
     last_word = ''; // last 'TK_WORD' passed
     last_type = 'TK_START_EXPR'; // last token type
     last_text = ''; // last token text
+    last_last_text = ''; // pre-last token text
     output = [];
 
     do_block_just_closed = false;
@@ -483,10 +484,14 @@ function js_beautify(js_source_text, options)
         case 'TK_START_EXPR':
             var_line = false;
 
-            if (token_text === '[') {
-                if (current_mode === '[EXPRESSION]' && (in_array(last_text, [',', '[']))) {
-                    // multidimensional arrays
-                    // (more like two-dimensional, though: deeper levels are treated the same as the second)
+            if (token_text === '[' && current_mode === '[EXPRESSION]') {
+                // multidimensional arrays
+                // (more like two-dimensional, though: deeper levels are treated the same as the second)
+                if (last_last_text === ']' && last_text === ',') {
+                    print_newline();
+                    output.push(indent_string);
+                }
+                if (last_text === '[') {
                     print_newline();
                     output.push(indent_string);
                 }
@@ -788,6 +793,7 @@ function js_beautify(js_source_text, options)
             break;
         }
 
+        last_last_text = last_text;
         last_type = token_type;
         last_text = token_text;
     }
