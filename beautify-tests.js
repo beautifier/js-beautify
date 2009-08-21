@@ -207,6 +207,7 @@ function test_js_beautify()
     bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 
     bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]]");
+    bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
 
     space_after_anon_function = true;
 

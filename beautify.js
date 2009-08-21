@@ -484,7 +484,7 @@ function js_beautify(js_source_text, options)
             var_line = false;
 
             if (token_text === '[') {
-                if (current_mode === '[EXPRESSION]') {
+                if (current_mode === '[EXPRESSION]' && (in_array(last_text, [',', '[']))) {
                     // multidimensional arrays
                     // (more like two-dimensional, though: deeper levels are treated the same as the second)
                     print_newline();
