@@ -22,7 +22,8 @@ function bt(input, expected)
         indent_size: indent_size,
         indent_char: indent_char,
         preserve_newlines: preserve_newlines,
-        space_after_anon_function: space_after_anon_function});
+        space_after_anon_function: space_after_anon_function
+    });
 
     if (result !== expected) {
         test_result +=
