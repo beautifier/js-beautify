@@ -488,12 +488,12 @@ function js_beautify(js_source_text, options)
                 // multidimensional arrays
                 // (more like two-dimensional, though: deeper levels are treated the same as the second)
                 if (last_last_text === ']' && last_text === ',') {
+                    indent();
                     print_newline();
-                    output.push(indent_string);
                 }
                 if (last_text === '[') {
+                    indent();
                     print_newline();
-                    output.push(indent_string);
                 }
             }
 
@@ -521,6 +521,9 @@ function js_beautify(js_source_text, options)
 
         case 'TK_END_EXPR':
             restore_mode();
+            if (token_text === ']' && current_mode === '[EXPRESSION]') {
+                unindent();
+            }
             print_token();
             break;
 
