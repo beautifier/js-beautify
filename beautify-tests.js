@@ -229,6 +229,8 @@ function test_js_beautify()
     bt('var o2=$.extend(a,function(){alert(x);}', 'var o2 = $.extend(a, function() {\n    alert(x);\n}');
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\nfunction() {\n    alert(x);\n}');
 
+    bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
+
     indent_size = 1;
     indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
