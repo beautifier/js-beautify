@@ -214,6 +214,17 @@ function test_js_beautify()
     bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
         '[\n    [\n        ["1", "2"],\n        ["3", "4"]],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]]]');
 
+    bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}');
+
+function foo(sQuery, oResponse, oPayload, o) {        
+    if (oResponse.results.length < 10) {
+        for (var i = 0; i < test.ac.people1.length; i++) {
+            var uname = [test.ac.people1[i].split("\t")[0], 
+test.ac.people1[i].split("\t")[1]];
+                    oResponse.results.push(uname);
+                }
+        }
+}
 
     space_after_anon_function = true;
 

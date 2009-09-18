@@ -486,8 +486,9 @@ function js_beautify(js_source_text, options)
 
             if (token_text === '[') {
 
-                if (last_type === 'TK_WORD') {
+                if (last_type === 'TK_WORD' || last_text === ')') {
                     // this is array index specifier, break immediately
+                    // a[x], fn()[x]
                     set_mode('(EXPRESSION)');
                     print_token();
                     break;
