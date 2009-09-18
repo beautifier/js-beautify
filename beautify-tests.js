@@ -14,7 +14,7 @@ function lazy_escape(str)
     return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
 }
 
-function bt(input, expected)
+function test_beautifier(input, expected)
 {
     expected = expected || input;
 
@@ -34,6 +34,27 @@ function bt(input, expected)
         tests_failed += 1;
     } else {
         tests_passed += 1;
+    }
+
+}
+function bt(input, expected)
+{
+    expected = expected || input;
+    test_beautifier(input, expected);
+
+    // test also the returned indentation
+    // e.g if input = "asdf();"
+    // then test that this remains properly formatted as well:
+    // {
+    //     asdf();
+    //     indent;
+    // }
+
+    if (indent_size === 4 && input) {
+        wrapped_input = '{\n' + input + '\nindent;}';
+        //wrapped_expectation = '{\n    ' + expected.replace(/^\s{4}/gm, 'g        ') + '\n    indent;\n}';
+        wrapped_expectation = '{\n' + expected.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
+        test_beautifier(wrapped_input, wrapped_expectation);
     }
 
 }
@@ -63,13 +84,14 @@ function test_js_beautify()
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
     bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
+    bt('var a=1, b=c[d], e=6;', 'var a = 1,\nb = c[d],\ne = 6;');
     bt('a = " 12345 "');
     bt("a = ' 12345 '");
-    bt('if (a == 1) b = 2', "if (a == 1) b = 2");
+    bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
     bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-    bt('if(1||2)', 'if (1 || 2)');
+    bt('if(1||2);', 'if (1 || 2);');
     bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
-    bt('var a = 1 if (2) 3', "var a = 1\nif (2) 3");
+    bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
     bt('a = a + 1');
     bt('a = a == 1');
     bt('/12345[^678]*9+/.match(a)');
@@ -94,12 +116,12 @@ function test_js_beautify()
     bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');   
     bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;');
     bt('function void(void) {}');
-    bt('if(!a)', 'if (!a)');
+    bt('if(!a)foo();', 'if (!a) foo();');
     bt('a=~a', 'a = ~a');
     bt('a;/*comment*/b;', "a;\n/*comment*/\nb;");
-    bt('if(a)break', "if (a) break");
+    bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
-    bt('if((a))', 'if ((a))');
+    bt('if((a))foo();', 'if ((a)) foo();');
     bt('for(var i=0;;)', 'for (var i = 0;;)');
     bt('a++;', 'a++;');
     bt('for(;;i++)', 'for (;; i++)');
@@ -108,19 +130,19 @@ function test_js_beautify()
     bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch(b) {\n    c();\n} finally {\n    d();\n}");
     bt('(xx)()'); // magic function call
     bt('a[1]()'); // another magic function call
-    bt('if(a){b();}else if(', "if (a) {\n    b();\n} else if (");
+    bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
     bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
     bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
     bt('a !== b');
     bt('if (a) b(); else c();', "if (a) b();\nelse c();");
-    bt("// comment\n(function something()"); // typical greasemonkey start
+    bt("// comment\n(function something() {})"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
-    bt('if (a in b)');
+    bt('if (a in b) foo();');
     //bt('var a, b');
     bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
     bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
     bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
-    bt('if (template.user[n] in bk)');
+    bt('if (template.user[n] in bk) foo();');
     bt('{{}/z/}', "{\n    {}\n    /z/\n}");
     bt('return 45', "return 45");
     bt('If[1]', "If[1]");
@@ -137,12 +159,12 @@ function test_js_beautify()
     bt("a = 1;\n // comment\n", "a = 1;\n// comment");
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
-    bt("if\n(a)\nb()", "if (a) b()"); // test for proper newline removal
+    bt("if\n(a)\nb();", "if (a) b();"); // test for proper newline removal
 
     bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
     bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
-    bt("if (a) b() else c()", "if (a) b()\nelse c()");
-    bt("if (a) b() else if c() d()", "if (a) b()\nelse if c() d()");
+    bt("if (a) b() else c();", "if (a) b()\nelse c();");
+    bt("if (a) b() else if c() d();", "if (a) b()\nelse if c() d();");
 
     bt("{}");
     bt("{\n\n}");
@@ -170,12 +192,12 @@ function test_js_beautify()
     bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
     bt('{a:#1={}}', '{\n    a: #1={}\n}');
     bt('{a:#1#}', '{\n    a: #1#\n}');
-    bt('{a:#1', '{\n    a: #1'); // incomplete
-    bt('{a:#', '{\n    a: #'); // incomplete
+    test_beautifier('{a:#1', '{\n    a: #1'); // incomplete
+    test_beautifier('{a:#', '{\n    a: #'); // incomplete
 
-    bt('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
+    test_beautifier('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
 
-    bt('a=/regexp', 'a = /regexp'); // incomplete regexp
+    test_beautifier('a=/regexp', 'a = /regexp'); // incomplete regexp
 
     bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}');
  
@@ -189,11 +211,11 @@ function test_js_beautify()
 
     bt("function namespace::something()");
 
-    bt("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
-    bt("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
+    test_beautifier("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
+    test_beautifier("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-    bt("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
-    bt("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
+    test_beautifier("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
+    test_beautifier("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
     bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
     bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
@@ -203,7 +225,7 @@ function test_js_beautify()
     // regexps
     bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
     bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
-    bt('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
+    test_beautifier('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
     // allow unescaped / in char classes
     bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 
@@ -215,16 +237,6 @@ function test_js_beautify()
         '[\n    [\n        ["1", "2"],\n        ["3", "4"]],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]]]');
 
     bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}');
-
-function foo(sQuery, oResponse, oPayload, o) {        
-    if (oResponse.results.length < 10) {
-        for (var i = 0; i < test.ac.people1.length; i++) {
-            var uname = [test.ac.people1[i].split("\t")[0], 
-test.ac.people1[i].split("\t")[1]];
-                    oResponse.results.push(uname);
-                }
-        }
-}
 
     space_after_anon_function = true;
 
