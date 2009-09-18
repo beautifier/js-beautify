@@ -39,6 +39,8 @@ function test_beautifier(input, expected)
 }
 function bt(input, expected)
 {
+    var wrapped_input, wrapped_expectation;
+
     expected = expected || input;
     test_beautifier(input, expected);
 

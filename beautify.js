@@ -503,7 +503,7 @@ function js_beautify(js_source_text, options)
                     break;
                 }
 
-                if (current_mode === '[EXPRESSION]' || current_mode == '[INDENTED-EXPRESSION]') {
+                if (current_mode === '[EXPRESSION]' || current_mode === '[INDENTED-EXPRESSION]') {
                     if (last_last_text === ']' && last_text === ',') {
                         // ], [ goes to new line
                         indent();
