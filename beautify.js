@@ -37,10 +37,10 @@
 function js_beautify(js_source_text, options)
 {
 
-    var input, output, token_text, last_type, last_text, last_last_text, last_word, current_mode, previous_mode, modes, indent_string;
+    var input, output, token_text, last_type, last_text, last_last_text, last_word, current_mode, modes, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, in_case, digits;
     var prefix, token_type, do_block_just_closed, var_line, var_line_tainted, if_line_flag;
-    var indent_level;
+    var indent_level, wanted_newline, just_added_newline;
 
 
     options                   = options || {};
@@ -50,6 +50,8 @@ function js_beautify(js_source_text, options)
         typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
     var opt_indent_level      = options.indent_level || 0; // starting indentation
     var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
+
+    just_added_newline = false;
 
 
     function trim_output()
@@ -72,6 +74,7 @@ function js_beautify(js_source_text, options)
         }
 
         if (output[output.length - 1] !== "\n" || !ignore_repeated) {
+            just_added_newline = true;
             output.push("\n");
         }
         for (var i = 0; i < indent_level; i += 1) {
@@ -95,6 +98,7 @@ function js_beautify(js_source_text, options)
 
     function print_token()
     {
+        just_added_newline = false;
         output.push(token_text);
     }
 
@@ -124,6 +128,11 @@ function js_beautify(js_source_text, options)
     {
         modes.push(current_mode);
         current_mode = mode;
+    }
+
+    function is_expression(mode)
+    {
+        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]' || mode === '(EXPRESSION)';
     }
 
 
@@ -212,7 +221,7 @@ function js_beautify(js_source_text, options)
 
         }
 
-        var wanted_newline = false;
+        wanted_newline = false;
 
         if (opt_preserve_newlines) {
             if (n_newlines > 1) {
@@ -494,18 +503,23 @@ function js_beautify(js_source_text, options)
                     break;
                 }
 
-                if (current_mode === '[EXPRESSION]') {
+                if (current_mode === '[EXPRESSION]' || current_mode == '[INDENTED-EXPRESSION]') {
                     if (last_last_text === ']' && last_text === ',') {
                         // ], [ goes to new line
                         indent();
                         print_newline();
+                        set_mode('[INDENTED-EXPRESSION]');
                     } else if (last_text === '[') {
                         indent();
                         print_newline();
+                        set_mode('[INDENTED-EXPRESSION]');
+                    } else {
+                        set_mode('[EXPRESSION]');
                     }
+                } else {
+                    set_mode('[EXPRESSION]');
                 }
 
-                set_mode('[EXPRESSION]');
 
 
             } else {
@@ -531,11 +545,10 @@ function js_beautify(js_source_text, options)
             break;
 
         case 'TK_END_EXPR':
-            previous_mode = current_mode;
-            restore_mode();
-            if (token_text === ']' && current_mode === '[EXPRESSION]' && (previous_mode != '(EXPRESSION)')) {
+            if (token_text === ']' && current_mode === '[INDENTED-EXPRESSION]') {
                 unindent();
             }
+            restore_mode();
             print_token();
             break;
 
@@ -560,7 +573,15 @@ function js_beautify(js_source_text, options)
         case 'TK_END_BLOCK':
             if (last_type === 'TK_START_BLOCK') {
                 // nothing
-                trim_output();
+                if (just_added_newline) {
+                    remove_indent();
+                    // {
+                    //
+                    // }
+                } else {
+                    // {}
+                    trim_output();
+                }
                 unindent();
             } else {
                 unindent();
@@ -571,6 +592,9 @@ function js_beautify(js_source_text, options)
             break;
 
         case 'TK_WORD':
+
+            // no, it's not you. even I have problems understanding how this works
+            // and what does what.
 
             if (do_block_just_closed) {
                 // do {} ## while ()
@@ -607,7 +631,7 @@ function js_beautify(js_source_text, options)
                 }
             } else if (last_type === 'TK_SEMICOLON' && (current_mode === 'BLOCK' || current_mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';
-            } else if (last_type === 'TK_SEMICOLON' && (current_mode === '[EXPRESSION]' || current_mode === '(EXPRESSION)')) {
+            } else if (last_type === 'TK_SEMICOLON' && is_expression(current_mode)) {
                 prefix = 'SPACE';
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
@@ -690,7 +714,7 @@ function js_beautify(js_source_text, options)
                     var_line = false;
                 }
             }
-            if (var_line && token_text === ',' && (current_mode === '[EXPRESSION]' || current_mode === '(EXPRESSION)')) {
+            if (var_line && token_text === ',' && (is_expression(current_mode))) {
                 // do not break on comma, for(var a = 1, b = 2)
                 var_line_tainted = false;
             }
