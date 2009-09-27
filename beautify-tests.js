@@ -256,6 +256,8 @@ function test_js_beautify()
 
     bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
 
+    bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
+
     indent_size = 1;
     indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");

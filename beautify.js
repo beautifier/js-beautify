@@ -659,7 +659,7 @@ function js_beautify(js_source_text, options)
                 } else if (last_type !== 'TK_END_EXPR') {
                     if ((last_type !== 'TK_START_EXPR' || token_text !== 'var') && last_text !== ':') {
                         // no need to force newline on 'var': for (var x = 0...)
-                        if (token_text === 'if' && last_word === 'else') {
+                        if (token_text === 'if' && last_word === 'else' && last_text !== '{') {
                             // no newline for } else if {
                             print_space();
                         } else {
