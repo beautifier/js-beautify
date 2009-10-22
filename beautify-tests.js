@@ -1,7 +1,4 @@
 /*global js_beautify */
-var tests_passed = 0;
-var tests_failed = 0;
-var test_result  = '';
 
 
 var indent_size       = 4;
@@ -9,40 +6,26 @@ var indent_char       = ' ';
 var preserve_newlines = true;
 var space_after_anon_function = true;
 
-function lazy_escape(str)
+function test_beautifier(input)
 {
-    return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
-}
-
-function test_beautifier(input, expected)
-{
-    expected = expected || input;
-
-    var result = js_beautify(input, {
+    return js_beautify(input, {
         indent_size: indent_size,
         indent_char: indent_char,
         preserve_newlines: preserve_newlines,
         space_after_anon_function: space_after_anon_function
     });
 
-    if (result !== expected) {
-        test_result +=
-            '\n---- input --------\n' + lazy_escape(input) +
-            '\n---- expected -----\n' + lazy_escape(expected) +
-            '\n---- received -----\n' + lazy_escape(result) +
-            '\n-------------------';
-        tests_failed += 1;
-    } else {
-        tests_passed += 1;
-    }
-
 }
+
+var sanitytest;
+
+
 function bt(input, expected)
 {
     var wrapped_input, wrapped_expectation;
 
     expected = expected || input;
-    test_beautifier(input, expected);
+    sanitytest.expect(input, expected);
 
     // test also the returned indentation
     // e.g if input = "asdf();"
@@ -56,23 +39,17 @@ function bt(input, expected)
         wrapped_input = '{\n' + input + '\nindent;}';
         //wrapped_expectation = '{\n    ' + expected.replace(/^\s{4}/gm, 'g        ') + '\n    indent;\n}';
         wrapped_expectation = '{\n' + expected.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
-        test_beautifier(wrapped_input, wrapped_expectation);
+        sanitytest.expect(wrapped_input, wrapped_expectation);
     }
 
 }
 
-function results()
-{
-    if (tests_failed === 0) {
-        test_result += 'All ' + tests_passed + ' tests passed.';
-    } else {
-        test_result += '\n' + tests_failed + ' tests failed.';
-    }
-    return test_result;
-}
 
-function test_js_beautify()
+function run_beautifier_tests(test_obj)
 {
+    sanitytest = test_obj || new SanityTest();
+    sanitytest.test_function(test_beautifier, 'js_beautify');
+
     indent_size       = 4;
     tests_passed      = 0;
     tests_failed      = 0;
@@ -276,5 +253,5 @@ function test_js_beautify()
     preserve_newlines = true;
     bt('var\na=do_preserve_newlines', 'var\na = do_preserve_newlines');
 
-    return results();
+    return sanitytest;
 }

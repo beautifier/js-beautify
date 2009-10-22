@@ -46,16 +46,23 @@ function unpacker_filter(source)
 
     if (document.getElementById('detect-packers').checked) {
 
-        stripped_source = trim_leading_comments(source);
+        var stripped_source = trim_leading_comments(source);
 
-        if (starts_with(stripped_source.toLowerCase().replace(/ +/g, ''), 'eval(function(p,a,c,k')) {
-            try {
-                eval('var unpacked_source = ' + stripped_source.substring(4) + ';')
-                return unpacker_filter(unpacked_source);
-            } catch (error) {
-                source = '// jsbeautifier: unpacking failed\n' + source;
+        //try {
+            if (starts_with(stripped_source.toLowerCase().replace(/ +/g, ''), 'eval(function(p,a,c,k')) {
+                    eval('var unpacked_source = ' + stripped_source.substring(4) + ';')
+                    return unpacker_filter(unpacked_source);
+            } else if (JavascriptObfuscator.detect(stripped_source)) {
+                var unpacked = JavascriptObfuscator.unpack(stripped_source);
+                if (unpacked !== stripped_source) { // avoid infinite loop if nothing done
+                    return unpacker_filter(unpacked);
+                }
             }
-        }
+        //} catch (error) {
+            //source = '// jsbeautifier: unpacking failed\n'
+            //+ '// You may wish to send me a report to einar@jsbeautifier.org\n'
+            //+ source;
+        //}
     }
     return source;
 
@@ -93,9 +100,19 @@ function get_var( name )
     return res ? res[1] : "";
 }
 
+function run_tests()
+{
+    var st = new SanityTest();
+    run_beautifier_tests(st);
+    JavascriptObfuscator.run_tests(st);
+    return st.results();
+}
+
 </script>
+<script type="text/javascript" src="sanitytest.js" ></script>
 <script type="text/javascript" src="beautify.js" ></script>
 <script type="text/javascript" src="beautify-tests.js" ></script>
+<script type="text/javascript" src="javascriptobfuscator_unpacker.js" ></script>
 <script type="text/javascript" src="HTML-Beautify.js" ></script>
 
 <style type="text/css">
@@ -105,7 +122,7 @@ form {
 }
 textarea { 
     width: 100%; 
-    height: 320px; 
+    height: 420px; 
     border: 1px solid #ccc; padding: 3px;
 }
 h1 { 
@@ -192,8 +209,8 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <p>You can always see the latest version of the code in <a
       href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
       local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
-      <h2>Unpacking javascript</h2>
-      <p>The beautifier has a simple unpacker for <a href="http://dean.edwards.name/packer/">Dean Edward's packer</a>. To unpack javascript, paste (p,a,c,k,e,d) scripts and they'll hopefully get decoded. Your feedback is welcome.</p>
+      <h2>Packers and obfuscators</h2>
+      <p>The beautifier contains automatic unpacker for <a href="http://dean.edwards.name/packer/">Dean Edward's p.a.c.k.e.r</a> and scripts obfuscated by javascriptobfuscator.com.</p>
       <h2>Formatting from command-line</h2>
       <p>To beautify from the command-line you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>. See the file contents for the details.</p>
       <h2><a href="http://fiddler2.com/">Fiddler</a></h2>
@@ -203,11 +220,11 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <h2>Other nice things</h2>
       <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You don't have to follow its recommendations blindly, but understanding what it says about your code can greatly improve your skills.</p>
       <h2>Contacts</h2>
-      <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or something, my email is einars@gmail.com.</p>
+      <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or something, my email is einar@jsbeautifier.org.</p>
       <div id="footer">
           <pre id="testresults"></pre>
-          Written by <a href="mailto:einars@gmail.com">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin and others.
-          <a href="#" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=test_js_beautify(); return false;">Run tests?</a>
+          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin and others.
+          <a href="#" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=run_tests(); return false;">Run tests?</a>
 
       </div>
 </div>
