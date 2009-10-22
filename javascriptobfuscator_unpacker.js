@@ -23,7 +23,7 @@ var JavascriptObfuscator = {
                 var strings = JavascriptObfuscator._smart_split(JavascriptObfuscator._unescape(matches[2]));
                 var str = str.substring(matches[0].length);
                 for (var k in strings) {
-                    str = str.replace(var_name + '[' + k + ']', strings[k]);
+                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), strings[k]);
                 }
             }
         }
@@ -34,33 +34,22 @@ var JavascriptObfuscator = {
         var strings = [];
         var pos = 0;
         while (pos < str.length) {
-            switch(str[pos]) {
-            case ' ':
-            case ',':
-                break;
-            case '"':
+            if (str.charAt(pos) == '"') {
                 // new word
                 var word = '';
                 pos += 1;
                 while (pos < str.length) {
-                    if (str[pos] == '"') {
+                    if (str.charAt(pos) == '"') {
                         break;
                     }
-                    if (str[pos] == '\\') {
+                    if (str.charAt(pos) == '\\') {
                         word += '\\';
                         pos++;
                     }
-                    word += str[pos];
+                    word += str.charAt(pos);
                     pos++;
                 }
                 strings.push('"' + word + '"');
-                break;
-            case ',':
-                // string separator
-                break;
-            case ']':
-                // la finita
-
             }
             pos += 1;
         }
@@ -69,6 +58,7 @@ var JavascriptObfuscator = {
 
 
     _unescape: function (str) {
+        // inefficient if used repeatedly or on small strings, but wonderful on single large chunk of text
         for (var i = 32; i < 128; i++) {
             str = str.replace(new RegExp('\\\\x' + i.toString(16), 'ig'), String.fromCharCode(i));
         }
