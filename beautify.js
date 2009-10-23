@@ -605,6 +605,12 @@ function js_beautify(js_source_text, options)
                 break;
             }
 
+            if (token_text === 'function') {
+                if (last_text === ';' || last_text === '}') {
+                    print_newline(false);
+                    print_newline(false);
+                }
+            }
             if (token_text === 'case' || token_text === 'default') {
                 if (last_text === ':') {
                     // switch cases following one another
