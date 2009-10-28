@@ -217,6 +217,13 @@ function run_beautifier_tests(test_obj)
 
     bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}');
 
+    bt('return ++i', 'return ++i');
+    bt('return !!x', 'return !!x');
+    bt('return !x', 'return !x');
+    bt('return [1,2]', 'return [1, 2]');
+    bt('return;', 'return;');
+    bt('return\nfunc', 'return\nfunc');
+
     space_after_anon_function = true;
 
     bt("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start

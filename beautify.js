@@ -498,6 +498,9 @@ function js_beautify(js_source_text, options)
                 if (last_type === 'TK_WORD' || last_text === ')') {
                     // this is array index specifier, break immediately
                     // a[x], fn()[x]
+                    if (last_word === 'return' || last_word === 'throw') {
+                        print_space();
+                    }
                     set_mode('(EXPRESSION)');
                     print_token();
                     break;
@@ -723,6 +726,13 @@ function js_beautify(js_source_text, options)
             if (var_line && token_text === ',' && (is_expression(current_mode))) {
                 // do not break on comma, for(var a = 1, b = 2)
                 var_line_tainted = false;
+            }
+
+            if (last_text === 'return' || last_text === 'throw') {
+                // "return" had a special handling in TK_WORD. Now we need to return the favor
+                print_space();
+                print_token();
+                break;
             }
 
             if (token_text === ':' && in_case) {
