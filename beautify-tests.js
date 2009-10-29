@@ -63,7 +63,7 @@ function run_beautifier_tests(test_obj)
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
     bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
-    bt('var a=1, b=c[d], e=6;', 'var a = 1,\nb = c[d],\ne = 6;');
+    bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
     bt('a = " 12345 "');
     bt("a = ' 12345 '");
     bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
@@ -224,17 +224,26 @@ function run_beautifier_tests(test_obj)
     bt('return;', 'return;');
     bt('return\nfunc', 'return\nfunc');
 
+    // javadoc comment
+    bt('/**\n* foo\n*/', '/**\n * foo\n */');
+    bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
+    bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
+
+    bt('var a,b,c=1,d,e,f=2', 'var a, b, c = 1,\n    d, e, f = 2');
+    bt('var a,b,c=[],d,e,f=2', 'var a, b, c = [],\n    d, e, f = 2');
+    bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+
     space_after_anon_function = true;
 
     bt("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
-    bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\nc = function () {},\nd = '';");
+    bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a,function(){alert(x);}', 'var o1 = $.extend(a, function () {\n    alert(x);\n}');
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
     space_after_anon_function = false;
 
     bt("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
-    bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\nc = function() {},\nd = '';");
+    bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
     bt('var o2=$.extend(a,function(){alert(x);}', 'var o2 = $.extend(a, function() {\n    alert(x);\n}');
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
