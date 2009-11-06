@@ -233,6 +233,9 @@ function run_beautifier_tests(test_obj)
     bt('var a,b,c=[],d,e,f=2', 'var a, b, c = [],\n    d, e, f = 2');
     bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
 
+    bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
+
+
     space_after_anon_function = true;
 
     bt("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
