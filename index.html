@@ -186,7 +186,7 @@ div#footer {
 </style>
 </head>
 <body>
-  <h1>Javascript beautifier</h1>
+  <h1>Javascript unpacker and beautifier</h1>
   <form method="post" action="?">
       <textarea rows="30" cols="30" name="content" id="content">
 /*   paste in your code and press Beautify button   */
@@ -204,13 +204,12 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label>
   </form>
       <div id="bottom">
-      <p>This beautifier can process your messy or compacted javascript, making it all neatly and consistently formatted and
-      readable.</p>
-      <p>You can always see the latest version of the code in <a
+      <p>This little beautifier will reformat and reindent any ugly javascript, unpack scripts packed by
+      the popular <a href="http://dean.edwards.name/packer/">Dean Edward's packer,</a> as well as deobfuscate scripts
+      processed by javascriptobfuscator.com.</p>
+      <p>The source code for the latest version is always available on <a
       href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
       local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
-      <h2>Packers and obfuscators</h2>
-      <p>The beautifier contains automatic unpacker for <a href="http://dean.edwards.name/packer/">Dean Edward's p.a.c.k.e.r</a> and scripts obfuscated by javascriptobfuscator.com.</p>
       <h2>Formatting from command-line</h2>
       <p>To beautify from the command-line you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>. See the file contents for the details.</p>
       <h2><a href="http://fiddler2.com/">Fiddler</a></h2>
