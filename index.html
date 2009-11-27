@@ -167,8 +167,7 @@ a#signature {
 h2 {
     color: #555;
     font-size: 14px;
-    text-decoration: underline;
-    margin-top: 14px;
+    margin: 18px 0 4px 0;
 }
 p { 
     line-height: 150%;
@@ -180,7 +179,9 @@ div#footer {
     font-size: 12px;
     border-top: 1px solid #ddd;
     padding-top: 16px;
-
+}
+label {
+    cursor: pointer;
 }
 
 </style>
@@ -221,9 +222,10 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <h2>Contacts</h2>
       <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or something, my email is einar@jsbeautifier.org.</p>
       <div id="footer">
+          <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=run_tests(); return false;">Run the tests</a>
+          <br />
           <pre id="testresults"></pre>
-          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin and others.
-          <a href="#" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=run_tests(); return false;">Run tests?</a>
+          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin, Gabriel Harrison and others.
 
       </div>
 </div>
