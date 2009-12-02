@@ -76,6 +76,7 @@ function do_js_beautify()
     var indent_size = document.getElementById('tabsize').value;
     var indent_char = ' ';
     var preserve_newlines = document.getElementById('preserve-newlines').checked;
+    var keep_array_indentation = document.getElementById('keep-array-indentation').checked;
 
     if (indent_size == 1) {
         indent_char = '\t';
@@ -86,7 +87,12 @@ function do_js_beautify()
         document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80);
     } else {
         document.getElementById('content').value =
-        js_beautify(unpacker_filter(js_source), {indent_size: indent_size, indent_char: indent_char, preserve_newlines:preserve_newlines, space_after_anon_function:true});
+        js_beautify(unpacker_filter(js_source), {
+            indent_size: indent_size,
+            indent_char: indent_char,
+            preserve_newlines:preserve_newlines,
+            keep_array_indentation:keep_array_indentation,
+            space_after_anon_function:true});
     }
 
     document.getElementById('beautify').disabled = false;
@@ -117,31 +123,45 @@ function run_tests()
 
 <style type="text/css">
 /* I guess I need a CSS beautifer as well */
+* { 
+    margin: 0;
+    padding: 0;
+}
+div#wrap {
+    padding: 0 15px;
+}
+
 form { 
-    margin: 0 10px 0 10px;
+    margin: 0 0 20px 0;
 }
 textarea { 
     width: 100%; 
     height: 420px; 
-    border: 1px solid #ccc; padding: 3px;
+    border: 0;
 }
 h1 { 
     font-family: "trebuchet ms", arial, sans-serif; 
     font-weight: normal; 
     font-size: 28px;
     color: #666; 
-    margin-bottom: 15px; 
+    margin: 10px 10px 15px 10px;
     border-bottom: 1px solid #666; 
 }
 a {
     color: #36d;
 }
 select { 
-    width: 19%; 
+    width: 190px;
 }
 button { 
-    width: 40%; 
+    width: 100%; 
+    padding: 3px 5px;
     cursor: pointer;
+    bordeR: 1px solid #ccc;
+    border-bottom: 1px solid #999;
+    border-right: 1px solid #999;
+    margin-top: 2px;
+    background-color: #eee;
 }
 body, label, button, select { 
     font-family: "myriad web", verdana, arial, helvetica, sans-serif; 
@@ -153,7 +173,6 @@ textarea, pre, span.code {
 }
 div#bottom { 
     color: #333;
-    margin: 20px; 
 }
 a#signature {
     background: url(http://spicausis.lv/spic-sign-blog.png) no-repeat bottom right;
@@ -172,7 +191,6 @@ h2 {
 p { 
     line-height: 150%;
     font-size: 14px;
-    margin: 0;
 }
 div#footer {
     margin: 20px 0 0 0;
@@ -183,26 +201,64 @@ div#footer {
 label {
     cursor: pointer;
 }
+fieldset {
+    border: 0;
+    padding: 0;
+}
+fieldset#textarea div {
+    border: 1px solid #ccc;
+    padding: 3px;
+}
+fieldset#options {
+    width: 200px;
+    margin-left: 10px;
+    float: right;
+}
+fieldset#options h2 {
+    margin-top: 0;
+}
+fieldset ul {
+    list-style: none;
+}
+fieldset li {
+    margin-bottom: 6px;
+}
+fieldset#textarea {
+    text-align: right;
+    
+}
+pre {
+    margin: 10px 0;
+}
 
 </style>
 </head>
 <body>
+  <div id="wrap">
   <h1>Javascript unpacker and beautifier</h1>
   <form method="post" action="?">
-      <textarea rows="30" cols="30" name="content" id="content">
+      <fieldset id="options">
+          <h2>Options</h2>
+          <ul>
+          <li><select name="tabsize" id="tabsize">
+            <option value="1">indent with a tab character</option>
+            <option value="2">indent with 2 spaces</option>
+            <option value="3">indent with 3 spaces</option>
+            <option value="4" selected="selected">indent with 4 spaces</option>
+            <option value="8">indent with 8 spaces</option>
+          </select></li>
+          <li><input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
+          <li><input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label><br /></li>
+          <li><input type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
+          </ul>
+      </fieldset>
+      <fieldset id="textarea">
+      <div><textarea rows="30" cols="30" name="content" id="content">
 /*   paste in your code and press Beautify button   */
 if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
-</textarea><br />
+</textarea></div>
       <button onclick="return do_js_beautify()" id="beautify">Beautify</button>
-      <select name="tabsize" id="tabsize">
-        <option value="1">indent with a tab character</option>
-        <option value="2">indent with 2 spaces</option>
-        <option value="3">indent with 3 spaces</option>
-        <option value="4" selected="selected">indent with 4 spaces</option>
-        <option value="8">indent with 8 spaces</option>
-      </select>
-      <input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve empty lines?</label>
-      <input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label>
+</fieldset>
   </form>
       <div id="bottom">
       <p>This little beautifier will reformat and reindent any ugly javascript, unpack scripts packed by
@@ -228,6 +284,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
           Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin, Gabriel Harrison and others.
 
       </div>
+  </div>
 </div>
 <a id="signature" href="http://spicausis.lv/"></a>
 
