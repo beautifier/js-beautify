@@ -5,6 +5,7 @@ var indent_size       = 4;
 var indent_char       = ' ';
 var preserve_newlines = true;
 var space_after_anon_function = true;
+var keep_array_indentation = false;
 
 function test_beautifier(input)
 {
@@ -12,7 +13,8 @@ function test_beautifier(input)
         indent_size: indent_size,
         indent_char: indent_char,
         preserve_newlines: preserve_newlines,
-        space_after_anon_function: space_after_anon_function
+        space_after_anon_function: space_after_anon_function,
+        keep_array_indentation: keep_array_indentation
     });
 
 }
@@ -57,6 +59,7 @@ function run_beautifier_tests(test_obj)
     test_result       = '';
     preserve_newlines = true;
     space_after_anon_function = true;
+    keep_array_indentation = false;
 
     bt('');
     bt('a        =          1', 'a = 1');
@@ -271,6 +274,12 @@ function run_beautifier_tests(test_obj)
 
     preserve_newlines = true;
     bt('var\na=do_preserve_newlines', 'var\na = do_preserve_newlines');
+
+    keep_array_indentation = true;
+
+    bt("['something',\n'completely',\n'different']");
+    bt("['a','b','c']", "['a', 'b', 'c']");
+    bt("['a',   'b','c']", "['a', 'b', 'c']");
 
     return sanitytest;
 }
