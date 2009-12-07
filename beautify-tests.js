@@ -236,6 +236,8 @@ function run_beautifier_tests(test_obj)
     bt('var a,b,c=[],d,e,f=2', 'var a, b, c = [],\n    d, e, f = 2');
     bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
 
+    bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
 
@@ -269,17 +271,20 @@ function run_beautifier_tests(test_obj)
     indent_char = "\t";
     bt('{ one_char() }', "{\n\tone_char()\n}");
 
+    indent_size = 4;
+    indent_char = ' ';
+
     preserve_newlines = false;
-    bt('var\na=dont_preserve_newlines', 'var a = dont_preserve_newlines');
+    bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
     preserve_newlines = true;
-    bt('var\na=do_preserve_newlines', 'var\na = do_preserve_newlines');
+    bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
     keep_array_indentation = true;
 
-    bt("['something',\n'completely',\n'different']");
-    bt("['a','b','c']", "['a', 'b', 'c']");
-    bt("['a',   'b','c']", "['a', 'b', 'c']");
+    bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
+    bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
+    bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
     return sanitytest;
 }
