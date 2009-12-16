@@ -21,13 +21,21 @@ function test_beautifier(input)
 
 var sanitytest;
 
+function test_fragment(input, expected)
+{
+    // doesn't attempt to test the indentation / surroundings
+    expected = expected || input;
+    sanitytest.expect(input, expected);
+}
 
-function bt(input, expected)
+
+
+function bt(input, expectation)
 {
     var wrapped_input, wrapped_expectation;
 
-    expected = expected || input;
-    sanitytest.expect(input, expected);
+    expectation = expectation || input;
+    test_fragment(input, expectation);
 
     // test also the returned indentation
     // e.g if input = "asdf();"
@@ -39,13 +47,11 @@ function bt(input, expected)
 
     if (indent_size === 4 && input) {
         wrapped_input = '{\n' + input + '\nindent;}';
-        //wrapped_expectation = '{\n    ' + expected.replace(/^\s{4}/gm, 'g        ') + '\n    indent;\n}';
-        wrapped_expectation = '{\n' + expected.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
-        sanitytest.expect(wrapped_input, wrapped_expectation);
+        wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
+        test_fragment(wrapped_input, wrapped_expectation);
     }
 
 }
-
 
 function run_beautifier_tests(test_obj)
 {
@@ -174,12 +180,14 @@ function run_beautifier_tests(test_obj)
     bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
     bt('{a:#1={}}', '{\n    a: #1={}\n}');
     bt('{a:#1#}', '{\n    a: #1#\n}');
-    test_beautifier('{a:#1', '{\n    a: #1'); // incomplete
-    test_beautifier('{a:#', '{\n    a: #'); // incomplete
+    test_fragment('{a:#1', '{\n    a: #1'); // incomplete
+    test_fragment('{a:#', '{\n    a: #'); // incomplete
 
-    test_beautifier('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
+    test_fragment('}}}', '}\n}\n}'); // incomplete
 
-    test_beautifier('a=/regexp', 'a = /regexp'); // incomplete regexp
+    test_fragment('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
+
+    test_fragment('a=/regexp', 'a = /regexp'); // incomplete regexp
 
     bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}');
  
@@ -193,11 +201,11 @@ function run_beautifier_tests(test_obj)
 
     bt("function namespace::something()");
 
-    test_beautifier("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
-    test_beautifier("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
+    test_fragment("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
+    test_fragment("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-    test_beautifier("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
-    test_beautifier("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
+    test_fragment("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
+    test_fragment("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
     bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
     bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
@@ -207,7 +215,7 @@ function run_beautifier_tests(test_obj)
     // regexps
     bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
     bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
-    test_beautifier('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
+    test_fragment('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
     // allow unescaped / in char classes
     bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 

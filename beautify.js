@@ -154,7 +154,9 @@ function js_beautify(js_source_text, options) {
 
     function restore_mode() {
         do_block_just_closed = flags.mode === 'DO_BLOCK';
-        flags = flag_store.pop();
+        if (flag_store.length > 0) {
+            flags = flag_store.pop();
+        }
     }
 
 
@@ -548,7 +550,6 @@ function js_beautify(js_source_text, options) {
     // some formatting depends on that.
     flag_store = [];
     set_mode('BLOCK');
-
 
     parser_pos = 0;
     while (true) {
