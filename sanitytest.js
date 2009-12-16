@@ -33,7 +33,7 @@ function SanityTest (func, test_name) {
     this.expect = function(parameters, expected_value) {
         // multi-parameter calls not supported (I don't need them now).
         var result = test_func(parameters);
-        // proper array checking is a pain. i'll do it later, compare strings representations instead
+        // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
         if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') == expected_value.join(', '))) { 
             n_succeeded += 1;
         } else {

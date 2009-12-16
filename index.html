@@ -28,11 +28,6 @@ add_onload_function(function() {
     c && c.focus && c.focus();
 });
 
-function starts_with(str, what)
-{
-    return str.substr(0, what.length) === what;
-}
-
 function trim_leading_comments(str)
 {
     // very basic. doesn't support /* ... */
@@ -47,22 +42,28 @@ function unpacker_filter(source)
     if (document.getElementById('detect-packers').checked) {
 
         var stripped_source = trim_leading_comments(source);
+        var unpacked = '';
 
-        //try {
-            if (starts_with(stripped_source.toLowerCase().replace(/ +/g, ''), 'eval(function(p,a,c,k')) {
-                    eval('var unpacked_source = ' + stripped_source.substring(4) + ';')
-                    return unpacker_filter(unpacked_source);
-            } else if (JavascriptObfuscator.detect(stripped_source)) {
-                var unpacked = JavascriptObfuscator.unpack(stripped_source);
-                if (unpacked !== stripped_source) { // avoid infinite loop if nothing done
-                    return unpacker_filter(unpacked);
-                }
+        if (P_A_C_K_E_R.detect(stripped_source)) {
+            unpacked = P_A_C_K_E_R.unpack(stripped_source);
+            if (unpacked !== stripped_source) {
+                return unpacker_filter(unpacked);
             }
-        //} catch (error) {
-            //source = '// jsbeautifier: unpacking failed\n'
-            //+ '// You may wish to send me a report to einar@jsbeautifier.org\n'
-            //+ source;
-        //}
+        }
+
+        if (EscapedBookmarklet.detect(source)) {
+            unpacked = EscapedBookmarklet.unpack(source);
+            if (unpacked !== stripped_source) {
+                return unpacker_filter(unpacked);
+            }
+        }
+
+        if (JavascriptObfuscator.detect(stripped_source)) {
+            unpacked = JavascriptObfuscator.unpack(stripped_source);
+            if (unpacked !== stripped_source) {
+                return unpacker_filter(unpacked);
+            }
+        }
     }
     return source;
 
@@ -111,6 +112,8 @@ function run_tests()
     var st = new SanityTest();
     run_beautifier_tests(st);
     JavascriptObfuscator.run_tests(st);
+    P_A_C_K_E_R.run_tests(st);
+    EscapedBookmarklet.run_tests(st);
     return st.results();
 }
 
@@ -119,6 +122,8 @@ function run_tests()
 <script type="text/javascript" src="beautify.js" ></script>
 <script type="text/javascript" src="beautify-tests.js" ></script>
 <script type="text/javascript" src="javascriptobfuscator_unpacker.js" ></script>
+<script type="text/javascript" src="bookmarklet_unpacker.js" ></script>
+<script type="text/javascript" src="p_a_c_k_e_r_unpacker.js" ></script>
 <script type="text/javascript" src="HTML-Beautify.js" ></script>
 
 <style type="text/css">
