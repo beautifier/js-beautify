@@ -580,17 +580,27 @@ function js_beautify(js_source_text, options) {
                 if (flags.mode === '[EXPRESSION]' || flags.mode === '[INDENTED-EXPRESSION]') {
                     if (last_last_text === ']' && last_text === ',') {
                         // ], [ goes to new line
+                        if (flags.mode === '[EXPRESSION]') {
+                            if (!opt_keep_array_indentation) {
+                                indent();
+                            }
+                            flags.mode = '[INDENTED-EXPRESSION]';
+                        }
                         if (!opt_keep_array_indentation) {
-                            indent();
                             print_newline();
                         }
-                        set_mode('[INDENTED-EXPRESSION]');
+                        set_mode('[EXPRESSION]');
                     } else if (last_text === '[') {
+                        if (flags.mode === '[EXPRESSION]') {
+                            if (!opt_keep_array_indentation) {
+                                indent();
+                            }
+                            flags.mode = '[INDENTED-EXPRESSION]';
+                        }
                         if (!opt_keep_array_indentation) {
-                            indent();
                             print_newline();
                         }
-                        set_mode('[INDENTED-EXPRESSION]');
+                        set_mode('[EXPRESSION]');
                     } else {
                         set_mode('[EXPRESSION]');
                     }
@@ -623,8 +633,13 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_END_EXPR':
-            if (token_text === ']' && flags.mode === '[INDENTED-EXPRESSION]') {
-                unindent();
+            if (token_text === ']') {
+                if (flags.mode === '[INDENTED-EXPRESSION]') {
+                    unindent();
+                    if (last_text === ']') {
+                        print_newline();
+                    }
+                }
             }
             restore_mode();
             print_token();
