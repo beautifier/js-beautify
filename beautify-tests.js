@@ -170,6 +170,8 @@ function run_beautifier_tests(test_obj)
     bt("function x(){return - 1}", "function x() {\n    return -1\n}");
     bt("function x(){return ! a}", "function x() {\n    return !a\n}");
 
+    bt('{xxx;}()', '{\n    xxx;\n}()');
+
     bt("a = 'a'\nb = 'b'");
     bt("a = /reg/exp");
     bt("a = /reg/");
