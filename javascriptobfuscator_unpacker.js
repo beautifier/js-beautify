@@ -20,12 +20,22 @@ var JavascriptObfuscator = {
             var matches = /var (_0x[a-f\d]+) ?\= ?\[(.*?)\];/.exec(str);
             if (matches) {
                 var var_name = matches[1];
-                var strings = JavascriptObfuscator._smart_split(JavascriptObfuscator._unescape(matches[2]));
+                var strings = JavascriptObfuscator._smart_split(matches[2]);
                 var str = str.substring(matches[0].length);
                 for (var k in strings) {
-                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), strings[k]);
+                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), 
+                        JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k])));
                 }
             }
+        }
+        return str;
+    },
+
+    _fix_quotes: function(str) {
+        var matches = /^"(.*)"$/.exec(str);
+        if (matches) {
+            str = matches[1];
+            str = "'" + str.replace(/'/g, "\\'") + "'";
         }
         return str;
     },
@@ -65,9 +75,9 @@ var JavascriptObfuscator = {
         return str;
     },
 
-
     run_tests: function (sanity_test) {
         var t = sanity_test || new SanityTest();
+
         t.test_function(JavascriptObfuscator._smart_split, "JavascriptObfuscator._smart_split");
         t.expect('', []);
         t.expect('"a", "b"', ['"a"', '"b"']);
@@ -77,6 +87,7 @@ var JavascriptObfuscator = {
         t.expect('\\x40', '@');
         t.expect('\\x10', '\\x10');
         t.expect('\\x1', '\\x1');
+        t.expect("\\x61\\x62\\x22\\x63\\x64", 'ab"cd');
         t.test_function(JavascriptObfuscator.detect, 'JavascriptObfuscator.detect');
         t.expect('', false);
         t.expect('abcd', false);
