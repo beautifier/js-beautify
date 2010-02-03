@@ -216,6 +216,11 @@ function style_html(html_source, indent_size, indent_character, max_char) {
         this.record_tag(tag_check);
         this.tag_type = 'STYLE';
       }
+      else if (tag_check === 'a') { // do not reformat the <a> links
+        var comment = this.get_unformatted('</a>', tag_complete); //...delegate to get_unformatted function
+        content.push(comment);
+        this.tag_type = 'SINGLE';
+      }
       else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
         if (tag_check.indexOf('[if') != -1) { //peek for <!--[if conditional comment
           if (tag_complete.indexOf('!IE') != -1) { //this type needs a closing --> so...
