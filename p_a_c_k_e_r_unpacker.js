@@ -23,7 +23,7 @@ var P_A_C_K_E_R = {
         if (P_A_C_K_E_R.detect(str)) {
             try {
                 eval('unpacked_source = ' + str.substring(4) + ';')
-                if (unpacked_source) {
+                if (typeof unpacked_source == 'string' && unpacked_source) {
                     str = unpacked_source;
                 }
             } catch (error) {
