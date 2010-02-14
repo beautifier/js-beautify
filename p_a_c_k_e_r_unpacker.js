@@ -2,6 +2,8 @@
 // Unpacker for Dean Edward's p.a.c.k.e.r, a part of javascript beautifier
 // written by Einar Lielmanis <einar@jsbeautifier.org>
 //
+// Coincidentally, it can defeat a couple of other eval-based compressors.
+//
 // usage:
 //
 // if (P_A_C_K_E_R.detect(some_string)) {
@@ -12,7 +14,8 @@
 
 var P_A_C_K_E_R = {
     detect: function (str) {
-        return P_A_C_K_E_R._starts_with(str.toLowerCase().replace(/ +/g, ''), 'eval(function(p,a,c,k');
+        return P_A_C_K_E_R._starts_with(str.toLowerCase().replace(/ +/g, ''), 'eval(function(') ||
+               P_A_C_K_E_R._starts_with(str.toLowerCase().replace(/ +/g, ''), 'eval((function(') ;
     },
 
     unpack: function (str) {
@@ -20,7 +23,9 @@ var P_A_C_K_E_R = {
         if (P_A_C_K_E_R.detect(str)) {
             try {
                 eval('unpacked_source = ' + str.substring(4) + ';')
-                str = unpacked_source;
+                if (unpacked_source) {
+                    str = unpacked_source;
+                }
             } catch (error) {
                 // well, it failed. we'll just return the original, instead of crashing on user.
             }
