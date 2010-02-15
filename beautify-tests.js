@@ -170,6 +170,9 @@ function run_beautifier_tests(test_obj)
     bt("function x(){return - 1}", "function x() {\n    return -1\n}");
     bt("function x(){return ! a}", "function x() {\n    return !a\n}");
 
+    // a common snippet in jQuery plugins
+    bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
+
     bt('{xxx;}()', '{\n    xxx;\n}()');
 
     bt("a = 'a'\nb = 'b'");

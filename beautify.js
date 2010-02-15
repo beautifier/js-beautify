@@ -866,7 +866,7 @@ function js_beautify(js_source_text, options) {
                         print_token();
                         print_single_space();
                     }
-                } else if (last_type === 'TK_END_BLOCK') {
+                } else if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
                     print_token();
                     print_newline();
                 } else {
