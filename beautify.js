@@ -656,7 +656,9 @@ function js_beautify(js_source_text, options) {
         case 'TK_END_EXPR':
             if (token_text === ']') {
                 if (flags.mode === '[INDENTED-EXPRESSION]') {
-                    unindent();
+                    if (!opt_keep_array_indentation) {
+                        unindent();
+                    }
                     if (last_text === ']') {
                         print_newline();
                     }

@@ -305,5 +305,7 @@ function run_beautifier_tests(test_obj)
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
+    bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
+
     return sanitytest;
 }
