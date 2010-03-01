@@ -18,14 +18,19 @@ function add_onload_function(fn)
 add_onload_function(function() {
 
     var tabsize = get_var('tabsize');
+    var c;
     if (tabsize) {
         document.getElementById('tabsize').value = tabsize;
     }
 
+    if (get_var('test')) {
+        run_tests();
+    } else {
+        c = document.forms[0].content;
+        c && c.setSelectionRange && c.setSelectionRange(0, 0);
+        c && c.focus && c.focus();
+    }
 
-    var c = document.forms[0].content;
-    c && c.setSelectionRange && c.setSelectionRange(0, 0);
-    c && c.focus && c.focus();
 });
 
 function trim_leading_comments(str)
@@ -68,7 +73,6 @@ function unpacker_filter(source)
     return source;
 
 }
-
 
 function do_js_beautify()
 {
@@ -114,7 +118,9 @@ function run_tests()
     JavascriptObfuscator.run_tests(st);
     P_A_C_K_E_R.run_tests(st);
     EscapedBookmarklet.run_tests(st);
-    return st.results();
+
+    document.getElementById('testresults').style.display='block';
+    document.getElementById('testresults').innerHTML=st.results();
 }
 
 </script>
@@ -294,7 +300,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <h2>Contacts</h2>
       <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or something, my email is einar@jsbeautifier.org.</p>
       <div id="footer">
-          <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="document.getElementById('testresults').style.display='block'; document.getElementById('testresults').innerHTML=run_tests(); return false;">Run the tests</a>
+          <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
           <br />
           <pre id="testresults"></pre>
           Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital,</a> Ron Baldwin, Gabriel Harrison and others.
