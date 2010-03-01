@@ -39,7 +39,7 @@ function js_beautify(js_source_text, options) {
     var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type, do_block_just_closed;
-    var indent_level, wanted_newline, just_added_newline, n_newlines;
+    var wanted_newline, just_added_newline, n_newlines;
 
 
     options = options || {};
@@ -79,7 +79,7 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-        for (var i = 0; i < indent_level; i += 1) {
+        for (var i = 0; i < flags.indentation_level; i += 1) {
             output.push(indent_string);
         }
     }
@@ -108,14 +108,7 @@ function js_beautify(js_source_text, options) {
     }
 
     function indent() {
-        indent_level += 1;
-    }
-
-
-    function unindent() {
-        if (indent_level) {
-            indent_level -= 1;
-        }
+        flags.indentation_level += 1;
     }
 
 
@@ -148,7 +141,8 @@ function js_beautify(js_source_text, options) {
             if_line: false,
             in_case: false,
             eat_next_space: false,
-            indentation_baseline: -1
+            indentation_baseline: -1,
+            indentation_level: (flags ? flags.indentation_level : opt_indent_level)
         };
     }
 
@@ -284,7 +278,7 @@ function js_beautify(js_source_text, options) {
             }
 
             if (just_added_newline) {
-                for (var i = 0; i < indent_level + 1; i += 1) {
+                for (var i = 0; i < flags.indentation_level + 1; i += 1) {
                     output.push(indent_string);
                 }
                 if (flags.indentation_baseline !== -1) {
@@ -546,8 +540,6 @@ function js_beautify(js_source_text, options) {
         opt_indent_size -= 1;
     }
 
-    indent_level = opt_indent_level;
-
     input = js_source_text;
 
     last_word = ''; // last 'TK_WORD' passed
@@ -602,26 +594,27 @@ function js_beautify(js_source_text, options) {
                     if (last_last_text === ']' && last_text === ',') {
                         // ], [ goes to new line
                         if (flags.mode === '[EXPRESSION]') {
+                            flags.mode = '[INDENTED-EXPRESSION]';
                             if (!opt_keep_array_indentation) {
                                 indent();
                             }
-                            flags.mode = '[INDENTED-EXPRESSION]';
                         }
+                        set_mode('[EXPRESSION]');
                         if (!opt_keep_array_indentation) {
                             print_newline();
                         }
-                        set_mode('[EXPRESSION]');
                     } else if (last_text === '[') {
                         if (flags.mode === '[EXPRESSION]') {
+                            flags.mode = '[INDENTED-EXPRESSION]';
                             if (!opt_keep_array_indentation) {
                                 indent();
                             }
-                            flags.mode = '[INDENTED-EXPRESSION]';
                         }
+                        set_mode('[EXPRESSION]');
+
                         if (!opt_keep_array_indentation) {
                             print_newline();
                         }
-                        set_mode('[EXPRESSION]');
                     } else {
                         set_mode('[EXPRESSION]');
                     }
@@ -654,13 +647,13 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_END_EXPR':
-            if (token_text === ']') {
+            if (token_text === ']' && !opt_keep_array_indentation) {
                 if (flags.mode === '[INDENTED-EXPRESSION]') {
-                    if (!opt_keep_array_indentation) {
-                        unindent();
-                    }
                     if (last_text === ']') {
+                        restore_mode();
                         print_newline();
+                        print_token();
+                        break;
                     }
                 }
             }
@@ -682,29 +675,24 @@ function js_beautify(js_source_text, options) {
                     print_single_space();
                 }
             }
-            print_token();
             indent();
+            print_token();
             break;
 
         case 'TK_END_BLOCK':
+            restore_mode();
             if (last_type === 'TK_START_BLOCK') {
                 // nothing
                 if (just_added_newline) {
-                    remove_indent();
-                    // {
-                    //
-                    // }
+                     remove_indent();
                 } else {
                     // {}
                     trim_output();
                 }
-                unindent();
             } else {
-                unindent();
                 print_newline();
             }
             print_token();
-            restore_mode();
             break;
 
         case 'TK_WORD':
@@ -738,9 +726,9 @@ function js_beautify(js_source_text, options) {
                     remove_indent();
                 } else {
                     // case statement starts in the same line where switch
-                    unindent();
+                    flags.indentation_level--;
                     print_newline();
-                    indent();
+                    flags.indentation_level++;
                 }
                 print_token();
                 flags.in_case = true;

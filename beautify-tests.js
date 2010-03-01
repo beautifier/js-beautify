@@ -207,7 +207,7 @@ function run_beautifier_tests(test_obj)
 
     bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 
-    bt("something();(", "something();\n(");
+    test_fragment("something();(", "something();\n(");
 
     bt("function namespace::something()");
 
@@ -262,16 +262,14 @@ function run_beautifier_tests(test_obj)
 
     space_after_anon_function = true;
 
-    bt("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
+    test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
-    bt('var o1=$.extend(a,function(){alert(x);}', 'var o1 = $.extend(a, function () {\n    alert(x);\n}');
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
     space_after_anon_function = false;
 
-    bt("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
+    test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
-    bt('var o2=$.extend(a,function(){alert(x);}', 'var o2 = $.extend(a, function() {\n    alert(x);\n}');
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
     bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
