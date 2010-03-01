@@ -115,7 +115,7 @@ function run_beautifier_tests(test_obj)
     bt('for(;;i++)', 'for (;; i++)');
     bt('for(;;++i)', 'for (;; ++i)');
     bt('return(1)', 'return (1)');
-    bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch(b) {\n    c();\n} finally {\n    d();\n}");
+    bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}");
     bt('(xx)()'); // magic function call
     bt('a[1]()'); // another magic function call
     bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
@@ -182,6 +182,11 @@ function run_beautifier_tests(test_obj)
     bt('/abc/i.test()');
     bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
 
+    bt('for (; s-->0;)', 'for (; s-- > 0;)');
+    bt('for (; s++>0;)', 'for (; s++ > 0;)');
+    bt('a = s++>s--;', 'a = s++ > s--;');
+    bt('a = s++>--s;', 'a = s++ > --s;');
+
     bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
     bt('{a:#1={}}', '{\n    a: #1={}\n}');
     bt('{a:#1#}', '{\n    a: #1#\n}');
@@ -239,6 +244,7 @@ function run_beautifier_tests(test_obj)
     bt('return [1,2]', 'return [1, 2]');
     bt('return;', 'return;');
     bt('return\nfunc', 'return\nfunc');
+    bt('catch(e)', 'catch (e)');
 
     // javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
