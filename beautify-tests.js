@@ -182,6 +182,8 @@ function run_beautifier_tests(test_obj)
     bt('/abc/i.test()');
     bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
 
+    bt('x != -1', 'x != -1');
+
     bt('for (; s-->0;)', 'for (; s-- > 0;)');
     bt('for (; s++>0;)', 'for (; s++ > 0;)');
     bt('a = s++>s--;', 'a = s++ > s--;');
