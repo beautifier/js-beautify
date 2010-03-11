@@ -52,6 +52,8 @@ function js_beautify(js_source_text, options) {
 
     just_added_newline = false;
 
+    // cache the source's length.
+    var input_length = js_source_text.length;
 
     function trim_output() {
         while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
@@ -119,12 +121,12 @@ function js_beautify(js_source_text, options) {
     }
 
     function print_javadoc_comment() {
-        var lines = token_text.split('\n');
+        var lines = token_text.split(/\x0d|\x0a/);
         output.push(lines[0]);
-        for (var i = 1; i < lines.length; i++) {
+        for (var i = 1, l = lines.length; i < l; i++) {
             print_newline();
             output.push(' ');
-            output.push(lines[i].replace(/^\s+/, ''));
+            output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
         }
     }
 
@@ -222,7 +224,7 @@ function js_beautify(js_source_text, options) {
     function get_next_token() {
         n_newlines = 0;
 
-        if (parser_pos >= input.length) {
+        if (parser_pos >= input_length) {
             return ['', 'TK_EOF'];
         }
 
@@ -265,7 +267,7 @@ function js_beautify(js_source_text, options) {
                     }
                 }
 
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     return ['', 'TK_EOF'];
                 }
 
@@ -296,7 +298,7 @@ function js_beautify(js_source_text, options) {
                 }
 
 
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     return ['', 'TK_EOF'];
                 }
 
@@ -318,18 +320,18 @@ function js_beautify(js_source_text, options) {
 
 
         if (in_array(c, wordchar)) {
-            if (parser_pos < input.length) {
+            if (parser_pos < input_length) {
                 while (in_array(input.charAt(parser_pos), wordchar)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
-                    if (parser_pos === input.length) {
+                    if (parser_pos === input_length) {
                         break;
                     }
                 }
             }
 
             // small and surprisingly unugly hack for 1E-10 representation
-            if (parser_pos !== input.length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
+            if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
 
                 var sign = input.charAt(parser_pos);
                 parser_pos += 1;
@@ -373,11 +375,11 @@ function js_beautify(js_source_text, options) {
             // peek for comment /* ... */
             if (input.charAt(parser_pos) === '*') {
                 parser_pos += 1;
-                if (parser_pos < input.length) {
-                    while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input.length) {
+                if (parser_pos < input_length) {
+                    while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input_length) {
                         comment += input.charAt(parser_pos);
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
+                        if (parser_pos >= input_length) {
                             break;
                         }
                     }
@@ -391,7 +393,7 @@ function js_beautify(js_source_text, options) {
                 while (input.charAt(parser_pos) !== "\x0d" && input.charAt(parser_pos) !== "\x0a") {
                     comment += input.charAt(parser_pos);
                     parser_pos += 1;
-                    if (parser_pos >= input.length) {
+                    if (parser_pos >= input_length) {
                         break;
                     }
                 }
@@ -411,7 +413,7 @@ function js_beautify(js_source_text, options) {
             var esc = false;
             var resulting_string = c;
 
-            if (parser_pos < input.length) {
+            if (parser_pos < input_length) {
                 if (sep === '/') {
                     //
                     // handle regexp separately...
@@ -430,7 +432,7 @@ function js_beautify(js_source_text, options) {
                             esc = false;
                         }
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
+                        if (parser_pos >= input_length) {
                             // incomplete string/rexp when end-of-file reached. 
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
@@ -449,7 +451,7 @@ function js_beautify(js_source_text, options) {
                             esc = false;
                         }
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
+                        if (parser_pos >= input_length) {
                             // incomplete string/rexp when end-of-file reached. 
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
@@ -467,7 +469,7 @@ function js_beautify(js_source_text, options) {
 
             if (sep === '/') {
                 // regexps may have modifiers /regexp/MOD , so fetch those, too
-                while (parser_pos < input.length && in_array(input.charAt(parser_pos), wordchar)) {
+                while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
                     resulting_string += input.charAt(parser_pos);
                     parser_pos += 1;
                 }
@@ -480,12 +482,12 @@ function js_beautify(js_source_text, options) {
             // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
             var sharp = '#';
-            if (parser_pos < input.length && in_array(input.charAt(parser_pos), digits)) {
+            if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
                 do {
                     c = input.charAt(parser_pos);
                     sharp += c;
                     parser_pos += 1;
-                } while (parser_pos < input.length && c !== '#' && c !== '=');
+                } while (parser_pos < input_length && c !== '#' && c !== '=');
                 if (c === '#') {
                     // 
                 } else if (input.charAt(parser_pos) == '[' && input.charAt(parser_pos + 1) === ']') {
@@ -515,10 +517,10 @@ function js_beautify(js_source_text, options) {
         }
 
         if (in_array(c, punct)) {
-            while (parser_pos < input.length && in_array(c + input.charAt(parser_pos), punct)) {
+            while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                 c += input.charAt(parser_pos);
                 parser_pos += 1;
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     break;
                 }
             }
@@ -948,7 +950,7 @@ function js_beautify(js_source_text, options) {
         case 'TK_BLOCK_COMMENT':
 
             print_newline();
-            if (token_text.substring(0, 3) == '/**') {
+            if (token_text.substring(0, 2) == '/*') {
                 print_javadoc_comment();
             } else {
                 print_token();
