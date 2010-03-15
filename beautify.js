@@ -5,7 +5,7 @@
 ---------------
 
 
-  Written by Einar Lielmanis, <einars@gmail.com>
+  Written by Einar Lielmanis, <einar@jsbeautifier.org>
       http://jsbeautifier.org/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
