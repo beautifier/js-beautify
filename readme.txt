@@ -18,4 +18,4 @@
   Written by Einar Lielmanis, <einar@jsbeautifier.org>
 
   Thanks to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider,
-  Dave Vasilevsky, Vital, Ron Baldwin, Gabriel Harrison and others.
+  Dave Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison and others.
