@@ -121,7 +121,7 @@ function js_beautify(js_source_text, options) {
     }
 
     function print_javadoc_comment() {
-        var lines = token_text.split(/\x0d|\x0a/);
+        var lines = token_text.split(/\x0a|\x0d\x0a/);
         output.push(lines[0]);
         for (var i = 1, l = lines.length; i < l; i++) {
             print_newline();

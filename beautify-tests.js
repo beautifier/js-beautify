@@ -307,5 +307,8 @@ function run_beautifier_tests(test_obj)
 
     bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
 
+    bt('/*\n * X\n */');
+    bt('/*\r\n * X\r\n */', '/*\n * X\n */');
+
     return sanitytest;
 }
