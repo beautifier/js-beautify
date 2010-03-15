@@ -17,5 +17,5 @@
 
   Written by Einar Lielmanis, <einar@jsbeautifier.org>
 
-  Thanks to Jason Diamond, Patrick Hof, Nochum, Andreas Schneider,
+  Thanks to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider,
   Dave Vasilevsky, Vital, Ron Baldwin, Gabriel Harrison and others.
