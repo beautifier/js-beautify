@@ -17,7 +17,7 @@
 
 */
 load("beautify.js");
-load("HTML-Beautify.js");
+load("beautify-html.js");
 
 
 function print_usage() {
