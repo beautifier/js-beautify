@@ -42,11 +42,12 @@ function js_beautify(js_source_text, options) {
     var wanted_newline, just_added_newline, n_newlines;
 
 
-    options = options || {};
-    var opt_indent_size = options.indent_size || 4;
-    var opt_indent_char = options.indent_char || ' ';
+    // Some interpreters have unexpected results with foo = baz || bar;
+    options = options ? options : {};
+    var opt_indent_size = options.indent_size ? options.indent_size : 4;
+    var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
-    var opt_indent_level = options.indent_level || 0; // starting indentation
+    var opt_indent_level = options.indent_level ? options.indent_level : 0; // starting indentation
     var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
     var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? true : options.keep_array_indentation;
 

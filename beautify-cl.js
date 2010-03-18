@@ -91,8 +91,8 @@ function do_js_beautify() {
         if (lines.length) js_source = lines.join("\n");
     }
     js_source = js_source.replace(/^\s+/, '');
-    var indent_size = options.indent || 2;
-    var preserve_newlines = options.preserve_newlines || false;
+    var indent_size = options.indent ? options.indent : 2;
+    var preserve_newlines = options.preserve_newlines ? options.preserve_newlines : false;
     var indent_char = ' ';
     var result;
     if (indent_size == 1) {
