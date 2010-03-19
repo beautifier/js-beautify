@@ -44,6 +44,7 @@ function js_beautify(js_source_text, options) {
 
     // Some interpreters have unexpected results with foo = baz || bar;
     options = options ? options : {};
+    var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
     var opt_indent_size = options.indent_size ? options.indent_size : 4;
     var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
@@ -671,31 +672,45 @@ function js_beautify(js_source_text, options) {
             } else {
                 set_mode('BLOCK');
             }
-            if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
-                if (last_type === 'TK_START_BLOCK') {
-                    print_newline();
-                } else {
-                    print_single_space();
+            if (opt_braces_on_own_line) {
+                if (last_type !== 'TK_OPERATOR') {
+                    print_newline(true);
                 }
+                print_token();
+                indent();
+            } else {
+                if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
+                    if (last_type === 'TK_START_BLOCK') {
+                        print_newline();
+                    } else {
+                        print_single_space();
+                    }
+                }
+                indent();
+                print_token();
             }
-            indent();
-            print_token();
+
             break;
 
         case 'TK_END_BLOCK':
             restore_mode();
-            if (last_type === 'TK_START_BLOCK') {
-                // nothing
-                if (just_added_newline) {
-                     remove_indent();
-                } else {
-                    // {}
-                    trim_output();
-                }
-            } else {
+            if (opt_braces_on_own_line) {
                 print_newline();
+                print_token();
+            } else {
+                if (last_type === 'TK_START_BLOCK') {
+                    // nothing
+                    if (just_added_newline) {
+                        remove_indent();
+                    } else {
+                        // {}
+                        trim_output();
+                    }
+                } else {
+                    print_newline();
+                }
+                print_token();
             }
-            print_token();
             break;
 
         case 'TK_WORD':
@@ -744,8 +759,12 @@ function js_beautify(js_source_text, options) {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    prefix = 'SPACE';
-                    print_single_space();
+                    if (opt_braces_on_own_line) {
+                        prefix = 'NEWLINE';
+                    } else {
+                        prefix = 'SPACE';
+                        print_single_space();
+                    }
                 }
             } else if (last_type === 'TK_SEMICOLON' && (flags.mode === 'BLOCK' || flags.mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';

@@ -25,7 +25,8 @@ function print_usage() {
     print("Reads from standard input if no file or URL is specified.\n");
     print("Options:");
     print("-i NUM\tIndent size (1 for TAB)");
-    print("-a Indent arrays");
+    print("-b\tPut braces on own line (Allman / ANSI style)");
+    print("-a\tIndent arrays");
     print("-n\tPreserve newlines");
     print("-p\tJSLint-pedantic mode, currently only adds space between \"function ()\"");
     print("-h\tPrint this help\n");
@@ -43,6 +44,9 @@ function parse_opts(args) {
             switch (param) {
             case "-i":
                 options.indent = args.shift();
+                break;
+            case "-b":
+                options.braces_on_own_line = true;
                 break;
             case "-a":
                 options.keep_array_indentation = false;
@@ -89,6 +93,11 @@ function do_js_beautify() {
             lines.push(stdin.readLine());
         }
         if (lines.length) js_source = lines.join("\n");
+
+        if ( ! lines.length) {
+            print_usage();
+            quit();
+        }
     }
     js_source = js_source.replace(/^\s+/, '');
     var indent_size = options.indent ? options.indent : 2;
@@ -106,7 +115,8 @@ function do_js_beautify() {
             indent_char: indent_char,
             preserve_newlines: preserve_newlines,
             space_after_anon_function: options.jslint_pedantic,
-            keep_array_indentation: options.keep_array_indentation
+            keep_array_indentation: options.keep_array_indentation,
+            braces_on_own_line: options.braces_on_own_line
         });
     }
     return result;

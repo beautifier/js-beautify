@@ -18,9 +18,13 @@ function add_onload_function(fn)
 add_onload_function(function() {
 
     var tabsize = get_var('tabsize');
+    var braces_on_own_line = get_var('braces');
     var c;
     if (tabsize) {
         document.getElementById('tabsize').value = tabsize;
+    }
+    if (braces_on_own_line) {
+        document.getElementById('braces-on-own-line').checked = 'checked';
     }
 
     if (get_var('test')) {
@@ -82,6 +86,7 @@ function do_js_beautify()
     var indent_char = ' ';
     var preserve_newlines = document.getElementById('preserve-newlines').checked;
     var keep_array_indentation = document.getElementById('keep-array-indentation').checked;
+    var braces_on_own_line = document.getElementById('braces-on-own-line').checked;
 
     if (indent_size == 1) {
         indent_char = '\t';
@@ -96,6 +101,7 @@ function do_js_beautify()
             indent_size: indent_size,
             indent_char: indent_char,
             preserve_newlines:preserve_newlines,
+            braces_on_own_line: braces_on_own_line,
             keep_array_indentation:keep_array_indentation,
             space_after_anon_function:true});
     }
@@ -258,6 +264,7 @@ pre {
             <option value="4" selected="selected">indent with 4 spaces</option>
             <option value="8">indent with 8 spaces</option>
           </select></li>
+          <li><input type="checkbox" id="braces-on-own-line" /><label for="braces-on-own-line"> Braces on own line</label><br /></li>
           <li><input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
           <li><input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label><br /></li>
           <li><input type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
