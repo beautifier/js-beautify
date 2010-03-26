@@ -123,17 +123,6 @@ function js_beautify(js_source_text, options) {
         }
     }
 
-    function print_block_comment() {
-        var lines = token_text.split(/\x0a|\x0d\x0a/);
-        output.push(lines[0]);
-        for (var i = 1, l = lines.length; i < l; i++) {
-            print_newline();
-            output.push(' ');
-            output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
-        }
-    }
-
-
     function set_mode(mode) {
         if (flags) {
             flag_store.push(flags);
