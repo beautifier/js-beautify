@@ -123,7 +123,7 @@ function js_beautify(js_source_text, options) {
         }
     }
 
-    function print_javadoc_comment() {
+    function print_block_comment() {
         var lines = token_text.split(/\x0a|\x0d\x0a/);
         output.push(lines[0]);
         for (var i = 1, l = lines.length; i < l; i++) {
@@ -227,12 +227,13 @@ function js_beautify(js_source_text, options) {
             return ['', 'TK_EOF'];
         }
 
+        wanted_newline = false;
+
         var c = input.charAt(parser_pos);
         parser_pos += 1;
 
 
         var keep_whitespace = opt_keep_array_indentation && is_array(flags.mode);
-        wanted_newline = false;
 
         if (keep_whitespace) {
 
@@ -372,11 +373,16 @@ function js_beautify(js_source_text, options) {
         if (c === '/') {
             var comment = '';
             // peek for comment /* ... */
+            var inline_comment = true;
             if (input.charAt(parser_pos) === '*') {
                 parser_pos += 1;
                 if (parser_pos < input_length) {
                     while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input_length) {
-                        comment += input.charAt(parser_pos);
+                        c = input.charAt(parser_pos);
+                        comment += c;
+                        if (c === '\x0d' || c === '\x0a') {
+                            inline_comment = false;
+                        }
                         parser_pos += 1;
                         if (parser_pos >= input_length) {
                             break;
@@ -384,7 +390,11 @@ function js_beautify(js_source_text, options) {
                     }
                 }
                 parser_pos += 2;
-                return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
+                if (inline_comment) {
+                    return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
+                } else {
+                    return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
+                }
             }
             // peek for comment // ...
             if (input.charAt(parser_pos) === '/') {
@@ -978,13 +988,28 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_BLOCK_COMMENT':
 
+            var lines = token_text.split(/\x0a|\x0d\x0a/);
+
             print_newline();
-            if (token_text.substring(0, 2) == '/*') {
-                print_javadoc_comment();
-            } else {
-                print_token();
+            output.push(lines[0]);
+            for (var i = 1, l = lines.length; i < l; i++) {
+                print_newline();
+                output.push(' ');
+                output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
             }
+
             print_newline();
+            break;
+
+        case 'TK_INLINE_COMMENT':
+
+            print_single_space();
+            print_token();
+            if (is_expression(flags.mode)) {
+                print_single_space();
+            } else {
+                print_newline();
+            }
             break;
 
         case 'TK_COMMENT':

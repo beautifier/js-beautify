@@ -106,7 +106,7 @@ function run_beautifier_tests(test_obj)
     bt('function void(void) {}');
     bt('if(!a)foo();', 'if (!a) foo();');
     bt('a=~a', 'a = ~a');
-    bt('a;/*comment*/b;', "a;\n/*comment*/\nb;");
+    bt('a;/*comment*/b;', "a; /*comment*/\nb;");
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
     bt('if((a))foo();', 'if ((a)) foo();');
@@ -247,6 +247,9 @@ function run_beautifier_tests(test_obj)
     bt('return;', 'return;');
     bt('return\nfunc', 'return\nfunc');
     bt('catch(e)', 'catch (e)');
+
+    // inline comment
+    bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
 
     // javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
