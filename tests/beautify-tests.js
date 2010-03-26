@@ -301,6 +301,8 @@ function run_beautifier_tests(test_obj)
 
     keep_array_indentation = true;
 
+    bt('var x = [{}\n]', 'var x = [{}\n]');
+    bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar}\n]');
     bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");

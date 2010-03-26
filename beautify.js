@@ -220,10 +220,6 @@ function js_beautify(js_source_text, options) {
         }
     }
 
-    function op_requires_right_side(op) {
-        return true;
-    }
-
     function get_next_token() {
         n_newlines = 0;
 
@@ -652,13 +648,24 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_END_EXPR':
-            if (token_text === ']' && !opt_keep_array_indentation) {
-                if (flags.mode === '[INDENTED-EXPRESSION]') {
-                    if (last_text === ']') {
-                        restore_mode();
-                        print_newline();
+            if (token_text === ']') {
+                if (opt_keep_array_indentation) {
+                    if (last_text === '}') {
+                        // trim_output();
+                        // print_newline(true);
+                        remove_indent();
                         print_token();
+                        restore_mode();
                         break;
+                    }
+                } else {
+                    if (flags.mode === '[INDENTED-EXPRESSION]') {
+                        if (last_text === ']') {
+                            restore_mode();
+                            print_newline();
+                            print_token();
+                            break;
+                        }
                     }
                 }
             }
