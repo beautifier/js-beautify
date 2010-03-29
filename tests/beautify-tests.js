@@ -248,6 +248,9 @@ function run_beautifier_tests(test_obj)
     bt('return\nfunc', 'return\nfunc');
     bt('catch(e)', 'catch (e)');
 
+    bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
+    bt('var a=1,b={foo:2,bar:3},c=4', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4');
+
     // inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
 

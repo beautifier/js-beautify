@@ -131,12 +131,13 @@ function js_beautify(js_source_text, options) {
             mode: mode,
             var_line: false,
             var_line_tainted: false,
+            var_line_reindented: false,
             in_html_comment: false,
             if_line: false,
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level : opt_indent_level)
+            indentation_level: (flags ? flags.indentation_level + (flags.var_line_reindented ? 1 : 0) : opt_indent_level)
         };
     }
 
@@ -715,6 +716,9 @@ function js_beautify(js_source_text, options) {
                     }
                 } else {
                     print_newline();
+                    if (flags.var_line_reindented) {
+                        output.push(indent_string);
+                    }
                 }
                 print_token();
             }
@@ -874,6 +878,7 @@ function js_beautify(js_source_text, options) {
                         print_token();
                         print_newline();
                         output.push(indent_string);
+                        flags.var_line_reindented = true;
                         flags.var_line_tainted = false;
                         break;
                     } else {
