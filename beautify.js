@@ -704,6 +704,9 @@ function js_beautify(js_source_text, options) {
             restore_mode();
             if (opt_braces_on_own_line) {
                 print_newline();
+                if (flags.var_line_reindented) {
+                    output.push(indent_string);
+                }
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {

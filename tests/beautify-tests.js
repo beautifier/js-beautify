@@ -17,15 +17,18 @@ function test_beautifier(input)
 
 var sanitytest;
 
+// test the input on beautifier with the current flag settings
+// does not check the indentation / surroundings as bt() does
 function test_fragment(input, expected)
 {
-    // doesn't attempt to test the indentation / surroundings
     expected = expected || input;
     sanitytest.expect(input, expected);
 }
 
 
 
+// test the input on beautifier with the current flag settings
+// test both the input as well as { input } wrapping
 function bt(input, expectation)
 {
     var wrapped_input, wrapped_expectation;
@@ -47,6 +50,16 @@ function bt(input, expectation)
         test_fragment(wrapped_input, wrapped_expectation);
     }
 
+}
+
+// test the input on beautifier with the current flag settings,
+// but dont' 
+function bt_braces(input, expectation)
+{
+    var braces_ex = flags.braces_on_own_line;
+    flags.braces_on_own_line = true;
+    bt(input, expectation);
+    flags.braces_on_own_line = braces_ex;
 }
 
 function run_beautifier_tests(test_obj)
@@ -243,7 +256,9 @@ function run_beautifier_tests(test_obj)
     bt('catch(e)', 'catch (e)');
 
     bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
+    bt_braces('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b =\n    {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
     bt('var a=1,b={foo:2,bar:3},c=4', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4');
+    bt_braces('var a=1,b={foo:2,bar:3},c=4', 'var a = 1,\n    b =\n    {\n        foo: 2,\n        bar: 3\n    },\n    c = 4');
 
     // inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
