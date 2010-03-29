@@ -1,22 +1,18 @@
 /*global js_beautify */
 
 
-var indent_size       = 4;
-var indent_char       = ' ';
-var preserve_newlines = true;
-var space_after_anon_function = true;
-var keep_array_indentation = false;
+flags = {
+    indent_size: 4,
+    indent_char: ' ',
+    preserve_newlines: true,
+    space_after_anon_function: true,
+    keep_array_indentation: false,
+    braces_on_own_line: false
+}
 
 function test_beautifier(input)
 {
-    return js_beautify(input, {
-        indent_size: indent_size,
-        indent_char: indent_char,
-        preserve_newlines: preserve_newlines,
-        space_after_anon_function: space_after_anon_function,
-        keep_array_indentation: keep_array_indentation
-    });
-
+    return js_beautify(input, flags);
 }
 
 var sanitytest;
@@ -45,7 +41,7 @@ function bt(input, expectation)
     //     indent;
     // }
 
-    if (indent_size === 4 && input) {
+    if (flags.indent_size === 4 && input) {
         wrapped_input = '{\n' + input + '\nindent;}';
         wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
         test_fragment(wrapped_input, wrapped_expectation);
@@ -58,14 +54,12 @@ function run_beautifier_tests(test_obj)
     sanitytest = test_obj || new SanityTest();
     sanitytest.test_function(test_beautifier, 'js_beautify');
 
-    indent_size       = 4;
-    tests_passed      = 0;
-    tests_failed      = 0;
-    indent_char       = ' ';
-    test_result       = '';
-    preserve_newlines = true;
-    space_after_anon_function = true;
-    keep_array_indentation = false;
+    flags.indent_size       = 4;
+    flags.indent_char       = ' ';
+    flags.preserve_newlines = true;
+    flags.space_after_anon_function = true;
+    flags.keep_array_indentation = false;
+    flags.braces_on_own_line = false;
 
     bt('');
     bt('a        =          1', 'a = 1');
@@ -268,13 +262,13 @@ function run_beautifier_tests(test_obj)
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
 
-    space_after_anon_function = true;
+    flags.space_after_anon_function = true;
 
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
-    space_after_anon_function = false;
+    flags.space_after_anon_function = false;
 
     test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
@@ -284,28 +278,28 @@ function run_beautifier_tests(test_obj)
 
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
 
-    indent_size = 1;
-    indent_char = ' ';
+    flags.indent_size = 1;
+    flags.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
 
-    indent_size = 4;
-    indent_char = ' ';
+    flags.indent_size = 4;
+    flags.indent_char = ' ';
     bt('{ one_char() }', "{\n    one_char()\n}");
 
-    indent_size = 1;
-    indent_char = "\t";
+    flags.indent_size = 1;
+    flags.indent_char = "\t";
     bt('{ one_char() }', "{\n\tone_char()\n}");
 
-    indent_size = 4;
-    indent_char = ' ';
+    flags.indent_size = 4;
+    flags.indent_char = ' ';
 
-    preserve_newlines = false;
+    flags.preserve_newlines = false;
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
-    preserve_newlines = true;
+    flags.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
-    keep_array_indentation = true;
+    flags.keep_array_indentation = true;
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar}\n]');
