@@ -987,14 +987,32 @@ function js_beautify(js_source_text, options) {
 
             var lines = token_text.split(/\x0a|\x0d\x0a/);
 
-            print_newline();
-            output.push(lines[0]);
-            for (var i = 1, l = lines.length; i < l; i++) {
+            if (/^\/\*\*/.test(token_text)) {
+                // javadoc: reformat and reindent
                 print_newline();
-                output.push(' ');
-                output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
-            }
+                output.push(lines[0]);
+                for (var i = 1; i < lines.length; i++) {
+                    print_newline();
+                    output.push(' ');
+                    output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
+                }
 
+            } else {
+                // simple block comment: leave intact
+                if (lines.length > 1) { 
+                    // multiline comment block starts with a new line
+                    print_newline();
+                    trim_output();
+                } else {
+                    // single-line /* comment */ stays where it is
+                    print_single_space();
+                }
+                for (var i = 0; i < lines.length; i++) {
+                    output.push(lines[i]);
+                    output.push('\n');
+                }
+
+            }
             print_newline();
             break;
 

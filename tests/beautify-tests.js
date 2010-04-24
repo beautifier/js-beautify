@@ -114,6 +114,9 @@ function run_beautifier_tests(test_obj)
     bt('if(!a)foo();', 'if (!a) foo();');
     bt('a=~a', 'a = ~a');
     bt('a;/*comment*/b;', "a; /*comment*/\nb;");
+    bt('a;/* comment */b;', "a; /* comment */\nb;");
+    test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); // simple comments don't get reindented
+    bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
     bt('if((a))foo();', 'if ((a)) foo();');
@@ -324,8 +327,8 @@ function run_beautifier_tests(test_obj)
 
     bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
 
-    bt('/*\n * X\n */');
-    bt('/*\r\n * X\r\n */', '/*\n * X\n */');
+    test_fragment('/*\n * X\n */');
+    test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
 
     return sanitytest;
 }
