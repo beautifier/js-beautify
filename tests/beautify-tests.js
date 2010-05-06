@@ -279,6 +279,9 @@ function run_beautifier_tests(test_obj)
 
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
+    bt('var a = a,\na;\nb = {\nb\n}', 'var a = a,\n    a;\nb = {\n    b\n}');
+
+
 
     flags.space_after_anon_function = true;
 

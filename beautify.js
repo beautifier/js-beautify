@@ -137,7 +137,7 @@ function js_beautify(js_source_text, options) {
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + (flags.var_line_reindented ? 1 : 0) : opt_indent_level)
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level)
         };
     }
 
@@ -830,6 +830,7 @@ function js_beautify(js_source_text, options) {
 
             if (token_text === 'var') {
                 flags.var_line = true;
+                flags.var_line_reindented = false;
                 flags.var_line_tainted = false;
             }
 
@@ -843,6 +844,7 @@ function js_beautify(js_source_text, options) {
 
             print_token();
             flags.var_line = false;
+            flags.var_line_reindented = false;
             break;
 
         case 'TK_STRING':
