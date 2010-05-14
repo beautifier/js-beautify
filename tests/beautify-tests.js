@@ -260,8 +260,6 @@ function run_beautifier_tests(test_obj)
 
     bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
     bt_braces('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b =\n    {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
-    bt('var a=1,b={foo:2,bar:3},c=4', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4');
-    bt_braces('var a=1,b={foo:2,bar:3},c=4', 'var a = 1,\n    b =\n    {\n        foo: 2,\n        bar: 3\n    },\n    c = 4');
 
     // inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -271,8 +269,8 @@ function run_beautifier_tests(test_obj)
     bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
     bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
-    bt('var a,b,c=1,d,e,f=2', 'var a, b, c = 1,\n    d, e, f = 2');
-    bt('var a,b,c=[],d,e,f=2', 'var a, b, c = [],\n    d, e, f = 2');
+    bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
+    bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
     bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
 
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
@@ -280,6 +278,9 @@ function run_beautifier_tests(test_obj)
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
     bt('var a = a,\na;\nb = {\nb\n}', 'var a = a,\n    a;\nb = {\n    b\n}');
+
+    bt('var a = a,\n    /* c */\n    b;');
+    bt('var a = a,\n    // c\n    b;');
 
 
 

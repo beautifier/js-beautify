@@ -84,7 +84,7 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-        for (var i = 0; i < flags.indentation_level; i += 1) {
+        for (var i = 0; i < flags.indentation_level + (flags.var_line && flags.var_line_reindented ? 1 : 0); i += 1) {
             output.push(indent_string);
         }
     }
@@ -704,9 +704,6 @@ function js_beautify(js_source_text, options) {
             restore_mode();
             if (opt_braces_on_own_line) {
                 print_newline();
-                if (flags.var_line_reindented) {
-                    output.push(indent_string);
-                }
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {
@@ -719,9 +716,6 @@ function js_beautify(js_source_text, options) {
                     }
                 } else {
                     print_newline();
-                    if (flags.var_line_reindented) {
-                        output.push(indent_string);
-                    }
                 }
                 print_token();
             }
@@ -881,10 +875,9 @@ function js_beautify(js_source_text, options) {
                 if (token_text === ',') {
                     if (flags.var_line_tainted) {
                         print_token();
-                        print_newline();
-                        output.push(indent_string);
                         flags.var_line_reindented = true;
                         flags.var_line_tainted = false;
+                        print_newline();
                         break;
                     } else {
                         flags.var_line_tainted = false;
