@@ -64,6 +64,11 @@ function js_beautify(js_source_text, options) {
         }
     }
 
+    function is_array(mode) {
+        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
+    }
+
+
     function print_newline(ignore_repeated) {
 
         flags.eat_next_space = false;
@@ -143,10 +148,6 @@ function js_beautify(js_source_text, options) {
 
     function is_expression(mode) {
         return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]' || mode === '(EXPRESSION)';
-    }
-
-    function is_array(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
     }
 
     function restore_mode() {
@@ -270,11 +271,12 @@ function js_beautify(js_source_text, options) {
             }
 
             if (just_added_newline) {
-                for (var i = 0; i < flags.indentation_level + 1; i += 1) {
+                var i;
+                for (i = 0; i < flags.indentation_level + 1; i += 1) {
                     output.push(indent_string);
                 }
                 if (flags.indentation_baseline !== -1) {
-                    for (var i = 0; i < whitespace_count - flags.indentation_baseline; i++) {
+                    for (i = 0; i < whitespace_count - flags.indentation_baseline; i++) {
                         output.push(' ');
                     }
                 }
@@ -299,7 +301,7 @@ function js_beautify(js_source_text, options) {
 
             if (opt_preserve_newlines) {
                 if (n_newlines > 1) {
-                    for (var i = 0; i < n_newlines; i += 1) {
+                    for (i = 0; i < n_newlines; i += 1) {
                         print_newline(i === 0);
                         just_added_newline = true;
                     }
@@ -489,10 +491,10 @@ function js_beautify(js_source_text, options) {
                 } while (parser_pos < input_length && c !== '#' && c !== '=');
                 if (c === '#') {
                     // 
-                } else if (input.charAt(parser_pos) == '[' && input.charAt(parser_pos + 1) === ']') {
+                } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
                     sharp += '[]';
                     parser_pos += 2;
-                } else if (input.charAt(parser_pos) == '{' && input.charAt(parser_pos + 1) === '}') {
+                } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
                     sharp += '{}';
                     parser_pos += 2;
                 }
@@ -631,7 +633,7 @@ function js_beautify(js_source_text, options) {
 
             if (last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
-            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_text == '.') {
+            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_text === '.') {
                 // do nothing on (( and )( and ][ and ]( and .(
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_single_space();
@@ -735,7 +737,7 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === 'function') {
-                if ((just_added_newline || last_text == ';') && last_text !== '{') {
+                if ((just_added_newline || last_text === ';') && last_text !== '{') {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
                     n_newlines = just_added_newline ? n_newlines : 0;
@@ -958,7 +960,7 @@ function js_beautify(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                if ( ! is_ternary_op()) {
+                if (!is_ternary_op()) {
                     space_before = false;
                 }
             }
@@ -986,7 +988,7 @@ function js_beautify(js_source_text, options) {
                 // javadoc: reformat and reindent
                 print_newline();
                 output.push(lines[0]);
-                for (var i = 1; i < lines.length; i++) {
+                for (i = 1; i < lines.length; i++) {
                     print_newline();
                     output.push(' ');
                     output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
@@ -1002,7 +1004,7 @@ function js_beautify(js_source_text, options) {
                     // single-line /* comment */ stays where it is
                     print_single_space();
                 }
-                for (var i = 0; i < lines.length; i++) {
+                for (i = 0; i < lines.length; i++) {
                     output.push(lines[i]);
                     output.push('\n');
                 }
