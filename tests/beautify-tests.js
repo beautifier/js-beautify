@@ -282,6 +282,7 @@ function run_beautifier_tests(test_obj)
     bt('var a = a,\n    /* c */\n    b;');
     bt('var a = a,\n    // c\n    b;');
 
+    bt('foo.("bar");'); // weird element referencing
 
 
     flags.space_after_anon_function = true;
