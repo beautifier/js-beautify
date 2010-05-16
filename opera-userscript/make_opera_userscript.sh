@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DESTINATION=opera_userscript.js
+DESTINATION=beautifier.js
 
 echo '// ==UserScript==
 // @name        Scripts beautifier for Opera
@@ -19,7 +19,7 @@ echo '// ==UserScript==
      https://unite.opera.com/application/401/ */
 
 ' > $DESTINATION
-cat ../../beautify.js >> $DESTINATION
+cat ../beautify.js >> $DESTINATION
 
 echo '
   var toString = String.prototype.toString;
