@@ -5,30 +5,37 @@ DESTINATION=opera_userscript.js
 echo '// ==UserScript==
 // @name        Scripts beautifier for Opera
 // @author      Rafal Chlodnicki
-// @version     1.0
-// @JSBeautifierversion 16 May 2009
-// @include *
+// @author      Einar Lielmanis
+// @version     1.1
+// @include     *
 // ==/UserScript==
 
 (function(){
 
-var beautify = 
+  // Enabling this setting will beautify all scripts on page
+  var enabled = /*@Beautify all scripts@bool@*/false/*@*/;
+
+  /* Specially formated comment above is for use with Opera Unite UJS Manager
+     https://unite.opera.com/application/401/ */
+
 ' > $DESTINATION
-cat ../beautify.js >> $DESTINATION
+cat ../../beautify.js >> $DESTINATION
 
 echo '
-  var toString = Function.prototype.toString;
-  Function.prototype.tidy = function(){ return beautify( toString.call(this) ) };
-  String.prototype.tidy = function(){ return beautify(this); };
+  var toString = String.prototype.toString;
 
-  // tidy scripts if special window property set
-  if ( window.tidyScripts ) 
+  // Set up tidy method on strings and functions
+  // @returns beautified string representation
+  var tidy =
+    Function.prototype.tidy =
+    String.prototype.tidy =
+    function(){ return js_beautify( toString.call(this) ) };
+
+  if (enabled)
   {
-    opera.addEventListener('BeforeScript', tidyScript, false);
-    function tidyScript(ev) 
-    {
-      ev.element.text = Function.prototype.tidy.call(ev.element.text);
-    }
+    opera.addEventListener("BeforeScript", function(ev) {
+      ev.element.text = tidy.call(ev.element.text);
+    }, false);
   }
 
 })();
