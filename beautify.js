@@ -684,7 +684,11 @@ function js_beautify(js_source_text, options) {
             }
             if (opt_braces_on_own_line) {
                 if (last_type !== 'TK_OPERATOR') {
-                    print_newline(true);
+                    if (last_text == 'return') {
+                        print_single_space();
+                    } else {
+                        print_newline(true);
+                    }
                 }
                 print_token();
                 indent();
