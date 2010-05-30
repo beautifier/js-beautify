@@ -926,7 +926,7 @@ function js_beautify(js_source_text, options) {
                     }
                 } else if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
                     print_token();
-                    print_newline();
+                    print_single_space();
                 } else {
                     if (flags.mode === 'BLOCK') {
                         print_token();

@@ -53,7 +53,7 @@ function bt(input, expectation)
 }
 
 // test the input on beautifier with the current flag settings,
-// but dont' 
+// but dont't
 function bt_braces(input, expectation)
 {
     var braces_ex = flags.braces_on_own_line;
@@ -107,8 +107,8 @@ function run_beautifier_tests(test_obj)
     bt('a?b:c', 'a ? b : c');
     bt('a?1:2', 'a ? 1 : 2');
     bt('a?(b):c', 'a ? (b) : c');
-    bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}');  
-    bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');   
+    bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}');
+    bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');
     bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;');
     bt('function void(void) {}');
     bt('if(!a)foo();', 'if (!a) foo();');
@@ -202,6 +202,10 @@ function run_beautifier_tests(test_obj)
     bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
     bt('{a:#1={}}', '{\n    a: #1={}\n}');
     bt('{a:#1#}', '{\n    a: #1#\n}');
+
+	test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
+	test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
+
     test_fragment('{a:#1', '{\n    a: #1'); // incomplete
     test_fragment('{a:#', '{\n    a: #'); // incomplete
 
@@ -212,7 +216,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('a=/regexp', 'a = /regexp'); // incomplete regexp
 
     bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}');
- 
+
     bt("a = 1e+2");
     bt("a = 1e-2");
     bt("do{x()}while(a>1)", "do {\n    x()\n} while (a > 1)");
@@ -335,9 +339,6 @@ function run_beautifier_tests(test_obj)
     test_fragment('/*\n * X\n */');
     test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
 
-
-
-
     flags.braces_on_own_line = true;
 
     test_fragment('if (foo) {', 'if (foo)\n{');
@@ -345,8 +346,6 @@ function run_beautifier_tests(test_obj)
     test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
     // test_fragment('return\n{', 'return\n{'); // can't support this, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return;\n{');
-
-
 
     return sanitytest;
 }
