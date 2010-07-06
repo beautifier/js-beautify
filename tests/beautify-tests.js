@@ -301,6 +301,8 @@ function run_beautifier_tests(test_obj)
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
+    bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    },\n    7, 8, 8, 8, 8,\n    {\n        "b": 99\n    },\n    {\n        "a": 11\n    }]\n}');
+
     bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
 
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
