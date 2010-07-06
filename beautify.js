@@ -939,9 +939,13 @@ function js_beautify(js_source_text, options) {
                     }
                 } else if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
                     print_token();
-                    print_single_space();
+                    if (flags.mode === 'OBJECT' && last_text === '}') {
+                        print_newline();
+                    } else {
+                        print_single_space();
+                    }
                 } else {
-                    if (flags.mode === 'BLOCK') {
+                    if (flags.mode === 'OBJECT') {
                         print_token();
                         print_newline();
                     } else {
@@ -977,6 +981,7 @@ function js_beautify(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
+                flags.mode = 'OBJECT';
                 if (!is_ternary_op()) {
                     space_before = false;
                 }

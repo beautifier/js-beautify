@@ -303,6 +303,9 @@ function run_beautifier_tests(test_obj)
 
     bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    },\n    7, 8, 8, 8, 8,\n    {\n        "b": 99\n    },\n    {\n        "a": 11\n    }]\n}');
 
+    bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
+    bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
+
     bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
 
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
