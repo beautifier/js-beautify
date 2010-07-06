@@ -434,7 +434,7 @@ function js_beautify(js_source_text, options) {
                         }
                         parser_pos += 1;
                         if (parser_pos >= input_length) {
-                            // incomplete string/rexp when end-of-file reached. 
+                            // incomplete string/rexp when end-of-file reached.
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
                         }
@@ -453,7 +453,7 @@ function js_beautify(js_source_text, options) {
                         }
                         parser_pos += 1;
                         if (parser_pos >= input_length) {
-                            // incomplete string/rexp when end-of-file reached. 
+                            // incomplete string/rexp when end-of-file reached.
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
                         }
@@ -490,7 +490,7 @@ function js_beautify(js_source_text, options) {
                     parser_pos += 1;
                 } while (parser_pos < input_length && c !== '#' && c !== '=');
                 if (c === '#') {
-                    // 
+                    //
                 } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
                     sharp += '[]';
                     parser_pos += 2;
@@ -752,6 +752,7 @@ function js_beautify(js_source_text, options) {
 
                 }
             }
+
             if (token_text === 'case' || token_text === 'default') {
                 if (last_text === ':') {
                     // switch cases following one another
@@ -938,8 +939,8 @@ function js_beautify(js_source_text, options) {
                     }
                 }
                 break;
-            // } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS']) || in_array(last_text, line_starters) || in_array(last_text, ['==', '!=', '+=', '-=', '*=', '/=', '+', '-'])))) { 
-            } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) { 
+            // } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS']) || in_array(last_text, line_starters) || in_array(last_text, ['==', '!=', '+=', '-=', '*=', '/=', '+', '-'])))) {
+            } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
@@ -1000,7 +1001,7 @@ function js_beautify(js_source_text, options) {
 
             } else {
                 // simple block comment: leave intact
-                if (lines.length > 1) { 
+                if (lines.length > 1) {
                     // multiline comment block starts with a new line
                     print_newline();
                     trim_output();
