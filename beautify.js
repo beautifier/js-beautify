@@ -133,6 +133,7 @@ function js_beautify(js_source_text, options) {
             flag_store.push(flags);
         }
         flags = {
+            previous_mode: flags ? flags.mode : 'BLOCK',
             mode: mode,
             var_line: false,
             var_line_tainted: false,
@@ -144,6 +145,10 @@ function js_beautify(js_source_text, options) {
             indentation_baseline: -1,
             indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level)
         };
+    }
+
+    function is_array(mode) {
+        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
     }
 
     function is_expression(mode) {
@@ -677,6 +682,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_START_BLOCK':
 
+            var last_mode = flags.mode;
             if (last_word === 'do') {
                 set_mode('DO_BLOCK');
             } else {
@@ -698,6 +704,11 @@ function js_beautify(js_source_text, options) {
                         print_newline();
                     } else {
                         print_single_space();
+                    }
+                } else {
+                    // if TK_OPERATOR or TK_START_EXPR
+                    if (is_array(last_mode) && last_text === ',') {
+                        print_newline(); // [a, b, c, {
                     }
                 }
                 indent();
@@ -823,6 +834,8 @@ function js_beautify(js_source_text, options) {
                         print_newline();
                     }
                 }
+            } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
+                print_newline(); // }, in lists get a newline treatment
             } else if (prefix === 'SPACE') {
                 print_single_space();
             }
