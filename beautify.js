@@ -682,7 +682,6 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_START_BLOCK':
 
-            var last_mode = flags.mode;
             if (last_word === 'do') {
                 set_mode('DO_BLOCK');
             } else {
@@ -707,7 +706,7 @@ function js_beautify(js_source_text, options) {
                     }
                 } else {
                     // if TK_OPERATOR or TK_START_EXPR
-                    if (is_array(last_mode) && last_text === ',') {
+                    if (is_array(flags.previous_mode) && last_text === ',') {
                         print_newline(); // [a, b, c, {
                     }
                 }
