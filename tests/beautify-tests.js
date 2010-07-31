@@ -314,6 +314,8 @@ function run_beautifier_tests(test_obj)
     flags.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
 
+    bt('var a,b=1,c=2', 'var a, b = 1,\n    c = 2');
+
     flags.indent_size = 4;
     flags.indent_char = ' ';
     bt('{ one_char() }', "{\n    one_char()\n}");

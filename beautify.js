@@ -89,8 +89,15 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-        for (var i = 0; i < flags.indentation_level + (flags.var_line && flags.var_line_reindented ? 1 : 0); i += 1) {
+        for (var i = 0; i < flags.indentation_level; i += 1) {
             output.push(indent_string);
+        }
+        if (flags.var_line && flags.var_line_reindented) {
+            if (opt_indent_char === ' ') {
+                output.push('    '); // var_line always pushes 4 spaces, so that the variables would be one under another
+            } else {
+                output.push(indent_string); // skip space-stuffing, if indenting with a tab
+            }
         }
     }
 
