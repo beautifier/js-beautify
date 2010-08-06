@@ -323,12 +323,14 @@ function run_beautifier_tests(test_obj)
     flags.indent_size = 1;
     flags.indent_char = "\t";
     bt('{ one_char() }', "{\n\tone_char()\n}");
+    bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
 
     flags.indent_size = 4;
     flags.indent_char = ' ';
 
     flags.preserve_newlines = false;
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
+
 
     flags.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');

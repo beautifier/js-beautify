@@ -988,8 +988,8 @@ function js_beautify(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                flags.mode = 'OBJECT';
                 if (!is_ternary_op()) {
+                    flags.mode = 'OBJECT';
                     space_before = false;
                 }
             }
