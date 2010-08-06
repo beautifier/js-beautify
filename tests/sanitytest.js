@@ -3,7 +3,7 @@
 // written by Einar Lielmanis, einar@jsbeautifier.org
 //
 // usage:
-// 
+//
 // var t = new SanityTest(function (x) { return x; }, 'my function');
 // t.expect('input', 'output');
 // t.expect('a', 'a');
@@ -34,7 +34,7 @@ function SanityTest (func, test_name) {
         // multi-parameter calls not supported (I don't need them now).
         var result = test_func(parameters);
         // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
-        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') == expected_value.join(', '))) { 
+        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') == expected_value.join(', '))) {
             n_succeeded += 1;
         } else {
             n_failed += 1;
@@ -47,7 +47,7 @@ function SanityTest (func, test_name) {
         var results = '';
         if (n_failed === 0) {
             if (n_succeeded === 0) {
-                results = 'No tests run.'; 
+                results = 'No tests run.';
             } else {
                 results = 'All ' + n_succeeded + ' tests passed.';
             }
@@ -72,7 +72,7 @@ function SanityTest (func, test_name) {
         return this.lazy_escape(this.results_raw());
     }
 
-    
+
     this.prettyprint = function(something, quote_strings) {
         var type = typeof something;
         switch(type.toLowerCase()) {
@@ -102,7 +102,7 @@ function SanityTest (func, test_name) {
                 }
                 return '[' + x.join(', ') + ']';
             } else {
-                return 'object: ' + something; 
+                return 'object: ' + something;
             }
         default:
             return type + ': ' + something;
