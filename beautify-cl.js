@@ -16,9 +16,6 @@
   [1] http://www.mozilla.org/rhino/
 
 */
-load("beautify.js");
-load("beautify-html.js");
-
 
 function print_usage() {
     print("Usage: java org.mozilla.javascript.tools.shell.Main beautify-cl.js [options] [file || URL]\n");
@@ -29,6 +26,7 @@ function print_usage() {
     print("-a\tIndent arrays");
     print("-n\tPreserve newlines");
     print("-p\tJSLint-pedantic mode, currently only adds space between \"function ()\"");
+    print("-d\tDirectory where the js-beautify scripts are installed.\n");
     print("-h\tPrint this help\n");
     print("Examples:");
     print("beautify-cl.js -i 2 example.js");
@@ -56,6 +54,9 @@ function parse_opts(args) {
                 break;
             case "-n":
                 options.preserve_newlines = true;
+                break;
+            case "-d":
+                options.install_dir = args.shift();
                 break;
             case "-h":
                 print_usage();
@@ -124,4 +125,13 @@ function do_js_beautify() {
 
 
 options = parse_opts(arguments);
+
+if (options.install_dir) {
+   load(options.install_dir + "/beautify.js");
+   load(options.install_dir + "/beautify-html.js");
+} else {
+   load("beautify.js");
+   load("beautify-html.js");
+}
+
 print(do_js_beautify());
