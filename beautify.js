@@ -1078,3 +1078,8 @@ function js_beautify(js_source_text, options) {
     return output.join('').replace(/[\n ]+$/, '');
 
 }
+
+// Add support for CommonJS. Just put this file somewhere on your require.paths
+// and you will be able to `var js_beautify = require("beautify").js_beautify`.
+if (typeof exports !== "undefined")
+    exports.js_beautify = js_beautify;
