@@ -1,8 +1,8 @@
 /*
-    Copyright (c) 2010 Nicolas Ferrero <ferrero.nicolas@gmail.com>
     Copyright (c) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
     Copyright (c) 2009 Einar Lielmanis
-
+    Copyright (c) 2010 Nicolas Ferrero <ferrero.nicolas@gmail.com>
+    
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -53,7 +53,6 @@ static void usage(char *progname)
     std::cerr << " --braces-on-own-line         or -b: ANSI / Allman brace style, each opening/closing brace gets its own line.\n";
     std::cerr << " --keep-array-indentation     or -k: Keep array indentation.\n";
     std::cerr << " --help                       or -h: Prints this help statement.\n";
-
 }
 
 int main(int argc, char **argv)
@@ -68,37 +67,37 @@ int main(int argc, char **argv)
             source = readFile(QString::fromLocal8Bit(app.argv()[argpos]));
             
         } else if (strcmp(app.argv()[argpos], "--indent-size") == 0 ||
-              strcmp(app.argv()[argpos], "-s") == 0) {
-              options.setProperty("indent_size", app.argv()[argpos+1]);
+                   strcmp(app.argv()[argpos], "-s") == 0) {
+            options.setProperty("indent_size", app.argv()[argpos+1]);
               
         } else if (strcmp(app.argv()[argpos], "--indent-char") == 0 ||
-              strcmp(app.argv()[argpos], "-c") == 0) {
-              options.setProperty("indent_char", app.argv()[argpos+1]);
+                   strcmp(app.argv()[argpos], "-c") == 0) {
+            options.setProperty("indent_char", app.argv()[argpos+1]);
               
         } else if (strcmp(app.argv()[argpos], "--disable-preserve-newlines") == 0 ||
-              strcmp(app.argv()[argpos], "-d") == 0) {
-              options.setProperty("preserve_newlines", false);
+                   strcmp(app.argv()[argpos], "-d") == 0) {
+            options.setProperty("preserve_newlines", false);
         
         } else if (strcmp(app.argv()[argpos], "--indent-level") == 0 ||
-              strcmp(app.argv()[argpos], "-l") == 0) {
-              options.setProperty("indent_level", app.argv()[argpos+1]);
+                   strcmp(app.argv()[argpos], "-l") == 0) {
+            options.setProperty("indent_level", app.argv()[argpos+1]);
         
         } else if (strcmp(app.argv()[argpos], "--space-after-anon-function") == 0 ||
-              strcmp(app.argv()[argpos], "-f") == 0) {
-              options.setProperty("space_after_anon_function", true); 
+                   strcmp(app.argv()[argpos], "-f") == 0) {
+            options.setProperty("space_after_anon_function", true); 
               
         } else if (strcmp(app.argv()[argpos], "--braces-on-own-line") == 0 ||
-              strcmp(app.argv()[argpos], "-b") == 0) {
-              options.setProperty("braces_on_own_line", true);      
+                   strcmp(app.argv()[argpos], "-b") == 0) {
+            options.setProperty("braces_on_own_line", true);      
               
         } else if (strcmp(app.argv()[argpos], "--keep-array-indentation") == 0 ||
-              strcmp(app.argv()[argpos], "-k") == 0) {
-              options.setProperty("keep_array_indentation", true);   
+                   strcmp(app.argv()[argpos], "-k") == 0) {
+            options.setProperty("keep_array_indentation", true);   
               
         } else if (strcmp(app.argv()[argpos], "--help") == 0 ||
-              strcmp(app.argv()[argpos], "-h") == 0) {
-                usage(app.argv()[0]);
-                return -1;
+                   strcmp(app.argv()[argpos], "-h") == 0) {
+            usage(app.argv()[0]);
+            return -1;
         }
     }
     
