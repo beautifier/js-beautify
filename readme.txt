@@ -14,6 +14,9 @@
   script, using Rhino javascript engine. See the file contents for the
   details.
 
+  Alternatively, you can use the V8-based or QtScript-based command-line
+  versions, see the v8/ and qtscript/ subdirectories for the details.
+
 
   Written by Einar Lielmanis, <einar@jsbeautifier.org>
 
