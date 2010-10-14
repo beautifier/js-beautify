@@ -16,11 +16,18 @@ i.e. Python and scons.
 
 Build steps:
 
-  svn checkout http://v8.googlecode.com/svn/trunk lib
-  cd lib && scons mode=release
-  cd ..
-  g++ -o jsbeautify jsbeautify.cpp -Ilib/include/ -lv8 -Llib -m32
-
+  For 32 Bits:
+    svn checkout http://v8.googlecode.com/svn/trunk lib
+    cd lib && scons mode=release
+    cd ..
+    g++ -o jsbeautify jsbeautify.cpp -Ilib/include/ -lv8 -Llib -m32
+  
+  For 64 Bits:
+    svn checkout http://v8.googlecode.com/svn/trunk lib
+    cd lib && scons mode=release arch=x64
+    cd ..
+    g++ -o jsbeautify jsbeautify.cpp -Ilib/include/ -lv8 -Llib -lpthread
+  
 How to use:
 
   ./jsbeautify somefile.js
