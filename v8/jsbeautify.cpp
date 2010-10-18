@@ -58,11 +58,29 @@ Handle<String> readFile(const char* name) {
     return result;
 }
 
+void writeFile(Handle<Value> result, const char* name) {
+    if (result.IsEmpty() || result->IsUndefined())
+        return;
+
+    FILE* file = stdout;
+    if (name) {
+        file = fopen(name, "wt");
+        if (file == NULL)
+            return;
+    }
+
+    String::Utf8Value str(result);
+    fprintf(file, "%s\n", *str);
+
+    if (name)
+        fclose(file);
+}
 
 static void usage(char* progname)
 {
     printf("Usage:  %s [options] source-file\n", progname);
     printf("[options]\n");
+    printf(" --overwrite                       : Overwrite source-file (use with care!)\n");
     printf(" --indent-size                or -s: Indentation size. (default 4)\n");
     printf(" --indent-char                or -c: Character to indent with. (default space)\n");
     printf(" --disable-preserve-newlines  or -d: Do not preserve existing line breaks.\n");
@@ -80,11 +98,17 @@ int main(int argc, char* argv[])
 
     Handle<ObjectTemplate> global = ObjectTemplate::New();
     Handle<ObjectTemplate> options = ObjectTemplate::New();
+    bool overwrite = false;
+    const char* output = 0;
     
     for (int argpos = 1; argpos < argc; ++argpos) {
         if (argv[argpos][0] != '-') {
             source = readFile(argv[argpos]);
+            output = argv[argpos];
             
+        } else if (strcmp(argv[argpos], "--overwrite") == 0) {
+            overwrite = true;
+
         } else if (strcmp(argv[argpos], "--indent-size") == 0 ||
                    strcmp(argv[argpos], "-s") == 0) {
             options->Set("indent_size", String::New(argv[argpos+1]));
@@ -138,10 +162,7 @@ int main(int argc, char* argv[])
     Handle<Script> runnerScript = Script::Compile(String::New("js_beautify(source, options);"));
     Handle<Value> result = runnerScript->Run();
 
-    if (!result.IsEmpty() && !result->IsUndefined()) {
-        String::Utf8Value str(result);
-        printf("%s\n", *str);
-    }
+    writeFile(result, overwrite ? output : 0);
 
     return 0;
 }
