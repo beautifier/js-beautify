@@ -2,7 +2,7 @@
     Copyright (c) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
     Copyright (c) 2009 Einar Lielmanis
     Copyright (c) 2010 Nicolas Ferrero <ferrero.nicolas@gmail.com>
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -34,7 +34,8 @@
 
 using namespace v8;
 
-Handle<String> readFile(const char* name) {
+Handle<String> readFile(const char* name)
+{
     FILE *file = stdin;
     int len = 0;
     char *buf;
@@ -84,22 +85,32 @@ Handle<String> readFile(const char* name) {
     return result;
 }
 
-void writeFile(Handle<Value> result, const char* name) {
+void writeFile(Handle<Value> result, const char* name)
+{
     if (result.IsEmpty() || result->IsUndefined())
+    {
         return;
+    }
 
     FILE* file = stdout;
-    if (name) {
+
+    if (name)
+    {
         file = fopen(name, "wt");
+
         if (file == NULL)
+        {
             return;
+        }
     }
 
     String::Utf8Value str(result);
     fprintf(file, "%s\n", *str);
 
     if (name)
+    {
         fclose(file);
+    }
 }
 
 static void usage(char* progname)
@@ -121,74 +132,84 @@ int main(int argc, char* argv[])
 {
     Handle<String> source;
     HandleScope handle_scope;
-
     Handle<ObjectTemplate> global = ObjectTemplate::New();
     Handle<ObjectTemplate> options = ObjectTemplate::New();
     bool overwrite = false;
     const char* output = 0;
-    
-    for (int argpos = 1; argpos < argc; ++argpos) {
-        if (argv[argpos][0] != '-') {
+
+    for (int argpos = 1; argpos < argc; ++argpos)
+    {
+        if (argv[argpos][0] != '-')
+        {
             source = readFile(argv[argpos]);
             output = argv[argpos];
-            
-        } else if (strcmp(argv[argpos], "--overwrite") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--stdin") == 0)
+        {
+            source = readFile(0);
+        }
+        else if (strcmp(argv[argpos], "--overwrite") == 0)
+        {
             overwrite = true;
-
-        } else if (strcmp(argv[argpos], "--indent-size") == 0 ||
-                   strcmp(argv[argpos], "-s") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--indent-size") == 0 ||
+                 strcmp(argv[argpos], "-s") == 0)
+        {
             options->Set("indent_size", String::New(argv[argpos+1]));
-              
-        } else if (strcmp(argv[argpos], "--indent-char") == 0 ||
-                   strcmp(argv[argpos], "-c") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--indent-char") == 0 ||
+                 strcmp(argv[argpos], "-c") == 0)
+        {
             options->Set("indent_char", String::New(argv[argpos+1]));
-              
-        } else if (strcmp(argv[argpos], "--disable-preserve-newlines") == 0 ||
-                   strcmp(argv[argpos], "-d") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--disable-preserve-newlines") == 0 ||
+                 strcmp(argv[argpos], "-d") == 0)
+        {
             options->Set("preserve_newlines", Boolean::New(false));
-        
-        } else if (strcmp(argv[argpos], "--indent-level") == 0 ||
-                   strcmp(argv[argpos], "-l") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--indent-level") == 0 ||
+                 strcmp(argv[argpos], "-l") == 0)
+        {
             options->Set("indent_level",  String::New(argv[argpos+1]));
-        
-        } else if (strcmp(argv[argpos], "--space-after-anon-function") == 0 ||
-                   strcmp(argv[argpos], "-f") == 0) {
-            options->Set("space_after_anon_function", Boolean::New(true)); 
-              
-        } else if (strcmp(argv[argpos], "--braces-on-own-line") == 0 ||
-                   strcmp(argv[argpos], "-b") == 0) {
-            options->Set("braces_on_own_line", Boolean::New(true));      
-              
-        } else if (strcmp(argv[argpos], "--keep-array-indentation") == 0 ||
-                   strcmp(argv[argpos], "-k") == 0) {
-            options->Set("keep_array_indentation", Boolean::New(true));   
-              
-        } else if (strcmp(argv[argpos], "--help") == 0 ||
-                   strcmp(argv[argpos], "-h") == 0) {
+        }
+        else if (strcmp(argv[argpos], "--space-after-anon-function") == 0 ||
+                 strcmp(argv[argpos], "-f") == 0)
+        {
+            options->Set("space_after_anon_function", Boolean::New(true));
+        }
+        else if (strcmp(argv[argpos], "--braces-on-own-line") == 0 ||
+                 strcmp(argv[argpos], "-b") == 0)
+        {
+            options->Set("braces_on_own_line", Boolean::New(true));
+        }
+        else if (strcmp(argv[argpos], "--keep-array-indentation") == 0 ||
+                 strcmp(argv[argpos], "-k") == 0)
+        {
+            options->Set("keep_array_indentation", Boolean::New(true));
+        }
+        else if (strcmp(argv[argpos], "--help") == 0 ||
+                 strcmp(argv[argpos], "-h") == 0)
+        {
             usage(argv[0]);
             return -1;
         }
     }
-    
 
     if (source.IsEmpty())
-        source = readFile(0);
+    {
+        usage(argv[0]);
+        return -1;
+    }
 
     global->Set("source", source);
     global->Set("options", options);
-    
     Handle<Context> context = Context::New(NULL, global);
-
     Context::Scope context_scope(context);
-
     Handle<Script> beautifyScript = Script::Compile(String::New(beautify_code));
     beautifyScript->Run();
-
     Handle<Script> runnerScript = Script::Compile(String::New("js_beautify(source, options);"));
     Handle<Value> result = runnerScript->Run();
-
     writeFile(result, overwrite ? output : 0);
-
     return 0;
 }
 
