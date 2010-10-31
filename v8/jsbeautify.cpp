@@ -26,35 +26,61 @@
  */
 
 #include <v8.h>
-
 #include <string.h>
-
+#include <stdlib.h>
 #include "beautify.h"
+
+#define BUF_SIZE 1024
 
 using namespace v8;
 
 Handle<String> readFile(const char* name) {
-    FILE* file = fopen(name, "rb");
-    
-    if (file == NULL) {
-        return Handle<String>();
-    }
-    
-    fseek(file, 0, SEEK_END);
-    int len = ftell(file);
-    rewind(file);
-  
-    char* buf = new char[len + 1];
-    buf[len] = '\0';
-    
-    fread(buf, 1, len, file);
+    FILE *file = stdin;
+    int len = 0;
+    char *buf;
+    Handle<String> result;
 
-    fclose(file);
-    
-    Handle<String> result = String::New(buf);
-    
-    delete[] buf;
-    
+    if (name)
+    {
+        file = fopen(name, "rb");
+
+        if (file == NULL)
+        {
+            return Handle<String>();
+        }
+
+        fseek(file, 0, SEEK_END);
+        len = ftell(file);
+        rewind(file);
+        buf = new char[len + 1];
+        buf[len] = '\0';
+        fread(buf, 1, len, file);
+        fclose(file);
+        result = String::New(buf);
+        delete[] buf;
+    }
+    else
+    {
+        char c;
+        buf = (char*)malloc(BUF_SIZE + 1);
+        int buf_size = BUF_SIZE + 1;
+
+        while ((c = getchar()) != EOF)
+        {
+            buf[len++] = c;
+
+            if (len == buf_size)
+            {
+                buf_size <<= 1;
+                buf = (char*)realloc(buf, buf_size);
+            }
+        }
+
+        buf[len] = '\0';
+        result = String::New(buf);
+        free(buf);
+    }
+
     return result;
 }
 
@@ -144,10 +170,9 @@ int main(int argc, char* argv[])
         }
     }
     
-    if (source.IsEmpty()) {
-        usage(argv[0]);
-        return -1;
-    }
+
+    if (source.IsEmpty())
+        source = readFile(0);
 
     global->Set("source", source);
     global->Set("options", options);
