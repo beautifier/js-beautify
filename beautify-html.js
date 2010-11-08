@@ -270,6 +270,9 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       var space = true;
       do {
 
+        if (this.pos >= this.input.length) {
+          return content;
+        }
 
         input_char = this.input.charAt(this.pos);
         this.pos++
