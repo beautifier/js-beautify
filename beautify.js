@@ -68,6 +68,9 @@ function js_beautify(js_source_text, options) {
         return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
     }
 
+    function trim(s) {
+        return s.replace(/^\s\s*|\s\s*$/, '');
+    }
 
     function print_newline(ignore_repeated) {
 
@@ -1020,7 +1023,7 @@ function js_beautify(js_source_text, options) {
                 for (i = 1; i < lines.length; i++) {
                     print_newline();
                     output.push(' ');
-                    output.push(lines[i].replace(/^\s\s*|\s\s*$/, ''));
+                    output.push(trim(lines[i]));
                 }
 
             } else {
@@ -1028,14 +1031,16 @@ function js_beautify(js_source_text, options) {
                 if (lines.length > 1) {
                     // multiline comment block starts with a new line
                     print_newline();
-                    trim_output();
                 } else {
                     // single-line /* comment */ stays where it is
                     print_single_space();
                 }
                 for (i = 0; i < lines.length; i++) {
-                    output.push(lines[i]);
-                    output.push('\n');
+                    if (i > 0) {
+                        output.push(' ');
+                    }
+                    output.push(trim(lines[i]));
+                    print_newline();
                 }
 
             }

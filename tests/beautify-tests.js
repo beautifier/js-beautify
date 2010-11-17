@@ -115,7 +115,7 @@ function run_beautifier_tests(test_obj)
     bt('a=~a', 'a = ~a');
     bt('a;/*comment*/b;', "a; /*comment*/\nb;");
     bt('a;/* comment */b;', "a; /* comment */\nb;");
-    test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); // simple comments don't get reindented
+    test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\n comment\n */\nb;"); // simple comments don't get reindented
     bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
@@ -309,6 +309,9 @@ function run_beautifier_tests(test_obj)
     bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
 
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
+
+    bt('function() {\n    /*\n     * multiline\n     */\n}');
+    bt('function() {\n    /*\n     * multiline\n     */\n\n    function() {}\n}'); // would be nice to not have a newline here
 
     flags.indent_size = 1;
     flags.indent_char = ' ';
