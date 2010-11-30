@@ -20,6 +20,7 @@
     indent_size (default 4)          — indentation size,
     indent_char (default space)      — character to indent with,
     preserve_newlines (default true) — whether existing line breaks should be preserved,
+    preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
     indent_level (default 0)         — initial indentation level, you probably won't need this ever,
 
     space_after_anon_function (default false) — if true, then space is added between "function ()"
@@ -49,6 +50,7 @@ function js_beautify(js_source_text, options) {
     var opt_indent_size = options.indent_size ? options.indent_size : 4;
     var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
+    var opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines;
     var opt_indent_level = options.indent_level ? options.indent_level : 0; // starting indentation
     var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
     var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
@@ -301,7 +303,7 @@ function js_beautify(js_source_text, options) {
             while (in_array(c, whitespace)) {
 
                 if (c === "\n") {
-                    n_newlines += 1;
+                    n_newlines += ( (opt_max_preserve_newlines) ? (n_newlines <= opt_max_preserve_newlines) ? 1: 0: 1 );
                 }
 
 
