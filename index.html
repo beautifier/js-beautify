@@ -137,17 +137,6 @@ function run_tests()
 <script type="text/javascript" src="unpackers/bookmarklet_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
 
-<script type="text/javascript">
-// flattr
-(function() {
-    var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-    s.type = 'text/javascript';
-    s.async = true;
-    s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-    t.parentNode.insertBefore(s, t);
-})();
-</script>
-
 <style type="text/css">
 /* I guess I need a CSS beautifer as well */
 * {
@@ -265,6 +254,9 @@ pre {
     position: absolute;
     right: 20px;
     top: 10px;
+    background: url(http://api.flattr.com/button/flattr-badge-large.png) no-repeat top left;
+    width: 93px;
+    height: 20px;
 }
 
 div.bottom {
@@ -287,7 +279,7 @@ div#bottom-right {
 </head>
 <body>
   <div id="wrap">
-    <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://jsbeautifier.org"></a>
+    <a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank" class="FlattrButton"></a>
   <h1>Javascript unpacker and beautifier</h1>
   <form method="post" action="?">
       <fieldset id="options">
@@ -328,7 +320,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <h2>Support</h2>
       <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
       <p>There was a paypal donation button here, but the recent WikiLeaks incidents were my final straw to ditch them. You can flattr me (there's a button on top) instead.<p>
-      <p>I have a <a href="https://moneybookers.com/">moneybookers</a> account now, and you can try sending your love and support to einar@jsbeautifier.org using them as well. Let's see how that works out.</p>
+      <p>I have a <a href="http://www.moneybookers.com/">moneybookers</a> account now, and you can try sending your love and support to einar@jsbeautifier.org using them as well. Let's see how that works out.</p>
       </div>
 
       <div id="bottom-right">
