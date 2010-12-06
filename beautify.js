@@ -743,7 +743,15 @@ function js_beautify(js_source_text, options) {
                         trim_output();
                     }
                 } else {
-                    print_newline();
+                    if (is_array(flags.mode) && opt_keep_array_indentation) {
+                        // we REALLY need a newline here, but newliner would skip that
+                        opt_keep_array_indentation = false;
+                        print_newline();
+                        opt_keep_array_indentation = true;
+
+                    } else {
+                        print_newline();
+                    }
                 }
                 print_token();
             }

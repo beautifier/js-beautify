@@ -341,10 +341,12 @@ function run_beautifier_tests(test_obj)
     flags.keep_array_indentation = true;
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
-    bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar}\n]');
+    bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
     bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
+
+    bt("x = [{'a':0}]", "x = [{\n    'a': 0\n}]");
 
     bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
 
