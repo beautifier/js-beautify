@@ -270,6 +270,8 @@ function js_beautify(js_source_text, options) {
                 } else {
                     if (c === '\t') {
                         whitespace_count += 4;
+                    } else if (c === '\r') {
+                        // nothing
                     } else {
                         whitespace_count += 1;
                     }
