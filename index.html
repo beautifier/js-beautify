@@ -1,11 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <!--
 
   (c) 2006-2010: Einar Lielmanis, einars@jsbeautifier.org
 
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Online javascript beautifier</title>
@@ -138,9 +137,20 @@ function run_tests()
 <script type="text/javascript" src="unpackers/bookmarklet_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
 
+<script type="text/javascript">
+// flattr
+(function() {
+    var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+    s.type = 'text/javascript';
+    s.async = true;
+    s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+    t.parentNode.insertBefore(s, t);
+})();
+</script>
+
 <style type="text/css">
 /* I guess I need a CSS beautifer as well */
-* { 
+* {
     margin: 0;
     padding: 0;
 }
@@ -148,30 +158,26 @@ div#wrap {
     padding: 0 15px;
 }
 
-form { 
-    margin: 0 0 20px 0;
-}
-textarea { 
-    width: 100%; 
-    height: 420px; 
+textarea {
+    width: 100%;
+    height: 315px;
     border: 0;
 }
-h1 { 
-    font-family: "trebuchet ms", arial, sans-serif; 
-    font-weight: normal; 
+h1 {
+    font-family: "trebuchet ms", arial, sans-serif;
+    font-weight: normal;
     font-size: 28px;
-    color: #666; 
-    margin: 10px 10px 15px 10px;
-    border-bottom: 1px solid #666; 
+    color: #666;
+    margin: 10px 10px 5px 0px;
 }
 a {
     color: #36d;
 }
-select { 
+select {
     width: 190px;
 }
-button { 
-    width: 100%; 
+button {
+    width: 100%;
     padding: 3px 5px;
     cursor: pointer;
     bordeR: 1px solid #ccc;
@@ -181,16 +187,14 @@ button {
     background-color: #eee;
 }
 body {
-    font: 14px "myriad web", verdana, arial, helvetica, sans-serif; 
+    font: 14px "myriad web", verdana, arial, helvetica, sans-serif;
 }
-body, label, button, select { 
-    font-family: "myriad web", verdana, arial, helvetica, sans-serif; 
+body, label, button, select {
+    font-family: arial, helvetica, sans-serif;
 }
-textarea, pre, span.code { 
+textarea, pre, span.code {
+    font-size: 12px;
     font-family: consolas, Terminus, "lucida console", "courier new", courier, monospace;
-}
-div#bottom { 
-    color: #333;
 }
 a#signature {
     background: url(http://spicausis.lv/spic-sign-blog.png) no-repeat bottom right;
@@ -201,17 +205,25 @@ a#signature {
     bottom: 0px;
     right: 0px;
 }
-h2 {
-    color: #555;
-    margin: 18px 0 4px 0;
-    font-size: 14px;
+h2, h3 {
+    color: #333;
+    font-size: 12px;
+    margin-top: 12px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 4px;
+    font-weight: bold;
 }
-p { 
+h3 {
+    font-weight: normal;
+}
+p {
     line-height: 150%;
+    margin: 0 0 8px 0;
 }
 div#footer {
+    clear: both;
     margin: 20px 0 0 0;
-    font-size: 12px;
+    font-size: 11px;
     border-top: 1px solid #ddd;
     padding-top: 16px;
 }
@@ -242,16 +254,40 @@ fieldset li {
 }
 fieldset#textarea {
     text-align: right;
-    
+
 }
 pre {
     margin: 10px 0;
+}
+
+.FlattrButton {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+}
+
+div.bottom {
+    margin-right: 200px;
+}
+
+div#bottom-left {
+    float: left;
+    width: 48%;
+    font-size: 12px;
+}
+div#bottom-right {
+    float: left;
+    margin-left: 20px;
+    width: 48%;
+    font-size: 12px;
 }
 
 </style>
 </head>
 <body>
   <div id="wrap">
+    <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://jsbeautifier.org"></a>
   <h1>Javascript unpacker and beautifier</h1>
   <form method="post" action="?">
       <fieldset id="options">
@@ -278,34 +314,37 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <button onclick="return do_js_beautify()" id="beautify">Beautify</button>
 </fieldset>
   </form>
-      <div id="bottom">
-      <p>This little beautifier will reformat and reindent bookmarklets, ugly javascript, unpack scripts packed by
+      <div class="bottom">
+      <div id="bottom-left">
+      <p style="margin-top: 10px; color: #113; border: 1px solid #cce; padding: 5px; background:#f8f8f8">This beautifier will reformat and reindent bookmarklets, ugly javascript, unpack scripts packed by
       the popular <a href="http://dean.edwards.name/packer/">Dean Edward's packer,</a> as well as deobfuscate scripts
       processed by javascriptobfuscator.com.</p>
       <p>The source code for the latest version is always available on <a
       href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
       local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
       <h2>Formatting from command-line</h2>
-      <p>To beautify from the command-line you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>. See the file contents for the details.</p>
-      <h2><a href="http://fiddler2.com/">Fiddler</a></h2>
-      <p>This popular web debugging proxy for Windows has a <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a> (based on this beautifier) which can reformat javascript on the fly.</p>
-      <h2>Vim</h2>
-      <p>Aj3423 converted the script to vimscript — and so now there is a <a href="http://www.vim.org/scripts/script.php?script_id=2727">vim plugin</a> for the quality javascript beautifying.</p>
-      <h2>gEdit</h2>
-      <p>Fabio Nagao has written some <a href="http://github.com/nagaozen/gedit-tunnings/">tips for the gEdit users,</a> among them he tells how to integrate the beautifier into the editor.</p>
-      <h2>Other nice things</h2>
-      <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You don't have to follow its recommendations blindly, but understanding what it says about your code can greatly improve your skills.</p>
+      <p>A stand-alone python version of the beautifier is being made as you read this.</p>
+      <p>Until then, you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>. Also, take a look around the <a href="https://github.com/einars/js-beautify/">github</a> — there are various wrappers available.</p>
       <h2>Support</h2>
-      <p>Some of you have expressed an esoteric wish to thank me for the beautifier financially, and I gladly agree to that.</p>
-      <p>As the beautifier is — and always will be — completely free and open, donating is a wonderful thing to do and it will probably make you feel good and warm inside.
-      <form style="margin-top: 5px" action="https://www.paypal.com/cgi-bin/webscr" method="post">
-        <input type="hidden" name="cmd" value="_s-xclick">
-        <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
-        <input type="image" src="http://spicausis.lv/misc/paypal-donate.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-      </form>
+      <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
+      <p>There was a paypal donation button here, but the recent WikiLeaks incidents were my final straw to ditch them. You can flattr me (there's a button on top) instead.<p>
+      <p>I have a <a href="https://moneybookers.com/">moneybookers</a> account now, and you can try sending your love and support to einar@jsbeautifier.org using them as well. Let's see how that works out.</p>
+      </div>
+
+      <div id="bottom-right">
+      <h3><a href="http://fiddler2.com/">Fiddler</a></h3>
+      <p>This popular web debugging proxy for Windows has a <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a> (based on this beautifier) which can reformat javascript on the fly.</p>
+      <h3>gEdit</h3>
+      <p>Fabio Nagao has written some <a href="http://github.com/nagaozen/gedit-tunnings/">tips for the gEdit users,</a> among them he tells how to integrate the beautifier into the editor.</p>
+      <h3>Vim</h3>
+      <p>Aj3423 converted the script to vimscript — and so now there is a (somewhat unsupported) <a href="http://www.vim.org/scripts/script.php?script_id=2727">vim plugin</a> for the quality javascript beautifying.</p>
+      <p style="color: #363"><i>Are you doing something neat using the beautifier? Tell me about that, and I'll include a link here!</i></p> 
+      <h3>Other nice things</h3>
+      <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You don't have to follow its recommendations blindly, but understanding what it says about your code can greatly improve your skills.</p>
       <h2>Contacts</h2>
-      <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or something, my email is einar@jsbeautifier.org.</p>
+      <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or want to say "hi", my email is <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>.</p>
+      </div>
+      </div>
       <div id="footer">
           <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
           <br />
@@ -313,7 +352,6 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
           Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital Batmanov,</a> Ron Baldwin, Gabriel Harrison and others.
 
       </div>
-  </div>
 </div>
 <a id="signature" href="http://spicausis.lv/"></a>
 
