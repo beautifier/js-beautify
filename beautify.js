@@ -1039,20 +1039,21 @@ function js_beautify(js_source_text, options) {
                 }
 
             } else {
+
                 // simple block comment: leave intact
                 if (lines.length > 1) {
                     // multiline comment block starts with a new line
                     print_newline();
+                    trim_output();
                 } else {
                     // single-line /* comment */ stays where it is
                     print_single_space();
+
                 }
+
                 for (i = 0; i < lines.length; i++) {
-                    if (i > 0) {
-                        output.push(' ');
-                    }
-                    output.push(trim(lines[i]));
-                    print_newline();
+                    output.push(lines[i]);
+                    output.push('\n');
                 }
 
             }
