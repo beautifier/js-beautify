@@ -249,16 +249,6 @@ pre {
     margin: 10px 0;
 }
 
-.FlattrButton {
-    display: block;
-    position: absolute;
-    right: 20px;
-    top: 10px;
-    background: url(http://api.flattr.com/button/flattr-badge-large.png) no-repeat top left;
-    width: 93px;
-    height: 20px;
-}
-
 div.bottom {
     margin-right: 200px;
 }
@@ -275,11 +265,17 @@ div#bottom-right {
     font-size: 12px;
 }
 
+.FlattrButton {
+    margin: 0 4px;
+}
+.FlattrButton  img {
+    border: 0;
+}
+
 </style>
 </head>
 <body>
   <div id="wrap">
-    <a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank" class="FlattrButton"></a>
   <h1>Javascript unpacker and beautifier</h1>
   <form method="post" action="?">
       <fieldset id="options">
@@ -319,7 +315,8 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <p>Until then, you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>. Also, take a look around the <a href="https://github.com/einars/js-beautify/">github</a> — there are various wrappers available.</p>
       <h2>Support</h2>
       <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
-      <p>There was a paypal donation button here, but the recent WikiLeaks incidents were my final straw to ditch them. You can flattr me (there's a button on top) instead.<p>
+    
+      <p>There was a paypal donation button here, but the recent WikiLeaks incidents were my final straw to ditch them. You can <a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a> instead (be the first! :)<p>
       <p>I have a <a href="http://www.moneybookers.com/">moneybookers</a> account now, and you can try sending your love and support to einar@jsbeautifier.org using them as well. Let's see how that works out.</p>
       </div>
 
