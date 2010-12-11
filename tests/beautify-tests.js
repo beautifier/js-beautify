@@ -352,8 +352,11 @@ function run_beautifier_tests(test_obj)
     test_fragment('/*\n * X\n */');
     test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
 
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
+
     flags.braces_on_own_line = true;
 
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
     test_fragment('if (foo) {', 'if (foo)\n{');
     test_fragment('foo {', 'foo\n{');
     test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
