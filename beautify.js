@@ -410,7 +410,7 @@ function js_beautify(js_source_text, options) {
             // peek for comment // ...
             if (input.charAt(parser_pos) === '/') {
                 comment = c;
-                while (input.charAt(parser_pos) !== "\x0d" && input.charAt(parser_pos) !== "\x0a") {
+                while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
                     comment += input.charAt(parser_pos);
                     parser_pos += 1;
                     if (parser_pos >= input_length) {
@@ -428,7 +428,7 @@ function js_beautify(js_source_text, options) {
 
         if (c === "'" || // string
         c === '"' || // string
-        (c === '/' && ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do'])) || (last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
+        (c === '/' && ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do'])) || (last_type != 'TK_WORD')))) { // regexp
             var sep = c;
             var esc = false;
             var resulting_string = c;

@@ -347,6 +347,8 @@ function run_beautifier_tests(test_obj)
 
     bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
 
+    bt('a = //comment\n/regex/;');
+
     test_fragment('/*\n * X\n */');
     test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
 
