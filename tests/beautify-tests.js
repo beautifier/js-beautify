@@ -311,6 +311,10 @@ function run_beautifier_tests(test_obj)
 
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
 
+    bt('if (foo) one()\ntwo()\nthree()');
+    bt('if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()');
+    bt('if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();');
+
     flags.indent_size = 1;
     flags.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");

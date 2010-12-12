@@ -833,6 +833,9 @@ function js_beautify(js_source_text, options) {
                 prefix = 'NEWLINE';
             }
 
+            if (flags.if_line && last_type === 'TK_END_EXPR') {
+                flags.if_line = false;
+            }
             if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                 if (last_type !== 'TK_END_BLOCK' || opt_braces_on_own_line) {
                     print_newline();
