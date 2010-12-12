@@ -45,8 +45,8 @@ function bt(input, expectation)
     // }
 
     if (flags.indent_size === 4 && input) {
-        wrapped_input = '{\n' + input + '\nindent;}';
-        wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    indent;\n}';
+        wrapped_input = '{\n' + input + '\nfoo=bar;}';
+        wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         test_fragment(wrapped_input, wrapped_expectation);
     }
 
@@ -191,6 +191,7 @@ function run_beautifier_tests(test_obj)
     bt('/abc/.test()');
     bt('/abc/i.test()');
     bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
+    bt('var x=(a)/a;', 'var x = (a) / a;');
 
     bt('x != -1', 'x != -1');
 
