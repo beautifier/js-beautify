@@ -17,7 +17,7 @@
   Alternatively, you can use the V8-based or QtScript-based command-line
   versions, see the v8/ and qtscript/ subdirectories for the details.
   
-  There is a .net wrapper (written by Rahul Singa) as well:
+  There is a .net wrapper (written by Rahul Singla) as well:
   https://github.com/rhoney/jsBeautifier.net
 
 
