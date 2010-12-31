@@ -290,6 +290,9 @@ function run_beautifier_tests(test_obj)
     bt('foo.("bar");'); // weird element referencing
 
 
+    bt('if (a) a()\nelse b()\nnewline()');
+    bt('if (a) a()\nnewline()');
+
     flags.space_after_anon_function = true;
 
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start

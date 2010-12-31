@@ -879,8 +879,11 @@ function js_beautify(js_source_text, options) {
                 flags.var_line_tainted = false;
             }
 
-            if (token_text === 'if' || token_text === 'else') {
+            if (token_text === 'if') {
                 flags.if_line = true;
+            }
+            if (token_text === 'else') {
+                flags.if_line = false;
             }
 
             break;
