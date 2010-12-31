@@ -1094,6 +1094,9 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_UNKNOWN':
+            if (last_text === 'return' || last_text === 'throw') {
+                print_single_space();
+            }
             print_token();
             break;
         }

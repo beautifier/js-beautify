@@ -75,6 +75,7 @@ function run_beautifier_tests(test_obj)
     flags.braces_on_own_line = false;
 
     bt('');
+    bt('return .5');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
