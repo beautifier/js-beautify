@@ -879,8 +879,11 @@ function js_beautify(js_source_text, options) {
                 flags.var_line_tainted = false;
             }
 
-            if (token_text === 'if' || token_text === 'else') {
+            if (token_text === 'if') {
                 flags.if_line = true;
+            }
+            if (token_text === 'else') {
+                flags.if_line = false;
             }
 
             break;
@@ -1094,6 +1097,9 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_UNKNOWN':
+            if (last_text === 'return' || last_text === 'throw') {
+                print_single_space();
+            }
             print_token();
             break;
         }
