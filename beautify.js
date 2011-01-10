@@ -782,11 +782,13 @@ function js_beautify(js_source_text, options) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
                     n_newlines = just_added_newline ? n_newlines : 0;
+                    if ( ! opt_preserve_newlines) {
+                        n_newlines = 1;
+                    }
 
                     for (var i = 0; i < 2 - n_newlines; i++) {
                         print_newline(false);
                     }
-
                 }
             }
 
