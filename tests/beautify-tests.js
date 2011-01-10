@@ -340,6 +340,16 @@ function run_beautifier_tests(test_obj)
     flags.preserve_newlines = false;
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
+    // make sure the blank line between function definitions stays
+    // even when preserve_newlines = false
+    bt('function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}');
+    bt('function foo() {\n    return 1;\n}\nfunction foo() {\n    return 1;\n}',
+       'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
+      );
+    bt('function foo() {\n    return 1;\n}\n\n\nfunction foo() {\n    return 1;\n}',
+       'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
+      );
+
 
     flags.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
