@@ -726,7 +726,12 @@ function js_beautify(js_source_text, options) {
                 } else {
                     // if TK_OPERATOR or TK_START_EXPR
                     if (is_array(flags.previous_mode) && last_text === ',') {
-                        print_newline(); // [a, b, c, {
+                        if (last_last_text === '}') {
+                            // }, { in array context
+                            print_single_space();
+                        } else {
+                            print_newline(); // [a, b, c, {
+                        }
                     }
                 }
                 indent();
