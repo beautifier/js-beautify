@@ -69,10 +69,6 @@ function js_beautify(js_source_text, options) {
         }
     }
 
-    function is_array(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
-    }
-
     function trim(s) {
         return s.replace(/^\s\s*|\s\s*$/, '');
     }
