@@ -513,7 +513,8 @@ function js_beautify(js_source_text, options) {
                     resulting_string += c;
                     parser_pos += 1;
                 }
-                output.push(resulting_string);
+                output.push(trim(resulting_string) + '\n');
+                print_newline();
                 return get_next_token();
             }
 
