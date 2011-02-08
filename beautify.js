@@ -503,6 +503,22 @@ function js_beautify(js_source_text, options) {
         }
 
         if (c === '#') {
+
+
+            if (output.length === 0 && input.charAt(parser_pos) === '!') {
+                // shebang
+                resulting_string = c;
+                while (parser_pos < input_length && c != '\n') {
+                    c = input.charAt(parser_pos);
+                    resulting_string += c;
+                    parser_pos += 1;
+                }
+                output.push(resulting_string);
+                return get_next_token();
+            }
+
+
+
             // Spidermonkey-specific sharp variables for circular references
             // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935

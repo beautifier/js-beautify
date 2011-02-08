@@ -228,6 +228,10 @@ function run_beautifier_tests(test_obj)
     bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
 
     test_fragment("something();(", "something();\n(");
+    test_fragment("#!she/bangs, she bangs\nf=1", "#!she/bangs, she bangs\nf = 1");
+    test_fragment("#!she/bangs, she bangs\n\nf=1", "#!she/bangs, she bangs\n\nf = 1");
+    test_fragment("#", "#");
+    test_fragment("#!", "#!");
 
     bt("function namespace::something()");
 
