@@ -273,7 +273,7 @@ function run_beautifier_tests(test_obj)
     bt('catch(e)', 'catch (e)');
 
     bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
-    bt_braces('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b =\n    {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
+    bt_braces('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
 
     // inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -383,7 +383,8 @@ function run_beautifier_tests(test_obj)
 
     flags.braces_on_own_line = true;
 
-    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    bt_braces('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    bt_braces('var foo = {}');
     test_fragment('if (foo) {', 'if (foo)\n{');
     test_fragment('foo {', 'foo\n{');
     test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
