@@ -97,7 +97,7 @@ function do_js_beautify()
 
 
     if (js_source && js_source[0] === '<' && js_source.substring(0, 4) !== '<!--') {
-        document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80);
+        document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80, brace_style);
     } else {
         document.getElementById('content').value =
         js_beautify(unpacker_filter(js_source), {

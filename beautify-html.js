@@ -16,7 +16,7 @@
 
 */
 
-function style_html(html_source, indent_size, indent_character, max_char) {
+function style_html(html_source, indent_size, indent_character, max_char, brace_style) {
 //Wrapper function to invoke all the necessary constructors and deal with the output.
 
   var Parser, multi_parser;
@@ -310,7 +310,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
           return temp_token;
         }
         token = js_beautify(temp_token,
-                {indent_size: this.indent_size, indent_char: this.indent_character, indent_level: this.indent_level}); //call the JS Beautifier
+                {indent_size: this.indent_size, indent_char: this.indent_character, indent_level: this.indent_level, brace_style: this.brace_style}); //call the JS Beautifier
         return [token, 'TK_CONTENT'];
       }
       if (this.current_mode === 'CONTENT') {
@@ -335,13 +335,14 @@ function style_html(html_source, indent_size, indent_character, max_char) {
       }
     }
 
-    this.printer = function (js_source, indent_character, indent_size, max_char) { //handles input/output and some other printing functions
+    this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
 
       this.input = js_source || ''; //gets the input for the Parser
       this.output = [];
       this.indent_character = indent_character || ' ';
       this.indent_string = '';
       this.indent_size = indent_size || 2;
+      this.brace_style = brace_style || 'collapse';
       this.indent_level = 0;
       this.max_char = max_char || 70; //maximum amount of characters per line
       this.line_char_count = 0; //count to see if max_char was exceeded
@@ -389,7 +390,7 @@ function style_html(html_source, indent_size, indent_character, max_char) {
 
 
   multi_parser = new Parser(); //wrapping functions Parser
-  multi_parser.printer(html_source, indent_character, indent_size); //initialize starting values
+  multi_parser.printer(html_source, indent_character, indent_size, 80, brace_style); //initialize starting values
 
 
 
