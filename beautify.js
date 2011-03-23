@@ -9,6 +9,7 @@
       http://jsbeautifier.org/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
+  "End braces on own line" added by Chris J. Shull, <chrisjshull@gmail.com>
 
   You are free to use this in any way you want, in case you find this useful or working for you.
 
@@ -24,8 +25,9 @@
     indent_level (default 0)         — initial indentation level, you probably won't need this ever,
 
     space_after_anon_function (default false) — if true, then space is added between "function ()"
-            (jslint is happy about this); if false, then the common "function()" output is used.
-    braces_on_own_line (default false) - ANSI / Allman brace style, each opening/closing brace gets its own line.
+            (jslint is happy about this); if false, then the common "function()" output is used,
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
+            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
 
     e.g
 
@@ -46,7 +48,14 @@ function js_beautify(js_source_text, options) {
 
     // Some interpreters have unexpected results with foo = baz || bar;
     options = options ? options : {};
-    var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
+
+    var opt_brace_style;
+    if (options.braces_on_own_line != undefined) { //graceful handling of depricated option
+        opt_brace_style = options.braces_on_own_line ? "expand" : "collapse";
+    }
+    opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
+
+    //var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
     var opt_indent_size = options.indent_size ? options.indent_size : 4;
     var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
@@ -719,9 +728,9 @@ function js_beautify(js_source_text, options) {
             } else {
                 set_mode('BLOCK');
             }
-            if (opt_braces_on_own_line) {
+            if (opt_brace_style=="expand") {
                 if (last_type !== 'TK_OPERATOR') {
-                    if (last_text === 'return' || last_text === '=') {
+                    if (last_text == 'return') {
                         print_single_space();
                     } else {
                         print_newline(true);
@@ -755,10 +764,8 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_END_BLOCK':
             restore_mode();
-            if (opt_braces_on_own_line) {
-                if (last_text !== '{') {
-                    print_newline();
-                }
+            if (opt_brace_style=="expand") {
+                print_newline();
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {
@@ -830,10 +837,11 @@ function js_beautify(js_source_text, options) {
             prefix = 'NONE';
 
             if (last_type === 'TK_END_BLOCK') {
+
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    if (opt_braces_on_own_line) {
+                    if (opt_brace_style=="expand" || opt_brace_style=="end-expand") {
                         prefix = 'NEWLINE';
                     } else {
                         prefix = 'SPACE';
@@ -859,7 +867,7 @@ function js_beautify(js_source_text, options) {
                 flags.if_line = false;
             }
             if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt_braces_on_own_line) {
+                if (last_type !== 'TK_END_BLOCK' || opt_brace_style=="expand" || opt_brace_style=="end-expand") {
                     print_newline();
                 } else {
                     trim_output(true);

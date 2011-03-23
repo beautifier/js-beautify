@@ -2,6 +2,7 @@
 <!--
 
   (c) 2006-2010: Einar Lielmanis, einars@jsbeautifier.org
+  "End braces on own line" added by Chris J. Shull, chrisjshull@gmail.com
 
 -->
 <html>
@@ -17,13 +18,16 @@ function add_onload_function(fn)
 add_onload_function(function() {
 
     var tabsize = get_var('tabsize');
-    var braces_on_own_line = get_var('braces');
+    var brace_style = get_var('braces');
+    var end_braces_on_own_line = get_var('endbraces');
     var c;
     if (tabsize) {
         document.getElementById('tabsize').value = tabsize;
     }
-    if (braces_on_own_line) {
-        document.getElementById('braces-on-own-line').checked = 'checked';
+    if (brace_style) {
+    	if (brace_style===true)
+    		brace_style = "expand";
+        document.getElementById('brace-style').value = brace_style;
     }
 
     if (get_var('test')) {
@@ -85,7 +89,7 @@ function do_js_beautify()
     var indent_char = ' ';
     var preserve_newlines = document.getElementById('preserve-newlines').checked;
     var keep_array_indentation = document.getElementById('keep-array-indentation').checked;
-    var braces_on_own_line = document.getElementById('braces-on-own-line').checked;
+    var brace_style = document.getElementById('brace-style').value;
 
     if (indent_size == 1) {
         indent_char = '\t';
@@ -100,7 +104,7 @@ function do_js_beautify()
             indent_size: indent_size,
             indent_char: indent_char,
             preserve_newlines:preserve_newlines,
-            braces_on_own_line: braces_on_own_line,
+            brace_style: brace_style,
             keep_array_indentation:keep_array_indentation,
             space_after_anon_function:true});
     }
@@ -293,7 +297,11 @@ div#bottom-right {
             <option value="4" selected="selected">indent with 4 spaces</option>
             <option value="8">indent with 8 spaces</option>
           </select></li>
-          <li><input type="checkbox" id="braces-on-own-line" /><label for="braces-on-own-line"> Braces on own line</label><br /></li>
+          <li><select id="brace-style">
+            <option value="collapse">Braces with control statement</option>
+            <option value="expand">Braces on own line</option>
+            <option value="end-expand">End braces on own line</option>
+          </select></li>
           <li><input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
           <li><input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label><br /></li>
           <li><input type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
@@ -349,7 +357,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
           <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
           <br />
           <pre id="testresults"></pre>
-          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital Batmanov,</a> Ron Baldwin, Gabriel Harrison and others.
+          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital Batmanov,</a> Ron Baldwin, Gabriel Harrison, <a href="http://shullian.com">Chris J. Shull</a> and others.
 
       </div>
 </div>

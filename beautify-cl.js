@@ -4,6 +4,7 @@
 ----------------------------------------
 
   Written by Patrick Hof, <patrickhof@web.de>
+  "End braces on own line" added by Chris J. Shull, <chrisjshull@gmail.com>
 
   This script is to be run with Rhino[1], the JavaScript Engine written in Java,
   on the command line.
@@ -22,7 +23,8 @@ function print_usage() {
     print("Reads from standard input if no file or URL is specified.\n");
     print("Options:");
     print("-i NUM\tIndent size (1 for TAB)");
-    print("-b\tPut braces on own line (Allman / ANSI style)");
+    print("-e\tPut end braces on own line");
+    print("-b [ collapse | expand | end-expand ]\t Put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line");
     print("-a\tIndent arrays");
     print("-n\tPreserve newlines");
     print("-p\tJSLint-pedantic mode, currently only adds space between \"function ()\"");
@@ -44,7 +46,10 @@ function parse_opts(args) {
                 options.indent = args.shift();
                 break;
             case "-b":
-                options.braces_on_own_line = true;
+                if (!args[0] || args[0].substr(0, 1) == '-')
+                    options.braces_on_own_line = true;
+                else
+                    options.brace_style = args.shift();
                 break;
             case "-a":
                 options.keep_array_indentation = false;
@@ -76,7 +81,7 @@ function parse_opts(args) {
 
 
 function do_js_beautify() {
-    var js_source = ''; 
+    var js_source = '';
     if (options.source) { // Check if source argument is an URL
         if (options.source.substring(0, 4) === 'http') {
             js_source = readUrl(options.source);
@@ -88,7 +93,7 @@ function do_js_beautify() {
         importPackage(java.lang);
         var stdin = new BufferedReader(new InputStreamReader(System['in']));
         var lines = [];
-     
+
         // read stdin buffer until EOF
         while (stdin.ready()) {
             lines.push(stdin.readLine());
@@ -117,7 +122,8 @@ function do_js_beautify() {
             preserve_newlines: preserve_newlines,
             space_after_anon_function: options.jslint_pedantic,
             keep_array_indentation: options.keep_array_indentation,
-            braces_on_own_line: options.braces_on_own_line
+            braces_on_own_line: options.braces_on_own_line,
+            brace_style: options.brace_style
         });
     }
     return result;

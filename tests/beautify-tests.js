@@ -7,7 +7,7 @@ flags = {
     preserve_newlines: true,
     space_after_anon_function: true,
     keep_array_indentation: false,
-    braces_on_own_line: false
+    brace_style: 'collapse'
 }
 
 function test_beautifier(input)
@@ -72,7 +72,7 @@ function run_beautifier_tests(test_obj)
     flags.preserve_newlines = true;
     flags.space_after_anon_function = true;
     flags.keep_array_indentation = false;
-    flags.braces_on_own_line = false;
+    flags.brace_style = "collapse";
 
     bt('');
     bt('return .5');
@@ -381,15 +381,53 @@ function run_beautifier_tests(test_obj)
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
-    flags.braces_on_own_line = true;
 
-    bt_braces('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-    bt_braces('var foo = {}');
+    flags.brace_style = 'expand';
+
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
     test_fragment('if (foo) {', 'if (foo)\n{');
     test_fragment('foo {', 'foo\n{');
     test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
-    // test_fragment('return\n{', 'return\n{'); // can't support this, but that's an improbable and extreme case anyway.
+    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return;\n{');
+
+
+    flags.brace_style = 'collapse';
+
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
+    test_fragment('if (foo) {', 'if (foo) {');
+    test_fragment('foo {', 'foo {');
+    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
+    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
+    test_fragment('return;\n{', 'return; {');
+
+
+    flags.brace_style = "collapse";
+
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
+    test_fragment('if (foo) {', 'if (foo) {');
+    test_fragment('foo {', 'foo {');
+    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
+    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
+    test_fragment('return;\n{', 'return; {');
+
+    flags.brace_style = "expand";
+
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    test_fragment('if (foo) {', 'if (foo)\n{');
+    test_fragment('foo {', 'foo\n{');
+    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
+    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
+    test_fragment('return;\n{', 'return;\n{');
+
+    flags.brace_style = "end-expand";
+
+    bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
+    bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n}\ncatch (b) {\n    c();\n}\nfinally {\n    d();\n}");
+    bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n}\nelse if (c) foo();");
+    bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n}\nelse {\n    // comment\n}"); // if/else statement with empty body
+    bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
     return sanitytest;
 }
