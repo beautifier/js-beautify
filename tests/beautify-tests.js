@@ -56,10 +56,10 @@ function bt(input, expectation)
 // but dont't
 function bt_braces(input, expectation)
 {
-    var braces_ex = flags.braces_on_own_line;
-    flags.braces_on_own_line = true;
+    var braces_ex = flags.brace_style;
+    flags.brace_style = 'expand';
     bt(input, expectation);
-    flags.braces_on_own_line = braces_ex;
+    flags.brace_style = braces_ex;
 }
 
 function run_beautifier_tests(test_obj)
@@ -413,6 +413,8 @@ function run_beautifier_tests(test_obj)
 
     flags.brace_style = "expand";
 
+    bt_braces('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    bt_braces('var foo = {}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
     test_fragment('if (foo) {', 'if (foo)\n{');
     test_fragment('foo {', 'foo\n{');

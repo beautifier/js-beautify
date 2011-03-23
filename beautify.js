@@ -730,7 +730,7 @@ function js_beautify(js_source_text, options) {
             }
             if (opt_brace_style=="expand") {
                 if (last_type !== 'TK_OPERATOR') {
-                    if (last_text == 'return') {
+                    if (last_text === 'return' || last_text === '=') {
                         print_single_space();
                     } else {
                         print_newline(true);
@@ -765,7 +765,9 @@ function js_beautify(js_source_text, options) {
         case 'TK_END_BLOCK':
             restore_mode();
             if (opt_brace_style=="expand") {
-                print_newline();
+                if (last_text !== '{') {
+                    print_newline();
+                }
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {
