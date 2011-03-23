@@ -85,6 +85,7 @@ function run_beautifier_tests(test_obj)
     bt("a = ' 12345 '");
     bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
     bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
+    bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
     bt('if(1||2);', 'if (1 || 2);');
     bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
     bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");

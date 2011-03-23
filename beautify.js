@@ -857,6 +857,11 @@ function js_beautify(js_source_text, options) {
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
             } else if (last_type === 'TK_WORD') {
+                if (last_text === 'else') {
+                    // eat newlines between ...else *** some_op...
+                    // won't preserve extra newlines in this place (if any), but don't care that much
+                    trim_output(true);
+                }
                 prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {
                 prefix = 'NEWLINE';
