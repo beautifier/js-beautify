@@ -23,7 +23,6 @@ function print_usage() {
     print("Reads from standard input if no file or URL is specified.\n");
     print("Options:");
     print("-i NUM\tIndent size (1 for TAB)");
-    print("-e\tPut end braces on own line");
     print("-b [ collapse | expand | end-expand ]\t Put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line");
     print("-a\tIndent arrays");
     print("-n\tPreserve newlines");
