@@ -25,8 +25,8 @@ add_onload_function(function() {
         document.getElementById('tabsize').value = tabsize;
     }
     if (brace_style) {
-    	if (brace_style===true)
-    		brace_style = "expand";
+        if (brace_style===true)
+            brace_style = "expand";
         document.getElementById('brace-style').value = brace_style;
     }
 
@@ -324,8 +324,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
       local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
       <h2>Formatting from command-line</h2>
-      <p>A stand-alone python version of the beautifier is being made as you read this. <em>I should really sit down and finish this.</em></p>
-      <p>Until then, you can use provided beautify-cl.js script, using <a href="http://www.mozilla.org/rhino/">Rhino javascript engine</a>, use <a href="https://github.com/rhoney/jsBeautifier.net">.net version</a>, or take a look around the <a href="https://github.com/einars/js-beautify/">github</a> — there are various wrappers available.</p>
+      <p>For the sake of the glittery unicorns, finally it is here: <a style="color: #c33" href="python/jsbeautifier.py">jsbeautifier.py</a>, enjoy! You can also use it as a library module.</p>
       <h2>Support</h2>
       <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
       <form style="float: left; margin-left: 10px" action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -337,6 +336,7 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <p style="float:left; padding-top: 2px; margin-left: 3px; "><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
       <div style="clear:both; height: 1px; overflow:hidden;">&nbsp;</div>
       <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or want to say "hi", my email is <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>.</p>
+      <p style="color: #363"><i>Are you doing something neat using the beautifier? Tell me about that, and I'll include a link here!</i></p>
 
       </div>
 
@@ -345,13 +345,12 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       <p>Tom Rix has made this into an awesome javascript-beautifying Chrome extension. You can read more about it and install it here: <a href="https://github.com/rixth/jsbeautify-for-chrome">https://github.com/rixth/jsbeautify-for-chrome</a>
       <h2>Safari extension</h2>
       <p>Sandro Padin has written an extension for the Safari browser. Visit its page and download the extension here: <a href="http://spadin.github.com/js-beautify-safari-extension">http://spadin.github.com/js-beautify-safari-extension</a>
-      <h2>Opera addon</h2>
+      <h2>Opera extension</h2>
       <p>Dither converted this into an addon for Opera called "readable javascript" — you can install it from <a href=https://addons.opera.com/addons/extensions/details/readable-javascript/1.0-1/"">addons.opera.com</a>, or visit <a href="https://github.com/Dither/readable-javascript">its github project page</a>.</p>
       <h3><a href="http://fiddler2.com/">Fiddler</a></h3>
       <p>This popular web debugging proxy for Windows has a <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a> (based on this beautifier) which can reformat javascript on the fly.</p>
       <h3>Other editors</h3>
       <p>Fabio Nagao has written some <a href="http://github.com/nagaozen/gedit-tunnings/">tips for the gEdit users,</a> among them he tells how to integrate the beautifier into this editor. Infocatcher wrote <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">an extension</a> for <a href="http://akelpad.sourceforge.net/en/index.php">AkelPad</a>, a small text editor for Windows.</p>
-      <p style="color: #363"><i>Are you doing something neat using the beautifier? Tell me about that, and I'll include a link here!</i></p> 
       <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You don't have to follow its recommendations blindly, but understanding what it says about your code can greatly improve your skills.</p>
       </div>
       </div>
