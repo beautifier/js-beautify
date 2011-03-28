@@ -4,7 +4,7 @@ import sys
 from sys import stdout
 import re
 
-from jsbeautifier import Beautifier, default_options
+from jsbeautifier import beautify, default_options
 
 tests_passed = 0
 
@@ -23,8 +23,7 @@ def test_fragment(input, expectation = None):
     if expectation == None:
         expectation = input
 
-    b = Beautifier(opts)
-    res = b.beautify(input)
+    res = beautify(input, opts)
     if res != expectation:
         print("""=== TEST FAILED ===
 %s
@@ -39,7 +38,7 @@ Expected:
 Received:
 ---------
 %s
-""" % (b.opts, input, expectation, res))
+""" % (opts, input, expectation, res))
         sys.exit(-1) # bail out immediately
 
     global tests_passed

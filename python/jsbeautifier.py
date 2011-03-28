@@ -11,11 +11,17 @@ import re
 #
 # Python is not my native language, feel free to push things around.
 #
+# Use either from command line (script displays its usage when run
+# without any parameters),
+#
+#
+# or, alternatively, use it as a module:
+#
 #   import jsbeautifier
 #   res = jsbeautifier.beautify('your javascript string')
 #   res = jsbeautifier.beautify_file('some_file.js')
 #
-#  or, specifying options:
+#  you may specify some options:
 #
 #   opts = jsbeautifier.default_options()
 #   opts.indent_size = 2
@@ -73,12 +79,59 @@ class BeautifierFlags:
         self.indentation_level = 0
 
 
-
-
-
-
 def default_options():
     return BeautifierOptions()
+
+
+def beautify(string, opts = default_options() ):
+    b = Beautifier()
+    return b.beautify(string, opts)
+
+
+def beautify_file(file_name, opts = default_options() ):
+
+    if file_name == '-': # stdin
+        f = sys.stdin
+    else:
+        f = open(file_name)
+
+    b = Beautifier()
+    return b.beautify(''.join(f.readlines()), opts)
+
+
+def usage():
+
+    print("""Javascript beautifier (http://jsbeautifier.org/)
+
+Usage: jsbeautifier.py [options] <infile>
+
+    <infile> can be "-", which means stdin.
+
+Input options:
+
+ -i,  --stdin                      read input from stdin
+
+Output options:
+
+ -s,  --indent-size=NUMBER         indentation size. (default 4).
+ -c,  --indent-char=CHAR           character to indent with. (default space).
+ -d,  --disable-preserve-newlines  do not preserve existing line breaks.
+ -f,  --space-after-anon-function  add space between "function ()".
+ -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
+ -k,  --keep-array-indentation     keep array indentation.
+
+Rarely needed options:
+
+ -l,  --indent-level=NUMBER        initial indentation level. (default 0).
+
+ -h,  --help, --usage              prints this help statement.
+
+""");
+
+
+
+
+
 
 class Beautifier:
 
@@ -977,50 +1030,6 @@ class Beautifier:
         self.print(token_text)
 
 
-def beautify(string, opts = default_options() ):
-    b = Beautifier()
-    return b.beautify(string, opts)
-
-
-def beautify_file(file_name, opts = default_options() ):
-
-    if file_name == '-': # stdin
-        f = sys.stdin
-    else:
-        f = open(file_name)
-
-    b = Beautifier()
-    return b.beautify(''.join(f.readlines()), opts)
-
-
-def usage():
-
-    print("""Javascript beautifier (http://jsbeautifier.org/)
-
-Usage: jsbeautifier.py [options] <infile>
-
-    <infile> can be "-", which means stdin.
-
-Input options:
-
- -i,  --stdin                      read input from stdin
-
-Output options:
-
- -s,  --indent-size=NUMBER         indentation size. (default 4).
- -c,  --indent-char=CHAR           character to indent with. (default space).
- -d,  --disable-preserve-newlines  do not preserve existing line breaks.
- -f,  --space-after-anon-function  add space between "function ()".
- -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
- -k,  --keep-array-indentation     keep array indentation.
-
-Rarely needed options:
-
- -l,  --indent-level=NUMBER        initial indentation level. (default 0).
-
- -h,  --help, --usage              prints this help statement.
-
-""");
 
 
 
