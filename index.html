@@ -96,7 +96,7 @@ function do_js_beautify()
     }
 
 
-    if (js_source && js_source[0] === '<' && js_source.substring(0, 4) !== '<!--') {
+    if (js_source && js_source[0] === '<' && js_source.substring(0, 4) !== '<!' + '-' + '-') {
         document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80, brace_style);
     } else {
         document.getElementById('content').value =
@@ -324,13 +324,13 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
       href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
       local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
       <h2>Formatting from command-line</h2>
-      <p>For the sake of the glittery unicorns, finally it is here: <a style="color: #c33" href="python/jsbeautifier.py">jsbeautifier.py</a>, enjoy! You can also use it as a library module.</p>
+      <p>For the sake of the glittery unicorns, finally it is here: <a style="color: #c33" href="python/jsbeautifier.py">jsbeautifier.py</a> (<a href="https://github.com/einars/js-beautify/tree/master/python">github</a>), enjoy! You can also use it as a library module.</p>
       <h2>Support</h2>
       <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
       <form style="float: left; margin-left: 10px" action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick">
         <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
-        <input type="image" src="http://spicausis.lv/misc/paypal-donate.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+        <input style="border:0" type="image" src="http://spicausis.lv/misc/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
         <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
       </form>
       <p style="float:left; padding-top: 2px; margin-left: 3px; "><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
@@ -342,9 +342,9 @@ if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
 
       <div id="bottom-right">
       <h2>Chrome extension</h2>
-      <p>Tom Rix has made this into an awesome javascript-beautifying Chrome extension. You can read more about it and install it here: <a href="https://github.com/rixth/jsbeautify-for-chrome">https://github.com/rixth/jsbeautify-for-chrome</a>
+      <p>There are two extensions for Chrome: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix, and <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful Javascript</a> by Will McSweeney.</p>
       <h2>Safari extension</h2>
-      <p>Sandro Padin has written an extension for the Safari browser. Visit its page and download the extension here: <a href="http://spadin.github.com/js-beautify-safari-extension">http://spadin.github.com/js-beautify-safari-extension</a>
+      <p>Sandro Padin has written an extension for the Safari browser. Visit its page and download the extension here: <a href="http://spadin.github.com/js-beautify-safari-extension">http://spadin.github.com/js-beautify-safari-extension</a></p>
       <h2>Opera extension</h2>
       <p>Dither converted this into an addon for Opera called "readable javascript" — you can install it from <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">addons.opera.com</a>, or visit <a href="https://github.com/Dither/readable-javascript">its github project page</a>.</p>
       <h3><a href="http://fiddler2.com/">Fiddler</a></h3>
