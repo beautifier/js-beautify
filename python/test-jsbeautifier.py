@@ -385,7 +385,6 @@ def main():
     # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return;\n{');
 
-
     opts.brace_style = 'collapse';
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
@@ -396,6 +395,8 @@ def main():
     test_fragment('return;\n{', 'return; {');
 
     bt('if (foo) bar();\nelse break');
+    bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
+
 
     opts.brace_style = "end-expand";
 

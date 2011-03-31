@@ -413,6 +413,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('return;\n{', 'return; {');
 
     bt('if (foo) bar();\nelse break');
+    bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
 
     opts.brace_style = "end-expand";
 

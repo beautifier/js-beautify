@@ -772,7 +772,7 @@ class Beautifier:
         prefix = 'NONE'
 
         if self.last_type == 'TK_END_BLOCK':
-            if token_text in ['else', 'catch', 'finally']:
+            if token_text not in ['else', 'catch', 'finally']:
                 prefix = 'NEWLINE'
             else:
                 if self.opts.brace_style in ['expand', 'end-expand']:
