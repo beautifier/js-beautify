@@ -936,6 +936,10 @@ function js_beautify(js_source_text, options) {
             print_token();
             flags.var_line = false;
             flags.var_line_reindented = false;
+            if (flags.mode == 'OBJECT') {
+                // OBJECT mode is weird and doesn't get reset too well.
+                flags.mode = 'BLOCK';
+            }
             break;
 
         case 'TK_STRING':

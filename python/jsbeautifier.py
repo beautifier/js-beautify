@@ -189,7 +189,7 @@ class Beautifier:
         parser_pos = 0
         while True:
             token_text, token_type = self.get_next_token()
-            # print (token_text, token_type, self.flags.mode)
+            #print (token_text, token_type, self.flags.mode)
             if token_type == 'TK_EOF':
                 break
 
@@ -859,6 +859,9 @@ class Beautifier:
         self.append(token_text)
         self.flags.var_line = False
         self.flags.var_line_reindented = False
+        if self.flags.mode == 'OBJECT':
+            # OBJECT mode is weird and doesn't get reset too well.
+            self.flags.mode = 'BLOCK'
 
 
     def handle_string(self, token_text):

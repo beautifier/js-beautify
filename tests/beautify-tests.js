@@ -414,6 +414,7 @@ function run_beautifier_tests(test_obj)
 
     bt('if (foo) bar();\nelse break');
     bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
+    bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
 
     opts.brace_style = "end-expand";
 
