@@ -799,7 +799,7 @@ class Beautifier:
                 pass
             elif self.last_text in ['return', 'throw']:
                 # no newline between return nnn
-                print(' ')
+                self.append(' ')
             elif self.last_type != 'TK_END_EXPR':
                 if (self.last_type != 'TK_START_EXPR' or token_text != 'var') and self.last_text != ':':
                     # no need to force newline on VAR -
