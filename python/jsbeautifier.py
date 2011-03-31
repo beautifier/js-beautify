@@ -77,6 +77,7 @@ class BeautifierFlags:
         self.eat_next_space = False
         self.indentation_baseline = -1
         self.indentation_level = 0
+        self.ternary_depth = 0
 
 
 def default_options():
@@ -311,30 +312,6 @@ class Beautifier:
             self.flags = self.flag_store[-1]
             self.flag_store = self.flag_store[:-1]
 
-
-    def is_ternary_op(self):
-        level = 0
-        colon_count = 0
-        for i in range(len(self.output) - 1, -1, -1):
-            c = self.output[i]
-            if c == ':':
-                if level == 0:
-                    colon_count = colon_count + 1
-            elif c == '?':
-                if level == 0:
-                    if colon_count == 0:
-                        return True
-                    else:
-                        colon_count = colon_count - 1
-            elif c == '{':
-                if level == 0:
-                    return False
-                level = level - 1
-            elif c in '([':
-                level = level - 1
-            elif c in ')]}':
-                level = level + 1
-        return False
 
     def get_next_token(self):
 
@@ -970,9 +947,13 @@ class Beautifier:
             space_before = False
 
         elif token_text == ':':
-            if not self.is_ternary_op():
+            if self.flags.ternary_depth == 0:
                 self.flags.mode = 'OBJECT'
                 space_before = False
+            else:
+                self.flags.ternary_depth -= 1
+        elif token_text == '?':
+            self.flags.ternary_depth += 1
 
         if space_before:
             self.append(' ')

@@ -163,7 +163,8 @@ function js_beautify(js_source_text, options) {
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level)
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level),
+            ternary_depth: 0
         };
     }
 
@@ -190,50 +191,6 @@ function js_beautify(js_source_text, options) {
             }
         }
         return false;
-    }
-
-    // Walk backwards from the colon to find a '?' (colon is part of a ternary op)
-    // or a '{' (colon is part of a class literal).  Along the way, keep track of
-    // the blocks and expressions we pass so we only trigger on those chars in our
-    // own level, and keep track of the colons so we only trigger on the matching '?'.
-
-
-    function is_ternary_op() {
-        var level = 0,
-            colon_count = 0;
-        for (var i = output.length - 1; i >= 0; i--) {
-            switch (output[i]) {
-            case ':':
-                if (level === 0) {
-                    colon_count++;
-                }
-                break;
-            case '?':
-                if (level === 0) {
-                    if (colon_count === 0) {
-                        return true;
-                    } else {
-                        colon_count--;
-                    }
-                }
-                break;
-            case '{':
-                if (level === 0) {
-                    return false;
-                }
-                level--;
-                break;
-            case '(':
-            case '[':
-                level--;
-                break;
-            case ')':
-            case ']':
-            case '}':
-                level++;
-                break;
-            }
-        }
     }
 
     function get_next_token() {
@@ -1063,10 +1020,14 @@ function js_beautify(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                if (!is_ternary_op()) {
+                if (flags.ternary_depth == 0) {
                     flags.mode = 'OBJECT';
                     space_before = false;
+                } else {
+                    flags.ternary_depth -= 1;
                 }
+            } else if (token_text === '?') {
+                flags.ternary_depth += 1;
             }
             if (space_before) {
                 print_single_space();
