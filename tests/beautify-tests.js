@@ -1,7 +1,7 @@
 /*global js_beautify */
 
 
-flags = {
+opts = {
     indent_size: 4,
     indent_char: ' ',
     preserve_newlines: true,
@@ -12,7 +12,7 @@ flags = {
 
 function test_beautifier(input)
 {
-    return js_beautify(input, flags);
+    return js_beautify(input, opts);
 }
 
 var sanitytest;
@@ -44,7 +44,7 @@ function bt(input, expectation)
     //     indent;
     // }
 
-    if (flags.indent_size === 4 && input) {
+    if (opts.indent_size === 4 && input) {
         wrapped_input = '{\n' + input + '\nfoo=bar;}';
         wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         test_fragment(wrapped_input, wrapped_expectation);
@@ -56,10 +56,10 @@ function bt(input, expectation)
 // but dont't
 function bt_braces(input, expectation)
 {
-    var braces_ex = flags.brace_style;
-    flags.brace_style = 'expand';
+    var braces_ex = opts.brace_style;
+    opts.brace_style = 'expand';
     bt(input, expectation);
-    flags.brace_style = braces_ex;
+    opts.brace_style = braces_ex;
 }
 
 function run_beautifier_tests(test_obj)
@@ -67,12 +67,13 @@ function run_beautifier_tests(test_obj)
     sanitytest = test_obj || new SanityTest();
     sanitytest.test_function(test_beautifier, 'js_beautify');
 
-    flags.indent_size       = 4;
-    flags.indent_char       = ' ';
-    flags.preserve_newlines = true;
-    flags.space_after_anon_function = true;
-    flags.keep_array_indentation = false;
-    flags.brace_style = "collapse";
+    opts.indent_size       = 4;
+    opts.indent_char       = ' ';
+    opts.preserve_newlines = true;
+    opts.space_after_anon_function = true;
+    opts.keep_array_indentation = false;
+    opts.brace_style = "collapse";
+
 
     bt('');
     bt('return .5');
@@ -138,7 +139,7 @@ function run_beautifier_tests(test_obj)
     bt("// comment\n(function something() {})"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
     bt('if (a in b) foo();');
-    //bt('var a, b');
+    //  bt('var a, b');
     bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
     bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
     bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
@@ -274,7 +275,6 @@ function run_beautifier_tests(test_obj)
     bt('catch(e)', 'catch (e)');
 
     bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
-    bt_braces('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
 
     // inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -303,13 +303,13 @@ function run_beautifier_tests(test_obj)
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
 
-    flags.space_after_anon_function = true;
+    opts.space_after_anon_function = true;
 
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
-    flags.space_after_anon_function = false;
+    opts.space_after_anon_function = false;
 
     test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
@@ -328,25 +328,25 @@ function run_beautifier_tests(test_obj)
     bt('if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()');
     bt('if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();');
 
-    flags.indent_size = 1;
-    flags.indent_char = ' ';
+    opts.indent_size = 1;
+    opts.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
 
     bt('var a,b=1,c=2', 'var a, b = 1,\n    c = 2');
 
-    flags.indent_size = 4;
-    flags.indent_char = ' ';
+    opts.indent_size = 4;
+    opts.indent_char = ' ';
     bt('{ one_char() }', "{\n    one_char()\n}");
 
-    flags.indent_size = 1;
-    flags.indent_char = "\t";
+    opts.indent_size = 1;
+    opts.indent_char = "\t";
     bt('{ one_char() }', "{\n\tone_char()\n}");
     bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
 
-    flags.indent_size = 4;
-    flags.indent_char = ' ';
+    opts.indent_size = 4;
+    opts.indent_char = ' ';
 
-    flags.preserve_newlines = false;
+    opts.preserve_newlines = false;
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
     // make sure the blank line between function definitions stays
@@ -360,10 +360,10 @@ function run_beautifier_tests(test_obj)
       );
 
 
-    flags.preserve_newlines = true;
+    opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
-    flags.keep_array_indentation = true;
+    opts.keep_array_indentation = true;
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
@@ -383,8 +383,18 @@ function run_beautifier_tests(test_obj)
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
 
-    flags.brace_style = 'expand';
+    opts.brace_style = 'expand';
 
+    bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    test_fragment('if (foo) {', 'if (foo)\n{');
+    test_fragment('foo {', 'foo\n{');
+    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
+    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
+    test_fragment('return;\n{', 'return;\n{');
+
+    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+    bt('var foo = {}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
     test_fragment('if (foo) {', 'if (foo)\n{');
     test_fragment('foo {', 'foo\n{');
@@ -393,7 +403,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('return;\n{', 'return;\n{');
 
 
-    flags.brace_style = 'collapse';
+    opts.brace_style = 'collapse';
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
     test_fragment('if (foo) {', 'if (foo) {');
@@ -402,28 +412,9 @@ function run_beautifier_tests(test_obj)
     // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return; {');
 
+    bt('if (foo) bar();\nelse break');
 
-    flags.brace_style = "collapse";
-
-    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
-    test_fragment('if (foo) {', 'if (foo) {');
-    test_fragment('foo {', 'foo {');
-    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
-    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-    test_fragment('return;\n{', 'return; {');
-
-    flags.brace_style = "expand";
-
-    bt_braces('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-    bt_braces('var foo = {}');
-    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-    test_fragment('if (foo) {', 'if (foo)\n{');
-    test_fragment('foo {', 'foo\n{');
-    test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
-    // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-    test_fragment('return;\n{', 'return;\n{');
-
-    flags.brace_style = "end-expand";
+    opts.brace_style = "end-expand";
 
     bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
     bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n}\ncatch (b) {\n    c();\n}\nfinally {\n    d();\n}");
@@ -431,6 +422,7 @@ function run_beautifier_tests(test_obj)
     bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n}\nelse {\n    // comment\n}"); // if/else statement with empty body
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
+
 
     return sanitytest;
 }

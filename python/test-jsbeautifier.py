@@ -395,12 +395,7 @@ def main():
     # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return; {');
 
-    bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
-    test_fragment('if (foo) {', 'if (foo) {');
-    test_fragment('foo {', 'foo {');
-    test_fragment('return {', 'return {'); # return needs the brace. maybe something else as well: feel free to report.
-    # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
-    test_fragment('return;\n{', 'return; {');
+    bt('if (foo) bar();\nelse break');
 
     opts.brace_style = "end-expand";
 

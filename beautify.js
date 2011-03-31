@@ -870,6 +870,14 @@ function js_beautify(js_source_text, options) {
                 prefix = 'NEWLINE';
             }
 
+            if (in_array(token_text, line_starters) && last_text !== ')') {
+                if (last_text == 'else') {
+                    prefix = 'SPACE';
+                } else {
+                    prefix = 'NEWLINE';
+                }
+            }
+
             if (flags.if_line && last_type === 'TK_END_EXPR') {
                 flags.if_line = false;
             }
@@ -880,7 +888,7 @@ function js_beautify(js_source_text, options) {
                     trim_output(true);
                     print_single_space();
                 }
-            } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
+            } else if (prefix === 'NEWLINE') {
                 if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
@@ -897,10 +905,8 @@ function js_beautify(js_source_text, options) {
                             print_newline();
                         }
                     }
-                } else {
-                    if (in_array(token_text, line_starters) && last_text !== ')') {
-                        print_newline();
-                    }
+                } else if (in_array(token_text, line_starters) && last_text != ')') {
+                    print_newline();
                 }
             } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
                 print_newline(); // }, in lists get a newline treatment

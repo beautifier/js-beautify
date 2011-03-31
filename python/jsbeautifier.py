@@ -802,7 +802,10 @@ class Beautifier:
             self.flags.if_line = False
 
         if token_text in self.line_starters:
-            prefix = 'NEWLINE'
+            if self.last_text == 'else':
+                prefix = 'SPACE'
+            else:
+                prefix = 'NEWLINE'
 
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
