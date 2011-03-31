@@ -225,7 +225,7 @@ class Beautifier:
                   self.output[-1] == ' '\
                   or self.output[-1] == self.indent_string \
                   or (eat_newlines and self.output[-1] in ['\n', '\r'])):
-            self.output = self.output[:-1]
+            self.output.pop()
 
 
     def is_array(self, mode):
@@ -284,7 +284,7 @@ class Beautifier:
 
     def remove_indent(self):
         if len(self.output) and self.output[-1] == self.indent_string:
-            self.output = self.output[:-1]
+            self.output.pop()
 
 
     def set_mode(self, mode):
@@ -309,8 +309,7 @@ class Beautifier:
     def restore_mode(self):
         self.do_block_just_closed = self.flags.mode == 'DO_BLOCK'
         if len(self.flag_store) > 0:
-            self.flags = self.flag_store[-1]
-            self.flag_store = self.flag_store[:-1]
+            self.flags = self.flag_store.pop()
 
 
     def get_next_token(self):
