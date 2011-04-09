@@ -796,6 +796,8 @@ class Beautifier:
                 # no need to force newline on "function" -
                 #   (function...
                 pass
+            elif token_text == 'function' and self.last_text == 'new':
+                self.append(' ')
             elif self.last_text in ['return', 'throw']:
                 # no newline between return nnn
                 self.append(' ')

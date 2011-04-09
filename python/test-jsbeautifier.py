@@ -398,6 +398,9 @@ def main():
     bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
     bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
 
+    bt('var a = new function()');
+    bt('new function');
+
 
     opts.brace_style = "end-expand";
 
