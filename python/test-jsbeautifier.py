@@ -400,7 +400,7 @@ def main():
 
     bt('var a = new function()');
     bt('new function');
-
+    bt('var a =\nfoo', 'var a = foo');
 
     opts.brace_style = "end-expand";
 

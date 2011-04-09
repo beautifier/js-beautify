@@ -415,9 +415,9 @@ class Beautifier:
 
             if self.wanted_newline and \
                self.last_type != 'TK_OPERATOR' and\
+               self.last_type != 'TK_EQUALS' and\
                not self.flags.if_line and \
                (self.opts.preserve_newlines or self.last_text != 'var'):
-
                 self.append_newline()
 
             return c, 'TK_WORD'

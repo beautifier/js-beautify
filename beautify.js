@@ -320,7 +320,9 @@ function js_beautify(js_source_text, options) {
             if (c === 'in') { // hack for 'in' operator
                 return [c, 'TK_OPERATOR'];
             }
-            if (wanted_newline && last_type !== 'TK_OPERATOR' && !flags.if_line && (opt_preserve_newlines || last_text !== 'var')) {
+            if (wanted_newline && last_type !== 'TK_OPERATOR'
+                && last_type !== 'TK_EQUALS'
+                && !flags.if_line && (opt_preserve_newlines || last_text !== 'var')) {
                 print_newline();
             }
             return [c, 'TK_WORD'];
