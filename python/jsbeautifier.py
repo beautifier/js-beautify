@@ -1041,6 +1041,8 @@ def main():
         file = args[0]
 
     for opt, arg in opts:
+        if opt in ('--keep-array-indentation', '-k'):
+            js_options.keep_array_indentation = True
         if opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
