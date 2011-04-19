@@ -723,6 +723,9 @@ class Beautifier:
             return
 
         if token_text == 'function':
+
+            if self.flags.var_line:
+                self.flags.var_line_reindented = True
             if (self.just_added_newline or self.last_text == ';') and self.last_text != '{':
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition

@@ -775,6 +775,9 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === 'function') {
+                if (flags.var_line) {
+                    flags.var_line_reindented = true;
+                }
                 if ((just_added_newline || last_text === ';') && last_text !== '{') {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition

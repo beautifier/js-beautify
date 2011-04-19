@@ -300,6 +300,10 @@ function run_beautifier_tests(test_obj)
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
     bt('a=typeof(x)', 'a = typeof(x)');
+    bt('var a = function() {\n        return null;\n    },\n    b = false;');
+
+
+
 
     opts.jslint_happy = true; 
 
@@ -417,8 +421,8 @@ function run_beautifier_tests(test_obj)
     bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
     bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
 
-    bt('var a = new function()');
-    bt('new function');
+    bt('var a = new function();');
+    test_fragment('new function');
     bt('var a =\nfoo', 'var a = foo');
 
     opts.brace_style = "end-expand";

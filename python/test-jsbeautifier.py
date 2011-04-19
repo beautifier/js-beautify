@@ -285,6 +285,11 @@ def main():
     bt('if (a) a()\nnewline()');
     bt('a=typeof(x)', 'a = typeof(x)');
 
+    bt('var a = function() {\n        return null;\n    },\n    b = false;');
+
+
+
+
     opts.jslint_happy = True;
 
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
@@ -367,6 +372,10 @@ def main():
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
+    bt('var a = new function();');
+    test_fragment('new function');
+    bt('var a =\nfoo', 'var a = foo');
+
 
     opts.brace_style = 'expand';
 
@@ -399,10 +408,6 @@ def main():
     bt('if (foo) bar();\nelse break');
     bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
     bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-
-    bt('var a = new function()');
-    bt('new function');
-    bt('var a =\nfoo', 'var a = foo');
 
     opts.brace_style = "end-expand";
 
