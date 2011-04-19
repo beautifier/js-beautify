@@ -5,7 +5,7 @@ opts = {
     indent_size: 4,
     indent_char: ' ',
     preserve_newlines: true,
-    space_after_anon_function: true,
+    jslint_happy: false,
     keep_array_indentation: false,
     brace_style: 'collapse'
 }
@@ -70,9 +70,9 @@ function run_beautifier_tests(test_obj)
     opts.indent_size       = 4;
     opts.indent_char       = ' ';
     opts.preserve_newlines = true;
-    opts.space_after_anon_function = true;
+    opts.jslint_happy      = false;
     opts.keep_array_indentation = false;
-    opts.brace_style = "collapse";
+    opts.brace_style       = "collapse";
 
 
     bt('');
@@ -286,9 +286,6 @@ function run_beautifier_tests(test_obj)
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
     bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
-    bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
-
-    bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
 
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
@@ -303,13 +300,15 @@ function run_beautifier_tests(test_obj)
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
 
-    opts.space_after_anon_function = true;
+    opts.jslint_happy = true; 
 
+    bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+    bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
-    opts.space_after_anon_function = false;
+    opts.jslint_happy = false;
 
     test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");

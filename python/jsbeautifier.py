@@ -37,7 +37,7 @@ class BeautifierOptions:
         self.indent_char = ' '
         self.preserve_newlines = True
         self.max_preserve_newlines = 10.
-        self.space_after_anon_function = False
+        self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
         self.indent_level = 0
@@ -50,7 +50,7 @@ class BeautifierOptions:
 indent_char = [%s]
 preserve_newlines = %s
 max_preserve_newlines = %d
-space_after_anon_function = %s
+jslint_happy = %s
 brace_style = %s
 keep_array_indentation = %s
 indent_level = %d
@@ -58,7 +58,7 @@ indent_level = %d
         self.indent_char,
         self.preserve_newlines,
         self.max_preserve_newlines,
-        self.space_after_anon_function,
+        self.jslint_happy,
         self.brace_style,
         self.keep_array_indentation,
         self.indent_level)
@@ -117,7 +117,7 @@ Output options:
  -s,  --indent-size=NUMBER         indentation size. (default 4).
  -c,  --indent-char=CHAR           character to indent with. (default space).
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
- -f,  --space-after-anon-function  add space between "function ()".
+ -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
 
@@ -629,7 +629,7 @@ class Beautifier:
             self.append(' ')
         elif self.last_word == 'function':
             # function() vs function ()
-            if self.opts.space_after_anon_function:
+            if self.opts.jslint_happy:
                 self.append(' ')
         elif self.last_text in self.line_starters or self.last_text == 'catch':
             self.append(' ')
@@ -1026,8 +1026,8 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:dfbkil:h", ['indent-size=','indent-char=', 'disable-preserve-newlines',
-                                                          'space-after-anon-function', 'brace-style=',
+        opts, args = getopt.getopt(argv, "s:c:djbkil:h", ['indent-size=','indent-char=', 'disable-preserve-newlines',
+                                                          'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
                                                           'usage', 'stdin'])
     except getopt.GetoptError:
@@ -1049,8 +1049,8 @@ def main():
             js_options.indent_char = arg
         elif opt in ('--disable-preserve_newlines', '-d'):
             js_options.preserve_newlines = False
-        elif opt in ('--space-after-anon-function', '-f'):
-            js_options.space_after_anon_function = True
+        elif opt in ('--jslint-happy', '-j'):
+            js_options.jslint_happy = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
         elif opt in ('--indent-level', '-l'):

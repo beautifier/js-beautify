@@ -13,7 +13,7 @@ opts = default_options()
 opts.indent_size = 4
 opts.indent_char = ' '
 opts.preserve_newlines = True
-opts.space_after_anon_function = True
+opts.jslint_happy = False
 opts.keep_array_indentation = False
 opts.brace_style = 'collapse'
 
@@ -269,9 +269,7 @@ def main():
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
     bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
-    bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
-
-    bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+    bt('function() {\n    var a, b, c, d, e = [],\n        f;\n}');
 
     bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); # hmmm
 
@@ -286,13 +284,15 @@ def main():
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
 
-    opts.space_after_anon_function = True;
+    opts.jslint_happy = True;
 
+    bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+    bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); # typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
-    opts.space_after_anon_function = False;
+    opts.jslint_happy = False;
 
     test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); # typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
