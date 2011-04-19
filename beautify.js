@@ -651,7 +651,7 @@ function js_beautify(js_source_text, options) {
                 // do nothing on (( and )( and ][ and ]( and .(
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_single_space();
-            } else if (last_word === 'function') {
+            } else if (last_word === 'function' || last_word === 'typeof') {
                 // function() vs function ()
                 if (opt_jslint_happy) {
                     print_single_space();

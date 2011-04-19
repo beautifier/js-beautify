@@ -283,6 +283,7 @@ def main():
 
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
+    bt('a=typeof(x)', 'a = typeof(x)');
 
     opts.jslint_happy = True;
 
@@ -291,6 +292,7 @@ def main():
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); # typical greasemonkey start
     bt("var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\n    c = function () {},\n    d = '';");
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+    bt('a=typeof(x)', 'a = typeof (x)');
 
     opts.jslint_happy = False;
 

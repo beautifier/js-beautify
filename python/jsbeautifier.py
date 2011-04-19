@@ -627,8 +627,8 @@ class Beautifier:
             pass
         elif self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.append(' ')
-        elif self.last_word == 'function':
-            # function() vs function ()
+        elif self.last_word == 'function' or self.last_word == 'typeof':
+            # function() vs function (), typeof() vs typeof ()
             if self.opts.jslint_happy:
                 self.append(' ')
         elif self.last_text in self.line_starters or self.last_text == 'catch':

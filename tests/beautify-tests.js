@@ -299,9 +299,11 @@ function run_beautifier_tests(test_obj)
 
     bt('if (a) a()\nelse b()\nnewline()');
     bt('if (a) a()\nnewline()');
+    bt('a=typeof(x)', 'a = typeof(x)');
 
     opts.jslint_happy = true; 
 
+    bt('a=typeof(x)', 'a = typeof (x)');
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
     bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
     test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
