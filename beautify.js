@@ -875,10 +875,14 @@ function js_beautify(js_source_text, options) {
                             // no newline for } else if {
                             print_single_space();
                         } else {
+                            flags.var_line = false;
+                            flags.var_line_reindented = false;
                             print_newline();
                         }
                     }
                 } else if (in_array(token_text, line_starters) && last_text != ')') {
+                    flags.var_line = false;
+                    flags.var_line_reindented = false;
                     print_newline();
                 }
             } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {

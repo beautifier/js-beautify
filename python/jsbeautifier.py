@@ -811,8 +811,12 @@ class Beautifier:
                     if token_text == 'if' and self.last_word == 'else' and self.last_text != '{':
                         self.append(' ')
                     else:
+                        self.flags.var_line = False
+                        self.flags.var_line_reindented = False
                         self.append_newline()
             elif token_text in self.line_starters and self.last_text != ')':
+                self.flags.var_line = False
+                self.flags.var_line_reindented = False
                 self.append_newline()
         elif self.is_array(self.flags.mode) and self.last_text == ',' and self.last_last_text == '}':
                 self.append_newline() # }, in lists get a newline

@@ -302,6 +302,8 @@ function run_beautifier_tests(test_obj)
     bt('a=typeof(x)', 'a = typeof(x)');
     bt('var a = function() {\n        return null;\n    },\n    b = false;');
 
+    bt('var a = function() {\n        func1()\n    }');
+    bt('var a = function() {\n        func1()\n    }\nvar b = function() {\n        func2()\n    }');
 
 
 

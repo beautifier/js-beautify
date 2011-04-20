@@ -287,6 +287,9 @@ def main():
 
     bt('var a = function() {\n        return null;\n    },\n    b = false;');
 
+    bt('var a = function() {\n        func1()\n    }');
+    bt('var a = function() {\n        func1()\n    }\nvar b = function() {\n        func2()\n    }');
+
 
 
 
@@ -375,7 +378,6 @@ def main():
     bt('var a = new function();');
     test_fragment('new function');
     bt('var a =\nfoo', 'var a = foo');
-
 
     opts.brace_style = 'expand';
 
