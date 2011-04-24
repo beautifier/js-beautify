@@ -76,6 +76,13 @@ function unpacker_filter(source)
                 return unpacker_filter(unpacked);
             }
         }
+
+        if (MyObfuscate.detect(stripped_source)) {
+            unpacked = MyObfuscate.unpack(stripped_source);
+            if (unpacked !== stripped_source) {
+                return unpacker_filter(unpacked);
+            }
+        }
     }
     return source;
 
@@ -127,6 +134,7 @@ function run_tests()
     JavascriptObfuscator.run_tests(st);
     P_A_C_K_E_R.run_tests(st);
     EscapedBookmarklet.run_tests(st);
+    MyObfuscate.run_tests(st);
 
     document.getElementById('testresults').style.display='block';
     document.getElementById('testresults').innerHTML=st.results();
@@ -140,6 +148,7 @@ function run_tests()
 <script type="text/javascript" src="unpackers/javascriptobfuscator_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/bookmarklet_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
+<script type="text/javascript" src="unpackers/myobfuscate_unpacker.js" ></script>
 
 <style type="text/css">
 /* I guess I need a CSS beautifer as well */
