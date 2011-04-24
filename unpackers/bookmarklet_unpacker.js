@@ -14,7 +14,9 @@ var EscapedBookmarklet = {
     detect: function (str) {
         // the fact that script doesn't contain any space, but has %20 instead
         // should be sufficient check for now.
-        return str.indexOf('%20') != -1 && str.indexOf(' ') == -1;
+        if (str.indexOf('%20') != -1 && str.indexOf(' ') == -1) return true;
+        if (str.indexOf('%7B') != -1 && str.indexOf('{') == -1) return true;
+        return false;
     },
 
     unpack: function (str) {
