@@ -21,7 +21,7 @@ var EscapedBookmarklet = {
 
     unpack: function (str) {
         if (EscapedBookmarklet.detect(str)) {
-            return unescape(str);
+            return unescape(str.replace(/\+/g, '%20'));
         }
         return str;
     },
@@ -33,12 +33,14 @@ var EscapedBookmarklet = {
         t.test_function(EscapedBookmarklet.detect, "EscapedBookmarklet.detect");
         t.expect('', false);
         t.expect('var a = b', false);
+        t.expect('var%20a+=+b', true);
         t.expect('var%20a=b', true);
         t.test_function(EscapedBookmarklet.unpack, 'EscapedBookmarklet.unpack');
         t.expect('', '');
         t.expect('abcd', 'abcd');
         t.expect('var a = b', 'var a = b');
         t.expect('var%20a=b', 'var a=b');
+        t.expect('var%20a+=+b', 'var a = b');
         return t;
     }
 
