@@ -50,8 +50,9 @@ var MyObfuscate = {
                     unpacked_source = unescaped;
                 }
             }
-            return unpacked_source ? "// Do not use myobfuscate.com for your projects:\n" +
-                    "// they call back home when you use them. Einar\n//\n" + unpacked_source : str;
+            return unpacked_source ? "// Unpacker warning: be careful when using myobfuscate.com for your projects:\n" +
+                    "// scripts obfuscated by the free online version call back home.\n" +
+                    "\n//\n" + unpacked_source : str;
         }
         return str;
     },
