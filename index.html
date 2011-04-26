@@ -63,8 +63,8 @@ function unpacker_filter(source)
             }
         }
 
-        if (EscapedBookmarklet.detect(source)) {
-            unpacked = EscapedBookmarklet.unpack(source);
+        if (Urlencoded.detect(source)) {
+            unpacked = Urlencoded.unpack(source);
             if (unpacked !== stripped_source) {
                 return unpacker_filter(unpacked);
             }
@@ -133,7 +133,7 @@ function run_tests()
     run_beautifier_tests(st);
     JavascriptObfuscator.run_tests(st);
     P_A_C_K_E_R.run_tests(st);
-    EscapedBookmarklet.run_tests(st);
+    Urlencoded.run_tests(st);
     MyObfuscate.run_tests(st);
 
     document.getElementById('testresults').style.display='block';
@@ -146,7 +146,7 @@ function run_tests()
 <script type="text/javascript" src="tests/sanitytest.js" ></script>
 <script type="text/javascript" src="tests/beautify-tests.js" ></script>
 <script type="text/javascript" src="unpackers/javascriptobfuscator_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/bookmarklet_unpacker.js" ></script>
+<script type="text/javascript" src="unpackers/urlencode_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
 <script type="text/javascript" src="unpackers/myobfuscate_unpacker.js" ></script>
 
