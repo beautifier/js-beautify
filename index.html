@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html>
+<!--[if lt IE 7 ]> <html lang="en-us" dir="ltr" class="ie ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en-us" dir="ltr" class="ie ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en-us" dir="ltr" class="ie ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en-us" dir="ltr" class="ie ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en-us" dir="ltr"> <!--<![endif]-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Online javascript beautifier</title>
@@ -7,6 +11,17 @@
 * {
     margin: 0;
     padding: 0;
+}
+.ie6 div {
+    display: none
+}
+.ie6 #ie6-go-away {
+    display: block !important;
+}
+img {
+    border: 0;
+    display: block;
+    vertical-align: baseline;
 }
 #blurb {
     width: 260px;
@@ -32,8 +47,16 @@ body, html {
     color: #333;
 }
 textarea {
-    height: 100%;
     color: #444;
+    height: 100%;
+    width: 100%;
+    border: 0;
+}
+.ie7 fieldset#textarea-wrap {
+    padding: 5px 0;
+}
+.ie8 fieldset#textarea-wrap {
+    padding: 5px 0 0 5px;
 }
 
 fieldset {
@@ -62,12 +85,7 @@ fieldset#textarea-wrap {
     border: 1px solid #ccc;
     border-right: 1px solid #666;
     border-bottom: 1px solid #666;
-    padding: 5px 0 5px 5px;
-}
-textarea {
-    height: 100%;
-    width: 100%;
-    border: 0;
+    padding: 5px;
 }
 button#submit {
     margin-top: 5px;
@@ -296,18 +314,15 @@ function beautify()
 
 $(function() {
 
-    if ( ! $.browser.webkit) {
-        // webkits seem to unnecessarily trim nowrap
-        $('#source').css({'white-space': 'nowrap'});
-    } else {
-        // remove text-wrap indicating zero right margin for webkits:
-        $('#textarea-wrap').css({'padding-right': '5px'});
+    if ($.browser.msie) {
+        $('#source').width( $('#textarea-wrap').width() - 10)
+                    .height($('#textarea-wrap').height() - 10);
     }
 
     read_settings_from_cookie();
 
-    var default_text = "// This is a sample script. Paste your code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
-    $('#source').val(default_text).bind('click enter', function () {
+    var default_text = "// This is just a sample script. Paste your real code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
+    $('#source').val(default_text).bind('click focus', function () {
         if ($(this).val() == default_text) {
             $(this).val('');
         }
@@ -353,13 +368,15 @@ $(function() {
       <p>All of the source code is available on the <a href="http://github.com/einars/js-beautify">github</a>, and we have a <a href="https://github.com/einars/js-beautify/raw/master/python/jsbeautifier.py">command-line version</a> (written in python) as well.
 
       <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
-      <form style="float: left;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+      <div style="position: relative; height: 40px">
+      <form style="position: absolute; left: 3px;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick">
         <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
         <input style="border:0" type="image" src="http://spicausis.lv/misc/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
         <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
       </form>
-      <p style="float:left; padding-top: 2px; margin-left: 3px; "><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
+      <p style="position: absolute; left: 120px; top: 1px"><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
+      </div>
 
       <p>Browser extensions and other uses:</p>
       <ul id="uses">
@@ -394,6 +411,7 @@ $(function() {
             <textarea id="source"></textarea>
         </div>
     <fieldset>
+    <p id="ie6-go-away" style="display:none">IE6. You must be kidding me.</p>
 </body>
 </html>
 
