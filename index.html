@@ -237,14 +237,14 @@ function unpacker_filter(source, strip_comments)
         found = false;
         if (/^\s*\/\*/.test(source)) {
             found = true;
-            commentChunk = source.substr(0, source.indexOf('*/') + 2);
-            source = source.substr(commentChunk.length).replace(/^\s+/, '');
-            comment += commentChunk + "\n";
+            comment = source.substr(0, source.indexOf('*/') + 2);
+            source = source.substr(comment.length).replace(/^\s+/, '');
+            trailing_comments += comment + "\n";
         } else if (/^\s*\/\//.test(source)) {
             found = true;
-            commentChunk = source.match(/^\s*\/\/.*/)[0];
-            source = source.substr(commentChunk.length).replace(/^\s+/, '');
-            comment += commentChunk + "\n";
+            comment = source.match(/^\s*\/\/.*/)[0];
+            source = source.substr(comment.length).replace(/^\s+/, '');
+            trailing_comments += comment + "\n";
         }
     } while (found);
 
@@ -261,7 +261,7 @@ function unpacker_filter(source, strip_comments)
         source = unpacker_filter(MyObfuscate.unpack(source))
     }
 
-    return comment + source;
+    return trailing_comments + source;
 }
 
 
