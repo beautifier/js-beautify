@@ -227,40 +227,41 @@ function store_settings_to_cookie()
 
 }
 
-function unpacker_filter(source)
+function unpacker_filter(source, strip_comments)
 {
+    var trailing_comments = '';
+    var comment = '';
+    var found = false;
 
-    var stripped_source = trim_leading_comments(source);
-    var unpacked = '';
-
-    if (P_A_C_K_E_R.detect(stripped_source)) {
-        unpacked = P_A_C_K_E_R.unpack(stripped_source);
-        if (unpacked !== stripped_source) {
-            return unpacker_filter(unpacked);
+    do {
+        found = false;
+        if (/^\s*\/\*/.test(source)) {
+            found = true;
+            commentChunk = source.substr(0, source.indexOf('*/') + 2);
+            source = source.substr(commentChunk.length).replace(/^\s+/, '');
+            comment += commentChunk + "\n";
+        } else if (/^\s*\/\//.test(source)) {
+            found = true;
+            commentChunk = source.match(/^\s*\/\/.*/)[0];
+            source = source.substr(commentChunk.length).replace(/^\s+/, '');
+            comment += commentChunk + "\n";
         }
-    }
+    } while (found);
 
+    if (P_A_C_K_E_R.detect(source)) {
+        source = unpacker_filter(P_A_C_K_E_R.unpack(source))
+    }
     if (Urlencoded.detect(source)) {
-        unpacked = Urlencoded.unpack(source);
-        if (unpacked !== stripped_source) {
-            return unpacker_filter(unpacked);
-        }
+        source = unpacker_filter(Urlencoded.unpack(source))
+    }
+    if (JavascriptObfuscator.detect(source)) {
+        source = unpacker_filter(JavascriptObfuscator.unpack(source))
+    }
+    if (MyObfuscate.detect(source)) {
+        source = unpacker_filter(MyObfuscate.unpack(source))
     }
 
-    if (JavascriptObfuscator.detect(stripped_source)) {
-        unpacked = JavascriptObfuscator.unpack(stripped_source);
-        if (unpacked !== stripped_source) {
-            return unpacker_filter(unpacked);
-        }
-    }
-
-    if (MyObfuscate.detect(stripped_source)) {
-        unpacked = MyObfuscate.unpack(stripped_source);
-        if (unpacked !== stripped_source) {
-            return unpacker_filter(unpacked);
-        }
-    }
-    return source;
+    return comment + source;
 }
 
 
@@ -384,6 +385,7 @@ $(function() {
       <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful Javascript</a> by Will McSweeney,</li>
       <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
       <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable Javascript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
       <li><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a>,
       <li><strong>gEdit</strong> <a href="http://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
       <li><strong>Akelpad</strong> <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">extension</a> by Infocatcher,</li>
