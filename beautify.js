@@ -35,7 +35,10 @@
 
     e.g
 
-    js_beautify(js_source_text, {indent_size: 1, indent_char: '\t'});
+    js_beautify(js_source_text, {
+      'indent_size': 1,
+      'indent_char': '\t'
+    });
 
 
 */

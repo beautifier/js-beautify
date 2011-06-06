@@ -285,29 +285,21 @@ function beautify()
     }
 
     var comment_mark = '<-' + '-';
+    var opts = {
+                indent_size: indent_size,
+                indent_char: indent_char,
+                preserve_newlines:preserve_newlines,
+                brace_style: brace_style,
+                keep_array_indentation:keep_array_indentation,
+                space_after_anon_function:true};
+
     if (source && source[0] === '<' && source.substring(0, 4) !== comment_mark) {
         $('#source').val(
-            style_html(source, indent_size, indent_char, 80, brace_style)
+            style_html(source, opts)
         );
     } else {
-        var v = (
-            js_beautify(unpacker_filter(source), {
-                indent_size: indent_size,
-                indent_char: indent_char,
-                preserve_newlines:preserve_newlines,
-                brace_style: brace_style,
-                keep_array_indentation:keep_array_indentation,
-                space_after_anon_function:true})
-        );
-        $('#source').val(
-            js_beautify(unpacker_filter(source), {
-                indent_size: indent_size,
-                indent_char: indent_char,
-                preserve_newlines:preserve_newlines,
-                brace_style: brace_style,
-                keep_array_indentation:keep_array_indentation,
-                space_after_anon_function:true})
-        );
+        var v = js_beautify(unpacker_filter(source), opts);
+        $('#source').val(v);
     }
 
     the.beautify_in_progress = false;
