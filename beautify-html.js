@@ -6,7 +6,7 @@
   Written by Nochum Sossonko, (nsossonko@hotmail.com)
 
   Based on code initially developed by: Einar Lielmanis, <elfz@laacz.lv>
-    http://jsbeautifier.org
+    http://jsbeautifier.org/
 
 
   You are free to use this in any way you want, in case you find this useful or working for you.
@@ -14,12 +14,39 @@
   Usage:
     style_html(html_source);
 
+    style_html(html_source, options);
+
+  The options are:
+    indent_size (default 4)          — indentation size,
+    indent_char (default space)      — character to indent with,
+    max_char (default 70)            -  maximum amount of characters per line,
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
+            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+
+    e.g.
+
+    style_html(html_source, {
+      'indent_size': 2,
+      'indent_char': ' ',
+      'max_char': 78,
+      'brace_style': 'expand'
+    });
 */
 
-function style_html(html_source, indent_size, indent_character, max_char, brace_style) {
+function style_html(html_source, options) {
 //Wrapper function to invoke all the necessary constructors and deal with the output.
 
-  var Parser, multi_parser;
+  var multi_parser,
+      indent_size,
+      indent_character,
+      max_char,
+      brace_style;
+
+  options = options || {};
+  indent_size = options.indent_size || 4;
+  indent_character = options.indent_char || ' ';
+  brace_style = options.brace_style || 'collapse';
+  max_char = options.max_char || '70';
 
   function Parser() {
 
@@ -33,7 +60,6 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
     };
     this.tag_type = '';
     this.token_text = this.last_token = this.last_text = this.token_type = '';
-
 
     this.Utils = { //Uilities made available to the various functions
       whitespace: "\n\r\t ".split(''),
@@ -62,7 +88,6 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
         input_char = this.input.charAt(this.pos);
         this.pos++;
         this.line_char_count++;
-
 
         if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
           if (content.length) {
@@ -105,7 +130,6 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
 
         input_char = this.input.charAt(this.pos);
         this.pos++;
-
 
         content.push(input_char);
       }
@@ -309,8 +333,12 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
         if (typeof temp_token !== 'string') {
           return temp_token;
         }
-        token = js_beautify(temp_token,
-                {indent_size: this.indent_size, indent_char: this.indent_character, indent_level: this.indent_level, brace_style: this.brace_style}); //call the JS Beautifier
+        token = js_beautify(temp_token, {
+          'indent_size': this.indent_size,
+          'indent_char': this.indent_character,
+          'indent_level': this.indent_level,
+          'brace_style': this.brace_style
+        }); //call the JS Beautifier
         return [token, 'TK_CONTENT'];
       }
       if (this.current_mode === 'CONTENT') {
@@ -323,7 +351,7 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
         }
       }
 
-      if(this.current_mode === 'TAG') {
+      if (this.current_mode === 'TAG') {
         token = this.get_tag();
         if (typeof token !== 'string') {
           return token;
@@ -339,12 +367,12 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
 
       this.input = js_source || ''; //gets the input for the Parser
       this.output = [];
-      this.indent_character = indent_character || ' ';
+      this.indent_character = indent_character;
       this.indent_string = '';
-      this.indent_size = indent_size || 2;
-      this.brace_style = brace_style || 'collapse';
+      this.indent_size = indent_size;
+      this.brace_style = brace_style;
       this.indent_level = 0;
-      this.max_char = max_char || 70; //maximum amount of characters per line
+      this.max_char = max_char;
       this.line_char_count = 0; //count to see if max_char was exceeded
 
       for (var i=0; i<this.indent_size; i++) {
@@ -367,7 +395,6 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
         }
       }
 
-
       this.print_token = function (text) {
         this.output.push(text);
       }
@@ -387,12 +414,8 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
 
   /*_____________________--------------------_____________________*/
 
-
-
   multi_parser = new Parser(); //wrapping functions Parser
   multi_parser.printer(html_source, indent_character, indent_size, 80, brace_style); //initialize starting values
-
-
 
   while (true) {
       var t = multi_parser.get_token();
@@ -402,7 +425,6 @@ function style_html(html_source, indent_size, indent_character, max_char, brace_
     if (multi_parser.token_type === 'TK_EOF') {
       break;
     }
-
 
     switch (multi_parser.token_type) {
       case 'TK_TAG_START': case 'TK_TAG_SCRIPT': case 'TK_TAG_STYLE':
