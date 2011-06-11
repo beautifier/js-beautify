@@ -259,6 +259,8 @@ def main():
 
     bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
 
+    # bt('x: y, // comment'); // known problem, #44
+
     # inline comment
     bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
 
@@ -293,7 +295,7 @@ def main():
 
 
 
-    opts.jslint_happy = True;
+    opts.jslint_happy = True
 
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
     bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
@@ -302,7 +304,7 @@ def main():
     bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
     bt('a=typeof(x)', 'a = typeof (x)');
 
-    opts.jslint_happy = False;
+    opts.jslint_happy = False
 
     test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); # typical greasemonkey start
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
@@ -357,6 +359,10 @@ def main():
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
     opts.keep_array_indentation = True;
+
+    # do not like keep_array_indentation at all
+    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n    {\n    foo: bar\n}\n];')
+
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');

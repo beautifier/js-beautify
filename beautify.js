@@ -94,6 +94,14 @@ function js_beautify(js_source_text, options) {
         return s.replace(/^\s\s*|\s\s*$/, '');
     }
 
+    function force_newline()
+    {
+        var old_keep_array_indentation = opt_keep_array_indentation;
+        opt_keep_array_indentation = false;
+        print_newline()
+        opt_keep_array_indentation = old_keep_array_indentation;
+    }
+
     function print_newline(ignore_repeated) {
 
         flags.eat_next_space = false;
@@ -1111,7 +1119,7 @@ function js_beautify(js_source_text, options) {
             if (is_expression(flags.mode)) {
                 print_single_space();
             } else {
-                print_newline();
+                force_newline();
             }
             break;
 
@@ -1124,7 +1132,7 @@ function js_beautify(js_source_text, options) {
                 print_single_space();
             }
             print_token();
-            print_newline();
+            force_newline();
             break;
 
         case 'TK_UNKNOWN':

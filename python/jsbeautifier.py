@@ -236,6 +236,12 @@ class Beautifier:
         return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]', '(EXPRESSION)']
 
 
+    def append_newline_forced(self):
+        old_array_indentation = self.opts.keep_array_indentation
+        self.opts.keep_array_indentation = False
+        self.append_newline()
+        self.opts.keep_array_indentation = old_array_indentation
+
     def append_newline(self, ignore_repeated = True):
 
         self.flags.eat_next_space = False;
@@ -1005,7 +1011,7 @@ class Beautifier:
         if self.is_expression(self.flags.mode):
             self.append(' ')
         else:
-            self.append_newline()
+            self.append_newline_forced()
 
 
     def handle_comment(self, token_text):
@@ -1015,7 +1021,7 @@ class Beautifier:
             self.append(' ')
 
         self.append(token_text)
-        self.append_newline()
+        self.append_newline_forced()
 
 
     def handle_unknown(self, token_text):

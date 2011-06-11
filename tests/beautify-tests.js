@@ -372,6 +372,9 @@ function run_beautifier_tests(test_obj)
 
     opts.keep_array_indentation = true;
 
+    // do not like keep_array_indentation at all
+    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n    {\n    foo: bar\n}\n];')
+
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
     bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
