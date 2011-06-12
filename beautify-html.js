@@ -339,7 +339,7 @@ function style_html(html_source, options) {
           'indent_level': this.indent_level,
           'brace_style': this.brace_style
         }); //call the JS Beautifier
-        return [token.replace(/^ +/, ''), 'TK_CONTENT'];
+        return [token.replace(/^[\t ]+/, ''), 'TK_CONTENT'];
       }
       if (this.current_mode === 'CONTENT') {
         token = this.get_content();
