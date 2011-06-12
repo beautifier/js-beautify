@@ -979,12 +979,11 @@ class Beautifier:
 
 
 
-
     def handle_block_comment(self, token_text):
 
         lines = token_text.replace('\x0d', '').split('\x0a')
-        if token_text[:3] == '/**':
-            # javadoc: reformat and reindent
+        # all lines start with an asterisk? that's a proper box comment
+        if not any(l for l in lines[1:] if (l.lstrip())[0] != '*'):
             self.append_newline()
             self.append(lines[0])
             for line in lines[1:]:

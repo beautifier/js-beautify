@@ -203,6 +203,14 @@ function js_beautify(js_source_text, options) {
         }
     }
 
+    function all_lines_start_with(lines, c) {
+        for (var i = 0; i < lines.length; i++) {
+            if (trim(lines[i])[0] != c) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function in_array(what, arr) {
         for (var i = 0; i < arr.length; i += 1) {
@@ -1080,7 +1088,7 @@ function js_beautify(js_source_text, options) {
 
             var lines = token_text.split(/\x0a|\x0d\x0a/);
 
-            if (/^\/\*\*/.test(token_text)) {
+            if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
                 print_newline();
                 output.push(lines[0]);

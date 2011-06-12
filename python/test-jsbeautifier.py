@@ -103,6 +103,8 @@ def main():
     bt('a;/* comment */b;', "a; /* comment */\nb;");
     test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); # simple comments don't get touched at all
     bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
+    bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;"); # comment blocks detected and reindented even w/o javadoc starter
+
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
     bt('if((a))foo();', 'if ((a)) foo();');
