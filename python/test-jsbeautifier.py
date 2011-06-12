@@ -16,6 +16,7 @@ opts.preserve_newlines = True
 opts.jslint_happy = False
 opts.keep_array_indentation = False
 opts.brace_style = 'collapse'
+opts.indent_level = 0
 
 
 def test_fragment(input, expectation = None):
@@ -429,6 +430,9 @@ def main():
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
 
+    # test initial indent level
+    opts.indent_level = 1
+    test_fragment('\n/*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
     global tests_passed
     print("All %d tests passed." % tests_passed)

@@ -216,7 +216,11 @@ class Beautifier:
             self.last_type = token_type
             self.last_text = token_text
 
-        return re.sub('[\n ]+$', '', ''.join(self.output))
+        sweet_code = re.sub('[\n ]+$', '', ''.join(self.output))
+        if self.opts.indent_level:
+            sweet_code = self.opts.indent_level * self.indent_string + sweet_code
+        return sweet_code
+
 
 
     def trim_output(self, eat_newlines = False):
@@ -260,7 +264,7 @@ class Beautifier:
             self.just_added_newline = True
             self.output.append('\n')
 
-        for i in range(self.flags.indentation_level):
+        for i in range(self.flags.indentation_level + self.opts.indent_level):
             self.output.append(self.indent_string)
 
         if self.flags.var_line and self.flags.var_line_reindented:
@@ -304,7 +308,7 @@ class Beautifier:
         self.flags = BeautifierFlags(mode)
 
         if len(self.flag_store) == 1:
-            self.flags.indentation_level = self.opts.indent_level
+            self.flags.indentation_level = 0
         else:
             self.flags.indentation_level = prev.indentation_level
             if prev.var_line and prev.var_line_reindented:

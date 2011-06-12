@@ -122,7 +122,7 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-        for (var i = 0; i < flags.indentation_level; i += 1) {
+        for (var i = 0; i < flags.indentation_level + opt_indent_level; i += 1) {
             output.push(indent_string);
         }
         if (flags.var_line && flags.var_line_reindented) {
@@ -183,7 +183,7 @@ function js_beautify(js_source_text, options) {
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level),
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
     }
@@ -1156,7 +1156,13 @@ function js_beautify(js_source_text, options) {
         last_text = token_text;
     }
 
-    return output.join('').replace(/[\n ]+$/, '');
+    var sweet_code = output.join('').replace(/[\n ]+$/, '');
+    if (opt_indent_level) {
+        for (i = 0 ; i < opt_indent_level; i++) {
+            sweet_code = indent_string + sweet_code;
+        }
+    }
+    return sweet_code;
 
 }
 
