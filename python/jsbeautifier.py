@@ -1073,7 +1073,9 @@ def main():
         return usage()
     else:
         print(beautify_file(file, js_options), file=outfile)
-
+        
+    if outfile != sys.stdout:
+        outfile.close()
 
 
 if __name__ == "__main__":
