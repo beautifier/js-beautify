@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# tested with python3.2
+
 import sys
 import getopt
 import re
@@ -121,7 +121,7 @@ Output options:
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
- -o,  --outfile=FILE               specify a file to output to(default stdout)
+ -o,  --outfile=FILE               specify a file to output to (default stdout)
 
 Rarely needed options:
 
@@ -1052,7 +1052,7 @@ def main():
     js_options = default_options()
 
     file = None
-    outfile = sys.stdout
+    outfile = 'stdout'
     if len(args) == 1:
         file = args[0]
 
@@ -1060,7 +1060,7 @@ def main():
         if opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
         elif opt in ('--outfile', '-o'):
-            outfile = open(arg, 'w')
+            outfile = arg
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
@@ -1081,10 +1081,12 @@ def main():
     if file == None:
         return usage()
     else:
-        print(beautify_file(file, js_options), file=outfile)
-        
-    if outfile != sys.stdout:
-        outfile.close()
+        if outfile == 'stdout':
+            print(beautify_file(file, js_options))
+        else:
+            f = open(outfile, 'w')
+            f.write(beautify_file(file, js_options) + '\n')
+            f.close()
 
 
 if __name__ == "__main__":
