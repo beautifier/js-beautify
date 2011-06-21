@@ -107,6 +107,7 @@ def usage():
 Usage: jsbeautifier.py [options] <infile>
 
     <infile> can be "-", which means stdin.
+    <outfile> defaults to stdout
 
 Input options:
 
@@ -120,6 +121,7 @@ Output options:
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
+ -o,  --outfile=FILE               specify a file to output to (default stdout)
 
 Rarely needed options:
 
@@ -698,9 +700,6 @@ class Beautifier:
             self.append(token_text)
 
 
-
-
-
     def handle_end_block(self, token_text):
         self.restore_mode()
         if self.opts.brace_style == 'expand':
@@ -1042,7 +1041,7 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:djbkil:h", ['indent-size=','indent-char=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
                                                           'usage', 'stdin'])
@@ -1053,13 +1052,16 @@ def main():
     js_options = default_options()
 
     file = None
+    outfile = 'stdout'
     if len(args) == 1:
         file = args[0]
 
     for opt, arg in opts:
         if opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
-        if opt in ('--indent-size', '-s'):
+        elif opt in ('--outfile', '-o'):
+            outfile = arg
+        elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
             js_options.indent_char = arg
@@ -1079,8 +1081,12 @@ def main():
     if file == None:
         return usage()
     else:
-        print(beautify_file(file, js_options))
-
+        if outfile == 'stdout':
+            print(beautify_file(file, js_options))
+        else:
+            f = open(outfile, 'w')
+            f.write(beautify_file(file, js_options) + '\n')
+            f.close()
 
 
 if __name__ == "__main__":
