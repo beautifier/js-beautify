@@ -95,7 +95,18 @@ button#submit {
     border: 1px solid #aaa;
     border-left: 1px solid #666;
     border-top: 1px solid #666;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
     background: #ccc;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#CCCCCC));
+    background-image: -webkit-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:    -moz-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:     -ms-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:      -o-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:         linear-gradient(top, #EEEEEE, #CCCCCC);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#EEEEEE', EndColorStr='#CCCCCC');
     cursor: pointer;
     color: #444;
 }
