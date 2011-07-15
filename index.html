@@ -193,14 +193,6 @@ var the = {
     beautify_in_progress: false
 }
 
-function trim_leading_comments(str)
-{
-    // very basic. doesn't support /* ... */
-    str = str.replace(/^(\s*\/\/[^\n]*\n)+/, '');
-    str = str.replace(/^\s+/, '');
-    return str;
-}
-
 function run_tests()
 {
     var st = new SanityTest();
@@ -285,7 +277,7 @@ function beautify()
 
     the.beautify_in_progress = true;
 
-    var source = $('#source').val().replace(/^\s+/, '');
+    var source = $('#source').val();
     var indent_size = $('#tabsize').val();
     var indent_char = indent_size == 1 ? '\t' : ' ';
     var preserve_newlines = $('#preserve-newlines').attr('checked');
