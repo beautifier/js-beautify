@@ -9,7 +9,7 @@ try {
     load('tests/beautify-tests.js')
 } catch (yada) {
     load('../beautify.js');
-    load('sanitytest.js')
+    //load('sanitytest.js')
     load('beautify-tests.js')
 }
 

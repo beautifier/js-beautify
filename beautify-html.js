@@ -333,13 +333,12 @@ function style_html(html_source, options) {
         if (typeof temp_token !== 'string') {
           return temp_token;
         }
-        token = js_beautify(temp_token, {
+        token = js_beautify(temp_token.replace(/^[\r\n]+/, ''), {
           'indent_size': this.indent_size,
           'indent_char': this.indent_character,
-          'indent_level': this.indent_level,
           'brace_style': this.brace_style
         }); //call the JS Beautifier
-        return [token.replace(/^[\t ]+/, ''), 'TK_CONTENT'];
+        return [token, 'TK_CONTENT'];
       }
       if (this.current_mode === 'CONTENT') {
         token = this.get_content();
@@ -427,10 +426,16 @@ function style_html(html_source, options) {
     }
 
     switch (multi_parser.token_type) {
-      case 'TK_TAG_START': case 'TK_TAG_SCRIPT': case 'TK_TAG_STYLE':
+      case 'TK_TAG_START':
+      case 'TK_TAG_STYLE':
         multi_parser.print_newline(false, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.indent();
+        multi_parser.current_mode = 'CONTENT';
+        break;
+      case 'TK_TAG_SCRIPT':
+        multi_parser.print_newline(false, multi_parser.output);
+        multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_END':

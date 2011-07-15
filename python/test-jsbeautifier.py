@@ -61,6 +61,7 @@ def main():
 
     bt('');
     bt('return .5');
+    # test_fragment('    return .5');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
@@ -269,7 +270,6 @@ def main():
 
     # javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
-    bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
     bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
@@ -429,10 +429,6 @@ def main():
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
-
-    # test initial indent level
-    opts.indent_level = 1
-    test_fragment('\n/*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
     global tests_passed
     print("All %d tests passed." % tests_passed)
