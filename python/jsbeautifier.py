@@ -123,12 +123,15 @@ Output options:
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
-      --short-object=0             put objects less than this long on a single line
+ 
+      --short-object=0             objects less than this many characters long 
+                                   will stay on a single line (newlines within 
+                                   the object's code will override this)
+                                   recommended: 80
+                                   
  -o,  --outfile=FILE               specify a file to output to (default stdout)
 
 Rarely needed options:
-
- -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
  -h,  --help, --usage              prints this help statement.
 
