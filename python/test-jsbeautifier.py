@@ -52,7 +52,8 @@ def bt(input, expectation = None):
     test_fragment(input, expectation)
     if opts.indent_size == 4 and len(input):
         wrapped_input = '{\n%s\nfoo=bar;}' % input
-        wrapped_expectation = '{\n%s\n    foo = bar;\n}' % re.sub('^(.+)$', '    \\1', expectation, 0, re.MULTILINE)
+        reg = re.compile('^(.+)$',re.MULTILINE)
+        wrapped_expectation = '{\n%s\n    foo = bar;\n}' % reg.sub('    \\1', expectation, 0)
         test_fragment(wrapped_input, wrapped_expectation)
 
 def main():
@@ -270,6 +271,7 @@ def main():
 
     # javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
+    bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
     bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
@@ -406,7 +408,12 @@ def main():
     test_fragment('return {', 'return {'); # return needs the brace. maybe something else as well: feel free to report.
     # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return;\n{');
-
+    
+    opts.short_object = 10    
+    bt('var a = {a:12345};','var a = { a: 12345 };')
+    bt('var a = {a:123456789};','var a = {\n    a: 123456789\n};')
+    opts.short_object = 0
+    
     opts.brace_style = 'collapse';
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
@@ -419,6 +426,11 @@ def main():
     bt('if (foo) bar();\nelse break');
     bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
     bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+    
+    opts.short_object = 10    
+    bt('var a = {a:12345};','var a = { a: 12345 };')
+    bt('var a = {a:123456789};','var a = {\n    a: 123456789\n};')
+    opts.short_object = 0
 
     opts.brace_style = "end-expand";
 
@@ -429,6 +441,14 @@ def main():
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
+    opts.short_object = 10    
+    bt('var a = {a:12345};','var a = { a: 12345 };')
+    bt('var a = {a:123456789};','var a = {\n    a: 123456789\n};')
+    opts.short_object = 0
+
+    # test initial indent level
+    # opts.indent_level = 1
+    # test_fragment('\n/*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
     global tests_passed
     print("All %d tests passed." % tests_passed)
