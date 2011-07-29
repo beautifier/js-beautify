@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]> <html lang="en-us" dir="ltr" class="ie ie6"> <![endif]-->
-<!--[if IE 7 ]>    <html lang="en-us" dir="ltr" class="ie ie7"> <![endif]-->
-<!--[if IE 8 ]>    <html lang="en-us" dir="ltr" class="ie ie8"> <![endif]-->
-<!--[if IE 9 ]>    <html lang="en-us" dir="ltr" class="ie ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en-us" dir="ltr"> <!--<![endif]-->
+<!--[if lt IE 7]><html lang="en-us" class="ie6"><![endif]-->
+<!--[if IE 7]><html lang="en-us" class="ie7"><![endif]-->
+<!--[if IE 8]><html lang="en-us" class="ie8"><![endif]-->
+<!--[if gt IE 8]><!--><html lang="en-us"><!--<![endif]-->
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Online javascript beautifier</title>
-    <style type="text/css">
+    <meta charset="utf-8">
+    <title>Online JavaScript beautifier</title>
+    <style>
 * {
     margin: 0;
     padding: 0;
@@ -51,6 +50,7 @@ textarea {
     height: 100%;
     width: 100%;
     border: 0;
+    font-family: Monaco, Consolas, monospace;
 }
 .ie7 fieldset#textarea-wrap {
     padding: 5px 0;
@@ -175,26 +175,25 @@ label {
     line-height: 130%;
 }
     </style>
-<script type="text/javascript" src="jquery/jquery.js"></script>
-<script type="text/javascript" src="jquery/jquery.cookie.js"></script>
+<script src="jquery/jquery.js"></script>
+<script src="jquery/jquery.cookie.js"></script>
 
-<script type="text/javascript" src="beautify.js" ></script>
-<script type="text/javascript" src="beautify-html.js" ></script>
-<script type="text/javascript" src="tests/sanitytest.js" ></script>
-<script type="text/javascript" src="tests/beautify-tests.js" ></script>
-<script type="text/javascript" src="unpackers/javascriptobfuscator_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/urlencode_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/myobfuscate_unpacker.js" ></script>
+<script src="beautify.js"></script>
+<script src="beautify-html.js"></script>
+<script src="tests/sanitytest.js"></script>
+<script src="tests/beautify-tests.js"></script>
+<script src="unpackers/javascriptobfuscator_unpacker.js"></script>
+<script src="unpackers/urlencode_unpacker.js"></script>
+<script src="unpackers/p_a_c_k_e_r_unpacker.js"></script>
+<script src="unpackers/myobfuscate_unpacker.js"></script>
 
-<script type="text/javascript">
+<script>
 
 var the = {
     beautify_in_progress: false
-}
+};
 
-function run_tests()
-{
+function run_tests() {
     var st = new SanityTest();
     run_beautifier_tests(st);
     JavascriptObfuscator.run_tests(st);
@@ -205,34 +204,28 @@ function run_tests()
 }
 
 
-function any(a, b)
-{
-    return a ? a : b;
+function any(a, b) {
+    return a || b;
 }
 
-function read_settings_from_cookie()
-{
+function read_settings_from_cookie() {
     $('#tabsize').val(any($.cookie('tabsize'), '4'));
     $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
     $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
     $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
     $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
-
 }
 
-function store_settings_to_cookie()
-{
+function store_settings_to_cookie() {
     var opts = { expires: 360 };
     $.cookie('tabsize', $('#tabsize').val(), opts);
     $.cookie('brace-style', $('#brace-style').val(), opts);
     $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
     $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
-
 }
 
-function unpacker_filter(source)
-{
+function unpacker_filter(source) {
     var trailing_comments = '';
     var comment = '';
     var found = false;
@@ -269,8 +262,7 @@ function unpacker_filter(source)
 }
 
 
-function beautify()
-{
+function beautify() {
     if (the.beautify_in_progress) return;
 
     store_settings_to_cookie();
@@ -320,15 +312,14 @@ $(function() {
 
     var default_text = "// This is just a sample script. Paste your real code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
     $('#source').val(default_text).bind('click focus', function () {
-        if ($(this).val() == default_text) {
-            $(this).val('');
+        if (this.value == default_text) {
+            this.value = '';
         }
     }).bind('blur', function () {
-        if ($(this).val() == '') {
-            $(this).val(default_text);
+        if (!this.value) {
+            this.value = default_text;
         }
-
-    })
+    });
     $(window).bind('keydown', function (e) {
         if (e.ctrlKey && e.keyCode == 13) {
             beautify();
@@ -361,7 +352,7 @@ $(function() {
           </ul>
       </fieldset>
 
-      <p><strong>Beautify, unpack or deobfuscate javascript.</strong>.</p>
+      <p><strong>Beautify, unpack or deobfuscate JavaScript.</strong>.</p>
       <p>All of the source code is available on the <a href="http://github.com/einars/js-beautify">github</a>, and we have a <a href="https://github.com/einars/js-beautify/raw/master/python/jsbeautifier.py">command-line version</a> (written in python) as well.
 
       <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
@@ -381,16 +372,16 @@ $(function() {
       <li>A <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;http://jsbeautifier.org/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();"><strong>bookmarklet</strong></a> (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
 
       <li><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
-      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful Javascript</a> by Will McSweeney,</li>
+      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
       <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
-      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable Javascript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
       <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
-      <li><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a>,
+      <li><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
       <li><strong>gEdit</strong> <a href="http://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
       <li><strong>Akelpad</strong> <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">extension</a> by Infocatcher,</li>
       <li>Beautifier in <a style="font-weight: bold" href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
       <li><a style="font-weight:bold" href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-      <li><a style="font-weight:bold" href="http://www.symetronapps.com/shrinker.html">Shrinker</a>, a non-free javascript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good.</li>
+      <li><a style="font-weight:bold" href="http://www.symetronapps.com/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good.</li>
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
@@ -407,25 +398,22 @@ $(function() {
 
       </div>
 
-
     </div>
     <div id="beauty">
-        <button id="submit"><strong>Beautify javascript</strong> <em>(ctrl-enter)</em></button>
+        <button id="submit"><strong>Beautify JavaScript</strong> <em>(ctrl-enter)</em></button>
         <fieldset id="textarea-wrap">
             <textarea id="source"></textarea>
         </fieldset>
     </div>
     <p id="ie6-go-away" style="display:none">IE6. You must be kidding me.</p>
-<script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
-<script type="text/javascript">
-if (window._gat) {
-    var tracker = _gat._getTracker("UA-7409939-1");
-    if (tracker && tracker._trackPageview) {
-        tracker._trackPageview();
-    }
-}
-</script>
+    <script>
+        var _gaq = [['_setAccount', 'UA-7409939-1'], ['_trackPageview']];
+        (function(d, t) {
+            var g = d.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = '//www.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g, s);
+        }(document, 'script'));
+    </script>
 </body>
 </html>
-
-
