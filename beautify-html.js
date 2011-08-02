@@ -414,7 +414,7 @@ function style_html(html_source, options) {
   /*_____________________--------------------_____________________*/
 
   multi_parser = new Parser(); //wrapping functions Parser
-  multi_parser.printer(html_source, indent_character, indent_size, 80, brace_style); //initialize starting values
+  multi_parser.printer(html_source, indent_character, indent_size, max_char, brace_style); //initialize starting values
 
   while (true) {
       var t = multi_parser.get_token();
