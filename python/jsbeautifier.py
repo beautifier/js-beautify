@@ -323,11 +323,7 @@ class Beautifier:
             self.output.append(self.indent_string)
 
         if self.flags.var_line and self.flags.var_line_reindented:
-            if self.opts.indent_char == ' ':
-                # var_line always pushes 4 spaces, so that the variables would be one under another
-                self.output.append('    ')
-            else:
-                self.output.append(self.indent_string)
+            self.output.append(self.indent_string)
 
 
     def append(self, s):
