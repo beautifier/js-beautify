@@ -330,7 +330,7 @@ def main():
     opts.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
 
-    bt('var a,b=1,c=2', 'var a, b = 1,\n    c = 2');
+    bt('var a,b=1,c=2', 'var a, b = 1,\n c = 2');
 
     opts.indent_size = 4;
     opts.indent_char = ' ';

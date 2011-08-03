@@ -129,11 +129,7 @@ function js_beautify(js_source_text, options) {
             output.push(indent_string);
         }
         if (flags.var_line && flags.var_line_reindented) {
-            if (opt_indent_char === ' ') {
-                output.push('    '); // var_line always pushes 4 spaces, so that the variables would be one under another
-            } else {
-                output.push(indent_string); // skip space-stuffing, if indenting with a tab
-            }
+            output.push(indent_string); // skip space-stuffing, if indenting with a tab
         }
     }
 
