@@ -930,7 +930,10 @@ class Beautifier:
 
         # Try to replace \x-encoded characters with their readable equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        token_text = token_text.decode('unicode_escape', 'ignore')
+        try:
+            token_text = token_text.encode().decode('unicode_escape')
+        except UnicodeError:
+            pass
 
         self.append(token_text)
 
