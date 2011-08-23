@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 from sys import stdout
@@ -7,6 +8,7 @@ import re
 from jsbeautifier import beautify, default_options
 
 tests_passed = 0
+tests_failed = 0
 
 opts = default_options()
 
@@ -40,10 +42,12 @@ Received:
 ---------
 %s
 """ % (opts, input, expectation, res))
-        sys.exit(-1) # bail out immediately
-
-    global tests_passed
-    tests_passed += 1
+        global tests_failed
+        tests_failed += 1
+        #sys.exit(-1) # bail out immediately
+    else:
+        global tests_passed
+        tests_passed += 1
 
 def bt(input, expectation = None):
     global opts
@@ -59,9 +63,22 @@ def bt(input, expectation = None):
 def main():
 
     global opts
-
+    
     bt('');
-    bt('return .5');
+    bt('return .5'); 
+    
+    bt('"\\\\s"'); # == "\\s" in the js source
+    bt("'\\\\s'"); # == '\\s' in the js source
+    bt("'\\\\\\s'"); # == '\\\s' in the js source
+    bt("'\\s'"); # == '\s' in the js source
+    bt('"•"');
+    bt('"—"');
+    #bt('"\x41\x42\x43\x01"', '"ABC\\x01"');
+    bt('"\u2022"', '"\u2022"');
+    bt('a = /\s+/')
+    #bt('a = /\x41/','a = /A/')
+    bt('"\u2022";a = /\s+/;"\x41\x42\x43\x01".match(/\x41/);','"\u2022";\na = /\s+/;\n"\x41\x42\x43\x01".match(/\x41/);')
+    
     # test_fragment('    return .5');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
@@ -271,7 +288,8 @@ def main():
 
     # javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
-    bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
+    test_fragment('    /**\n     * foo\n     */', '    /**\n     * foo\n     */');
+    test_fragment('{    /**\n     * foo\n     */}', '{\n    /**\n     * foo\n     */\n}'); #this is the wrapped test of the above
     bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
@@ -450,8 +468,11 @@ def main():
     # opts.indent_level = 1
     # test_fragment('\n/*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
-    global tests_passed
-    print("All %d tests passed." % tests_passed)
+    global tests_passed, tests_failed
+    if tests_failed:
+        print("%d tests failed. %d tests passed." % (tests_failed, tests_passed))
+    else:
+        print("All %d tests passed." % tests_passed)
 
 
 if __name__ == "__main__":

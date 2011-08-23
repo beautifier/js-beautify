@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import getopt
@@ -263,7 +264,7 @@ class Beautifier:
                 'TK_COMMENT': self.handle_comment,
                 'TK_UNKNOWN': self.handle_unknown,
             }
-
+            
             handlers[token_type](token_text)
 
             self.last_last_text = self.last_text
@@ -315,7 +316,7 @@ class Beautifier:
         if self.output[-1] != '\n' or not ignore_repeated:
             self.just_added_newline = True
             self.output.append('\n')
-
+        
         if self.preindent_string:
             self.output.append(self.preindent_string)
 
@@ -930,10 +931,20 @@ class Beautifier:
 
         # Try to replace \x-encoded characters with their readable equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        try:
-            token_text = token_text.encode().decode('unicode_escape')
-        except UnicodeError:
-            pass
+        # THIS FAILS UNIT TESTS - REMOVING. BETTER TO HAVE OBFUSCATED CODE THAN BROKEN CODE
+        # tmp = token_text
+        # try:
+#             token_text = token_text.encode().decode('unicode_escape')
+#             #if len(token_text) and token_text[0]!="/": #not a regex
+#                 #token_text = token_text.encode("unicode_escape")
+#         except UnicodeError:
+#             #print "unable to:",token_text
+#             pass
+#         
+#         if tmp != token_text:
+#             print "before:", type(tmp), tmp
+#             print "after:", type(token_text), token_text
+#             print ""
 
         self.append(token_text)
 
@@ -1057,7 +1068,6 @@ class Beautifier:
 
 
     def handle_block_comment(self, token_text):
-
         lines = token_text.replace('\x0d', '').split('\x0a')
         # all lines start with an asterisk? that's a proper box comment
         if not any(l for l in lines[1:] if (l.lstrip())[0] != '*'):
