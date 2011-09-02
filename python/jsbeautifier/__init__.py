@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import getopt
 import re
@@ -190,7 +188,7 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = s
+        self.input = self.unpack(s)
 
         parser_pos = 0
         while True:
@@ -224,7 +222,13 @@ class Beautifier:
         sweet_code = self.preindent_string + re.sub('[\n ]+$', '', ''.join(self.output))
         return sweet_code
 
-
+    def unpack(self, source):
+        import jsbeautifier.unpackers as unpackers
+        try:
+            return unpackers.run(source)
+        except unpackers.UnpackingError as error:
+            print('error:', error)
+            return ''
 
     def trim_output(self, eat_newlines = False):
         while len(self.output) \
@@ -1084,7 +1088,7 @@ def main():
         elif opt in ('--help', '--usage', '--h'):
             return usage()
 
-    if file == None:
+    if not file:
         return usage()
     else:
         if outfile == 'stdout':
@@ -1093,9 +1097,4 @@ def main():
             f = open(outfile, 'w')
             f.write(beautify_file(file, js_options) + '\n')
             f.close()
-
-
-if __name__ == "__main__":
-    main()
-
 
