@@ -1088,7 +1088,7 @@ def main():
         return usage()
     else:
         if outfile == 'stdout':
-            print(beautify_file(file, js_options))
+            print(beautify_file(file, js_options)).encode('utf-8')
         else:
             f = open(outfile, 'w')
             f.write(beautify_file(file, js_options) + '\n')
