@@ -16,7 +16,7 @@ from jsbeautifier.unpackers import UnpackingError
 PRIORITY = 1
 
 def detect(source):
-    return re.search(r'eval *\( *function *\(p, *a, *c, *k, *e, *r',
+    return re.match(r'eval *\( *function *\(p, *a, *c, *k, *e, *r',
                      source) is not None
 
 def unpack(source):
