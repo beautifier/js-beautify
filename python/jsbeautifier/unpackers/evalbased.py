@@ -13,10 +13,7 @@
 PRIORITY = 3
 
 def detect(source):
-    # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY.
-    # uncomment following line to restore it.
-    #return source.strip().lower().startswith('eval(function(')
-    return False
+    return source.strip().lower().startswith('eval(function(')
 
 def unpack(source):
     return js('print %s;' % source[4:]) if detect(source) else source
