@@ -10,17 +10,25 @@
 #     unpacked = unpack(some_string)
 #
 
+"""Unpacker for eval() based packers: runs JS code and returns result.
+Works only if a JS interpreter (e.g. Mozilla's Rhino) is installed and
+properly set up on host."""
+
+from subprocess import PIPE, Popen
+
 PRIORITY = 3
 
 def detect(source):
+    """Detects if source is likely to be eval() packed."""
     return source.strip().lower().startswith('eval(function(')
 
 def unpack(source):
-    return js('print %s;' % source[4:]) if detect(source) else source
+    """Runs source and return resulting code."""
+    return jseval('print %s;' % source[4:]) if detect(source) else source
 
 # In case of failure, we'll just return the original, without crashing on user.
-def js(script):
-    from subprocess import PIPE, Popen
+def jseval(script):
+    """Run code in the JS interpreter and return output."""
     try:
         interpreter = Popen(['js'], stdin=PIPE, stdout=PIPE)
     except OSError:

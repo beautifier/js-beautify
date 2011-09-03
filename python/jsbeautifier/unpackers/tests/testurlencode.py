@@ -1,14 +1,17 @@
 #
-# Tests for urlencoded unpacker
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
+
+"""Tests for urlencoded unpacker."""
 
 import unittest
 
 from jsbeautifier.unpackers.urlencode import detect, unpack
 
 class TestUrlencode(unittest.TestCase):
+    """urlencode test case."""
     def test_detect(self):
+        """Test detect() function."""
         encoded = lambda source: self.assertTrue(detect(source))
         unencoded = lambda source: self.assertFalse(detect(source))
 
@@ -19,6 +22,7 @@ class TestUrlencode(unittest.TestCase):
         encoded('var%20%21%22')
 
     def test_unpack(self):
+        """Test unpack function."""
         equals = lambda source, result: self.assertEqual(unpack(source), result)
 
         equals('', '')
