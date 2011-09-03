@@ -4,14 +4,16 @@
 #
 
 import unittest
+import os
 from jsbeautifier.unpackers.myobfuscate import detect, unpack
+from jsbeautifier.unpackers.tests import __path__ as path
 
 class TestMyObfuscate(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open('test-myobfuscate-input.js', 'r') as data:
+        with open(os.path.join(path[0], 'test-myobfuscate-input.js'), 'r') as data:
             cls.input = data.read()
-        with open('test-myobfuscate-output.js', 'r') as data:
+        with open(os.path.join(path[0], 'test-myobfuscate-output.js'), 'r') as data:
             cls.output = data.read()
 
     def test_detect(self):
