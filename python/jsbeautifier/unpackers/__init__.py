@@ -3,6 +3,9 @@
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 
+# NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
+BLACKLIST = ['jsbeautifier.unpackers.evalbased']
+
 class UnpackingError(Exception):
     pass
 
@@ -13,7 +16,7 @@ def getunpackers():
     unpackers = []
     interface = ['unpack', 'detect', 'PRIORITY']
     for importer, modname, ispkg in pkgutil.iter_modules(path, prefix): #onerror
-        if 'tests' not in modname:
+        if 'tests' not in modname and modname not in BLACKLIST:
             try:
                 module = __import__(modname, fromlist=interface)
             except ImportError:
