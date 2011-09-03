@@ -11,6 +11,9 @@
 # some_string = urlencode.unpack(some_string)
 #
 
+"""Bookmarklet/escaped script unpacker."""
+
+# Python 2 retrocompatibility
 try:
     from urllib import unquote_plus
 except ImportError:
@@ -19,9 +22,11 @@ except ImportError:
 PRIORITY = 0
 
 def detect(code):
+    """Detects if a scriptlet is urlencoded."""
     # the fact that script doesn't contain any space, but has %20 instead
     # should be sufficient check for now.
     return ' ' not in code and ('%20' in code or code.count('%') > 3)
 
 def unpack(code):
+    """URL decode `code` source string."""
     return unquote_plus(code) if detect(code) else code

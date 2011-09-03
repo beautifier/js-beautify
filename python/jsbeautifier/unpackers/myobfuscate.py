@@ -1,8 +1,8 @@
 #
-# simple unpacker/deobfuscator for scripts messed up with myobfuscate.com
+# deobfuscator for scripts messed up with myobfuscate.com
 # by Einar Lielmanis <einar@jsbeautifier.org>
 #
-#     written in Python by Stefano Sanfilippo <a.little.coder@gmail.com>
+#     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 # usage:
 #
@@ -10,7 +10,7 @@
 #     unpacked = unpack(some_string)
 #
 
-# CAVEAT
+# CAVEAT by Einar Lielmanis
 #
 # You really don't want to obfuscate your scripts there: they're tracking
 # your unpackings, your script gets turned into something like this,
@@ -25,6 +25,8 @@
 #   000.appendChild(_111);
 #   document.write(unescape(_escape));
 #
+
+"""Deobfuscator for scripts messed up with MyObfuscate.com"""
 
 import re
 import base64
@@ -55,17 +57,21 @@ SIGNATURE = (r'["\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F'
              r'\x6C\x65\x6E\x67\x74\x68"]')
 
 def detect(source):
+    """Detects MyObfuscate.com packer."""
     return SIGNATURE in source
 
 def unpack(source):
+    """Unpacks js code packed with MyObfuscate.com"""
     if not detect(source):
         return source
     payload = unquote(_filter(source))
-    match = re.search(r"^var _escape\='<script>(.*)<\/script>'", payload, re.DOTALL)
+    match = re.search(r"^var _escape\='<script>(.*)<\/script>'",
+                      payload, re.DOTALL)
     polished = match.group(1) if match else source
     return CAVEAT + polished
 
 def _filter(source):
+    """Extracts and decode payload (original file) from `source`"""
     try:
         varname = re.search(r'eval\(\w+\(\w+\((\w+)\)\)\);', source).group(1)
         reverse = re.search(r"var +%s *\= *'(.*)';" % varname, source).group(1)
@@ -73,5 +79,5 @@ def _filter(source):
         raise UnpackingError('Malformed MyObfuscate data.')
     try:
         return base64.b64decode(reverse[::-1].encode('utf8')).decode('utf8')
-    except TypeError as e:
-        raise UnpackingError('Malformed MyObfuscate payload (not base64-encoded).')
+    except TypeError:
+        raise UnpackingError('MyObfuscate payload is not base64-encoded.')

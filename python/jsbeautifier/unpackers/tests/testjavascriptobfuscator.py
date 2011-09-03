@@ -1,13 +1,17 @@
 #
-# Tests for JavaScriptObfuscator unpacker
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 
+"""Tests for JavaScriptObfuscator unpacker."""
+
 import unittest
-from jsbeautifier.unpackers.javascriptobfuscator import unpack, detect, smartsplit
+from jsbeautifier.unpackers.javascriptobfuscator import (
+    unpack, detect, smartsplit)
 
 class TestJavascriptObfuscator(unittest.TestCase):
+    """JavascriptObfuscator.com test case."""
     def test_smartsplit(self):
+        """Test smartsplit() function."""
         split = smartsplit
         equals = lambda data, result: self.assertEqual(split(data), result)
 
@@ -17,10 +21,11 @@ class TestJavascriptObfuscator(unittest.TestCase):
         equals('"a", "b\\\""', ['"a"', '"b\\\""'])
 
     def test_detect(self):
-        positive = lambda source: detect(source)
-        negative = lambda source: not positive(source)
+        """Test detect() function."""
+        positive = lambda source: self.assertTrue(detect(source))
+        negative = lambda source: self.assertFalse(detect(source))
 
-        negative('');
+        negative('')
         negative('abcd')
         negative('var _0xaaaa')
         positive('var _0xaaaa = ["a", "b"]')
@@ -28,11 +33,13 @@ class TestJavascriptObfuscator(unittest.TestCase):
         positive('var _0x1234=["a","b"]')
 
     def test_unpack(self):
-        decodeto = lambda obf, original: self.assertEqual(unpack(obf), original)
+        """Test unpack() function."""
+        decodeto = lambda ob, original: self.assertEqual(unpack(ob), original)
 
         decodeto('var _0x8df3=[];var a=10;', 'var a=10;')
-        decodeto('var _0xb2a7=["\x74\x27\x65\x73\x74"];var i;for(i=0;i<10;++i){alert(_0xb2a7[0]);} ;',
-                 'var i;for(i=0;i<10;++i){alert("t\'est");} ;')
+        decodeto('var _0xb2a7=["\x74\x27\x65\x73\x74"];var i;for(i=0;i<10;++i)'
+                 '{alert(_0xb2a7[0]);} ;', 'var i;for(i=0;i<10;++i){alert'
+                 '("t\'est");} ;')
 
 if __name__ == '__main__':
     unittest.main()

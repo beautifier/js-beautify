@@ -3,19 +3,29 @@
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 
+"""General code for JSBeautifier unpackers infrastructure."""
+
+import pkgutil
+import re
+
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
 BLACKLIST = ['jsbeautifier.unpackers.evalbased']
 
 class UnpackingError(Exception):
+    """Badly packed source or general error. Argument is a
+    meaningful description."""
     pass
 
 def getunpackers():
-    import pkgutil
+    """Scans the unpackers dir, finds unpackers and add them to UNPACKERS list.
+    An unpacker will be loaded only if it is a valid python module (name must
+    adhere to naming conventions) and it is not blacklisted (i.e. inserted
+    into BLACKLIST."""
     path = __path__
     prefix = __name__ + '.'
     unpackers = []
     interface = ['unpack', 'detect', 'PRIORITY']
-    for importer, modname, ispkg in pkgutil.iter_modules(path, prefix): #onerror
+    for _importer, modname, _ispkg in pkgutil.iter_modules(path, prefix):
         if 'tests' not in modname and modname not in BLACKLIST:
             try:
                 module = __import__(modname, fromlist=interface)
@@ -26,17 +36,16 @@ def getunpackers():
 
     return sorted(unpackers, key = lambda mod: mod.PRIORITY)
 
-_unpackers = getunpackers()
+UNPACKERS = getunpackers()
 
 def run(source):
-    for unpacker in [mod for mod in _unpackers if mod.detect(source)]:
+    """Runs the applicable unpackers and return unpacked source as a string."""
+    for unpacker in [mod for mod in UNPACKERS if mod.detect(source)]:
         source = unpacker.unpack(source)
     return source
 
-# TODO see if necessary
 def filtercomments(source):
-    import re
-
+    """NOT USED: strips trailing comments and put them at the top."""
     trailing_comments = []
     comment = True
 
