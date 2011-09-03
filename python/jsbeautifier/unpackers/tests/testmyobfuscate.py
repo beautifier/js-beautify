@@ -12,7 +12,9 @@ from jsbeautifier.unpackers.tests import __path__ as path
 INPUT = os.path.join(path[0], 'test-myobfuscate-input.js')
 OUTPUT = os.path.join(path[0], 'test-myobfuscate-output.js')
 
+# pylint: disable=R0904
 class TestMyObfuscate(unittest.TestCase):
+    # pylint: disable=C0103
     """MyObfuscate obfuscator testcase."""
     @classmethod
     def setUpClass(cls):

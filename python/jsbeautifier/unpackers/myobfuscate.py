@@ -11,6 +11,7 @@
 #
 
 # CAVEAT by Einar Lielmanis
+
 #
 # You really don't want to obfuscate your scripts there: they're tracking
 # your unpackings, your script gets turned into something like this,
@@ -32,6 +33,8 @@ import re
 import base64
 
 # Python 2 retrocompatibility
+# pylint: disable=F0401
+# pylint: disable=E0611
 try:
     from urllib import unquote
 except ImportError:
