@@ -14,6 +14,8 @@
 """Bookmarklet/escaped script unpacker."""
 
 # Python 2 retrocompatibility
+# pylint: disable=F0401
+# pylint: disable=E0611
 try:
     from urllib import unquote_plus
 except ImportError:

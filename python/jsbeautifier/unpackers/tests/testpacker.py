@@ -7,6 +7,7 @@
 import unittest
 from jsbeautifier.unpackers.packer import detect, unpack
 
+# pylint: disable=R0904
 class TestPacker(unittest.TestCase):
     """P.A.C.K.E.R. testcase."""
     def test_detect(self):

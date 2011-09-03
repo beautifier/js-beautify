@@ -8,6 +8,7 @@ import unittest
 from jsbeautifier.unpackers.javascriptobfuscator import (
     unpack, detect, smartsplit)
 
+# pylint: disable=R0904
 class TestJavascriptObfuscator(unittest.TestCase):
     """JavascriptObfuscator.com test case."""
     def test_smartsplit(self):
