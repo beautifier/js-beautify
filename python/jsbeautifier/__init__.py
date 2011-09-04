@@ -1,6 +1,7 @@
 import sys
 import getopt
 import re
+import string
 
 #
 # Originally written by Einar Lielmanis et al.,
@@ -38,6 +39,7 @@ class BeautifierOptions:
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
+        self.eval_code = False
 
 
 
@@ -50,13 +52,15 @@ max_preserve_newlines = %d
 jslint_happy = %s
 brace_style = %s
 keep_array_indentation = %s
+eval_code = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
         self.max_preserve_newlines,
         self.jslint_happy,
         self.brace_style,
-        self.keep_array_indentation
+        self.keep_array_indentation,
+        self.eval_code,
         )
 
 
@@ -120,6 +124,10 @@ Output options:
  -o,  --outfile=FILE               specify a file to output to (default stdout)
 
 Rarely needed options:
+
+ --eval-code                       evaluate code if a JS interpreter is
+                                   installed. May be useful with some obfuscated
+                                   script but poses a potential security issue.
 
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
@@ -188,7 +196,7 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = self.unpack(s)
+        self.input = self.unpack(s, opts.eval_code)
 
         parser_pos = 0
         while True:
@@ -222,10 +230,10 @@ class Beautifier:
         sweet_code = self.preindent_string + re.sub('[\n ]+$', '', ''.join(self.output))
         return sweet_code
 
-    def unpack(self, source):
+    def unpack(self, source, evalcode=False):
         import jsbeautifier.unpackers as unpackers
         try:
-            return unpackers.run(source)
+            return unpackers.run(source, evalcode)
         except unpackers.UnpackingError as error:
             print('error:', error)
             return ''
@@ -869,15 +877,15 @@ class Beautifier:
         elif self.last_type == 'TK_WORD':
             self.append(' ')
 
-        # Try to replace \x-encoded characters with their readable equivalent,
+        # Try to replace readable \x-encoded characters with their equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
         try:
             token_text = token_text.encode().decode('unicode_escape')
         except UnicodeError:
             pass
 
-        self.append(token_text)
 
+        self.append(token_text)
 
     def handle_equals(self, token_text):
         if self.flags.var_line:
@@ -1056,7 +1064,7 @@ def main():
         opts, args = getopt.getopt(argv, "s:c:o:djbkil:h", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
-                                                          'usage', 'stdin'])
+                                                          'usage', 'stdin', 'eval-code'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -1073,6 +1081,8 @@ def main():
             js_options.keep_array_indentation = True
         elif opt in ('--outfile', '-o'):
             outfile = arg
+        elif opt in ('--eval-code'):
+            js_options.eval_code = True
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
@@ -1081,6 +1091,8 @@ def main():
             js_options.preserve_newlines = False
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
+        elif opt in ('--eval-code'):
+            js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
         elif opt in ('--stdin', '-i'):
