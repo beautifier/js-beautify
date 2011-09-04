@@ -5,9 +5,9 @@ where this file was found. Each unpacker must define three symbols:
 
  * `PRIORITY`       : integer number expressing the priority in applying this
                       unpacker. Lower number means higher priority.
-                      Makes sense only if a source file has been packed with more
-                      than one packer.
- * `detect(source)` : returns True if source is packed, otherwise, False.
+                      Makes sense only if a source file has been packed with
+                      more than one packer.
+ * `detect(source)` : returns `True` if source is packed, otherwise, `False`.
  * `unpack(source)` : takes a `source` string and unpacks it. Must always return
                       valid JavaScript. That is to say, your code should look
                       like:
