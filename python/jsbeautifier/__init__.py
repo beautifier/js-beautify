@@ -879,6 +879,9 @@ class Beautifier:
 
         # Try to replace readable \x-encoded characters with their equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
+        for char in string.printable:
+            token_text = token_text.replace(r'\x%x' % ord(char), char)
+            token_text = token_text.replace(r'\x%X' % ord(char), char)
 
 
         self.append(token_text)
