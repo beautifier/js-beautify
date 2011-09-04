@@ -13,6 +13,7 @@
 """Unpacker for Dean Edward's p.a.c.k.e.r"""
 
 import re
+import string
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
@@ -56,8 +57,7 @@ def _replacestrings(source):
     if match:
         varname, strings = match.groups()
         startpoint = len(match.group(0))
-        strlist = strings.decode('unicode_escape').split('","')
-        lookup = [string.decode('unicode_escape') for string in strlist]
+        lookup = strings.split('","')
         variable = '%s[%%d]' % varname
         for index, value in enumerate(lookup):
             source = source.replace(variable % index, '"%s"' % value)
