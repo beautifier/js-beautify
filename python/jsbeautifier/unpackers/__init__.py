@@ -39,7 +39,7 @@ def getunpackers():
 
 UNPACKERS = getunpackers()
 
-def run(source, evalcode):
+def run(source, evalcode=False):
     """Runs the applicable unpackers and return unpacked source as a string."""
     for unpacker in [mod for mod in UNPACKERS if mod.detect(source)]:
         source = unpacker.unpack(source)
