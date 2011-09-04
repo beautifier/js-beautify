@@ -1080,8 +1080,6 @@ def main():
             js_options.keep_array_indentation = True
         elif opt in ('--outfile', '-o'):
             outfile = arg
-        elif opt in ('--eval-code'):
-            js_options.eval_code = True
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
