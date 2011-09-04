@@ -3,6 +3,7 @@
 import sys
 import getopt
 import re
+import string
 
 #
 # Originally written by Einar Lielmanis et al.,
@@ -867,10 +868,9 @@ class Beautifier:
 
         # Try to replace \x-encoded characters with their readable equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        try:
-            token_text = token_text.encode().decode('unicode_escape')
-        except UnicodeError:
-            pass
+        for char in string.printable:
+            token_text = token_text.replace(r'\x%x' % ord(char), char)
+            token_text = token_text.replace(r'\x%X' % ord(char), char)
 
         self.append(token_text)
 
