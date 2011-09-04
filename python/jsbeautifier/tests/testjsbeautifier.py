@@ -1,10 +1,28 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import re
 import unittest
 import jsbeautifier
 
 class TestJSBeautifier(unittest.TestCase):
+    def test_unescape(self):
+        # Test cases contributed by <chrisjshull on GitHub.com>
+        test_fragment = self.decodesto
+        bt = self.bt
+
+        bt('"\\\\s"'); # == "\\s" in the js source
+        bt("'\\\\s'"); # == '\\s' in the js source
+        bt("'\\\\\\s'"); # == '\\\s' in the js source
+        bt("'\\s'"); # == '\s' in the js source
+        bt('"•"');
+        bt('"—"');
+        #bt('"\x41\x42\x43\x01"', '"ABC\\x01"');
+        bt('"\u2022"', '"\u2022"');
+        bt('a = /\s+/')
+        #bt('a = /\x41/','a = /A/')
+        bt('"\u2022";a = /\s+/;"\x41\x42\x43\x01".match(/\x41/);','"\u2022";\na = /\s+/;\n"\x41\x42\x43\x01".match(/\x41/);')
+
     def test_beautifier(self):
         test_fragment = self.decodesto
         bt = self.bt
