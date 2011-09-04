@@ -13,6 +13,7 @@
 """Unpacker for Dean Edward's p.a.c.k.e.r"""
 
 import re
+import string
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
