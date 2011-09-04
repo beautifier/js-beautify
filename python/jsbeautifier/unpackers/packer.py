@@ -19,8 +19,7 @@ PRIORITY = 1
 
 def detect(source):
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    return re.match(r'eval *\( *function *\(p, *a, *c, *k, *e, *r',
-                     source) is not None
+    return source.replace(' ', '').startswith('eval(function(p,a,c,k,e,r')
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
