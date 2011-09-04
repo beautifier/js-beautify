@@ -872,6 +872,7 @@ class Beautifier:
             token_text = token_text.replace(r'\x%x' % ord(char), char)
             token_text = token_text.replace(r'\x%X' % ord(char), char)
 
+
         self.append(token_text)
 
 
