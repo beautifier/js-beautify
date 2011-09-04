@@ -7,6 +7,7 @@
 
 import pkgutil
 import re
+from jsbeautifier.unpackers import evalbased
 
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
 BLACKLIST = ['jsbeautifier.unpackers.evalbased']
@@ -38,10 +39,12 @@ def getunpackers():
 
 UNPACKERS = getunpackers()
 
-def run(source):
+def run(source, evalcode):
     """Runs the applicable unpackers and return unpacked source as a string."""
     for unpacker in [mod for mod in UNPACKERS if mod.detect(source)]:
         source = unpacker.unpack(source)
+    if evalcode and evalbased.detect(source):
+        source = evalbased.unpack(source)
     return source
 
 def filtercomments(source):
