@@ -1,0 +1,6 @@
+#! /bin/sh
+#
+# Test suite launcher
+#
+
+env python -m unittest discover "$@"

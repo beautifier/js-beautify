@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-
 import sys
 import getopt
 import re
+import string
 
 #
 # Originally written by Einar Lielmanis et al.,
@@ -40,6 +39,7 @@ class BeautifierOptions:
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
+        self.eval_code = False
 
 
 
@@ -52,13 +52,15 @@ max_preserve_newlines = %d
 jslint_happy = %s
 brace_style = %s
 keep_array_indentation = %s
+eval_code = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
         self.max_preserve_newlines,
         self.jslint_happy,
         self.brace_style,
-        self.keep_array_indentation
+        self.keep_array_indentation,
+        self.eval_code,
         )
 
 
@@ -122,6 +124,10 @@ Output options:
  -o,  --outfile=FILE               specify a file to output to (default stdout)
 
 Rarely needed options:
+
+ --eval-code                       evaluate code if a JS interpreter is
+                                   installed. May be useful with some obfuscated
+                                   script but poses a potential security issue.
 
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
@@ -190,7 +196,7 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = s
+        self.input = self.unpack(s, opts.eval_code)
 
         parser_pos = 0
         while True:
@@ -224,7 +230,13 @@ class Beautifier:
         sweet_code = self.preindent_string + re.sub('[\n ]+$', '', ''.join(self.output))
         return sweet_code
 
-
+    def unpack(self, source, evalcode=False):
+        import jsbeautifier.unpackers as unpackers
+        try:
+            return unpackers.run(source, evalcode)
+        except unpackers.UnpackingError as error:
+            print('error:', error)
+            return ''
 
     def trim_output(self, eat_newlines = False):
         while len(self.output) \
@@ -865,15 +877,19 @@ class Beautifier:
         elif self.last_type == 'TK_WORD':
             self.append(' ')
 
-        # Try to replace \x-encoded characters with their readable equivalent,
+        # Try to replace readable \x-encoded characters with their equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        try:
-            token_text = token_text.encode().decode('unicode_escape')
-        except UnicodeError:
-            pass
+        def unescape(match):
+            block, code = match.group(0, 1)
+            char = chr(int(code, 16))
+            if block.count('\\') == 1 and char in string.printable:
+                return char
+            return block
+
+        token_text = re.sub(r'\\{1,2}x([a-f0-9]{2})', unescape, token_text,
+            flags=re.I)
 
         self.append(token_text)
-
 
     def handle_equals(self, token_text):
         if self.flags.var_line:
@@ -1052,7 +1068,7 @@ def main():
         opts, args = getopt.getopt(argv, "s:c:o:djbkil:h", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
-                                                          'usage', 'stdin'])
+                                                          'usage', 'stdin', 'eval-code'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -1077,6 +1093,8 @@ def main():
             js_options.preserve_newlines = False
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
+        elif opt in ('--eval-code'):
+            js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
         elif opt in ('--stdin', '-i'):
@@ -1084,7 +1102,7 @@ def main():
         elif opt in ('--help', '--usage', '--h'):
             return usage()
 
-    if file == None:
+    if not file:
         return usage()
     else:
         if outfile == 'stdout':
@@ -1093,9 +1111,4 @@ def main():
             f = open(outfile, 'w')
             f.write(beautify_file(file, js_options) + '\n')
             f.close()
-
-
-if __name__ == "__main__":
-    main()
-
 

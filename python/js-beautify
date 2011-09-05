@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+#
+# Stub script to run jsbeautifier
+#
+
+from jsbeautifier import main
+main()
