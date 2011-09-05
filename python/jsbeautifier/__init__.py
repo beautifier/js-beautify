@@ -880,11 +880,14 @@ class Beautifier:
         # Try to replace readable \x-encoded characters with their equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
         def unescape(match):
-            block, literal = match.group(0, 1)
-            char = chr(int(literal, 16))
-            return char if char in string.printable else block
+            block, code = match.group(0, 1)
+            char = chr(int(code, 16))
+            if block.count('\\') == 1 and char in string.printable:
+                return char
+            return block
 
-        token_text = re.sub(r'\\x([a-f0-9]{2})', unescape, token_text, flags=re.I)
+        token_text = re.sub(r'\\{1,2}x([a-f0-9]{2})', unescape, token_text,
+            flags=re.I)
 
         self.append(token_text)
 
