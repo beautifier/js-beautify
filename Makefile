@@ -37,9 +37,9 @@ publish:
 testp:
 	cd python ;\
 	echo Testing python3 ;\
-	python ./test-jsbeautifier.py ;\
+	PYTHON=python3 ./js-beautify-test ;\
 	echo Testing python2 ;\
-	python2 ./test-jsbeautifier.py
+	PYTHON=python2 ./js-beautify-test
 	echo
 
 testj:

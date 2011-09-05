@@ -3,4 +3,8 @@
 # Test suite launcher
 #
 
-env python -m unittest discover "$@"
+if [ -z $PYTHON ]; then
+    env python -m unittest discover "$@"
+else
+    env $PYTHON -m unittest discover "$@"
+fi
