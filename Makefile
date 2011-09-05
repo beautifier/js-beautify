@@ -35,9 +35,11 @@ publish:
 	lftp -c "$$SCRIPT_PUBLISH"
 
 testp:
-	echo Testing python implementation...
 	cd python ;\
-	./test-jsbeautifier.py
+	echo Testing python3 ;\
+	python ./test-jsbeautifier.py ;\
+	echo Testing python2 ;\
+	python2 ./test-jsbeautifier.py
 	echo
 
 testj:
