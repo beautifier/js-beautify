@@ -868,11 +868,12 @@ class Beautifier:
 
         # Try to replace \x-encoded characters with their readable equivalent,
         # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        if r'\x' in token_text:
-            for char in string.printable:
-                token_text = token_text.replace(r'\x%x' % ord(char), char)
-                token_text = token_text.replace(r'\x%X' % ord(char), char)
+        def unescape(match):
+            block, literal = match.group(0, 1)
+            char = chr(int(literal, 16))
+            return char if char in string.printable else block
 
+        token_text = re.sub(r'\\x([a-f0-9]{2})', unescape, token_text, flags=re.I)
 
         self.append(token_text)
 
