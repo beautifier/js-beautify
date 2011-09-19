@@ -22,6 +22,7 @@
     max_char (default 70)            -  maximum amount of characters per line,
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+    unformatted (default ['a'])      - list of tags, that shouldn't be reformatted
 
     e.g.
 
@@ -29,7 +30,8 @@
       'indent_size': 2,
       'indent_char': ' ',
       'max_char': 78,
-      'brace_style': 'expand'
+      'brace_style': 'expand',
+      'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u']
     });
 */
 
@@ -47,6 +49,7 @@ function style_html(html_source, options) {
   indent_character = options.indent_char || ' ';
   brace_style = options.brace_style || 'collapse';
   max_char = options.max_char || '70';
+  unformatted = options.unformatted || ['a'];
 
   function Parser() {
 
@@ -240,8 +243,8 @@ function style_html(html_source, options) {
         this.record_tag(tag_check);
         this.tag_type = 'STYLE';
       }
-      else if (tag_check === 'a') { // do not reformat the <a> links
-        var comment = this.get_unformatted('</a>', tag_complete); //...delegate to get_unformatted function
+      else if (this.Utils.in_array(tag_check, unformatted)) { // do not reformat the "unformatted" tags
+        var comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
         content.push(comment);
         this.tag_type = 'SINGLE';
       }
