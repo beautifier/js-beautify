@@ -311,10 +311,12 @@ function style_html(html_source, options) {
           }
           if (input_char === '\n' || input_char === '\r') {
             content += '\n';
+            /*  Don't change tab indention for unformatted blocks.  If using code for html editing, this will greatly affect <pre> tags if they are specified in the 'unformatted array'
             for (var i=0; i<this.indent_level; i++) {
               content += this.indent_string;
             }
             space = false; //...and make sure other indentation is erased
+            */
             this.line_char_count = 0;
             continue;
           }
