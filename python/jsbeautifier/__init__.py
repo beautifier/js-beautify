@@ -886,8 +886,7 @@ class Beautifier:
                 return char
             return block
 
-        token_text = re.sub(r'\\{1,2}x([a-f0-9]{2})', unescape, token_text,
-            flags=re.I)
+        token_text = re.sub(r'\\{1,2}x([a-fA-F0-9]{2})', unescape, token_text)
 
         self.append(token_text)
 
