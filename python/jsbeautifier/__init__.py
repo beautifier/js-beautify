@@ -1009,7 +1009,7 @@ class Beautifier:
 
         lines = token_text.replace('\x0d', '').split('\x0a')
         # all lines start with an asterisk? that's a proper box comment
-        if not any(l for l in lines[1:] if (l.lstrip())[0] != '*'):
+        if not any(l for l in lines[1:] if len((l.lstrip())) > 0 and (l.strip())[0] != '*'):
             self.append_newline()
             self.append(lines[0])
             for line in lines[1:]:
