@@ -312,12 +312,12 @@ $(function() {
 
     var default_text = "// This is just a sample script. Paste your real code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
     $('#source').val(default_text).bind('click focus', function () {
-        if (this.value == default_text) {
-            this.value = '';
+        if ($(this).val() == default_text) {
+            $(this).val('');
         }
     }).bind('blur', function () {
-        if (!this.value) {
-            this.value = default_text;
+        if ( ! $(this).val()) {
+            $(this).val(default_text);
         }
     });
     $(window).bind('keydown', function (e) {
@@ -352,7 +352,7 @@ $(function() {
           </ul>
       </fieldset>
 
-      <p><strong>Beautify, unpack or deobfuscate JavaScript.</strong>.</p>
+      <p><strong>Beautify, unpack or deobfuscate JavaScript, make JSON/JSONP readable, etc.</strong>.</p>
       <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
 
       <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
