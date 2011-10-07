@@ -398,6 +398,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
+        bt('a = <?= external() ?> ;'); # not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
+        bt('a = <%= external() %> ;');
+
     def decodesto(self, input, expectation=None):
         self.assertEqual(
             jsbeautifier.beautify(input, self.options), expectation or input)

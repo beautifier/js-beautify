@@ -443,6 +443,8 @@ function run_beautifier_tests(test_obj)
 
     test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
+    bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
+    bt('a = <%= external() %> ;');
 
     return sanitytest;
 }
