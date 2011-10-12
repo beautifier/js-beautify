@@ -7,7 +7,7 @@ setup(name='jsbeautifier',
       description='JavaScript unobfuscator and beautifier.',
       long_description=('Beautify, unpack or deobfuscate JavaScript. '
                         'Handles popular online obfuscators.'),
-      author='Einar Lielmanis et al.',
+      author='Einar Lielmanis, Stefano Sanfilippo et al.',
       author_email='einar@jsbeautifier.org',
       url='http://jsbeautifier.org',
       packages=['jsbeautifier', 'jsbeautifier.tests',
