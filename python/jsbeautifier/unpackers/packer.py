@@ -44,7 +44,7 @@ def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
     argsregex = (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\."
                  r"split\('\|'\), *(\d+), *(.*)\)\)")
-    args = re.search(argsregex, source).groups()
+    args = re.search(argsregex, source, re.DOTALL).groups()
     try:
         return args[0], args[3].split('|'), int(args[1]), int(args[2])
     except ValueError:
@@ -52,7 +52,7 @@ def _filterargs(source):
 
 def _replacestrings(source):
     """Strip string lookup table (list) and replace values in source."""
-    match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source)
+    match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source, re.DOTALL)
     if match:
         varname, strings = match.groups()
         startpoint = len(match.group(0))
