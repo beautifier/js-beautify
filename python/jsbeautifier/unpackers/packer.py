@@ -26,16 +26,18 @@ def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
     payload, symtab, radix, count = _filterargs(source)
 
-    if radix != 62:
-        raise UnpackingError('Unknown p.a.c.k.e.r. encoding.')
-
     if count != len(symtab):
         raise UnpackingError('Malformed p.a.c.k.e.r. symtab.')
+
+    try:
+        unbase = UNBASERS[radix]
+    except KeyError:
+        raise UnpackingError('Unknown p.a.c.k.e.r. encoding.')
 
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
         word  = match.group(0)
-        return symtab[unbase62(word)] or word
+        return symtab[unbase(word)] or word
 
     source = re.sub(r'\b\w+\b', lookup, payload)
     return _replacestrings(source)
@@ -74,3 +76,9 @@ def unbase62(string):
     for index, cipher in enumerate(string[::-1]):
         ret += (62 ** index) * BASE_DICT[cipher]
     return ret
+
+UNBASERS = {
+    62 : unbase62,
+    10 : int, # int() will implicitly convert base-10 strings
+    36 : lambda string: int(string, 36)
+}
