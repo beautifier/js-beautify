@@ -174,6 +174,13 @@ label {
     margin-bottom: 30px;
     line-height: 130%;
 }
+#chrome-warning {
+color: #c33;
+font-size: 11px;
+margin-right: 20px;
+line-height: 130%;
+margin-bottom: 14px;
+}
     </style>
 <script src="jquery/jquery.js"></script>
 <script src="jquery/jquery.cookie.js"></script>
@@ -312,12 +319,12 @@ $(function() {
 
     var default_text = "// This is just a sample script. Paste your real code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
     $('#source').val(default_text).bind('click focus', function () {
-        if (this.value == default_text) {
-            this.value = '';
+        if ($(this).val() == default_text) {
+            $(this).val('');
         }
     }).bind('blur', function () {
-        if (!this.value) {
-            this.value = default_text;
+        if ( ! $(this).val()) {
+            $(this).val(default_text);
         }
     });
     $(window).bind('keydown', function (e) {
@@ -352,10 +359,16 @@ $(function() {
           </ul>
       </fieldset>
 
-      <p><strong>Beautify, unpack or deobfuscate JavaScript.</strong>.</p>
-      <p>All of the source code is available on the <a href="http://github.com/einars/js-beautify">github</a>, and we have a <a href="https://github.com/einars/js-beautify/raw/master/python/jsbeautifier.py">command-line version</a> (written in python) as well.
+      <p><strong>Beautify, unpack or deobfuscate JavaScript, make JSON/JSONP readable, etc.</strong>.</p>
+
+<div id="chrome-warning">
+Beware, large texts <b>tend to mess up heavily in recent Chromes</b> for reasons yet unknown.<br>I'll look for the reason and the solution, but if you'd take a time to look into this problem as well, that would be awesome. Thanks!
+</div>
+
+      <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
 
       <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
+
       <div style="position: relative; height: 40px">
       <form style="position: absolute; left: 3px;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick">
@@ -371,23 +384,25 @@ $(function() {
 
       <li>A <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;http://jsbeautifier.org/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();"><strong>bookmarklet</strong></a> (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
 
-      <li><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
+      <li style="margin-top: 8px"><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
       <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
-      <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
-      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+      <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
+      <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
       <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
-      <li><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
-      <li><strong>gEdit</strong> <a href="http://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
+      <li style="margin-top: 12px"><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
+      <li><strong>gEdit</strong> <a href="https://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
       <li><strong>Akelpad</strong> <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">extension</a> by Infocatcher,</li>
       <li>Beautifier in <a style="font-weight: bold" href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
       <li><a style="font-weight:bold" href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-      <li><a style="font-weight:bold" href="http://www.symetronapps.com/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good.</li>
+      <li><a style="font-weight:bold" href="http://www.symetronapps.com/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good,</li>
+      <li><a style="font-weight:bold" href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>).</li>
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
       <div id="footer">
 
           <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a></p>
+          <p class="me-me-me">Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>.</p>
           <p class="contributors">with a great help of <a href="http://jason.diamond.name/weblog/">Jason&nbsp;Diamond</a>, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov,</a> Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a> and others.
           </p>
 

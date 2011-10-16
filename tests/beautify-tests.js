@@ -121,6 +121,7 @@ function run_beautifier_tests(test_obj)
     bt('a;/* comment */b;', "a; /* comment */\nb;");
     test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); // simple comments don't get touched at all
     bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
+    test_fragment('a;/**\n\nno javadoc\n*/b;', "a;\n/**\n\nno javadoc\n*/\nb;");
     bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;"); // comment blocks detected and reindented even w/o javadoc starter
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
@@ -442,6 +443,8 @@ function run_beautifier_tests(test_obj)
 
     test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
 
+    bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
+    bt('a = <%= external() %> ;');
 
     return sanitytest;
 }

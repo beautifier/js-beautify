@@ -170,7 +170,9 @@ class Beautifier:
         self.whitespace = ["\n", "\r", "\t", " "]
         self.wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
         self.digits = '0123456789'
-        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
+        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'
+        self.punct += ' <?= <? ?> <%= <% %>'
+        self.punct = self.punct.split(' ')
 
 
         # Words which always should start on a new line
@@ -886,8 +888,7 @@ class Beautifier:
                 return char
             return block
 
-        token_text = re.sub(r'\\{1,2}x([a-f0-9]{2})', unescape, token_text,
-            flags=re.I)
+        token_text = re.sub(r'\\{1,2}x([a-fA-F0-9]{2})', unescape, token_text)
 
         self.append(token_text)
 
@@ -1010,7 +1011,7 @@ class Beautifier:
 
         lines = token_text.replace('\x0d', '').split('\x0a')
         # all lines start with an asterisk? that's a proper box comment
-        if not any(l for l in lines[1:] if (l.lstrip())[0] != '*'):
+        if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
             self.append_newline()
             self.append(lines[0])
             for line in lines[1:]:

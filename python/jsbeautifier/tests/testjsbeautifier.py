@@ -73,6 +73,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a;/* comment */b;', "a; /* comment */\nb;");
         test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); # simple comments don't get touched at all
         bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
+        test_fragment('a;/**\n\nno javadoc\n*/b;', "a;\n/**\n\nno javadoc\n*/\nb;");
         bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;"); # comment blocks detected and reindented even w/o javadoc starter
 
         bt('if(a)break;', "if (a) break;");
@@ -396,6 +397,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n}\nelse {\n    // comment\n}"); # if/else statement with empty body
         bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
+
+        bt('a = <?= external() ?> ;'); # not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
+        bt('a = <%= external() %> ;');
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(
