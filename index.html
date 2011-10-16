@@ -174,13 +174,6 @@ label {
     margin-bottom: 30px;
     line-height: 130%;
 }
-#chrome-warning {
-color: #c33;
-font-size: 11px;
-margin-right: 20px;
-line-height: 130%;
-margin-bottom: 14px;
-}
     </style>
 <script src="jquery/jquery.js"></script>
 <script src="jquery/jquery.cookie.js"></script>
@@ -199,6 +192,18 @@ margin-bottom: 14px;
 var the = {
     beautify_in_progress: false
 };
+
+if (/chrome/.test(navigator.userAgent.toLowerCase())) {
+    // this dummy function alleviates Chrome large string corruption by
+    // probably shoveling the corruption bug to some other area
+    //
+    //   http://code.google.com/p/chromium/issues/detail?id=100409
+    //   http://jsbeautifier.org/chrome-bug/
+
+    String.prototype.old_charAt = String.prototype.charAt;
+    String.prototype.charAt = function (n) { return this.old_charAt(n); }
+}
+
 
 function run_tests() {
     var st = new SanityTest();
@@ -360,10 +365,6 @@ $(function() {
       </fieldset>
 
       <p><strong>Beautify, unpack or deobfuscate JavaScript, make JSON/JSONP readable, etc.</strong>.</p>
-
-<div id="chrome-warning">
-Beware, large texts <b>tend to mess up heavily in recent Chromes</b> for reasons yet unknown.<br>I'll look for the reason and the solution, but if you'd take a time to look into this problem as well, that would be awesome. Thanks!
-</div>
 
       <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
 
