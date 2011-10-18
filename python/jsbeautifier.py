@@ -3,6 +3,7 @@
 import sys
 import getopt
 import re
+import os
 
 #
 # Originally written by Einar Lielmanis et al.,
@@ -1063,6 +1064,11 @@ def main():
     outfile = 'stdout'
     if len(args) == 1:
         file = args[0]
+    elif len(args) == 0:
+        if os.isatty(0):
+            return usage()
+        else:
+            file = '-'
 
     for opt, arg in opts:
         if opt in ('--keep-array-indentation', '-k'):
