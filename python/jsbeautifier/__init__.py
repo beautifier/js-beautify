@@ -34,6 +34,7 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
+        self.tabs = False
         self.preserve_newlines = True
         self.max_preserve_newlines = 10.
         self.jslint_happy = False
@@ -50,6 +51,7 @@ indent_char = [%s]
 preserve_newlines = %s
 max_preserve_newlines = %d
 jslint_happy = %s
+tab = %s
 brace_style = %s
 keep_array_indentation = %s
 eval_code = %s
@@ -117,6 +119,7 @@ Output options:
 
  -s,  --indent-size=NUMBER         indentation size. (default 4).
  -c,  --indent-char=CHAR           character to indent with. (default space).
+ -t,  --tabs			           Indent with tabs, overrides -s and -c
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
@@ -156,8 +159,11 @@ class Beautifier:
         self.just_added_newline = False
         self.do_block_just_closed = False
 
+        if self.opts.tabs:
+            self.indent_string = "\t"
+        else:
+            self.indent_string = self.opts.indent_char * self.opts.indent_size
 
-        self.indent_string = self.opts.indent_char * self.opts.indent_size
         self.preindent_string = ''
         self.last_word = ''              # last TK_WORD seen
         self.last_type = 'TK_START_EXPR' # last token type
@@ -1066,10 +1072,10 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h:t", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
-                                                          'usage', 'stdin', 'eval-code'])
+                                                          'usage', 'stdin', 'eval-code', 'tabs'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -1090,6 +1096,8 @@ def main():
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
             js_options.indent_char = arg
+        elif opt in ('--tabs', '-t'):
+            js_options.tabs = True
         elif opt in ('--disable-preserve_newlines', '-d'):
             js_options.preserve_newlines = False
         elif opt in ('--jslint-happy', '-j'):
