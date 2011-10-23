@@ -40,6 +40,7 @@ class BeautifierOptions:
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
+        self.keep_function_indentation = False
         self.eval_code = False
 
 
@@ -125,6 +126,7 @@ Output options:
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
  -o,  --outfile=FILE               specify a file to output to (default stdout)
+ -f,  --keep-function-indentaion   Do not re-indent function bodies defined in var lines. 
 
 Rarely needed options:
 
@@ -755,7 +757,7 @@ class Beautifier:
         if token_text == 'function':
 
             if self.flags.var_line:
-                self.flags.var_line_reindented = True
+                self.flags.var_line_reindented = not self.opts.keep_function_indentation
             if (self.just_added_newline or self.last_text == ';') and self.last_text != '{':
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition
@@ -1072,10 +1074,10 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h:t", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h:t:f", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
-                                                          'usage', 'stdin', 'eval-code', 'tabs'])
+                                                          'usage', 'stdin', 'eval-code', 'tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -1090,6 +1092,8 @@ def main():
     for opt, arg in opts:
         if opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
+        if opt in ('--keep-function-indentation','-f'):
+            js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
             outfile = arg
         elif opt in ('--indent-size', '-s'):

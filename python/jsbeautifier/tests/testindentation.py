@@ -12,11 +12,16 @@ class TestJSBeautifierIndentation(unittest.TestCase):
         self.options.tabs = 1;
         test_fragment('{tabs()}', "{\n\ttabs()\n}");
 
-    # def test_function_indent(self):
-    #     test_fragment = self.decodesto
-    # 
-    #     self.options.tabs = 1;
-    #     test_fragment('var foo = function(){ bar() }();', "var foo = function(){\n\tbar()\n}();");
+    def test_function_indent(self):
+        test_fragment = self.decodesto
+    
+        self.options.tabs = 1;
+        self.options.keep_function_indentation = 1;
+        test_fragment('var foo = function(){ bar() }();', "var foo = function() {\n\tbar()\n}();");
+
+        self.options.tabs = 1;
+        self.options.keep_function_indentation = 0;
+        test_fragment('var foo = function(){ baz() }();', "var foo = function() {\n\t\tbaz()\n\t}();");
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(
