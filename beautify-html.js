@@ -47,7 +47,7 @@ function style_html(html_source, options) {
   options = options || {};
   indent_size = options.indent_size || 4;
   indent_character = options.indent_char || ' ';
-  brace_style = options.brace_style || 'collapse';
+  brace_style = options.brace_style || 'expand';
   max_char = options.max_char || '70';
   unformatted = options.unformatted || ['a'];
 
@@ -444,7 +444,10 @@ function style_html(html_source, options) {
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_END':
-        multi_parser.print_newline(true, multi_parser.output);
+        var skipNL = (multi_parser.brace_style == 'collapse' && multi_parser.last_text !== '');
+        if (!skipNL) {
+          multi_parser.print_newline(true, multi_parser.output);
+        }
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
@@ -455,7 +458,9 @@ function style_html(html_source, options) {
         break;
       case 'TK_CONTENT':
         if (multi_parser.token_text !== '') {
-          multi_parser.print_newline(false, multi_parser.output);
+            if (multi_parser.brace_style === 'expand') {
+                multi_parser.print_newline(false, multi_parser.output);
+            }
           multi_parser.print_token(multi_parser.token_text);
         }
         multi_parser.current_mode = 'TAG';
