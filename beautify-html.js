@@ -444,7 +444,11 @@ function style_html(html_source, options) {
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_END':
-        multi_parser.print_newline(true, multi_parser.output);
+        //Print new line only if the tag has content or has child tag. 
+        if ((multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text !== '')
+                || (multi_parser.output[multi_parser.output.length -1]
+                .indexOf(multi_parser.token_text.replace("</", "<").replace(">", " ")) !== 0)) 
+            multi_parser.print_newline(true, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
