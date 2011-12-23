@@ -118,25 +118,21 @@ function style_html(html_source, options) {
       return content.length?content.join(''):'';
     }
 
-    this.get_script = function () { //get the full content of a script to pass to js_beautify
-
+    this.get_contents_to = function (name) { //get the full content of a script or style to pass to js_beautify
+      if (this.pos == this.input.length) {
+        return ['', 'TK_EOF'];
+      }
       var input_char = '';
-      var content = [];
-      var reg_match = new RegExp('\<\/script' + '\>', 'igm');
+      var content = '';
+      var reg_match = new RegExp('\<\/' + name + '\\s*\>', 'igm');
       reg_match.lastIndex = this.pos;
       var reg_array = reg_match.exec(this.input);
       var end_script = reg_array?reg_array.index:this.input.length; //absolute end of script
-      while(this.pos < end_script) { //get everything in between the script tags
-        if (this.pos >= this.input.length) {
-          return content.length?content.join(''):['', 'TK_EOF'];
-        }
-
-        input_char = this.input.charAt(this.pos);
-        this.pos++;
-
-        content.push(input_char);
+      if(this.pos < end_script) { //get everything in between the script tags
+        content = this.input.substring(this.pos, end_script);
+        this.pos = end_script;
       }
-      return content.length?content.join(''):''; //we might not have any content at all
+      return content;
     }
 
     this.record_tag = function (tag){ //function to record a tag and its parent in this.tags Object
@@ -333,17 +329,13 @@ function style_html(html_source, options) {
     this.get_token = function () { //initial handler for token-retrieval
       var token;
 
-      if (this.last_token === 'TK_TAG_SCRIPT') { //check if we need to format javascript
-        var temp_token = this.get_script();
-        if (typeof temp_token !== 'string') {
-          return temp_token;
+      if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
+       var type = this.last_token.substr(7)
+       token = this.get_contents_to(type);
+        if (typeof token !== 'string') {
+          return token;
         }
-        token = js_beautify(temp_token.replace(/^[\r\n]+/, ''), {
-          'indent_size': this.indent_size,
-          'indent_char': this.indent_character,
-          'brace_style': this.brace_style
-        }); //call the JS Beautifier
-        return [token, 'TK_CONTENT'];
+        return [token, 'TK_' + type];
       }
       if (this.current_mode === 'CONTENT') {
         token = this.get_content();
@@ -367,6 +359,16 @@ function style_html(html_source, options) {
       }
     }
 
+    this.get_full_indent = function (level) {
+      if (level == null)
+        level = this.indent_level;
+      if (level < 1)
+        return '';
+            
+      return Array(level + 1).join(this.indent_string);
+    }
+    
+    
     this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
 
       this.input = js_source || ''; //gets the input for the Parser
@@ -432,12 +434,12 @@ function style_html(html_source, options) {
 
     switch (multi_parser.token_type) {
       case 'TK_TAG_START':
-      case 'TK_TAG_STYLE':
         multi_parser.print_newline(false, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.indent();
         multi_parser.current_mode = 'CONTENT';
         break;
+      case 'TK_TAG_STYLE':
       case 'TK_TAG_SCRIPT':
         multi_parser.print_newline(false, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
@@ -447,7 +449,7 @@ function style_html(html_source, options) {
         //Print new line only if the tag has no content and has child
         if ((multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '')
                && (multi_parser.output[multi_parser.output.length -1]
-                .indexOf(multi_parser.token_text.replace("</", "<").replace(">", " ")) !== 0)) 
+                .indexOf(multi_parser.token_text.replace("</", "<").replace(">", " ")) !== 0))
             multi_parser.print_newline(true, multi_parser.output);
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
@@ -460,6 +462,37 @@ function style_html(html_source, options) {
       case 'TK_CONTENT':
         if (multi_parser.token_text !== '') {
           multi_parser.print_token(multi_parser.token_text);
+        }
+        multi_parser.current_mode = 'TAG';
+        break;
+      case 'TK_STYLE':
+      case 'TK_SCRIPT':
+        if (multi_parser.token_text !== '') {
+          multi_parser.output.push('\n');
+          var text = multi_parser.token_text;
+          if (multi_parser.token_type == 'TK_SCRIPT') {
+            var _beautifier = typeof js_beautify == 'function' && js_beautify;
+          } else if (multi_parser.token_type == 'TK_STYLE') {
+            var _beautifier = typeof css_beautify == 'function' && css_beautify;
+          }
+          
+          var indentation = multi_parser.get_full_indent();
+          if (_beautifier) {
+            // call the Beautifier if avaliable
+            text = _beautifier(text.replace(/^\s*/, indentation), options);
+          } else {
+            // simply indent the string otherwise
+            var white = text.match(/^\s*/)[0];
+            var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
+            var reindent = multi_parser.get_full_indent(multi_parser.indent_level - _level);
+            text = text.replace(/^\s*/, indentation)
+                   .replace(/\r\n|\r|\n/g, '\n' + reindent)
+                   .replace(/\s*$/, '');
+          }
+          if (text) {
+            multi_parser.print_token(text);
+            multi_parser.print_newline(true, multi_parser.output);
+          }
         }
         multi_parser.current_mode = 'TAG';
         break;
