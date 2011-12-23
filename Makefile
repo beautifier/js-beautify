@@ -19,7 +19,7 @@ mirror -Rv jquery
 mirror -Rv tests
 mirror -Rv unpackers
 mirror -Rv python
-put beautify-html.js beautify.js index.html license.txt README.md
+put beautify-css.js beautify-html.js beautify.js index.html license.txt README.md
 
 endef
 export SCRIPT_PUBLISH
