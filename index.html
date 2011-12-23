@@ -179,6 +179,7 @@ label {
 <script src="jquery/jquery.cookie.js"></script>
 
 <script src="beautify.js"></script>
+<script src="beautify-css.js"></script>
 <script src="beautify-html.js"></script>
 <script src="tests/sanitytest.js"></script>
 <script src="tests/beautify-tests.js"></script>
@@ -226,7 +227,7 @@ function read_settings_from_cookie() {
     $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
     $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
     $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
-}
+    $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));}
 
 function store_settings_to_cookie() {
     var opts = { expires: 360 };
@@ -235,7 +236,7 @@ function store_settings_to_cookie() {
     $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
     $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
-}
+    $.cookie('indent-scripts', $('#indent-scripts').val(), opts);}
 
 function unpacker_filter(source) {
     var trailing_comments = '';
@@ -286,6 +287,7 @@ function beautify() {
     var indent_char = indent_size == 1 ? '\t' : ' ';
     var preserve_newlines = $('#preserve-newlines').attr('checked');
     var keep_array_indentation = $('#keep-array-indentation').attr('checked');
+    var indent_scripts = $('#indent-scripts').val();
     var brace_style = $('#brace-style').val();
 
     if ($('#detect-packers').attr('checked')) {
@@ -299,7 +301,8 @@ function beautify() {
                 preserve_newlines:preserve_newlines,
                 brace_style: brace_style,
                 keep_array_indentation:keep_array_indentation,
-                space_after_anon_function:true};
+                space_after_anon_function:true,
+                indent_scripts:indent_scripts};
 
     if (source && source[0] === '<' && source.substring(0, 4) !== comment_mark) {
         $('#source').val(
@@ -322,7 +325,15 @@ $(function() {
 
     read_settings_from_cookie();
 
-    var default_text = "// This is just a sample script. Paste your real code here.\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
+    var default_text = [
+        '\<head>\<style>',
+        '/*a css comment*/a#s .i[ sp ="true" ]{color: red;back:url(data:;");}',
+        '\<\/style ><script>',
+        "\n\n// This is just a sample script. Paste your real code here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}",
+        '\<\/script>\</head>',
+        '\<div>\<A href="as">'
+    ].join("");
+
     $('#source').val(default_text).bind('click focus', function () {
         if ($(this).val() == default_text) {
             $(this).val('');
@@ -357,6 +368,11 @@ $(function() {
             <option value="collapse">Braces with control statement</option>
             <option value="expand">Braces on own line</option>
             <option value="end-expand">End braces on own line</option>
+          </select></li>
+          <li><select id="indent-scripts">
+            <option value="keep">Keep indent level of the tag</option>
+            <option value="normal">Add one indent level</option>
+            <option value="separate">Separate indentaition</option>
           </select></li>
           <li><input class="checkbox" type="checkbox" id="preserve-newlines" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
           <li><input class="checkbox" type="checkbox" id="detect-packers" /><label for="detect-packers"> Detect packers and obfuscators?</label><br /></li>
