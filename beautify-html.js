@@ -23,6 +23,7 @@
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
     unformatted (default ['a'])      - list of tags, that shouldn't be reformatted
+    indent_scripts (default normal)  - "keep"|"separate"|"normal"
 
     e.g.
 
@@ -360,15 +361,14 @@ function style_html(html_source, options) {
     }
 
     this.get_full_indent = function (level) {
-      if (level == null)
-        level = this.indent_level;
+      level = this.indent_level + level || 0;
       if (level < 1)
         return '';
-            
+
       return Array(level + 1).join(this.indent_string);
     }
-    
-    
+
+
     this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
 
       this.input = js_source || ''; //gets the input for the Parser
@@ -475,8 +475,16 @@ function style_html(html_source, options) {
           } else if (multi_parser.token_type == 'TK_STYLE') {
             var _beautifier = typeof css_beautify == 'function' && css_beautify;
           }
-          
-          var indentation = multi_parser.get_full_indent();
+
+          if (options.indent_scripts == "keep") {
+            var script_indent_level = 0;
+          } else if (options.indent_scripts == "separate") {
+            var script_indent_level = -multi_parser.indent_level;
+          } else {
+            var script_indent_level = 1;
+          }
+
+          var indentation = multi_parser.get_full_indent(script_indent_level);
           if (_beautifier) {
             // call the Beautifier if avaliable
             text = _beautifier(text.replace(/^\s*/, indentation), options);
@@ -484,7 +492,7 @@ function style_html(html_source, options) {
             // simply indent the string otherwise
             var white = text.match(/^\s*/)[0];
             var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
-            var reindent = multi_parser.get_full_indent(multi_parser.indent_level - _level);
+            var reindent = multi_parser.get_full_indent(script_indent_level -_level);
             text = text.replace(/^\s*/, indentation)
                    .replace(/\r\n|\r|\n/g, '\n' + reindent)
                    .replace(/\s*$/, '');
