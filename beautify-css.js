@@ -128,8 +128,8 @@ function css_beautify(source_text, options) {
                 output.pop();
 
         if (output.length)
-            output.push('\n', indentString);
-        else
+            output.push('\n');
+        if (indentString)
             output.push(indentString);
     }
     print.singleSpace = function() {
