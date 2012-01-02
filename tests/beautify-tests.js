@@ -7,7 +7,8 @@ opts = {
     preserve_newlines: true,
     jslint_happy: false,
     keep_array_indentation: false,
-    brace_style: 'collapse'
+    brace_style: 'collapse',
+    space_after_operator: true
 }
 
 function test_beautifier(input)
@@ -445,6 +446,11 @@ function run_beautifier_tests(test_obj)
 
     bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
     bt('a = <%= external() %> ;');
+
+    bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment', '// func-comment\nfunction foo() {}\n\n// end-func-comment');
+
+    opts.space_after_operator = false;
+    bt('if(a) b()');
 
     return sanitytest;
 }

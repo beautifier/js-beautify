@@ -227,7 +227,9 @@ function read_settings_from_cookie() {
     $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
     $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
     $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
-    $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));}
+    $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
+    $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
+}
 
 function store_settings_to_cookie() {
     var opts = { expires: 360 };
@@ -236,7 +238,9 @@ function store_settings_to_cookie() {
     $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
     $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('indent-scripts', $('#indent-scripts').val(), opts);}
+    $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
+}
 
 function unpacker_filter(source) {
     var trailing_comments = '';
@@ -289,6 +293,7 @@ function beautify() {
     var keep_array_indentation = $('#keep-array-indentation').attr('checked');
     var indent_scripts = $('#indent-scripts').val();
     var brace_style = $('#brace-style').val();
+    var space_before_conditional = $('#space-before-conditional').attr('checked');
 
     if ($('#detect-packers').attr('checked')) {
         source = unpacker_filter(source);
@@ -302,6 +307,7 @@ function beautify() {
                 brace_style: brace_style,
                 keep_array_indentation:keep_array_indentation,
                 space_after_anon_function:true,
+                space_before_conditional: space_before_conditional,
                 indent_scripts:indent_scripts};
 
     if (source && source[0] === '<' && source.substring(0, 4) !== comment_mark) {
@@ -361,6 +367,7 @@ $(function() {
             <option value="collapse">Braces with control statement</option>
             <option value="expand">Braces on own line</option>
             <option value="end-expand">End braces on own line</option>
+            <!-- option value="expand-strict">Braces always on own line (not recommended)</option -->
           </select></li>
           <li style="padding-bottom: 10px">HTML &lt;style&gt;, &lt;script&gt; formatting:<br><select id="indent-scripts">
             <option value="keep">Keep indent level of the tag</option>
@@ -370,10 +377,11 @@ $(function() {
           <li><input class="checkbox" type="checkbox" id="preserve-newlines" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
           <li><input class="checkbox" type="checkbox" id="detect-packers" /><label for="detect-packers"> Detect packers and obfuscators?</label><br /></li>
           <li><input class="checkbox" type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
+          <li><input class="checkbox" type="checkbox" id="space-before-conditional" /><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</li>
           </ul>
       </fieldset>
 
-      <p><strong>Beautify, unpack or deobfuscate JavaScript, make JSON/JSONP readable, etc.</strong>.</p>
+      <p><strong>Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</strong>.</p>
 
       <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
 
@@ -426,7 +434,7 @@ $(function() {
 
     </div>
     <div id="beauty">
-        <button id="submit"><strong>Beautify JavaScript</strong> <em>(ctrl-enter)</em></button>
+        <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
         <fieldset id="textarea-wrap">
             <textarea id="source"></textarea>
         </fieldset>
