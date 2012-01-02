@@ -447,10 +447,12 @@ function style_html(html_source, options) {
         break;
       case 'TK_TAG_END':
         //Print new line only if the tag has no content and has child
-        if ((multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '')
-               && (multi_parser.output[multi_parser.output.length -1]
-                .indexOf(multi_parser.token_text.replace("</", "<").replace(">", " ")) !== 0))
-            multi_parser.print_newline(true, multi_parser.output);
+        if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
+            var tag_name = multi_parser.token_text.match(/\w+/)[0];
+            var tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length -1].match(/<\s*(\w+)/);
+            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name)
+                multi_parser.print_newline(true, multi_parser.output);
+        }
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
