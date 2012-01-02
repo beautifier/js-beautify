@@ -8,7 +8,7 @@ opts = {
     jslint_happy: false,
     keep_array_indentation: false,
     brace_style: 'collapse',
-    space_after_operator: true
+    space_before_conditional: true
 }
 
 function test_beautifier(input)
@@ -449,7 +449,7 @@ function run_beautifier_tests(test_obj)
 
     bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment', '// func-comment\nfunction foo() {}\n\n// end-func-comment');
 
-    opts.space_after_operator = false;
+    opts.space_before_conditional = false;
     bt('if(a) b()');
 
     return sanitytest;
