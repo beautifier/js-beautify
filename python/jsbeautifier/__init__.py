@@ -1031,7 +1031,6 @@ class Beautifier:
             if len(lines) > 1:
                 # multiline comment starts on a new line
                 self.append_newline()
-                self.trim_output()
             else:
                 # single line /* ... */ comment stays on the same line
                 self.append(' ')
