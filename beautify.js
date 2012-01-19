@@ -1154,7 +1154,6 @@ function js_beautify(js_source_text, options) {
                 if (lines.length > 1) {
                     // multiline comment block starts with a new line
                     print_newline();
-                    trim_output();
                 } else {
                     // single-line /* comment */ stays where it is
                     print_single_space();

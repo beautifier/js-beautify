@@ -449,6 +449,8 @@ function run_beautifier_tests(test_obj)
 
     bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment', '// func-comment\nfunction foo() {}\n\n// end-func-comment');
 
+    test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
+
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
