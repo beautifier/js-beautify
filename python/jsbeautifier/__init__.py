@@ -508,7 +508,7 @@ class Beautifier:
 
 
         if c == "'" or c == '"' or \
-           (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do']) or \
+           (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do', 'else']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
              sep = c

@@ -310,7 +310,7 @@ function run_beautifier_tests(test_obj)
 
 
 
-    opts.jslint_happy = true; 
+    opts.jslint_happy = true;
 
     bt('a=typeof(x)', 'a = typeof (x)');
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
@@ -443,6 +443,9 @@ function run_beautifier_tests(test_obj)
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
     test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
+
+    bt('if (foo) {}\nelse /regex/.test();');
+    // bt('if (foo) /regex/.test();'); // doesn't work, detects as a division. should it work?
 
     bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
     bt('a = <%= external() %> ;');
