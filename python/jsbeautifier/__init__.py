@@ -1074,7 +1074,7 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h:t:f", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:htf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
