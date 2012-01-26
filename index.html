@@ -263,7 +263,11 @@ function unpacker_filter(source) {
     } while (found);
 
     if (P_A_C_K_E_R.detect(source)) {
-        source = unpacker_filter(P_A_C_K_E_R.unpack(source))
+        // P.A.C.K.E.R unpacking may fail, even though it is detected
+        var unpacked = P_A_C_K_E_R.unpack(source);
+        if (unpacked != source) {
+            source = unpacker_filter(unpacked);
+        }
     }
     if (Urlencoded.detect(source)) {
         source = unpacker_filter(Urlencoded.unpack(source))
@@ -295,9 +299,6 @@ function beautify() {
     var brace_style = $('#brace-style').val();
     var space_before_conditional = $('#space-before-conditional').attr('checked');
 
-    if ($('#detect-packers').attr('checked')) {
-        source = unpacker_filter(source);
-    }
 
     var comment_mark = '<-' + '-';
     var opts = {
@@ -315,7 +316,10 @@ function beautify() {
             style_html(source, opts)
         );
     } else {
-        var v = js_beautify(unpacker_filter(source), opts);
+        if ($('#detect-packers').attr('checked')) {
+            source = unpacker_filter(source);
+        }
+        var v = js_beautify(source, opts);
         $('#source').val(v);
     }
 
