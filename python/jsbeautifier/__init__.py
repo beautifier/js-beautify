@@ -303,6 +303,10 @@ class Beautifier:
 
     def append(self, s):
         if s == ' ':
+            # do not add just a single space after the // comment, ever
+            if self.last_type == 'TK_COMMENT':
+                return self.append_newline()
+
             # make sure only single space gets drawn
             if self.flags.eat_next_space:
                 self.flags.eat_next_space = False

@@ -373,10 +373,13 @@ function run_beautifier_tests(test_obj)
     opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
+
+    bt('if (foo) //  comment\n{\n    bar();\n}');
+
+
     opts.keep_array_indentation = true;
 
-    // do not like keep_array_indentation at all
-    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n    {\n    foo: bar\n}\n];')
+    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];');
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');

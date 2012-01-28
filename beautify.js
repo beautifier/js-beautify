@@ -152,6 +152,12 @@ function js_beautify(js_source_text, options) {
 
 
     function print_single_space() {
+
+        if (last_type === 'TK_COMMENT') {
+            // no you will not print just a space after a comment
+            return print_newline(true);
+        }
+
         if (flags.eat_next_space) {
             flags.eat_next_space = false;
             return;

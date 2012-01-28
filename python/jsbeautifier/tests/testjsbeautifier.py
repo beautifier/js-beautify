@@ -330,10 +330,11 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = True;
         bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
+        bt('if (foo) //  comment\n{\n    bar();\n}');
+
         self.options.keep_array_indentation = True;
 
-        # do not like keep_array_indentation at all
-        test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n    {\n    foo: bar\n}\n];')
+        test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];')
 
 
         bt('var x = [{}\n]', 'var x = [{}\n]');
