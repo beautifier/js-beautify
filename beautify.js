@@ -920,6 +920,10 @@ function js_beautify(js_source_text, options) {
                 } else {
                     prefix = 'NEWLINE';
                 }
+
+                if (token_text === 'function' && (last_text === 'get' || last_text === 'set')) {
+                    prefix = 'SPACE';
+                }
             }
 
             if (flags.if_line && last_type === 'TK_END_EXPR') {

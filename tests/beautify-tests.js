@@ -460,6 +460,14 @@ function run_beautifier_tests(test_obj)
     bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
     bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
 
+    bt("{\n    get foo() {}\n}");
+    bt("{\n    var a = get\n    foo();\n}");
+    bt("{\n    set foo() {}\n}");
+    bt("{\n    var a = set\n    foo();\n}");
+    bt("var x = {\n    get function()\n}");
+    bt("var x = {\n    set function()\n}");
+    bt("var x = set\n\nfunction() {}");
+
     opts.space_before_conditional = false;
     bt('if(a) b()');
 

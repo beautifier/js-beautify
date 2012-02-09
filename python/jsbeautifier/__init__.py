@@ -823,6 +823,9 @@ class Beautifier:
             else:
                 prefix = 'NEWLINE'
 
+            if token_text == 'function' and self.last_text in ['get', 'set']:
+                prefix = 'SPACE'
+
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
