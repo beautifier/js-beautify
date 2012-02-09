@@ -887,7 +887,7 @@ class Beautifier:
 
 
     def handle_string(self, token_text):
-        if self.last_type in ['TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
+        if self.last_type in ['TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')

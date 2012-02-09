@@ -429,7 +429,7 @@ function js_beautify(js_source_text, options) {
                     }
                 }
                 parser_pos += 2;
-                if (inline_comment) {
+                if (inline_comment && n_newlines == 0) {
                     return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
                 } else {
                     return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
@@ -994,7 +994,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_STRING':
 
-            if (last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
+            if (last_type == 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_single_space();
@@ -1162,7 +1162,11 @@ function js_beautify(js_source_text, options) {
                     print_newline();
                 } else {
                     // single-line /* comment */ stays where it is
-                    print_single_space();
+                    if (last_type === 'TK_END_BLOCK') {
+                        print_newline();
+                    } else {
+                        print_single_space();
+                    }
 
                 }
 
@@ -1177,7 +1181,6 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_INLINE_COMMENT':
-
             print_single_space();
             print_token();
             if (is_expression(flags.mode)) {

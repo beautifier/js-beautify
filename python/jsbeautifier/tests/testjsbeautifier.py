@@ -407,6 +407,9 @@ class TestJSBeautifier(unittest.TestCase):
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 
+        bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"')
+        bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'")
+
     def decodesto(self, input, expectation=None):
         self.assertEqual(
             jsbeautifier.beautify(input, self.options), expectation or input)

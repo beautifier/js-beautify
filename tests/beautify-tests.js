@@ -457,6 +457,9 @@ function run_beautifier_tests(test_obj)
 
     test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 
+    bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
+    bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
+
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
