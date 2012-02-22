@@ -300,7 +300,6 @@ function beautify() {
     var space_before_conditional = $('#space-before-conditional').attr('checked');
 
 
-    var comment_mark = '<-' + '-';
     var opts = {
                 indent_size: indent_size,
                 indent_char: indent_char,
@@ -311,7 +310,7 @@ function beautify() {
                 space_before_conditional: space_before_conditional,
                 indent_scripts:indent_scripts};
 
-    if (source && source[0] === '<' && source.substring(0, 4) !== comment_mark) {
+    if (looks_like_html(source)) {
         $('#source').val(
             style_html(source, opts)
         );
@@ -324,6 +323,13 @@ function beautify() {
     }
 
     the.beautify_in_progress = false;
+}
+
+function looks_like_html(source)
+{
+    var trimmed = source.replace(/^[ \t\n\r]+/, '');
+    var comment_mark = '<-' + '-';
+    return (trimmed && (trimmed.substring(0, 1) === '<' || trimmed.substring(0, 4) === comment_mark));
 }
 
 $(function() {
