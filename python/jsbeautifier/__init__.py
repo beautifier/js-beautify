@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-# tested with python3.2
 import sys
 import getopt
 import re
+import string
 
 #
 # Originally written by Einar Lielmanis et al.,
@@ -35,12 +34,14 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
+        self.indent_with_tabs = False
         self.preserve_newlines = True
         self.max_preserve_newlines = 10.
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
-        self.indent_level = 0
+        self.keep_function_indentation = False
+        self.eval_code = False
 
 
 
@@ -51,17 +52,20 @@ indent_char = [%s]
 preserve_newlines = %s
 max_preserve_newlines = %d
 jslint_happy = %s
+indent_with_tabs = %s
 brace_style = %s
 keep_array_indentation = %s
-indent_level = %d
+eval_code = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
         self.max_preserve_newlines,
         self.jslint_happy,
+        self.indent_with_tabs,
         self.brace_style,
         self.keep_array_indentation,
-        self.indent_level)
+        self.eval_code,
+        )
 
 
 class BeautifierFlags:
@@ -117,13 +121,19 @@ Output options:
 
  -s,  --indent-size=NUMBER         indentation size. (default 4).
  -c,  --indent-char=CHAR           character to indent with. (default space).
+ -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
- -o,  --outfile=FILE               specify a file to output to(default stdout)
+ -o,  --outfile=FILE               specify a file to output to (default stdout)
+ -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
 
 Rarely needed options:
+
+ --eval-code                       evaluate code if a JS interpreter is
+                                   installed. May be useful with some obfuscated
+                                   script but poses a potential security issue.
 
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
@@ -152,8 +162,12 @@ class Beautifier:
         self.just_added_newline = False
         self.do_block_just_closed = False
 
+        if self.opts.indent_with_tabs:
+            self.indent_string = "\t"
+        else:
+            self.indent_string = self.opts.indent_char * self.opts.indent_size
 
-        self.indent_string = self.opts.indent_char * self.opts.indent_size
+        self.preindent_string = ''
         self.last_word = ''              # last TK_WORD seen
         self.last_type = 'TK_START_EXPR' # last token type
         self.last_text = ''              # last token text
@@ -165,7 +179,9 @@ class Beautifier:
         self.whitespace = ["\n", "\r", "\t", " "]
         self.wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
         self.digits = '0123456789'
-        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'.split(' ');
+        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'
+        self.punct += ' <?= <? ?> <%= <% %>'
+        self.punct = self.punct.split(' ')
 
 
         # Words which always should start on a new line
@@ -187,7 +203,11 @@ class Beautifier:
 
         self.blank_state()
 
-        self.input = s
+        while s and s[0] in [' ', '\t']:
+            self.preindent_string += s[0]
+            s = s[1:]
+
+        self.input = self.unpack(s, opts.eval_code)
 
         parser_pos = 0
         while True:
@@ -218,14 +238,23 @@ class Beautifier:
             self.last_type = token_type
             self.last_text = token_text
 
-        return re.sub('[\n ]+$', '', ''.join(self.output))
+        sweet_code = self.preindent_string + re.sub('[\n ]+$', '', ''.join(self.output))
+        return sweet_code
 
+    def unpack(self, source, evalcode=False):
+        import jsbeautifier.unpackers as unpackers
+        try:
+            return unpackers.run(source, evalcode)
+        except unpackers.UnpackingError as error:
+            print('error:', error)
+            return ''
 
     def trim_output(self, eat_newlines = False):
         while len(self.output) \
               and (
                   self.output[-1] == ' '\
                   or self.output[-1] == self.indent_string \
+                  or self.output[-1] == self.preindent_string \
                   or (eat_newlines and self.output[-1] in ['\n', '\r'])):
             self.output.pop()
 
@@ -237,6 +266,12 @@ class Beautifier:
     def is_expression(self, mode):
         return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]', '(EXPRESSION)']
 
+
+    def append_newline_forced(self):
+        old_array_indentation = self.opts.keep_array_indentation
+        self.opts.keep_array_indentation = False
+        self.append_newline()
+        self.opts.keep_array_indentation = old_array_indentation
 
     def append_newline(self, ignore_repeated = True):
 
@@ -256,19 +291,22 @@ class Beautifier:
             self.just_added_newline = True
             self.output.append('\n')
 
+        if self.preindent_string:
+            self.output.append(self.preindent_string)
+
         for i in range(self.flags.indentation_level):
             self.output.append(self.indent_string)
 
         if self.flags.var_line and self.flags.var_line_reindented:
-            if self.opts.indent_char == ' ':
-                # var_line always pushes 4 spaces, so that the variables would be one under another
-                self.output.append('    ')
-            else:
-                self.output.append(self.indent_string)
+            self.output.append(self.indent_string)
 
 
     def append(self, s):
         if s == ' ':
+            # do not add just a single space after the // comment, ever
+            if self.last_type == 'TK_COMMENT':
+                return self.append_newline()
+
             # make sure only single space gets drawn
             if self.flags.eat_next_space:
                 self.flags.eat_next_space = False
@@ -285,7 +323,7 @@ class Beautifier:
 
 
     def remove_indent(self):
-        if len(self.output) and self.output[-1] == self.indent_string:
+        if len(self.output) and self.output[-1] in [self.indent_string, self.preindent_string]:
             self.output.pop()
 
 
@@ -300,7 +338,7 @@ class Beautifier:
         self.flags = BeautifierFlags(mode)
 
         if len(self.flag_store) == 1:
-            self.flags.indentation_level = self.opts.indent_level
+            self.flags.indentation_level = 0
         else:
             self.flags.indentation_level = prev.indentation_level
             if prev.var_line and prev.var_line_reindented:
@@ -474,7 +512,7 @@ class Beautifier:
 
 
         if c == "'" or c == '"' or \
-           (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do']) or \
+           (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do', 'else']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
              sep = c
@@ -724,7 +762,7 @@ class Beautifier:
         if token_text == 'function':
 
             if self.flags.var_line:
-                self.flags.var_line_reindented = True
+                self.flags.var_line_reindented = not self.opts.keep_function_indentation
             if (self.just_added_newline or self.last_text == ';') and self.last_text != '{':
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition
@@ -784,6 +822,9 @@ class Beautifier:
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
+
+            if token_text == 'function' and self.last_text in ['get', 'set']:
+                prefix = 'SPACE'
 
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
@@ -849,13 +890,23 @@ class Beautifier:
 
 
     def handle_string(self, token_text):
-        if self.last_type in ['TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
+        if self.last_type in ['TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
 
-        self.append(token_text)
+        # Try to replace readable \x-encoded characters with their equivalent,
+        # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
+        def unescape(match):
+            block, code = match.group(0, 1)
+            char = chr(int(code, 16))
+            if block.count('\\') == 1 and char in string.printable:
+                return char
+            return block
 
+        token_text = re.sub(r'\\{1,2}x([a-fA-F0-9]{2})', unescape, token_text)
+
+        self.append(token_text)
 
     def handle_equals(self, token_text):
         if self.flags.var_line:
@@ -972,12 +1023,11 @@ class Beautifier:
 
 
 
-
     def handle_block_comment(self, token_text):
 
         lines = token_text.replace('\x0d', '').split('\x0a')
-        if token_text[:3] == '/**':
-            # javadoc: reformat and reindent
+        # all lines start with an asterisk? that's a proper box comment
+        if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
             self.append_newline()
             self.append(lines[0])
             for line in lines[1:]:
@@ -988,7 +1038,6 @@ class Beautifier:
             if len(lines) > 1:
                 # multiline comment starts on a new line
                 self.append_newline()
-                self.trim_output()
             else:
                 # single line /* ... */ comment stays on the same line
                 self.append(' ')
@@ -1004,7 +1053,7 @@ class Beautifier:
         if self.is_expression(self.flags.mode):
             self.append(' ')
         else:
-            self.append_newline()
+            self.append_newline_forced()
 
 
     def handle_comment(self, token_text):
@@ -1014,7 +1063,7 @@ class Beautifier:
             self.append(' ')
 
         self.append(token_text)
-        self.append_newline()
+        self.append_newline_forced()
 
 
     def handle_unknown(self, token_text):
@@ -1032,10 +1081,10 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:h", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:htf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'help',
-                                                          'usage', 'stdin'])
+                                                          'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -1043,42 +1092,43 @@ def main():
     js_options = default_options()
 
     file = None
-    outfile = sys.stdout
+    outfile = 'stdout'
     if len(args) == 1:
         file = args[0]
 
     for opt, arg in opts:
         if opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
+        if opt in ('--keep-function-indentation','-f'):
+            js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
-            outfile = open(arg, 'w')
+            outfile = arg
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
             js_options.indent_char = arg
+        elif opt in ('--indent-with-tabs', '-t'):
+            js_options.indent_with_tabs = True
         elif opt in ('--disable-preserve_newlines', '-d'):
             js_options.preserve_newlines = False
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
+        elif opt in ('--eval-code'):
+            js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
-        elif opt in ('--indent-level', '-l'):
-            js_options.indent_level = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
         elif opt in ('--help', '--usage', '--h'):
             return usage()
 
-    if file == None:
+    if not file:
         return usage()
     else:
-        print(beautify_file(file, js_options), file=outfile)
-        
-    if outfile != sys.stdout:
-        outfile.close()
-
-
-if __name__ == "__main__":
-    main()
-
+        if outfile == 'stdout':
+            print(beautify_file(file, js_options))
+        else:
+            f = open(outfile, 'w')
+            f.write(beautify_file(file, js_options) + '\n')
+            f.close()
 

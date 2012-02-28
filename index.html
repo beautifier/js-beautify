@@ -1,386 +1,463 @@
 <!DOCTYPE html>
-<!--
-
-  (c) 2006-2010: Einar Lielmanis, einars@jsbeautifier.org
-  "End braces on own line" added by Chris J. Shull, chrisjshull@gmail.com
-
--->
-<html>
+<!--[if lt IE 7]><html lang="en-us" class="ie6"><![endif]-->
+<!--[if IE 7]><html lang="en-us" class="ie7"><![endif]-->
+<!--[if IE 8]><html lang="en-us" class="ie8"><![endif]-->
+<!--[if gt IE 8]><!--><html lang="en-us"><!--<![endif]-->
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Online javascript beautifier</title>
-<script type="text/javascript">
-function add_onload_function(fn)
-{
-    var oe=window.onload;
-    window.onload = function() { if (oe) oe(); fn(); }
+    <meta charset="utf-8">
+    <title>Online JavaScript beautifier</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
 }
-add_onload_function(function() {
-
-    var tabsize = get_var('tabsize');
-    var brace_style = get_var('braces');
-    var end_braces_on_own_line = get_var('endbraces');
-    var c;
-    if (tabsize) {
-        document.getElementById('tabsize').value = tabsize;
-    }
-    if (brace_style) {
-        if (brace_style===true)
-            brace_style = "expand";
-        document.getElementById('brace-style').value = brace_style;
-    }
-
-    if (get_var('test')) {
-        run_tests();
-    } else {
-        c = document.forms[0].content;
-        c && c.setSelectionRange && c.setSelectionRange(0, 0);
-        c && c.focus && c.focus();
-    }
-
-});
-
-function trim_leading_comments(str)
-{
-    // very basic. doesn't support /* ... */
-    str = str.replace(/^(\s*\/\/[^\n]*\n)+/, '');
-    str = str.replace(/^\s+/, '');
-    return str;
+.ie6 div {
+    display: none
 }
-
-function unpacker_filter(source)
-{
-
-    if (document.getElementById('detect-packers').checked) {
-
-        var stripped_source = trim_leading_comments(source);
-        var unpacked = '';
-
-        if (P_A_C_K_E_R.detect(stripped_source)) {
-            unpacked = P_A_C_K_E_R.unpack(stripped_source);
-            if (unpacked !== stripped_source) {
-                return unpacker_filter(unpacked);
-            }
-        }
-
-        if (Urlencoded.detect(source)) {
-            unpacked = Urlencoded.unpack(source);
-            if (unpacked !== stripped_source) {
-                return unpacker_filter(unpacked);
-            }
-        }
-
-        if (JavascriptObfuscator.detect(stripped_source)) {
-            unpacked = JavascriptObfuscator.unpack(stripped_source);
-            if (unpacked !== stripped_source) {
-                return unpacker_filter(unpacked);
-            }
-        }
-
-        if (MyObfuscate.detect(stripped_source)) {
-            unpacked = MyObfuscate.unpack(stripped_source);
-            if (unpacked !== stripped_source) {
-                return unpacker_filter(unpacked);
-            }
-        }
-    }
-    return source;
-
+.ie6 #ie6-go-away {
+    display: block !important;
+}
+img {
+    border: 0;
+    display: block;
+    vertical-align: baseline;
+}
+#blurb {
+    width: 260px;
+    float: right;
+}
+#beauty {
+    border-top: 1px solid #f6f6f6;
+    margin-left: 5px;
+    margin-right: 270px;
+}
+body {
+    background: #eee;
+}
+body, button, select, label {
+    font:13px/1.231 arial, sans-serif;
+    *font-size:small;
+}
+select, label {
+    font-size: 12px;
+}
+body, html {
+    height: 100%;
+    color: #333;
+}
+textarea {
+    color: #444;
+    height: 100%;
+    width: 100%;
+    border: 0;
+    font-family: Monaco, Consolas, monospace;
+}
+.ie7 fieldset#textarea-wrap {
+    padding: 5px 0;
+}
+.ie8 fieldset#textarea-wrap {
+    padding: 5px 0 0 5px;
 }
 
-function do_js_beautify()
-{
-    document.getElementById('beautify').disabled = true;
-    var js_source = document.getElementById('content').value.replace(/^\s+/, '');
-    var indent_size = document.getElementById('tabsize').value;
-    var indent_char = ' ';
-    var preserve_newlines = document.getElementById('preserve-newlines').checked;
-    var keep_array_indentation = document.getElementById('keep-array-indentation').checked;
-    var brace_style = document.getElementById('brace-style').value;
+fieldset {
+    border: 0;
+}
+ul, li {
+    list-style: none;
+}
+a {
+    color: #36d;
+}
 
-    if (indent_size == 1) {
-        indent_char = '\t';
-    }
+fieldset#textarea-wrap {
+    height: auto;
+    position: absolute;
+    background: white;
+    left: 0;
+    top: 0px;
+    right: 0;
+    bottom: 0;
+    display: block;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-right: 270px;
+    margin-top: 40px;
+    border: 1px solid #ccc;
+    border-right: 1px solid #666;
+    border-bottom: 1px solid #666;
+    padding: 5px;
+}
+button#submit {
+    margin-top: 5px;
+    height: 30px;
+    line-height: 28px;
+    width: 100%;
+    border: 1px solid #aaa;
+    border-left: 1px solid #666;
+    border-top: 1px solid #666;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
+    background: #ccc;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#CCCCCC));
+    background-image: -webkit-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:    -moz-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:     -ms-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:      -o-linear-gradient(top, #EEEEEE, #CCCCCC);
+    background-image:         linear-gradient(top, #EEEEEE, #CCCCCC);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#EEEEEE', EndColorStr='#CCCCCC');
+    cursor: pointer;
+    color: #444;
+}
+button#submit em {
+    font-size: 11px;
+    font-style: normal;
+    color: #999;
+}
 
+label {
+    cursor: pointer;
+}
 
-    if (js_source && js_source[0] === '<' && js_source.substring(0, 4) !== '<!' + '-' + '-') {
-        document.getElementById('content').value = style_html(js_source, indent_size, indent_char, 80, brace_style);
-    } else {
-        document.getElementById('content').value =
-        js_beautify(unpacker_filter(js_source), {
-            indent_size: indent_size,
-            indent_char: indent_char,
-            preserve_newlines:preserve_newlines,
-            brace_style: brace_style,
-            keep_array_indentation:keep_array_indentation,
-            space_after_anon_function:true});
-    }
+#options {
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+#options li {
+    margin-bottom: 4px;
+    font-size: 90%;
+}
+#options select {
+    font:13px/1.231 arial, sans-serif;
+    padding: 0 5px;
+    width: 220px;
+}
+#tabsize {
+    margin-top: 2px;
+}
+#brace-style {
+    margin-bottom: 6px;
+}
 
-    document.getElementById('beautify').disabled = false;
-    return false;
+#blurb h2 {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+}
+#blurb p {
+    line-height: 140%;
+    font-size: 11px;
+    margin-right: 16px;
+    margin-bottom: 11px;
+}
+
+#footer {
+    font-size: 11px;
+    line-height: 140%;
+}
+
+#blurb p.me-me-me {
+    margin-bottom: 4px;
+}
+#blurb p.contributors {
+    color: #666;
+}
+#blurb #uses li {
+    font-size: 11px;
+    margin-bottom: 4px;
+    margin-right: 4px;
+}
+#blurb #uses li.writeme {
+    font-style: normal;
+    color: #888;
+    margin-bottom: 30px;
+    line-height: 130%;
+}
+    </style>
+<script src="jquery/jquery.js"></script>
+<script src="jquery/jquery.cookie.js"></script>
+
+<script src="beautify.js"></script>
+<script src="beautify-css.js"></script>
+<script src="beautify-html.js"></script>
+<script src="tests/sanitytest.js"></script>
+<script src="tests/beautify-tests.js"></script>
+<script src="unpackers/javascriptobfuscator_unpacker.js"></script>
+<script src="unpackers/urlencode_unpacker.js"></script>
+<script src="unpackers/p_a_c_k_e_r_unpacker.js"></script>
+<script src="unpackers/myobfuscate_unpacker.js"></script>
+
+<script>
+
+var the = {
+    beautify_in_progress: false
+};
+
+if (/chrome/.test(navigator.userAgent.toLowerCase())) {
+    // this dummy function alleviates Chrome large string corruption by
+    // probably shoveling the corruption bug to some other area
+    //
+    //   http://code.google.com/p/chromium/issues/detail?id=100409
+    //   http://jsbeautifier.org/chrome-bug/
+
+    String.prototype.old_charAt = String.prototype.charAt;
+    String.prototype.charAt = function (n) { return this.old_charAt(n); }
 }
 
 
-function get_var( name )
-{
-    var res = new RegExp( "[\\?&]" + name + "=([^&#]*)" ).exec( window.location.href );
-    return res ? res[1] : "";
-}
-
-function run_tests()
-{
+function run_tests() {
     var st = new SanityTest();
     run_beautifier_tests(st);
     JavascriptObfuscator.run_tests(st);
     P_A_C_K_E_R.run_tests(st);
     Urlencoded.run_tests(st);
     MyObfuscate.run_tests(st);
-
-    document.getElementById('testresults').style.display='block';
-    document.getElementById('testresults').innerHTML=st.results();
+    $('#testresults').html(st.results()).show();
 }
 
+
+function any(a, b) {
+    return a || b;
+}
+
+function read_settings_from_cookie() {
+    $('#tabsize').val(any($.cookie('tabsize'), '4'));
+    $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
+    $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
+    $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
+    $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
+    $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
+    $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
+}
+
+function store_settings_to_cookie() {
+    var opts = { expires: 360 };
+    $.cookie('tabsize', $('#tabsize').val(), opts);
+    $.cookie('brace-style', $('#brace-style').val(), opts);
+    $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
+}
+
+function unpacker_filter(source) {
+    var trailing_comments = '';
+    var comment = '';
+    var found = false;
+
+    do {
+        found = false;
+        if (/^\s*\/\*/.test(source)) {
+            found = true;
+            comment = source.substr(0, source.indexOf('*/') + 2);
+            source = source.substr(comment.length).replace(/^\s+/, '');
+            trailing_comments += comment + "\n";
+        } else if (/^\s*\/\//.test(source)) {
+            found = true;
+            comment = source.match(/^\s*\/\/.*/)[0];
+            source = source.substr(comment.length).replace(/^\s+/, '');
+            trailing_comments += comment + "\n";
+        }
+    } while (found);
+
+    if (P_A_C_K_E_R.detect(source)) {
+        // P.A.C.K.E.R unpacking may fail, even though it is detected
+        var unpacked = P_A_C_K_E_R.unpack(source);
+        if (unpacked != source) {
+            source = unpacker_filter(unpacked);
+        }
+    }
+    if (Urlencoded.detect(source)) {
+        source = unpacker_filter(Urlencoded.unpack(source))
+    }
+    if (JavascriptObfuscator.detect(source)) {
+        source = unpacker_filter(JavascriptObfuscator.unpack(source))
+    }
+    if (MyObfuscate.detect(source)) {
+        source = unpacker_filter(MyObfuscate.unpack(source))
+    }
+
+    return trailing_comments + source;
+}
+
+
+function beautify() {
+    if (the.beautify_in_progress) return;
+
+    store_settings_to_cookie();
+
+    the.beautify_in_progress = true;
+
+    var source = $('#source').val();
+    var indent_size = $('#tabsize').val();
+    var indent_char = indent_size == 1 ? '\t' : ' ';
+    var preserve_newlines = $('#preserve-newlines').attr('checked');
+    var keep_array_indentation = $('#keep-array-indentation').attr('checked');
+    var indent_scripts = $('#indent-scripts').val();
+    var brace_style = $('#brace-style').val();
+    var space_before_conditional = $('#space-before-conditional').attr('checked');
+
+
+    var opts = {
+                indent_size: indent_size,
+                indent_char: indent_char,
+                preserve_newlines:preserve_newlines,
+                brace_style: brace_style,
+                keep_array_indentation:keep_array_indentation,
+                space_after_anon_function:true,
+                space_before_conditional: space_before_conditional,
+                indent_scripts:indent_scripts};
+
+    if (looks_like_html(source)) {
+        $('#source').val(
+            style_html(source, opts)
+        );
+    } else {
+        if ($('#detect-packers').attr('checked')) {
+            source = unpacker_filter(source);
+        }
+        var v = js_beautify(source, opts);
+        $('#source').val(v);
+    }
+
+    the.beautify_in_progress = false;
+}
+
+function looks_like_html(source)
+{
+    var trimmed = source.replace(/^[ \t\n\r]+/, '');
+    var comment_mark = '<-' + '-';
+    return (trimmed && (trimmed.substring(0, 1) === '<' || trimmed.substring(0, 4) === comment_mark));
+}
+
+$(function() {
+
+    if ($.browser.msie) {
+        $('#source').width( $('#textarea-wrap').width() - 10)
+                    .height($('#textarea-wrap').height() - 10);
+    }
+
+    read_settings_from_cookie();
+
+    var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
+
+    $('#source').val(default_text).bind('click focus', function () {
+        if ($(this).val() == default_text) {
+            $(this).val('');
+        }
+    }).bind('blur', function () {
+        if ( ! $(this).val()) {
+            $(this).val(default_text);
+        }
+    });
+    $(window).bind('keydown', function (e) {
+        if (e.ctrlKey && e.keyCode == 13) {
+            beautify();
+        }
+    })
+    $('#submit').bind('click', beautify);
+    $('select').bind('change', beautify);
+});
 </script>
-<script type="text/javascript" src="beautify.js" ></script>
-<script type="text/javascript" src="beautify-html.js" ></script>
-<script type="text/javascript" src="tests/sanitytest.js" ></script>
-<script type="text/javascript" src="tests/beautify-tests.js" ></script>
-<script type="text/javascript" src="unpackers/javascriptobfuscator_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/urlencode_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/p_a_c_k_e_r_unpacker.js" ></script>
-<script type="text/javascript" src="unpackers/myobfuscate_unpacker.js" ></script>
-
-<style type="text/css">
-/* I guess I need a CSS beautifer as well */
-* {
-    margin: 0;
-    padding: 0;
-}
-img {
-    border: 0;
-}
-div#wrap {
-    padding: 0 15px;
-}
-
-textarea {
-    width: 100%;
-    height: 320px;
-    border: 0;
-}
-h1 {
-    font-family: "trebuchet ms", arial, sans-serif;
-    font-weight: normal;
-    font-size: 28px;
-    color: #666;
-    margin: 10px 10px 5px 0px;
-}
-a {
-    color: #36d;
-}
-select {
-    width: 190px;
-}
-button {
-    width: 100%;
-    padding: 3px 5px;
-    cursor: pointer;
-    bordeR: 1px solid #ccc;
-    border-bottom: 1px solid #999;
-    border-right: 1px solid #999;
-    margin-top: 2px;
-    background-color: #eee;
-}
-body {
-    font: 14px "myriad web", verdana, arial, helvetica, sans-serif;
-}
-body, label, button, select {
-    font-family: arial, helvetica, sans-serif;
-    color: #222;
-}
-textarea, pre, span.code {
-    font-size: 12px;
-    font-family: consolas, Terminus, "lucida console", "courier new", courier, monospace;
-    color: #333;
-}
-a#signature {
-    background: url(http://spicausis.lv/spic-sign-blog.png) no-repeat bottom right;
-    display:block;
-    width: 15px;
-    height: 21px;
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
-}
-h2, h3 {
-    color: #333;
-    font-size: 12px;
-    margin-top: 12px;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
-h3 {
-    font-weight: normal;
-}
-p {
-    line-height: 150%;
-    margin: 0 0 8px 0;
-}
-div#footer {
-    clear: both;
-    margin: 20px 0 0 0;
-    font-size: 11px;
-    border-top: 1px solid #ddd;
-    padding-top: 16px;
-}
-label {
-    cursor: pointer;
-}
-fieldset {
-    border: 0;
-    padding: 0;
-}
-fieldset#textarea div {
-    border: 1px solid #ccc;
-    padding: 3px;
-}
-fieldset#options {
-    width: 200px;
-    margin-left: 10px;
-    float: right;
-}
-fieldset#options h2 {
-    margin-top: 0;
-}
-fieldset ul {
-    list-style: none;
-}
-fieldset li {
-    margin-bottom: 6px;
-}
-fieldset#textarea {
-    text-align: right;
-
-}
-pre {
-    margin: 10px 0;
-}
-
-div.bottom {
-    margin-right: 200px;
-}
-
-div#bottom-left {
-    float: left;
-    width: 48%;
-    font-size: 12px;
-}
-div#bottom-right {
-    float: left;
-    margin-left: 20px;
-    width: 48%;
-    font-size: 12px;
-}
-
-.FlattrButton {
-    margin: 0 4px;
-}
-.FlattrButton  img {
-    border: 0;
-}
-
-</style>
 </head>
 <body>
-  <div id="wrap">
-  <h1>Javascript unpacker and beautifier</h1>
-  <form method="post" action="?">
+    <div id="blurb">
       <fieldset id="options">
-          <h2>Options</h2>
           <ul>
           <li><select name="tabsize" id="tabsize">
             <option value="1">indent with a tab character</option>
             <option value="2">indent with 2 spaces</option>
             <option value="3">indent with 3 spaces</option>
-            <option value="4" selected="selected">indent with 4 spaces</option>
+            <option value="4">indent with 4 spaces</option>
             <option value="8">indent with 8 spaces</option>
           </select></li>
           <li><select id="brace-style">
             <option value="collapse">Braces with control statement</option>
             <option value="expand">Braces on own line</option>
             <option value="end-expand">End braces on own line</option>
+            <!-- option value="expand-strict">Braces always on own line (not recommended)</option -->
           </select></li>
-          <li><input type="checkbox" id="preserve-newlines" checked="checked" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
-          <li><input type="checkbox" id="detect-packers" checked="checked" /><label for="detect-packers"> Detect packers?</label><br /></li>
-          <li><input type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
+          <li style="padding-bottom: 10px">HTML &lt;style&gt;, &lt;script&gt; formatting:<br><select id="indent-scripts">
+            <option value="keep">Keep indent level of the tag</option>
+            <option value="normal">Add one indent level</option>
+            <option value="separate">Separate indentation</option>
+          </select></li>
+          <li><input class="checkbox" type="checkbox" id="preserve-newlines" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
+          <li><input class="checkbox" type="checkbox" id="detect-packers" /><label for="detect-packers"> Detect packers and obfuscators?</label><br /></li>
+          <li><input class="checkbox" type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
+          <li><input class="checkbox" type="checkbox" id="space-before-conditional" /><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</li>
           </ul>
       </fieldset>
-      <fieldset id="textarea">
-      <div><textarea rows="30" cols="30" name="content" id="content">
-/*   paste in your code and press Beautify button   */
-if('this_is'==/an_example/){do_something();}else{var a=b?(c%d):e[f];}
-</textarea></div>
-      <button onclick="return do_js_beautify()" id="beautify">Beautify</button>
-</fieldset>
-  </form>
-      <div class="bottom">
-      <div id="bottom-left">
-      <p style="margin-top: 10px; color: #113; border: 1px solid #cce; padding: 5px; background:#f8f8f8">This beautifier will reformat and reindent bookmarklets, ugly javascript, unpack scripts packed by
-      the popular <a href="http://dean.edwards.name/packer/">Dean Edward's packer,</a> as well as deobfuscate scripts
-      processed by javascriptobfuscator.com.</p>
-      <p>The source code for the latest version is always available on <a
-      href="http://github.com/einars/js-beautify">github</a>, and you can download the beautifier for
-      local use (<a href="http://github.com/einars/js-beautify/zipball/master">zip</a>, <a href="http://github.com/einars/js-beautify/tarball/master">tar.gz</a>) as well.</p>
-      <h2>Formatting from command-line</h2>
-      <p>For the sake of the glittery unicorns, finally it is here: <a style="color: #c33" href="python/jsbeautifier.py">jsbeautifier.py</a> (<a href="https://github.com/einars/js-beautify/tree/master/python">github</a>), enjoy! You can also use it as a library module.</p>
-      <h2>Support</h2>
-      <p>The beautifier is — and always will be — completely free and open, so donating is a wonderful thing to do and it will probably make you feel good and warm inside.
-      <form style="float: left; margin-left: 10px" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+
+      <p><strong>Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</strong>.</p>
+
+      <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
+
+      <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
+
+      <div style="position: relative; height: 40px">
+      <form style="position: absolute; left: 3px;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick">
         <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
         <input style="border:0" type="image" src="http://spicausis.lv/misc/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
         <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
       </form>
-      <p style="float:left; padding-top: 2px; margin-left: 3px; "><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
-      <div style="clear:both; height: 1px; overflow:hidden;">&nbsp;</div>
-      <p>If you find some problems with the generated javascript, adapt the script for your favorite editor, or want to say "hi", my email is <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>.</p>
-      <p style="color: #363"><i>Are you doing something neat using the beautifier? Tell me about that, and I'll include a link here!</i></p>
-
+      <p style="position: absolute; left: 120px; top: 1px"><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
       </div>
 
-      <div id="bottom-right">
-      <h2>Chrome extension</h2>
-      <p>There are two extensions for Chrome: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix, and <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful Javascript</a> by Will McSweeney.</p>
-      <h2>Safari extension</h2>
-      <p>Sandro Padin has written an extension for the Safari browser. Visit its page and download the extension here: <a href="http://spadin.github.com/js-beautify-safari-extension">http://spadin.github.com/js-beautify-safari-extension</a></p>
-      <h2>Opera extension</h2>
-      <p>Dither converted this into an addon for Opera called "readable javascript" — you can install it from <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">addons.opera.com</a>, or visit <a href="https://github.com/Dither/readable-javascript">its github project page</a>.</p>
-      <h3><a href="http://fiddler2.com/">Fiddler</a></h3>
-      <p>This popular web debugging proxy for Windows has a <a href="http://fiddler2.com/Fiddler2/extensions.asp">Javascript Formatter addon</a> (based on this beautifier) which can reformat javascript on the fly.</p>
-      <h3>Other editors</h3>
-      <p>Fabio Nagao has written some <a href="http://github.com/nagaozen/gedit-tunnings/">tips for the gEdit users,</a> among them he tells how to integrate the beautifier into this editor. Infocatcher wrote <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">an extension</a> for <a href="http://akelpad.sourceforge.net/en/index.php">AkelPad</a>, a small text editor for Windows.</p>
-      <p>If you're writing javascript code, <a href="http://jslint.com/">JSLint</a> is a really fine piece of software, too. You don't have to follow its recommendations blindly, but understanding what it says about your code can greatly improve your skills.</p>
-      </div>
-      </div>
+      <p>Browser extensions and other uses:</p>
+      <ul id="uses">
+
+      <li>A <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;http://jsbeautifier.org/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();"><strong>bookmarklet</strong></a> (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
+
+      <li style="margin-top: 8px"><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
+      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
+      <li style="margin-top: 8px"><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy,<br>to be used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
+      <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
+      <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+      <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
+      <li style="margin-top: 12px"><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
+      <li><strong>gEdit</strong> <a href="https://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
+      <li><strong>Akelpad</strong> <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">extension</a> by Infocatcher,</li>
+      <li>Beautifier in <a style="font-weight: bold" href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
+      <li><a style="font-weight:bold" href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
+      <li><a style="font-weight:bold" href="http://www.symetronapps.com/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good,</li>
+      <li><a style="font-weight:bold" href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>).</li>
+      <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
+      </ul>
+
       <div id="footer">
-          <a href="#" style="border-bottom: 1px dashed #36d; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
-          <br />
+
+          <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a></p>
+          <p class="me-me-me">Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>.</p>
+          <p class="contributors">with a great help of <a href="http://jason.diamond.name/weblog/">Jason&nbsp;Diamond</a>, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov,</a> Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a> and others.
+          </p>
+
+          <p style="text-align:right">
+          <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
+          </p>
           <pre id="testresults"></pre>
-          Written by <a href="mailto:einar@jsbeautifier.org">Einar Lielmanis</a>, with the help of <a href="http://jason.diamond.name/weblog/">Jason Diamond</a>, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital Batmanov,</a> Ron Baldwin, Gabriel Harrison, <a href="http://shullian.com">Chris J. Shull</a> and others.
 
       </div>
-</div>
-<a id="signature" href="http://spicausis.lv/"></a>
 
-<script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
-<script type="text/javascript">
-if (window._gat) {
-    var tracker = _gat._getTracker("UA-7409939-1");
-    if (tracker && tracker._trackPageview) {
-        tracker._trackPageview();
-    }
-}
-</script>
+    </div>
+    <div id="beauty">
+        <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+        <fieldset id="textarea-wrap">
+            <textarea id="source"></textarea>
+        </fieldset>
+    </div>
+    <p id="ie6-go-away" style="display:none">IE6. You must be kidding me.</p>
+    <script>
+        var _gaq = [['_setAccount', 'UA-7409939-1'], ['_trackPageview']];
+        (function(d, t) {
+            var g = d.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = '//www.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g, s);
+        }(document, 'script'));
+    </script>
 </body>
 </html>

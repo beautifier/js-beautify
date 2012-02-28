@@ -7,7 +7,8 @@ opts = {
     preserve_newlines: true,
     jslint_happy: false,
     keep_array_indentation: false,
-    brace_style: 'collapse'
+    brace_style: 'collapse',
+    space_before_conditional: true
 }
 
 function test_beautifier(input)
@@ -77,6 +78,7 @@ function run_beautifier_tests(test_obj)
 
     bt('');
     bt('return .5');
+    test_fragment('    return .5');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
@@ -120,6 +122,8 @@ function run_beautifier_tests(test_obj)
     bt('a;/* comment */b;', "a; /* comment */\nb;");
     test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); // simple comments don't get touched at all
     bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
+    test_fragment('a;/**\n\nno javadoc\n*/b;', "a;\n/**\n\nno javadoc\n*/\nb;");
+    bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;"); // comment blocks detected and reindented even w/o javadoc starter
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
     bt('if((a))foo();', 'if ((a)) foo();');
@@ -281,7 +285,6 @@ function run_beautifier_tests(test_obj)
 
     // javadoc comment
     bt('/**\n* foo\n*/', '/**\n * foo\n */');
-    bt('    /**\n     * foo\n     */', '/**\n * foo\n */');
     bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
     bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
@@ -307,7 +310,7 @@ function run_beautifier_tests(test_obj)
 
 
 
-    opts.jslint_happy = true; 
+    opts.jslint_happy = true;
 
     bt('a=typeof(x)', 'a = typeof (x)');
     bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
@@ -339,7 +342,7 @@ function run_beautifier_tests(test_obj)
     opts.indent_char = ' ';
     bt('{ one_char() }', "{\n one_char()\n}");
 
-    bt('var a,b=1,c=2', 'var a, b = 1,\n    c = 2');
+    bt('var a,b=1,c=2', 'var a, b = 1,\n c = 2');
 
     opts.indent_size = 4;
     opts.indent_char = ' ';
@@ -370,7 +373,13 @@ function run_beautifier_tests(test_obj)
     opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
 
+
+    bt('if (foo) //  comment\n{\n    bar();\n}');
+
+
     opts.keep_array_indentation = true;
+
+    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];');
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
@@ -436,6 +445,31 @@ function run_beautifier_tests(test_obj)
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
+    test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
+
+    bt('if (foo) {}\nelse /regex/.test();');
+    // bt('if (foo) /regex/.test();'); // doesn't work, detects as a division. should it work?
+
+    bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
+    bt('a = <%= external() %> ;');
+
+    bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment', '// func-comment\nfunction foo() {}\n\n// end-func-comment');
+
+    test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
+
+    bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
+    bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
+
+    bt("{\n    get foo() {}\n}");
+    bt("{\n    var a = get\n    foo();\n}");
+    bt("{\n    set foo() {}\n}");
+    bt("{\n    var a = set\n    foo();\n}");
+    bt("var x = {\n    get function()\n}");
+    bt("var x = {\n    set function()\n}");
+    bt("var x = set\n\nfunction() {}");
+
+    opts.space_before_conditional = false;
+    bt('if(a) b()');
 
     return sanitytest;
 }
