@@ -98,7 +98,11 @@ def beautify_file(file_name, opts = default_options() ):
     if file_name == '-': # stdin
         f = sys.stdin
     else:
-        f = open(file_name)
+        try:
+            f = open(file_name)
+        except Exception as ex:
+            print('we were excepted!! ' + ex)
+            return 'The file could not be opened'
 
     b = Beautifier()
     return b.beautify(''.join(f.readlines()), opts)
@@ -139,7 +143,7 @@ Rarely needed options:
 
  -h,  --help, --usage              prints this help statement.
 
-""");
+""")
 
 
 
@@ -275,13 +279,13 @@ class Beautifier:
 
     def append_newline(self, ignore_repeated = True):
 
-        self.flags.eat_next_space = False;
+        self.flags.eat_next_space = False
 
         if self.opts.keep_array_indentation and self.is_array(self.flags.mode):
             return
 
-        self.flags.if_line = False;
-        self.trim_output();
+        self.flags.if_line = False
+        self.trim_output()
 
         if len(self.output) == 0:
             # no newline on start of file
@@ -361,7 +365,7 @@ class Beautifier:
         if parser_pos >= len(self.input):
             return '', 'TK_EOF'
 
-        self.wanted_newline = False;
+        self.wanted_newline = False
         c = self.input[parser_pos]
         parser_pos += 1
 
@@ -515,12 +519,12 @@ class Beautifier:
            (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do', 'else']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
-             sep = c
-             esc = False
-             resulting_string = c
-             in_char_class = False
+            sep = c
+            esc = False
+            resulting_string = c
+            in_char_class = False
 
-             if parser_pos < len(self.input):
+            if parser_pos < len(self.input):
                 if sep == '/':
                     # handle regexp
                     in_char_class = False
@@ -554,14 +558,14 @@ class Beautifier:
                             return resulting_string, 'TK_STRING'
 
 
-             parser_pos += 1
-             resulting_string += sep
-             if sep == '/':
-                 # regexps may have modifiers /regexp/MOD, so fetch those too
-                 while parser_pos < len(self.input) and self.input[parser_pos] in self.wordchar:
-                     resulting_string += self.input[parser_pos]
-                     parser_pos += 1
-             return resulting_string, 'TK_STRING'
+            parser_pos += 1
+            resulting_string += sep
+            if sep == '/':
+                # regexps may have modifiers /regexp/MOD, so fetch those too
+                while parser_pos < len(self.input) and self.input[parser_pos] in self.wordchar:
+                    resulting_string += self.input[parser_pos]
+                    parser_pos += 1
+            return resulting_string, 'TK_STRING'
 
         if c == '#':
 
@@ -806,7 +810,7 @@ class Beautifier:
             if self.last_text == 'else':
                 # eat newlines between ...else *** some_op...
                 # won't preserve extra newlines in this place (if any), but don't care that much
-                self.trim_output(True);
+                self.trim_output(True)
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
             prefix = 'NEWLINE'
@@ -859,7 +863,7 @@ class Beautifier:
                 self.flags.var_line_reindented = False
                 self.append_newline()
         elif self.is_array(self.flags.mode) and self.last_text == ',' and self.last_last_text == '}':
-                self.append_newline() # }, in lists get a newline
+            self.append_newline() # }, in lists get a newline
         elif prefix == 'SPACE':
             self.append(' ')
 
@@ -1086,8 +1090,7 @@ def main():
                                                           'keep-array-indentation', 'indent-level=', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
-        usage()
-        sys.exit(2)
+        return usage()
 
     js_options = default_options()
 
@@ -1119,7 +1122,7 @@ def main():
             js_options.brace_style = arg
         elif opt in ('--stdin', '-i'):
             file = '-'
-        elif opt in ('--help', '--usage', '--h'):
+        elif opt in ('--help', '--usage', '-h'):
             return usage()
 
     if not file:
@@ -1128,7 +1131,6 @@ def main():
         if outfile == 'stdout':
             print(beautify_file(file, js_options))
         else:
-            f = open(outfile, 'w')
-            f.write(beautify_file(file, js_options) + '\n')
-            f.close()
+            with open(outfile, 'w') as f:
+                f.write(beautify_file(file, js_options) + '\n')
 
