@@ -101,7 +101,6 @@ def beautify_file(file_name, opts = default_options() ):
         try:
             f = open(file_name)
         except Exception as ex:
-            print('we were excepted!! ' + ex)
             return 'The file could not be opened'
 
     b = Beautifier()
