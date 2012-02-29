@@ -406,6 +406,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = <%= external() %> ;');
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
+        test_fragment("if (..) {\n    // ....\n}\n(function");
 
         bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"')
         bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'")

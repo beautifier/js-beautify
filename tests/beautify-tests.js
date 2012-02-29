@@ -460,6 +460,9 @@ function run_beautifier_tests(test_obj)
     bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
     bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
 
+
+    test_fragment("if (..) {\n    // ....\n}\n(function");
+
     bt("{\n    get foo() {}\n}");
     bt("{\n    var a = get\n    foo();\n}");
     bt("{\n    set foo() {}\n}");

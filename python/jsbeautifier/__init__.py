@@ -664,7 +664,8 @@ class Beautifier:
             self.append_newline()
         elif self.last_type in ['TK_END_EXPR', 'TK_START_EXPR', 'TK_END_BLOCK'] or self.last_text == '.':
             # do nothing on (( and )( and ][ and ]( and .(
-            pass
+            if self.wanted_newline:
+                self.append_newline();
         elif self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.append(' ')
         elif self.last_word == 'function' or self.last_word == 'typeof':
