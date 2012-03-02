@@ -418,6 +418,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var x = {\n    set function()\n}")
         bt("var x = set\n\nfunction() {}")
 
+        bt('<!-- foo\nbar();\n-->');
+        bt('<!-- dont crash');
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

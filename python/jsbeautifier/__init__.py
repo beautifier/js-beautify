@@ -603,8 +603,12 @@ class Beautifier:
 
         if c == '<' and self.input[parser_pos - 1 : parser_pos + 3] == '<!--':
             parser_pos += 3
+            c = '<!--'
+            while parser_pos < len(self.input) and self.input[parser_pos] != '\n':
+                c += self.input[parser_pos]
+                parser_pos += 1
             self.flags.in_html_comment = True
-            return '<!--', 'TK_COMMENT'
+            return c, 'TK_COMMENT'
 
         if c == '-' and self.flags.in_html_comment and self.input[parser_pos - 1 : parser_pos + 2] == '-->':
             self.flags.in_html_comment = False

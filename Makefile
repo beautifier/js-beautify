@@ -47,6 +47,11 @@ testj:
 	./tests/run-tests
 	echo
 
+edit:
+	vim \
+		beautify.js python/jsbeautifier/__init__.py \
+		tests/beautify-tests.js python/jsbeautifier/tests/testjsbeautifier.py
+
 tests: testp testj
 
 test: testp testj

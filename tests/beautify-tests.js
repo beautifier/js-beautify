@@ -471,8 +471,12 @@ function run_beautifier_tests(test_obj)
     bt("var x = {\n    set function()\n}");
     bt("var x = set\n\nfunction() {}");
 
+    bt('<!-- foo\nbar();\n-->');
+    bt('<!-- dont crash');
+
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
     return sanitytest;
 }
+
