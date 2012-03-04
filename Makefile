@@ -52,7 +52,8 @@ edit:
 		beautify.js python/jsbeautifier/__init__.py \
 		tests/beautify-tests.js python/jsbeautifier/tests/testjsbeautifier.py
 
-tests: testp testj
+tests: testj testp
 
-test: testp testj
+test: testj testp
 
+.PHONY: testp testj all publish edit tests test
