@@ -360,6 +360,9 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.brace_style = 'expand';
 
+        bt("throw {}")
+        bt("throw {\n    foo;\n}")
+
         bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo)\n{');
@@ -418,8 +421,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var x = {\n    set function()\n}")
         bt("var x = set\n\nfunction() {}")
 
-        bt('<!-- foo\nbar();\n-->');
-        bt('<!-- dont crash');
+        bt('<!-- foo\nbar();\n-->')
+        bt('<!-- dont crash')
+
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

@@ -408,6 +408,8 @@ function run_beautifier_tests(test_obj)
     test_fragment('return {', 'return {'); // return needs the brace. maybe something else as well: feel free to report.
     // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
     test_fragment('return;\n{', 'return;\n{');
+    bt("throw {}");
+    bt("throw {\n    foo;\n}");
 
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
     bt('var foo = {}');

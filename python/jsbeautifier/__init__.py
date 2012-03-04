@@ -712,7 +712,7 @@ class Beautifier:
 
         if self.opts.brace_style == 'expand':
             if self.last_type != 'TK_OPERATOR':
-                if self.last_text in ['return', '=']:
+                if self.last_text in ['return', '=', 'throw']:
                     self.append(' ')
                 else:
                     self.append_newline(True)

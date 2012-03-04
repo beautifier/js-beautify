@@ -774,7 +774,7 @@ function js_beautify(js_source_text, options) {
                     }
                 } else {
                     if (last_type !== 'TK_OPERATOR') {
-                        if (last_text === 'return' || last_text === '=') {
+                        if (last_text === 'return' || last_text === '=' || last_text === 'throw') {
                             print_single_space();
                         } else {
                             print_newline(true);
