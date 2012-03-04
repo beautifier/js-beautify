@@ -25,6 +25,8 @@ img {
 #blurb {
     width: 260px;
     float: right;
+    margin-top: -35px; /* pull up by the amount of non-floated content in
+                          the sibling container. */
 }
 #beauty {
     border-top: 1px solid #f6f6f6;
@@ -173,6 +175,23 @@ label {
     color: #888;
     margin-bottom: 30px;
     line-height: 130%;
+}
+
+@media (max-width: 500px) {
+    #beauty {
+        position: relative;
+        margin: 0 5px;
+        height: 80%;
+    }
+    fieldset#textarea-wrap {
+        top: 40px;
+        bottom: 0;
+        margin: 0;
+    }
+    #blurb {
+        float: none;
+        margin: 0 auto;
+    }
 }
     </style>
 <script src="jquery/jquery.js"></script>
@@ -366,6 +385,12 @@ $(function() {
 </script>
 </head>
 <body>
+    <div id="beauty">
+        <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+        <fieldset id="textarea-wrap">
+            <textarea id="source"></textarea>
+        </fieldset>
+    </div>
     <div id="blurb">
       <fieldset id="options">
           <ul>
@@ -445,12 +470,6 @@ $(function() {
 
       </div>
 
-    </div>
-    <div id="beauty">
-        <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
-        <fieldset id="textarea-wrap">
-            <textarea id="source"></textarea>
-        </fieldset>
     </div>
     <p id="ie6-go-away" style="display:none">IE6. You must be kidding me.</p>
     <script>
