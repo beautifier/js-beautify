@@ -423,6 +423,8 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('<!-- foo\nbar();\n-->')
         bt('<!-- dont crash')
+        bt('for () /abc/.test()')
+        bt('if (k) /aaa/m.test(v) && l();')
 
 
     def decodesto(self, input, expectation=None):

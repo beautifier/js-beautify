@@ -475,6 +475,8 @@ function run_beautifier_tests(test_obj)
 
     bt('<!-- foo\nbar();\n-->');
     bt('<!-- dont crash');
+    bt('for () /abc/.test()');
+    bt('if (k) /aaa/m.test(v) && l();');
 
     opts.space_before_conditional = false;
     bt('if(a) b()');

@@ -267,7 +267,7 @@ class Beautifier:
 
 
     def is_expression(self, mode):
-        return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]', '(EXPRESSION)']
+        return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']
 
 
     def append_newline_forced(self):
@@ -352,7 +352,9 @@ class Beautifier:
     def restore_mode(self):
         self.do_block_just_closed = self.flags.mode == 'DO_BLOCK'
         if len(self.flag_store) > 0:
+            mode = self.flags.mode
             self.flags = self.flag_store.pop()
+            self.flags.previous_mode = mode
 
 
     def get_next_token(self):
@@ -516,6 +518,7 @@ class Beautifier:
 
         if c == "'" or c == '"' or \
            (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['return', 'do', 'else']) or \
+                          (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(FOR-EXPRESSION)', '(COND-EXPRESSION)']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
             sep = c
@@ -664,7 +667,12 @@ class Beautifier:
             else:
                 self.set_mode('[EXPRESSION]')
         else:
-            self.set_mode('(EXPRESSION)')
+            if self.last_text == 'for':
+                self.set_mode('(FOR-EXPRESSION)')
+            elif self.last_text in ['if', 'while']:
+                self.set_mode('(COND-EXPRESSION)')
+            else:
+                self.set_mode('(EXPRESSION)')
 
 
         if self.last_text == ';' or self.last_type == 'TK_START_BLOCK':
@@ -898,6 +906,8 @@ class Beautifier:
 
 
     def handle_string(self, token_text):
+        if self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(COND-EXPRESSION)', '(FOR-EXPRESSION)']:
+            self.append(' ')
         if self.last_type in ['TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
             self.append_newline()
         elif self.last_type == 'TK_WORD':

@@ -215,13 +215,15 @@ function js_beautify(js_source_text, options) {
     }
 
     function is_expression(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]' || mode === '(EXPRESSION)';
+        return in_array(mode, ['[EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']);
     }
 
     function restore_mode() {
         do_block_just_closed = flags.mode === 'DO_BLOCK';
         if (flag_store.length > 0) {
+            var mode = flags.mode;
             flags = flag_store.pop();
+            flags.previous_mode = mode;
         }
     }
 
@@ -458,6 +460,7 @@ function js_beautify(js_source_text, options) {
         c === '"' || // string
         (c === '/' &&
             ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do', 'else'])) ||
+                (last_text === ')' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) ||
                 (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
@@ -705,7 +708,13 @@ function js_beautify(js_source_text, options) {
 
 
             } else {
-                set_mode('(EXPRESSION)');
+                if (last_word === 'for') {
+                    set_mode('(FOR-EXPRESSION)');
+                } else if (in_array(last_word, ['if', 'while'])) {
+                    set_mode('(COND-EXPRESSION)');
+                } else {
+                    set_mode('(EXPRESSION)');
+                }
             }
 
             if (last_text === ';' || last_type === 'TK_START_BLOCK') {
@@ -1006,7 +1015,9 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_STRING':
 
-            if (last_type == 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
+            if (last_type === 'TK_END_EXPR' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) {
+                print_single_space();
+            } else if (last_type == 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_single_space();
