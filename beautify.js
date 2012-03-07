@@ -459,7 +459,7 @@ function js_beautify(js_source_text, options) {
         if (c === "'" || // string
         c === '"' || // string
         (c === '/' &&
-            ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do', 'else'])) ||
+            ((last_type === 'TK_WORD' && in_array(last_text, ['case', 'return', 'do', 'else'])) ||
                 (last_text === ')' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) ||
                 (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;

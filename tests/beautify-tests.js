@@ -477,6 +477,7 @@ function run_beautifier_tests(test_obj)
     bt('<!-- dont crash');
     bt('for () /abc/.test()');
     bt('if (k) /aaa/m.test(v) && l();');
+    bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}');
 
     opts.space_before_conditional = false;
     bt('if(a) b()');
