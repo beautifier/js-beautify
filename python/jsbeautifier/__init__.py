@@ -92,7 +92,6 @@ def beautify(string, opts = default_options() ):
     b = Beautifier()
     return b.beautify(string, opts)
 
-
 def beautify_file(file_name, opts = default_options() ):
 
     if file_name == '-': # stdin
@@ -261,6 +260,8 @@ class Beautifier:
                   or (eat_newlines and self.output[-1] in ['\n', '\r'])):
             self.output.pop()
 
+    def is_special_word(self, s):
+        return s in ['case', 'return', 'do', 'if', 'throw', 'else'];
 
     def is_array(self, mode):
         return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]']
@@ -517,7 +518,7 @@ class Beautifier:
 
 
         if c == "'" or c == '"' or \
-           (c == '/' and ((self.last_type == 'TK_WORD' and self.last_text in ['case', 'return', 'do', 'else']) or \
+           (c == '/' and ((self.last_type == 'TK_WORD' and self.is_special_word(self.last_text)) or \
                           (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(FOR-EXPRESSION)', '(COND-EXPRESSION)']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
@@ -720,7 +721,7 @@ class Beautifier:
 
         if self.opts.brace_style == 'expand':
             if self.last_type != 'TK_OPERATOR':
-                if self.last_text in ['return', '=', 'throw']:
+                if self.last_text == '=' or (self.is_special_word(self.last_text) and self.last_text != 'else'):
                     self.append(' ')
                 else:
                     self.append_newline(True)
@@ -857,7 +858,7 @@ class Beautifier:
                 pass
             elif token_text == 'function' and self.last_text == 'new':
                 self.append(' ')
-            elif self.last_text in ['return', 'throw']:
+            elif self.is_special_word(self.last_text):
                 # no newline between return nnn
                 self.append(' ')
             elif self.last_type != 'TK_END_EXPR':
@@ -954,7 +955,7 @@ class Beautifier:
             else:
                 self.flags.var_line_tainted = False
 
-        if self.last_text in ['return', 'throw']:
+        if self.is_special_word(self.last_text):
             # return had a special handling in TK_WORD
             self.append(' ')
             self.append(token_text)
