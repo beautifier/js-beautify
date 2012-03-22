@@ -276,7 +276,7 @@ class JSBeautifier {
             			$whitespace_count++;
             			break;
             	}
-            	if ($this->parser_pos > strlen($this->input)) {
+            	if ($this->parser_pos >= strlen($this->input)) {
                     return array('', TK_EOF);
             	}
 
@@ -307,7 +307,7 @@ class JSBeautifier {
 						$this->n_newlines++;
 					}
 				}
-				if ($this->parser_pos > strlen($this->input)) {
+				if ($this->parser_pos >= strlen($this->input)) {
 					return Array('', TK_EOF);
 				}
 
