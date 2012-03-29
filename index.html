@@ -336,7 +336,7 @@ function beautify() {
     var sLeft = sourceNode.scrollLeft/sourceNode.scrollWidth;
 
     if (looks_like_html(source)) {
-        var v = style_html(source, opts);
+    	var v = style_html(source, opts);
         $('#source').val(v);
     } else {
         if ($('#detect-packers').attr('checked')) {
@@ -353,59 +353,12 @@ function beautify() {
 		if(sel) {
 			sourceNode.selectionStart = sel.selectionStart;
 			sourceNode.selectionEnd = sel.selectionEnd;
-			//~ todo: add "real" scroll into view
+			//~ todo: add "real scroll into view
 		}
 	}
 
     the.beautify_in_progress = false;
 }
-
-function SelectionStorage(str, selStart, selEnd) {
-	this.start = this.prepare(str.substring(0, selStart));
-	this.selected = this.prepare(str.substring(selStart, selEnd));
-}
-SelectionStorage.prototype = {
-	prepare: function(s) {
-		return s.replace(/\s+/g, "");
-	},
-	getSelection: function(newStr) {
-		var selStart, selEnd;
-		var old = this.start;
-		if(!old) {
-			selStart = 0;
-			old = this.selected;
-			if(!old)
-				return { selectionStart: 0, selectionEnd: 0 };
-		}
-		var pos = 0;
-		var posStop = old.length;
-		for(var i = 0, l = newStr.length; i < l; ++i) {
-			var chr = newStr.charAt(i);
-			if(/^\s$/.test(chr)) {
-				if(selStart && skipSpaces)
-					++selStart;
-				continue;
-			}
-			skipSpaces = false;
-			var oldChr = old.charAt(pos++);
-
-			if(chr != oldChr)
-				return null;
-			if(pos == posStop) {
-				if(selStart != undefined)
-					return { selectionStart: selStart, selectionEnd: i + 1 };
-				selStart = i + 1;
-				old = this.selected;
-				if(!old)
-					return { selectionStart: selStart, selectionEnd: selStart };
-				skipSpaces = true;
-				pos = 0;
-				posStop = old.length;
-			}
-		}
-		return null;
-	}
-};
 
 function SelectionStorage(str, selStart, selEnd) {
 	this.start = this.prepare(str.substring(0, selStart));
@@ -533,7 +486,7 @@ $(function() {
 
       <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
 
-      <p>JSBeautifier is вЂ” and always will be вЂ” completely free and open, and your thanks, flattrs and donations are very heartwarming вЂ” thank you all so much!
+      <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
 
       <div style="position: relative; height: 40px">
       <form style="position: absolute; left: 3px;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
