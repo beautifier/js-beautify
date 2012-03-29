@@ -336,7 +336,7 @@ function beautify() {
     var sLeft = sourceNode.scrollLeft/sourceNode.scrollWidth;
 
     if (looks_like_html(source)) {
-    	var v = style_html(source, opts);
+        var v = style_html(source, opts);
         $('#source').val(v);
     } else {
         if ($('#detect-packers').attr('checked')) {
@@ -346,16 +346,16 @@ function beautify() {
         $('#source').val(v);
     }
 
-	sourceNode.scrollTop = sourceNode.scrollHeight*sTop;
-	sourceNode.scrollLeft = sourceNode.scrollWidth*sLeft;
-	if(selectionStorage) {
-		var sel = selectionStorage.getSelection(v);
-		if(sel) {
-			sourceNode.selectionStart = sel.selectionStart;
-			sourceNode.selectionEnd = sel.selectionEnd;
-			//~ todo: add "real scroll into view
-		}
-	}
+    sourceNode.scrollTop = sourceNode.scrollHeight*sTop;
+    sourceNode.scrollLeft = sourceNode.scrollWidth*sLeft;
+    if(selectionStorage) {
+        var sel = selectionStorage.getSelection(v);
+        if(sel) {
+            sourceNode.selectionStart = sel.selectionStart;
+            sourceNode.selectionEnd = sel.selectionEnd;
+            //~ todo: add "real" scroll into view
+        }
+    }
 
     the.beautify_in_progress = false;
 }
