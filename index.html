@@ -346,8 +346,6 @@ function beautify() {
         $('#source').val(v);
     }
 
-    sourceNode.scrollTop = sourceNode.scrollHeight*sTop;
-    sourceNode.scrollLeft = sourceNode.scrollWidth*sLeft;
     if(selectionStorage) {
         var sel = selectionStorage.getSelection(v);
         if(sel) {
@@ -356,19 +354,64 @@ function beautify() {
             //~ todo: add "real" scroll into view
         }
     }
+    //sourceNode.scrollTop = sourceNode.scrollHeight*sTop;
+    //sourceNode.scrollLeft = sourceNode.scrollWidth*sLeft;
+    sTop = Math.round(sourceNode.scrollHeight*sTop);
+    sLeft = Math.round(sourceNode.scrollWidth*sLeft);
+    function restoreScroll() {
+        sourceNode.scrollTop = sTop;
+        sourceNode.scrollLeft = sLeft;
+    }
+    function ensureScrolled() {
+        if(
+        	sourceNode.scrollTop == sTop && sourceNode.scrollLeft == sLeft
+        	|| new Date().getTime() > stopTime
+        )
+            return;
+        restoreScroll();
+        setTimeout(ensureScrolled, 5);
+    }
+
+    stopTime = new Date().getTime() + 300;
+    restoreScroll();
+    setTimeout(ensureScrolled, 5); // Firefox >= 4 scrolls to the end of selection
 
     the.beautify_in_progress = false;
 }
 
 function SelectionStorage(str, selStart, selEnd) {
+	this.specialSelection = this.SELECT_UNKNOWN;
+	if(selEnd == str.length) {
+		if(selStart == 0) {
+			this.specialSelection = this.SELECT_ALL;
+			return;
+		}
+		if(selStart == selEnd) {
+			this.specialSelection = this.CARET_AT_END;
+			return;
+		}
+		this.specialSelection = this.SELECT_END;
+	}
 	this.start = this.prepare(str.substring(0, selStart));
-	this.selected = this.prepare(str.substring(selStart, selEnd));
+	if(this.specialSelection != this.SELECT_END)
+		this.selected = this.prepare(str.substring(selStart, selEnd));
 }
 SelectionStorage.prototype = {
+	SELECT_UNKNOWN: 0,
+	SELECT_ALL:     1,
+	CARET_AT_END:   2,
+	SELECT_END:     3,
 	prepare: function(s) {
 		return s.replace(/\s+/g, "");
 	},
 	getSelection: function(newStr) {
+		if(this.specialSelection == this.SELECT_ALL)
+			return { selectionStart: 0, selectionEnd: newStr.length };
+		if(this.specialSelection == this.CARET_AT_END) {
+			var l = newStr.length;
+			return { selectionStart: l, selectionEnd: l };
+		}
+
 		var selStart, selEnd;
 		var old = this.start;
 		if(!old) {
@@ -394,6 +437,8 @@ SelectionStorage.prototype = {
 			if(pos == posStop) {
 				if(selStart != undefined)
 					return { selectionStart: selStart, selectionEnd: i + 1 };
+				if(this.specialSelection == this.SELECT_END)
+					return { selectionStart: i + 1, selectionEnd: l };
 				selStart = i + 1;
 				old = this.selected;
 				if(!old)
