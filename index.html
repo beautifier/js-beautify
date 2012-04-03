@@ -364,8 +364,8 @@ function beautify() {
     }
     function ensureScrolled() {
         if(
-        	sourceNode.scrollTop == sTop && sourceNode.scrollLeft == sLeft
-        	|| new Date().getTime() > stopTime
+            sourceNode.scrollTop == sTop && sourceNode.scrollLeft == sLeft
+            || new Date().getTime() > stopTime
         )
             return;
         restoreScroll();
