@@ -78,6 +78,7 @@ class BeautifierFlags:
         self.in_html_comment = False
         self.if_line = False
         self.in_case = False
+        self.in_case_statement = False
         self.eat_next_space = False
         self.indentation_baseline = -1
         self.indentation_level = 0
@@ -791,7 +792,7 @@ class Beautifier:
                 for i in range(2 - have_newlines):
                     self.append_newline(False)
 
-        if token_text in ['case', 'default']:
+        if token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement):
             if self.last_text == ':':
                 self.remove_indent()
             else:
@@ -800,6 +801,7 @@ class Beautifier:
                 self.flags.indentation_level += 1
             self.append(token_text)
             self.flags.in_case = True
+            self.flags.in_case_statement = True
             return
 
         prefix = 'NONE'
@@ -972,6 +974,7 @@ class Beautifier:
             self.append(token_text)
             return
 
+
         if token_text == ',':
             if self.flags.var_line:
                 if self.flags.var_line_tainted:
@@ -1000,8 +1003,8 @@ class Beautifier:
             return
         elif token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \
-                    and self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) \
-                or self.last_text in self.line_starters:
+                    and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
+                    or self.last_text in self.line_starters)):
 
             space_before = False
             space_after = False

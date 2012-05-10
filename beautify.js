@@ -201,8 +201,9 @@ function js_beautify(js_source_text, options) {
             var_line_reindented: false,
             in_html_comment: false,
             if_line: false,
-            in_case: false,
-            case_body: false,
+            in_case_statement: false, // switch(..){ INSIDE HERE }
+            in_case: false, // we're on the exact line with "case 0:"
+            case_body: false, // the indented case-action block
             eat_next_space: false,
             indentation_baseline: -1,
             indentation_level: (flags ? flags.indentation_level + (flags.case_body?1:0) + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
@@ -884,7 +885,7 @@ function js_beautify(js_source_text, options) {
                 }
             }
 
-            if (token_text === 'case' || token_text === 'default') {
+            if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
                 if (last_text === ':' || flags.case_body) {
                     // switch cases following one another
                     remove_indent();
@@ -898,6 +899,7 @@ function js_beautify(js_source_text, options) {
                 }
                 print_token();
                 flags.in_case = true;
+                flags.in_case_statement = true;
                 flags.case_body = false;
                 break;
             }

@@ -426,6 +426,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('for () /abc/.test()')
         bt('if (k) /aaa/m.test(v) && l();')
         bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}')
+        bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
+        bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}')
 
 
     def decodesto(self, input, expectation=None):

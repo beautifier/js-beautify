@@ -478,7 +478,8 @@ function run_beautifier_tests(test_obj)
     bt('for () /abc/.test()');
     bt('if (k) /aaa/m.test(v) && l();');
     bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}');
-
+    bt('createdAt = {\n    type: Date,\n    default: Date.now\n}');
+    bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}');
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
