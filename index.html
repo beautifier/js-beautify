@@ -197,6 +197,10 @@ label {
 <script src="jquery/jquery.js"></script>
 <script src="jquery/jquery.cookie.js"></script>
 
+<script src="third-party/codemirror2/lib/codemirror.js"></script>
+<script src="third-party/codemirror2/mode/javascript/javascript.js"></script>
+<link rel="stylesheet" href="third-party/codemirror2/lib/codemirror.css">
+
 <script src="beautify.js"></script>
 <script src="beautify-css.js"></script>
 <script src="beautify-html.js"></script>
@@ -210,7 +214,9 @@ label {
 <script>
 
 var the = {
-    beautify_in_progress: false
+    use_codemirror: true,
+    beautify_in_progress: false,
+    editor: null // codemirror editor
 };
 
 if (/chrome/.test(navigator.userAgent.toLowerCase())) {
@@ -309,7 +315,12 @@ function beautify() {
 
     the.beautify_in_progress = true;
 
-    var source = $('#source').val();
+    var source;
+    if (the.editor) {
+        source = the.editor.getValue();
+    } else {
+        source = $('#source').val();
+    }
     var indent_size = $('#tabsize').val();
     var indent_char = indent_size == 1 ? '\t' : ' ';
     var preserve_newlines = $('#preserve-newlines').attr('checked');
@@ -329,16 +340,19 @@ function beautify() {
                 space_before_conditional: space_before_conditional,
                 indent_scripts:indent_scripts};
 
+    var output;
     if (looks_like_html(source)) {
-        $('#source').val(
-            style_html(source, opts)
-        );
+        output = style_html(source, opts);
     } else {
         if ($('#detect-packers').attr('checked')) {
             source = unpacker_filter(source);
         }
-        var v = js_beautify(source, opts);
-        $('#source').val(v);
+        output = js_beautify(source, opts);
+    }
+    if (the.editor) {
+        the.editor.setValue(output);
+    } else {
+        $('#source').val(output);
     }
 
     the.beautify_in_progress = false;
@@ -381,6 +395,12 @@ $(function() {
     })
     $('#submit').bind('click', beautify);
     $('select').bind('change', beautify);
+
+    if (the.use_codemirror) {
+        the.editor = CodeMirror.fromTextArea($('#source').get(0), {mode: 'text/javascript'})
+    }
+
+
 });
 </script>
 </head>
