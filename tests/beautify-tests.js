@@ -246,9 +246,6 @@ function run_beautifier_tests(test_obj)
     test_fragment("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
     test_fragment("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-    test_fragment("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
-    test_fragment("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
-
     bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
     bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
     bt('{--bar;}', '{\n    --bar;\n}');
@@ -372,8 +369,7 @@ function run_beautifier_tests(test_obj)
 
     opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
-
-
+    bt('// a\n// b\n\n// c\n// d');
     bt('if (foo) //  comment\n{\n    bar();\n}');
 
 
@@ -482,6 +478,7 @@ function run_beautifier_tests(test_obj)
     bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}');
     opts.space_before_conditional = false;
     bt('if(a) b()');
+
 
     return sanitytest;
 }

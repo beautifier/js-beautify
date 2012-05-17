@@ -198,9 +198,6 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
         test_fragment("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
-        test_fragment("<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
-        test_fragment("<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
-
         bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
         bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
         bt('{--bar;}', '{\n    --bar;\n}');
@@ -328,9 +325,9 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         self.options.preserve_newlines = True;
-        bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
-
-        bt('if (foo) //  comment\n{\n    bar();\n}');
+        bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;')
+        bt('// a\n// b\n\n// c\n// d')
+        bt('if (foo) //  comment\n{\n    bar();\n}')
 
         self.options.keep_array_indentation = True;
 
