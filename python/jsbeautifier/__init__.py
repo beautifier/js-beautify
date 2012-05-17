@@ -963,6 +963,12 @@ class Beautifier:
             self.append(token_text)
             return
 
+        # hack for actionscript's import .*;
+        if token_text == '*' and self.last_type == 'TK_UNKNOWN' and not self.last_last_text.isdigit():
+            self.append(token_text)
+            return
+
+
         if token_text == ':' and self.flags.in_case:
             self.append(token_text)
             self.append_newline()

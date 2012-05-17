@@ -61,4 +61,11 @@ tests: testj testp
 
 test: testj testp
 
+gh:
+	git push origin master &&\
+	cd gh-pages &&\
+	git pull origin master &&\
+	git merge master &&\
+	git push origin gh-pages
+
 .PHONY: testp testj all publish edit tests test

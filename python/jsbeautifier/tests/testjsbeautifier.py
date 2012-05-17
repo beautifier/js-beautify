@@ -426,6 +426,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
         bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}')
 
+        bt('3.*7;', '3. * 7;')
+        bt('import foo.*;', 'import foo.*;') # actionscript's import
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(
