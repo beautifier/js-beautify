@@ -1076,6 +1076,12 @@ function js_beautify(js_source_text, options) {
                 break;
             }
 
+            // hack for actionscript's import .*;
+            if (token_text == '*' && last_type == 'TK_UNKNOWN' && ! last_last_text.match(/^\d+$/)) {
+                print_token();
+                break;
+            }
+
             if (token_text === ':' && flags.in_case) {
                 if (opt_indent_case)
                     flags.case_body = true;
