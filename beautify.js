@@ -1222,11 +1222,17 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMENT':
 
-            // print_newline();
-            if (wanted_newline) {
+            if (last_type == 'TK_COMMENT') {
                 print_newline();
+                if (wanted_newline) {
+                    print_newline(false);
+                }
             } else {
-                print_single_space();
+                if (wanted_newline) {
+                    print_newline();
+                } else {
+                    print_single_space();
+                }
             }
             print_token();
             if(look_up('\n') != '\n')
