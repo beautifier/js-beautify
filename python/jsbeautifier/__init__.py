@@ -1034,7 +1034,8 @@ class Beautifier:
 
         elif token_text == ':':
             if self.flags.ternary_depth == 0:
-                self.flags.mode = 'OBJECT'
+                if self.flags.mode == 'BLOCK':
+                    self.flags.mode = 'OBJECT'
                 space_before = False
             else:
                 self.flags.ternary_depth -= 1
