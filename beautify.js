@@ -1152,7 +1152,9 @@ function js_beautify(js_source_text, options) {
 
             } else if (token_text === ':') {
                 if (flags.ternary_depth == 0) {
-                    flags.mode = 'OBJECT';
+                    if (flags.mode == 'BLOCK') {
+                        flags.mode = 'OBJECT';
+                    }
                     space_before = false;
                 } else {
                     flags.ternary_depth -= 1;

@@ -428,6 +428,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('3.*7;', '3. * 7;')
         bt('import foo.*;', 'import foo.*;') # actionscript's import
+        test_fragment('function f(a: a, b: b)') # actionscript
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(
