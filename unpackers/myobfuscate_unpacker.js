@@ -28,7 +28,13 @@
 
 var MyObfuscate = {
     detect: function (str) {
-        return /^var _?[0O1lI]{3}\=('|\[).*\)\)\);/.test(str);
+        if (/^var _?[0O1lI]{3}\=('|\[).*\)\)\);/.test(str)) {
+            return true;
+        }
+        if (/^function _?[0O1lI]{3}\(/.test(str)) {
+            return true;
+        }
+        return false;
     },
 
     unpack: function (str) {
@@ -51,7 +57,7 @@ var MyObfuscate = {
                 }
             }
             return unpacked_source ? "// Unpacker warning: be careful when using myobfuscate.com for your projects:\n" +
-                    "// scripts obfuscated by the free online version call back home.\n" +
+                    "// scripts obfuscated by the free online version may call back home.\n" +
                     "\n//\n" + unpacked_source : str;
         }
         return str;
