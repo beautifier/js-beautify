@@ -6,112 +6,38 @@
 <head>
     <meta charset="utf-8">
     <title>Online JavaScript beautifier</title>
+
+    <script src="third-party/codemirror2/lib/codemirror.js"></script>
+    <script src="third-party/codemirror2/mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="third-party/codemirror2/lib/codemirror.css">
+
     <style>
-* {
-    margin: 0;
-    padding: 0;
-}
-.ie6 div {
-    display: none
-}
-.ie6 #ie6-go-away {
-    display: block !important;
-}
-img {
-    border: 0;
-    display: block;
-    vertical-align: baseline;
-}
-#blurb {
-    width: 260px;
-    float: right;
-    margin-top: -35px; /* pull up by the amount of non-floated content in
-                          the sibling container. */
-}
-#beauty {
-    border-top: 1px solid #f6f6f6;
-    margin-left: 5px;
-    margin-right: 270px;
-}
 body {
     background: #eee;
+    color: #333;
 }
-body, button, select, label {
+
+img {
+    border: 0;
+}
+
+p, select, label, .blurb {
     font:13px/1.231 arial, sans-serif;
     *font-size:small;
 }
-select, label {
-    font-size: 12px;
-}
-body, html {
-    height: 100%;
-    color: #333;
-}
-textarea {
-    color: #444;
-    height: 100%;
-    width: 100%;
-    border: 0;
-    font-family: Monaco, Consolas, monospace;
-}
-.ie7 fieldset#textarea-wrap {
-    padding: 5px 0;
-}
-.ie8 fieldset#textarea-wrap {
-    padding: 5px 0 0 5px;
-}
 
-fieldset {
-    border: 0;
-}
-ul, li {
-    list-style: none;
-}
 a {
     color: #36d;
 }
 
-fieldset#textarea-wrap {
-    height: auto;
-    position: absolute;
-    background: white;
-    left: 0;
-    top: 0px;
-    right: 0;
-    bottom: 0;
-    display: block;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    margin-right: 270px;
-    margin-top: 40px;
-    border: 1px solid #ccc;
-    border-right: 1px solid #666;
-    border-bottom: 1px solid #666;
-    padding: 5px;
-}
 button#submit {
+    clear: both;
     margin-top: 5px;
-    height: 30px;
-    line-height: 28px;
     width: 100%;
-    border: 1px solid #aaa;
-    border-left: 1px solid #666;
-    border-top: 1px solid #666;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
-    -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
-    background: #ccc;
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#EEEEEE), to(#CCCCCC));
-    background-image: -webkit-linear-gradient(top, #EEEEEE, #CCCCCC);
-    background-image:    -moz-linear-gradient(top, #EEEEEE, #CCCCCC);
-    background-image:     -ms-linear-gradient(top, #EEEEEE, #CCCCCC);
-    background-image:      -o-linear-gradient(top, #EEEEEE, #CCCCCC);
-    background-image:         linear-gradient(top, #EEEEEE, #CCCCCC);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#EEEEEE', EndColorStr='#CCCCCC');
+    padding: 10px 0;
     cursor: pointer;
-    color: #444;
 }
+
 button#submit em {
     font-size: 11px;
     font-style: normal;
@@ -122,84 +48,44 @@ label {
     cursor: pointer;
 }
 
-#options {
-    margin-top: 5px;
-    margin-bottom: 15px;
-}
-#options li {
-    margin-bottom: 4px;
-    font-size: 90%;
-}
-#options select {
-    font:13px/1.231 arial, sans-serif;
-    padding: 0 5px;
+select {
     width: 220px;
 }
-#tabsize {
-    margin-top: 2px;
+
+table#options {
+    float: right;
 }
-#brace-style {
+table#options td {
+    vertical-align: top;
+    padding-left: 10px;
+}
+
+#about p {
+    margin: 0 6px 6px 0;
+}
+
+
+#testresults {
+    display: none;
+    font-family: monaco, "lucida console", "courier new", monospace;
+}
+
+.CodeMirror {
+    border: 1px solid #ccc;
     margin-bottom: 6px;
 }
-
-#blurb h2 {
-    font-size: 12px;
-    font-weight: bold;
-    color: #555;
-}
-#blurb p {
-    line-height: 140%;
-    font-size: 11px;
-    margin-right: 16px;
-    margin-bottom: 11px;
-}
-
-#footer {
-    font-size: 11px;
-    line-height: 140%;
-}
-
-#blurb p.me-me-me {
-    margin-bottom: 4px;
-}
-#blurb p.contributors {
-    color: #666;
-}
-#blurb #uses li {
-    font-size: 11px;
-    margin-bottom: 4px;
-    margin-right: 4px;
-}
-#blurb #uses li.writeme {
-    font-style: normal;
-    color: #888;
-    margin-bottom: 30px;
-    line-height: 130%;
-}
-
-@media (max-width: 500px) {
-    #beauty {
-        position: relative;
-        margin: 0 5px;
-        height: 80%;
-    }
-    fieldset#textarea-wrap {
-        top: 40px;
-        bottom: 0;
-        margin: 0;
-    }
-    #blurb {
-        float: none;
-        margin: 0 auto;
-    }
+.CodeMirror-scroll {
+  min-height: 400px;
+  max-height: 100%;
+  height: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
+  width: 100%
 }
     </style>
 <script src="jquery/jquery.js"></script>
 <script src="jquery/jquery.cookie.js"></script>
 
-<!-- script src="third-party/codemirror2/lib/codemirror.js"></script -->
-<!-- script src="third-party/codemirror2/mode/javascript/javascript.js"></script-->
-<link rel="stylesheet" href="third-party/codemirror2/lib/codemirror.css">
 
 <script src="beautify.js"></script>
 <script src="beautify-css.js"></script>
@@ -214,22 +100,10 @@ label {
 <script>
 
 var the = {
-    use_codemirror: false,
+    use_codemirror: true,
     beautify_in_progress: false,
     editor: null // codemirror editor
 };
-
-if (/chrome/.test(navigator.userAgent.toLowerCase())) {
-    // this dummy function alleviates Chrome large string corruption by
-    // probably shoveling the corruption bug to some other area
-    //
-    //   http://code.google.com/p/chromium/issues/detail?id=100409
-    //   http://jsbeautifier.org/chrome-bug/
-
-    String.prototype.old_charAt = String.prototype.charAt;
-    String.prototype.charAt = function (n) { return this.old_charAt(n); }
-}
-
 
 function run_tests() {
     var st = new SanityTest();
@@ -238,7 +112,9 @@ function run_tests() {
     P_A_C_K_E_R.run_tests(st);
     Urlencoded.run_tests(st);
     MyObfuscate.run_tests(st);
-    $('#testresults').html(st.results()).show();
+    // $('#testresults').html(results.replace(/r/g, '').replace(/\n/g, '<br>'));
+    var results = st.results_raw().replace(/ /g, '&nbsp;').replace(/\r/g, '·').replace(/\n/g, '<br>');
+    $('#testresults').html(results).show();
 }
 
 
@@ -364,95 +240,103 @@ function looks_like_html(source)
     // <!--\nalert('foo!');\n--> - doesn't look like html
 
     var trimmed = source.replace(/^[ \t\n\r]+/, '');
-    var comment_mark = '<!-' + '-';
+    var comment_mark = '<' + '!-' + '-';
     return (trimmed && (trimmed.substring(0, 1) === '<' && trimmed.substring(0, 4) !== comment_mark));
 }
 
 $(function() {
 
-    if ($.browser.msie) {
-        $('#source').width( $('#textarea-wrap').width() - 10)
-                    .height($('#textarea-wrap').height() - 10);
-    }
-
     read_settings_from_cookie();
 
     var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
 
-    $('#source').val(default_text).bind('click focus', function () {
-        if ($(this).val() == default_text) {
-            $(this).val('');
-        }
-    }).bind('blur', function () {
-        if ( ! $(this).val()) {
-            $(this).val(default_text);
-        }
-    });
+    if (the.use_codemirror) {
+        the.editor = CodeMirror.fromTextArea($('#source').get(0))
+        the.editor.setValue(default_text);
+        $('.CodeMirror').click(function () {
+            if (the.editor.getValue() == default_text) {
+                the.editor.setValue('');
+            }
+        });
+    } else {
+        $('#source').val(default_text).bind('click focus', function () {
+            if ($(this).val() == default_text) {
+                $(this).val('');
+            }
+        }).bind('blur', function () {
+            if ( ! $(this).val()) {
+                $(this).val(default_text);
+            }
+        });
+    }
+
+
     $(window).bind('keydown', function (e) {
         if (e.ctrlKey && e.keyCode == 13) {
             beautify();
         }
     })
-    $('#submit').bind('click', beautify);
-    $('select').bind('change', beautify);
-
-    if (the.use_codemirror) {
-        the.editor = CodeMirror.fromTextArea($('#source').get(0), {mode: 'text/javascript'})
-    }
+    $('#submit').click(beautify);
+    $('select').change(beautify);
 
 
 });
 </script>
 </head>
 <body>
-    <div id="beauty">
-        <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
-        <fieldset id="textarea-wrap">
-            <textarea id="source"></textarea>
-        </fieldset>
-    </div>
-    <div id="blurb">
-      <fieldset id="options">
-          <ul>
-          <li><select name="tabsize" id="tabsize">
+
+    <table id="options">
+        <tr>
+          <td>
+          <select name="tabsize" id="tabsize">
             <option value="1">indent with a tab character</option>
             <option value="2">indent with 2 spaces</option>
             <option value="3">indent with 3 spaces</option>
             <option value="4">indent with 4 spaces</option>
             <option value="8">indent with 8 spaces</option>
-          </select></li>
-          <li><select id="brace-style">
+          </select><br>
+
+          <select id="brace-style">
             <option value="collapse">Braces with control statement</option>
             <option value="expand">Braces on own line</option>
             <option value="end-expand">End braces on own line</option>
             <!-- option value="expand-strict">Braces always on own line (not recommended)</option -->
-          </select></li>
-          <li style="padding-bottom: 10px">HTML &lt;style&gt;, &lt;script&gt; formatting:<br><select id="indent-scripts">
+          </select>
+
+          <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p><select id="indent-scripts">
             <option value="keep">Keep indent level of the tag</option>
             <option value="normal">Add one indent level</option>
             <option value="separate">Separate indentation</option>
-          </select></li>
-          <li><input class="checkbox" type="checkbox" id="preserve-newlines" /><label for="preserve-newlines"> Preserve empty lines?</label><br /></li>
-          <li><input class="checkbox" type="checkbox" id="detect-packers" /><label for="detect-packers"> Detect packers and obfuscators?</label><br /></li>
-          <li><input class="checkbox" type="checkbox" id="keep-array-indentation" /><label for="keep-array-indentation"> Keep array indentation?</label></li>
-          <li><input class="checkbox" type="checkbox" id="space-before-conditional" /><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</li>
-          </ul>
-      </fieldset>
+          </select>
 
-      <p><strong>Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</strong>.</p>
+        </td><td>
 
-      <p>All of the source code is available on the <a href="https://github.com/einars/js-beautify">github</a>, and we have a command-line version and a python library as well.
+          <input class="checkbox" type="checkbox" id="preserve-newlines"><label for="preserve-newlines"> Preserve empty lines?</label><br>
+          <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
+          <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
+          <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"
 
-      <p>JSBeautifier is — and always will be — completely free and open, and your thanks, flattrs and donations are very heartwarming — thank you all so much!
+        </td></tr>
+    </table>
 
-      <div style="position: relative; height: 40px">
-      <form style="position: absolute; left: 3px;" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+    <div id="about">
+            <p><strong>Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</strong>.</p>
+            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version and a python library as well.
+    </div>
+
+
+    <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+    <textarea id="source" rows="30" cols="160"></textarea>
+
+    <div class="blurb">
+      <div style="float:right; width: 210px;">
+      <a style="display:block; float: left; padding-top: 3px" href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a>
+      <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
         <input type="hidden" name="cmd" value="_s-xclick">
         <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
         <input style="border:0" type="image" src="http://spicausis.lv/misc/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
         <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
       </form>
-      <p style="position: absolute; left: 120px; top: 1px"><a href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr" /></a></p>
       </div>
 
       <p>Browser extensions and other uses:</p>
@@ -479,23 +363,16 @@ $(function() {
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
-      <div id="footer">
+    <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>. We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
+    <p class="contributors">Made with a great help of <a href="http://jason.diamond.name/weblog/">Jason&nbsp;Diamond</a>, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov,</a> Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a> and others.
+    </p>
 
-          <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a></p>
-          <p class="me-me-me">Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>.</p>
-          <p class="contributors">with a great help of <a href="http://jason.diamond.name/weblog/">Jason&nbsp;Diamond</a>, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov,</a> Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a> and others.
-          <!-- br><br>We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.-->
-          </p>
-
-          <p style="text-align:right">
-          <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
-          </p>
-          <pre id="testresults"></pre>
-
-      </div>
+    <p style="text-align:right">
+    <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
+    </p>
 
     </div>
-    <p id="ie6-go-away" style="display:none">IE6. You must be kidding me.</p>
+    <div id="testresults"></div>
     <script>
         var _gaq = [['_setAccount', 'UA-7409939-1'], ['_trackPageview']];
         (function(d, t) {
