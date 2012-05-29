@@ -107,6 +107,26 @@ function js_beautify(js_source_text, options) {
         return s.replace(/^\s\s*|\s\s*$/, '');
     }
 
+    // we could use just string.split, but
+    // IE doesn't like returning empty strings
+    function split_newlines(s)
+    {
+        //return s.split(/\x0d\x0a|\x0a/);
+
+        s = s.replace(/\x0d/g, '');
+        var out = [],
+            idx = s.indexOf("\n");
+        while (idx != -1) {
+            out.push(s.substring(0, idx));
+            s = s.substring(idx + 1);
+            idx = s.indexOf("\n");
+        }
+        if (s.length) {
+            out.push(s);
+        }
+        return out;
+    }
+
     function force_newline()
     {
         var old_keep_array_indentation = opt_keep_array_indentation;
@@ -230,7 +250,8 @@ function js_beautify(js_source_text, options) {
 
     function all_lines_start_with(lines, c) {
         for (var i = 0; i < lines.length; i++) {
-            if (trim(lines[i])[0] != c) {
+            var line = trim(lines[i]);
+            if (line.charAt(0) !== c) {
                 return false;
             }
         }
@@ -424,10 +445,11 @@ function js_beautify(js_source_text, options) {
             if (input.charAt(parser_pos) === '*') {
                 parser_pos += 1;
                 if (parser_pos < input_length) {
-                    while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input_length) {
+                    while (parser_pos < input_length &&
+                        ! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/')) {
                         c = input.charAt(parser_pos);
                         comment += c;
-                        if (c === '\x0d' || c === '\x0a') {
+                        if (c === "\n" || c === "\r") {
                             inline_comment = false;
                         }
                         parser_pos += 1;
@@ -580,8 +602,8 @@ function js_beautify(js_source_text, options) {
         if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
             parser_pos += 3;
             c = '<!--';
-            while (input[parser_pos] != '\n' && parser_pos < input_length) {
-                c += input[parser_pos];
+            while (input.charAt(parser_pos) != '\n' && parser_pos < input_length) {
+                c += input.charAt(parser_pos);
                 parser_pos++;
             }
             flags.in_html_comment = true;
@@ -623,8 +645,8 @@ function js_beautify(js_source_text, options) {
         opt_indent_size -= 1;
     }
 
-    while (js_source_text && (js_source_text[0] === ' ' || js_source_text[0] === '\t')) {
-        preindent_string += js_source_text[0];
+    while (js_source_text && (js_source_text.charAt(0) === ' ' || js_source_text.charAt(0) === '\t')) {
+        preindent_string += js_source_text.charAt(0);
         js_source_text = js_source_text.substring(1);
     }
     input = js_source_text;
@@ -1180,7 +1202,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_BLOCK_COMMENT':
 
-            var lines = token_text.split(/\x0a|\x0d\x0a/);
+            var lines = split_newlines(token_text);
 
             if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
@@ -1210,7 +1232,7 @@ function js_beautify(js_source_text, options) {
 
                 for (i = 0; i < lines.length; i++) {
                     output.push(lines[i]);
-                    output.push('\n');
+                    output.push("\n");
                 }
 
             }
@@ -1260,7 +1282,7 @@ function js_beautify(js_source_text, options) {
         last_text = token_text;
     }
 
-    var sweet_code = preindent_string + output.join('').replace(/[\n ]+$/, '');
+    var sweet_code = preindent_string + output.join('').replace(/[\r\n ]+$/, '');
     return sweet_code;
 
 }
