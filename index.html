@@ -101,7 +101,7 @@ table#options td {
 <script>
 
 var the = {
-    use_codemirror: true,
+    use_codemirror: ( ! window.location.href.match(/without-codemirror/)),
     beautify_in_progress: false,
     editor: null // codemirror editor
 };
@@ -316,6 +316,8 @@ $(function() {
           <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
           <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
           <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"
+          <br><a style="margin-left: 25px" href="?without-codemirror">Turn off bells and whistles?</a>
+
 
         </td></tr>
     </table>
@@ -364,7 +366,7 @@ $(function() {
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
-    <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>. We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
+      <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, Python version flourished by <a href="http://github.com/satufk">Stefano Sanfilippo</a>. We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
     <p class="contributors">Made with a great help of <a href="http://jason.diamond.name/weblog/">Jason&nbsp;Diamond</a>, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov,</a> Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a> and others.
     </p>
 
