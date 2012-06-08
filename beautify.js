@@ -41,7 +41,7 @@
                 }
             This mode may break your scripts - e.g "return { a: 1 }" will be broken into two lines, so beware.
 
-    space_before_conditional: should the space before conditional statement be added, "if(true)" vs "if (true)"
+    space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)"
 
     e.g
 
