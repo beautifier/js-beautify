@@ -1,7 +1,6 @@
 <?php
 require('jsbeautifier.php');
 
-
 $opts = new BeautifierOptions();
 $indent_size = 4;
 $indent_char = ' ';
@@ -10,48 +9,72 @@ $jslint_happy = false;
 $keep_array_indentation = false;
 $brace_style = 'collapse';
 
-function st_test($input, $expected) {
+/**
+ * Main test
+ *
+ * @param $input
+ * @param $expected
+ */
+function st_test($input, $expected)
+{
 	global $opts;
 	
 	$debug = false;
 
-	if ($debug) {
+	if ($debug)
+	{
 		echo "=[ INPUT ]===\n" . $input . "\n";
 		echo "=[ EXPECTED ]===\n" . $expected . "\n";
 	}
 
-	$result = js_beautify($input, $opts);
+	$jsbeautifier = new JSBeautifier();
+	$result = $jsbeautifier->beautify($input, $opts);
 
-	if ($expected != $result) {
-		if (!$debug) {
+	if ($expected != $result)
+	{
+		if ( ! $debug)
+		{
 			echo "=[ INPUT ]===\n" . $input . "\n";
 			echo "=[ EXPECTED ]===\n" . $expected . "\n";
 		}
 		echo "=[ RESULT ]===\n" . $result . "\n=[ RESULT ]===\n";
 		echo("Test did not pass!\n");
 		for ($i = 0; $i < strlen($expected); $i++) {
-			if (!isset($result[$i])) {
+			if ( ! isset($result[$i]))
+			{
 				echo "Result too short!\n";
 				break;
-			} elseif ($expected[$i] != $result[$i]) {
+			}
+			elseif ($expected[$i] != $result[$i])
+			{
 				//echo "Diff at position #$i!\n";
-			};
+			}
 		}
 		die();
 	}
 }
 
-// test the input on beautifier with the current flag settings
-// does not check the indentation / surroundings as bt() does
-function test_fragment($input, $expected = false) {
-    $expected = $expected ?: $input;
+/**
+ * test the input on beautifier with the current flag settings
+ * does not check the indentation / surroundings as bt() does
+ *
+ * @param $input
+ * @param bool $expected
+ */
+function test_fragment($input, $expected = false)
+{
+	$expected = $expected ?: $input;
 	st_test($input, $expected);
 }
 
-
-// test the input on beautifier with the current flag settings
-// test both the input as well as { input } wrapping
-function bt($input, $expectation = false) {
+/**
+ * test the input on beautifier with the current flag settings
+ * test both the input as well as { input } wrapping
+ * @param $input
+ * @param bool $expectation
+ */
+function bt($input, $expectation = false)
+{
 	global $opts;
 
 	$wrapped_input = false;
@@ -60,20 +83,20 @@ function bt($input, $expectation = false) {
 	$expectation = $expectation ?: $input;
 	test_fragment($input, $expectation);
 
-    // test also the returned indentation
-    // e.g if input = "asdf();"
-    // then test that this remains properly formatted as well:
-    // {
-    //     asdf();
-    //     indent;
-    // }
+	// test also the returned indentation
+	// e.g if input = "asdf();"
+	// then test that this remains properly formatted as well:
+	// {
+	//     asdf();
+	//     indent;
+	// }
 
-    if ($opts->indent_size === 4 && $input) {
-    	$wrapped_input = "{\n" . $input . "\nfoo=bar;}";
-    	$wrapped_expectation = "{\n" . preg_replace('/^(.+)$/m', '    \1', $expectation) . "\n    foo = bar;\n}";
-    	test_fragment($wrapped_input, $wrapped_expectation);
-    }
-
+	if ($opts->indent_size === 4 && $input)
+	{
+		$wrapped_input = "{\n" . $input . "\nfoo=bar;}";
+		$wrapped_expectation = "{\n" . preg_replace('/^(.+)$/m', '    \1', $expectation) . "\n    foo = bar;\n}";
+		test_fragment($wrapped_input, $wrapped_expectation);
+	}
 }
 
 // make sure the blank line between function definitions stays
