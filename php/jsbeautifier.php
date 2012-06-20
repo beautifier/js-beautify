@@ -68,6 +68,11 @@ class JSBeautifier
 	const TK_COMMENT        = 12;
 	const TK_UNKNOWN        = 13;
 
+	// Brace Styles
+	const BS_EXPAND     = 'expand';
+	const BS_COLLAPSE   = 'collapse';
+	const BS_END_EXPAND = 'end-expand';
+
 	/**
 	 * @var BeautifierOptions
 	 */
@@ -262,9 +267,10 @@ class JSBeautifier
 			$this->options = $options;
 		}
 		
-		if ( ! in_array($this->options->brace_style, array('expand', 'collapse', 'end-expand')))
+		if ( ! in_array($this->options->brace_style, array(static::BS_COLLAPSE, static::BS_EXPAND, static::BS_END_EXPAND)))
 		{
-			throw new \Exception('opts.brace_style must be "expand", "collapse" or "end-expand".');
+			throw new \Exception(sprintf('opts.brace_style must be %s, %s or %s.',
+				static::BS_COLLAPSE, static::BS_EXPAND, static::BS_END_EXPAND));
 		}
 
 		$this->blank_state();
@@ -278,8 +284,8 @@ class JSBeautifier
 		// @todo: Implement unpackers
 		// self.input = self.unpack(s, opts.eval_code)
 		$this->input = $string;
-
 		$this->parser_pos = 0;
+
 		$handlers = array(
 			static::TK_START_EXPR     => 'handle_start_expr',
 			static::TK_END_EXPR       => 'handle_end_expr',
@@ -926,7 +932,7 @@ class JSBeautifier
 			$this->set_mode('BLOCK');
 		}
 
-		if ($this->options->brace_style == 'expand')
+		if ($this->options->brace_style == static::BS_EXPAND)
 		{
 			if ($this->last_type != static::TK_OPERATOR)
 			{
@@ -981,7 +987,7 @@ class JSBeautifier
 	{
 		$this->restore_mode();
 
-		if ($this->options->brace_style == 'expand')
+		if ($this->options->brace_style == static::BS_EXPAND)
 		{
 			if ($this->last_text != '{')
 			{
@@ -1092,7 +1098,7 @@ class JSBeautifier
 			}
 			else
 			{
-				if (in_array($this->options->brace_style, array('expand', 'and-expand')))
+				if (in_array($this->options->brace_style, array(static::BS_EXPAND, static::BS_END_EXPAND)))
 				{
 					$prefix = 'NEWLINE';
 				}
@@ -1156,8 +1162,8 @@ class JSBeautifier
 		if (in_array($token_text, array('else', 'catch', 'finally')))
 		{
 			if ($this->last_type != static::TK_END_BLOCK ||
-				$this->options->brace_style == 'expand' ||
-				$this->options->brace_style == 'end-expand')
+				$this->options->brace_style == static::BS_EXPAND ||
+				$this->options->brace_style == static::BS_END_EXPAND)
 			{
 				$this->append_newline();
 			}
@@ -1648,8 +1654,7 @@ class BeautifierOptions
 	public $preserve_newlines = true;
 	public $max_preserve_newlines = 10;
 	public $jslint_happy = false;
-	// expand, end-expand
-	public $brace_style = 'collapse';
+	public $brace_style = JSBeautifier::BS_COLLAPSE;
 	public $keep_array_indentation = false;
 	public $keep_function_indentation = false;
 	public $eval_code = false;
