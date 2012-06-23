@@ -492,6 +492,7 @@ function js_beautify(js_source_text, options) {
                 (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
+            var esc1 = 0;
             var resulting_string = c;
 
             if (parser_pos < input_length) {
@@ -526,10 +527,22 @@ function js_beautify(js_source_text, options) {
                     //
                     while (esc || input.charAt(parser_pos) !== sep) {
                         resulting_string += input.charAt(parser_pos);
-                        if (!esc) {
+                        if (esc1 >= 2) {
+                            esc1 = String.fromCharCode(parseInt(resulting_string.substr(-2),16));
+                            if (/^[\x20-\x7E]$/.test(esc1)) {
+                                resulting_string = resulting_string.substr(0, resulting_string.length - 4) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
+                            }
+                            esc1 = 0;
+                        }
+                        if (esc1) {
+                            esc1++;
+                        } else if (!esc) {
                             esc = input.charAt(parser_pos) === '\\';
                         } else {
                             esc = false;
+                            if (input.charAt(parser_pos) === 'x') {
+                                esc1++;
+                            }
                         }
                         parser_pos += 1;
                         if (parser_pos >= input_length) {
