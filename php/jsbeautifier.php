@@ -643,12 +643,14 @@ class JSBeautifier
 							$esc = $this->input[$this->parser_pos] == '\\';
 						} else {
 							$esc = false;
-							if ($this->options->unescape_strings && $this->input[$this->parser_pos] === 'x') {
-								$esc1++;
-								$esc2 = 2;
-							} else if ($this->options->unescape_strings && $this->input[$this->parser_pos] === 'u') {
-								$esc1++;
-								$esc2 = 4;
+							if ($this->options->unescape_strings) {
+								if ($this->input[$this->parser_pos] === 'x') {
+									$esc1++;
+									$esc2 = 2;
+								} else if ($this->input[$this->parser_pos] === 'u') {
+									$esc1++;
+									$esc2 = 4;
+								}
 							}
 						}
 						$this->parser_pos++;

@@ -575,12 +575,13 @@ class Beautifier:
                             esc = self.input[parser_pos] == '\\'
                         else:
                             esc = False
-                            if self.opts.unescape_strings and self.input[parser_pos] == 'x':
-                                esc1 += 1
-                                esc2 = 2
-                            elif self.opts.unescape_strings and self.input[parser_pos] == 'u':
-                                esc1 += 1
-                                esc2 = 4
+                            if self.opts.unescape_strings:
+                                if self.input[parser_pos] == 'x':
+                                    esc1 += 1
+                                    esc2 = 2
+                                elif self.input[parser_pos] == 'u':
+                                    esc1 += 1
+                                    esc2 = 4
                         parser_pos += 1
                         if parser_pos >= len(self.input):
                             # incomplete string when end-of-file reached
