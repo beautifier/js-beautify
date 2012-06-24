@@ -557,7 +557,10 @@ class Beautifier:
                     while esc or self.input[parser_pos] != sep:
                         resulting_string += self.input[parser_pos]
                         if esc1 >= 2:
-                            esc1 = int(resulting_string[-2:], 16)
+                            try:
+                                esc1 = int(resulting_string[-2:], 16)
+                            except Exception:
+                                esc1 = False
                             if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
                                 esc1 = chr(esc1)
                                 resulting_string = resulting_string[:-4]
