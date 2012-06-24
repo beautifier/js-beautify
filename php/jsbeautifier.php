@@ -581,6 +581,7 @@ class JSBeautifier
 		{
 			$sep = $c;
 			$esc = false;
+			$esc1 = 0;
 			$resulting_string = $c;
 
 			if ($this->parser_pos < strlen($this->input))
@@ -624,22 +625,30 @@ class JSBeautifier
 				else
 				{
 					// handle string
-					while ($esc || $this->input[$this->parser_pos] != $sep)
-					{
+					while ($esc || $this->input[$this->parser_pos] != $sep) {
 						$resulting_string .= $this->input[$this->parser_pos];
 
-						if ( ! $esc)
-						{
-							$esc = $this->input[$this->parser_pos] == '\\';
+						if ($esc1 >= 2) {
+							$esc1 = hexdec(substr($resulting_string, -2));
+							if ($esc1 && $esc1 >= 0x20 && $esc1 <= 0x7e) {
+								$esc1 = chr($esc1);
+								$resulting_string = substr($resulting_string, 0, -4) . ((($esc1 === $sep) || ($esc1 === '\\')) ? '\\' : '') . $esc1;
+							}
+							$esc1 = 0;
 						}
-						else
-						{
+						if ($esc1) {
+							$esc1++;
+						} else if (!$esc) {
+							$esc = $this->input[$this->parser_pos] == '\\';
+						} else {
 							$esc = false;
+							if ($this->options->decode_characters && $this->input[$this->parser_pos] === 'x') {
+								$esc1++;
+							}
 						}
 						$this->parser_pos++;
 
-						if ($this->parser_pos >= strlen($this->input))
-						{
+						if ($this->parser_pos >= strlen($this->input)) {
 							# incomplete string when end-of-file reached
 							# bail out with what has received so far
 							return array($resulting_string, static::TK_STRING);
@@ -1273,12 +1282,6 @@ class JSBeautifier
 			$this->append(' ');
 		}
 
-		/*
-		 * Try to replace readable \x-encoded characters with their equivalent,
-		 * if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-		 * @todo UNESCAPE!
-		 */
-
 		$this->append($token_text);
 	}
 
@@ -1596,4 +1599,5 @@ class BeautifierOptions
 	public $keep_array_indentation = false;
 	public $keep_function_indentation = false;
 	public $eval_code = false;
+	public $decode_characters = false;
 }
