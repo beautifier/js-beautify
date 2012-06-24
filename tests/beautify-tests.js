@@ -480,6 +480,13 @@ function run_beautifier_tests(test_obj)
     bt('if(a) b()');
 
 
+    opts.unescape_strings = false;
+    bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+    opts.unescape_strings = true;
+    bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"');
+    opts.unescape_strings = false;
+
+
     bt('3.*7;', '3. * 7;')
     bt('import foo.*;', 'import foo.*;') // actionscript's import
     test_fragment('function f(a: a, b: b)') // actionscript
