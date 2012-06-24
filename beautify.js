@@ -41,7 +41,9 @@
                 }
             This mode may break your scripts - e.g "return { a: 1 }" will be broken into two lines, so beware.
 
-    space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)"
+    space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
+
+    unescape_strings (default false) - should printable characters in strings encoded in \xNN notation be unescaped, "example" vs "\x65\x78\x61\x6d\x70\x6c\x65"
 
     e.g
 
@@ -87,6 +89,7 @@ function js_beautify(js_source_text, options) {
     var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
     var opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional;
     var opt_indent_case = typeof options.indent_case === 'undefined' ? false : options.indent_case;
+    var opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
 
     just_added_newline = false;
 
@@ -492,6 +495,8 @@ function js_beautify(js_source_text, options) {
                 (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
+            var esc1 = 0;
+            var esc2 = 0;
             var resulting_string = c;
 
             if (parser_pos < input_length) {
@@ -526,10 +531,29 @@ function js_beautify(js_source_text, options) {
                     //
                     while (esc || input.charAt(parser_pos) !== sep) {
                         resulting_string += input.charAt(parser_pos);
-                        if (!esc) {
+                        if (esc1 && esc1 >= esc2) {
+                            esc1 = parseInt(resulting_string.substr(-esc2), 16);
+                            if (esc1 && esc1 >= 0x20 && esc1 <= 0x7e) {
+                                esc1 = String.fromCharCode(esc1);
+                                resulting_string = resulting_string.substr(0, resulting_string.length - esc2 - 2) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
+                            }
+                            esc1 = 0;
+                        }
+                        if (esc1) {
+                            esc1++;
+                        } else if (!esc) {
                             esc = input.charAt(parser_pos) === '\\';
                         } else {
                             esc = false;
+                            if (opt_unescape_strings) {
+                                if (input.charAt(parser_pos) === 'x') {
+                                    esc1++;
+                                    esc2 = 2;
+                                } else if (input.charAt(parser_pos) === 'u') {
+                                    esc1++;
+                                    esc2 = 4;
+                                }
+                            }
                         }
                         parser_pos += 1;
                         if (parser_pos >= input_length) {
