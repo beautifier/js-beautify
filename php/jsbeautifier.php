@@ -633,7 +633,7 @@ class JSBeautifier
 							$esc1 = hexdec(substr($resulting_string, -$esc2));
 							if ($esc1 && $esc1 >= 0x20 && $esc1 <= 0x7e) {
 								$esc1 = chr($esc1);
-								$resulting_string = substr($resulting_string, 0, -2 - $esc2) . ((($esc1 === $sep) || ($esc1 === '\\')) ? '\\' : '') . $esc1;
+								$resulting_string = substr($resulting_string, 0, -($esc2 + 2)) . ((($esc1 === $sep) || ($esc1 === '\\')) ? '\\' : '') . $esc1;
 							}
 							$esc1 = 0;
 						}
