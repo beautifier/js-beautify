@@ -557,8 +557,9 @@ class Beautifier:
                     while esc or self.input[parser_pos] != sep:
                         resulting_string += self.input[parser_pos]
                         if esc1 >= 2:
-                            esc1 = chr(int(resulting_string[-2:], 16))
-                            if esc1 in string.printable:
+                            esc1 = int(resulting_string[-2:], 16)
+                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
+                                esc1 = chr(esc1)
                                 resulting_string = resulting_string[:-4]
                                 if esc1 == sep or esc1 == '\\':
                                         resulting_string += '\\'

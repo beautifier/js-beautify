@@ -531,8 +531,9 @@ function js_beautify(js_source_text, options) {
                     while (esc || input.charAt(parser_pos) !== sep) {
                         resulting_string += input.charAt(parser_pos);
                         if (esc1 >= 2) {
-                            esc1 = String.fromCharCode(parseInt(resulting_string.substr(-2),16));
-                            if (/^[\x20-\x7E]$/.test(esc1)) {
+                            esc1 = parseInt(resulting_string.substr(-2), 16);
+                            if (esc1 && esc1 >= 0x20 && esc1 <= 0x7e) {
+                                esc1 = String.fromCharCode(esc1);
                                 resulting_string = resulting_string.substr(0, resulting_string.length - 4) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
                             }
                             esc1 = 0;
