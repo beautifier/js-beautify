@@ -582,6 +582,7 @@ class JSBeautifier
 			$sep = $c;
 			$esc = false;
 			$esc1 = 0;
+			$esc2 = 0;
 			$resulting_string = $c;
 
 			if ($this->parser_pos < strlen($this->input))
@@ -628,11 +629,11 @@ class JSBeautifier
 					while ($esc || $this->input[$this->parser_pos] != $sep) {
 						$resulting_string .= $this->input[$this->parser_pos];
 
-						if ($esc1 >= 2) {
-							$esc1 = hexdec(substr($resulting_string, -2));
+						if ($esc1 >= $esc2) {
+							$esc1 = hexdec(substr($resulting_string, -$esc2));
 							if ($esc1 && $esc1 >= 0x20 && $esc1 <= 0x7e) {
 								$esc1 = chr($esc1);
-								$resulting_string = substr($resulting_string, 0, -4) . ((($esc1 === $sep) || ($esc1 === '\\')) ? '\\' : '') . $esc1;
+								$resulting_string = substr($resulting_string, 0, -2 - $esc2) . ((($esc1 === $sep) || ($esc1 === '\\')) ? '\\' : '') . $esc1;
 							}
 							$esc1 = 0;
 						}
@@ -644,6 +645,10 @@ class JSBeautifier
 							$esc = false;
 							if ($this->options->unescape_strings && $this->input[$this->parser_pos] === 'x') {
 								$esc1++;
+								$esc2 = 2;
+							} else if ($this->options->unescape_strings && $this->input[$this->parser_pos] === 'u') {
+								$esc1++;
+								$esc2 = 4;
 							}
 						}
 						$this->parser_pos++;

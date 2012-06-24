@@ -530,6 +530,7 @@ class Beautifier:
             sep = c
             esc = False
             esc1 = 0
+            esc2 = 0
             resulting_string = c
             in_char_class = False
 
@@ -556,14 +557,14 @@ class Beautifier:
                     # handle string
                     while esc or self.input[parser_pos] != sep:
                         resulting_string += self.input[parser_pos]
-                        if esc1 >= 2:
+                        if esc1 >= esc2:
                             try:
-                                esc1 = int(resulting_string[-2:], 16)
+                                esc1 = int(resulting_string[-esc2:], 16)
                             except Exception:
                                 esc1 = False
                             if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
                                 esc1 = chr(esc1)
-                                resulting_string = resulting_string[:-4]
+                                resulting_string = resulting_string[:-2 - esc2]
                                 if esc1 == sep or esc1 == '\\':
                                         resulting_string += '\\'
                                 resulting_string += esc1
@@ -576,6 +577,10 @@ class Beautifier:
                             esc = False
                             if self.opts.unescape_strings and self.input[parser_pos] == 'x':
                                 esc1 += 1
+                                esc2 = 2
+                            elif self.opts.unescape_strings and self.input[parser_pos] == 'u':
+                                esc1 += 1
+                                esc2 = 4
                         parser_pos += 1
                         if parser_pos >= len(self.input):
                             # incomplete string when end-of-file reached

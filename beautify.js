@@ -496,6 +496,7 @@ function js_beautify(js_source_text, options) {
             var sep = c;
             var esc = false;
             var esc1 = 0;
+            var esc2 = 0;
             var resulting_string = c;
 
             if (parser_pos < input_length) {
@@ -530,11 +531,11 @@ function js_beautify(js_source_text, options) {
                     //
                     while (esc || input.charAt(parser_pos) !== sep) {
                         resulting_string += input.charAt(parser_pos);
-                        if (esc1 >= 2) {
-                            esc1 = parseInt(resulting_string.substr(-2), 16);
+                        if (esc1 >= esc2) {
+                            esc1 = parseInt(resulting_string.substr(-esc2), 16);
                             if (esc1 && esc1 >= 0x20 && esc1 <= 0x7e) {
                                 esc1 = String.fromCharCode(esc1);
-                                resulting_string = resulting_string.substr(0, resulting_string.length - 4) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
+                                resulting_string = resulting_string.substr(0, resulting_string.length - esc2 - 2) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
                             }
                             esc1 = 0;
                         }
@@ -544,8 +545,14 @@ function js_beautify(js_source_text, options) {
                             esc = input.charAt(parser_pos) === '\\';
                         } else {
                             esc = false;
-                            if (opt_unescape_strings && input.charAt(parser_pos) === 'x') {
-                                esc1++;
+                            if (opt_unescape_strings) {
+                                if (input.charAt(parser_pos) === 'x') {
+                                    esc1++;
+                                    esc2 = 2;
+                                } else if (input.charAt(parser_pos) === 'u') {
+                                    esc1++;
+                                    esc2 = 4;
+                                }
                             }
                         }
                         parser_pos += 1;
