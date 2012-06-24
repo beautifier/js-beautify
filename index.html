@@ -21,13 +21,17 @@ img {
     border: 0;
 }
 
-p, select, label, .blurb {
+p, select, label, .blurb, a.turn-off-codemirror {
     font:13px/1.231 arial, sans-serif;
     *font-size:small;
 }
 
 a {
     color: #36d;
+}
+
+a.turn-off-codemirror {
+    margin-left: 25px;
 }
 
 button#submit {
@@ -331,7 +335,7 @@ $(function() {
           <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
           <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</label><br>
           <input class="checkbox" type="checkbox" id="decode-characters"><label for="decode-characters"> Decode printable chars encoded in \xNN notation?</label>
-          <br><a style="margin-left: 25px" href="?without-codemirror">Turn off bells and whistles?</a>
+          <br><a href="?without-codemirror" class="turn-off-codemirror">Turn off bells and whistles?</a>
 
 
         </td></tr>
