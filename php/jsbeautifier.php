@@ -642,7 +642,7 @@ class JSBeautifier
 							$esc = $this->input[$this->parser_pos] == '\\';
 						} else {
 							$esc = false;
-							if ($this->options->decode_characters && $this->input[$this->parser_pos] === 'x') {
+							if ($this->options->unescape_strings && $this->input[$this->parser_pos] === 'x') {
 								$esc1++;
 							}
 						}
@@ -1599,5 +1599,5 @@ class BeautifierOptions
 	public $keep_array_indentation = false;
 	public $keep_function_indentation = false;
 	public $eval_code = false;
-	public $decode_characters = false;
+	public $unescape_strings = false;
 }

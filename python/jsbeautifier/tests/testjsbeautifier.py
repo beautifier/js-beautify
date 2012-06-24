@@ -24,7 +24,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);')
 	bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz"');
 
-        self.options.decode_characters = True
+        self.options.unescape_strings = True
 
         bt('"\\x41\\x42\\x43\\x01"', '"ABC\\x01"');
         bt('"\\u2022"', '"\\u2022"');
@@ -32,7 +32,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"ABC\\x01".match(/\\x41/);')
 	bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz"');
 
-        self.options.decode_characters = False
+        self.options.unescape_strings = False
 
     def test_beautifier(self):
         test_fragment = self.decodesto

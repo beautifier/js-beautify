@@ -480,11 +480,11 @@ function run_beautifier_tests(test_obj)
     bt('if(a) b()');
 
 
-    opts.decode_characters = false;
+    opts.unescape_strings = false;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz"');
-    opts.decode_characters = true;
+    opts.unescape_strings = true;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz"');
-    opts.decode_characters = false;
+    opts.unescape_strings = false;
 
 
     bt('3.*7;', '3. * 7;')

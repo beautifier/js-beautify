@@ -145,7 +145,7 @@ function read_settings_from_cookie() {
     $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
     $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
-    $('#decode-characters').attr('checked', $.cookie('decode-characters') === 'on');
+    $('#unescape-strings').attr('checked', $.cookie('unescape-strings') === 'on');
 }
 
 function store_settings_to_cookie() {
@@ -156,7 +156,7 @@ function store_settings_to_cookie() {
     $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
     $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('decode-characters', $('#decode-characters').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('unescape-strings', $('#unescape-strings').attr('checked') ? 'on' : 'off', opts);
     $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
 }
 
@@ -221,7 +221,7 @@ function beautify() {
     var indent_scripts = $('#indent-scripts').val();
     var brace_style = $('#brace-style').val();
     var space_before_conditional = $('#space-before-conditional').attr('checked');
-    var decode_characters = $('#decode-characters').attr('checked');
+    var unescape_strings = $('#unescape-strings').attr('checked');
 
 
     var opts = {
@@ -232,7 +232,7 @@ function beautify() {
                 keep_array_indentation:keep_array_indentation,
                 space_after_anon_function:true,
                 space_before_conditional: space_before_conditional,
-		decode_characters: decode_characters,
+		unescape_strings: unescape_strings,
                 indent_scripts:indent_scripts};
 
     var output;
@@ -334,7 +334,7 @@ $(function() {
           <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
           <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
           <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</label><br>
-          <input class="checkbox" type="checkbox" id="decode-characters"><label for="decode-characters"> Decode printable chars encoded in \xNN notation?</label>
+          <input class="checkbox" type="checkbox" id="unescape-strings"><label for="unescape-strings"> Unescape printable chars encoded as \xNN or \uNNNN?</label>
           <br><a href="?without-codemirror" class="turn-off-codemirror">Turn off bells and whistles?</a>
 
 

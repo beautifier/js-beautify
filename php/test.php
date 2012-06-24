@@ -472,11 +472,11 @@ bt('if (a)'."\n".'{'."\n".'b;'."\n".'}'."\n".'else'."\n".'{'."\n".'c;'."\n".'}',
 
 test_fragment('    /*'."\n".'* xx'."\n".'*/'."\n".'// xx'."\n".'if (foo) {'."\n".'    bar();'."\n".'}', '    /*'."\n".'     * xx'."\n".'     */'."\n".'    // xx'."\n".'    if (foo) {'."\n".'        bar();'."\n".'    }');
 
-$opts->decode_characters = false;
+$opts->unescape_strings = false;
 bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz"');
-$opts->decode_characters = true;
+$opts->unescape_strings = true;
 bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz"');
-$opts->decode_characters = false;
+$opts->unescape_strings = false;
 
 bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
 bt('a = <%= external() %> ;');

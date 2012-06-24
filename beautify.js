@@ -43,7 +43,7 @@
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
 
-    decode_characters (default false) - should printable characters in strings encoded in \xNN notation be decoded, "example" vs "\x65\x78\x61\x6d\x70\x6c\x65"
+    unescape_strings (default false) - should printable characters in strings encoded in \xNN notation be unescaped, "example" vs "\x65\x78\x61\x6d\x70\x6c\x65"
 
     e.g
 
@@ -89,7 +89,7 @@ function js_beautify(js_source_text, options) {
     var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
     var opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional;
     var opt_indent_case = typeof options.indent_case === 'undefined' ? false : options.indent_case;
-    var opt_decode_characters = typeof options.decode_characters === 'undefined' ? false : options.decode_characters;
+    var opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
 
     just_added_newline = false;
 
@@ -544,7 +544,7 @@ function js_beautify(js_source_text, options) {
                             esc = input.charAt(parser_pos) === '\\';
                         } else {
                             esc = false;
-                            if (opt_decode_characters && input.charAt(parser_pos) === 'x') {
+                            if (opt_unescape_strings && input.charAt(parser_pos) === 'x') {
                                 esc1++;
                             }
                         }

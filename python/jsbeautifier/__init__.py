@@ -42,7 +42,7 @@ class BeautifierOptions:
         self.keep_array_indentation = False
         self.keep_function_indentation = False
         self.eval_code = False
-        self.decode_characters = False
+        self.unescape_strings = False
 
 
 
@@ -57,7 +57,7 @@ indent_with_tabs = %s
 brace_style = %s
 keep_array_indentation = %s
 eval_code = %s
-decode_characters = %s
+unescape_strings = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
@@ -67,7 +67,7 @@ decode_characters = %s
         self.brace_style,
         self.keep_array_indentation,
         self.eval_code,
-        self.decode_characters,
+        self.unescape_strings,
         )
 
 
@@ -134,7 +134,7 @@ Output options:
  -k,  --keep-array-indentation     keep array indentation.
  -o,  --outfile=FILE               specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
- -x,  --decode-characters          Decode printable chars encoded in \\xNN notation.
+ -x,  --unescape-strings          Decode printable chars encoded in \\xNN notation.
 
 Rarely needed options:
 
@@ -574,7 +574,7 @@ class Beautifier:
                             esc = self.input[parser_pos] == '\\'
                         else:
                             esc = False
-                            if self.opts.decode_characters and self.input[parser_pos] == 'x':
+                            if self.opts.unescape_strings and self.input[parser_pos] == 'x':
                                 esc1 += 1
                         parser_pos += 1
                         if parser_pos >= len(self.input):
@@ -1127,7 +1127,7 @@ def main():
     try:
         opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
-                                                          'keep-array-indentation', 'indent-level=', 'decode-characters', 'help',
+                                                          'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
         return usage()
@@ -1160,8 +1160,8 @@ def main():
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
-        elif opt in ('--decode-characters', '-x'):
-            js_options.decode_characters = True
+        elif opt in ('--unescape-strings', '-x'):
+            js_options.unescape_strings = True
         elif opt in ('--stdin', '-i'):
             file = '-'
         elif opt in ('--help', '--usage', '-h'):
