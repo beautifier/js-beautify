@@ -42,6 +42,7 @@ class BeautifierOptions:
         self.keep_array_indentation = False
         self.keep_function_indentation = False
         self.eval_code = False
+        self.decode_characters = False
 
 
 
@@ -56,6 +57,7 @@ indent_with_tabs = %s
 brace_style = %s
 keep_array_indentation = %s
 eval_code = %s
+decode_characters = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
@@ -65,6 +67,7 @@ eval_code = %s
         self.brace_style,
         self.keep_array_indentation,
         self.eval_code,
+        self.decode_characters,
         )
 
 
@@ -131,6 +134,7 @@ Output options:
  -k,  --keep-array-indentation     keep array indentation.
  -o,  --outfile=FILE               specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
+ -x,  --decode-characters          Decode printable chars encoded in \\xNN notation.
 
 Rarely needed options:
 
@@ -525,6 +529,7 @@ class Beautifier:
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
             sep = c
             esc = False
+            esc1 = 0
             resulting_string = c
             in_char_class = False
 
@@ -551,10 +556,22 @@ class Beautifier:
                     # handle string
                     while esc or self.input[parser_pos] != sep:
                         resulting_string += self.input[parser_pos]
-                        if not esc:
+                        if esc1 >= 2:
+                            esc1 = chr(int(resulting_string[-2:], 16))
+                            if esc1 in string.printable:
+                                resulting_string = resulting_string[:-4]
+                                if esc1 == sep or esc1 == '\\':
+                                        resulting_string += '\\'
+                                resulting_string += esc1
+                            esc1 = 0
+                        if esc1:
+                            esc1 += 1
+                        elif not esc:
                             esc = self.input[parser_pos] == '\\'
                         else:
                             esc = False
+                            if self.opts.decode_characters and self.input[parser_pos] == 'x':
+                                esc1 += 1
                         parser_pos += 1
                         if parser_pos >= len(self.input):
                             # incomplete string when end-of-file reached
@@ -916,17 +933,6 @@ class Beautifier:
         elif self.last_type == 'TK_WORD':
             self.append(' ')
 
-        # Try to replace readable \x-encoded characters with their equivalent,
-        # if it is possible (e.g. '\x41\x42\x43\x01' becomes 'ABC\x01').
-        def unescape(match):
-            block, code = match.group(0, 1)
-            char = chr(int(code, 16))
-            if block.count('\\') == 1 and char in string.printable:
-                return char
-            return block
-
-        token_text = re.sub(r'\\{1,2}x([a-fA-F0-9]{2})', unescape, token_text)
-
         self.append(token_text)
 
     def handle_equals(self, token_text):
@@ -1115,9 +1121,9 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:htf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
                                                           'jslint-happy', 'brace-style=',
-                                                          'keep-array-indentation', 'indent-level=', 'help',
+                                                          'keep-array-indentation', 'indent-level=', 'decode-characters', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
         return usage()
@@ -1150,6 +1156,8 @@ def main():
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
+        elif opt in ('--decode-characters', '-x'):
+            js_options.decode_characters = True
         elif opt in ('--stdin', '-i'):
             file = '-'
         elif opt in ('--help', '--usage', '-h'):
