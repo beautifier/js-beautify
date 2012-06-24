@@ -531,7 +531,7 @@ function js_beautify(js_source_text, options) {
                     //
                     while (esc || input.charAt(parser_pos) !== sep) {
                         resulting_string += input.charAt(parser_pos);
-                        if (esc1 >= esc2) {
+                        if (esc1 && esc1 >= esc2) {
                             esc1 = parseInt(resulting_string.substr(-esc2), 16);
                             if (esc1 && esc1 >= 0x20 && esc1 <= 0x7e) {
                                 esc1 = String.fromCharCode(esc1);
