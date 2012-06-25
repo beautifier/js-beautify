@@ -36,4 +36,4 @@ Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
 
 Thanks to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
-Mathias Bynens and others.
+Mathias Bynens, Vittorio Gambaletta and others.
