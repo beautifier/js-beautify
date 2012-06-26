@@ -240,8 +240,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
 
-        bt('x: y, // comment'); # FIXME #44
-
         # inline comment
         bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
 
@@ -441,9 +439,13 @@ class TestJSBeautifier(unittest.TestCase):
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
         bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}')
 
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+
+
         bt('3.*7;', '3. * 7;')
         bt('import foo.*;', 'import foo.*;') # actionscript's import
         test_fragment('function f(a: a, b: b)') # actionscript
+
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

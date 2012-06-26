@@ -1271,6 +1271,9 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMENT':
 
+            if (last_text == ',' && ! wanted_newline) {
+                trim_output(true);
+            }
             if (last_type != 'TK_COMMENT') {
                 if (wanted_newline) {
                     print_newline();

@@ -1099,6 +1099,9 @@ class Beautifier:
 
 
     def handle_comment(self, token_text):
+        if self.last_text == ',' and not self.wanted_newline:
+            self.trim_output(True)
+
         if self.last_type != 'TK_COMMENT':
             if self.wanted_newline:
                 self.append_newline()
