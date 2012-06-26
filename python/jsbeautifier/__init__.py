@@ -515,7 +515,6 @@ class Beautifier:
                     parser_pos += 1
                     if parser_pos >= len(self.input):
                         break
-                parser_pos += 1
                 if self.wanted_newline:
                     self.append_newline()
                 return comment, 'TK_COMMENT'
@@ -819,6 +818,13 @@ class Beautifier:
                 for i in range(2 - have_newlines):
                     self.append_newline(False)
 
+            if self.last_text in ['get', 'set', 'new']:
+                self.append(' ')
+
+            self.append('function')
+            self.last_word = 'function'
+            return
+
         if token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement):
             if self.last_text == ':':
                 self.remove_indent()
@@ -869,9 +875,6 @@ class Beautifier:
             else:
                 prefix = 'NEWLINE'
 
-            if token_text == 'function' and self.last_text in ['get', 'set']:
-                prefix = 'SPACE'
-
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
@@ -881,13 +884,7 @@ class Beautifier:
                 self.trim_output(True)
                 self.append(' ')
         elif prefix == 'NEWLINE':
-            if token_text == 'function' and (self.last_type == 'TK_START_EXPR' or self.last_text in '=,'):
-                # no need to force newline on "function" -
-                #   (function...
-                pass
-            elif token_text == 'function' and self.last_text == 'new':
-                self.append(' ')
-            elif self.is_special_word(self.last_text):
+            if self.is_special_word(self.last_text):
                 # no newline between return nnn
                 self.append(' ')
             elif self.last_type != 'TK_END_EXPR':
@@ -938,7 +935,7 @@ class Beautifier:
     def handle_string(self, token_text):
         if self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(COND-EXPRESSION)', '(FOR-EXPRESSION)']:
             self.append(' ')
-        if self.last_type in ['TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
+        if self.last_type in ['TK_COMMENT', 'TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
@@ -1102,18 +1099,13 @@ class Beautifier:
 
 
     def handle_comment(self, token_text):
-        if self.last_type == 'TK_COMMENT':
-            self.append_newline()
-            if self.wanted_newline:
-                self.append_newline(False)
-        else:
+        if self.last_type != 'TK_COMMENT':
             if self.wanted_newline:
                 self.append_newline()
             else:
                 self.append(' ')
 
         self.append(token_text)
-        self.append_newline_forced()
 
 
     def handle_unknown(self, token_text):

@@ -122,9 +122,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 1e-10', "a = 1e-10");
         bt('a = e - 10', "a = e - 10");
         bt('a = 11-10', "a = 11 - 10");
-        bt("a = 1;// comment\n", "a = 1; // comment");
-        bt("a = 1; // comment\n", "a = 1; // comment");
-        bt("a = 1;\n // comment\n", "a = 1;\n// comment");
+        bt("a = 1;// comment", "a = 1; // comment");
+        bt("a = 1; // comment", "a = 1; // comment");
+        bt("a = 1;\n // comment", "a = 1;\n// comment");
 
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
@@ -240,7 +240,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('var a=1,b={foo:2,bar:3},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    c = 4;');
 
-        #bt('x: y, // comment'); # FIXME #44
+        bt('x: y, // comment'); # FIXME #44
 
         # inline comment
         bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -418,6 +418,10 @@ class TestJSBeautifier(unittest.TestCase):
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
         test_fragment("if (..) {\n    // ....\n}\n(function");
+
+        self.options.preserve_newlines = True;
+        bt('var a = 42; // foo\n\nvar b;')
+        bt('var a = 42; // foo\n\n\nvar b;')
 
         bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"')
         bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'")
