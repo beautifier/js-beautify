@@ -159,9 +159,9 @@ function run_beautifier_tests(test_obj)
     bt('a = 1e-10', "a = 1e-10");
     bt('a = e - 10', "a = e - 10");
     bt('a = 11-10', "a = 11 - 10");
-    bt("a = 1;// comment\n", "a = 1; // comment");
-    bt("a = 1; // comment\n", "a = 1; // comment");
-    bt("a = 1;\n // comment\n", "a = 1;\n// comment");
+    bt("a = 1;// comment", "a = 1; // comment");
+    bt("a = 1; // comment", "a = 1; // comment");
+    bt("a = 1;\n // comment", "a = 1;\n// comment");
 
     bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
@@ -451,7 +451,7 @@ function run_beautifier_tests(test_obj)
     bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
     bt('a = <%= external() %> ;');
 
-    bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment', '// func-comment\nfunction foo() {}\n\n// end-func-comment');
+    bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment');
 
     test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 
@@ -479,13 +479,16 @@ function run_beautifier_tests(test_obj)
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
+    opts.preserve_newlines = true;
+    bt('var a = 42; // foo\n\nvar b;');
+    bt('var a = 42; // foo\n\n\nvar b;');
 
     opts.unescape_strings = false;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
     opts.unescape_strings = true;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"');
     opts.unescape_strings = false;
-
+    bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
 
     bt('3.*7;', '3. * 7;')
     bt('import foo.*;', 'import foo.*;') // actionscript's import
