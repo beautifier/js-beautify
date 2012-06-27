@@ -490,6 +490,10 @@ function run_beautifier_tests(test_obj)
     opts.unescape_strings = false;
     bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
 
+    bt('return function();')
+    bt('var a = function();')
+    bt('var a = 5 + function();')
+
     bt('3.*7;', '3. * 7;')
     bt('import foo.*;', 'import foo.*;') // actionscript's import
     test_fragment('function f(a: a, b: b)') // actionscript

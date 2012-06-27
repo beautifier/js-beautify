@@ -818,7 +818,7 @@ class Beautifier:
                 for i in range(2 - have_newlines):
                     self.append_newline(False)
 
-            if self.last_text in ['get', 'set', 'new']:
+            if self.last_text in ['get', 'set', 'new'] or self.last_type == 'TK_WORD':
                 self.append(' ')
 
             self.append('function')

@@ -926,7 +926,7 @@ function js_beautify(js_source_text, options) {
                         print_newline(false);
                     }
                 }
-                if (last_text === 'get' || last_text === 'set' || last_text === 'new') {
+                if (last_type == 'TK_WORD' || last_text === 'get' || last_text === 'set' || last_text === 'new') {
                     print_single_space();
                 }
                 print_token();

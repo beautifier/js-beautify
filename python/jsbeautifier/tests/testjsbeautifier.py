@@ -440,6 +440,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}')
 
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('return function();')
+        bt('var a = function();')
+        bt('var a = 5 + function();')
 
 
         bt('3.*7;', '3. * 7;')
