@@ -269,11 +269,11 @@ class Beautifier:
         return s in ['case', 'return', 'do', 'if', 'throw', 'else'];
 
     def is_array(self, mode):
-        return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]']
+        return mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]']
 
 
     def is_expression(self, mode):
-        return mode in ['[EXPRESSION]', '[INDENDED-EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']
+        return mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']
 
 
     def append_newline_forced(self):
