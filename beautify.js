@@ -649,7 +649,9 @@ function js_beautify(js_source_text, options) {
                 }
             }
 
-            if (c === '=') {
+            if (c === ',') {
+                return [c, 'TK_COMMA'];
+            } else if (c === '=') {
                 return [c, 'TK_EQUALS'];
             } else {
                 return [c, 'TK_OPERATOR'];
@@ -1083,32 +1085,55 @@ function js_beautify(js_source_text, options) {
             print_single_space();
             break;
 
+        case 'TK_COMMA':
+            if (flags.var_line) {
+                if (is_expression(flags.mode)) {
+                    // do not break on comma, for(var a = 1, b = 2)
+                    flags.var_line_tainted = false;
+                }
+                if (flags.var_line_tainted) {
+                    print_token();
+                    flags.var_line_reindented = true;
+                    flags.var_line_tainted = false;
+                    print_newline();
+                    break;
+                } else {
+                    flags.var_line_tainted = false;
+                }
+
+                print_token();
+                print_single_space();
+                break;
+            }
+
+            if (last_type == 'TK_COMMENT') {
+                print_newline();
+            }
+
+            if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
+                print_token();
+                if (flags.mode === 'OBJECT' && last_text === '}') {
+                    print_newline();
+                } else {
+                    print_single_space();
+                }
+            } else {
+                if (flags.mode === 'OBJECT') {
+                    print_token();
+                    print_newline();
+                } else {
+                    // EXPR or DO_BLOCK
+                    print_token();
+                    print_single_space();
+                }
+            }
+            break;
+
+
         case 'TK_OPERATOR':
 
             var space_before = true;
             var space_after = true;
-
-            if (flags.var_line && token_text === ',' && (is_expression(flags.mode))) {
-                // do not break on comma, for(var a = 1, b = 2)
-                flags.var_line_tainted = false;
-            }
-
-            if (flags.var_line) {
-                if (token_text === ',') {
-                    if (flags.var_line_tainted) {
-                        print_token();
-                        flags.var_line_reindented = true;
-                        flags.var_line_tainted = false;
-                        print_newline();
-                        break;
-                    } else {
-                        flags.var_line_tainted = false;
-                    }
-                // } else if (token_text === ':') {
-                    // hmm, when does this happen? tests don't catch this
-                    // flags.var_line = false;
-                }
-            }
 
             if (is_special_word(last_text)) {
                 // "return" had a special handling in TK_WORD. Now we need to return the favor
@@ -1138,36 +1163,7 @@ function js_beautify(js_source_text, options) {
                 break;
             }
 
-            if (token_text === ',') {
-                if (flags.var_line) {
-                    if (flags.var_line_tainted) {
-                        print_token();
-                        print_newline();
-                        flags.var_line_tainted = false;
-                    } else {
-                        print_token();
-                        print_single_space();
-                    }
-                } else if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
-                    print_token();
-                    if (flags.mode === 'OBJECT' && last_text === '}') {
-                        print_newline();
-                    } else {
-                        print_single_space();
-                    }
-                } else {
-                    if (flags.mode === 'OBJECT') {
-                        print_token();
-                        print_newline();
-                    } else {
-                        // EXPR or DO_BLOCK
-                        print_token();
-                        print_single_space();
-                    }
-                }
-                break;
-            // } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS']) || in_array(last_text, line_starters) || in_array(last_text, ['==', '!=', '+=', '-=', '*=', '/=', '+', '-'])))) {
-            } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) {
+            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
@@ -1211,10 +1207,6 @@ function js_beautify(js_source_text, options) {
 
             if (space_after) {
                 print_single_space();
-            }
-
-            if (token_text === '!') {
-                // flags.eat_next_space = true;
             }
 
             break;

@@ -233,6 +233,7 @@ class Beautifier:
                 'TK_STRING': self.handle_string,
                 'TK_EQUALS': self.handle_equals,
                 'TK_OPERATOR': self.handle_operator,
+                'TK_COMMA': self.handle_comma,
                 'TK_BLOCK_COMMENT': self.handle_block_comment,
                 'TK_INLINE_COMMENT': self.handle_inline_comment,
                 'TK_COMMENT': self.handle_comment,
@@ -656,8 +657,11 @@ class Beautifier:
                     break
             if c == '=':
                 return c, 'TK_EQUALS'
-            else:
-                return c, 'TK_OPERATOR'
+
+            if c == ',':
+                return c, 'TK_COMMA'
+            return c, 'TK_OPERATOR'
+
         return c, 'TK_UNKNOWN'
 
 
@@ -942,6 +946,7 @@ class Beautifier:
 
         self.append(token_text)
 
+
     def handle_equals(self, token_text):
         if self.flags.var_line:
             # just got an '=' in a var-line, different line breaking rules will apply
@@ -952,15 +957,16 @@ class Beautifier:
         self.append(' ')
 
 
-    def handle_operator(self, token_text):
-        space_before = True
-        space_after = True
+    def handle_comma(self, token_text):
 
-        if self.flags.var_line and token_text == ',' and self.is_expression(self.flags.mode):
-            # do not break on comma, for ( var a = 1, b = 2
-            self.flags.var_line_tainted = False
 
-        if self.flags.var_line and token_text == ',':
+        if self.last_type == 'TK_COMMENT':
+            self.append_newline();
+
+        if self.flags.var_line:
+            if self.is_expression(self.flags.mode):
+                # do not break on comma, for ( var a = 1, b = 2
+                self.flags.var_line_tainted = False
             if self.flags.var_line_tainted:
                 self.append(token_text)
                 self.flags.var_line_reindented = True
@@ -969,6 +975,30 @@ class Beautifier:
                 return
             else:
                 self.flags.var_line_tainted = False
+
+            self.append(token_text)
+            self.append(' ');
+            return
+
+        if self.last_type == 'TK_END_BLOCK' and self.flags.mode != '(EXPRESSION)':
+            self.append(token_text)
+            if self.flags.mode == 'OBJECT' and self.last_text == '}':
+                self.append_newline()
+            else:
+                self.append(' ')
+        else:
+            if self.flags.mode == 'OBJECT':
+                self.append(token_text)
+                self.append_newline()
+            else:
+                # EXPR or DO_BLOCK
+                self.append(token_text)
+                self.append(' ')
+
+
+    def handle_operator(self, token_text):
+        space_before = True
+        space_after = True
 
         if self.is_special_word(self.last_text):
             # return had a special handling in TK_WORD
@@ -994,33 +1024,7 @@ class Beautifier:
             return
 
 
-        if token_text == ',':
-            if self.flags.var_line:
-                if self.flags.var_line_tainted:
-                    # This never happens, as it's handled previously, right?
-                    self.append(token_text)
-                    self.append_newline()
-                    self.flags.var_line_tainted = False
-                else:
-                    self.append(token_text)
-                    self.append(' ')
-            elif self.last_type == 'TK_END_BLOCK' and self.flags.mode != '(EXPRESSION)':
-                self.append(token_text)
-                if self.flags.mode == 'OBJECT' and self.last_text == '}':
-                    self.append_newline()
-                else:
-                    self.append(' ')
-            else:
-                if self.flags.mode == 'OBJECT':
-                    self.append(token_text)
-                    self.append_newline()
-                else:
-                    # EXPR or DO_BLOCK
-                    self.append(token_text)
-                    self.append(' ')
-            # comma handled
-            return
-        elif token_text in ['--', '++', '!'] \
+        if token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
                     or self.last_text in self.line_starters)):

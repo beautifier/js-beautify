@@ -322,7 +322,7 @@ function run_beautifier_tests(test_obj)
     bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
-    bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    },\n    7, 8, 8, 8, 8,\n    {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
+    bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    },\n    7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
 
     bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
     bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
@@ -497,6 +497,8 @@ function run_beautifier_tests(test_obj)
     bt('3.*7;', '3. * 7;')
     bt('import foo.*;', 'import foo.*;') // actionscript's import
     test_fragment('function f(a: a, b: b)') // actionscript
+
+    bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}');
 
     return sanitytest;
 }

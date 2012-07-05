@@ -34,8 +34,10 @@ edit:
 
 gedit:
 	gvim \
-		beautify.js python/jsbeautifier/__init__.py \
-		tests/beautify-tests.js python/jsbeautifier/tests/testjsbeautifier.py &
+		beautify.js \
+		tests/beautify-tests.js \
+		python/jsbeautifier/__init__.py \
+		python/jsbeautifier/tests/testjsbeautifier.py &
 
 tests: testj testp
 
