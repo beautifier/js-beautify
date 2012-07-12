@@ -463,7 +463,7 @@ function js_beautify(js_source_text, options) {
                     }
                 }
                 parser_pos += 2;
-                if (inline_comment && n_newlines == 0) {
+                if (inline_comment && n_newlines === 0) {
                     return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
                 } else {
                     return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
@@ -1196,7 +1196,7 @@ function js_beautify(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                if (flags.ternary_depth == 0) {
+                if (flags.ternary_depth === 0) {
                     if (flags.mode == 'BLOCK') {
                         flags.mode = 'OBJECT';
                     }
