@@ -113,8 +113,7 @@ function js_beautify(js_source_text, options) {
 
     // we could use just string.split, but
     // IE doesn't like returning empty strings
-    function split_newlines(s)
-    {
+    function split_newlines(s) {
         //return s.split(/\x0d\x0a|\x0a/);
 
         s = s.replace(/\x0d/g, '');
@@ -131,8 +130,7 @@ function js_beautify(js_source_text, options) {
         return out;
     }
 
-    function force_newline()
-    {
+    function force_newline() {
         var old_keep_array_indentation = opt_keep_array_indentation;
         opt_keep_array_indentation = false;
         print_newline();
@@ -169,7 +167,7 @@ function js_beautify(js_source_text, options) {
             output.push(indent_string); // skip space-stuffing, if indenting with a tab
         }
         if (flags.case_body) {
-          output.push(indent_string);
+            output.push(indent_string);
         }
     }
 
@@ -228,7 +226,7 @@ function js_beautify(js_source_text, options) {
             case_body: false, // the indented case-action block
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + (flags.case_body?1:0) + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
+            indentation_level: (flags ? flags.indentation_level + (flags.case_body ? 1 : 0) + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
     }
@@ -260,8 +258,7 @@ function js_beautify(js_source_text, options) {
         return true;
     }
 
-    function is_special_word(word)
-    {
+    function is_special_word(word) {
         return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else']);
     }
 
@@ -366,7 +363,7 @@ function js_beautify(js_source_text, options) {
             while (in_array(c, whitespace)) {
 
                 if (c === "\n") {
-                    n_newlines += ( (opt_max_preserve_newlines) ? (n_newlines <= opt_max_preserve_newlines) ? 1: 0: 1 );
+                    n_newlines += ((opt_max_preserve_newlines) ? (n_newlines <= opt_max_preserve_newlines) ? 1 : 0 : 1);
                 }
 
 
@@ -926,7 +923,7 @@ function js_beautify(js_source_text, options) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
                     n_newlines = just_added_newline ? n_newlines : 0;
-                    if ( ! opt_preserve_newlines) {
+                    if (!opt_preserve_newlines) {
                         n_newlines = 1;
                     }
 
@@ -1151,7 +1148,7 @@ function js_beautify(js_source_text, options) {
             }
 
             // hack for actionscript's import .*;
-            if (token_text === '*' && last_type === 'TK_UNKNOWN' && ! last_last_text.match(/^\d+$/)) {
+            if (token_text === '*' && last_type === 'TK_UNKNOWN' && !last_last_text.match(/^\d+$/)) {
                 print_token();
                 break;
             }
@@ -1274,7 +1271,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMENT':
 
-            if (last_text === ',' && ! wanted_newline) {
+            if (last_text === ',' && !wanted_newline) {
                 trim_output(true);
             }
             if (last_type !== 'TK_COMMENT') {
