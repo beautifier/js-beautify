@@ -1,4 +1,5 @@
 /*jslint onevar: false, plusplus: false */
+/*jshint curly:true, laxbreak:true, noempty:false */
 /*
 
  JS Beautifier
@@ -278,7 +279,9 @@ function js_beautify(js_source_text, options) {
         var c = input.charAt(local_pos);
         while (in_array(c, whitespace) && c != exclude) {
             local_pos++;
-            if (local_pos >= input_length) return 0;
+            if (local_pos >= input_length) {
+                return 0;
+            }
             c = input.charAt(local_pos);
         }
         return c;
@@ -842,7 +845,9 @@ function js_beautify(js_source_text, options) {
                     }
                 }
                 print_token();
-                if (!empty_braces) indent();
+                if (!empty_braces) {
+                    indent();
+                }
             } else {
                 if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                     if (last_type === 'TK_START_BLOCK') {
@@ -942,11 +947,13 @@ function js_beautify(js_source_text, options) {
                     remove_indent();
                 } else {
                     // case statement starts in the same line where switch
-                    if (!opt_indent_case)
+                    if (!opt_indent_case) {
                         flags.indentation_level--;
+                    }
                     print_newline();
-                    if (!opt_indent_case)
+                    if (!opt_indent_case) {
                         flags.indentation_level++;
+                    }
                 }
                 print_token();
                 flags.in_case = true;
@@ -1149,8 +1156,9 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === ':' && flags.in_case) {
-                if (opt_indent_case)
+                if (opt_indent_case) {
                     flags.case_body = true;
+                }
                 print_token(); // colon really asks for separate treatment
                 print_newline();
                 flags.in_case = false;
@@ -1247,8 +1255,9 @@ function js_beautify(js_source_text, options) {
                 }
 
             }
-            if(look_up('\n') != '\n')
+            if (look_up('\n') != '\n') {
                 print_newline();
+            }
             break;
 
         case 'TK_INLINE_COMMENT':
@@ -1296,5 +1305,6 @@ function js_beautify(js_source_text, options) {
 
 // Add support for CommonJS. Just put this file somewhere on your require.paths
 // and you will be able to `var js_beautify = require("beautify").js_beautify`.
-if (typeof exports !== "undefined")
+if (typeof exports !== "undefined") {
     exports.js_beautify = js_beautify;
+}
