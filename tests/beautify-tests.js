@@ -1,7 +1,7 @@
 /*global js_beautify */
 
 
-opts = {
+var opts = {
     indent_size: 4,
     indent_char: ' ',
     preserve_newlines: true,
@@ -9,7 +9,7 @@ opts = {
     keep_array_indentation: false,
     brace_style: 'collapse',
     space_before_conditional: true
-}
+};
 
 function test_beautifier(input)
 {
@@ -443,7 +443,7 @@ function run_beautifier_tests(test_obj)
     bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
     bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
 
-    test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }')
+    test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
 
     bt('if (foo) {}\nelse /regex/.test();');
     // bt('if (foo) /regex/.test();'); // doesn't work, detects as a division. should it work?
@@ -490,13 +490,13 @@ function run_beautifier_tests(test_obj)
     opts.unescape_strings = false;
     bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
 
-    bt('return function();')
-    bt('var a = function();')
-    bt('var a = 5 + function();')
+    bt('return function();');
+    bt('var a = function();');
+    bt('var a = 5 + function();');
 
-    bt('3.*7;', '3. * 7;')
-    bt('import foo.*;', 'import foo.*;') // actionscript's import
-    test_fragment('function f(a: a, b: b)') // actionscript
+    bt('3.*7;', '3. * 7;');
+    bt('import foo.*;', 'import foo.*;'); // actionscript's import
+    test_fragment('function f(a: a, b: b)'); // actionscript
 
     bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}');
 
