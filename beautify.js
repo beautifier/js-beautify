@@ -1,5 +1,5 @@
 /*jslint onevar: false, plusplus: false */
-/*jshint curly:true, laxbreak:true, noempty:false */
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
 /*
 
  JS Beautifier
@@ -120,7 +120,7 @@ function js_beautify(js_source_text, options) {
         s = s.replace(/\x0d/g, '');
         var out = [],
             idx = s.indexOf("\n");
-        while (idx != -1) {
+        while (idx !== -1) {
             out.push(s.substring(0, idx));
             s = s.substring(idx + 1);
             idx = s.indexOf("\n");
@@ -277,7 +277,7 @@ function js_beautify(js_source_text, options) {
     function look_up(exclude) {
         var local_pos = parser_pos;
         var c = input.charAt(local_pos);
-        while (in_array(c, whitespace) && c != exclude) {
+        while (in_array(c, whitespace) && c !== exclude) {
             local_pos++;
             if (local_pos >= input_length) {
                 return 0;
@@ -590,7 +590,7 @@ function js_beautify(js_source_text, options) {
             if (output.length === 0 && input.charAt(parser_pos) === '!') {
                 // shebang
                 resulting_string = c;
-                while (parser_pos < input_length && c != '\n') {
+                while (parser_pos < input_length && c !== '\n') {
                     c = input.charAt(parser_pos);
                     resulting_string += c;
                     parser_pos += 1;
@@ -628,7 +628,7 @@ function js_beautify(js_source_text, options) {
         if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
             parser_pos += 3;
             c = '<!--';
-            while (input.charAt(parser_pos) != '\n' && parser_pos < input_length) {
+            while (input.charAt(parser_pos) !== '\n' && parser_pos < input_length) {
                 c += input.charAt(parser_pos);
                 parser_pos++;
             }
@@ -829,11 +829,10 @@ function js_beautify(js_source_text, options) {
             } else {
                 set_mode('BLOCK');
             }
-            if (opt_brace_style=="expand" || opt_brace_style=="expand-strict") {
+            if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
                 var empty_braces = false;
-                if (opt_brace_style == "expand-strict")
-                {
-                    empty_braces = (look_up() == '}');
+                if (opt_brace_style === "expand-strict") {
+                    empty_braces = (look_up() === '}');
                     if (!empty_braces) {
                         print_newline(true);
                     }
@@ -876,7 +875,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_END_BLOCK':
             restore_mode();
-            if (opt_brace_style=="expand" || opt_brace_style == "expand-strict") {
+            if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
                 if (last_text !== '{') {
                     print_newline();
                 }
@@ -923,7 +922,7 @@ function js_beautify(js_source_text, options) {
                     flags.var_line_reindented = true;
                 }
                 if ((just_added_newline || last_text === ';') && last_text !== '{'
-                && last_type != 'TK_BLOCK_COMMENT' && last_type != 'TK_COMMENT') {
+                && last_type !== 'TK_BLOCK_COMMENT' && last_type !== 'TK_COMMENT') {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
                     n_newlines = just_added_newline ? n_newlines : 0;
@@ -935,7 +934,7 @@ function js_beautify(js_source_text, options) {
                         print_newline(false);
                     }
                 }
-                if (last_type == 'TK_WORD' || last_text === 'get' || last_text === 'set' || last_text === 'new') {
+                if (last_type === 'TK_WORD' || last_text === 'get' || last_text === 'set' || last_text === 'new') {
                     print_single_space();
                 }
                 print_token();
@@ -971,7 +970,7 @@ function js_beautify(js_source_text, options) {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    if (opt_brace_style=="expand" || opt_brace_style=="end-expand" || opt_brace_style == "expand-strict") {
+                    if (opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
                         prefix = 'NEWLINE';
                     } else {
                         prefix = 'SPACE';
@@ -999,7 +998,7 @@ function js_beautify(js_source_text, options) {
             }
 
             if (in_array(token_text, line_starters) && last_text !== ')') {
-                if (last_text == 'else') {
+                if (last_text === 'else') {
                     prefix = 'SPACE';
                 } else {
                     prefix = 'NEWLINE';
@@ -1011,7 +1010,7 @@ function js_beautify(js_source_text, options) {
                 flags.if_line = false;
             }
             if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt_brace_style=="expand" || opt_brace_style=="end-expand" || opt_brace_style == "expand-strict") {
+                if (last_type !== 'TK_END_BLOCK' || opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
                     print_newline();
                 } else {
                     trim_output(true);
@@ -1033,7 +1032,7 @@ function js_beautify(js_source_text, options) {
                             print_newline();
                         }
                     }
-                } else if (in_array(token_text, line_starters) && last_text != ')') {
+                } else if (in_array(token_text, line_starters) && last_text !== ')') {
                     flags.var_line = false;
                     flags.var_line_reindented = false;
                     print_newline();
@@ -1066,7 +1065,7 @@ function js_beautify(js_source_text, options) {
             print_token();
             flags.var_line = false;
             flags.var_line_reindented = false;
-            if (flags.mode == 'OBJECT') {
+            if (flags.mode === 'OBJECT') {
                 // OBJECT mode is weird and doesn't get reset too well.
                 flags.mode = 'BLOCK';
             }
@@ -1076,7 +1075,7 @@ function js_beautify(js_source_text, options) {
 
             if (last_type === 'TK_END_EXPR' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) {
                 print_single_space();
-            } else if (last_type === 'TK_COMMENT' || last_type == 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
+            } else if (last_type === 'TK_COMMENT' || last_type === 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_single_space();
@@ -1115,7 +1114,7 @@ function js_beautify(js_source_text, options) {
                 break;
             }
 
-            if (last_type == 'TK_COMMENT') {
+            if (last_type === 'TK_COMMENT') {
                 print_newline();
             }
 
@@ -1152,7 +1151,7 @@ function js_beautify(js_source_text, options) {
             }
 
             // hack for actionscript's import .*;
-            if (token_text == '*' && last_type == 'TK_UNKNOWN' && ! last_last_text.match(/^\d+$/)) {
+            if (token_text === '*' && last_type === 'TK_UNKNOWN' && ! last_last_text.match(/^\d+$/)) {
                 print_token();
                 break;
             }
@@ -1199,7 +1198,7 @@ function js_beautify(js_source_text, options) {
 
             } else if (token_text === ':') {
                 if (flags.ternary_depth === 0) {
-                    if (flags.mode == 'BLOCK') {
+                    if (flags.mode === 'BLOCK') {
                         flags.mode = 'OBJECT';
                     }
                     space_before = false;
@@ -1258,7 +1257,7 @@ function js_beautify(js_source_text, options) {
                 }
 
             }
-            if (look_up('\n') != '\n') {
+            if (look_up('\n') !== '\n') {
                 print_newline();
             }
             break;
@@ -1275,10 +1274,10 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMENT':
 
-            if (last_text == ',' && ! wanted_newline) {
+            if (last_text === ',' && ! wanted_newline) {
                 trim_output(true);
             }
-            if (last_type != 'TK_COMMENT') {
+            if (last_type !== 'TK_COMMENT') {
                 if (wanted_newline) {
                     print_newline();
                 } else {
