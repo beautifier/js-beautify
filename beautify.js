@@ -288,6 +288,9 @@ function js_beautify(js_source_text, options) {
     }
 
     function get_next_token() {
+        var i;
+        var resulting_string;
+
         n_newlines = 0;
 
         if (parser_pos >= input_length) {
@@ -349,7 +352,6 @@ function js_beautify(js_source_text, options) {
             }
 
             if (just_added_newline) {
-                var i;
                 for (i = 0; i < flags.indentation_level + 1; i += 1) {
                     output.push(indent_string);
                 }
@@ -497,7 +499,7 @@ function js_beautify(js_source_text, options) {
             var esc = false;
             var esc1 = 0;
             var esc2 = 0;
-            var resulting_string = c;
+            resulting_string = c;
 
             if (parser_pos < input_length) {
                 if (sep === '/') {
@@ -1222,15 +1224,16 @@ function js_beautify(js_source_text, options) {
         case 'TK_BLOCK_COMMENT':
 
             var lines = split_newlines(token_text);
+            var j; // iterator for this case
 
             if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
                 print_newline();
                 output.push(lines[0]);
-                for (i = 1; i < lines.length; i++) {
+                for (j = 1; j < lines.length; j++) {
                     print_newline();
                     output.push(' ');
-                    output.push(trim(lines[i]));
+                    output.push(trim(lines[j]));
                 }
 
             } else {
@@ -1249,8 +1252,8 @@ function js_beautify(js_source_text, options) {
 
                 }
 
-                for (i = 0; i < lines.length; i++) {
-                    output.push(lines[i]);
+                for (j = 0; j < lines.length; j++) {
+                    output.push(lines[j]);
                     output.push("\n");
                 }
 
