@@ -134,7 +134,7 @@ function js_beautify(js_source_text, options) {
     {
         var old_keep_array_indentation = opt_keep_array_indentation;
         opt_keep_array_indentation = false;
-        print_newline()
+        print_newline();
         opt_keep_array_indentation = old_keep_array_indentation;
     }
 
