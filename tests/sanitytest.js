@@ -128,3 +128,7 @@ function SanityTest (func, test_name) {
     };
 
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SanityTest;
+}

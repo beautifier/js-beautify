@@ -1,5 +1,12 @@
+#!/usr/bin/env node
 /*global js_beautify */
+/*jshint node:true */
 
+var isNode = (typeof module !== 'undefined' && module.exports);
+if (isNode) {
+    var SanityTest = require('./sanitytest'),
+        js_beautify = require('../beautify').js_beautify;
+}
 
 var opts = {
     indent_size: 4,
@@ -503,3 +510,11 @@ function run_beautifier_tests(test_obj)
     return sanitytest;
 }
 
+if (isNode) {
+    module.exports = run_beautifier_tests;
+
+    // http://nodejs.org/api/modules.html#modules_accessing_the_main_module
+    if (require.main === module) {
+        console.log(run_beautifier_tests().results_raw());
+    }
+}
