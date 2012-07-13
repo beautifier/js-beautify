@@ -15,7 +15,7 @@ function SanityTest (func, test_name) {
 
     var test_func = func || function (x) {
         return x;
-    }
+    };
 
     var test_name = test_name || '';
 
@@ -27,7 +27,7 @@ function SanityTest (func, test_name) {
     this.test_function = function(func, name) {
         test_func = func;
         test_name = name || '';
-    }
+    };
 
 
     this.expect = function(parameters, expected_value) {
@@ -40,7 +40,7 @@ function SanityTest (func, test_name) {
             n_failed += 1;
             failures.push([test_name, parameters, expected_value, result]);
         }
-    }
+    };
 
 
     this.results_raw = function() {
@@ -65,12 +65,12 @@ function SanityTest (func, test_name) {
             results += n_failed + ' tests failed.\n';
         }
         return results;
-    }
+    };
 
 
     this.results = function() {
         return this.lazy_escape(this.results_raw());
-    }
+    };
 
 
     this.prettyprint = function(something, quote_strings) {
@@ -82,6 +82,7 @@ function SanityTest (func, test_name) {
             } else {
                 return something;
             }
+            break;
         case 'number':
             return '' + something;
         case 'boolean':
@@ -92,7 +93,7 @@ function SanityTest (func, test_name) {
             if (something instanceof Array) {
                 var x = [];
                 var expected_index = 0;
-                for (k in something) {
+                for (var k in something) {
                     if (k == expected_index) {
                         x.push(this.prettyprint(something[k], true));
                         expected_index += 1;
@@ -104,15 +105,16 @@ function SanityTest (func, test_name) {
             } else {
                 return 'object: ' + something;
             }
+            break;
         default:
             return type + ': ' + something;
         }
-    }
+    };
 
 
     this.lazy_escape = function (str) {
         return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
-    }
+    };
 
 
     this.log = function () {
@@ -125,4 +127,8 @@ function SanityTest (func, test_name) {
         }
     };
 
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SanityTest;
 }
