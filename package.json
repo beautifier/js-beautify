@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "jsbeautifier.org for node",
   "main": "beautify.js",
+  "preferGlobal": true,
   "bin": {
     "jsbeautify": "./cli.js"
   },
