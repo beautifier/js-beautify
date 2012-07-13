@@ -1,0 +1,29 @@
+{
+  "name": "js-beautify",
+  "version": "0.1.0",
+  "description": "jsbeautifier.org for node",
+  "main": "beautify.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./tests/beautify-tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/evocateur/js-beautify.git"
+  },
+  "keywords": [
+    "beautify",
+    "beautifier",
+    "code-quality"
+  ],
+  "author": "Einar Lielmanis <einar@jsbeautifier.org>",
+  "contributors": [
+    "Daniel Stockman <daniel.stockman@gmail.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "optimist": "~0.3.4"
+  }
+}
