@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "jsbeautifier.org for node",
   "main": "beautify.js",
   "preferGlobal": true,
