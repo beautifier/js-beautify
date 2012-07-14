@@ -87,11 +87,12 @@ var fs = require('fs'),
         })
         .check(function (argv) {
             if (argv.file) {
-                // might pass multiple -f args
                 if (Array.isArray(argv.file)) {
+                    // might pass multiple -f args
                     argv._ = argv._.concat(argv.file);
                 }
-                else {
+                else if ('string' === typeof argv.file) {
+                    // `cat foo.js | cli.js -f -`, avoid ['-', true]
                     argv._.push(argv.file);
                 }
             }
@@ -102,7 +103,9 @@ var fs = require('fs'),
 
             argv._.forEach(function (filepath) {
                 try {
-                    fs.statSync(filepath);
+                    if (filepath !== "-") {
+                        fs.statSync(filepath);
+                    }
                 } catch (err) {
                     throw 'Unable to open path "' + filepath + '"';
                 }
@@ -115,7 +118,8 @@ if (argv["indent-with-tabs"]) {
     argv["indent-char"] = "\t";
 }
 
-// translate dashed options into weird python underscored keys
+// translate dashed options into weird python underscored keys,
+// avoiding single character aliases.
 Object.keys(argv).forEach(function (key) {
     if (key.length > 1) {
         options[key.replace(/-/g, '_')] = argv[key];
@@ -124,7 +128,15 @@ Object.keys(argv).forEach(function (key) {
 
 argv._.forEach(function (filepath) {
     var data = '',
+        stream;
+
+    if (filepath === '-') {
+        stream = process.stdin;
+        stream.resume();
+        stream.setEncoding('utf8');
+    } else {
         stream = fs.createReadStream(filepath, { encoding: 'utf8' });
+    }
 
     stream.on('data', function (chunk) {
         data += chunk;
