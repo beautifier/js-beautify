@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/evocateur/js-beautify.git"
+    "url": "git://github.com/evocateur/js-beautify.git#node-package"
   },
   "keywords": [
     "beautify",
