@@ -34,10 +34,10 @@ res = jsbeautifier.beautify('some javascript', opts)
 
 ### JavaScript
 
-As an alternative to the Python script, you may install the NPM package `js-beautify`. When installed globally, it provides an executable `jsbeautify` script. As with the Python script, the beautified result is sent to `stdout` unless otherwise configured.
+As an alternative to the Python script, you may install the NPM package `js-beautify`. When installed globally, it provides an executable `js-beautify` script. As with the Python script, the beautified result is sent to `stdout` unless otherwise configured.
 
 ```js
-jsbeautify foo.js
+js-beautify foo.js
 ```
 
 You can also use `js-beautify` as a `node` library:

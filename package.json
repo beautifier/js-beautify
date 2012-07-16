@@ -5,7 +5,7 @@
   "main": "beautify.js",
   "preferGlobal": true,
   "bin": {
-    "jsbeautify": "./cli.js"
+    "js-beautify": "./cli.js"
   },
   "directories": {
     "test": "tests"
