@@ -50,7 +50,7 @@ var fs = require('fs'),
                 "alias": "preserve-newlines",
                 "type": "boolean",
                 "default": true,
-                "description": "Do not preserve existing line-breaks"
+                "description": "Preserve existing line-breaks (--no-preserve-newlines disables)"
             },
             "m": {
                 "alias": "max-preserve-newlines",
@@ -159,6 +159,9 @@ argv._.forEach(function (filepath) {
         } else {
             output = process.stdout;
         }
+
+        // ensure newline at end of beautified output
+        pretty += '\n';
 
         output.write(pretty);
 

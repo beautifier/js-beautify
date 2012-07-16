@@ -70,7 +70,7 @@ These are the command-line flags for both Python and JS scripts:
       -c, --indent-char             Indentation character [default: " "]
       -l, --indent-level            Initial indentation level [default: 0]
       -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
-      -p, --preserve-newlines       Do not preserve existing line-breaks [default: true]
+      -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables) [default: true]
       -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [default: 10]
       -j, --jslint-happy            Enable jslint-stricter mode
       -b, --brace-style             Brace style [collapse|expand|end-expand|expand-strict] [default: "collapse"]
