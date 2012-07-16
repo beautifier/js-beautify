@@ -128,22 +128,42 @@ Object.keys(argv).forEach(function (key) {
 
 argv._.forEach(function (filepath) {
     var data = '',
-        stream;
+        input;
 
     if (filepath === '-') {
-        stream = process.stdin;
-        stream.resume();
-        stream.setEncoding('utf8');
+        input = process.stdin;
+        input.resume();
+        input.setEncoding('utf8');
     } else {
-        stream = fs.createReadStream(filepath, { encoding: 'utf8' });
+        input = fs.createReadStream(filepath, { encoding: 'utf8' });
     }
 
-    stream.on('data', function (chunk) {
+    input.on('data', function (chunk) {
         data += chunk;
     });
 
-    stream.on('end', function () {
-        var pretty = beautify(data, options);
-        console.log(pretty);
+    input.on('end', function () {
+        var pretty = beautify(data, options),
+            output;
+
+        if (options.in_place) {
+            options.outfile = filepath;
+        }
+
+        if (options.outfile) {
+            output = fs.createWriteStream(options.outfile, {
+                flags: "w",
+                encoding: "utf8",
+                mode: 0644
+            });
+        } else {
+            output = process.stdout;
+        }
+
+        output.write(pretty);
+
+        if (options.outfile) {
+            output.end();
+        }
     });
 });
