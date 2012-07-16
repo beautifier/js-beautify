@@ -95,6 +95,8 @@ These correspond to underscored option keys for both library interfaces:
         "unescape_strings": false
     }
 
+You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
+
 ## License
 
 You are free to use this in any way you want, in case you find this
