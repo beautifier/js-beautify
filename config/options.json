@@ -1,0 +1,78 @@
+{
+    "f": {
+        "alias": "file",
+        "type": "string",
+        "description": "Input file (Pass '-' for stdin)"
+    },
+    "r": {
+        "alias": "replace",
+        "type": "boolean",
+        "description": "Write output in-place, replacing input"
+    },
+    "o": {
+        "alias": "outfile",
+        "type": "string",
+        "description": "Write output to file (default stdout)"
+    },
+    "s": {
+        "alias": "indent-size",
+        "type": "number",
+        "default": 4,
+        "description": "Indentation size"
+    },
+    "c": {
+        "alias": "indent-char",
+        "type": "string",
+        "default": " ",
+        "description": "Indentation character"
+    },
+    "l": {
+        "alias": "indent-level",
+        "type": "number",
+        "default": 0,
+        "description": "Initial indentation level"
+    },
+    "t": {
+        "alias": "indent-with-tabs",
+        "type": "boolean",
+        "description": "Indent with tabs, overrides -s and -c"
+    },
+    "p": {
+        "alias": "preserve-newlines",
+        "type": "boolean",
+        "default": true,
+        "description": "Preserve existing line-breaks (--no-preserve-newlines disables)"
+    },
+    "m": {
+        "alias": "max-preserve-newlines",
+        "type": "number",
+        "default": 10,
+        "description": "Maximum number of line-breaks to be preserved in one chunk"
+    },
+    "j": {
+        "alias": "jslint-happy",
+        "type": "boolean",
+        "description": "Enable jslint-stricter mode"
+    },
+    "b": {
+        "alias": "brace-style",
+        "type": "string",
+        "default": "collapse",
+        "description": "Brace style [collapse|expand|end-expand|expand-strict]"
+    },
+    "k": {
+        "alias": "keep-array-indentation",
+        "type": "boolean",
+        "description": "Preserve array indentation"
+    },
+    "a": {
+        "alias": "indent-case",
+        "type": "boolean",
+        "description": "Indent case inside switch"
+    },
+    "x": {
+        "alias": "unescape-strings",
+        "type": "boolean",
+        "description": "Decode printable characters encoded in xNN notation"
+    }
+}
