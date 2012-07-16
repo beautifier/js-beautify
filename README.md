@@ -40,8 +40,6 @@ As an alternative to the Python script, you may install the NPM package `js-beau
 jsbeautify foo.js
 ```
 
-`jsbeautify -h`
-
 You can also use `js-beautify` as a `node` library:
 
 ```js
@@ -62,7 +60,7 @@ These are the command-line flags for both Python and JS scripts:
 
     CLI Options:
       -f, --file                    Input file(s) (Pass '-' for stdin). These can also be passed directly.
-      -i, --in-place                Write output in-place (replacing input)
+      -r, --replace                 Write output in-place, replacing input
       -o, --outfile                 Write output to file (default stdout)
     
     Beautifier Options:

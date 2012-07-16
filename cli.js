@@ -12,10 +12,10 @@ var fs = require('fs'),
                 "type": "string",
                 "description": "Input file (Pass '-' for stdin)"
             },
-            "i": {
-                "alias": "in-place",
+            "r": {
+                "alias": "replace",
                 "type": "boolean",
-                "description": "Write output in-place (replacing input)"
+                "description": "Write output in-place, replacing input"
             },
             "o": {
                 "alias": "outfile",
@@ -97,6 +97,13 @@ var fs = require('fs'),
                 }
             }
 
+            if ('string' === typeof argv.outfile && !argv._.length) {
+                // use outfile as input when no other files passed in args
+                argv._.push(argv.outfile);
+                // operation is now an implicit overwrite
+                argv.replace = true;
+            }
+
             if (!argv._.length) {
                 throw 'Must define at least one file.';
             }
@@ -146,7 +153,8 @@ argv._.forEach(function (filepath) {
         var pretty = beautify(data, options),
             output;
 
-        if (options.in_place) {
+        // -o passed with no value overwrites
+        if (options.outfile === true || options.replace) {
             options.outfile = filepath;
         }
 
