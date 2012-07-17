@@ -32,10 +32,6 @@
     "Daniel Stockman <daniel.stockman@gmail.com>"
   ],
   "license": "MIT",
-  "engines": {
-    "node": ">=0.6.x"
-  },
-  "engineStrict": true,
   "dependencies": {
     "optimist": "~0.3.4"
   }

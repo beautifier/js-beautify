@@ -2,10 +2,21 @@
 
 var fs = require('fs'),
     beautify = require('./beautify').js_beautify,
-    options = require('./config/defaults'),
-    argv = require('optimist')
+    config,
+    options;
+
+// only node v0.5+ can require json
+if (parseFloat(process.version.substr(1)) < 0.5) {
+    config  = JSON.parse(fs.readFileSync('./config/defaults.json', 'utf8'));
+    options = JSON.parse(fs.readFileSync('./config/options.json', 'utf8'));
+} else {
+    config  = require('./config/defaults.json');
+    options = require('./config/options.json');
+}
+
+var argv = require('optimist')
         .usage("Reformat JS files in idiomatic style.\n\nUsage:\n  $0 [options] path/to/file [...]")
-        .options(require('./config/options'))
+        .options(options)
         .check(function (argv) {
             if (argv.file) {
                 if (Array.isArray(argv.file)) {
@@ -46,11 +57,11 @@ if (argv["indent-with-tabs"]) {
     argv["indent-char"] = "\t";
 }
 
-// translate dashed options into weird python underscored keys,
+// translate dashed argv into weird python underscored keys,
 // avoiding single character aliases.
 Object.keys(argv).forEach(function (key) {
     if (key.length > 1) {
-        options[key.replace(/-/g, '_')] = argv[key];
+        config[key.replace(/-/g, '_')] = argv[key];
     }
 });
 
@@ -71,16 +82,16 @@ argv._.forEach(function (filepath) {
     });
 
     input.on('end', function () {
-        var pretty = beautify(data, options),
+        var pretty = beautify(data, config),
             output;
 
         // -o passed with no value overwrites
-        if (options.outfile === true || options.replace) {
-            options.outfile = filepath;
+        if (config.outfile === true || config.replace) {
+            config.outfile = filepath;
         }
 
-        if (options.outfile) {
-            output = fs.createWriteStream(options.outfile, {
+        if (config.outfile) {
+            output = fs.createWriteStream(config.outfile, {
                 flags: "w",
                 encoding: "utf8",
                 mode: 0644
@@ -94,7 +105,7 @@ argv._.forEach(function (filepath) {
 
         output.write(pretty);
 
-        if (options.outfile) {
+        if (config.outfile) {
             output.end();
         }
     });
