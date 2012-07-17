@@ -825,6 +825,20 @@ class Beautifier:
             if self.last_text in ['get', 'set', 'new'] or self.last_type == 'TK_WORD':
                 self.append(' ')
 
+            if self.last_type == 'TK_WORD':
+                if self.last_text in ['get', 'set', 'new', 'return']:
+                    self.append(' ')
+                else:
+                    self.append_newline()
+            elif self.last_type == 'TK_OPERATOR' or self.last_text == '=':
+                # foo = function
+                self.append(' ')
+            elif self.last_type == 'TK_START_EXPR':
+                # (function
+                pass
+            else:
+                self.append_newline()
+
             self.append('function')
             self.last_word = 'function'
             return

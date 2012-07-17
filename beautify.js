@@ -914,6 +914,8 @@ function js_beautify(js_source_text, options) {
                 break;
             }
 
+            prefix = 'NONE';
+
             if (token_text === 'function') {
                 if (flags.var_line) {
                     flags.var_line_reindented = true;
@@ -931,9 +933,22 @@ function js_beautify(js_source_text, options) {
                         print_newline(false);
                     }
                 }
-                if (last_type === 'TK_WORD' || last_text === 'get' || last_text === 'set' || last_text === 'new') {
+                if (last_type === 'TK_WORD') {
+                    if (last_text === 'get' || last_text === 'set' || last_text === 'new' || last_text === 'return') {
+                        print_single_space();
+                    } else {
+                        print_newline();
+                    }
+                } else if (last_type === 'TK_OPERATOR' || last_text === '=') {
+                    // foo = function
                     print_single_space();
+                } else if (last_type === 'TK_START_EXPR') {
+                    // print nothing
+                    // (function
+                } else {
+                    print_newline();
                 }
+
                 print_token();
                 last_word = token_text;
                 break;
@@ -959,8 +974,6 @@ function js_beautify(js_source_text, options) {
                 flags.case_body = false;
                 break;
             }
-
-            prefix = 'NONE';
 
             if (last_type === 'TK_END_BLOCK') {
 

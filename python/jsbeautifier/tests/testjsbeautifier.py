@@ -445,6 +445,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = 5 + function();')
 
         bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}')
+        bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\nfunction b(b) {}\nfunction c(c) {}')
 
 
         bt('3.*7;', '3. * 7;')
