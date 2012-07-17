@@ -505,6 +505,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('function f(a: a, b: b)'); // actionscript
 
     bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}');
+    bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\nfunction b(b) {}\nfunction c(c) {}');
 
     return sanitytest;
 }
