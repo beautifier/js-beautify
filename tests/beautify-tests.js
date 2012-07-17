@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*global js_beautify */
 /*jshint node:true */
 
