@@ -942,9 +942,8 @@ function js_beautify(js_source_text, options) {
                 } else if (last_type === 'TK_OPERATOR' || last_text === '=') {
                     // foo = function
                     print_single_space();
-                } else if (last_type === 'TK_START_EXPR') {
+                } else if (is_expression(flags.mode)) {
                     // print nothing
-                    // (function
                 } else {
                     print_newline();
                 }
