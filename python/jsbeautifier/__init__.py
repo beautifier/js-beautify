@@ -833,7 +833,7 @@ class Beautifier:
             elif self.last_type == 'TK_OPERATOR' or self.last_text == '=':
                 # foo = function
                 self.append(' ')
-            elif self.last_type == 'TK_START_EXPR':
+            elif self.is_expression(self.flags.mode):
                 # (function
                 pass
             else:

@@ -506,6 +506,7 @@ function run_beautifier_tests(test_obj)
 
     bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}');
     bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\nfunction b(b) {}\nfunction c(c) {}');
+    bt('foo(a, function() {})');
 
     return sanitytest;
 }
