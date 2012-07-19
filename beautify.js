@@ -917,7 +917,7 @@ function js_beautify(js_source_text, options) {
             prefix = 'NONE';
 
             if (token_text === 'function') {
-                if (flags.var_line) {
+                if (flags.var_line && last_type !== 'TK_EQUALS' ) {
                     flags.var_line_reindented = true;
                 }
                 if ((just_added_newline || last_text === ';') && last_text !== '{'
