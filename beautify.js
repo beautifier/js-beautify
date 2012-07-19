@@ -1104,7 +1104,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMA':
             if (flags.var_line) {
-                if (is_expression(flags.mode)) {
+                if (is_expression(flags.mode) || last_type === 'TK_END_BLOCK' ) {
                     // do not break on comma, for(var a = 1, b = 2)
                     flags.var_line_tainted = false;
                 }
