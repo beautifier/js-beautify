@@ -526,7 +526,7 @@ class Beautifier:
            (c == '/' and ((self.last_type == 'TK_WORD' and self.is_special_word(self.last_text)) or \
                           (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(FOR-EXPRESSION)', '(COND-EXPRESSION)']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
-                                              'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
+                                              'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))):
             sep = c
             esc = False
             esc1 = 0
