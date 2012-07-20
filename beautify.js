@@ -917,7 +917,7 @@ function js_beautify(js_source_text, options) {
             prefix = 'NONE';
 
             if (token_text === 'function') {
-                if (flags.var_line) {
+                if (flags.var_line && last_type !== 'TK_EQUALS' ) {
                     flags.var_line_reindented = true;
                 }
                 if ((just_added_newline || last_text === ';') && last_text !== '{'
@@ -1104,7 +1104,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMA':
             if (flags.var_line) {
-                if (is_expression(flags.mode)) {
+                if (is_expression(flags.mode) || last_type === 'TK_END_BLOCK' ) {
                     // do not break on comma, for(var a = 1, b = 2)
                     flags.var_line_tainted = false;
                 }

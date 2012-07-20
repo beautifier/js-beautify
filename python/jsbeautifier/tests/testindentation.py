@@ -18,7 +18,7 @@ class TestJSBeautifierIndentation(unittest.TestCase):
 
         self.options.tabs = 1;
         self.options.keep_function_indentation = 0;
-        test_fragment('var foo = function(){ baz() }();', "var foo = function() {\n\t\tbaz()\n\t}();");
+        test_fragment('var foo = function(){ baz() }();', "var foo = function() {\n\tbaz()\n}();");
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

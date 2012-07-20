@@ -809,7 +809,7 @@ class Beautifier:
 
         if token_text == 'function':
 
-            if self.flags.var_line:
+            if self.flags.var_line and self.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
             if (self.just_added_newline or self.last_text == ';') and self.last_text != '{':
                 # make sure there is a nice clean space of at least one blank line
@@ -978,7 +978,7 @@ class Beautifier:
             self.append_newline();
 
         if self.flags.var_line:
-            if self.is_expression(self.flags.mode):
+            if self.is_expression(self.flags.mode) or self.last_type == 'TK_END_BLOCK':
                 # do not break on comma, for ( var a = 1, b = 2
                 self.flags.var_line_tainted = False
             if self.flags.var_line_tainted:
