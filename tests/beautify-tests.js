@@ -512,6 +512,8 @@ function run_beautifier_tests(test_obj)
 
     bt('foo(a, /regex/)');
 
+    Urlencoded.run_tests(sanitytest); 
+
     return sanitytest;
 }
 

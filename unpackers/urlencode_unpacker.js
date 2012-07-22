@@ -15,7 +15,7 @@ var Urlencoded = {
         // the fact that script doesn't contain any space, but has %20 instead
         // should be sufficient check for now.
         if (str.indexOf(' ') == -1) {
-            if (str.indexOf('%20') != -1) return true;
+            if (str.indexOf('%2') != -1) return true;
             if (str.replace(/[^%]+/g, '').length > 3) return true;
         }
         return false;
@@ -23,7 +23,12 @@ var Urlencoded = {
 
     unpack: function (str) {
         if (Urlencoded.detect(str)) {
-            return unescape(str.replace(/\+/g, '%20'));
+            if (str.indexOf('%2B') != -1 || str.indexOf('%2b') != -1) {
+                // "+" escaped as "%2B"
+                return unescape(str.replace(/\+/g, '%20'));
+            } else {
+                return unescape(str);
+            }
         }
         return str;
     },
@@ -38,12 +43,18 @@ var Urlencoded = {
         t.expect('var%20a+=+b', true);
         t.expect('var%20a=b', true);
         t.expect('var%20%21%22', true);
+        t.expect('javascript:(function(){var%20whatever={init:function(){alert(%22a%22+%22b%22)}};whatever.init()})();', true);
         t.test_function(Urlencoded.unpack, 'Urlencoded.unpack');
+
+        t.expect('javascript:(function(){var%20whatever={init:function(){alert(%22a%22+%22b%22)}};whatever.init()})();',
+            'javascript:(function(){var whatever={init:function(){alert("a"+"b")}};whatever.init()})();'
+        );
         t.expect('', '');
         t.expect('abcd', 'abcd');
         t.expect('var a = b', 'var a = b');
         t.expect('var%20a=b', 'var a=b');
-        t.expect('var%20a+=+b', 'var a = b');
+        t.expect('var%20a=b+1', 'var a=b+1');
+        t.expect('var%20a=b%2b1', 'var a=b+1');
         return t;
     }
 
