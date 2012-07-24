@@ -7,8 +7,8 @@ var fs = require('fs'),
 
 // only node v0.5+ can require json
 if (parseFloat(process.version.substr(1)) < 0.5) {
-    config  = JSON.parse(fs.readFileSync('./config/defaults.json', 'utf8'));
-    options = JSON.parse(fs.readFileSync('./config/options.json', 'utf8'));
+    config  = JSON.parse(fs.readFileSync(__dirname + '/config/defaults.json', 'utf8'));
+    options = JSON.parse(fs.readFileSync(__dirname + '/config/options.json', 'utf8'));
 } else {
     config  = require('./config/defaults.json');
     options = require('./config/options.json');
