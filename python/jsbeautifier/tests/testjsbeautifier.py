@@ -455,6 +455,18 @@ class TestJSBeautifier(unittest.TestCase):
         bt('foo(a, function() {})');
         bt('foo(a, /regex/)');
 
+        # known problem: the indentation of the next line is slightly borked :(
+        # bt('if (foo) # comment\n    bar();');
+        # bt('if (foo) # comment\n    (bar());');
+        # bt('if (foo) # comment\n    (bar());');
+        # bt('if (foo) # comment\n    /asdf/;');
+        bt('if (foo) // comment\nbar();');
+        bt('if (foo) // comment\n(bar());');
+        bt('if (foo) // comment\n(bar());');
+        bt('if (foo) // comment\n/asdf/;');
+
+
+
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

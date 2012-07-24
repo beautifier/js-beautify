@@ -511,6 +511,15 @@ function run_beautifier_tests(test_obj)
     bt('foo(a, function() {})');
 
     bt('foo(a, /regex/)');
+    // known problem: the indentation of the next line is slightly borked :(
+    // bt('if (foo) // comment\n    bar();');
+    // bt('if (foo) // comment\n    (bar());');
+    // bt('if (foo) // comment\n    (bar());');
+    // bt('if (foo) // comment\n    /asdf/;');
+    bt('if(foo) // comment\nbar();');
+    bt('if(foo) // comment\n(bar());');
+    bt('if(foo) // comment\n(bar());');
+    bt('if(foo) // comment\n/asdf/;');
 
     Urlencoded.run_tests(sanitytest); 
 

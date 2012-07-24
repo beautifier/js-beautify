@@ -1127,6 +1127,7 @@ class Beautifier:
                 self.append(' ')
 
         self.append(token_text)
+        self.append_newline();
 
 
     def handle_unknown(self, token_text):

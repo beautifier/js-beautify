@@ -1294,6 +1294,7 @@ function js_beautify(js_source_text, options) {
                 }
             }
             print_token();
+            print_newline();
             break;
 
         case 'TK_UNKNOWN':
