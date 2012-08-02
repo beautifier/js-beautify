@@ -65,6 +65,12 @@ Object.keys(argv).forEach(function (key) {
     }
 });
 
+function onOutputError(err) {
+    if (err.code === 'EACCES') {
+        console.error(err.path + " is not writable. Skipping!");
+    }
+}
+
 argv._.forEach(function (filepath) {
     var data = '',
         input;
@@ -96,6 +102,9 @@ argv._.forEach(function (filepath) {
                 encoding: "utf8",
                 mode: 0644
             });
+
+            // catch possible errors
+            output.on('error', onOutputError);
         } else {
             output = process.stdout;
         }
@@ -103,10 +112,12 @@ argv._.forEach(function (filepath) {
         // ensure newline at end of beautified output
         pretty += '\n';
 
-        output.write(pretty);
+        if (output.writable) {
+            output.write(pretty);
 
-        if (config.outfile) {
-            output.end();
+            if (config.outfile) {
+                output.end();
+            }
         }
     });
 });
