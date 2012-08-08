@@ -3,15 +3,10 @@
 // a little helper for testing from command line
 // just run it, it will output the test results
 
-try {
-    load('beautify.js');
-    load('tests/sanitytest.js')
-    load('tests/beautify-tests.js')
-} catch (yada) {
-    load('../beautify.js');
-    //load('sanitytest.js')
-    load('beautify-tests.js')
-}
+load('beautify.js');
+load('tests/sanitytest.js')
+load('tests/beautify-tests.js')
+load('unpackers/urlencode_unpacker.js')
 
 print(run_beautifier_tests().results_raw())
 

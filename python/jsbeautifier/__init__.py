@@ -526,7 +526,7 @@ class Beautifier:
            (c == '/' and ((self.last_type == 'TK_WORD' and self.is_special_word(self.last_text)) or \
                           (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(FOR-EXPRESSION)', '(COND-EXPRESSION)']) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
-                                              'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON']))):
+                                              'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))):
             sep = c
             esc = False
             esc1 = 0
@@ -809,7 +809,7 @@ class Beautifier:
 
         if token_text == 'function':
 
-            if self.flags.var_line:
+            if self.flags.var_line and self.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
             if (self.just_added_newline or self.last_text == ';') and self.last_text != '{':
                 # make sure there is a nice clean space of at least one blank line
@@ -824,6 +824,20 @@ class Beautifier:
 
             if self.last_text in ['get', 'set', 'new'] or self.last_type == 'TK_WORD':
                 self.append(' ')
+
+            if self.last_type == 'TK_WORD':
+                if self.last_text in ['get', 'set', 'new', 'return']:
+                    self.append(' ')
+                else:
+                    self.append_newline()
+            elif self.last_type == 'TK_OPERATOR' or self.last_text == '=':
+                # foo = function
+                self.append(' ')
+            elif self.is_expression(self.flags.mode):
+                # (function
+                pass
+            else:
+                self.append_newline()
 
             self.append('function')
             self.last_word = 'function'
@@ -964,7 +978,7 @@ class Beautifier:
             self.append_newline();
 
         if self.flags.var_line:
-            if self.is_expression(self.flags.mode):
+            if self.is_expression(self.flags.mode) or self.last_type == 'TK_END_BLOCK':
                 # do not break on comma, for ( var a = 1, b = 2
                 self.flags.var_line_tainted = False
             if self.flags.var_line_tainted:
@@ -1113,6 +1127,7 @@ class Beautifier:
                 self.append(' ')
 
         self.append(token_text)
+        self.append_newline();
 
 
     def handle_unknown(self, token_text):

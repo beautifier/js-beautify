@@ -21,6 +21,8 @@ img {
     border: 0;
 }
 
+a.self { font-weight: bold; text-decoration: none; color: #444; border-bottom: 1px solid #aaa }
+
 p, select, label, .blurb, a.turn-off-codemirror {
     font:13px/1.231 arial, sans-serif;
     *font-size:small;
@@ -345,7 +347,7 @@ $(function() {
     </table>
 
     <div id="about">
-            <p><strong>Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</strong>.</p>
+            <p><a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a></p>
             <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version and a python library as well.
     </div>
 
@@ -371,6 +373,7 @@ $(function() {
 
       <li style="margin-top: 8px"><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
       <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
+      <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),</li>
       <li style="margin-top: 8px"><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy,<br>to be used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
       <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
       <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
