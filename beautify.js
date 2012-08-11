@@ -405,7 +405,7 @@ function js_beautify(js_source_text, options) {
                 var sign = input.charAt(parser_pos);
                 parser_pos += 1;
 
-                var t = get_next_token(parser_pos);
+                var t = get_next_token();
                 c += sign + t[0];
                 return [c, 'TK_WORD'];
             }
@@ -702,7 +702,7 @@ function js_beautify(js_source_text, options) {
 
     parser_pos = 0;
     while (true) {
-        var t = get_next_token(parser_pos);
+        var t = get_next_token();
         token_text = t[0];
         token_type = t[1];
         if (token_type === 'TK_EOF') {
@@ -943,7 +943,7 @@ function js_beautify(js_source_text, options) {
                     // foo = function
                     print_single_space();
                 } else if (is_expression(flags.mode)) {
-                    // print nothing
+                        //ää print nothing
                 } else {
                     print_newline();
                 }
