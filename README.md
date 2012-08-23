@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/einars/js-beautify.png)](http://travis-ci.org/einars/js-beautify)
 # JS Beautifier
 
 ...or, more specifically, all of the code powering
