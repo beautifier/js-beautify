@@ -22,7 +22,7 @@
     indent_size (default 4)          - indentation size,
     indent_char (default space)      - character to indent with,
     preserve_newlines (default true) - whether existing line breaks should be preserved,
-    preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
+    max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
 
     jslint_happy (default false) - if true, then jslint-stricter mode is enforced.
 
