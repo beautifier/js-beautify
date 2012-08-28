@@ -115,9 +115,6 @@ function style_html(html_source, options) {
           }
           space = false;
         }
-        if (input_char === '<') {
-            tag_start = this.pos - 1;
-        }
         content.push(input_char); //letter at-a-time (or string) inserted to an array
       }
       return content.length?content.join(''):'';
@@ -220,6 +217,9 @@ function style_html(html_source, options) {
             this.line_char_count++;
           }
           space = false;
+        }
+        if (input_char === '<') {
+            tag_start = this.pos - 1;
         }
         content.push(input_char); //inserts character at-a-time (or string)
       } while (input_char !== '>');
