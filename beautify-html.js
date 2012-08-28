@@ -22,7 +22,7 @@
     max_char (default 70)            -  maximum amount of characters per line,
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-    unformatted (default ['a'])      - list of tags, that shouldn't be reformatted
+    unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
     indent_scripts (default normal)  - "keep"|"separate"|"normal"
 
     e.g.
@@ -50,7 +50,7 @@ function style_html(html_source, options) {
   indent_character = options.indent_char || ' ';
   brace_style = options.brace_style || 'collapse';
   max_char = options.max_char == 0 ? Infinity : options.max_char || 70;
-  unformatted = options.unformatted || ['a'];
+  unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   function Parser() {
 
@@ -81,9 +81,10 @@ function style_html(html_source, options) {
 
     this.get_content = function () { //function to capture regular content between tags
 
-      var input_char = '';
-      var content = [];
-      var space = false; //if a space is needed
+      var input_char = '',
+          content = [],
+          space = false; //if a space is needed
+
       while (this.input.charAt(this.pos) !== '<') {
         if (this.pos >= this.input.length) {
           return content.length?content.join(''):['', 'TK_EOF'];
@@ -113,6 +114,9 @@ function style_html(html_source, options) {
             this.line_char_count++;
           }
           space = false;
+        }
+        if (input_char === '<') {
+            tag_start = this.pos - 1;
         }
         content.push(input_char); //letter at-a-time (or string) inserted to an array
       }
@@ -174,9 +178,10 @@ function style_html(html_source, options) {
     }
 
     this.get_tag = function () { //function to get a full tag and parse its type
-      var input_char = '';
-      var content = [];
-      var space = false;
+      var input_char = '',
+          content = [],
+          space = false,
+          tag_start, tag_end;
 
       do {
         if (this.pos >= this.input.length) {
@@ -243,6 +248,14 @@ function style_html(html_source, options) {
       else if (this.Utils.in_array(tag_check, unformatted)) { // do not reformat the "unformatted" tags
         var comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
         content.push(comment);
+        // Preserve collapsed whitespace either before or after this tag.
+        if (tag_start > 0 && this.Utils.in_array(this.input.charAt(tag_start - 1), this.Utils.whitespace)){
+            content.splice(0, 0, this.input.charAt(tag_start - 1));
+        }
+        tag_end = this.pos - 1;
+        if (this.Utils.in_array(this.input.charAt(tag_end + 1), this.Utils.whitespace)){
+            content.push(this.input.charAt(tag_end + 1));
+        }
         this.tag_type = 'SINGLE';
       }
       else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
@@ -457,7 +470,11 @@ function style_html(html_source, options) {
         multi_parser.current_mode = 'CONTENT';
         break;
       case 'TK_TAG_SINGLE':
-        multi_parser.print_newline(false, multi_parser.output);
+        // Don't add a newline before elements that should remain unformatted.
+        var tag_check = multi_parser.token_text.match(/^\s*<([a-z]+)/i);
+        if (!tag_check || !multi_parser.Utils.in_array(tag_check[1], this.unformatted)){
+            multi_parser.print_newline(false, multi_parser.output);
+        }
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
         break;
