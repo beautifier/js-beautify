@@ -110,7 +110,7 @@ function css_beautify(source_text, options) {
         indentString = indentString.slice(0, -indentSize);
     }
 
-    print = {}
+    var print = {}
     print["{"] = function(ch) {
         print.singleSpace();
         output.push(ch);
