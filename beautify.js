@@ -137,7 +137,7 @@ function js_beautify(js_source_text, options) {
         opt_keep_array_indentation = old_keep_array_indentation;
     }
 
-    function print_newline(ignore_repeated) {
+    function print_newline(ignore_repeated, reset_statement_flags) {
 
         flags.eat_next_space = false;
         if (opt_keep_array_indentation && is_array(flags.mode)) {
@@ -145,8 +145,14 @@ function js_beautify(js_source_text, options) {
         }
 
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
+        reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
 
-        flags.if_line = false;
+        if (reset_statement_flags) {
+            flags.if_line = false;
+            flags.chain_counter = 0;
+            flags.chain_extra_indentation = 0;
+        }
+
         trim_output();
 
         if (!output.length) {
@@ -160,7 +166,7 @@ function js_beautify(js_source_text, options) {
         if (preindent_string) {
             output.push(preindent_string);
         }
-        for (var i = 0; i < flags.indentation_level; i += 1) {
+        for (var i = 0; i < flags.indentation_level + flags.chain_extra_indentation; i += 1) {
             output.push(indent_string);
         }
         if (flags.var_line && flags.var_line_reindented) {
@@ -221,6 +227,8 @@ function js_beautify(js_source_text, options) {
             var_line_reindented: false,
             in_html_comment: false,
             if_line: false,
+            chain_counter: 0,
+            chain_extra_indentation: 0,
             in_case_statement: false, // switch(..){ INSIDE HERE }
             in_case: false, // we're on the exact line with "case 0:"
             case_body: false, // the indented case-action block
@@ -642,6 +650,10 @@ function js_beautify(js_source_text, options) {
             return ['-->', 'TK_COMMENT'];
         }
 
+        if (c === '.') {
+            return [c, 'TK_DOT'];
+        }
+
         if (in_array(c, punct)) {
             while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                 c += input.charAt(parser_pos);
@@ -791,6 +803,21 @@ function js_beautify(js_source_text, options) {
             }
             print_token();
 
+            break;
+
+        case 'TK_DOT':
+
+            if (is_special_word(last_text)) {
+                print_single_space();
+            } else if (last_text === ')' || ! last_text.match(/^\d+$/)) {
+                flags.chain_counter += 1;
+                flags.chain_extra_indentation = 1;
+                if (flags.chain_counter > 1) {
+                    print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
+                }
+            }
+
+            print_token();
             break;
 
         case 'TK_END_EXPR':
@@ -1151,7 +1178,6 @@ function js_beautify(js_source_text, options) {
 
             var space_before = true;
             var space_after = true;
-
             if (is_special_word(last_text)) {
                 // "return" had a special handling in TK_WORD. Now we need to return the favor
                 print_single_space();
@@ -1160,7 +1186,7 @@ function js_beautify(js_source_text, options) {
             }
 
             // hack for actionscript's import .*;
-            if (token_text === '*' && last_type === 'TK_UNKNOWN' && !last_last_text.match(/^\d+$/)) {
+            if (token_text === '*' && last_type === 'TK_DOT' && !last_last_text.match(/^\d+$/)) {
                 print_token();
                 break;
             }
@@ -1201,10 +1227,6 @@ function js_beautify(js_source_text, options) {
                     // foo(); --bar;
                     print_newline();
                 }
-            } else if (token_text === '.') {
-                // decimal digits or object.property
-                space_before = false;
-
             } else if (token_text === ':') {
                 if (flags.ternary_depth === 0) {
                     if (flags.mode === 'BLOCK') {
@@ -1298,9 +1320,6 @@ function js_beautify(js_source_text, options) {
             break;
 
         case 'TK_UNKNOWN':
-            if (is_special_word(last_text)) {
-                print_single_space();
-            }
             print_token();
             break;
         }
