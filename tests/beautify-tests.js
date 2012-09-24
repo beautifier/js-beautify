@@ -467,7 +467,7 @@ function run_beautifier_tests(test_obj)
     bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
 
 
-    test_fragment("if (..) {\n    // ....\n}\n(function");
+    test_fragment("if (zz) {\n    // ....\n}\n(function");
 
     bt("{\n    get foo() {}\n}");
     bt("{\n    var a = get\n    foo();\n}");
@@ -520,6 +520,11 @@ function run_beautifier_tests(test_obj)
     bt('if(foo) // comment\n(bar());');
     bt('if(foo) // comment\n(bar());');
     bt('if(foo) // comment\n/asdf/;');
+
+
+    bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
 
     Urlencoded.run_tests(sanitytest); 
 

@@ -80,6 +80,8 @@ class BeautifierFlags:
         self.var_line_reindented = False
         self.in_html_comment = False
         self.if_line = False
+        self.chain_counter = 0
+        self.chain_extra_indentation = 0
         self.in_case = False
         self.in_case_statement = False
         self.eat_next_space = False
@@ -237,6 +239,7 @@ class Beautifier:
                 'TK_BLOCK_COMMENT': self.handle_block_comment,
                 'TK_INLINE_COMMENT': self.handle_inline_comment,
                 'TK_COMMENT': self.handle_comment,
+                'TK_DOT': self.handle_dot,
                 'TK_UNKNOWN': self.handle_unknown,
             }
 
@@ -283,14 +286,18 @@ class Beautifier:
         self.append_newline()
         self.opts.keep_array_indentation = old_array_indentation
 
-    def append_newline(self, ignore_repeated = True):
+    def append_newline(self, ignore_repeated = True, reset_statement_flags = True):
 
         self.flags.eat_next_space = False
 
         if self.opts.keep_array_indentation and self.is_array(self.flags.mode):
             return
 
-        self.flags.if_line = False
+        if reset_statement_flags:
+            self.flags.if_line = False
+            self.flags.chain_counter = 0
+            self.flags.chain_extra_indentation = 0
+
         self.trim_output()
 
         if len(self.output) == 0:
@@ -304,7 +311,7 @@ class Beautifier:
         if self.preindent_string:
             self.output.append(self.preindent_string)
 
-        for i in range(self.flags.indentation_level):
+        for i in range(self.flags.indentation_level + self.flags.chain_extra_indentation):
             self.output.append(self.indent_string)
 
         if self.flags.var_line and self.flags.var_line_reindented:
@@ -648,6 +655,9 @@ class Beautifier:
             if self.wanted_newline:
                 self.append_newline()
             return '-->', 'TK_COMMENT'
+
+        if c == '.':
+            return c, 'TK_DOT'
 
         if c in self.punct:
             while parser_pos < len(self.input) and c + self.input[parser_pos] in self.punct:
@@ -1021,7 +1031,7 @@ class Beautifier:
             return
 
         # hack for actionscript's import .*;
-        if token_text == '*' and self.last_type == 'TK_UNKNOWN' and not self.last_last_text.isdigit():
+        if token_text == '*' and self.last_type == 'TK_DOT' and not self.last_last_text.isdigit():
             self.append(token_text)
             return
 
@@ -1058,10 +1068,6 @@ class Beautifier:
                 # { foo: --i }
                 # foo(): --bar
                 self.append_newline()
-
-        elif token_text == '.':
-            # decimal digits or object.property
-            space_before = False
 
         elif token_text == ':':
             if self.flags.ternary_depth == 0:
@@ -1130,10 +1136,17 @@ class Beautifier:
         self.append_newline();
 
 
-    def handle_unknown(self, token_text):
-        if self.last_text in ['return', 'throw']:
+    def handle_dot(self, token_text):
+        if self.is_special_word(self.last_text):
             self.append(' ')
+        elif self.last_text == ')' or not self.last_text.isdigit():
+            self.flags.chain_counter += 1
+            self.flags.chain_extra_indentation = 1;
+            if self.flags.chain_counter > 1:
+                self.append_newline(True, False)
+        self.append(token_text)
 
+    def handle_unknown(self, token_text):
         self.append(token_text)
 
 
