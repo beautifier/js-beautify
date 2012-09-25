@@ -80,7 +80,6 @@ class BeautifierFlags:
         self.var_line_reindented = False
         self.in_html_comment = False
         self.if_line = False
-        self.chain_counter = 0
         self.chain_extra_indentation = 0
         self.in_case = False
         self.in_case_statement = False
@@ -295,7 +294,6 @@ class Beautifier:
 
         if reset_statement_flags:
             self.flags.if_line = False
-            self.flags.chain_counter = 0
             self.flags.chain_extra_indentation = 0
 
         self.trim_output()
@@ -1139,11 +1137,9 @@ class Beautifier:
     def handle_dot(self, token_text):
         if self.is_special_word(self.last_text):
             self.append(' ')
-        elif self.last_text == ')' or not self.last_text.isdigit():
-            self.flags.chain_counter += 1
+        elif self.last_text == ')':
             self.flags.chain_extra_indentation = 1;
-            if self.flags.chain_counter > 1:
-                self.append_newline(True, False)
+            self.append_newline(True, False)
         self.append(token_text)
 
     def handle_unknown(self, token_text):
