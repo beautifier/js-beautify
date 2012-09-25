@@ -149,7 +149,6 @@ function js_beautify(js_source_text, options) {
 
         if (reset_statement_flags) {
             flags.if_line = false;
-            flags.chain_counter = 0;
             flags.chain_extra_indentation = 0;
         }
 
@@ -227,7 +226,6 @@ function js_beautify(js_source_text, options) {
             var_line_reindented: false,
             in_html_comment: false,
             if_line: false,
-            chain_counter: 0,
             chain_extra_indentation: 0,
             in_case_statement: false, // switch(..){ INSIDE HERE }
             in_case: false, // we're on the exact line with "case 0:"
@@ -809,12 +807,9 @@ function js_beautify(js_source_text, options) {
 
             if (is_special_word(last_text)) {
                 print_single_space();
-            } else if (last_text === ')' || ! last_text.match(/^\d+$/)) {
-                flags.chain_counter += 1;
+            } else if (last_text === ')') {
                 flags.chain_extra_indentation = 1;
-                if (flags.chain_counter > 1) {
-                    print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
-                }
+                print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
             }
 
             print_token();
