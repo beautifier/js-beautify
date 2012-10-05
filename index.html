@@ -148,6 +148,7 @@ function read_settings_from_cookie() {
     $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
     $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
     $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
+    $('#break-chained-methods').attr('checked', $.cookie('break-chained-methods') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
     $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
     $('#unescape-strings').attr('checked', $.cookie('unescape-strings') === 'on');
@@ -160,6 +161,7 @@ function store_settings_to_cookie() {
     $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
     $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('break-chained-methods', $('#break-chained-methods').attr('checked') ? 'on' : 'off', opts);
     $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
     $.cookie('unescape-strings', $('#unescape-strings').attr('checked') ? 'on' : 'off', opts);
     $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
@@ -206,41 +208,29 @@ function unpacker_filter(source) {
 }
 
 
-function beautify() {
+function beautify()
+{
     if (the.beautify_in_progress) return;
 
     store_settings_to_cookie();
 
     the.beautify_in_progress = true;
 
-    var source;
-    if (the.editor) {
-        source = the.editor.getValue();
-    } else {
-        source = $('#source').val();
-    }
-    var indent_size = $('#tabsize').val();
-    var indent_char = indent_size == 1 ? '\t' : ' ';
-    var preserve_newlines = $('#preserve-newlines').attr('checked');
-    var keep_array_indentation = $('#keep-array-indentation').attr('checked');
-    var indent_scripts = $('#indent-scripts').val();
-    var brace_style = $('#brace-style').val();
-    var space_before_conditional = $('#space-before-conditional').attr('checked');
-    var unescape_strings = $('#unescape-strings').attr('checked');
+    var source = the.editor ? the.editor.getValue() : $('#source').val(),
+        output,
+        opts = {};
 
+    opts.indent_size = $('#tabsize').val();
+    opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
+    opts.preserve_newlines = $('#preserve-newlines').attr('checked');
+    opts.keep_array_indentation = $('#keep-array-indentation').attr('checked');
+    opts.break_chained_methods = $('#break-chained-methods').attr('checked');
+    opts.indent_scripts = $('#indent-scripts').val();
+    opts.brace_style = $('#brace-style').val();
+    opts.space_before_conditional = $('#space-before-conditional').attr('checked');
+    opts.unescape_strings = $('#unescape-strings').attr('checked');
+    opts.space_after_anon_function = true;
 
-    var opts = {
-                indent_size: indent_size,
-                indent_char: indent_char,
-                preserve_newlines:preserve_newlines,
-                brace_style: brace_style,
-                keep_array_indentation:keep_array_indentation,
-                space_after_anon_function:true,
-                space_before_conditional: space_before_conditional,
-		unescape_strings: unescape_strings,
-                indent_scripts:indent_scripts};
-
-    var output;
     if (looks_like_html(source)) {
         output = style_html(source, opts);
     } else {
@@ -338,9 +328,10 @@ $(function() {
           <input class="checkbox" type="checkbox" id="preserve-newlines"><label for="preserve-newlines"> Preserve empty lines?</label><br>
           <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
           <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
+          <input class="checkbox" type="checkbox" id="break-chained-methods"><label for="break-chained-methods"> Break lines on chained methods?</label><br>
           <input class="checkbox" type="checkbox" id="space-before-conditional"><label for="space-before-conditional"> Space before conditional: "if(x)" / "if (x)"</label><br>
           <input class="checkbox" type="checkbox" id="unescape-strings"><label for="unescape-strings"> Unescape printable chars encoded as \xNN or \uNNNN?</label>
-          <br><a href="?without-codemirror" class="turn-off-codemirror">Turn off bells and whistles?</a>
+          <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
 
 
         </td></tr>
