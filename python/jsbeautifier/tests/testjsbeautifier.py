@@ -148,7 +148,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("for(var a=1,b=2)", "for (var a = 1, b = 2)");
         bt("for(var a=1,b=2,c=3)", "for (var a = 1, b = 2, c = 3)");
         bt("for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)");
-        bt("function x(){(a||b).c()}", "function x() {\n    (a || b)\n        .c()\n}");
+        bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
         bt("function x(){return - 1}", "function x() {\n    return -1\n}");
         bt("function x(){return ! a}", "function x() {\n    return !a\n}");
 
@@ -465,6 +465,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n(bar());');
         bt('if (foo) // comment\n/asdf/;');
 
+        self.options.break_chained_methods = True
         bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
         bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
         bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
@@ -500,6 +501,7 @@ class TestJSBeautifier(unittest.TestCase):
         options.keep_array_indentation = False
         options.brace_style = 'collapse'
         options.indent_level = 0
+        options.break_chained_methods = False
 
         cls.options = options
         cls.wrapregex = re.compile('^(.+)$', re.MULTILINE)

@@ -43,6 +43,7 @@ class BeautifierOptions:
         self.keep_function_indentation = False
         self.eval_code = False
         self.unescape_strings = False
+        self.break_chained_methods = False
 
 
 
@@ -1138,8 +1139,9 @@ class Beautifier:
         if self.is_special_word(self.last_text):
             self.append(' ')
         elif self.last_text == ')':
-            self.flags.chain_extra_indentation = 1;
-            self.append_newline(True, False)
+            if self.opts.break_chained_methods or self.wanted_newline:
+                self.flags.chain_extra_indentation = 1;
+                self.append_newline(True, False)
         self.append(token_text)
 
     def handle_unknown(self, token_text):

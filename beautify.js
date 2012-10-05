@@ -82,15 +82,16 @@ function js_beautify(js_source_text, options) {
     opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
 
 
-    var opt_indent_size = options.indent_size ? options.indent_size : 4;
-    var opt_indent_char = options.indent_char ? options.indent_char : ' ';
-    var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
-    var opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines;
-    var opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy;
-    var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
-    var opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional;
-    var opt_indent_case = typeof options.indent_case === 'undefined' ? false : options.indent_case;
-    var opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
+    var opt_indent_size = options.indent_size ? options.indent_size : 4,
+        opt_indent_char = options.indent_char ? options.indent_char : ' ',
+        opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines,
+        opt_break_chained_methods = typeof options.break_chained_methods === 'undefined' ? false : options.break_chained_methods,
+        opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines,
+        opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
+        opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
+        opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
+        opt_indent_case = typeof options.indent_case === 'undefined' ? false : options.indent_case,
+        opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
 
     just_added_newline = false;
 
@@ -808,8 +809,10 @@ function js_beautify(js_source_text, options) {
             if (is_special_word(last_text)) {
                 print_single_space();
             } else if (last_text === ')') {
-                flags.chain_extra_indentation = 1;
-                print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
+                if (opt_break_chained_methods || wanted_newline) {
+                    flags.chain_extra_indentation = 1;
+                    print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
+                }
             }
 
             print_token();

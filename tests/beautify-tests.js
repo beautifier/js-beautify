@@ -14,7 +14,8 @@ var opts = {
     jslint_happy: false,
     keep_array_indentation: false,
     brace_style: 'collapse',
-    space_before_conditional: true
+    space_before_conditional: true,
+    break_chained_methods: false
 };
 
 function test_beautifier(input)
@@ -191,7 +192,7 @@ function run_beautifier_tests(test_obj)
     bt("for(var a=1,b=2)", "for (var a = 1, b = 2)");
     bt("for(var a=1,b=2,c=3)", "for (var a = 1, b = 2, c = 3)");
     bt("for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)");
-    bt("function x(){(a||b).c()}", "function x() {\n    (a || b)\n        .c()\n}");
+    bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
     bt("function x(){return - 1}", "function x() {\n    return -1\n}");
     bt("function x(){return ! a}", "function x() {\n    return !a\n}");
 
@@ -522,6 +523,7 @@ function run_beautifier_tests(test_obj)
     bt('if(foo) // comment\n/asdf/;');
 
 
+    opts.break_chained_methods = true;
     bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
     bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
     bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
