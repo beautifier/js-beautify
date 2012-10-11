@@ -143,8 +143,8 @@ function run_beautifier_tests(test_obj)
     bt('(xx)()'); // magic function call
     bt('a[1]()'); // another magic function call
     bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
-    bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
-    bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+    bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+    bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
     bt('a !== b');
     bt('if (a) b(); else c();', "if (a) b();\nelse c();");
     bt("// comment\n(function something() {})"); // typical greasemonkey start
@@ -482,9 +482,9 @@ function run_beautifier_tests(test_obj)
     bt('<!-- dont crash');
     bt('for () /abc/.test()');
     bt('if (k) /aaa/m.test(v) && l();');
-    bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}');
+    bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
     bt('createdAt = {\n    type: Date,\n    default: Date.now\n}');
-    bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}');
+    bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}');
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
