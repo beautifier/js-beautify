@@ -90,7 +90,6 @@ function js_beautify(js_source_text, options) {
         opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
         opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
         opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
-        opt_indent_case = typeof options.indent_case === 'undefined' ? false : options.indent_case,
         opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
 
     just_added_newline = false;
@@ -172,9 +171,6 @@ function js_beautify(js_source_text, options) {
         if (flags.var_line && flags.var_line_reindented) {
             output.push(indent_string); // skip space-stuffing, if indenting with a tab
         }
-        if (flags.case_body) {
-            output.push(indent_string);
-        }
     }
 
 
@@ -233,7 +229,7 @@ function js_beautify(js_source_text, options) {
             case_body: false, // the indented case-action block
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + (flags.case_body ? 1 : 0) + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
     }
@@ -979,23 +975,16 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
-                if (last_text === ':' || flags.case_body) {
+                print_newline();
+                if (flags.case_body) {
                     // switch cases following one another
+                    flags.indentation_level--;
+                    flags.case_body = false;
                     remove_indent();
-                } else {
-                    // case statement starts in the same line where switch
-                    if (!opt_indent_case) {
-                        flags.indentation_level--;
-                    }
-                    print_newline();
-                    if (!opt_indent_case) {
-                        flags.indentation_level++;
-                    }
                 }
                 print_token();
                 flags.in_case = true;
                 flags.in_case_statement = true;
-                flags.case_body = false;
                 break;
             }
 
@@ -1190,10 +1179,9 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === ':' && flags.in_case) {
-                if (opt_indent_case) {
-                    flags.case_body = true;
-                }
-                print_token(); // colon really asks for separate treatment
+                flags.case_body = true;
+                indent();
+                print_token();
                 print_newline();
                 flags.in_case = false;
                 break;

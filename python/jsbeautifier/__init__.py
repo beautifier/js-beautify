@@ -84,6 +84,7 @@ class BeautifierFlags:
         self.chain_extra_indentation = 0
         self.in_case = False
         self.in_case_statement = False
+        self.case_body = False
         self.eat_next_space = False
         self.indentation_baseline = -1
         self.indentation_level = 0
@@ -853,12 +854,11 @@ class Beautifier:
             return
 
         if token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement):
-            if self.last_text == ':':
-                self.remove_indent()
-            else:
-                self.flags.indentation_level -= 1
-                self.append_newline()
-                self.flags.indentation_level += 1
+            self.append_newline()
+            if self.flags.case_body:
+                self.remove_indent();
+                self.flags.case_body = False
+                self.flags.indentation_level -= 1;
             self.append(token_text)
             self.flags.in_case = True
             self.flags.in_case_statement = True
@@ -1036,6 +1036,8 @@ class Beautifier:
 
 
         if token_text == ':' and self.flags.in_case:
+            self.flags.case_body = True
+            self.indent();
             self.append(token_text)
             self.append_newline()
             self.flags.in_case = False
