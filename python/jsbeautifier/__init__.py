@@ -966,6 +966,9 @@ class Beautifier:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
+        elif self.opts.preserve_newlines and self.wanted_newline:
+            self.append_newline();
+            self.append(self.indent_string);
 
         self.append(token_text)
 
