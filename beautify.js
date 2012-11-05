@@ -228,7 +228,6 @@ function js_beautify(js_source_text, options) {
             in_case: false, // we're on the exact line with "case 0:"
             case_body: false, // the indented case-action block
             eat_next_space: false,
-            indentation_baseline: -1,
             indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
@@ -307,19 +306,6 @@ function js_beautify(js_source_text, options) {
 
         if (keep_whitespace) {
 
-            //
-            // slight mess to allow nice preservation of array indentation and reindent that correctly
-            // first time when we get to the arrays:
-            // var a = [
-            // ....'something'
-            // we make note of whitespace_count = 4 into flags.indentation_baseline
-            // so we know that 4 whitespaces in original source match indent_level of reindented source
-            //
-            // and afterwards, when we get to
-            //    'something,
-            // .......'something else'
-            // we know that this should be indented to indent_level + (7 - indentation_baseline) spaces
-            //
             var whitespace_count = 0;
 
             while (in_array(c, whitespace)) {
@@ -347,18 +333,10 @@ function js_beautify(js_source_text, options) {
                 parser_pos += 1;
 
             }
-            if (flags.indentation_baseline === -1) {
-                flags.indentation_baseline = whitespace_count;
-            }
 
             if (just_added_newline) {
-                for (i = 0; i < flags.indentation_level + 1; i += 1) {
-                    output.push(indent_string);
-                }
-                if (flags.indentation_baseline !== -1) {
-                    for (i = 0; i < whitespace_count - flags.indentation_baseline; i++) {
-                        output.push(' ');
-                    }
+                for (i = 0; i < whitespace_count; i++) {
+                    output.push(' ');
                 }
             }
 

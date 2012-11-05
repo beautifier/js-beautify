@@ -342,12 +342,14 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.keep_array_indentation = True;
 
-        test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];')
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
+        bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
 
 
         bt('var x = [{}\n]', 'var x = [{}\n]');
         bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
-        bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
+        bt("a = ['something',\n'completely',\n'different'];\nif (x);");
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
@@ -491,7 +493,7 @@ class TestJSBeautifier(unittest.TestCase):
         expectation = expectation or input
         self.decodesto(input, expectation)
         if self.options.indent_size == 4 and input:
-            wrapped_input = '{\n%s\nfoo=bar;}' % input
+            wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
 
