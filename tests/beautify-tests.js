@@ -53,7 +53,7 @@ function bt(input, expectation)
     // }
 
     if (opts.indent_size === 4 && input) {
-        wrapped_input = '{\n' + input + '\nfoo=bar;}';
+        wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         test_fragment(wrapped_input, wrapped_expectation);
     }
@@ -384,12 +384,14 @@ function run_beautifier_tests(test_obj)
 
 
     opts.keep_array_indentation = true;
+    bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
+    bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
+    bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
 
-    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];');
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
-    bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
+    bt("a = ['something',\n'completely',\n'different'];\nif (x);");
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
