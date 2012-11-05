@@ -1102,6 +1102,11 @@ function js_beautify(js_source_text, options) {
                 print_newline();
             } else if (last_type === 'TK_WORD') {
                 print_single_space();
+            } else {
+                if (opt_preserve_newlines && wanted_newline) {
+                    print_newline();
+                    output.push(indent_string);
+                }
             }
             print_token();
             break;

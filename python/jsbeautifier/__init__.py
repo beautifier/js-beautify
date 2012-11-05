@@ -217,7 +217,7 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = self.unpack(s, opts.eval_code)
+        self.input = self.unpack(s, self.opts.eval_code)
 
         parser_pos = 0
         while True:
@@ -966,6 +966,9 @@ class Beautifier:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
+        elif self.opts.preserve_newlines and self.wanted_newline:
+            self.append_newline();
+            self.append(self.indent_string);
 
         self.append(token_text)
 
@@ -1208,4 +1211,3 @@ def main():
         else:
             with open(outfile, 'w') as f:
                 f.write(beautify_file(file, js_options) + '\n')
-

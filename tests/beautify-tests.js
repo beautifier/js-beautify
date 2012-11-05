@@ -491,6 +491,8 @@ function run_beautifier_tests(test_obj)
     opts.preserve_newlines = true;
     bt('var a = 42; // foo\n\nvar b;');
     bt('var a = 42; // foo\n\n\nvar b;');
+    bt("var a = 'foo' +\n    'bar';");
+    bt("var a = \"foo\" +\n    \"bar\";");
 
     opts.unescape_strings = false;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
@@ -521,7 +523,6 @@ function run_beautifier_tests(test_obj)
     bt('if(foo) // comment\n(bar());');
     bt('if(foo) // comment\n(bar());');
     bt('if(foo) // comment\n/asdf/;');
-
 
     opts.break_chained_methods = true;
     bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
