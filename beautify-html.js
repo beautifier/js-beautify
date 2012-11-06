@@ -43,7 +43,8 @@ function style_html(html_source, options) {
       indent_size,
       indent_character,
       max_char,
-      brace_style;
+      brace_style,
+      unformatted;
 
   options = options || {};
   indent_size = options.indent_size || 4;
