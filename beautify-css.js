@@ -161,13 +161,20 @@ function css_beautify(source_text, options) {
             print.newLine();
             output.push(eatComment(), "\n", indentString);
         } else if (ch == '(') { // may be a url
-            output.push(ch);
-            eatWhitespace();
-            if (lookBack("url", -1) && next()) {
+            if (lookBack("url", -1)) {
+              output.push(ch);
+              eatWhitespace();
+              if (next()) {
                 if (ch != ')' && ch != '"' && ch != '\'')
                     output.push(eatString(')'));
                 else
                     pos--;
+              }
+            } else {
+              if (isAfterSpace)
+                  print.singleSpace();
+              output.push(ch);
+              eatWhitespace();
             }
         } else if (ch == ')') {
             output.push(ch);
