@@ -942,7 +942,7 @@ function js_beautify(js_source_text, options) {
                     // foo = function
                     print_single_space();
                 } else if (is_expression(flags.mode)) {
-                        //ää print nothing
+                    // print nothing
                 } else {
                     print_newline();
                 }
@@ -1176,7 +1176,7 @@ function js_beautify(js_source_text, options) {
                 break;
             }
 
-            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) {
+            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters) || last_text == ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;

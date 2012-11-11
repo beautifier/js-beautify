@@ -1034,7 +1034,7 @@ class Beautifier:
         if token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
-                    or self.last_text in self.line_starters)):
+                    or self.last_text in self.line_starters or self.last_text == ',')):
 
             space_before = False
             space_after = False

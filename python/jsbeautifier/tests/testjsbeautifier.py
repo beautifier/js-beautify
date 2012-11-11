@@ -125,6 +125,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("a = 1;// comment", "a = 1; // comment");
         bt("a = 1; // comment", "a = 1; // comment");
         bt("a = 1;\n // comment", "a = 1;\n// comment");
+        bt('a = [-1, -1, -1]');
 
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
