@@ -300,7 +300,7 @@ function style_html(html_source, options) {
 
     this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
 
-      if (orig_tag && orig_tag.indexOf(delimiter) != -1) {
+      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) != -1) {
         return '';
       }
       var input_char = '';
@@ -337,7 +337,7 @@ function style_html(html_source, options) {
         space = true;
 
 
-      } while (content.indexOf(delimiter) == -1);
+      } while (content.toLowerCase().indexOf(delimiter) == -1);
       return content;
     }
 
