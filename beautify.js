@@ -1081,7 +1081,7 @@ function js_beautify(js_source_text, options) {
             } else if (last_type === 'TK_WORD') {
                 print_single_space();
             } else {
-                if (opt_preserve_newlines && wanted_newline) {
+                if (opt_preserve_newlines && wanted_newline && flags.mode !== 'OBJECT') {
                     print_newline();
                     output.push(indent_string);
                 }

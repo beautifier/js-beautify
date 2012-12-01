@@ -945,7 +945,7 @@ class Beautifier:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
-        elif self.opts.preserve_newlines and self.wanted_newline:
+        elif self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
             self.append_newline();
             self.append(self.indent_string);
 
