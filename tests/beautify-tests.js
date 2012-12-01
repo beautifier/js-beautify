@@ -365,6 +365,7 @@ function run_beautifier_tests(test_obj)
     opts.indent_char = ' ';
 
     opts.preserve_newlines = false;
+
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
     // make sure the blank line between function definitions stays
@@ -376,7 +377,6 @@ function run_beautifier_tests(test_obj)
     bt('function foo() {\n    return 1;\n}\n\n\nfunction foo() {\n    return 1;\n}',
        'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
       );
-
 
     opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
@@ -534,7 +534,14 @@ function run_beautifier_tests(test_obj)
     bt('this.something = foo.bar().baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
     bt('this.something.xxx = foo.moo.bar()');
 
-    Urlencoded.run_tests(sanitytest); 
+    opts.preserve_newlines = false;
+    bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+    bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+    opts.preserve_newlines = true;
+    bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+    bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+
+    Urlencoded.run_tests(sanitytest);
 
     return sanitytest;
 }
