@@ -60,6 +60,11 @@
         "default": "collapse",
         "description": "Brace style [collapse|expand|end-expand|expand-strict]"
     },
+    "B": {
+        "alias": "break-chained-methods",
+        "type": "boolean",
+        "description": "Break chained method calls across subsequent lines"
+    },
     "k": {
         "alias": "keep-array-indentation",
         "type": "boolean",

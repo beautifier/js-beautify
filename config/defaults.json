@@ -10,6 +10,7 @@
     "keep_array_indentation": false,
     "keep_function_indentation": false,
     "space_before_conditional": true,
+    "break_chained_methods": false,
     "eval_code": false,
     "indent_case": false,
     "unescape_strings": false
