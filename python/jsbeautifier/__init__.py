@@ -43,6 +43,7 @@ class BeautifierOptions:
         self.keep_function_indentation = False
         self.eval_code = False
         self.unescape_strings = False
+        self.break_chained_methods = False
 
 
 
@@ -80,10 +81,11 @@ class BeautifierFlags:
         self.var_line_reindented = False
         self.in_html_comment = False
         self.if_line = False
+        self.chain_extra_indentation = 0
         self.in_case = False
         self.in_case_statement = False
+        self.case_body = False
         self.eat_next_space = False
-        self.indentation_baseline = -1
         self.indentation_level = 0
         self.ternary_depth = 0
 
@@ -214,7 +216,7 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = self.unpack(s, opts.eval_code)
+        self.input = self.unpack(s, self.opts.eval_code)
 
         parser_pos = 0
         while True:
@@ -237,6 +239,7 @@ class Beautifier:
                 'TK_BLOCK_COMMENT': self.handle_block_comment,
                 'TK_INLINE_COMMENT': self.handle_inline_comment,
                 'TK_COMMENT': self.handle_comment,
+                'TK_DOT': self.handle_dot,
                 'TK_UNKNOWN': self.handle_unknown,
             }
 
@@ -283,14 +286,17 @@ class Beautifier:
         self.append_newline()
         self.opts.keep_array_indentation = old_array_indentation
 
-    def append_newline(self, ignore_repeated = True):
+    def append_newline(self, ignore_repeated = True, reset_statement_flags = True):
 
         self.flags.eat_next_space = False
 
         if self.opts.keep_array_indentation and self.is_array(self.flags.mode):
             return
 
-        self.flags.if_line = False
+        if reset_statement_flags:
+            self.flags.if_line = False
+            self.flags.chain_extra_indentation = 0
+
         self.trim_output()
 
         if len(self.output) == 0:
@@ -304,7 +310,7 @@ class Beautifier:
         if self.preindent_string:
             self.output.append(self.preindent_string)
 
-        for i in range(self.flags.indentation_level):
+        for i in range(self.flags.indentation_level + self.flags.chain_extra_indentation):
             self.output.append(self.indent_string)
 
         if self.flags.var_line and self.flags.var_line_reindented:
@@ -380,18 +386,6 @@ class Beautifier:
         keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
 
         if keep_whitespace:
-            # slight mess to allow nice preservation of array indentation and reindent that correctly
-            # first time when we get to the arrays:
-            # var a = [
-            # ....'something'
-            # we make note of whitespace_count = 4 into flags.indentation_baseline
-            # so we know that 4 whitespaces in original source match indent_level of reindented source
-            #
-            # and afterwards, when we get to
-            #    'something,
-            # .......'something else'
-            # we know that this should be indented to indent_level + (7 - indentation_baseline) spaces
-
             whitespace_count = 0
             while c in self.whitespace:
                 if c == '\n':
@@ -412,17 +406,9 @@ class Beautifier:
                 c = self.input[parser_pos]
                 parser_pos += 1
 
-            if self.flags.indentation_baseline == -1:
-
-                self.flags.indentation_baseline = whitespace_count
-
             if self.just_added_newline:
-                for i in range(self.flags.indentation_level + 1):
-                    self.output.append(self.indent_string)
-
-                if self.flags.indentation_baseline != -1:
-                    for i in range(whitespace_count - self.flags.indentation_baseline):
-                        self.output.append(' ')
+                for i in range(whitespace_count):
+                    self.output.append(' ')
 
         else: # not keep_whitespace
             while c in self.whitespace:
@@ -649,6 +635,9 @@ class Beautifier:
                 self.append_newline()
             return '-->', 'TK_COMMENT'
 
+        if c == '.':
+            return c, 'TK_DOT'
+
         if c in self.punct:
             while parser_pos < len(self.input) and c + self.input[parser_pos] in self.punct:
                 c += self.input[parser_pos]
@@ -844,12 +833,11 @@ class Beautifier:
             return
 
         if token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement):
-            if self.last_text == ':':
-                self.remove_indent()
-            else:
-                self.flags.indentation_level -= 1
-                self.append_newline()
-                self.flags.indentation_level += 1
+            self.append_newline()
+            if self.flags.case_body:
+                self.remove_indent();
+                self.flags.case_body = False
+                self.flags.indentation_level -= 1;
             self.append(token_text)
             self.flags.in_case = True
             self.flags.in_case_statement = True
@@ -957,6 +945,9 @@ class Beautifier:
             self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
+        elif self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
+            self.append_newline();
+            self.append(self.indent_string);
 
         self.append(token_text)
 
@@ -1021,12 +1012,14 @@ class Beautifier:
             return
 
         # hack for actionscript's import .*;
-        if token_text == '*' and self.last_type == 'TK_UNKNOWN' and not self.last_last_text.isdigit():
+        if token_text == '*' and self.last_type == 'TK_DOT' and not self.last_last_text.isdigit():
             self.append(token_text)
             return
 
 
         if token_text == ':' and self.flags.in_case:
+            self.flags.case_body = True
+            self.indent();
             self.append(token_text)
             self.append_newline()
             self.flags.in_case = False
@@ -1041,7 +1034,7 @@ class Beautifier:
         if token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
-                    or self.last_text in self.line_starters)):
+                    or self.last_text in self.line_starters or self.last_text == ',')):
 
             space_before = False
             space_after = False
@@ -1058,10 +1051,6 @@ class Beautifier:
                 # { foo: --i }
                 # foo(): --bar
                 self.append_newline()
-
-        elif token_text == '.':
-            # decimal digits or object.property
-            space_before = False
 
         elif token_text == ':':
             if self.flags.ternary_depth == 0:
@@ -1130,10 +1119,16 @@ class Beautifier:
         self.append_newline();
 
 
-    def handle_unknown(self, token_text):
-        if self.last_text in ['return', 'throw']:
+    def handle_dot(self, token_text):
+        if self.is_special_word(self.last_text):
             self.append(' ')
+        elif self.last_text == ')':
+            if self.opts.break_chained_methods or self.wanted_newline:
+                self.flags.chain_extra_indentation = 1;
+                self.append_newline(True, False)
+        self.append(token_text)
 
+    def handle_unknown(self, token_text):
         self.append(token_text)
 
 
@@ -1195,4 +1190,3 @@ def main():
         else:
             with open(outfile, 'w') as f:
                 f.write(beautify_file(file, js_options) + '\n')
-

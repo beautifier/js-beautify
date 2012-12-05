@@ -14,7 +14,8 @@ var opts = {
     jslint_happy: false,
     keep_array_indentation: false,
     brace_style: 'collapse',
-    space_before_conditional: true
+    space_before_conditional: true,
+    break_chained_methods: false
 };
 
 function test_beautifier(input)
@@ -52,7 +53,7 @@ function bt(input, expectation)
     // }
 
     if (opts.indent_size === 4 && input) {
-        wrapped_input = '{\n' + input + '\nfoo=bar;}';
+        wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
         test_fragment(wrapped_input, wrapped_expectation);
     }
@@ -142,8 +143,8 @@ function run_beautifier_tests(test_obj)
     bt('(xx)()'); // magic function call
     bt('a[1]()'); // another magic function call
     bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
-    bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
-    bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+    bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+    bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
     bt('a !== b');
     bt('if (a) b(); else c();', "if (a) b();\nelse c();");
     bt("// comment\n(function something() {})"); // typical greasemonkey start
@@ -168,6 +169,7 @@ function run_beautifier_tests(test_obj)
     bt("a = 1;// comment", "a = 1; // comment");
     bt("a = 1; // comment", "a = 1; // comment");
     bt("a = 1;\n // comment", "a = 1;\n// comment");
+    bt('a = [-1, -1, -1]');
 
     bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
@@ -363,6 +365,7 @@ function run_beautifier_tests(test_obj)
     opts.indent_char = ' ';
 
     opts.preserve_newlines = false;
+
     bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
 
     // make sure the blank line between function definitions stays
@@ -375,7 +378,6 @@ function run_beautifier_tests(test_obj)
        'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
       );
 
-
     opts.preserve_newlines = true;
     bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;');
     bt('// a\n// b\n\n// c\n// d');
@@ -383,12 +385,14 @@ function run_beautifier_tests(test_obj)
 
 
     opts.keep_array_indentation = true;
+    bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
+    bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
+    bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
 
-    test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];');
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
     bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
-    bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
+    bt("a = ['something',\n'completely',\n'different'];\nif (x);");
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
@@ -467,7 +471,7 @@ function run_beautifier_tests(test_obj)
     bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
 
 
-    test_fragment("if (..) {\n    // ....\n}\n(function");
+    test_fragment("if (zz) {\n    // ....\n}\n(function");
 
     bt("{\n    get foo() {}\n}");
     bt("{\n    var a = get\n    foo();\n}");
@@ -481,15 +485,17 @@ function run_beautifier_tests(test_obj)
     bt('<!-- dont crash');
     bt('for () /abc/.test()');
     bt('if (k) /aaa/m.test(v) && l();');
-    bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}');
+    bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
     bt('createdAt = {\n    type: Date,\n    default: Date.now\n}');
-    bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}');
+    bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}');
     opts.space_before_conditional = false;
     bt('if(a) b()');
 
     opts.preserve_newlines = true;
     bt('var a = 42; // foo\n\nvar b;');
     bt('var a = 42; // foo\n\n\nvar b;');
+    bt("var a = 'foo' +\n    'bar';");
+    bt("var a = \"foo\" +\n    \"bar\";");
 
     opts.unescape_strings = false;
     bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
@@ -521,7 +527,21 @@ function run_beautifier_tests(test_obj)
     bt('if(foo) // comment\n(bar());');
     bt('if(foo) // comment\n/asdf/;');
 
-    Urlencoded.run_tests(sanitytest); 
+    opts.break_chained_methods = true;
+    bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('this.something = foo.bar().baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
+    bt('this.something.xxx = foo.moo.bar()');
+
+    opts.preserve_newlines = false;
+    bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+    bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+    opts.preserve_newlines = true;
+    bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+    bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+
+    Urlencoded.run_tests(sanitytest);
 
     return sanitytest;
 }

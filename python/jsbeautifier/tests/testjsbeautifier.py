@@ -99,8 +99,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('(xx)()'); # magic function call
         bt('a[1]()'); # another magic function call
         bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
         bt('a !== b');
         bt('if (a) b(); else c();', "if (a) b();\nelse c();");
         bt("// comment\n(function something() {})"); # typical greasemonkey start
@@ -125,6 +125,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("a = 1;// comment", "a = 1; // comment");
         bt("a = 1; // comment", "a = 1; // comment");
         bt("a = 1;\n // comment", "a = 1;\n// comment");
+        bt('a = [-1, -1, -1]');
 
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
@@ -342,12 +343,14 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.keep_array_indentation = True;
 
-        test_fragment('var a = [\n// comment:\n{\n foo:bar\n}\n];', 'var a = [\n    // comment:\n{\n    foo: bar\n}\n];')
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
+        bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
 
 
         bt('var x = [{}\n]', 'var x = [{}\n]');
         bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
-        bt("a = ['something',\n'completely',\n'different'];\nif (x);", "a = ['something',\n    'completely',\n    'different'];\nif (x);");
+        bt("a = ['something',\n'completely',\n'different'];\nif (x);");
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
@@ -416,7 +419,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = <%= external() %> ;');
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
-        test_fragment("if (..) {\n    // ....\n}\n(function");
+        test_fragment("if (zz) {\n    // ....\n}\n(function");
 
         self.options.preserve_newlines = True;
         bt('var a = 42; // foo\n\nvar b;')
@@ -436,9 +439,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('<!-- dont crash')
         bt('for () /abc/.test()')
         bt('if (k) /aaa/m.test(v) && l();')
-        bt('switch (true) {\ncase /swf/i.test(foo):\n    bar();\n}')
+        bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}')
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
-        bt('switch (createdAt) {\ncase a:\n    Date,\ndefault:\n    Date.now\n}')
+        bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}')
 
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('return function();')
@@ -465,6 +468,26 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n(bar());');
         bt('if (foo) // comment\n/asdf/;');
 
+        bt("var a = 'foo' +\n    'bar';");
+        bt("var a = \"foo\" +\n    \"bar\";");
+
+
+        self.options.break_chained_methods = True
+        bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this.something = foo.bar().baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+
+        self.options.preserve_newlines = False
+        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        self.options.preserve_newlines = True
+        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+
+
+
 
 
 
@@ -479,7 +502,7 @@ class TestJSBeautifier(unittest.TestCase):
         expectation = expectation or input
         self.decodesto(input, expectation)
         if self.options.indent_size == 4 and input:
-            wrapped_input = '{\n%s\nfoo=bar;}' % input
+            wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
 
@@ -493,6 +516,7 @@ class TestJSBeautifier(unittest.TestCase):
         options.keep_array_indentation = False
         options.brace_style = 'collapse'
         options.indent_level = 0
+        options.break_chained_methods = False
 
         cls.options = options
         cls.wrapregex = re.compile('^(.+)$', re.MULTILINE)
