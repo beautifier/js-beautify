@@ -79,7 +79,6 @@ These are the command-line flags for both Python and JS scripts:
       -b, --brace-style             Brace style [collapse|expand|end-expand|expand-strict] [default: "collapse"]
       -B, --break-chained-methods   Break chained method calls across subsequent lines
       -k, --keep-array-indentation  Preserve array indentation
-      -a, --indent-case             Indent case inside switch
       -x, --unescape-strings        Decode printable characters encoded in xNN notation
 
 These correspond to underscored option keys for both library interfaces:
@@ -98,7 +97,6 @@ These correspond to underscored option keys for both library interfaces:
         "space_before_conditional": true,
         "break_chained_methods": false,
         "eval_code": false,
-        "indent_case": false,
         "unescape_strings": false
     }
 

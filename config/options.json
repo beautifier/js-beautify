@@ -70,11 +70,6 @@
         "type": "boolean",
         "description": "Preserve array indentation"
     },
-    "a": {
-        "alias": "indent-case",
-        "type": "boolean",
-        "description": "Indent case inside switch"
-    },
     "x": {
         "alias": "unescape-strings",
         "type": "boolean",
