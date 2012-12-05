@@ -1,9 +1,10 @@
-/*global js_beautify */
+/*global js_beautify: true */
 /*jshint node:true */
 
 var isNode = (typeof module !== 'undefined' && module.exports);
 if (isNode) {
     var SanityTest = require('./sanitytest'),
+        Urlencoded = require('../unpackers/urlencode_unpacker'),
         js_beautify = require('../beautify').js_beautify;
 }
 
