@@ -11,7 +11,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "./tests/beautify-tests.js"
+    "test": "node ./tests/beautify-tests.js"
   },
   "repository": {
     "type": "git",
