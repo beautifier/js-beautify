@@ -12,4 +12,4 @@ print(run_beautifier_tests().results_raw())
 
 
 // for nodejs use this from the command line from the main directory:
-// echo "console.log(run_beautifier_tests().results_raw());" | cat beautify.js tests/sanitytest.js tests/beautify-tests.js - | node
+// node tests/beautify-tests.js

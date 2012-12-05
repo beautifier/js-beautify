@@ -1,3 +1,5 @@
+/*global unescape */
+/*jshint curly: false, scripturl: true */
 //
 // trivial bookmarklet/escaped script detector for the javascript beautifier
 // written by Einar Lielmanis <einar@jsbeautifier.org>
@@ -9,6 +11,11 @@
 // }
 // 
 //
+
+var isNode = (typeof module !== 'undefined' && module.exports);
+if (isNode) {
+    var SanityTest = require(__dirname + '/../tests/sanitytest');
+}
 
 var Urlencoded = {
     detect: function (str) {
@@ -59,4 +66,8 @@ var Urlencoded = {
     }
 
 
+};
+
+if (isNode) {
+    module.exports = Urlencoded;
 }
