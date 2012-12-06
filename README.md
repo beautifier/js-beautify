@@ -63,7 +63,7 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 
 These are the command-line flags for both Python and JS scripts:
 
-```txt
+```text
 CLI Options:
   -f, --file                    Input file(s) (Pass '-' for stdin). These can also be passed directly.
   -r, --replace                 Write output in-place, replacing input
