@@ -63,42 +63,58 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 
 These are the command-line flags for both Python and JS scripts:
 
-    CLI Options:
-      -f, --file                    Input file(s) (Pass '-' for stdin). These can also be passed directly.
-      -r, --replace                 Write output in-place, replacing input
-      -o, --outfile                 Write output to file (default stdout)
-    
-    Beautifier Options:
-      -s, --indent-size             Indentation size [default: 4]
-      -c, --indent-char             Indentation character [default: " "]
-      -l, --indent-level            Initial indentation level [default: 0]
-      -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
-      -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables) [default: true]
-      -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [default: 10]
-      -j, --jslint-happy            Enable jslint-stricter mode
-      -b, --brace-style             Brace style [collapse|expand|end-expand|expand-strict] [default: "collapse"]
-      -B, --break-chained-methods   Break chained method calls across subsequent lines
-      -k, --keep-array-indentation  Preserve array indentation
-      -x, --unescape-strings        Decode printable characters encoded in xNN notation
+```txt
+CLI Options:
+  -f, --file                    Input file(s) (Pass '-' for stdin). These can also be passed directly.
+  -r, --replace                 Write output in-place, replacing input
+  -o, --outfile                 Write output to file (default stdout)
+  --config                      Path to config file
+  -v, --version                 Show the version
+  -h, --help                    Show this help
 
-These correspond to underscored option keys for both library interfaces:
+Beautifier Options:
+  -s, --indent-size             Indentation size [4]
+  -c, --indent-char             Indentation character [" "]
+  -l, --indent-level            Initial indentation level [0]
+  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
+  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
+  -j, --jslint-happy            Enable jslint-stricter mode
+  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]
+  -B, --break-chained-methods   Break chained method calls across subsequent lines
+  -k, --keep-array-indentation  Preserve array indentation
+  -x, --unescape-strings        Decode printable characters encoded in xNN notation
+  -g, --good-stuff              Warm the cockles of Crockford's heart
+```
 
-    defaults = {
-        "indent_size": 4,
-        "indent_char": " ",
-        "indent_level": 0,
-        "indent_with_tabs": false,
-        "preserve_newlines": true,
-        "max_preserve_newlines": 10,
-        "jslint_happy": false,
-        "brace_style": "collapse",
-        "keep_array_indentation": false,
-        "keep_function_indentation": false,
-        "space_before_conditional": true,
-        "break_chained_methods": false,
-        "eval_code": false,
-        "unescape_strings": false
-    }
+These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
+
+```json
+{
+    "indent_size": 4,
+    "indent_char": " ",
+    "indent_level": 0,
+    "indent_with_tabs": false,
+    "preserve_newlines": true,
+    "max_preserve_newlines": 10,
+    "jslint_happy": false,
+    "brace_style": "collapse",
+    "keep_array_indentation": false,
+    "keep_function_indentation": false,
+    "space_before_conditional": true,
+    "break_chained_methods": false,
+    "eval_code": false,
+    "unescape_strings": false
+}
+```
+
+In addition to CLI arguments, you may pass config to the JS executable via:
+
+ * any `jsbeautify_`-prefixed environment variables
+ * a `JSON`-formatted file indicated by the `--config` parameter
+ * a `.jsbeautifyrc` file containing `JSON` data at any level of the filesystem above `$PWD`
+
+Configuration sources provided earlier in this stack will override later ones.
 
 You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
 
