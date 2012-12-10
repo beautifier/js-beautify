@@ -78,19 +78,24 @@ var cfg = cc(
     __dirname + '/config/defaults.json'
 ).snapshot;
 
+
 try {
+    // Verify arguments
     checkFiles(cfg);
     checkIndent(cfg);
     debug(cfg);
+
+    // Process files synchronously to avoid EMFILE error
+    cfg.files.forEach(processInputSync, { cfg: cfg });
+    console.log('\nBeautified ' + cfg.files.length + ' files');
 }
 catch (ex) {
     debug(cfg);
-    usage(ex);
+    // usage(ex);
+    console.error(ex);
+    console.error('Run `js-beautify -h` for help.');
     process.exit(1);
 }
-
-
-cfg.files.forEach(processInput, { cfg: cfg });
 
 
 function usage(err) {
@@ -131,57 +136,68 @@ function usage(err) {
 }
 
 // main iterator, {cfg} passed as thisArg of forEach call
-function processInput(filepath) {
+function processInputSync(filepath) {
     var data = '',
         config = this.cfg,
+        outfile = config.outfile,
         input;
+
+    // -o passed with no value overwrites
+    if (outfile === true || config.replace) {
+        outfile = filepath;
+    }
 
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
         input.setEncoding('utf8');
-    } else {
-        input = fs.createReadStream(filepath, { encoding: 'utf8' });
+
+        input.on('data', function (chunk) {
+            data += chunk;
+        });
+
+        input.on('end', function () {
+            makePretty(data, config, outfile, writePretty);
+        });
     }
+    else {
+        data = fs.readFileSync(filepath, 'utf8');
+        makePretty(data, config, outfile, writePretty);
+    }
+}
 
-    input.on('data', function (chunk) {
-        data += chunk;
-    });
-
-    input.on('end', function () {
-        var pretty = beautify(data, config),
-            outfile = config.outfile,
-            output;
-
-        // -o passed with no value overwrites
-        if (outfile === true || config.replace) {
-            outfile = filepath;
-        }
-
-        if (outfile) {
-            output = fs.createWriteStream(outfile, {
-                flags: "w",
-                encoding: "utf8",
-                mode: '644'
-            });
-
-            // catch possible errors
-            output.on('error', onOutputError);
-        } else {
-            output = process.stdout;
-        }
+function makePretty(code, config, outfile, callback) {
+    try {
+        var pretty = beautify(code, config);
 
         // ensure newline at end of beautified output
         pretty += '\n';
 
-        if (output.writable) {
-            output.write(pretty);
+        callback(null, pretty, outfile);
+    }
+    catch (ex) {
+        callback(ex);
+    }
+}
 
-            if (outfile) {
-                output.end();
-            }
+function writePretty(err, pretty, outfile) {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+
+    if (outfile) {
+        try {
+            fs.writeFileSync(outfile, pretty, 'utf8');
+            console.log('beautified ' + path.relative(process.cwd(), outfile));
         }
-    });
+        catch (ex) {
+            onOutputError(ex);
+        }
+    }
+    else {
+        process.stdout.write(pretty);
+    }
 }
 
 // workaround the fact that nopt.clean doesn't return the object passed in :P
@@ -195,6 +211,10 @@ function cleanOptions(data, types) {
 function onOutputError(err) {
     if (err.code === 'EACCES') {
         console.error(err.path + " is not writable. Skipping!");
+    }
+    else {
+        console.error(err);
+        process.exit(0);
     }
 }
 
@@ -233,7 +253,8 @@ function checkFiles(parsed) {
 
     if (!parsed.files) {
         parsed.files = [];
-    } else {
+    }
+    else {
         if (argv.cooked.indexOf('-') > -1) {
             // strip stdin path eagerly added by nopt in '-f -' case
             parsed.files.some(removeDashedPath);
@@ -262,6 +283,7 @@ function checkFiles(parsed) {
     if (!parsed.files.length) {
         throw 'Must define at least one file.';
     }
+    debug('files.length ' + parsed.files.length);
 
     parsed.files.forEach(testFilePath);
 
@@ -281,7 +303,8 @@ function testFilePath(filepath) {
         if (filepath !== "-") {
             fs.statSync(filepath);
         }
-    } catch (err) {
+    }
+    catch (err) {
         throw 'Unable to open path "' + filepath + '"';
     }
 }
