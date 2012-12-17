@@ -175,14 +175,21 @@ function style_html(html_source, options) {
       }
     }
 
-    this.get_tag = function () { //function to get a full tag and parse its type
+    this.get_tag = function (peek) { //function to get a full tag and parse its type
       var input_char = '',
           content = [],
           space = false,
-          tag_start, tag_end;
+          tag_start, tag_end,
+          peek = typeof peek !== 'undefined' ? peek : false,
+          orig_pos = this.pos,
+          orig_line_char_count = this.line_char_count;
 
       do {
         if (this.pos >= this.input.length) {
+          if (peek) {
+            this.pos = orig_pos;
+            this.line_char_count = orig_line_char_count;
+          }
           return content.length?content.join(''):['', 'TK_EOF'];
         }
 
@@ -220,7 +227,7 @@ function style_html(html_source, options) {
           space = false;
         }
         if (input_char === '<') {
-            tag_start = this.pos - 1;
+          tag_start = this.pos - 1;
         }
         content.push(input_char); //inserts character at-a-time (or string)
       } while (input_char !== '>');
@@ -235,18 +242,24 @@ function style_html(html_source, options) {
       }
       var tag_check = tag_complete.substring(1, tag_index).toLowerCase();
       if (tag_complete.charAt(tag_complete.length-2) === '/' ||
-          this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
-        this.tag_type = 'SINGLE';
+        this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
+        if ( ! peek) {
+          this.tag_type = 'SINGLE';
+        }
       }
       else if (tag_check === 'script') { //for later script handling
-        this.record_tag(tag_check);
-        this.tag_type = 'SCRIPT';
+        if ( ! peek) {
+          this.record_tag(tag_check);
+          this.tag_type = 'SCRIPT';
+        }
       }
       else if (tag_check === 'style') { //for future style handling (for now it justs uses get_content)
-        this.record_tag(tag_check);
-        this.tag_type = 'STYLE';
+        if ( ! peek) {
+          this.record_tag(tag_check);
+          is.tag_type = 'STYLE';
+        }
       }
-      else if (this.Utils.in_array(tag_check, unformatted)) { // do not reformat the "unformatted" tags
+      else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
         var comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
         content.push(comment);
         // Preserve collapsed whitespace either before or after this tag.
@@ -265,7 +278,9 @@ function style_html(html_source, options) {
             var comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
             content.push(comment);
           }
-          this.tag_type = 'START';
+          if ( ! peek) {
+            this.tag_type = 'START';
+          }
         }
         else if (tag_check.indexOf('[endif') != -1) {//peek for <!--[endif end conditional comment
           this.tag_type = 'END';
@@ -274,7 +289,9 @@ function style_html(html_source, options) {
         else if (tag_check.indexOf('[cdata[') != -1) { //if it's a <[cdata[ comment...
           var comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
           content.push(comment);
-          this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
+          if ( ! peek) {
+            this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
+          }
         }
         else {
           var comment = this.get_unformatted('-->', tag_complete);
@@ -282,7 +299,7 @@ function style_html(html_source, options) {
           this.tag_type = 'SINGLE';
         }
       }
-      else {
+      else if ( ! peek) {
         if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
           this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
           this.tag_type = 'END';
@@ -295,6 +312,12 @@ function style_html(html_source, options) {
           this.print_newline(true, this.output);
         }
       }
+
+      if (peek) {
+        this.pos = orig_pos;
+        this.line_char_count = orig_line_char_count;
+      }
+
       return content.join(''); //returns fully formatted tag
     }
 
@@ -382,6 +405,25 @@ function style_html(html_source, options) {
       return Array(level + 1).join(this.indent_string);
     }
 
+    this.is_unformatted = function(tag_check, unformatted) {
+        //is this an HTML5 block-level link?
+        if (!this.Utils.in_array(tag_check, unformatted)){
+            return false;
+        }
+
+        if (tag_check.toLowerCase() !== 'a' || !this.Utils.in_array('a', unformatted)){
+            return true;
+        }
+
+        //at this point we have an  tag; is its first child something we want to remain
+        //unformatted?
+        var next_tag = this.get_tag(true /* peek. */);
+        if (next_tag && this.Utils.in_array(next_tag, unformatted)){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
 
