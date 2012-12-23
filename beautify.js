@@ -177,19 +177,19 @@ function js_beautify(js_source_text, options) {
 
     function print_single_space() {
 
-        if (last_type === 'TK_COMMENT') {
-            return print_newline();
-        }
+        var last_output = ' ';
+
         if (flags.eat_next_space) {
             flags.eat_next_space = false;
-            return;
-        }
-        var last_output = ' ';
-        if (output.length) {
-            last_output = output[output.length - 1];
-        }
-        if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
-            output.push(' ');
+        } else if (last_type === 'TK_COMMENT') {
+            print_newline();
+        } else {
+            if (output.length) {
+                last_output = output[output.length - 1];
+            }
+            if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
+                output.push(' ');
+            }
         }
     }
 
