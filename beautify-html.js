@@ -256,7 +256,7 @@ function style_html(html_source, options) {
       else if (tag_check === 'style') { //for future style handling (for now it justs uses get_content)
         if ( ! peek) {
           this.record_tag(tag_check);
-          is.tag_type = 'STYLE';
+          this.tag_type = 'STYLE';
         }
       }
       else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
