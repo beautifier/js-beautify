@@ -468,6 +468,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n(bar());');
         bt('if (foo) // comment\n/asdf/;');
 
+        bt('/* foo */\n"x"');
+
         bt("var a = 'foo' +\n    'bar';");
         bt("var a = \"foo\" +\n    \"bar\";");
 
