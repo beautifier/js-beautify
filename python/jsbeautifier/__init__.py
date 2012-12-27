@@ -475,7 +475,6 @@ class Beautifier:
         if c == '/':
             comment = ''
             inline_comment = True
-            comment_mode = 'TK_INLINE_COMMENT'
             if self.input[self.parser_pos] == '*': # peek /* .. */ comment
                 self.parser_pos += 1
                 if self.parser_pos < len(self.input):
@@ -486,12 +485,16 @@ class Beautifier:
                         c = self.input[self.parser_pos]
                         comment += c
                         if c in '\r\n':
-                            comment_mode = 'TK_BLOCK_COMMENT'
+                            inline_comment = False
                         self.parser_pos += 1
                         if self.parser_pos >= len(self.input):
                             break
                 self.parser_pos += 2
-                return '/*' + comment + '*/', comment_mode
+                if inline_comment and self.n_newlines == 0:
+                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
+                else:
+                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
+
             if self.input[self.parser_pos] == '/': # peek // comment
                 comment = c
                 while self.input[self.parser_pos] not in '\r\n':
@@ -938,13 +941,14 @@ class Beautifier:
     def handle_string(self, token_text):
         if self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(COND-EXPRESSION)', '(FOR-EXPRESSION)']:
             self.append(' ')
-        if self.last_type in ['TK_COMMENT', 'TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
-            self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
-        elif self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
-            self.append_newline();
-            self.append(self.indent_string);
+        elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
+            if self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
+                self.append_newline()
+                self.append(self.indent_string)
+        else:
+            self.append_newline()
 
         self.append(token_text)
 
