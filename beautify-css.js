@@ -93,8 +93,8 @@ function css_beautify(source_text, options) {
     }
 
 
-    function lookBack(str, index) {
-        return output.slice(-str.length + (index||0), index).join("").toLowerCase() == str;
+    function lookBack(str) {
+        return source_text.substring(pos-str.length, pos).toLowerCase() == str;
     }
 
     // printer
@@ -161,7 +161,7 @@ function css_beautify(source_text, options) {
             print.newLine();
             output.push(eatComment(), "\n", indentString);
         } else if (ch == '(') { // may be a url
-            if (lookBack("url", -1)) {
+            if (lookBack("url")) {
               output.push(ch);
               eatWhitespace();
               if (next()) {
