@@ -574,7 +574,7 @@ function style_html(html_source, options) {
 }
 
 // Add support for CommonJS. Just put this file somewhere on your require.paths
-// and you will be able to `var js_beautify = require("beautify").js_beautify`.
+// and you will be able to `var html_beautify = require("beautify").html_beautify`.
 if (typeof exports !== "undefined") {
     exports.html_beautify = style_html;
 }
