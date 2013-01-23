@@ -79,6 +79,9 @@ table#options td {
 li {
     line-height: 150%;
 }
+li.writeme {
+    padding-top: 8px;
+}
 
 
 #testresults {
@@ -369,20 +372,21 @@ $(function() {
       <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
       <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
       <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
-      <li style="margin-top: 8px"><strong>Sublime Text 2:</strong> <a style="font-weight:bold" href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis Clark,</li>
-      <li style="margin-top: 8px"><strong>vim:</strong> <a style="font-weight:bold" href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey or cscript js engine),</li>
-      <li><strong>vim:</strong> <a style="font-weight:bold" href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
-      <li style="margin-top: 12px"><a style="font-weight: bold" href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
-      <li><strong>gEdit</strong> <a href="https://github.com/nagaozen/gedit-tunnings/">tips by Fabio Nagao</a>,</li>
-      <li><strong>Akelpad</strong> <a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">extension</a> by Infocatcher,</li>
-      <li>Beautifier in <a style="font-weight: bold" href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
-      <li><a style="font-weight:bold" href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-      <li><a style="font-weight:bold" href="http://www.symetronapps.com/pages/apps/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good,</li>
-      <li><a style="font-weight:bold" href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
-      <li><a style="font-weight:bold" href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
-      <li><a style="font-weight:bold" href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a> (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
-      <li><a style="font-weight:bold" href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="http://code.google.com/p/burp-suite-beautifier-extension/">beautfier extension</a>, thanks to Soroush Dalili,</li>
-      <li><a style="font-weight:bold" href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
+      <li style="margin-top: 8px"><strong>Sublime Text 2:</strong> <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis Clark,</li>
+      <li style="margin-top: 8px"><strong>vim:</strong> <a href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey or cscript js engine),</li>
+      <li><strong>vim:</strong> <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
+      <li style="margin-top: 12px"><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
+      <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
+      <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
+      <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
+      <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
+      <li><a href="http://www.symetronapps.com/pages/apps/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have no idea if it's any good,</li>
+      <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
+      <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
+      <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a> (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
+      <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="http://code.google.com/p/burp-suite-beautifier-extension/">beautfier extension</a>, thanks to Soroush Dalili,</li>
+      <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
+      <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets by Drew Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>).</li>
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
