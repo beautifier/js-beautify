@@ -11,13 +11,13 @@
 // alert(t.results_raw());        // html unescaped
 
 
-function SanityTest (func, test_name) {
+function SanityTest (func, name_of_test) {
 
     var test_func = func || function (x) {
         return x;
     };
 
-    var test_name = test_name || '';
+    var test_name = name_of_test || '';
 
     var n_failed = 0;
     var n_succeeded = 0;
@@ -82,7 +82,6 @@ function SanityTest (func, test_name) {
             } else {
                 return something;
             }
-            break;
         case 'number':
             return '' + something;
         case 'boolean':
@@ -105,7 +104,6 @@ function SanityTest (func, test_name) {
             } else {
                 return 'object: ' + something;
             }
-            break;
         default:
             return type + ': ' + something;
         }

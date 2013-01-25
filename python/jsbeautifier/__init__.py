@@ -197,8 +197,7 @@ class Beautifier:
         self.line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',')
         self.set_mode('BLOCK')
 
-        global parser_pos
-        parser_pos = 0
+        self.parser_pos = 0
 
 
     def beautify(self, s, opts = None ):
@@ -218,7 +217,7 @@ class Beautifier:
 
         self.input = self.unpack(s, self.opts.eval_code)
 
-        parser_pos = 0
+        self.parser_pos = 0
         while True:
             token_text, token_type = self.get_next_token()
             #print (token_text, token_type, self.flags.mode)
@@ -372,16 +371,14 @@ class Beautifier:
 
     def get_next_token(self):
 
-        global parser_pos
-
         self.n_newlines = 0
 
-        if parser_pos >= len(self.input):
+        if self.parser_pos >= len(self.input):
             return '', 'TK_EOF'
 
         self.wanted_newline = False
-        c = self.input[parser_pos]
-        parser_pos += 1
+        c = self.input[self.parser_pos]
+        self.parser_pos += 1
 
         keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
 
@@ -400,11 +397,11 @@ class Beautifier:
                 else:
                     whitespace_count += 1
 
-                if parser_pos >= len(self.input):
+                if self.parser_pos >= len(self.input):
                     return '', 'TK_EOF'
 
-                c = self.input[parser_pos]
-                parser_pos += 1
+                c = self.input[self.parser_pos]
+                self.parser_pos += 1
 
             if self.just_added_newline:
                 for i in range(whitespace_count):
@@ -416,11 +413,11 @@ class Beautifier:
                     if self.opts.max_preserve_newlines == 0 or self.opts.max_preserve_newlines > self.n_newlines:
                         self.n_newlines += 1
 
-                if parser_pos >= len(self.input):
+                if self.parser_pos >= len(self.input):
                     return '', 'TK_EOF'
 
-                c = self.input[parser_pos]
-                parser_pos += 1
+                c = self.input[self.parser_pos]
+                self.parser_pos += 1
 
             if self.opts.preserve_newlines and self.n_newlines > 1:
                 for i in range(self.n_newlines):
@@ -431,19 +428,19 @@ class Beautifier:
 
 
         if c in self.wordchar:
-            if parser_pos < len(self.input):
-                while self.input[parser_pos] in self.wordchar:
-                    c = c + self.input[parser_pos]
-                    parser_pos += 1
-                    if parser_pos == len(self.input):
+            if self.parser_pos < len(self.input):
+                while self.input[self.parser_pos] in self.wordchar:
+                    c = c + self.input[self.parser_pos]
+                    self.parser_pos += 1
+                    if self.parser_pos == len(self.input):
                         break
 
             # small and surprisingly unugly hack for 1E-10 representation
-            if parser_pos != len(self.input) and self.input[parser_pos] in '+-' \
+            if self.parser_pos != len(self.input) and self.input[self.parser_pos] in '+-' \
                and re.match('^[0-9]+[Ee]$', c):
 
-                sign = self.input[parser_pos]
-                parser_pos += 1
+                sign = self.input[self.parser_pos]
+                self.parser_pos += 1
                 t = self.get_next_token()
                 c += sign + t[0]
                 return c, 'TK_WORD'
@@ -478,29 +475,32 @@ class Beautifier:
         if c == '/':
             comment = ''
             inline_comment = True
-            comment_mode = 'TK_INLINE_COMMENT'
-            if self.input[parser_pos] == '*': # peek /* .. */ comment
-                parser_pos += 1
-                if parser_pos < len(self.input):
-                    while not (self.input[parser_pos] == '*' and \
-                               parser_pos + 1 < len(self.input) and \
-                               self.input[parser_pos + 1] == '/')\
-                          and parser_pos < len(self.input):
-                        c = self.input[parser_pos]
+            if self.input[self.parser_pos] == '*': # peek /* .. */ comment
+                self.parser_pos += 1
+                if self.parser_pos < len(self.input):
+                    while not (self.input[self.parser_pos] == '*' and \
+                               self.parser_pos + 1 < len(self.input) and \
+                               self.input[self.parser_pos + 1] == '/')\
+                          and self.parser_pos < len(self.input):
+                        c = self.input[self.parser_pos]
                         comment += c
                         if c in '\r\n':
-                            comment_mode = 'TK_BLOCK_COMMENT'
-                        parser_pos += 1
-                        if parser_pos >= len(self.input):
+                            inline_comment = False
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
                             break
-                parser_pos += 2
-                return '/*' + comment + '*/', comment_mode
-            if self.input[parser_pos] == '/': # peek // comment
+                self.parser_pos += 2
+                if inline_comment and self.n_newlines == 0:
+                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
+                else:
+                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
+
+            if self.input[self.parser_pos] == '/': # peek // comment
                 comment = c
-                while self.input[parser_pos] not in '\r\n':
-                    comment += self.input[parser_pos]
-                    parser_pos += 1
-                    if parser_pos >= len(self.input):
+                while self.input[self.parser_pos] not in '\r\n':
+                    comment += self.input[self.parser_pos]
+                    self.parser_pos += 1
+                    if self.parser_pos >= len(self.input):
                         break
                 if self.wanted_newline:
                     self.append_newline()
@@ -520,29 +520,29 @@ class Beautifier:
             resulting_string = c
             in_char_class = False
 
-            if parser_pos < len(self.input):
+            if self.parser_pos < len(self.input):
                 if sep == '/':
                     # handle regexp
                     in_char_class = False
-                    while esc or in_char_class or self.input[parser_pos] != sep:
-                        resulting_string += self.input[parser_pos]
+                    while esc or in_char_class or self.input[self.parser_pos] != sep:
+                        resulting_string += self.input[self.parser_pos]
                         if not esc:
-                            esc = self.input[parser_pos] == '\\'
-                            if self.input[parser_pos] == '[':
+                            esc = self.input[self.parser_pos] == '\\'
+                            if self.input[self.parser_pos] == '[':
                                 in_char_class = True
-                            elif self.input[parser_pos] == ']':
+                            elif self.input[self.parser_pos] == ']':
                                 in_char_class = False
                         else:
                             esc = False
-                        parser_pos += 1
-                        if parser_pos >= len(self.input):
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
                             # incomplete regex when end-of-file reached
                             # bail out with what has received so far
                             return resulting_string, 'TK_STRING'
                 else:
                     # handle string
-                    while esc or self.input[parser_pos] != sep:
-                        resulting_string += self.input[parser_pos]
+                    while esc or self.input[self.parser_pos] != sep:
+                        resulting_string += self.input[self.parser_pos]
                         if esc1 and esc1 >= esc2:
                             try:
                                 esc1 = int(resulting_string[-esc2:], 16)
@@ -558,41 +558,41 @@ class Beautifier:
                         if esc1:
                             esc1 += 1
                         elif not esc:
-                            esc = self.input[parser_pos] == '\\'
+                            esc = self.input[self.parser_pos] == '\\'
                         else:
                             esc = False
                             if self.opts.unescape_strings:
-                                if self.input[parser_pos] == 'x':
+                                if self.input[self.parser_pos] == 'x':
                                     esc1 += 1
                                     esc2 = 2
-                                elif self.input[parser_pos] == 'u':
+                                elif self.input[self.parser_pos] == 'u':
                                     esc1 += 1
                                     esc2 = 4
-                        parser_pos += 1
-                        if parser_pos >= len(self.input):
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
                             # incomplete string when end-of-file reached
                             # bail out with what has received so far
                             return resulting_string, 'TK_STRING'
 
 
-            parser_pos += 1
+            self.parser_pos += 1
             resulting_string += sep
             if sep == '/':
                 # regexps may have modifiers /regexp/MOD, so fetch those too
-                while parser_pos < len(self.input) and self.input[parser_pos] in self.wordchar:
-                    resulting_string += self.input[parser_pos]
-                    parser_pos += 1
+                while self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.wordchar:
+                    resulting_string += self.input[self.parser_pos]
+                    self.parser_pos += 1
             return resulting_string, 'TK_STRING'
 
         if c == '#':
 
             # she-bang
-            if len(self.output) == 0 and len(self.input) > 1 and self.input[parser_pos] == '!':
+            if len(self.output) == 0 and len(self.input) > 1 and self.input[self.parser_pos] == '!':
                 resulting_string = c
-                while parser_pos < len(self.input) and c != '\n':
-                    c = self.input[parser_pos]
+                while self.parser_pos < len(self.input) and c != '\n':
+                    c = self.input[self.parser_pos]
                     resulting_string += c
-                    parser_pos += 1
+                    self.parser_pos += 1
                 self.output.append(resulting_string.strip() + "\n")
                 self.append_newline()
                 return self.get_next_token()
@@ -602,35 +602,35 @@ class Beautifier:
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
             sharp = '#'
-            if parser_pos < len(self.input) and self.input[parser_pos] in self.digits:
+            if self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.digits:
                 while True:
-                    c = self.input[parser_pos]
+                    c = self.input[self.parser_pos]
                     sharp += c
-                    parser_pos += 1
-                    if parser_pos >= len(self.input)  or c == '#' or c == '=':
+                    self.parser_pos += 1
+                    if self.parser_pos >= len(self.input)  or c == '#' or c == '=':
                         break
-            if c == '#' or parser_pos >= len(self.input):
+            if c == '#' or self.parser_pos >= len(self.input):
                 pass
-            elif self.input[parser_pos] == '[' and self.input[parser_pos + 1] == ']':
+            elif self.input[self.parser_pos] == '[' and self.input[self.parser_pos + 1] == ']':
                 sharp += '[]'
-                parser_pos += 2
-            elif self.input[parser_pos] == '{' and self.input[parser_pos + 1] == '}':
+                self.parser_pos += 2
+            elif self.input[self.parser_pos] == '{' and self.input[self.parser_pos + 1] == '}':
                 sharp += '{}'
-                parser_pos += 2
+                self.parser_pos += 2
             return sharp, 'TK_WORD'
 
-        if c == '<' and self.input[parser_pos - 1 : parser_pos + 3] == '<!--':
-            parser_pos += 3
+        if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
+            self.parser_pos += 3
             c = '<!--'
-            while parser_pos < len(self.input) and self.input[parser_pos] != '\n':
-                c += self.input[parser_pos]
-                parser_pos += 1
+            while self.parser_pos < len(self.input) and self.input[self.parser_pos] != '\n':
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
             self.flags.in_html_comment = True
             return c, 'TK_COMMENT'
 
-        if c == '-' and self.flags.in_html_comment and self.input[parser_pos - 1 : parser_pos + 2] == '-->':
+        if c == '-' and self.flags.in_html_comment and self.input[self.parser_pos - 1 : self.parser_pos + 2] == '-->':
             self.flags.in_html_comment = False
-            parser_pos += 2
+            self.parser_pos += 2
             if self.wanted_newline:
                 self.append_newline()
             return '-->', 'TK_COMMENT'
@@ -639,10 +639,10 @@ class Beautifier:
             return c, 'TK_DOT'
 
         if c in self.punct:
-            while parser_pos < len(self.input) and c + self.input[parser_pos] in self.punct:
-                c += self.input[parser_pos]
-                parser_pos += 1
-                if parser_pos >= len(self.input):
+            while self.parser_pos < len(self.input) and c + self.input[self.parser_pos] in self.punct:
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+                if self.parser_pos >= len(self.input):
                     break
             if c == '=':
                 return c, 'TK_EQUALS'
@@ -941,13 +941,14 @@ class Beautifier:
     def handle_string(self, token_text):
         if self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(COND-EXPRESSION)', '(FOR-EXPRESSION)']:
             self.append(' ')
-        if self.last_type in ['TK_COMMENT', 'TK_STRING', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_SEMICOLON']:
-            self.append_newline()
         elif self.last_type == 'TK_WORD':
             self.append(' ')
-        elif self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
-            self.append_newline();
-            self.append(self.indent_string);
+        elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
+            if self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
+                self.append_newline()
+                self.append(self.indent_string)
+        else:
+            self.append_newline()
 
         self.append(token_text)
 
