@@ -380,12 +380,14 @@ function js_beautify(js_source_text, options) {
                     just_added_newline = true;
                     whitespace_count = 0;
                 } else {
-                    if (c === '\t') {
-                        whitespace_count += 4;
-                    } else if (c === '\r') {
-                        // nothing
-                    } else {
-                        whitespace_count += 1;
+                    if (just_added_newline) {
+                        if (c === indent_string) {
+                            output.push(indent_string);
+                        } else {
+                            if (c !== '\r') {
+                                output.push(' ');
+                            }
+                        }
                     }
                 }
 
@@ -396,12 +398,6 @@ function js_beautify(js_source_text, options) {
                 c = input.charAt(parser_pos);
                 parser_pos += 1;
 
-            }
-
-            if (just_added_newline) {
-                for (i = 0; i < whitespace_count; i++) {
-                    output.push(' ');
-                }
             }
 
         } else {
