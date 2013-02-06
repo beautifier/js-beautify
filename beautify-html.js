@@ -19,7 +19,7 @@
   The options are:
     indent_size (default 4)          — indentation size,
     indent_char (default space)      — character to indent with,
-    max_char (default 70)            -  maximum amount of characters per line,
+    max_char (default 250)            -  maximum amount of characters per line (0 = disable)
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
     unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
@@ -50,7 +50,7 @@ function style_html(html_source, options) {
   indent_size = options.indent_size || 4;
   indent_character = options.indent_char || ' ';
   brace_style = options.brace_style || 'collapse';
-  max_char = options.max_char == 0 ? Infinity : options.max_char || 70;
+  max_char = options.max_char == 0 ? Infinity : options.max_char || 250;
   unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   function Parser() {
