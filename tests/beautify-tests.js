@@ -222,6 +222,10 @@ function run_beautifier_tests(test_obj)
     bt('{a:#1={}}', '{\n    a: #1={}\n}');
     bt('{a:#1#}', '{\n    a: #1#\n}');
 
+    test_fragment('"incomplete-string');
+    test_fragment("'incomplete-string");
+    test_fragment('/incomplete-regex');
+
     test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
     test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
 
