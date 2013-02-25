@@ -25,7 +25,7 @@ var P_A_C_K_E_R = {
     unpack: function (str) {
         var chunks = P_A_C_K_E_R.get_chunks(str);
         for(var i = 0; i < chunks.length; i++) {
-            str = str.replace(chunks[i], P_A_C_K_E_R.unpack_chunk(chunks[i]))
+            str = str.split(chunks[i]).join( P_A_C_K_E_R.unpack_chunk(chunks[i]) );
         }
         return str;
     },
