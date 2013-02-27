@@ -877,7 +877,9 @@ function js_beautify(js_source_text, options) {
                     }
                 } else {
                     if (last_type !== 'TK_OPERATOR') {
-                        if (last_text === '=' || (is_special_word(last_text) && last_text !== 'else')) {
+                        if (last_type === 'TK_EQUALS' ||
+                            last_type === 'TK_INLINE_COMMENT' || // inline comment will handle newlines
+                            (is_special_word(last_text) && last_text !== 'else')) {
                             print_single_space();
                         } else {
                             print_newline(true);
@@ -1308,7 +1310,8 @@ function js_beautify(js_source_text, options) {
         case 'TK_INLINE_COMMENT':
             print_single_space();
             print_token();
-            if (is_expression(flags.mode)) {
+            if (is_expression(flags.mode) ||
+                (last_type === 'TK_WORD' && last_word === 'return')) {
                 print_single_space();
             } else {
                 force_newline();
