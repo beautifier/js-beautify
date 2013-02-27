@@ -741,7 +741,7 @@ class Beautifier:
 
         if self.opts.brace_style == 'expand':
             if self.last_type != 'TK_OPERATOR':
-                if self.last_text == '=' or (self.is_special_word(self.last_text) and self.last_text != 'else'):
+                if self.last_type == 'TK_EQUALS' or self.last_type == 'TK_INLINE_COMMENT' or (self.is_special_word(self.last_text) and self.last_text != 'else'):
                     self.append(' ')
                 else:
                     self.append_newline(True)
@@ -1100,7 +1100,7 @@ class Beautifier:
     def handle_inline_comment(self, token_text):
         self.append(' ')
         self.append(token_text)
-        if self.is_expression(self.flags.mode):
+        if self.is_expression(self.flags.mode) or (self.last_type == 'TK_WORD' and self.last_word == 'return'):
             self.append(' ')
         else:
             self.append_newline_forced()
