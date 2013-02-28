@@ -491,9 +491,17 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = False
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        bt('var a = /*i*/ "b";');
+        bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
+        bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
+        test_fragment('\n\n"x"', '"x"');
         self.options.preserve_newlines = True
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        bt('var a = /*i*/ "b";');
+        bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
+        bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
+        test_fragment('\n\n"x"', '"x"');
 
 
 

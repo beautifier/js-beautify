@@ -244,9 +244,12 @@ class Beautifier:
 
             handlers[token_type](token_text)
 
-            self.last_last_text = self.last_text
-            self.last_type = token_type
-            self.last_text = token_text
+            # The cleanest handling of inline comments is to treat them as though they aren't there.
+            # Just continue formatting and the behavior should be logical.
+            if token_type != 'TK_INLINE_COMMENT':
+                self.last_last_text = self.last_text
+                self.last_type = token_type
+                self.last_text = token_text
 
         sweet_code = self.preindent_string + re.sub('[\n ]+$', '', ''.join(self.output))
         return sweet_code
@@ -310,10 +313,10 @@ class Beautifier:
             self.output.append(self.preindent_string)
 
         for i in range(self.flags.indentation_level + self.flags.chain_extra_indentation):
-            self.output.append(self.indent_string)
+            self.append_indent_string()
 
         if self.flags.var_line and self.flags.var_line_reindented:
-            self.output.append(self.indent_string)
+            self.append_indent_string()
 
 
     def append(self, s):
@@ -332,6 +335,9 @@ class Beautifier:
             self.flags.eat_next_space = False
             self.output.append(s)
 
+    def append_indent_string(self):
+        if self.last_text != '':
+            self.output.append(self.indent_string)
 
     def indent(self):
         self.flags.indentation_level = self.flags.indentation_level + 1
@@ -741,7 +747,7 @@ class Beautifier:
 
         if self.opts.brace_style == 'expand':
             if self.last_type != 'TK_OPERATOR':
-                if self.last_type == 'TK_EQUALS' or self.last_type == 'TK_INLINE_COMMENT' or (self.is_special_word(self.last_text) and self.last_text != 'else'):
+                if self.last_type == 'TK_EQUALS' or (self.is_special_word(self.last_text) and self.last_text != 'else'):
                     self.append(' ')
                 else:
                     self.append_newline(True)
@@ -946,7 +952,7 @@ class Beautifier:
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
                 self.append_newline()
-                self.append(self.indent_string)
+                self.append_indent_string()
         else:
             self.append_newline()
 
@@ -1100,10 +1106,7 @@ class Beautifier:
     def handle_inline_comment(self, token_text):
         self.append(' ')
         self.append(token_text)
-        if self.is_expression(self.flags.mode) or (self.last_type == 'TK_WORD' and self.last_word == 'return'):
-            self.append(' ')
-        else:
-            self.append_newline_forced()
+        self.append(' ')
 
 
     def handle_comment(self, token_text):
