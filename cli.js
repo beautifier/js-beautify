@@ -28,6 +28,7 @@ var fs = require('fs'),
         "files": [path, Array],
         "outfile": path,
         "replace": Boolean,
+        "quiet": Boolean,
         "config": path
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
@@ -56,7 +57,8 @@ var fs = require('fs'),
         "h": ["--help"],
         "f": ["--files"],
         "o": ["--outfile"],
-        "r": ["--replace"]
+        "r": ["--replace"],
+        "q": ["--quiet"]
         // no shorthand for "config"
     }),
     parsed = nopt(knownOpts, shortHands);
@@ -87,7 +89,7 @@ try {
 
     // Process files synchronously to avoid EMFILE error
     cfg.files.forEach(processInputSync, { cfg: cfg });
-    console.log('\nBeautified ' + cfg.files.length + ' files');
+    logToStdout('\nBeautified ' + cfg.files.length + ' files');
 }
 catch (ex) {
     debug(cfg);
@@ -107,6 +109,7 @@ function usage(err) {
         '  -r, --replace                 Write output in-place, replacing input',
         '  -o, --outfile                 Write output to file (default stdout)',
         '  --config                      Path to config file',
+        '  -q, --quiet                   Suppress output to stdout',
         '  -h, --help                    Show this help',
         '  -v, --version                 Show the version',
         '',
@@ -189,7 +192,7 @@ function writePretty(err, pretty, outfile) {
     if (outfile) {
         try {
             fs.writeFileSync(outfile, pretty, 'utf8');
-            console.log('beautified ' + path.relative(process.cwd(), outfile));
+            logToStdout('beautified ' + path.relative(process.cwd(), outfile));
         }
         catch (ex) {
             onOutputError(ex);
@@ -306,5 +309,11 @@ function testFilePath(filepath) {
     }
     catch (err) {
         throw 'Unable to open path "' + filepath + '"';
+    }
+}
+
+function logToStdout(str) {
+    if (typeof parsed.quiet === "undefined" || !parsed.quiet) {
+        console.log(str);
     }
 }
