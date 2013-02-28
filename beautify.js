@@ -166,14 +166,19 @@ function js_beautify(js_source_text, options) {
             output.push(preindent_string);
         }
         for (var i = 0; i < flags.indentation_level + flags.chain_extra_indentation; i += 1) {
-            output.push(indent_string);
+            print_indent_string();
         }
         if (flags.var_line && flags.var_line_reindented) {
-            output.push(indent_string); // skip space-stuffing, if indenting with a tab
+            print_indent_string(); // skip space-stuffing, if indenting with a tab
         }
     }
 
-
+    function print_indent_string() {
+        // Never indent your first output indent at the start of the file
+        if(last_text != '') {
+            output.push(indent_string);
+        }
+    }
 
     function print_single_space() {
 
@@ -878,7 +883,6 @@ function js_beautify(js_source_text, options) {
                 } else {
                     if (last_type !== 'TK_OPERATOR') {
                         if (last_type === 'TK_EQUALS' ||
-                            last_type === 'TK_INLINE_COMMENT' || // inline comment will handle newlines
                             (is_special_word(last_text) && last_text !== 'else')) {
                             print_single_space();
                         } else {
@@ -1126,7 +1130,7 @@ function js_beautify(js_source_text, options) {
             } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 if (opt_preserve_newlines && wanted_newline && flags.mode !== 'OBJECT') {
                     print_newline();
-                    output.push(indent_string);
+                    print_indent_string();
                 }
             } else {
                 print_newline();
@@ -1307,15 +1311,11 @@ function js_beautify(js_source_text, options) {
             }
             break;
 
+
         case 'TK_INLINE_COMMENT':
             print_single_space();
             print_token();
-            if (is_expression(flags.mode) ||
-                (last_type === 'TK_WORD' && last_word === 'return')) {
-                print_single_space();
-            } else {
-                force_newline();
-            }
+            print_single_space();
             break;
 
         case 'TK_COMMENT':
@@ -1339,9 +1339,13 @@ function js_beautify(js_source_text, options) {
             break;
         }
 
-        last_last_text = last_text;
-        last_type = token_type;
-        last_text = token_text;
+        // The cleanest handling of inline comments is to treat them as though they aren't there.
+        // Just continue formatting and the behavior should be logical.
+        if(token_type !== 'TK_INLINE_COMMENT') {
+            last_last_text = last_text;
+            last_type = token_type;
+            last_text = token_text;
+        }
     }
 
     var sweet_code = preindent_string + output.join('').replace(/[\r\n ]+$/, '');
