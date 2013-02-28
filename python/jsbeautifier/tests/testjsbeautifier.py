@@ -177,6 +177,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt('{a:#1={}}', '{\n    a: #1={}\n}');
         bt('{a:#1#}', '{\n    a: #1#\n}');
 
+        test_fragment('"incomplete-string');
+        test_fragment("'incomplete-string");
+        test_fragment('/incomplete-regex');
+
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
         test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
 
@@ -378,6 +382,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
         test_fragment('return {', 'return {'); # return needs the brace. maybe something else as well: feel free to report.
+        test_fragment('return /* inline comment */ {', 'return /* inline comment */ {');
         # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return;\n{');
 
@@ -387,6 +392,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
         test_fragment('return {', 'return {'); # return needs the brace. maybe something else as well: feel free to report.
+        test_fragment('return /* inline comment */ {', 'return /* inline comment */ {');
         # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return;\n{');
 
@@ -396,6 +402,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
         test_fragment('return {', 'return {'); # return needs the brace. maybe something else as well: feel free to report.
+        test_fragment('return /* inline comment */ {', 'return /* inline comment */ {');
         # test_fragment('return\n{', 'return\n{'); # can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return; {');
 
