@@ -554,10 +554,17 @@ function run_beautifier_tests(test_obj)
     opts.preserve_newlines = false;
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+    bt('var a = /*i*/ "b";');
+    bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
+    bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
+    test_fragment('\n\n"x"', '"x"');
     opts.preserve_newlines = true;
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
-
+    bt('var a = /*i*/ "b";');
+    bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
+    bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
+    test_fragment('\n\n"x"', '"x"');
     Urlencoded.run_tests(sanitytest);
 
     return sanitytest;
