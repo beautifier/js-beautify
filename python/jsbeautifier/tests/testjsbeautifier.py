@@ -371,7 +371,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('var a = new function();');
         test_fragment('new function');
-        bt('var a =\nfoo', 'var a = foo');
 
         self.options.brace_style = 'expand';
 
@@ -489,17 +488,23 @@ class TestJSBeautifier(unittest.TestCase):
         bt('this.something.xxx = foo.moo.bar()');
 
         self.options.preserve_newlines = False
+        bt('var a =\nfoo', 'var a = foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
         bt('var a = /*i*/ "b";');
         bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
+        bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
         bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
+        bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b && c && d && e) e = f');
         test_fragment('\n\n"x"', '"x"');
         self.options.preserve_newlines = True
+        bt('var a =\nfoo', 'var a =\n    foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
         bt('var a = /*i*/ "b";');
         bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
+        bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
+        bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b &&\n    c && d && e) e = f');
         bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
         test_fragment('\n\n"x"', '"x"');
 
