@@ -1025,6 +1025,13 @@ function js_beautify(js_source_text, options) {
             if (flags.if_line && last_type === 'TK_END_EXPR') {
                 flags.if_line = false;
             }
+
+            if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                if (flags.mode !== 'OBJECT') {
+                    print_preserved_newline();
+                }
+            }
+
             if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                 if (last_type !== 'TK_END_BLOCK' || opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
                     print_newline();

@@ -452,7 +452,6 @@ function run_beautifier_tests(test_obj)
 
     bt('var a = new function();');
     test_fragment('new function');
-    bt('var a =\nfoo', 'var a = foo');
 
     opts.brace_style = "end-expand";
 
@@ -551,19 +550,27 @@ function run_beautifier_tests(test_obj)
     bt('this.something = foo.bar().baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
     bt('this.something.xxx = foo.moo.bar()');
 
+    opts.space_before_conditional = true;
     opts.preserve_newlines = false;
+    bt('var a =\nfoo', 'var a = foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
     bt('var a = /*i*/ "b";');
     bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
+    bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
     bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
+    bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b && c && d && e) e = f');
     test_fragment('\n\n"x"', '"x"');
+
     opts.preserve_newlines = true;
+    bt('var a =\nfoo', 'var a =\n    foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
     bt('var a = /*i*/ "b";');
     bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
+    bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
     bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
+    bt('if (a && b &&\nc\n&& d && e) e = f', 'if (a && b &&\n    c && d && e) e = f');
     test_fragment('\n\n"x"', '"x"');
     Urlencoded.run_tests(sanitytest);
 

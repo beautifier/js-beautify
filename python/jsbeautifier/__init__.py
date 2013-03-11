@@ -288,6 +288,13 @@ class Beautifier:
         self.append_newline()
         self.opts.keep_array_indentation = old_array_indentation
 
+    def append_preserved_newline(self):
+        if self.opts.preserve_newlines and self.wanted_newline and not self.just_added_newline:
+            self.append_newline()
+            self.append_indent_string()
+            self.wanted_newline = False
+
+
     def append_newline(self, ignore_repeated = True, reset_statement_flags = True):
 
         self.flags.eat_next_space = False
@@ -881,6 +888,10 @@ class Beautifier:
         if self.flags.if_line and self.last_type == 'TK_END_EXPR':
             self.flags.if_line = False
 
+        if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
+            if self.flags.mode != 'OBJECT':
+                self.append_preserved_newline()
+
         if token_text in self.line_starters:
             if self.last_text == 'else':
                 prefix = 'SPACE'
@@ -950,9 +961,9 @@ class Beautifier:
         elif self.last_type == 'TK_WORD':
             self.append(' ')
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
-            if self.opts.preserve_newlines and self.wanted_newline and self.flags.mode != 'OBJECT':
-                self.append_newline()
-                self.append_indent_string()
+            if self.flags.mode != 'OBJECT':
+                self.append_preserved_newline()
+
         else:
             self.append_newline()
 
