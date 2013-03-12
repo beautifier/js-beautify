@@ -288,9 +288,9 @@ class Beautifier:
         self.append_newline()
         self.opts.keep_array_indentation = old_array_indentation
 
-    def append_preserved_newline(self):
-        if self.opts.preserve_newlines and self.wanted_newline and not self.just_added_newline:
-            self.append_newline()
+    def append_preserved_newline(self, force_linewrap = False):
+        if not self.just_added_newline and ((self.opts.preserve_newlines and self.wanted_newline) or force_linewrap):
+            self.append_newline(reset_statement_flags = False)
             self.append_indent_string()
             self.wanted_newline = False
 
@@ -1144,10 +1144,11 @@ class Beautifier:
     def handle_dot(self, token_text):
         if self.is_special_word(self.last_text):
             self.append(' ')
-        elif self.last_text == ')':
-            if self.opts.break_chained_methods or self.wanted_newline:
-                self.flags.chain_extra_indentation = 1;
-                self.append_newline(True, False)
+        else:
+            # allow preserved newlines before dots in general
+            # force newlines on dots after close paren when break_chained - for bar().baz()
+            self.append_preserved_newline(self.last_text == ')' and self.opts.break_chained_methods)
+
         self.append(token_text)
 
     def handle_unknown(self, token_text):

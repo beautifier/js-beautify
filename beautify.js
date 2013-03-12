@@ -130,9 +130,11 @@ function js_beautify(js_source_text, options) {
         return out;
     }
 
-    function print_preserved_newline() {
-        if(opt_preserve_newlines && wanted_newline && !just_added_newline) {
-          print_newline(true);
+    function print_preserved_newline(force_linewrap) {
+        force_linewrap = typeof force_linewrap === 'undefined' ? false : force_linewrap;
+        if(!just_added_newline &&
+            ((opt_preserve_newlines && wanted_newline) || force_linewrap)) {
+          print_newline();
           print_indent_string();
           wanted_newline = false;
         }
@@ -811,11 +813,10 @@ function js_beautify(js_source_text, options) {
 
             if (is_special_word(last_text)) {
                 print_single_space();
-            } else if (last_text === ')') {
-                if (opt_break_chained_methods || wanted_newline) {
-                    print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
-                    print_indent_string();
-                }
+            } else {
+                // allow preserved newlines before dots in general
+                // force newlines on dots after close paren when break_chained - for bar().baz()
+                print_preserved_newline(last_text === ')' && opt_break_chained_methods);
             }
 
             print_token();
