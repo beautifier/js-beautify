@@ -85,16 +85,16 @@ function js_beautify(js_source_text, options) {
     opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
 
 
-    var opt_indent_size = options.indent_size ? options.indent_size : 4,
+    var opt_indent_size = options.indent_size ? parseInt(options.indent_size) : 4,
         opt_indent_char = options.indent_char ? options.indent_char : ' ',
         opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines,
         opt_break_chained_methods = typeof options.break_chained_methods === 'undefined' ? false : options.break_chained_methods,
-        opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines,
+        opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? 0 : parseInt(options.max_preserve_newlines),
         opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
         opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
         opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
         opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings,
-        opt_wrap_line_length = typeof options.wrap_line_length !== 'number' ? 0 : options.wrap_line_length;
+        opt_wrap_line_length = typeof options.wrap_line_length === 'undefined' ? 0 : parseInt(options.wrap_line_length);
 
     just_added_newline = false;
 
