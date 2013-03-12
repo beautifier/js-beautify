@@ -154,6 +154,7 @@ function read_settings_from_cookie() {
     $('#break-chained-methods').attr('checked', $.cookie('break-chained-methods') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
     $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
+    $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
     $('#unescape-strings').attr('checked', $.cookie('unescape-strings') === 'on');
 }
 
@@ -167,6 +168,7 @@ function store_settings_to_cookie() {
     $.cookie('break-chained-methods', $('#break-chained-methods').attr('checked') ? 'on' : 'off', opts);
     $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
     $.cookie('unescape-strings', $('#unescape-strings').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
     $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
 }
 
@@ -232,6 +234,7 @@ function beautify()
     opts.brace_style = $('#brace-style').val();
     opts.space_before_conditional = $('#space-before-conditional').attr('checked');
     opts.unescape_strings = $('#unescape-strings').attr('checked');
+    opts.wrap_line_length = $('#wrap-line-length').val();
     opts.space_after_anon_function = true;
 
     if (looks_like_html(source)) {
@@ -311,6 +314,16 @@ $(function() {
             <option value="3">indent with 3 spaces</option>
             <option value="4">indent with 4 spaces</option>
             <option value="8">indent with 8 spaces</option>
+          </select><br>
+
+          <select name="wrap-line-length" id="wrap-line-length">
+            <option value="0">Do not wrap lines</option>
+            <option value="40">Wrap lines near 40 characters</option>
+            <option value="70">Wrap lines near 70 characters</option>
+            <option value="80">Wrap lines near 80 characters</option>
+            <option value="110">Wrap lines near 110 characters</option>
+            <option value="120">Wrap lines near 120 characters</option>
+            <option value="160">Wrap lines near 160 characters</option>
           </select><br>
 
           <select id="brace-style">
