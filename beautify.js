@@ -46,13 +46,16 @@
 
     unescape_strings (default false) - should printable characters in strings encoded in \xNN notation be unescaped, "example" vs "\x65\x78\x61\x6d\x70\x6c\x65"
 
+    wrap_line_length (default unlimited) - lines should wrap at next opportunity after this number of characters.
+          NOTE: This is not a hard limit. Lines will continue until a point where a newline would
+                be preserved if it were present.
+
     e.g
 
     js_beautify(js_source_text, {
       'indent_size': 1,
       'indent_char': '\t'
     });
-
 
 */
 
@@ -90,7 +93,8 @@ function js_beautify(js_source_text, options) {
         opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
         opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
         opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
-        opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
+        opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings,
+        opt_wrap_line_length = typeof options.wrap_line_length !== 'number' ? 0 : options.wrap_line_length;
 
     just_added_newline = false;
 
@@ -130,8 +134,19 @@ function js_beautify(js_source_text, options) {
         return out;
     }
 
-    function print_preserved_newline(force_linewrap) {
+    function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = typeof force_linewrap === 'undefined' ? false : force_linewrap;
+        if (opt_wrap_line_length && !force_linewrap) {
+            var current_line = '';
+            var start_line = output.lastIndexOf('\n') + 1;
+            // never wrap the first token of a line.
+            if(start_line < output.length) {
+                current_line = output.slice(start_line).join('');
+                if(current_line.length + token_text.length >= opt_wrap_line_length) {
+                    force_linewrap = true;
+                }
+            }
+        }
         if(!just_added_newline &&
             ((opt_preserve_newlines && wanted_newline) || force_linewrap)) {
           print_newline();
@@ -801,7 +816,7 @@ function js_beautify(js_source_text, options) {
             if (token_text === '(') {
                 if(last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                     if (flags.mode !== 'OBJECT') {
-                        print_preserved_newline();
+                        allow_wrap_or_preserved_newline();
                     }
                 }
             }
@@ -816,7 +831,7 @@ function js_beautify(js_source_text, options) {
             } else {
                 // allow preserved newlines before dots in general
                 // force newlines on dots after close paren when break_chained - for bar().baz()
-                print_preserved_newline(last_text === ')' && opt_break_chained_methods);
+                allow_wrap_or_preserved_newline(last_text === ')' && opt_break_chained_methods);
             }
 
             print_token();
@@ -1040,7 +1055,7 @@ function js_beautify(js_source_text, options) {
 
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 if (flags.mode !== 'OBJECT') {
-                    print_preserved_newline();
+                    allow_wrap_or_preserved_newline();
                 }
             }
 
@@ -1114,7 +1129,7 @@ function js_beautify(js_source_text, options) {
                 print_single_space();
             } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 if (flags.mode !== 'OBJECT') {
-                    print_preserved_newline();
+                    allow_wrap_or_preserved_newline();
                 }
             } else {
                 print_newline();
