@@ -559,7 +559,8 @@ function run_beautifier_tests(test_obj)
     bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
     bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
     bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
-    bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b && c && d && e) e = f');
+    bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
+    bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
     test_fragment('\n\n"x"', '"x"');
 
     opts.preserve_newlines = true;
@@ -570,7 +571,8 @@ function run_beautifier_tests(test_obj)
     bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
     bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
     bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
-    bt('if (a && b &&\nc\n&& d && e) e = f', 'if (a && b &&\n    c && d && e) e = f');
+    bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f');
+    bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n    c || d) &&\n    e) e = f');
     test_fragment('\n\n"x"', '"x"');
     Urlencoded.run_tests(sanitytest);
 

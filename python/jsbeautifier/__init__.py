@@ -724,6 +724,13 @@ class Beautifier:
         elif self.last_text in self.line_starters or self.last_text == 'catch':
             self.append(' ')
 
+        # Support of this kind of newline preservation:
+        # a = (b &&
+        #     (c || d));
+        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
+            if self.flags.mode != 'OBJECT':
+                self.append_preserved_newline()
+
         self.append(token_text)
 
 

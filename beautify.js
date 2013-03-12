@@ -792,6 +792,17 @@ function js_beautify(js_source_text, options) {
                     print_single_space();
                 }
             }
+
+            // Support of this kind of newline preservation.
+            // a = (b &&
+            //     (c || d));
+            if (token_text === '(') {
+                if(last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                    if (flags.mode !== 'OBJECT') {
+                        print_preserved_newline();
+                    }
+                }
+            }
             print_token();
 
             break;

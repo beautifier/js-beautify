@@ -495,7 +495,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
         bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
         bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
-        bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b && c && d && e) e = f');
+        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
         test_fragment('\n\n"x"', '"x"');
         self.options.preserve_newlines = True
         bt('var a =\nfoo', 'var a =\n    foo');
@@ -504,8 +505,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = /*i*/ "b";');
         bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
         bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
-        bt('if(a && b &&\nc\n&& d && e) e = f', 'if (a && b &&\n    c && d && e) e = f');
         bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
+        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f');
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n    c || d) &&\n    e) e = f');
         test_fragment('\n\n"x"', '"x"');
 
 
