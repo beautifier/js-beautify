@@ -371,7 +371,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('var a = new function();');
         test_fragment('new function');
-        bt('var a =\nfoo', 'var a = foo');
 
         self.options.brace_style = 'expand';
 
@@ -481,19 +480,218 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var a = \"foo\" +\n    \"bar\";");
 
 
-        self.options.break_chained_methods = True
-        bt('foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo.bar().baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo.bar().baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('this.something = foo.bar().baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
+        self.options.break_chained_methods = False
+        self.options.preserve_newlines = False
+        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat);\nfoo.bar().baz().cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat)\nfoo.bar().baz().cucumber(fat)');
+        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this.something = foo.bar().baz().cucumber(fat)');
         bt('this.something.xxx = foo.moo.bar()');
+        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this.something.xxx = foo.moo.bar()');
+
+        self.options.break_chained_methods = False
+        self.options.preserve_newlines = True
+        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat);\nfoo.bar().baz().cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat)\nfoo.bar().baz().cucumber(fat)');
+        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this\n    .something = foo.bar()\n    .baz().cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this\n    .something\n    .xxx = foo.moo\n    .bar()');
+
+        self.options.break_chained_methods = True
+        self.options.preserve_newlines = False
+        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this.something.xxx = foo.moo.bar()');
+
+        self.options.break_chained_methods = True
+        self.options.preserve_newlines = True
+        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this\n    .something = foo.bar()\n    .baz()\n    .cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this\n    .something\n    .xxx = foo.moo\n    .bar()');
+        self.options.break_chained_methods = False
+        self.options.preserve_newlines = False
 
         self.options.preserve_newlines = False
-        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
-        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        self.options.wrap_line_length = 0
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_.okay();')
+
+        self.options.wrap_line_length = 70
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_.okay();');
+
+        self.options.wrap_line_length = 40
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat &&\n' +
+                      '    "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur &&\n' +
+                      '    inside_an_if_block) that_is_.okay();');
+
+        self.options.wrap_line_length = 41
+        # NOTE: wrap is only best effort - line continues until next wrap point is found.
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '    (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur &&\n' +
+                      '    inside_an_if_block) that_is_.okay();');
+
+        self.options.wrap_line_length = 45
+        # NOTE: wrap is only best effort - line continues until next wrap point is found.
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('{\n' +
+                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
+                      '}',
+                      # expected #
+                      '{\n' +
+                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '        (leans && mean));\n' +
+                      '    Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    if (wraps_can_occur &&\n' +
+                      '        inside_an_if_block) that_is_.okay();\n' +
+                      '}');
+
         self.options.preserve_newlines = True
+        self.options.wrap_line_length = 0
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+                      '    .okay();');
+
+        self.options.wrap_line_length = 70
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+                      '    .okay();');
+
+
+        self.options.wrap_line_length = 40
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat &&\n' +
+                      '    "sassy") || (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur &&\n' +
+                      '    inside_an_if_block) that_is_\n' +
+                      '    .okay();');
+
+        self.options.wrap_line_length = 41
+        # NOTE: wrap is only best effort - line continues until next wrap point is found.
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
+                      # expected #
+                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '    (leans && mean));\n' +
+                      'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'if (wraps_can_occur &&\n' +
+                      '    inside_an_if_block) that_is_\n' +
+                      '    .okay();');
+
+        self.options.wrap_line_length = 45
+        # NOTE: wrap is only best effort - line continues until next wrap point is found.
+        #..............---------1---------2---------3---------4---------5---------6---------7
+        #..............1234567890123456789012345678901234567890123456789012345678901234567890
+        test_fragment('{\n' +
+                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
+                      '}',
+                      # expected #
+                      '{\n' +
+                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '        (leans && mean));\n' +
+                      '    Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    if (wraps_can_occur &&\n' +
+                      '        inside_an_if_block) that_is_\n' +
+                      '        .okay();\n' +
+                      '}');
+
+        self.options.wrap_line_length = 0
+
+        self.options.preserve_newlines = False
+        bt('var a =\nfoo', 'var a = foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        bt('var a = /*i*/ "b";');
+        bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
+        bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
+        bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
+        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
+        test_fragment('\n\n"x"', '"x"');
+        self.options.preserve_newlines = True
+        bt('var a =\nfoo', 'var a =\n    foo');
+        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
+        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
+        bt('var a = /*i*/ "b";');
+        bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
+        bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
+        bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
+        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f');
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n    c || d) &&\n    e) e = f');
+        test_fragment('\n\n"x"', '"x"');
 
 
 
