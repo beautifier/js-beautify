@@ -91,7 +91,7 @@ try {
 
     // Process files synchronously to avoid EMFILE error
     cfg.files.forEach(processInputSync, { cfg: cfg });
-    logToStdout('\nBeautified ' + cfg.files.length + ' files');
+    logToStdout('\nBeautified ' + cfg.files.length + ' files', cfg);
 }
 catch (ex) {
     debug(cfg);
@@ -179,14 +179,14 @@ function makePretty(code, config, outfile, callback) {
         // ensure newline at end of beautified output
         pretty += '\n';
 
-        callback(null, pretty, outfile);
+        callback(null, pretty, outfile, config);
     }
     catch (ex) {
         callback(ex);
     }
 }
 
-function writePretty(err, pretty, outfile) {
+function writePretty(err, pretty, outfile, config) {
     if (err) {
         console.error(err);
         process.exit(1);
@@ -195,7 +195,7 @@ function writePretty(err, pretty, outfile) {
     if (outfile) {
         try {
             fs.writeFileSync(outfile, pretty, 'utf8');
-            logToStdout('beautified ' + path.relative(process.cwd(), outfile));
+            logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
         }
         catch (ex) {
             onOutputError(ex);
@@ -315,8 +315,8 @@ function testFilePath(filepath) {
     }
 }
 
-function logToStdout(str) {
-    if (typeof parsed.quiet === "undefined" || !parsed.quiet) {
+function logToStdout(str, config) {
+    if (typeof config.quiet === "undefined" || !config.quiet) {
         console.log(str);
     }
 }
