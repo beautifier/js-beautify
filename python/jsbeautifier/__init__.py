@@ -43,6 +43,7 @@ class BeautifierOptions:
         self.keep_function_indentation = False
         self.eval_code = False
         self.unescape_strings = False
+        self.wrap_line_length = 0
         self.break_chained_methods = False
 
 
@@ -58,6 +59,7 @@ indent_with_tabs = %s
 brace_style = %s
 keep_array_indentation = %s
 eval_code = %s
+wrap_line_length = %s
 unescape_strings = %s
 """ % ( self.indent_size,
         self.indent_char,
@@ -68,6 +70,7 @@ unescape_strings = %s
         self.brace_style,
         self.keep_array_indentation,
         self.eval_code,
+        self.wrap_line_length,
         self.unescape_strings,
         )
 
@@ -136,7 +139,9 @@ Output options:
  -k,  --keep-array-indentation     keep array indentation.
  -o,  --outfile=FILE               specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
- -x,  --unescape-strings          Decode printable chars encoded in \\xNN notation.
+ -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
+ -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
+                                   NOTE: Line continues until next wrap point is found.
 
 Rarely needed options:
 
@@ -288,9 +293,26 @@ class Beautifier:
         self.append_newline()
         self.opts.keep_array_indentation = old_array_indentation
 
-    def append_preserved_newline(self):
-        if self.opts.preserve_newlines and self.wanted_newline and not self.just_added_newline:
-            self.append_newline()
+    def allow_wrap_or_preserved_newline(self, token_text, force_linewrap = False):
+        if self.opts.wrap_line_length > 0 and not force_linewrap:
+            start_line = len(self.output) - 1
+
+            while start_line >= 0:
+                if self.output[start_line] == '\n':
+                    break
+                else:
+                    start_line -= 1
+
+            start_line += 1
+
+            # never wrap the first token of a line.
+            if start_line < len(self.output):
+                current_line = ''.join(self.output[start_line:])
+                if len(current_line) + len(token_text) >= self.opts.wrap_line_length:
+                    force_linewrap = True;
+
+        if not self.just_added_newline and ((self.opts.preserve_newlines and self.wanted_newline) or force_linewrap):
+            self.append_newline(reset_statement_flags = False)
             self.append_indent_string()
             self.wanted_newline = False
 
@@ -724,6 +746,13 @@ class Beautifier:
         elif self.last_text in self.line_starters or self.last_text == 'catch':
             self.append(' ')
 
+        # Support of this kind of newline preservation:
+        # a = (b &&
+        #     (c || d));
+        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
+            if self.flags.mode != 'OBJECT':
+                self.allow_wrap_or_preserved_newline(token_text)
+
         self.append(token_text)
 
 
@@ -890,7 +919,7 @@ class Beautifier:
 
         if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.flags.mode != 'OBJECT':
-                self.append_preserved_newline()
+                self.allow_wrap_or_preserved_newline(token_text)
 
         if token_text in self.line_starters:
             if self.last_text == 'else':
@@ -962,7 +991,7 @@ class Beautifier:
             self.append(' ')
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.flags.mode != 'OBJECT':
-                self.append_preserved_newline()
+                self.allow_wrap_or_preserved_newline(token_text)
 
         else:
             self.append_newline()
@@ -1137,10 +1166,12 @@ class Beautifier:
     def handle_dot(self, token_text):
         if self.is_special_word(self.last_text):
             self.append(' ')
-        elif self.last_text == ')':
-            if self.opts.break_chained_methods or self.wanted_newline:
-                self.flags.chain_extra_indentation = 1;
-                self.append_newline(True, False)
+        else:
+            # allow preserved newlines before dots in general
+            # force newlines on dots after close paren when break_chained - for bar().baz()
+            self.allow_wrap_or_preserved_newline(token_text,
+                self.last_text == ')' and self.opts.break_chained_methods)
+
         self.append(token_text)
 
     def handle_unknown(self, token_text):
@@ -1192,6 +1223,8 @@ def main():
             js_options.brace_style = arg
         elif opt in ('--unescape-strings', '-x'):
             js_options.unescape_strings = True
+        elif opt in ('--wrap-line-length ', '-w'):
+            js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
         elif opt in ('--help', '--usage', '-h'):
