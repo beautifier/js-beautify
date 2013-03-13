@@ -171,10 +171,12 @@ function store_settings_to_cookie() {
 }
 
 function unpacker_filter(source) {
-    var trailing_comments = '';
-    var comment = '';
-    var found = false;
+    var trailing_comments = '',
+        comment = '',
+        unpacked = '',
+        found = false;
 
+    // cut trailing comments
     do {
         found = false;
         if (/^\s*\/\*/.test(source)) {
@@ -190,21 +192,14 @@ function unpacker_filter(source) {
         }
     } while (found);
 
-    if (P_A_C_K_E_R.detect(source)) {
-        // P.A.C.K.E.R unpacking may fail, even though it is detected
-        var unpacked = P_A_C_K_E_R.unpack(source);
-        if (unpacked != source) {
-            source = unpacker_filter(unpacked);
+    var unpackers = [P_A_C_K_E_R, Urlencoded, JavascriptObfuscator, MyObfuscate];
+    for (var i = 0; i < unpackers.length; i++) {
+        if (unpackers[i].detect(source)) {
+            unpacked = unpackers[i].unpack(source);
+            if (unpacked != source) {
+                source = unpacker_filter(unpacked);
+            }
         }
-    }
-    if (Urlencoded.detect(source)) {
-        source = unpacker_filter(Urlencoded.unpack(source))
-    }
-    if (JavascriptObfuscator.detect(source)) {
-        source = unpacker_filter(JavascriptObfuscator.unpack(source))
-    }
-    if (MyObfuscate.detect(source)) {
-        source = unpacker_filter(MyObfuscate.unpack(source))
     }
 
     return trailing_comments + source;
