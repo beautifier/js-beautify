@@ -22,6 +22,7 @@ var fs = require('fs'),
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
+        "wrap_line_length": Number,
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -46,6 +47,7 @@ var fs = require('fs'),
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
+        "w": ["--wrap_line_length"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -125,6 +127,7 @@ function usage(err) {
         '  -B, --break-chained-methods   Break chained method calls across subsequent lines',
         '  -k, --keep-array-indentation  Preserve array indentation',
         '  -x, --unescape-strings        Decode printable characters encoded in xNN notation',
+        '  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]',
         '  --good-stuff                  Warm the cockles of Crockford\'s heart',
         ''
     ];
