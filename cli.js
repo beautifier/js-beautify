@@ -125,7 +125,7 @@ function usage(err) {
         '  -B, --break-chained-methods   Break chained method calls across subsequent lines',
         '  -k, --keep-array-indentation  Preserve array indentation',
         '  -x, --unescape-strings        Decode printable characters encoded in xNN notation',
-        '  -g, --good-stuff              Warm the cockles of Crockford\'s heart',
+        '  --good-stuff                  Warm the cockles of Crockford\'s heart',
         ''
     ];
 
