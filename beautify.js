@@ -161,17 +161,22 @@ function js_beautify(js_source_text, options) {
         }
         if(!just_added_newline &&
             ((opt_preserve_newlines && wanted_newline) || force_linewrap)) {
-          print_newline();
+          print_newline(true, false);
           print_indent_string();
           wanted_newline = false;
         }
     }
 
-    function print_newline(ignore_repeated) {
+    function print_newline(ignore_repeated, reset_statement_flags) {
 
         flags.eat_next_space = false;
 
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
+        reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
+
+        if (reset_statement_flags) {
+            flags.if_line = false;
+        }
 
         trim_output();
 
