@@ -62,45 +62,52 @@ var fs = require('fs'),
         "r": ["--replace"],
         "q": ["--quiet"]
         // no shorthand for "config"
-    }),
-    parsed = nopt(knownOpts, shortHands);
+    });
 
-if (parsed.version) {
-    console.log(require('./package.json').version);
-    process.exit(0);
+// var cli = require('js-beautify/cli'); cli.interpret();
+var interpret = exports.interpret = function (argv, slice) {
+    var parsed = nopt(knownOpts, shortHands, argv, slice);
+
+    if (parsed.version) {
+        console.log(require('./package.json').version);
+        process.exit(0);
+    }
+    else if (parsed.help) {
+        usage();
+        process.exit(0);
+    }
+
+    var cfg = cc(
+        parsed,
+        cleanOptions(cc.env('jsbeautify_'), knownOpts),
+        parsed.config,
+        cc.find('.jsbeautifyrc'),
+        __dirname + '/config/defaults.json'
+    ).snapshot;
+
+    try {
+        // Verify arguments
+        checkFiles(cfg);
+        checkIndent(cfg);
+        debug(cfg);
+
+        // Process files synchronously to avoid EMFILE error
+        cfg.files.forEach(processInputSync, { cfg: cfg });
+        logToStdout('\nBeautified ' + cfg.files.length + ' files', cfg);
+    }
+    catch (ex) {
+        debug(cfg);
+        // usage(ex);
+        console.error(ex);
+        console.error('Run `js-beautify -h` for help.');
+        process.exit(1);
+    }
+};
+
+// interpret args immediately when called as executable
+if (require.main === module) {
+    interpret();
 }
-else if (parsed.help) {
-    usage();
-    process.exit(0);
-}
-
-var cfg = cc(
-    parsed,
-    cleanOptions(cc.env('jsbeautify_'), knownOpts),
-    parsed.config,
-    cc.find('.jsbeautifyrc'),
-    __dirname + '/config/defaults.json'
-).snapshot;
-
-
-try {
-    // Verify arguments
-    checkFiles(cfg);
-    checkIndent(cfg);
-    debug(cfg);
-
-    // Process files synchronously to avoid EMFILE error
-    cfg.files.forEach(processInputSync, { cfg: cfg });
-    logToStdout('\nBeautified ' + cfg.files.length + ' files', cfg);
-}
-catch (ex) {
-    debug(cfg);
-    // usage(ex);
-    console.error(ex);
-    console.error('Run `js-beautify -h` for help.');
-    process.exit(1);
-}
-
 
 function usage(err) {
     var msg = [
