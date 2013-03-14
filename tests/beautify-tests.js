@@ -86,7 +86,8 @@ function run_beautifier_tests(test_obj)
 
     bt('');
     bt('return .5');
-    test_fragment('    return .5');
+    test_fragment('   return .5');
+    test_fragment('   return .5;\n   a();');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
@@ -486,7 +487,7 @@ function run_beautifier_tests(test_obj)
     bt("{\n    var a = set\n    foo();\n}");
     bt("var x = {\n    get function()\n}");
     bt("var x = {\n    set function()\n}");
-    bt("var x = set\n\nfunction() {}");
+    bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}");
 
     bt('<!-- foo\nbar();\n-->');
     bt('<!-- dont crash');

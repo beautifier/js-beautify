@@ -66,7 +66,7 @@ function js_beautify(js_source_text, options) {
     var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type;
-    var wanted_newline, just_added_newline, n_newlines;
+    var wanted_newline, just_added_newline, n_newlines, wrapped;
     var preindent_string = '';
 
 
@@ -161,16 +161,18 @@ function js_beautify(js_source_text, options) {
         }
         if(!just_added_newline &&
             ((opt_preserve_newlines && wanted_newline) || force_linewrap)) {
-          print_newline(true, false);
-          print_indent_string();
-          wanted_newline = false;
+            print_newline(true, false);
+            if (output.length) {
+                wrapped = true;
+            }
+            wanted_newline = false;
         }
     }
 
     function print_newline(ignore_repeated, reset_statement_flags) {
 
         flags.eat_next_space = false;
-
+        wrapped = false;
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
         reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
 
@@ -192,14 +194,10 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-
-        print_line_indentation();
     }
 
     function print_line_indentation() {
-        if(just_added_newline) {
-            trim_output();
-
+        if(output[output.length - 1] === "\n") {
             if (opt_keep_array_indentation && is_array(flags.mode) && flags.whitespace_before.length) {
                 output.push(flags.whitespace_before.join('') + '');
             } else {
@@ -209,6 +207,7 @@ function js_beautify(js_source_text, options) {
 
                 print_indent_string(flags.indentation_level);
                 print_indent_string(flags.var_line && flags.var_line_reindented);
+                print_indent_string(wrapped);
             }
         }
     }
@@ -245,21 +244,17 @@ function js_beautify(js_source_text, options) {
     }
 
 
-    function print_token() {
+    function print_token(printable_token) {
+        printable_token = printable_token || token_text;
         just_added_newline = false;
         flags.eat_next_space = false;
-        output.push(token_text);
+        print_line_indentation();
+        wrapped = false;
+        output.push(printable_token);
     }
 
     function indent() {
         flags.indentation_level += 1;
-    }
-
-
-    function remove_indent() {
-        if (output.length && output[output.length - 1] === indent_string) {
-            output.pop();
-        }
     }
 
     function set_mode(mode) {
@@ -310,7 +305,7 @@ function js_beautify(js_source_text, options) {
             allow_wrap_or_preserved_newline();
             set_mode('STATEMENT');
             indent();
-            print_line_indentation();
+            wrapped = false;
             return true;
         }
         return false;
@@ -720,6 +715,7 @@ function js_beautify(js_source_text, options) {
     last_text = ''; // last token text
     last_last_text = ''; // pre-last token text
     output = [];
+    wrapped = false;
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
@@ -821,8 +817,6 @@ function js_beautify(js_source_text, options) {
                 } else {
                     set_mode('[EXPRESSION]');
                 }
-
-
 
             } else {
                 if (last_text === 'for') {
@@ -950,8 +944,8 @@ function js_beautify(js_source_text, options) {
                         }
                     }
                 }
-                indent();
                 print_token();
+                indent();
             }
 
             break;
@@ -965,13 +959,7 @@ function js_beautify(js_source_text, options) {
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {
-                    // nothing
-                    if (just_added_newline) {
-                        remove_indent();
-                    } else {
-                        // {}
-                        trim_output();
-                    }
+                    // {}
                 } else {
                     if (is_array(flags.mode) && opt_keep_array_indentation) {
                         // we REALLY need a newline here, but newliner would skip that
@@ -1068,7 +1056,6 @@ function js_beautify(js_source_text, options) {
                     // switch cases following one another
                     flags.indentation_level--;
                     flags.case_body = false;
-                    remove_indent();
                 }
                 print_token();
                 flags.in_case = true;
@@ -1334,12 +1321,11 @@ function js_beautify(js_source_text, options) {
 
             if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
-                print_newline();
-                output.push(lines[0]);
+                print_newline(true,false);
+                print_token(lines[0]);
                 for (j = 1; j < lines.length; j++) {
-                    print_newline();
-                    output.push(' ');
-                    output.push(trim(lines[j]));
+                    print_newline(true,false);
+                    print_token(' ' + trim(lines[j]));
                 }
 
             } else {
@@ -1358,7 +1344,9 @@ function js_beautify(js_source_text, options) {
 
                 }
 
-                for (j = 0; j < lines.length; j++) {
+                print_token(lines[0]);
+                output.push("\n");
+                for (j = 1; j < lines.length; j++) {
                     output.push(lines[j]);
                     output.push("\n");
                 }
