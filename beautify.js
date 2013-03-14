@@ -173,7 +173,6 @@ function js_beautify(js_source_text, options) {
     }
 
     function print_newline(ignore_repeated, reset_statement_flags) {
-        flags.eat_next_space = false;
         wrapped = false;
         wanted_space = false;
         ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
@@ -234,15 +233,11 @@ function js_beautify(js_source_text, options) {
 
         var last_output = ' ';
 
-        if (flags.eat_next_space) {
-            flags.eat_next_space = false;
-        } else {
-            if (output.length) {
-                last_output = output[output.length - 1];
-            }
-            if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
-                output.push(' ');
-            }
+        if (output.length) {
+            last_output = output[output.length - 1];
+        }
+        if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
+            output.push(' ');
         }
     }
 
@@ -250,7 +245,6 @@ function js_beautify(js_source_text, options) {
     function print_token(printable_token) {
         printable_token = printable_token || token_text;
         just_added_newline = false;
-        flags.eat_next_space = false;
         print_line_indentation();
         wrapped = false;
         if (wanted_space) {
@@ -281,7 +275,6 @@ function js_beautify(js_source_text, options) {
             in_case_statement: false, // switch(..){ INSIDE HERE }
             in_case: false, // we're on the exact line with "case 0:"
             case_body: false, // the indented case-action block
-            eat_next_space: false,
             indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
@@ -756,7 +749,6 @@ function js_beautify(js_source_text, options) {
         if(keep_whitespace) {
             for (i = 0; i < n_newlines; i += 1) {
                 print_newline(false);
-                just_added_newline = true;
             }
         } else {
             wanted_newline = n_newlines > 0;
@@ -918,7 +910,7 @@ function js_beautify(js_source_text, options) {
                 if (opt_brace_style === "expand-strict") {
                     empty_braces = (look_up() === '}');
                     if (!empty_braces) {
-                        print_newline(true);
+                        print_newline();
                     }
                 } else {
                     if (last_type !== 'TK_OPERATOR') {
