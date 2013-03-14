@@ -134,11 +134,23 @@ function js_beautify(js_source_text, options) {
         return out;
     }
 
+
+    function _last_index_of(arr, find) {
+        var i = arr.length - 1;
+        if (i < 0) i += arr.length;
+        if (i > arr.length - 1) {
+            i = arr.length - 1;
+        }
+        for (i++; i-- > 0;) {
+            if (i in arr && arr[i]===find) return i;
+        }
+        return -1;
+    }
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = typeof force_linewrap === 'undefined' ? false : force_linewrap;
         if (opt_wrap_line_length && !force_linewrap) {
             var current_line = '';
-            var start_line = output.lastIndexOf('\n') + 1;
+            var start_line = _last_index_of(output, '\n') + 1;
             // never wrap the first token of a line.
             if(start_line < output.length) {
                 current_line = output.slice(start_line).join('');
