@@ -175,8 +175,10 @@ function js_beautify(js_source_text, options) {
         reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
 
         if (reset_statement_flags) {
-            if(flags.mode === 'STATEMENT') {
-                restore_mode();
+            if(last_text !== ';') {
+                while (flags.mode === 'STATEMENT' && !flags.if_block) {
+                    restore_mode();
+                }
             }
         }
 
@@ -271,6 +273,7 @@ function js_beautify(js_source_text, options) {
             var_line_tainted: false,
             var_line_reindented: false,
             in_html_comment: false,
+            if_block: false,
             do_block: false,
             do_while: false,
             in_case_statement: false, // switch(..){ INSIDE HERE }
@@ -299,10 +302,11 @@ function js_beautify(js_source_text, options) {
     }
 
     function start_of_statement() {
-        if (flags.mode !== 'STATEMENT' &&
+        if (
             (last_text === 'do' ||
             (last_text === 'else' && token_text !== 'if' ) ||
-            (last_type === 'TK_END_EXPR' && (flags.previous_mode === '(FOR-EXPRESSION)' || flags.previous_mode === '(COND-EXPRESSION)')))) {
+            (last_type === 'TK_END_EXPR' && (flags.previous_mode === '(FOR-EXPRESSION)' || flags.previous_mode === '(COND-EXPRESSION)')))
+            ) {
             allow_wrap_or_preserved_newline();
             set_mode('STATEMENT');
             indent();
@@ -1010,6 +1014,15 @@ function js_beautify(js_source_text, options) {
                 }
             }
 
+            if (flags.if_block) {
+                if(token_text !== 'else') {
+                    while (flags.mode === 'STATEMENT') {
+                        restore_mode();
+                    }
+                    flags.if_block = false;
+                }
+            }
+
             prefix = 'NONE';
 
             if (token_text === 'function') {
@@ -1082,11 +1095,6 @@ function js_beautify(js_source_text, options) {
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
             } else if (last_type === 'TK_WORD') {
-                if (last_text === 'else') {
-                    // eat newlines between ...else *** some_op...
-                    // won't preserve extra newlines in this place (if any), but don't care that much
-                    trim_output(true);
-                }
                 prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {
                 prefix = 'NEWLINE';
@@ -1156,10 +1164,14 @@ function js_beautify(js_source_text, options) {
                 flags.do_block = true;
             }
 
+            if (token_text === 'if') {
+                flags.if_block = true;
+            }
+
             break;
 
         case 'TK_SEMICOLON':
-            if(flags.mode === 'STATEMENT') {
+            while (flags.mode === 'STATEMENT' && !flags.if_block) {
                 restore_mode();
             }
             print_token();

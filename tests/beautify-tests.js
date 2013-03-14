@@ -96,7 +96,6 @@ function run_beautifier_tests(test_obj)
     bt("a = ' 12345 '");
     bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
     bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-    bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
     bt('if(1||2);', 'if (1 || 2);');
     bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
     bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
@@ -734,8 +733,11 @@ function run_beautifier_tests(test_obj)
     bt('if (foo) // comment\n    /asdf/;');
 
     // these aren't ready yet.
-    // bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
-    // bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
+    //bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo) if (bar) if (baz) whee();\n        else a();');
+    bt('if (foo)\nbar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
 
     bt('if (foo) if (bar) if (baz) whee();\na();');
     bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
@@ -760,7 +762,9 @@ function run_beautifier_tests(test_obj)
 
     // these aren't ready yet.
     // bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
-    // bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
+    bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse\n    car();');
 
     bt('if (foo) if (bar) if (baz) whee();\na();');
     bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
