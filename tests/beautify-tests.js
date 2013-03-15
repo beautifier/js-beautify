@@ -86,7 +86,8 @@ function run_beautifier_tests(test_obj)
 
     bt('');
     bt('return .5');
-    test_fragment('    return .5');
+    test_fragment('   return .5');
+    test_fragment('   return .5;\n   a();');
     bt('a        =          1', 'a = 1');
     bt('a=1', 'a = 1');
     bt("a();\n\nb();", "a();\n\nb();");
@@ -96,7 +97,6 @@ function run_beautifier_tests(test_obj)
     bt("a = ' 12345 '");
     bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
     bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-    bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
     bt('if(1||2);', 'if (1 || 2);');
     bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
     bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
@@ -135,10 +135,12 @@ function run_beautifier_tests(test_obj)
     bt('if(a)break;', "if (a) break;");
     bt('if(a){break}', "if (a) {\n    break\n}");
     bt('if((a))foo();', 'if ((a)) foo();');
-    bt('for(var i=0;;)', 'for (var i = 0;;)');
+    bt('for(var i=0;;) a', 'for (var i = 0;;) a');
+    bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a');
     bt('a++;', 'a++;');
-    bt('for(;;i++)', 'for (;; i++)');
-    bt('for(;;++i)', 'for (;; ++i)');
+    bt('for(;;i++)a()', 'for (;; i++) a()');
+    bt('for(;;i++)\na()', 'for (;; i++)\n    a()');
+    bt('for(;;++i)a', 'for (;; ++i) a');
     bt('return(1)', 'return (1)');
     bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}");
     bt('(xx)()'); // magic function call
@@ -175,7 +177,6 @@ function run_beautifier_tests(test_obj)
     bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
-    bt("if\n(a)\nb();", "if (a) b();"); // test for proper newline removal
 
     bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
     bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
@@ -191,9 +192,9 @@ function run_beautifier_tests(test_obj)
     bt("var a = x(a, b, c)");
     bt("delete x if (a) b();", "delete x\nif (a) b();");
     bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
-    bt("for(var a=1,b=2)", "for (var a = 1, b = 2)");
-    bt("for(var a=1,b=2,c=3)", "for (var a = 1, b = 2, c = 3)");
-    bt("for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)");
+    bt("for(var a=1,b=2)d", "for (var a = 1, b = 2) d");
+    bt("for(var a=1,b=2,c=3) d", "for (var a = 1, b = 2, c = 3) d");
+    bt("for(var a=1,b=2,c=3;d<3;d++)\ne", "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e");
     bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
     bt("function x(){return - 1}", "function x() {\n    return -1\n}");
     bt("function x(){return ! a}", "function x() {\n    return !a\n}");
@@ -213,8 +214,8 @@ function run_beautifier_tests(test_obj)
 
     bt('x != -1', 'x != -1');
 
-    bt('for (; s-->0;)', 'for (; s-- > 0;)');
-    bt('for (; s++>0;)', 'for (; s++ > 0;)');
+    bt('for (; s-->0;)t', 'for (; s-- > 0;) t');
+    bt('for (; s++>0;)u', 'for (; s++ > 0;) u');
     bt('a = s++>s--;', 'a = s++ > s--;');
     bt('a = s++>--s;', 'a = s++ > --s;');
 
@@ -465,7 +466,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}', '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
 
     bt('if (foo) {}\nelse /regex/.test();');
-    // bt('if (foo) /regex/.test();'); // doesn't work, detects as a division. should it work?
+    bt('if (foo) /regex/.test();');
 
     bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
     bt('a = <%= external() %> ;');
@@ -486,7 +487,7 @@ function run_beautifier_tests(test_obj)
     bt("{\n    var a = set\n    foo();\n}");
     bt("var x = {\n    get function()\n}");
     bt("var x = {\n    set function()\n}");
-    bt("var x = set\n\nfunction() {}");
+    bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}");
 
     bt('<!-- foo\nbar();\n-->');
     bt('<!-- dont crash');
@@ -533,15 +534,6 @@ function run_beautifier_tests(test_obj)
     bt('foo(a, function() {})');
 
     bt('foo(a, /regex/)');
-    // known problem: the indentation of the next line is slightly borked :(
-    // bt('if (foo) // comment\n    bar();');
-    // bt('if (foo) // comment\n    (bar());');
-    // bt('if (foo) // comment\n    (bar());');
-    // bt('if (foo) // comment\n    /asdf/;');
-    bt('if (foo) // comment\nbar();');
-    bt('if (foo) // comment\n(bar());');
-    bt('if (foo) // comment\n(bar());');
-    bt('if (foo) // comment\n/asdf/;');
 
     bt('/* foo */\n"x"');
 
@@ -666,7 +658,7 @@ function run_beautifier_tests(test_obj)
                   'Test_very_long_variable_name_this_should_never_wrap\n' +
                   '    .but_this_can\n' +
                   'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                  '    .okay();');
+                  '        .okay();');
 
     opts.wrap_line_length = 70;
     //.............---------1---------2---------3---------4---------5---------6---------7
@@ -679,7 +671,7 @@ function run_beautifier_tests(test_obj)
                   'Test_very_long_variable_name_this_should_never_wrap\n' +
                   '    .but_this_can\n' +
                   'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                  '    .okay();');
+                  '        .okay();');
 
 
     opts.wrap_line_length = 40;
@@ -695,7 +687,7 @@ function run_beautifier_tests(test_obj)
                   '    .but_this_can\n' +
                   'if (wraps_can_occur &&\n' +
                   '    inside_an_if_block) that_is_\n' +
-                  '    .okay();');
+                  '        .okay();');
 
     opts.wrap_line_length = 41;
     // NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -711,7 +703,7 @@ function run_beautifier_tests(test_obj)
                   '    .but_this_can\n' +
                   'if (wraps_can_occur &&\n' +
                   '    inside_an_if_block) that_is_\n' +
-                  '    .okay();');
+                  '        .okay();');
 
     opts.wrap_line_length = 45;
     // NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -730,12 +722,28 @@ function run_beautifier_tests(test_obj)
                   '        .but_this_can\n' +
                   '    if (wraps_can_occur &&\n' +
                   '        inside_an_if_block) that_is_\n' +
-                  '        .okay();\n' +
+                  '            .okay();\n' +
                   '}');
 
     opts.wrap_line_length = 0;
 
     opts.preserve_newlines = false;
+    bt('if (foo) // comment\n    bar();');
+    bt('if (foo) // comment\n    (bar());');
+    bt('if (foo) // comment\n    (bar());');
+    bt('if (foo) // comment\n    /asdf/;');
+
+    // these aren't ready yet.
+    //bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo) if (bar) if (baz) whee();\n        else a();');
+    bt('if (foo)\nbar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
+
+    bt('if (foo) if (bar) if (baz) whee();\na();');
+    bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+
+    bt("if\n(a)\nb();", "if (a) b();");
     bt('var a =\nfoo', 'var a = foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
@@ -748,6 +756,21 @@ function run_beautifier_tests(test_obj)
     test_fragment('\n\n"x"', '"x"');
 
     opts.preserve_newlines = true;
+    bt('if (foo) // comment\n    bar();');
+    bt('if (foo) // comment\n    (bar());');
+    bt('if (foo) // comment\n    (bar());');
+    bt('if (foo) // comment\n    /asdf/;');
+
+    // these aren't ready yet.
+    // bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
+    bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
+    bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse\n    car();');
+
+    bt('if (foo) if (bar) if (baz) whee();\na();');
+    bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+
+    bt("if\n(a)\nb();", "if (a)\n    b();");
     bt('var a =\nfoo', 'var a =\n    foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
     bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
