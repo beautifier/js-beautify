@@ -93,6 +93,7 @@ function run_beautifier_tests(test_obj)
     bt("a();\n\nb();", "a();\n\nb();");
     bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
     bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
+    bt('var a,\n    b,\n    c;');
     bt('a = " 12345 "');
     bt("a = ' 12345 '");
     bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
@@ -316,8 +317,7 @@ function run_beautifier_tests(test_obj)
     bt('if (a) a()\nnewline()');
     bt('a=typeof(x)', 'a = typeof(x)');
 
-    // known problem, the next "b = false" has insufficient indentation:
-    bt('var a = function() {\n    return null;\n},\nb = false;');
+    bt('var a = function() {\n    return null;\n},\n    b = false;');
 
     bt('var a = function() {\n    func1()\n}');
     bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
