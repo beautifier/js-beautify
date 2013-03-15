@@ -163,19 +163,17 @@ function js_beautify(js_source_text, options) {
             }
         }
         if(((opt_preserve_newlines && wanted_newline) || force_linewrap) && !just_added_newline()) {
-            print_newline(true, false);
+            print_newline(false, true);
             output_wrapped = true;
             wanted_newline = false;
         }
     }
 
-    function print_newline(ignore_repeated, reset_statement_flags) {
+    function print_newline(force_newline, preserve_statement_flags) {
         output_wrapped = false;
         output_space_before_token = false;
-        ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
-        reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
 
-        if (reset_statement_flags) {
+        if (!preserve_statement_flags) {
             if(last_text !== ';') {
                 while (flags.mode === 'STATEMENT' && !flags.if_block) {
                     restore_mode();
@@ -183,13 +181,11 @@ function js_beautify(js_source_text, options) {
             }
         }
 
-        trim_output();
-
         if (!output.length) {
             return; // no newline on start of file
         }
 
-        if (!ignore_repeated || !just_added_newline()) {
+        if (force_newline || !just_added_newline()) {
             output.push("\n");
         }
     }
@@ -743,7 +739,7 @@ function js_beautify(js_source_text, options) {
 
         if(keep_whitespace) {
             for (i = 0; i < n_newlines; i += 1) {
-                print_newline(false);
+                print_newline(true);
             }
         } else {
             wanted_newline = n_newlines > 0;
@@ -753,8 +749,9 @@ function js_beautify(js_source_text, options) {
 
             if (opt_preserve_newlines) {
                 if( n_newlines > 1) {
-                    for (i = 0; i < n_newlines; i += 1) {
-                        print_newline(i === 0);
+                    print_newline();
+                    for (i = 1; i < n_newlines; i += 1) {
+                        print_newline(true);
                     }
                 }
             }
@@ -1021,7 +1018,7 @@ function js_beautify(js_source_text, options) {
                     }
 
                     for (var i = 0; i < 2 - n_newlines; i++) {
-                        print_newline(false);
+                        print_newline(true);
                     }
                 }
                 if (last_type === 'TK_WORD') {
@@ -1308,10 +1305,10 @@ function js_beautify(js_source_text, options) {
 
             if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
-                print_newline(true,false);
+                print_newline(false,true);
                 print_token(lines[0]);
                 for (j = 1; j < lines.length; j++) {
-                    print_newline(true,false);
+                    print_newline(false,true);
                     print_token(' ' + trim(lines[j]));
                 }
 
@@ -1320,11 +1317,11 @@ function js_beautify(js_source_text, options) {
                 // simple block comment: leave intact
                 if (lines.length > 1) {
                     // multiline comment block starts with a new line
-                    print_newline(true,false);
+                    print_newline(false,true);
                 } else {
                     // single-line /* comment */ stays where it is
                     if (last_type === 'TK_END_BLOCK') {
-                        print_newline(true, false);
+                        print_newline(false,true);
                     } else {
                         output_space_before_token = true;
                     }
@@ -1340,7 +1337,7 @@ function js_beautify(js_source_text, options) {
 
             }
             if (look_up('\n') !== '\n') {
-                print_newline(true, false);
+                print_newline(false,true);
             }
             break;
 
@@ -1353,7 +1350,7 @@ function js_beautify(js_source_text, options) {
 
         case 'TK_COMMENT':
             if (wanted_newline) {
-                print_newline(true, false);
+                print_newline(false,true);
             }
             if (last_text === ',' && !wanted_newline) {
                 trim_output(true);
@@ -1361,7 +1358,7 @@ function js_beautify(js_source_text, options) {
 
             output_space_before_token = true;
             print_token();
-            print_newline(true, false);
+            print_newline(false,true);
 
             break;
 
