@@ -69,7 +69,7 @@ CLI Options:
   -r, --replace                 Write output in-place, replacing input
   -o, --outfile                 Write output to file (default stdout)
   --config                      Path to config file
-  -q, --quiet                   Suppress output to stdout
+  -q, --quiet                   Suppress logging to stdout
   -v, --version                 Show the version
   -h, --help                    Show this help
 
