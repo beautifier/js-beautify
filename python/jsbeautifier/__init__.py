@@ -88,7 +88,6 @@ class BeautifierFlags:
         self.in_case = False
         self.in_case_statement = False
         self.case_body = False
-        self.eat_next_space = False
         self.indentation_level = 0
         self.ternary_depth = 0
 
@@ -287,12 +286,6 @@ class Beautifier:
         return mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']
 
 
-    def append_newline_forced(self):
-        old_array_indentation = self.opts.keep_array_indentation
-        self.opts.keep_array_indentation = False
-        self.append_newline()
-        self.opts.keep_array_indentation = old_array_indentation
-
     def allow_wrap_or_preserved_newline(self, token_text, force_linewrap = False):
         if self.opts.wrap_line_length > 0 and not force_linewrap:
             start_line = len(self.output) - 1
@@ -318,8 +311,6 @@ class Beautifier:
 
 
     def append_newline(self, ignore_repeated = True, reset_statement_flags = True):
-
-        self.flags.eat_next_space = False
 
         if self.opts.keep_array_indentation and self.is_array(self.flags.mode):
             return
@@ -355,13 +346,10 @@ class Beautifier:
                 return self.append_newline()
 
             # make sure only single space gets drawn
-            if self.flags.eat_next_space:
-                self.flags.eat_next_space = False
-            elif len(self.output) and self.output[-1] not in [' ', '\n', self.indent_string]:
+            if len(self.output) and self.output[-1] not in [' ', '\n', self.indent_string]:
                 self.output.append(' ')
         else:
             self.just_added_newline = False
-            self.flags.eat_next_space = False
             self.output.append(s)
 
     def append_indent_string(self):
