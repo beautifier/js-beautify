@@ -1194,18 +1194,20 @@ function js_beautify(js_source_text, options) {
                     // do not break on comma, for(var a = 1, b = 2)
                     flags.var_line_tainted = false;
                 }
-                if (flags.var_line_tainted) {
-                    print_token();
+
+                if (flags.var_line) {
                     flags.var_line_reindented = true;
-                    flags.var_line_tainted = false;
-                    print_newline();
-                    break;
-                } else {
-                    flags.var_line_tainted = false;
                 }
 
                 print_token();
-                output_space_before_token = true;
+
+                if (flags.var_line_tainted) {
+                    flags.var_line_tainted = false;
+                    print_newline();
+                } else {
+                    output_space_before_token = true;
+                }
+
                 break;
             }
 
