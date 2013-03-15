@@ -93,7 +93,6 @@ var interpret = exports.interpret = function (argv, slice) {
 
         // Process files synchronously to avoid EMFILE error
         cfg.files.forEach(processInputSync, { cfg: cfg });
-        logToStdout('\nBeautified ' + cfg.files.length + ' files', cfg);
     }
     catch (ex) {
         debug(cfg);
