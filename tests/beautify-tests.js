@@ -742,6 +742,10 @@ function run_beautifier_tests(test_obj)
 
     bt('if (foo) if (bar) if (baz) whee();\na();');
     bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+    bt('if (options)\n' +
+       '    for (var p in options)\n' +
+       '        this[p] = options[p];',
+       'if (options) for (var p in options) this[p] = options[p];');
 
     bt("if\n(a)\nb();", "if (a) b();");
     bt('var a =\nfoo', 'var a = foo');
@@ -769,6 +773,9 @@ function run_beautifier_tests(test_obj)
 
     bt('if (foo) if (bar) if (baz) whee();\na();');
     bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+    bt('if (options)\n' +
+       '    for (var p in options)\n' +
+       '        this[p] = options[p];');
 
     bt("if\n(a)\nb();", "if (a)\n    b();");
     bt('var a =\nfoo', 'var a =\n    foo');
