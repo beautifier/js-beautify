@@ -69,6 +69,7 @@ CLI Options:
   -r, --replace                 Write output in-place, replacing input
   -o, --outfile                 Write output to file (default stdout)
   --config                      Path to config file
+  -q, --quiet                   Suppress output to stdout
   -v, --version                 Show the version
   -h, --help                    Show this help
 
@@ -84,7 +85,8 @@ Beautifier Options:
   -B, --break-chained-methods   Break chained method calls across subsequent lines
   -k, --keep-array-indentation  Preserve array indentation
   -x, --unescape-strings        Decode printable characters encoded in xNN notation
-  -g, --good-stuff              Warm the cockles of Crockford's heart
+  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]
+  --good-stuff                  Warm the cockles of Crockford's heart
 ```
 
 These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
@@ -104,7 +106,8 @@ These largely correspond to the underscored option keys for both library interfa
     "space_before_conditional": true,
     "break_chained_methods": false,
     "eval_code": false,
-    "unescape_strings": false
+    "unescape_strings": false,
+    "wrap_line_length": 0
 }
 ```
 
