@@ -154,6 +154,7 @@ function run_beautifier_tests(test_obj)
     bt("// comment\n(function something() {})"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
     bt('if (a in b) foo();');
+    bt('var a, b;');
     //  bt('var a, b');
     bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
     bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');

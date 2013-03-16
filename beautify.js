@@ -132,7 +132,7 @@ function js_beautify(js_source_text, options) {
     }
 
     function just_added_newline() {
-        return output[output.length - 1] === "\n";
+        return output.length && output[output.length - 1] === "\n";
     }
 
     function _last_index_of(arr, find) {
@@ -384,17 +384,17 @@ function js_beautify(js_source_text, options) {
         return out;
     }
 
-    function look_up(exclude) {
+    function is_next(find) {
         var local_pos = parser_pos;
         var c = input.charAt(local_pos);
-        while (in_array(c, whitespace) && c !== exclude) {
+        while (in_array(c, whitespace) && c !== find) {
             local_pos++;
             if (local_pos >= input_length) {
-                return 0;
+                return false;
             }
             c = input.charAt(local_pos);
         }
-        return c;
+        return c === find;
     }
 
     function get_next_token() {
@@ -893,7 +893,7 @@ function js_beautify(js_source_text, options) {
         case 'TK_START_BLOCK':
             set_mode('BLOCK');
 
-            var empty_braces = look_up() === '}';
+            var empty_braces = is_next('}');
 
             if (opt_brace_style === "expand-strict") {
                 if (!empty_braces) {
@@ -1328,7 +1328,8 @@ function js_beautify(js_source_text, options) {
                 }
 
             }
-            if (look_up('\n') !== '\n') {
+
+            if (!is_next('\n')) {
                 print_newline(false,true);
             }
             break;
