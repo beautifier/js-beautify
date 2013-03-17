@@ -70,6 +70,7 @@ function Beautifier(js_source_text, options) {
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type;
     var wanted_newline, n_newlines, output_wrapped, output_space_before_token, whitespace_before_token;
+    var handlers;
     var preindent_string = '';
 
 
@@ -134,6 +135,24 @@ function Beautifier(js_source_text, options) {
     // words which should always start on new line.
     line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
 
+    handlers = {
+        'TK_START_EXPR': handle_start_expr,
+        'TK_END_EXPR': handle_end_expr,
+        'TK_START_BLOCK': handle_start_block,
+        'TK_END_BLOCK': handle_end_block,
+        'TK_WORD': handle_word,
+        'TK_SEMICOLON': handle_semicolon,
+        'TK_STRING': handle_string,
+        'TK_EQUALS': handle_equals,
+        'TK_OPERATOR': handle_operator,
+        'TK_COMMA': handle_comma,
+        'TK_BLOCK_COMMENT': handle_block_comment,
+        'TK_INLINE_COMMENT': handle_inline_comment,
+        'TK_COMMENT': handle_comment,
+        'TK_DOT': handle_dot,
+        'TK_UNKNOWN': handle_unknown,
+    };
+
     // states showing if we are currently in expression (i.e. "if" case) - 'EXPRESSION', or in usual block (like, procedure), 'BLOCK'.
     // some formatting depends on that.
     flag_store = [];
@@ -142,23 +161,6 @@ function Beautifier(js_source_text, options) {
     parser_pos = 0;
 
     this.beautify = function() {
-        var handlers = {
-            'TK_START_EXPR': handle_start_expr,
-            'TK_END_EXPR': handle_end_expr,
-            'TK_START_BLOCK': handle_start_block,
-            'TK_END_BLOCK': handle_end_block,
-            'TK_WORD': handle_word,
-            'TK_SEMICOLON': handle_semicolon,
-            'TK_STRING': handle_string,
-            'TK_EQUALS': handle_equals,
-            'TK_OPERATOR': handle_operator,
-            'TK_COMMA': handle_comma,
-            'TK_BLOCK_COMMENT': handle_block_comment,
-            'TK_INLINE_COMMENT': handle_inline_comment,
-            'TK_COMMENT': handle_comment,
-            'TK_DOT': handle_dot,
-            'TK_UNKNOWN': handle_unknown,
-        };
 
         while (true) {
             var t = get_next_token();
