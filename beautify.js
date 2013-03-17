@@ -130,9 +130,6 @@ function Beautifier(js_source_text, options) {
     opt.unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings,
     opt.wrap_line_length = typeof options.wrap_line_length === 'undefined' ? 0 : parseInt(options.wrap_line_length);
 
-    // cache the source's length.
-    input_length = js_source_text.length;
-
     //----------------------------------
     indent_string = '';
     while (opt.indent_size > 0) {
@@ -145,6 +142,8 @@ function Beautifier(js_source_text, options) {
         js_source_text = js_source_text.substring(1);
     }
     input = js_source_text;
+    // cache the source's length.
+    input_length = js_source_text.length;
 
     last_word = ''; // last 'TK_WORD' passed
     last_type = 'TK_START_EXPR'; // last token type
