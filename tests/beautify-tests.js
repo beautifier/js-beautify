@@ -756,6 +756,13 @@ function run_beautifier_tests(test_obj)
         'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
     bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
         'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+    // This is not valid syntax, but still want to behave reasonably and not side-effect
+    bt('(if(a) b())(if(a) b())',
+        '(\nif (a) b())(\nif (a) b())');
+    bt('(if(a) b())\n\n\n(if(a) b())',
+        '(\nif (a) b())\n(\nif (a) b())');
+
+
 
     bt("if\n(a)\nb();", "if (a) b();");
     bt('var a =\nfoo', 'var a = foo');
@@ -791,6 +798,11 @@ function run_beautifier_tests(test_obj)
         'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
     bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
         'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+    // This is not valid syntax, but still want to behave reasonably and not side-effect
+    bt('(if(a) b())(if(a) b())',
+        '(\nif (a) b())(\nif (a) b())');
+    bt('(if(a) b())\n\n\n(if(a) b())',
+        '(\nif (a) b())\n\n\n(\nif (a) b())');
 
 
     bt("if\n(a)\nb();", "if (a)\n    b();");

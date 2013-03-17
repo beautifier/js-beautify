@@ -869,6 +869,12 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_end_expr() {
+        // statements inside expressions are not valid syntax, but...
+        // statements must all be closed when their container closes
+        while (flags.mode === 'STATEMENT') {
+            restore_mode();
+        }
+
         restore_mode();
         if (token_text === ']' && !opt_keep_array_indentation &&
                 flags.previous_mode === '[INDENTED-EXPRESSION]' && last_text === ']') {
@@ -928,7 +934,7 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_end_block() {
-        // statements inside blocks must all be closed when the parent block closes
+        // statements must all be closed when their container closes
         while (flags.mode === 'STATEMENT') {
             restore_mode();
         }
