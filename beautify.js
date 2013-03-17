@@ -1150,7 +1150,8 @@ function Beautifier(js_source_text, options) {
         flags.var_line = false;
         flags.var_line_reindented = false;
         if (flags.mode === 'OBJECT') {
-            // OBJECT mode is weird and doesn't get reset too well.
+            // if we're in OBJECT mode and see a semicolon, its invalid syntax
+            // recover back to treating this as a BLOCK
             flags.mode = 'BLOCK';
         }
     }
