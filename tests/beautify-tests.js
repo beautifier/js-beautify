@@ -176,6 +176,10 @@ function run_beautifier_tests(test_obj)
     bt("a = 1;\n // comment", "a = 1;\n// comment");
     bt('a = [-1, -1, -1]');
 
+    // The exact formatting these should have is open for discussion, but they currently aren't right
+    //bt('a = [ // comment\n    -1,\n    -1,\n    -1]');
+    //bt('var a = [ // comment\n    -1,\n    -1,\n    -1]');
+
     bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
@@ -748,6 +752,11 @@ function run_beautifier_tests(test_obj)
        '        this[p] = options[p];',
        'if (options) for (var p in options) this[p] = options[p];');
 
+    bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+    bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+
     bt("if\n(a)\nb();", "if (a) b();");
     bt('var a =\nfoo', 'var a = foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
@@ -777,6 +786,12 @@ function run_beautifier_tests(test_obj)
     bt('if (options)\n' +
        '    for (var p in options)\n' +
        '        this[p] = options[p];');
+
+    bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+    bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+
 
     bt("if\n(a)\nb();", "if (a)\n    b();");
     bt('var a =\nfoo', 'var a =\n    foo');

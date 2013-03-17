@@ -928,6 +928,10 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_end_block() {
+        // statements inside blocks must all be closed when the parent block closes
+        while (flags.mode === 'STATEMENT') {
+            restore_mode();
+        }
         restore_mode();
         if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
             if (last_text !== '{') {
