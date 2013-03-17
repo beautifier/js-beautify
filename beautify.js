@@ -799,7 +799,6 @@ function Beautifier(js_source_text, options) {
         }
 
         if (token_text === '[') {
-
             if (last_type === 'TK_WORD' || last_text === ')') {
                 // this is array index specifier, break immediately
                 // a[x], fn()[x]
@@ -812,36 +811,19 @@ function Beautifier(js_source_text, options) {
             }
 
             if (flags.mode === '[EXPRESSION]' || flags.mode === '[INDENTED-EXPRESSION]') {
-                if (last_last_text === ']' && last_text === ',') {
+                if ((last_text === '[') ||
+                        (last_last_text === ']' && last_text === ',')) {
                     // ], [ goes to new line
-                    if (flags.mode === '[EXPRESSION]') {
-                        flags.mode = '[INDENTED-EXPRESSION]';
-                        if (!opt_keep_array_indentation) {
+                    if (!opt_keep_array_indentation) {
+                         print_newline();
+                        if (flags.mode === '[EXPRESSION]') {
+                            flags.mode = '[INDENTED-EXPRESSION]';
                             indent();
                         }
                     }
-                    set_mode('[EXPRESSION]');
-                    if (!opt_keep_array_indentation) {
-                        print_newline();
-                    }
-                } else if (last_text === '[') {
-                    if (flags.mode === '[EXPRESSION]') {
-                        flags.mode = '[INDENTED-EXPRESSION]';
-                        if (!opt_keep_array_indentation) {
-                            indent();
-                        }
-                    }
-                    set_mode('[EXPRESSION]');
-
-                    if (!opt_keep_array_indentation) {
-                        print_newline();
-                    }
-                } else {
-                    set_mode('[EXPRESSION]');
                 }
-            } else {
-                set_mode('[EXPRESSION]');
             }
+            set_mode('[EXPRESSION]');
 
         } else {
             if (last_text === 'for') {
@@ -887,19 +869,11 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_end_expr() {
-        if (token_text === ']') {
-            if (!opt_keep_array_indentation) {
-                if (flags.mode === '[INDENTED-EXPRESSION]') {
-                    if (last_text === ']') {
-                        restore_mode();
-                        print_newline();
-                        print_token();
-                        return;
-                    }
-                }
-            }
-        }
         restore_mode();
+        if (token_text === ']' && !opt_keep_array_indentation &&
+                flags.previous_mode === '[INDENTED-EXPRESSION]' && last_text === ']') {
+            print_newline();
+        }
         print_token();
 
         // do {} while () // no statement required after
