@@ -70,59 +70,9 @@ function Beautifier(js_source_text, options) {
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type;
     var wanted_newline, n_newlines, output_wrapped, output_space_before_token, whitespace_before_token;
+    var input_length
     var handlers;
     var preindent_string = '';
-
-
-    // Some interpreters have unexpected results with foo = baz || bar;
-    options = options ? options : {};
-
-    var opt_brace_style;
-
-    // compatibility
-    if (options.space_after_anon_function !== undefined && options.jslint_happy === undefined) {
-        options.jslint_happy = options.space_after_anon_function;
-    }
-    if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
-        opt_brace_style = options.braces_on_own_line ? "expand" : "collapse";
-    }
-    opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
-
-    var opt_indent_size = options.indent_size ? parseInt(options.indent_size) : 4,
-        opt_indent_char = options.indent_char ? options.indent_char : ' ',
-        opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines,
-        opt_break_chained_methods = typeof options.break_chained_methods === 'undefined' ? false : options.break_chained_methods,
-        opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? 0 : parseInt(options.max_preserve_newlines),
-        opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
-        opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
-        opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
-        opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings,
-        opt_wrap_line_length = typeof options.wrap_line_length === 'undefined' ? 0 : parseInt(options.wrap_line_length);
-
-    // cache the source's length.
-    var input_length = js_source_text.length;
-
-    //----------------------------------
-    indent_string = '';
-    while (opt_indent_size > 0) {
-        indent_string += opt_indent_char;
-        opt_indent_size -= 1;
-    }
-
-    while (js_source_text && (js_source_text.charAt(0) === ' ' || js_source_text.charAt(0) === '\t')) {
-        preindent_string += js_source_text.charAt(0);
-        js_source_text = js_source_text.substring(1);
-    }
-    input = js_source_text;
-
-    last_word = ''; // last 'TK_WORD' passed
-    last_type = 'TK_START_EXPR'; // last token type
-    last_text = ''; // last token text
-    last_last_text = ''; // pre-last token text
-    output = [];
-    output_wrapped = false;
-    output_space_before_token = false;
-    whitespace_before_token = [];
 
     whitespace = "\n\r\t ".split('');
     wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
@@ -134,6 +84,8 @@ function Beautifier(js_source_text, options) {
 
     // words which should always start on new line.
     line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
+
+
 
     handlers = {
         'TK_START_EXPR': handle_start_expr,
@@ -153,6 +105,56 @@ function Beautifier(js_source_text, options) {
         'TK_UNKNOWN': handle_unknown,
     };
 
+
+    // Some interpreters have unexpected results with foo = baz || bar;
+    options = options ? options : {};
+    opt = {};
+
+    // compatibility
+    if (options.space_after_anon_function !== undefined && options.jslint_happy === undefined) {
+        options.jslint_happy = options.space_after_anon_function;
+    }
+    if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
+        opt.brace_style = options.braces_on_own_line ? "expand" : "collapse";
+    }
+    opt.brace_style = options.brace_style ? options.brace_style : (opt.brace_style ? opt.brace_style : "collapse");
+
+    opt.indent_size = options.indent_size ? parseInt(options.indent_size) : 4,
+    opt.indent_char = options.indent_char ? options.indent_char : ' ',
+    opt.preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines,
+    opt.break_chained_methods = typeof options.break_chained_methods === 'undefined' ? false : options.break_chained_methods,
+    opt.max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? 0 : parseInt(options.max_preserve_newlines),
+    opt.jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
+    opt.keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
+    opt.space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
+    opt.unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings,
+    opt.wrap_line_length = typeof options.wrap_line_length === 'undefined' ? 0 : parseInt(options.wrap_line_length);
+
+    // cache the source's length.
+    input_length = js_source_text.length;
+
+    //----------------------------------
+    indent_string = '';
+    while (opt.indent_size > 0) {
+        indent_string += opt.indent_char;
+        opt.indent_size -= 1;
+    }
+
+    while (js_source_text && (js_source_text.charAt(0) === ' ' || js_source_text.charAt(0) === '\t')) {
+        preindent_string += js_source_text.charAt(0);
+        js_source_text = js_source_text.substring(1);
+    }
+    input = js_source_text;
+
+    last_word = ''; // last 'TK_WORD' passed
+    last_type = 'TK_START_EXPR'; // last token type
+    last_text = ''; // last token text
+    last_last_text = ''; // pre-last token text
+    output = [];
+    output_wrapped = false;
+    output_space_before_token = false;
+    whitespace_before_token = [];
+
     // states showing if we are currently in expression (i.e. "if" case) - 'EXPRESSION', or in usual block (like, procedure), 'BLOCK'.
     // some formatting depends on that.
     flag_store = [];
@@ -171,7 +173,7 @@ function Beautifier(js_source_text, options) {
                 break;
             }
 
-            var keep_whitespace = opt_keep_array_indentation && is_array(flags.mode);
+            var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
 
             if(keep_whitespace) {
                 for (i = 0; i < n_newlines; i += 1) {
@@ -179,11 +181,11 @@ function Beautifier(js_source_text, options) {
                 }
             } else {
                 wanted_newline = n_newlines > 0;
-                if (opt_max_preserve_newlines && n_newlines > opt_max_preserve_newlines) {
-                    n_newlines = opt_max_preserve_newlines;
+                if (opt.max_preserve_newlines && n_newlines > opt.max_preserve_newlines) {
+                    n_newlines = opt.max_preserve_newlines;
                 }
 
-                if (opt_preserve_newlines) {
+                if (opt.preserve_newlines) {
                     if( n_newlines > 1) {
                         print_newline();
                         for (i = 1; i < n_newlines; i += 1) {
@@ -260,7 +262,7 @@ function Beautifier(js_source_text, options) {
     }
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = typeof force_linewrap === 'undefined' ? false : force_linewrap;
-        if (opt_wrap_line_length && !force_linewrap) {
+        if (opt.wrap_line_length && !force_linewrap) {
             var current_line = '';
             var proposed_line_length = 0;
             var start_line = _last_index_of(output, '\n') + 1;
@@ -269,12 +271,12 @@ function Beautifier(js_source_text, options) {
                 current_line = output.slice(start_line).join('');
                 proposed_line_length = current_line.length + token_text.length +
                    (output_space_before_token ? 1 : 0);
-                if(proposed_line_length >= opt_wrap_line_length) {
+                if(proposed_line_length >= opt.wrap_line_length) {
                     force_linewrap = true;
                 }
             }
         }
-        if(((opt_preserve_newlines && wanted_newline) || force_linewrap) && !just_added_newline()) {
+        if(((opt.preserve_newlines && wanted_newline) || force_linewrap) && !just_added_newline()) {
             print_newline(false, true);
             output_wrapped = true;
             wanted_newline = false;
@@ -304,7 +306,7 @@ function Beautifier(js_source_text, options) {
 
     function print_token_line_indentation() {
         if(just_added_newline()) {
-            if (opt_keep_array_indentation && is_array(flags.mode) && whitespace_before_token.length) {
+            if (opt.keep_array_indentation && is_array(flags.mode) && whitespace_before_token.length) {
                 output.push(whitespace_before_token.join('') + '');
             } else {
                 if (preindent_string) {
@@ -700,7 +702,7 @@ function Beautifier(js_source_text, options) {
             parser_pos += 1;
             resulting_string += sep;
 
-            if (has_char_escapes && opt_unescape_strings) {
+            if (has_char_escapes && opt.unescape_strings) {
                 resulting_string = unescape_string(resulting_string);
             }
 
@@ -816,7 +818,7 @@ function Beautifier(js_source_text, options) {
                 if ((last_text === '[') ||
                         (last_last_text === ']' && last_text === ',')) {
                     // ], [ goes to new line
-                    if (!opt_keep_array_indentation) {
+                    if (!opt.keep_array_indentation) {
                          print_newline();
                         if (flags.mode === '[EXPRESSION]') {
                             flags.mode = '[INDENTED-EXPRESSION]';
@@ -848,11 +850,11 @@ function Beautifier(js_source_text, options) {
             output_space_before_token = true;
         } else if (last_word === 'function' || last_word === 'typeof') {
             // function() vs function ()
-            if (opt_jslint_happy) {
+            if (opt.jslint_happy) {
                 output_space_before_token = true;
             }
         } else if (in_array(last_text, line_starters) || last_text === 'catch') {
-            if (opt_space_before_conditional) {
+            if (opt.space_before_conditional) {
                 output_space_before_token = true;
             }
         }
@@ -878,7 +880,7 @@ function Beautifier(js_source_text, options) {
         }
 
         restore_mode();
-        if (token_text === ']' && !opt_keep_array_indentation &&
+        if (token_text === ']' && !opt.keep_array_indentation &&
                 flags.previous_mode === '[INDENTED-EXPRESSION]' && last_text === ']') {
             print_newline();
         }
@@ -899,11 +901,11 @@ function Beautifier(js_source_text, options) {
 
         var empty_braces = is_next('}');
 
-        if (opt_brace_style === "expand-strict") {
+        if (opt.brace_style === "expand-strict") {
             if (!empty_braces) {
                 print_newline();
             }
-        } else if (opt_brace_style === "expand") {
+        } else if (opt.brace_style === "expand") {
             if (last_type !== 'TK_OPERATOR') {
                 if (last_type === 'TK_EQUALS' ||
                     (is_special_word(last_text) && last_text !== 'else')) {
@@ -941,18 +943,18 @@ function Beautifier(js_source_text, options) {
             restore_mode();
         }
         restore_mode();
-        if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
+        if (opt.brace_style === "expand" || opt.brace_style === "expand-strict") {
             if (last_text !== '{') {
                 print_newline();
             }
         } else {
             // skip {}
             if (last_type !== 'TK_START_BLOCK') {
-                if (is_array(flags.mode) && opt_keep_array_indentation) {
+                if (is_array(flags.mode) && opt.keep_array_indentation) {
                     // we REALLY need a newline here, but newliner would skip that
-                    opt_keep_array_indentation = false;
+                    opt.keep_array_indentation = false;
                     print_newline();
-                    opt_keep_array_indentation = true;
+                    opt.keep_array_indentation = true;
 
                 } else {
                     print_newline();
@@ -967,7 +969,7 @@ function Beautifier(js_source_text, options) {
            // The conditional starts the statement if appropriate.
         } else if (wanted_newline && last_type !== 'TK_OPERATOR'
             && last_type !== 'TK_EQUALS'
-            && (opt_preserve_newlines || last_text !== 'var')) {
+            && (opt.preserve_newlines || last_text !== 'var')) {
             print_newline();
         }
 
@@ -1008,7 +1010,7 @@ function Beautifier(js_source_text, options) {
                 // make sure there is a nice clean space of at least one blank line
                 // before a new function definition
                 n_newlines = just_added_newline() ? n_newlines : 0;
-                if (!opt_preserve_newlines) {
+                if (!opt.preserve_newlines) {
                     n_newlines = 1;
                 }
 
@@ -1055,7 +1057,7 @@ function Beautifier(js_source_text, options) {
             if (!in_array(token_text, ['else', 'catch', 'finally'])) {
                 prefix = 'NEWLINE';
             } else {
-                if (opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
+                if (opt.brace_style === "expand" || opt.brace_style === "end-expand" || opt.brace_style === "expand-strict") {
                     prefix = 'NEWLINE';
                 } else {
                     prefix = 'SPACE';
@@ -1094,7 +1096,7 @@ function Beautifier(js_source_text, options) {
         }
 
         if (in_array(token_text, ['else', 'catch', 'finally'])) {
-            if (last_type !== 'TK_END_BLOCK' || opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
+            if (last_type !== 'TK_END_BLOCK' || opt.brace_style === "expand" || opt.brace_style === "end-expand" || opt.brace_style === "expand-strict") {
                 print_newline();
             } else {
                 trim_output(true);
@@ -1362,7 +1364,7 @@ function Beautifier(js_source_text, options) {
         } else {
             // allow preserved newlines before dots in general
             // force newlines on dots after close paren when break_chained - for bar().baz()
-            allow_wrap_or_preserved_newline(last_text === ')' && opt_break_chained_methods);
+            allow_wrap_or_preserved_newline(last_text === ')' && opt.break_chained_methods);
         }
 
         print_token();
