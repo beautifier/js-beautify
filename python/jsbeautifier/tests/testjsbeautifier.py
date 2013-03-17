@@ -50,7 +50,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt("a = ' 12345 '");
         bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
         bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-        bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
         bt('if(1||2);', 'if (1 || 2);');
         bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
         bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
@@ -90,10 +89,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(a)break;', "if (a) break;");
         bt('if(a){break}', "if (a) {\n    break\n}");
         bt('if((a))foo();', 'if ((a)) foo();');
-        bt('for(var i=0;;)', 'for (var i = 0;;)');
+        bt('for(var i=0;;) a', 'for (var i = 0;;) a');
+        bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a');
         bt('a++;', 'a++;');
-        bt('for(;;i++)', 'for (;; i++)');
-        bt('for(;;++i)', 'for (;; ++i)');
+        bt('for(;;i++)a()', 'for (;; i++) a()');
+        bt('for(;;i++)\na()', 'for (;; i++)\n    a()');
+        bt('for(;;++i)a', 'for (;; ++i) a');
         bt('return(1)', 'return (1)');
         bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}");
         bt('(xx)()'); # magic function call
@@ -106,7 +107,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt("// comment\n(function something() {})"); # typical greasemonkey start
         bt("{\n\n    x();\n\n}"); # was: duplicating newlines
         bt('if (a in b) foo();');
-        bt('var a, b');
+        bt('var a, b;');
+        # bt('var a, b');
         bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
         bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
@@ -130,7 +132,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
         bt("if (a) {\n    do();\n}"); # was: extra space appended
-        bt("if\n(a)\nb();", "if (a) b();"); # test for proper newline removal
 
         bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); # if/else statement with empty body
         bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); # multiple comments indentation
@@ -146,9 +147,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var a = x(a, b, c)");
         bt("delete x if (a) b();", "delete x\nif (a) b();");
         bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
-        bt("for(var a=1,b=2)", "for (var a = 1, b = 2)");
-        bt("for(var a=1,b=2,c=3)", "for (var a = 1, b = 2, c = 3)");
-        bt("for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)");
+        bt("for(var a=1,b=2)d", "for (var a = 1, b = 2) d");
+        bt("for(var a=1,b=2,c=3) d", "for (var a = 1, b = 2, c = 3) d");
+        bt("for(var a=1,b=2,c=3;d<3;d++)\ne", "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e");
         bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
         bt("function x(){return - 1}", "function x() {\n    return -1\n}");
         bt("function x(){return ! a}", "function x() {\n    return !a\n}");
@@ -168,8 +169,8 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('x != -1', 'x != -1');
 
-        bt('for (; s-->0;)', 'for (; s-- > 0;)');
-        bt('for (; s++>0;)', 'for (; s++ > 0;)');
+        bt('for (; s-->0;)t', 'for (; s-- > 0;) t');
+        bt('for (; s++>0;)u', 'for (; s++ > 0;) u');
         bt('a = s++>s--;', 'a = s++ > s--;');
         bt('a = s++>--s;', 'a = s++ > --s;');
 
@@ -271,8 +272,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (a) a()\nnewline()');
         bt('a=typeof(x)', 'a = typeof(x)');
 
-        # known problem, the next "b = false" is unindented:
-        bt('var a = function() {\n    return null;\n},\nb = false;');
+        bt('var a = function() {\n    return null;\n},\n    b = false;');
 
         bt('var a = function() {\n    func1()\n}');
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
@@ -430,6 +430,8 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = True;
         bt('var a = 42; // foo\n\nvar b;')
         bt('var a = 42; // foo\n\n\nvar b;')
+        bt("var a = 'foo' +\n    'bar';");
+        bt("var a = \"foo\" +\n    \"bar\";");
 
         bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"')
         bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'")
@@ -439,7 +441,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("{\n    var a = set\n    foo();\n}")
         bt("var x = {\n    get function()\n}")
         bt("var x = {\n    set function()\n}")
-        bt("var x = set\n\nfunction() {}")
+        bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}")
 
         bt('<!-- foo\nbar();\n-->')
         bt('<!-- dont crash')
@@ -464,21 +466,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('foo(a, function() {})');
         bt('foo(a, /regex/)');
 
-        # known problem: the indentation of the next line is slightly borked :(
-        # bt('if (foo) # comment\n    bar();');
-        # bt('if (foo) # comment\n    (bar());');
-        # bt('if (foo) # comment\n    (bar());');
-        # bt('if (foo) # comment\n    /asdf/;');
-        bt('if (foo) // comment\nbar();');
-        bt('if (foo) // comment\n(bar());');
-        bt('if (foo) // comment\n(bar());');
-        bt('if (foo) // comment\n/asdf/;');
-
         bt('/* foo */\n"x"');
-
-        bt("var a = 'foo' +\n    'bar';");
-        bt("var a = \"foo\" +\n    \"bar\";");
-
 
         self.options.break_chained_methods = False
         self.options.preserve_newlines = False
@@ -601,7 +589,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '    .okay();');
+                      '        .okay();');
 
         self.options.wrap_line_length = 70
         #..............---------1---------2---------3---------4---------5---------6---------7
@@ -614,7 +602,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '    .okay();');
+                      '        .okay();');
 
 
         self.options.wrap_line_length = 40
@@ -630,7 +618,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
-                      '    .okay();');
+                      '        .okay();');
 
         self.options.wrap_line_length = 41
         # NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -646,7 +634,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
-                      '    .okay();');
+                      '        .okay();');
 
         self.options.wrap_line_length = 45
         # NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -665,12 +653,28 @@ class TestJSBeautifier(unittest.TestCase):
                       '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_\n' +
-                      '        .okay();\n' +
+                      '            .okay();\n' +
                       '}');
 
         self.options.wrap_line_length = 0
 
         self.options.preserve_newlines = False
+        bt('if (foo) // comment\n    bar();');
+        bt('if (foo) // comment\n    (bar());');
+        bt('if (foo) // comment\n    (bar());');
+        bt('if (foo) // comment\n    /asdf/;');
+
+        # these aren't ready yet.
+        #bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo) if (bar) if (baz) whee();\n        else a();');
+        bt('if (foo)\nbar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
+
+        bt('if (foo) if (bar) if (baz) whee();\na();');
+        bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+
+        bt("if\n(a)\nb();", "if (a) b();");
         bt('var a =\nfoo', 'var a = foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
@@ -681,7 +685,23 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
         bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
         test_fragment('\n\n"x"', '"x"');
+
         self.options.preserve_newlines = True
+        bt('if (foo) // comment\n    bar();');
+        bt('if (foo) // comment\n    (bar());');
+        bt('if (foo) // comment\n    (bar());');
+        bt('if (foo) // comment\n    /asdf/;');
+
+        # these aren't ready yet.
+        # bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
+        bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse\n    car();');
+
+        bt('if (foo) if (bar) if (baz) whee();\na();');
+        bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+
+        bt("if\n(a)\nb();", "if (a)\n    b();");
         bt('var a =\nfoo', 'var a =\n    foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
         bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
@@ -698,6 +718,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
 
+
     def decodesto(self, input, expectation=None):
         self.assertEqual(
             jsbeautifier.beautify(input, self.options), expectation or input)
@@ -706,6 +727,7 @@ class TestJSBeautifier(unittest.TestCase):
         return self.wrapregex.sub('    \\1', text)
 
     def bt(self, input, expectation=None):
+        print(input)
         expectation = expectation or input
         self.decodesto(input, expectation)
         if self.options.indent_size == 4 and input:

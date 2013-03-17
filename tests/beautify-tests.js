@@ -154,6 +154,7 @@ function run_beautifier_tests(test_obj)
     bt("// comment\n(function something() {})"); // typical greasemonkey start
     bt("{\n\n    x();\n\n}"); // was: duplicating newlines
     bt('if (a in b) foo();');
+    bt('var a, b;');
     //  bt('var a, b');
     bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
     bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
@@ -174,6 +175,10 @@ function run_beautifier_tests(test_obj)
     bt("a = 1; // comment", "a = 1; // comment");
     bt("a = 1;\n // comment", "a = 1;\n// comment");
     bt('a = [-1, -1, -1]');
+
+    // The exact formatting these should have is open for discussion, but they currently aren't right
+    //bt('a = [ // comment\n    -1,\n    -1,\n    -1]');
+    //bt('var a = [ // comment\n    -1,\n    -1,\n    -1]');
 
     bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
@@ -747,6 +752,18 @@ function run_beautifier_tests(test_obj)
        '        this[p] = options[p];',
        'if (options) for (var p in options) this[p] = options[p];');
 
+    bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+    bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+    // This is not valid syntax, but still want to behave reasonably and not side-effect
+    bt('(if(a) b())(if(a) b())',
+        '(\nif (a) b())(\nif (a) b())');
+    bt('(if(a) b())\n\n\n(if(a) b())',
+        '(\nif (a) b())\n(\nif (a) b())');
+
+
+
     bt("if\n(a)\nb();", "if (a) b();");
     bt('var a =\nfoo', 'var a = foo');
     bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
@@ -776,6 +793,17 @@ function run_beautifier_tests(test_obj)
     bt('if (options)\n' +
        '    for (var p in options)\n' +
        '        this[p] = options[p];');
+
+    bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+    bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+        'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+    // This is not valid syntax, but still want to behave reasonably and not side-effect
+    bt('(if(a) b())(if(a) b())',
+        '(\nif (a) b())(\nif (a) b())');
+    bt('(if(a) b())\n\n\n(if(a) b())',
+        '(\nif (a) b())\n\n\n(\nif (a) b())');
+
 
     bt("if\n(a)\nb();", "if (a)\n    b();");
     bt('var a =\nfoo', 'var a =\n    foo');
