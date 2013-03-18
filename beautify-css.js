@@ -36,7 +36,7 @@ function css_beautify(source_text, options) {
 
     // compatibility
     if (typeof indentSize == "string")
-        indentSize = parseInt(indentSize);
+        indentSize = parseInt(indentSize, 10);
 
 
     // tokenizer
@@ -45,10 +45,11 @@ function css_beautify(source_text, options) {
 
     var pos = -1, ch;
     function next() {
-        return ch = source_text.charAt(++pos)
+        ch = source_text.charAt(++pos);
+        return ch;
     }
     function peek() {
-        return source_text.charAt(pos+1)
+        return source_text.charAt(pos+1);
     }
     function eatString(comma) {
         var start = pos;
@@ -75,7 +76,7 @@ function css_beautify(source_text, options) {
     function skipWhitespace() {
         var start = pos;
         do{
-        }while (whiteRe.test(next()))
+        }while (whiteRe.test(next()));
         return pos != start + 1;
     }
 
@@ -110,17 +111,17 @@ function css_beautify(source_text, options) {
         indentString = indentString.slice(0, -indentSize);
     }
 
-    var print = {}
+    var print = {};
     print["{"] = function(ch) {
         print.singleSpace();
         output.push(ch);
         print.newLine();
-    }
+    };
     print["}"] = function(ch) {
         print.newLine();
         output.push(ch);
         print.newLine();
-    }
+    };
 
     print.newLine = function(keepWhitespace) {
         if (!keepWhitespace)
@@ -131,11 +132,11 @@ function css_beautify(source_text, options) {
             output.push('\n');
         if (indentString)
             output.push(indentString);
-    }
+    };
     print.singleSpace = function() {
         if (output.length && !whiteRe.test(output[output.length - 1]))
             output.push(' ');
-    }
+    };
     var output = [];
     if (indentString)
         output.push(indentString);
@@ -154,7 +155,7 @@ function css_beautify(source_text, options) {
             outdent();
             print["}"](ch);
         } else if (ch == '"' || ch == '\'') {
-            output.push(eatString(ch))
+            output.push(eatString(ch));
         } else if (ch == ';') {
             output.push(ch, '\n', indentString);
         } else if (ch == '/' && peek() == '*') { // comment
@@ -201,5 +202,5 @@ function css_beautify(source_text, options) {
 }
 
 
-if (typeof exports !== "undefined")
+if (exports !== undefined)
     exports.css_beautify = css_beautify;
