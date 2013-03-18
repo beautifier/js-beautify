@@ -5,6 +5,8 @@
   "main": "beautify.js",
   "preferGlobal": true,
   "bin": {
+    "css-beautify": "./cli.js",
+    "html-beautify": "./cli.js",
     "js-beautify": "./cli.js"
   },
   "directories": {

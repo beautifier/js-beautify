@@ -103,7 +103,7 @@ var interpret = exports.interpret = function (argv, slice) {
         debug(cfg);
         // usage(ex);
         console.error(ex);
-        console.error('Run `js-beautify -h` for help.');
+        console.error('Run `' + getScriptName() + ' -h` for help.');
         process.exit(1);
     }
 };
@@ -114,8 +114,9 @@ if (require.main === module) {
 }
 
 function usage(err) {
+    var scriptName = getScriptName();
     var msg = [
-        'js-beautify@' + require('./package.json').version,
+        scriptName + '@' + require('./package.json').version,
         '',
         'CLI Options:',
         '  -f, --file       Input file(s) (Pass \'-\' for stdin)',
@@ -257,12 +258,20 @@ function dasherizeShorthands(hash) {
     return hash;
 }
 
+function getScriptName() {
+    return path.basename(process.argv[1]);
+}
+
 function checkType(parsed) {
+    var scriptType = getScriptName().split('-').shift();
+    debug("executable type:", scriptType);
+
     var parsedType = parsed.type;
     debug("parsed type:", parsedType);
 
     if (!parsedType) {
-        parsed.type = "js";
+        debug("type defaulted:", scriptType);
+        parsed.type = scriptType;
     }
 }
 
