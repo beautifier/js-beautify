@@ -294,6 +294,11 @@ function Beautifier(js_source_text, options) {
             }
         }
 
+        if (flags.mode === '[EXPRESSION]') {
+            flags.mode = '[INDENTED-EXPRESSION]';
+        }
+
+
         if (!output.length) {
             return; // no newline on start of file
         }
@@ -802,6 +807,7 @@ function Beautifier(js_source_text, options) {
         }
 
         if (token_text === '[') {
+
             if (last_type === 'TK_WORD' || last_text === ')') {
                 // this is array index specifier, break immediately
                 // a[x], fn()[x]
@@ -813,20 +819,15 @@ function Beautifier(js_source_text, options) {
                 return;
             }
 
-            if (flags.mode === '[EXPRESSION]' || flags.mode === '[INDENTED-EXPRESSION]') {
+            if (is_array(flags.mode)) {
                 if ((last_text === '[') ||
                         (last_last_text === ']' && last_text === ',')) {
                     // ], [ goes to new line
                     if (!opt.keep_array_indentation) {
                          print_newline();
-                        if (flags.mode === '[EXPRESSION]') {
-                            flags.mode = '[INDENTED-EXPRESSION]';
-                            indent();
-                        }
                     }
                 }
             }
-            set_mode('[EXPRESSION]');
 
         } else {
             if (last_text === 'for') {
@@ -869,6 +870,10 @@ function Beautifier(js_source_text, options) {
             }
         }
         print_token();
+        if (token_text === '[') {
+            set_mode('[EXPRESSION]');
+            indent();
+        }
     }
 
     function handle_end_expr() {
@@ -880,7 +885,7 @@ function Beautifier(js_source_text, options) {
 
         restore_mode();
         if (token_text === ']' && !opt.keep_array_indentation &&
-                flags.previous_mode === '[INDENTED-EXPRESSION]' && last_text === ']') {
+                flags.previous_mode === '[INDENTED-EXPRESSION]') {
             print_newline();
         }
         print_token();
