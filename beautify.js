@@ -351,7 +351,7 @@ function Beautifier(js_source_text, options) {
         }
 
         // Never indent your first output indent at the start of the file
-        if (last_text != '') {
+        if (last_text !== '') {
             for (var i = 0; i < level; i += 1) {
                 output.push(indent_string);
             }
@@ -500,7 +500,7 @@ function Beautifier(js_source_text, options) {
                         out += '\\u' + s_hex;
                     }
                     continue;
-                } else if (escaped == 0x22 || escaped === 0x27 || escaped == 0x5c) {
+                } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
                     // single-quote, apostrophe, backslash - escape these
                     out += '\\' + String.fromCharCode(escaped);
                 } else if (c === 'x' && escaped > 0x7e && escaped <= 0xff) {
@@ -511,7 +511,7 @@ function Beautifier(js_source_text, options) {
                 } else {
                     out += String.fromCharCode(escaped);
                 }
-            } else if (c == '\\') {
+            } else if (c === '\\') {
                 esc = true;
             } else {
                 out += c;
@@ -661,7 +661,7 @@ function Beautifier(js_source_text, options) {
         if (c === "'" || c === '"' || // string
         (c === '/' &&
             ((last_type === 'TK_WORD' && is_special_word(last_text)) ||
-            (last_type == 'TK_END_EXPR' && in_array(flags.previous_mode, [MODE.Conditional, MODE.ForInitializer])) ||
+            (last_type === 'TK_END_EXPR' && in_array(flags.previous_mode, [MODE.Conditional, MODE.ForInitializer])) ||
             (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                 'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
         ]))))) { // regexp
@@ -1276,7 +1276,7 @@ function Beautifier(js_source_text, options) {
             return;
         }
 
-        if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters) || last_text == ','))) {
+        if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters) || last_text === ','))) {
             // unary operators (and binary +/- pretending to be unary) special cases
 
             space_before = false;
