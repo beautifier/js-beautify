@@ -59,11 +59,13 @@
 
 */
 function js_beautify(js_source_text, options) {
+    "use strict";
     var beautifier = new Beautifier(js_source_text, options);
     return beautifier.beautify();
 }
 
 function Beautifier(js_source_text, options) {
+    "use strict";
     var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type;
