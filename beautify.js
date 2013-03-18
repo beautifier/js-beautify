@@ -176,9 +176,11 @@ function Beautifier(js_source_text, options) {
     parser_pos = 0;
 
     this.beautify = function () {
+        /*jshint onevar:true */
+        var t, i, keep_whitespace, sweet_code;
 
         while (true) {
-            var t = get_next_token();
+            t = get_next_token();
             token_text = t[0];
             token_type = t[1];
 
@@ -186,7 +188,7 @@ function Beautifier(js_source_text, options) {
                 break;
             }
 
-            var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
+            keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
 
             if (keep_whitespace) {
                 for (i = 0; i < n_newlines; i += 1) {
@@ -221,9 +223,9 @@ function Beautifier(js_source_text, options) {
             }
         }
 
-        var sweet_code = preindent_string + output.join('').replace(/[\r\n ]+$/, '');
+        sweet_code = preindent_string + output.join('').replace(/[\r\n ]+$/, '');
         return sweet_code;
-    }
+    };
 
     function trim_output(eat_newlines) {
         eat_newlines = typeof eat_newlines === 'undefined' ? false : eat_newlines;
