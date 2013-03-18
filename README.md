@@ -69,6 +69,7 @@ CLI Options:
   -r, --replace                 Write output in-place, replacing input
   -o, --outfile                 Write output to file (default stdout)
   --config                      Path to config file
+  --type                        [js|css|html] ["js"]
   -q, --quiet                   Suppress logging to stdout
   -v, --version                 Show the version
   -h, --help                    Show this help

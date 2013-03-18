@@ -30,6 +30,7 @@ var fs = require('fs'),
         "outfile": path,
         "replace": Boolean,
         "quiet": Boolean,
+        "type": ["js", "css", "html"],
         "config": path
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
@@ -54,6 +55,9 @@ var fs = require('fs'),
             "--keep_function_indentation",
             "--jslint_happy"
         ],
+        "js"  : ["--type", "js"],
+        "css" : ["--type", "css"],
+        "html": ["--type", "html"],
         // CLI
         "v": ["--version"],
         "h": ["--help"],
@@ -87,6 +91,7 @@ var interpret = exports.interpret = function (argv, slice) {
 
     try {
         // Verify arguments
+        checkType(cfg);
         checkFiles(cfg);
         checkIndent(cfg);
         debug(cfg);
@@ -117,6 +122,7 @@ function usage(err) {
         '  -r, --replace    Write output in-place, replacing input',
         '  -o, --outfile    Write output to file (default stdout)',
         '  --config         Path to config file',
+        '  --type           [js|css|html] ["js"]',
         '  -q, --quiet      Suppress logging to stdout',
         '  -h, --help       Show this help',
         '  -v, --version    Show the version',
@@ -180,7 +186,7 @@ function processInputSync(filepath) {
 
 function makePretty(code, config, outfile, callback) {
     try {
-        var pretty = beautify(code, config);
+        var pretty = beautify[config.type](code, config);
 
         // ensure newline at end of beautified output
         pretty += '\n';
@@ -249,6 +255,15 @@ function dasherizeShorthands(hash) {
     });
 
     return hash;
+}
+
+function checkType(parsed) {
+    var parsedType = parsed.type;
+    debug("parsed type:", parsedType);
+
+    if (!parsedType) {
+        parsed.type = "js";
+    }
 }
 
 function checkIndent(parsed) {
