@@ -264,12 +264,16 @@ function Beautifier(js_source_text, options) {
 
     function _last_index_of(arr, find) {
         var i = arr.length - 1;
-        if (i < 0) i += arr.length;
+        if (i < 0) {
+            i += arr.length;
+        }
         if (i > arr.length - 1) {
             i = arr.length - 1;
         }
         for (i++; i-- > 0;) {
-            if (i in arr && arr[i] === find) return i;
+            if (i in arr && arr[i] === find) {
+                return i;
+            }
         }
         return -1;
     }
@@ -1385,8 +1389,9 @@ function Beautifier(js_source_text, options) {
 
     function handle_unknown() {
         print_token();
-        if (token_text[token_text.length - 1] === '\n')
+        if (token_text[token_text.length - 1] === '\n') {
             print_newline();
+        }
     }
 }
 
