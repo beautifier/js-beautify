@@ -205,7 +205,8 @@ function processInputSync(filepath) {
 
 function makePretty(code, config, outfile, callback) {
     try {
-        var pretty = beautify[config.type](code, config);
+        var fileType = getOutputType(outfile, config.type);
+        var pretty = beautify[fileType](code, config);
 
         // ensure newline at end of beautified output
         pretty += '\n';
@@ -274,6 +275,13 @@ function dasherizeShorthands(hash) {
     });
 
     return hash;
+}
+
+function getOutputType(outfile, configType) {
+    if (outfile && /\.(js|css|html)$/.test(outfile)) {
+        return outfile.split('.').pop();
+    }
+    return configType;
 }
 
 function getScriptName() {
