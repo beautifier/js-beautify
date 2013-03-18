@@ -1,3 +1,4 @@
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
 /*
 
  CSS Beautifier
@@ -35,8 +36,9 @@ function css_beautify(source_text, options) {
     var indentCharacter = options.indent_char || ' ';
 
     // compatibility
-    if (typeof indentSize == "string")
+    if (typeof indentSize === "string") {
         indentSize = parseInt(indentSize, 10);
+    }
 
 
     // tokenizer
@@ -54,12 +56,12 @@ function css_beautify(source_text, options) {
     function eatString(comma) {
         var start = pos;
         while(next()){
-            if (ch=="\\"){
+            if (ch === "\\"){
                 next();
                 next();
-            } else if (ch == comma) {
+            } else if (ch === comma) {
                 break;
-            } else if (ch == "\n") {
+            } else if (ch === "\n") {
                 break;
             }
         }
@@ -68,23 +70,24 @@ function css_beautify(source_text, options) {
 
     function eatWhitespace() {
         var start = pos;
-        while (whiteRe.test(peek()))
+        while (whiteRe.test(peek())) {
             pos++;
-        return pos != start;
+        }
+        return pos !== start;
     }
 
     function skipWhitespace() {
         var start = pos;
         do{
         }while (whiteRe.test(next()));
-        return pos != start + 1;
+        return pos !== start + 1;
     }
 
     function eatComment() {
         var start = pos;
         next();
         while (next()) {
-            if (ch == "*" && peek() == "/") {
+            if (ch === "*" && peek() === "/") {
                 pos ++;
                 break;
             }
@@ -95,7 +98,7 @@ function css_beautify(source_text, options) {
 
 
     function lookBack(str) {
-        return source_text.substring(pos-str.length, pos).toLowerCase() == str;
+        return source_text.substring(pos-str.length, pos).toLowerCase() === str;
     }
 
     // printer
@@ -124,73 +127,84 @@ function css_beautify(source_text, options) {
     };
 
     print.newLine = function(keepWhitespace) {
-        if (!keepWhitespace)
-            while (whiteRe.test(output[output.length - 1]))
+        if (!keepWhitespace) {
+            while (whiteRe.test(output[output.length - 1])) {
                 output.pop();
+            }
+        }
 
-        if (output.length)
+        if (output.length) {
             output.push('\n');
-        if (indentString)
+        }
+        if (indentString) {
             output.push(indentString);
+        }
     };
     print.singleSpace = function() {
-        if (output.length && !whiteRe.test(output[output.length - 1]))
+        if (output.length && !whiteRe.test(output[output.length - 1])) {
             output.push(' ');
+        }
     };
     var output = [];
-    if (indentString)
+    if (indentString) {
         output.push(indentString);
+    }
     /*_____________________--------------------_____________________*/
 
     while(true) {
         var isAfterSpace = skipWhitespace();
 
-        if (!ch)
+        if (!ch) {
             break;
+        }
 
-        if (ch == '{') {
+
+        if (ch === '{') {
             indent();
             print["{"](ch);
-        } else if (ch == '}') {
+        } else if (ch === '}') {
             outdent();
             print["}"](ch);
-        } else if (ch == '"' || ch == '\'') {
+        } else if (ch === '"' || ch === '\'') {
             output.push(eatString(ch));
-        } else if (ch == ';') {
+        } else if (ch === ';') {
             output.push(ch, '\n', indentString);
-        } else if (ch == '/' && peek() == '*') { // comment
+        } else if (ch === '/' && peek() === '*') { // comment
             print.newLine();
             output.push(eatComment(), "\n", indentString);
-        } else if (ch == '(') { // may be a url
+        } else if (ch === '(') { // may be a url
             if (lookBack("url")) {
               output.push(ch);
               eatWhitespace();
               if (next()) {
-                if (ch != ')' && ch != '"' && ch != '\'')
+                if (ch !== ')' && ch !== '"' && ch !== '\'') {
                     output.push(eatString(')'));
-                else
+                } else {
                     pos--;
+                }
               }
             } else {
-              if (isAfterSpace)
+              if (isAfterSpace) {
                   print.singleSpace();
+              }
               output.push(ch);
               eatWhitespace();
             }
-        } else if (ch == ')') {
+        } else if (ch === ')') {
             output.push(ch);
-        } else if (ch == ',') {
+        } else if (ch === ',') {
             eatWhitespace();
             output.push(ch);
             print.singleSpace();
-        } else if (ch == ']') {
+        } else if (ch === ']') {
             output.push(ch);
-        }  else if (ch == '[' || ch == '=') { // no whitespace before or after
+        }  else if (ch === '[' || ch === '=') { // no whitespace before or after
             eatWhitespace();
             output.push(ch);
         } else {
-            if (isAfterSpace)
+            if (isAfterSpace) {
                 print.singleSpace();
+            }
 
             output.push(ch);
         }
@@ -202,5 +216,6 @@ function css_beautify(source_text, options) {
 }
 
 
-if (exports !== undefined)
+if (exports !== undefined) {
     exports.css_beautify = css_beautify;
+}

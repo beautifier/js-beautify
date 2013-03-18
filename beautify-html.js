@@ -1,3 +1,4 @@
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
 /*
 
  Style HTML
@@ -122,7 +123,7 @@ function style_html(html_source, options) {
     };
 
     this.get_contents_to = function (name) { //get the full content of a script or style to pass to js_beautify
-      if (this.pos == this.input.length) {
+      if (this.pos === this.input.length) {
         return ['', 'TK_EOF'];
       }
       var input_char = '';
@@ -166,7 +167,7 @@ function style_html(html_source, options) {
         }
         delete this.tags[tag + this.tags[tag + 'count'] + 'parent']; //delete the closed tags parent reference...
         delete this.tags[tag + this.tags[tag + 'count']]; //...and the tag itself
-        if (this.tags[tag + 'count'] == 1) {
+        if (this.tags[tag + 'count'] === 1) {
           delete this.tags[tag + 'count'];
         }
         else {
@@ -236,7 +237,7 @@ function style_html(html_source, options) {
 
       var tag_complete = content.join('');
       var tag_index;
-      if (tag_complete.indexOf(' ') != -1) { //if there's whitespace, thats where the tag name ends
+      if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
         tag_index = tag_complete.indexOf(' ');
       }
       else { //otherwise go with the tag ending
@@ -275,8 +276,8 @@ function style_html(html_source, options) {
         this.tag_type = 'SINGLE';
       }
       else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
-        if (tag_check.indexOf('[if') != -1) { //peek for <!--[if conditional comment
-          if (tag_complete.indexOf('!IE') != -1) { //this type needs a closing --> so...
+        if (tag_check.indexOf('[if') !== -1) { //peek for <!--[if conditional comment
+          if (tag_complete.indexOf('!IE') !== -1) { //this type needs a closing --> so...
             comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
             content.push(comment);
           }
@@ -284,11 +285,11 @@ function style_html(html_source, options) {
             this.tag_type = 'START';
           }
         }
-        else if (tag_check.indexOf('[endif') != -1) {//peek for <!--[endif end conditional comment
+        else if (tag_check.indexOf('[endif') !== -1) {//peek for <!--[endif end conditional comment
           this.tag_type = 'END';
           this.unindent();
         }
-        else if (tag_check.indexOf('[cdata[') != -1) { //if it's a <[cdata[ comment...
+        else if (tag_check.indexOf('[cdata[') !== -1) { //if it's a <[cdata[ comment...
           comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
           content.push(comment);
           if ( ! peek) {
@@ -325,7 +326,7 @@ function style_html(html_source, options) {
 
     this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
 
-      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) != -1) {
+      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
         return '';
       }
       var input_char = '';
@@ -362,7 +363,7 @@ function style_html(html_source, options) {
         space = true;
 
 
-      } while (content.toLowerCase().indexOf(delimiter) == -1);
+      } while (content.toLowerCase().indexOf(delimiter) === -1);
       return content;
     };
 
@@ -401,8 +402,9 @@ function style_html(html_source, options) {
 
     this.get_full_indent = function (level) {
       level = this.indent_level + level || 0;
-      if (level < 1)
+      if (level < 1) {
         return '';
+      }
 
       return Array(level + 1).join(this.indent_string);
     };
@@ -508,8 +510,9 @@ function style_html(html_source, options) {
         if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
             var tag_name = multi_parser.token_text.match(/\w+/)[0];
             var tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length -1].match(/<\s*(\w+)/);
-            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name)
+            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name) {
                 multi_parser.print_newline(true, multi_parser.output);
+            }
         }
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
@@ -536,15 +539,15 @@ function style_html(html_source, options) {
           var text = multi_parser.token_text,
               _beautifier,
               script_indent_level = 1;
-          if (multi_parser.token_type == 'TK_SCRIPT') {
+          if (multi_parser.token_type === 'TK_SCRIPT') {
             _beautifier = typeof js_beautify === 'function' && js_beautify;
-          } else if (multi_parser.token_type == 'TK_STYLE') {
+          } else if (multi_parser.token_type === 'TK_STYLE') {
             _beautifier = typeof css_beautify === 'function' && css_beautify;
           }
 
-          if (options.indent_scripts == "keep") {
+          if (options.indent_scripts === "keep") {
             script_indent_level = 0;
-          } else if (options.indent_scripts == "separate") {
+          } else if (options.indent_scripts === "separate") {
             script_indent_level = -multi_parser.indent_level;
           }
 
