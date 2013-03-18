@@ -137,6 +137,20 @@ var beautify_html = require('js-beautify').html;
 
 The CSS & HTML beautifiers are much simpler in scope, and possess far fewer options.
 
+```text
+CSS Beautifier Options:
+  -s, --indent-size             Indentation size [4]
+  -c, --indent-char             Indentation character [" "]
+
+HTML Beautifier Options:
+  -s, --indent-size             Indentation size [4]
+  -c, --indent-char             Indentation character [" "]
+  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
+  -S, --indent-scripts          [keep|separate|normal] ["normal"]
+  -W, --max-char                Maximum characters per line (0 disables) [250]
+  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
+```
+
 ## License
 
 You are free to use this in any way you want, in case you find this

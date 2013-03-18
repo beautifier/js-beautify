@@ -23,6 +23,10 @@ var fs = require('fs'),
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
+        // HTML-only
+        "max_char": Number,
+        "unformatted": [String, Array],
+        "indent_scripts": ["keep", "separate", "normal"],
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -49,6 +53,10 @@ var fs = require('fs'),
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
+        // HTML-only
+        "W": ["--max_char"],
+        "U": ["--unformatted"],
+        "S": ["--indent_scripts"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -130,20 +138,30 @@ function usage(err) {
         '',
         'Beautifier Options:',
         '  -s, --indent-size             Indentation size [4]',
-        '  -c, --indent-char             Indentation character [" "]',
-        '  -l, --indent-level            Initial indentation level [0]',
-        '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
-        '  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)',
-        '  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]',
-        '  -j, --jslint-happy            Enable jslint-stricter mode',
-        '  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]',
-        '  -B, --break-chained-methods   Break chained method calls across subsequent lines',
-        '  -k, --keep-array-indentation  Preserve array indentation',
-        '  -x, --unescape-strings        Decode printable characters encoded in xNN notation',
-        '  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]',
-        '  --good-stuff                  Warm the cockles of Crockford\'s heart',
-        ''
+        '  -c, --indent-char             Indentation character [" "]'
     ];
+
+    switch (scriptName.split('-').shift()) {
+    case "js":
+        msg.push('  -l, --indent-level            Initial indentation level [0]');
+        msg.push('  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c');
+        msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
+        msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
+        msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
+        msg.push('  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]');
+        msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');
+        msg.push('  -k, --keep-array-indentation  Preserve array indentation');
+        msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
+        msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
+        msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
+        break;
+    case "html":
+        msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
+        msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
+        msg.push('  -W, --max-char                Maximum characters per line (0 disables) [250]');
+        msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
+        break;
+    }
 
     if (err) {
         msg.push(err);
