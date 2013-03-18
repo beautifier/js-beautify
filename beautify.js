@@ -71,7 +71,7 @@ function Beautifier(js_source_text, options) {
     var prefix, token_type;
     var wanted_newline, n_newlines, output_wrapped, output_space_before_token, whitespace_before_token;
     var input_length
-    var handlers;
+    var handlers, MODE;
     var preindent_string = '';
 
     whitespace = "\n\r\t ".split('');
@@ -85,7 +85,15 @@ function Beautifier(js_source_text, options) {
     // words which should always start on new line.
     line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
 
-
+    MODE = {
+        BlockStatement: 'BlockStatement', // 'BLOCK'
+        Statement: 'Statement', // 'STATEMENT'
+        ObjectLiteral: 'ObjectLiteral', // 'OBJECT',
+        ArrayLiteral: 'ArrayLiteral', //'[EXPRESSION]',
+        ForInitializer: 'ForInitializer', //'(FOR-EXPRESSION)',
+        Conditional: 'Conditional', //'(COND-EXPRESSION)',
+        Expression: 'Expression' //'(EXPRESSION)'
+    };
 
     handlers = {
         'TK_START_EXPR': handle_start_expr,
@@ -154,10 +162,18 @@ function Beautifier(js_source_text, options) {
     output_space_before_token = false;
     whitespace_before_token = [];
 
-    // states showing if we are currently in expression (i.e. "if" case) - 'EXPRESSION', or in usual block (like, procedure), 'BLOCK'.
-    // some formatting depends on that.
+    // Stack of parsing/formatting states, including MODE.
+    // We tokenize, parse, and output in an almost purely a forward-only stream of token input
+    // and formatted output.  This makes the beautifier less accurate than full parsers
+    // but also far more tolerant of syntax errors.
+    //
+    // For example, the default mode is MODE.BlockStatement. If we see a '{' we push a new frame of type
+    // MODE.BlockStatement on the the stack, even though it could be object literal.  If we later
+    // encounter a ":", we'll switch to to MODE.ObjectLiteral.  If we then see a ";",
+    // most full parsers would die, but the beautifier gracefully falls back to
+    // MODE.BlockStatement and continues on.
     flag_store = [];
-    set_mode('BLOCK');
+    set_mode(MODE.BlockStatement);
 
     parser_pos = 0;
 
@@ -198,7 +214,7 @@ function Beautifier(js_source_text, options) {
 
             // The cleanest handling of inline comments is to treat them as though they aren't there.
             // Just continue formatting and the behavior should be logical.
-            // Also ignore unknown tokens.  Again, the should result in better behavior.
+            // Also ignore unknown tokens.  Again, this should result in better behavior.
             if(token_type !== 'TK_INLINE_COMMENT' && token_type !== 'TK_COMMENT' &&
                     token_type !== 'TK_UNKNOWN') {
                 last_last_text = last_text;
@@ -288,14 +304,14 @@ function Beautifier(js_source_text, options) {
 
         if (!preserve_statement_flags) {
             if(last_text !== ';') {
-                while (flags.mode === 'STATEMENT' && !flags.if_block) {
+                while (flags.mode === MODE.Statement && !flags.if_block) {
                     restore_mode();
                 }
             }
         }
 
-        if (flags.mode === '[EXPRESSION]') {
-            flags.mode = '[INDENTED-EXPRESSION]';
+        if (flags.mode === MODE.ArrayLiteral) {
+            flags.multiline_array = true;
         }
 
 
@@ -366,12 +382,13 @@ function Beautifier(js_source_text, options) {
             flag_store.push(flags);
         }
         flags = {
-            previous_mode: flags ? flags.mode : 'BLOCK',
+            previous_mode: flags ? flags.mode : MODE.BlockStatement,
             mode: mode,
             var_line: false,
             var_line_tainted: false,
             var_line_reindented: false,
             in_html_comment: false,
+            multiline_array: false,
             if_block: false,
             do_block: false,
             do_while: false,
@@ -384,11 +401,11 @@ function Beautifier(js_source_text, options) {
     }
 
     function is_array(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
+        return mode === MODE.ArrayLiteral;
     }
 
     function is_expression(mode) {
-        return in_array(mode, ['[EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']);
+        return in_array(mode, [MODE.ArrayLiteral, MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
     }
 
     function restore_mode() {
@@ -403,10 +420,10 @@ function Beautifier(js_source_text, options) {
         if (
             (last_text === 'do' ||
             (last_text === 'else' && token_text !== 'if' ) ||
-            (last_type === 'TK_END_EXPR' && (flags.previous_mode === '(FOR-EXPRESSION)' || flags.previous_mode === '(COND-EXPRESSION)')))
+            (last_type === 'TK_END_EXPR' && (flags.previous_mode === MODE.ForInitializer || flags.previous_mode === MODE.Conditional)))
             ) {
             allow_wrap_or_preserved_newline();
-            set_mode('STATEMENT');
+            set_mode(MODE.Statement);
             indent();
             output_wrapped = false;
             return true;
@@ -643,7 +660,7 @@ function Beautifier(js_source_text, options) {
         if (c === "'" || c === '"' || // string
             (c === '/' &&
             ((last_type === 'TK_WORD' && is_special_word(last_text)) ||
-                (last_type == 'TK_END_EXPR' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) ||
+                (last_type == 'TK_END_EXPR' && in_array(flags.previous_mode, [MODE.Conditional, MODE.ForInitializer])) ||
                 (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                     'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))))
                 ) { // regexp
@@ -814,7 +831,7 @@ function Beautifier(js_source_text, options) {
                 if (in_array(last_text, line_starters)) {
                     output_space_before_token = true;
                 }
-                set_mode('(EXPRESSION)');
+                set_mode(MODE.Expression);
                 print_token();
                 return;
             }
@@ -831,11 +848,11 @@ function Beautifier(js_source_text, options) {
 
         } else {
             if (last_text === 'for') {
-                set_mode('(FOR-EXPRESSION)');
+                set_mode(MODE.ForInitializer);
             } else if (in_array(last_text, ['if', 'while'])) {
-                set_mode('(COND-EXPRESSION)');
+                set_mode(MODE.Conditional);
             } else {
-                set_mode('(EXPRESSION)');
+                set_mode(MODE.Expression);
             }
         }
 
@@ -864,14 +881,14 @@ function Beautifier(js_source_text, options) {
         //     (c || d));
         if (token_text === '(') {
             if(last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== 'OBJECT') {
+                if (flags.mode !== MODE.ObjectLiteral) {
                     allow_wrap_or_preserved_newline();
                 }
             }
         }
         print_token();
         if (token_text === '[') {
-            set_mode('[EXPRESSION]');
+            set_mode(MODE.ArrayLiteral);
             indent();
         }
     }
@@ -879,21 +896,21 @@ function Beautifier(js_source_text, options) {
     function handle_end_expr() {
         // statements inside expressions are not valid syntax, but...
         // statements must all be closed when their container closes
-        while (flags.mode === 'STATEMENT') {
+        while (flags.mode === MODE.Statement) {
             restore_mode();
         }
 
-        restore_mode();
-        if (token_text === ']' && !opt.keep_array_indentation &&
-                flags.previous_mode === '[INDENTED-EXPRESSION]') {
+        if (token_text === ']' && is_array(flags.mode) && flags.multiline_array &&
+                !opt.keep_array_indentation) {
             print_newline();
         }
+        restore_mode();
         print_token();
 
         // do {} while () // no statement required after
-        if (flags.do_while && flags.previous_mode === '(COND-EXPRESSION)')
+        if (flags.do_while && flags.previous_mode === MODE.Conditional)
         {
-            flags.previous_mode = '(EXPRESSION)';
+            flags.previous_mode = MODE.Expression;
             flags.do_block = false;
             flags.do_while = false;
 
@@ -901,7 +918,7 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_start_block() {
-        set_mode('BLOCK');
+        set_mode(MODE.BlockStatement);
 
         var empty_braces = is_next('}');
 
@@ -943,7 +960,7 @@ function Beautifier(js_source_text, options) {
 
     function handle_end_block() {
         // statements must all be closed when their container closes
-        while (flags.mode === 'STATEMENT') {
+        while (flags.mode === MODE.Statement) {
             restore_mode();
         }
         restore_mode();
@@ -998,7 +1015,7 @@ function Beautifier(js_source_text, options) {
         // Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
         if (flags.if_block) {
             if(token_text !== 'else') {
-                while (flags.mode === 'STATEMENT') {
+                while (flags.mode === MODE.Statement) {
                     restore_mode();
                 }
                 flags.if_block = false;
@@ -1068,7 +1085,7 @@ function Beautifier(js_source_text, options) {
                     output_space_before_token = true;
                 }
             }
-        } else if (last_type === 'TK_SEMICOLON' && flags.mode === 'BLOCK') {
+        } else if (last_type === 'TK_SEMICOLON' && flags.mode === MODE.BlockStatement) {
             // TODO: Should this be for STATEMENT as well?
             prefix = 'NEWLINE';
         } else if (last_type === 'TK_SEMICOLON' && is_expression(flags.mode)) {
@@ -1094,7 +1111,7 @@ function Beautifier(js_source_text, options) {
         }
 
         if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-            if (flags.mode !== 'OBJECT') {
+            if (flags.mode !== MODE.ObjectLiteral) {
                 allow_wrap_or_preserved_newline();
             }
         }
@@ -1151,16 +1168,16 @@ function Beautifier(js_source_text, options) {
     }
 
     function handle_semicolon() {
-        while (flags.mode === 'STATEMENT' && !flags.if_block) {
+        while (flags.mode === MODE.Statement && !flags.if_block) {
             restore_mode();
         }
         print_token();
         flags.var_line = false;
         flags.var_line_reindented = false;
-        if (flags.mode === 'OBJECT') {
+        if (flags.mode === MODE.ObjectLiteral) {
             // if we're in OBJECT mode and see a semicolon, its invalid syntax
             // recover back to treating this as a BLOCK
-            flags.mode = 'BLOCK';
+            flags.mode = MODE.BlockStatement;
         }
     }
 
@@ -1172,7 +1189,7 @@ function Beautifier(js_source_text, options) {
         } else if (last_type === 'TK_WORD') {
             output_space_before_token = true;
         } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-            if (flags.mode !== 'OBJECT') {
+            if (flags.mode !== MODE.ObjectLiteral) {
                 allow_wrap_or_preserved_newline();
             }
         } else {
@@ -1215,13 +1232,13 @@ function Beautifier(js_source_text, options) {
 
         if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
             print_token();
-            if (flags.mode === 'OBJECT' && last_text === '}') {
+            if (flags.mode === MODE.ObjectLiteral && last_text === '}') {
                 print_newline();
             } else {
                 output_space_before_token = true;
             }
         } else {
-            if (flags.mode === 'OBJECT') {
+            if (flags.mode === MODE.ObjectLiteral) {
                 print_token();
                 print_newline();
             } else {
@@ -1278,15 +1295,15 @@ function Beautifier(js_source_text, options) {
                 space_before = true;
             }
 
-            if ((flags.mode === 'BLOCK' || flags.mode === 'STATEMENT') && (last_text === '{' || last_text === ';')) {
+            if ((flags.mode === MODE.BlockStatement || flags.mode === MODE.Statement) && (last_text === '{' || last_text === ';')) {
                 // { foo; --i }
                 // foo(); --bar;
                 print_newline();
             }
         } else if (token_text === ':') {
             if (flags.ternary_depth === 0) {
-                if (flags.mode === 'BLOCK') {
-                    flags.mode = 'OBJECT';
+                if (flags.mode === MODE.BlockStatement) {
+                    flags.mode = MODE.ObjectLiteral;
                 }
                 space_before = false;
             } else {
