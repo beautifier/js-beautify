@@ -216,6 +216,6 @@ function css_beautify(source_text, options) {
 }
 
 
-if (exports !== undefined) {
+if (typeof exports !== 'undefined') {
     exports.css_beautify = css_beautify;
 }
