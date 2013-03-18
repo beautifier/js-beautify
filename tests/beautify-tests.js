@@ -176,11 +176,13 @@ function run_beautifier_tests(test_obj)
     bt("a = 1;\n // comment", "a = 1;\n// comment");
     bt('a = [-1, -1, -1]');
 
-    // The exact formatting these should have is open for discussion, but they currently aren't right
-    //bt('a = [ // comment\n    -1,\n    -1,\n    -1]');
-    //bt('var a = [ // comment\n    -1,\n    -1,\n    -1]');
+    // The exact formatting these should have is open for discussion, but they are at least reasonable
+    bt('a = [ // comment\n    -1, -1, -1\n]');
+    bt('var a = [ // comment\n    -1, -1, -1\n]');
+    bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]');
+    bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]');
 
-    bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
+    bt('o = [{a:b},{c:d}]', 'o = [{\n        a: b\n    }, {\n        c: d\n    }\n]');
 
     bt("if (a) {\n    do();\n}"); // was: extra space appended
 
@@ -234,7 +236,7 @@ function run_beautifier_tests(test_obj)
     test_fragment('/incomplete-regex');
 
     test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
-    test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
+    test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n        a: 1\n    }, {\n        a: 2\n    }\n];');
 
     test_fragment('{a:#1', '{\n    a: #1'); // incomplete
     test_fragment('{a:#', '{\n    a: #'); // incomplete
@@ -344,7 +346,7 @@ function run_beautifier_tests(test_obj)
     bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
     bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
-    bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    },\n    7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
+    bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
     bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
     bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
@@ -402,12 +404,12 @@ function run_beautifier_tests(test_obj)
 
 
     bt('var x = [{}\n]', 'var x = [{}\n]');
-    bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}\n]');
-    bt("a = ['something',\n'completely',\n'different'];\nif (x);");
+    bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
+    bt("a = ['something',\n    'completely',\n    'different'];\nif (x);");
     bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
     bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
 
-    bt("x = [{'a':0}]", "x = [{\n    'a': 0\n}]");
+    bt("x = [{'a':0}]", "x = [{\n        'a': 0\n    }]");
 
     bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
 
