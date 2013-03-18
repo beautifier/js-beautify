@@ -727,7 +727,6 @@ class TestJSBeautifier(unittest.TestCase):
         return self.wrapregex.sub('    \\1', text)
 
     def bt(self, input, expectation=None):
-        print(input)
         expectation = expectation or input
         self.decodesto(input, expectation)
         if self.options.indent_size == 4 and input:
