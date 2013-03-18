@@ -534,7 +534,7 @@ function Beautifier(js_source_text, options) {
     }
 
     function get_next_token() {
-        var i;
+        var i, resulting_string;
 
         n_newlines = 0;
 
@@ -667,8 +667,9 @@ function Beautifier(js_source_text, options) {
         ]))))) { // regexp
             var sep = c,
                 esc = false,
-                has_char_escapes = false,
-                resulting_string = c;
+                has_char_escapes = false;
+
+            resulting_string = c;
 
             if (parser_pos < input_length) {
                 if (sep === '/') {
