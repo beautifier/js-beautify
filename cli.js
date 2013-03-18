@@ -6,7 +6,7 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG
 
 var fs = require('fs'),
     cc = require('config-chain'),
-    beautify = require('./beautify').js_beautify,
+    beautify = require('./index'),
     nopt = require('nopt'),
     path = require('path'),
     knownOpts = {
