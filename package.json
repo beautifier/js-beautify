@@ -16,6 +16,7 @@
     "test": "node ./tests/beautify-tests.js"
   },
   "bugs": "https://github.com/einars/js-beautify/issues",
+  "homepage": "http://jsbeautifier.org/",
   "repository": {
     "type": "git",
     "url": "git://github.com/einars/js-beautify.git"
