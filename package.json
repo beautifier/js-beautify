@@ -2,7 +2,7 @@
   "name": "js-beautify",
   "version": "0.4.1",
   "description": "jsbeautifier.org for node",
-  "main": "beautify.js",
+  "main": "index.js",
   "preferGlobal": true,
   "bin": {
     "css-beautify": "./cli.js",
