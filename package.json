@@ -15,6 +15,7 @@
   "scripts": {
     "test": "node ./tests/beautify-tests.js"
   },
+  "bugs": "https://github.com/einars/js-beautify/issues",
   "repository": {
     "type": "git",
     "url": "git://github.com/evocateur/js-beautify.git#node-package"
