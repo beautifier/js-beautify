@@ -77,12 +77,13 @@ unescape_strings = %s
 
 class BeautifierFlags:
     def __init__(self, mode):
-        self.previous_mode = 'BLOCK'
+        self.previous_mode = MODE.BlockStatement
         self.mode = mode
         self.var_line = False
         self.var_line_tainted = False
         self.var_line_reindented = False
         self.in_html_comment = False
+        self.multiline_array = False
         self.if_block = False
         self.do_block = False
         self.do_while = False
@@ -158,7 +159,9 @@ Rarely needed options:
 
 
 
-
+class MODE:
+      BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
+      ForInitializer, Conditional, Expression = range(7)
 
 class Beautifier:
 
@@ -170,7 +173,7 @@ class Beautifier:
     def blank_state(self):
 
         # internal flags
-        self.flags = BeautifierFlags('BLOCK')
+        self.flags = BeautifierFlags(MODE.BlockStatement)
         self.flag_store = []
         self.wanted_newline = False
 
@@ -201,7 +204,8 @@ class Beautifier:
 
         # Words which always should start on a new line
         self.line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',')
-        self.set_mode('BLOCK')
+
+        self.set_mode(MODE.BlockStatement)
 
         self.parser_pos = 0
 
@@ -296,11 +300,11 @@ class Beautifier:
         return s in ['case', 'return', 'do', 'if', 'throw', 'else']
 
     def is_array(self, mode):
-        return mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]']
+        return mode == MODE.ArrayLiteral
 
 
     def is_expression(self, mode):
-        return mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']
+        return mode in [MODE.ArrayLiteral, MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
     def just_added_newline(self):
         return len(self.output) and self.output[-1] == '\n'
@@ -342,8 +346,12 @@ class Beautifier:
 
         if not preserve_statement_flags:
             if self.last_text != ';':
-                while self.flags.mode == 'STATEMENT' and not self.flags.if_block:
+                while self.flags.mode == MODE.Statement and not self.flags.if_block:
                     self.restore_mode();
+
+        if self.flags.mode == MODE.ArrayLiteral:
+            self.flags.multiline_array = True
+
 
         if len(self.output) == 0:
             # no newline on start of file
@@ -398,7 +406,7 @@ class Beautifier:
 
     def set_mode(self, mode):
 
-        prev = BeautifierFlags('BLOCK')
+        prev = BeautifierFlags(MODE.BlockStatement)
 
         if self.flags:
             self.flag_store.append(self.flags)
@@ -423,9 +431,9 @@ class Beautifier:
     def start_of_statement(self):
         if (self.last_text == 'do' \
                 or (self.last_text == 'else' and self.token_text != 'if' ) \
-                or (self.last_type == 'TK_END_EXPR' and (self.flags.previous_mode == '(FOR-EXPRESSION)' or self.flags.previous_mode == '(COND-EXPRESSION)'))):
+                or (self.last_type == 'TK_END_EXPR' and (self.flags.previous_mode == MODE.ForInitializer or self.flags.previous_mode == MODE.Conditional))):
             self.allow_wrap_or_preserved_newline(self.token_text)
-            self.set_mode('STATEMENT')
+            self.set_mode(MODE.Statement)
             self.indent()
             self.output_wrapped = False
             return True
@@ -550,7 +558,7 @@ class Beautifier:
 
         if c == "'" or c == '"' or \
            (c == '/' and ((self.last_type == 'TK_WORD' and self.is_special_word(self.last_text)) or \
-                          (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(FOR-EXPRESSION)', '(COND-EXPRESSION)']) or \
+                          (self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in [MODE.ForInitializer, MODE.Conditional]) or \
                           (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
                                               'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))):
             sep = c
@@ -700,40 +708,23 @@ class Beautifier:
             if self.last_type == 'TK_WORD' or self.last_text == ')':
                 if self.last_text in self.line_starters:
                     self.output_space_before_token = True
-                self.set_mode('(EXPRESSION)')
+                self.set_mode(MODE.Expression)
                 self.append_token(token_text)
                 return
 
-            if self.flags.mode in ['[EXPRESSION]', '[INDENTED-EXPRESSION]']:
-                if self.last_last_text == ']' and self.last_text == ',':
+            if self.is_array(self.flags.mode):
+                if self.last_text == '[' or (self.last_last_text == ']' and self.last_text == ','):
                     # ], [ goes to a new line
-                    if self.flags.mode == '[EXPRESSION]':
-                        self.flags.mode = '[INDENTED-EXPRESSION]'
-                        if not self.opts.keep_array_indentation:
-                            self.indent()
-                    self.set_mode('[EXPRESSION]')
                     if not self.opts.keep_array_indentation:
                         self.append_newline()
-                elif self.last_text == '[':
-                    if self.flags.mode == '[EXPRESSION]':
-                        self.flags.mode = '[INDENTED-EXPRESSION]'
-                        if not self.opts.keep_array_indentation:
-                            self.indent()
-                    self.set_mode('[EXPRESSION]')
 
-                    if not self.opts.keep_array_indentation:
-                        self.append_newline()
-                else:
-                    self.set_mode('[EXPRESSION]')
-            else:
-                self.set_mode('[EXPRESSION]')
         else:
             if self.last_text == 'for':
-                self.set_mode('(FOR-EXPRESSION)')
+                self.set_mode(MODE.ForInitializer)
             elif self.last_text in ['if', 'while']:
-                self.set_mode('(COND-EXPRESSION)')
+                self.set_mode(MODE.Conditional)
             else:
-                self.set_mode('(EXPRESSION)')
+                self.set_mode(MODE.Expression)
 
 
         if self.last_text == ';' or self.last_type == 'TK_START_BLOCK':
@@ -760,28 +751,32 @@ class Beautifier:
                 self.allow_wrap_or_preserved_newline(token_text)
 
         self.append_token(token_text)
+        if self.token_text == '[':
+            self.set_mode(MODE.ArrayLiteral)
+            self.indent()
+
 
 
     def handle_end_expr(self, token_text):
-        if token_text == ']':
-            if not self.opts.keep_array_indentation:
-                if self.flags.mode == '[INDENTED-EXPRESSION]':
-                    if self.last_text == ']':
-                        self.restore_mode()
-                        self.append_newline()
-                        self.append_token(token_text)
-                        return
+        # statements inside expressions are not valid syntax, but...
+        # statements must all be closed when their container closes
+        while self.flags.mode == MODE.Statement:
+            self.restore_mode()
+
+        if self.token_text == ']' and self.is_array(self.flags.mode) and self.flags.multiline_array and not self.opts.keep_array_indentation:
+            self.append_newline()
+
         self.restore_mode()
         self.append_token(token_text)
 
         # do {} while () // no statement required after
-        if self.flags.do_while and self.flags.previous_mode == '(COND-EXPRESSION)':
-            self.flags.previous_mode = '(EXPRESSION)'
+        if self.flags.do_while and self.flags.previous_mode == MODE.Conditional:
+            self.flags.previous_mode = MODE.Expression
             self.flags.do_block = False
             self.flags.do_while = False
 
     def handle_start_block(self, token_text):
-        self.set_mode('BLOCK')
+        self.set_mode(MODE.BlockStatement)
 
         empty_braces = self.is_next('}')
         if self.opts.brace_style == 'expand-strict':
@@ -812,6 +807,10 @@ class Beautifier:
 
 
     def handle_end_block(self, token_text):
+        # statements must all be closed when their container closes
+        while self.flags.mode == MODE.Statement:
+            self.restore_mode()
+
         self.restore_mode()
         if self.opts.brace_style == 'expand' or self.opts.brace_style == 'expand-strict':
             if self.last_text != '{':
@@ -858,7 +857,7 @@ class Beautifier:
         # Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
         if self.flags.if_block:
             if token_text != 'else':
-                while self.flags.mode == 'STATEMENT':
+                while self.flags.mode == MODE.Statement:
                     self.restore_mode()
 
                 self.flags.if_block = False;
@@ -917,7 +916,7 @@ class Beautifier:
                 else:
                     prefix = 'SPACE'
                     self.output_space_before_token = True
-        elif self.last_type == 'TK_SEMICOLON' and self.flags.mode in 'BLOCK':
+        elif self.last_type == 'TK_SEMICOLON' and self.flags.mode == MODE.BlockStatement:
             # TODO: Should this be for STATEMENT as well?
             prefix = 'NEWLINE'
         elif self.last_type == 'TK_SEMICOLON' and self.is_expression(self.flags.mode):
@@ -992,7 +991,7 @@ class Beautifier:
 
 
     def handle_semicolon(self, token_text):
-        while self.flags.mode == 'STATEMENT' and not self.flags.if_block:
+        while self.flags.mode == MODE.Statement and not self.flags.if_block:
             self.restore_mode()
 
         self.append_token(token_text)
@@ -1000,7 +999,7 @@ class Beautifier:
         self.flags.var_line_reindented = False
         if self.flags.mode == 'OBJECT':
             # OBJECT mode is weird and doesn't get reset too well.
-            self.flags.mode = 'BLOCK'
+            self.flags.mode = MODE.BlockStatement
 
 
     def handle_string(self, token_text):
@@ -1010,7 +1009,7 @@ class Beautifier:
             self.output_space_before_token = True
         elif self.last_type == 'TK_WORD':
             self.output_space_before_token = True
-        elif self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in ['(COND-EXPRESSION)', '(FOR-EXPRESSION)']:
+        elif self.last_type == 'TK_END_EXPR' and self.flags.previous_mode in [MODE.Conditional, MODE.ForInitializer]:
             self.output_space_before_token = True
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.flags.mode != 'OBJECT':
@@ -1050,7 +1049,7 @@ class Beautifier:
 
             return
 
-        if self.last_type == 'TK_END_BLOCK' and self.flags.mode != '(EXPRESSION)':
+        if self.last_type == 'TK_END_BLOCK' and self.flags.mode != MODE.Expression:
             self.append_token(token_text)
             if self.flags.mode == 'OBJECT' and self.last_text == '}':
                 self.append_newline()
@@ -1112,14 +1111,14 @@ class Beautifier:
             if self.last_type == 'TK_WORD' and self.last_text in self.line_starters:
                 space_before = True
 
-            if self.flags.mode == 'BLOCK' and self.last_text in ['{', ';']:
+            if self.flags.mode == MODE.BlockStatement and self.last_text in ['{', ';']:
                 # { foo: --i }
                 # foo(): --bar
                 self.append_newline()
 
         elif token_text == ':':
             if self.flags.ternary_depth == 0:
-                if self.flags.mode == 'BLOCK':
+                if self.flags.mode == MODE.BlockStatement:
                     self.flags.mode = 'OBJECT'
                 space_before = False
             else:
