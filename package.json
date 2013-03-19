@@ -15,9 +15,11 @@
   "scripts": {
     "test": "node ./tests/beautify-tests.js"
   },
+  "bugs": "https://github.com/einars/js-beautify/issues",
+  "homepage": "http://jsbeautifier.org/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/evocateur/js-beautify.git#node-package"
+    "url": "git://github.com/einars/js-beautify.git"
   },
   "keywords": [
     "beautify",
@@ -32,7 +34,7 @@
     "Stan <stasson@orc.ru>",
     "Vittorio Gambaletta <VittGam@vittgam.net>",
     "Daniel Stockman <daniel.stockman@gmail.com>",
-    "Liam Newman <bitwiseman@gmail.com"
+    "Liam Newman <bitwiseman@gmail.com>"
   ],
   "license": "MIT",
   "dependencies": {
