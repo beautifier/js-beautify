@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="third-party/codemirror2/lib/codemirror.css">
 
     <style>
+
 body {
     background: #eee;
     color: #333;
@@ -26,10 +27,6 @@ a.self { font-weight: bold; text-decoration: none; color: #444; border-bottom: 1
 p, select, label, .blurb, a.turn-off-codemirror {
     font:13px/1.231 arial, sans-serif;
     *font-size:small;
-}
-
-a {
-    color: #36d;
 }
 
 a.turn-off-codemirror {
@@ -102,9 +99,19 @@ li.writeme {
   overflow-x: auto;
   width: 100%
 }
-.contributors a {
-    white-space: nowrap;
+p {
+    margin-left: 40px;
+    margin-right: 40px;
 }
+a {
+    white-space: nowrap;
+    color: #36d;
+}
+.contributor-sep {
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+}
+
     </style>
 <script src="third-party/jquery/jquery.js"></script>
 <script src="third-party/jquery/jquery.cookie.js"></script>
@@ -350,7 +357,7 @@ $(function() {
 
     <div id="about">
             <p><a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a></p>
-            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version and a python library as well.
+            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
     </div>
 
 
@@ -398,8 +405,24 @@ $(function() {
       <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
       </ul>
 
-      <p class="me-me-me">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, Python version flourished by <a href="https://github.com/esseks">Stefano Sanfilippo</a>. We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
-      <p class="contributors">Made with a great help of Jason&nbsp;Diamond, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider, Dave&nbsp;Vasilevsky, <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov</a>, Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison, <a href="http://shullian.com">Chris&nbsp;J.&nbsp;Shull</a>, <a href="http://mathiasbynens.be/">Mathias Bynens</a>, <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>, <a href="https://github.com/bitwiseman/">Liam Newman</a> and others.
+      <p class="contributors contributor-sep">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
+      <p class="contributors">We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
+      <p class="contributors">Made with a great help of 
+      Jason&nbsp;Diamond,
+      Patrick&nbsp;Hof,
+      Nochum&nbsp;Sossonko,
+      Andreas&nbsp;Schneider,
+      <br>
+      Dave&nbsp;Vasilevsky,
+      <a href="http://my.opera.com/Vital/blog/">Vital&nbsp;Batmanov</a>,
+      Ron&nbsp;Baldwin,
+      Gabriel&nbsp;Harrison,
+      <a href="http://shullian.com">Chris J. Shull</a>,
+      <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
+      <br>
+      <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
+      <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
+      <a href="https://github.com/evocateur">Daniel Stockman</a>.
     </p>
 
     <p style="text-align:right">
