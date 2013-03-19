@@ -38,8 +38,8 @@
 */
 
 if (typeof process !== 'undefined' && process.argv[0] === "node") {
-    var css_beautify = require('./beautify-css.js').css_beautify;
-    var js_beautify = require('./beautify.js').js_beautify;
+    var css_beautify = require(__dirname + '/beautify-css.js').css_beautify;
+    var js_beautify  = require(__dirname + '/beautify.js').js_beautify;
 }
 
 function style_html(html_source, options) {
