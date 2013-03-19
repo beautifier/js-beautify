@@ -1,0 +1,41 @@
+{
+  "name": "js-beautify",
+  "version": "0.4.1",
+  "description": "jsbeautifier.org for node",
+  "main": "index.js",
+  "preferGlobal": true,
+  "bin": {
+    "css-beautify": "./cli.js",
+    "html-beautify": "./cli.js",
+    "js-beautify": "./cli.js"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node ./tests/beautify-tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/evocateur/js-beautify.git#node-package"
+  },
+  "keywords": [
+    "beautify",
+    "beautifier",
+    "code-quality"
+  ],
+  "author": "Einar Lielmanis <einar@jsbeautifier.org>",
+  "contributors": [
+    "Vital Batmanov <vital76@gmail.com>",
+    "Chris J. Shull <chrisjshull@gmail.com>",
+    "Gian Marco Gherardi <gianmarco.gherardi@gmail.com>",
+    "Stan <stasson@orc.ru>",
+    "Vittorio Gambaletta <VittGam@vittgam.net>",
+    "Daniel Stockman <daniel.stockman@gmail.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "config-chain": "~1.1.5",
+    "nopt": "~2.1.1"
+  }
+}
