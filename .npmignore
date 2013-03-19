@@ -1,7 +1,5 @@
 Makefile
 attic/
-beautify-css.js
-beautify-html.js
 favicon.png
 index.html
 jquery/
