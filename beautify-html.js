@@ -1,3 +1,4 @@
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
 /*
 
  Style HTML
@@ -50,7 +51,7 @@ function style_html(html_source, options) {
   indent_size = options.indent_size || 4;
   indent_character = options.indent_char || ' ';
   brace_style = options.brace_style || 'collapse';
-  max_char = options.max_char == 0 ? Infinity : options.max_char || 250;
+  max_char = options.max_char === 0 ? Infinity : options.max_char || 250;
   unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   function Parser() {
@@ -78,7 +79,7 @@ function style_html(html_source, options) {
         }
         return false;
       }
-    }
+    };
 
     this.get_content = function () { //function to capture regular content between tags
 
@@ -119,15 +120,15 @@ function style_html(html_source, options) {
         content.push(input_char); //letter at-a-time (or string) inserted to an array
       }
       return content.length?content.join(''):'';
-    }
+    };
 
     this.get_contents_to = function (name) { //get the full content of a script or style to pass to js_beautify
-      if (this.pos == this.input.length) {
+      if (this.pos === this.input.length) {
         return ['', 'TK_EOF'];
       }
       var input_char = '';
       var content = '';
-      var reg_match = new RegExp('\<\/' + name + '\\s*\>', 'igm');
+      var reg_match = new RegExp('</' + name + '\\s*>', 'igm');
       reg_match.lastIndex = this.pos;
       var reg_array = reg_match.exec(this.input);
       var end_script = reg_array?reg_array.index:this.input.length; //absolute end of script
@@ -136,7 +137,7 @@ function style_html(html_source, options) {
         this.pos = end_script;
       }
       return content;
-    }
+    };
 
     this.record_tag = function (tag){ //function to record a tag and its parent in this.tags Object
       if (this.tags[tag + 'count']) { //check for the existence of this tag type
@@ -149,7 +150,7 @@ function style_html(html_source, options) {
       }
       this.tags[tag + this.tags[tag + 'count'] + 'parent'] = this.tags.parent; //set the parent (i.e. in the case of a div this.tags.div1parent)
       this.tags.parent = tag + this.tags[tag + 'count']; //and make this the current parent (i.e. in the case of a div 'div1')
-    }
+    };
 
     this.retrieve_tag = function (tag) { //function to retrieve the opening tag to the corresponding closer
       if (this.tags[tag + 'count']) { //if the openener is not in the Object we ignore it
@@ -166,23 +167,25 @@ function style_html(html_source, options) {
         }
         delete this.tags[tag + this.tags[tag + 'count'] + 'parent']; //delete the closed tags parent reference...
         delete this.tags[tag + this.tags[tag + 'count']]; //...and the tag itself
-        if (this.tags[tag + 'count'] == 1) {
+        if (this.tags[tag + 'count'] === 1) {
           delete this.tags[tag + 'count'];
         }
         else {
           this.tags[tag + 'count']--;
         }
       }
-    }
+    };
 
     this.get_tag = function (peek) { //function to get a full tag and parse its type
       var input_char = '',
           content = [],
+          comment = '',
           space = false,
           tag_start, tag_end,
-          peek = typeof peek !== 'undefined' ? peek : false,
           orig_pos = this.pos,
           orig_line_char_count = this.line_char_count;
+
+      peek = peek !== undefined ? peek : false;
 
       do {
         if (this.pos >= this.input.length) {
@@ -214,8 +217,8 @@ function style_html(html_source, options) {
           space = false;
         }
 
-        if (content.length && content[content.length-1] !== '=' && input_char !== '>'
-            && space) { //no space after = or before >
+        if (content.length && content[content.length-1] !== '=' && input_char !== '>' && space) { 
+            //no space after = or before >
           if (this.line_char_count >= this.max_char) {
             this.print_newline(false, content);
             this.line_char_count = 0;
@@ -234,7 +237,7 @@ function style_html(html_source, options) {
 
       var tag_complete = content.join('');
       var tag_index;
-      if (tag_complete.indexOf(' ') != -1) { //if there's whitespace, thats where the tag name ends
+      if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
         tag_index = tag_complete.indexOf(' ');
       }
       else { //otherwise go with the tag ending
@@ -260,7 +263,7 @@ function style_html(html_source, options) {
         }
       }
       else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
-        var comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
+        comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
         content.push(comment);
         // Preserve collapsed whitespace either before or after this tag.
         if (tag_start > 0 && this.Utils.in_array(this.input.charAt(tag_start - 1), this.Utils.whitespace)){
@@ -273,28 +276,28 @@ function style_html(html_source, options) {
         this.tag_type = 'SINGLE';
       }
       else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
-        if (tag_check.indexOf('[if') != -1) { //peek for <!--[if conditional comment
-          if (tag_complete.indexOf('!IE') != -1) { //this type needs a closing --> so...
-            var comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
+        if (tag_check.indexOf('[if') !== -1) { //peek for <!--[if conditional comment
+          if (tag_complete.indexOf('!IE') !== -1) { //this type needs a closing --> so...
+            comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
             content.push(comment);
           }
           if ( ! peek) {
             this.tag_type = 'START';
           }
         }
-        else if (tag_check.indexOf('[endif') != -1) {//peek for <!--[endif end conditional comment
+        else if (tag_check.indexOf('[endif') !== -1) {//peek for <!--[endif end conditional comment
           this.tag_type = 'END';
           this.unindent();
         }
-        else if (tag_check.indexOf('[cdata[') != -1) { //if it's a <[cdata[ comment...
-          var comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
+        else if (tag_check.indexOf('[cdata[') !== -1) { //if it's a <[cdata[ comment...
+          comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
           content.push(comment);
           if ( ! peek) {
             this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
           }
         }
         else {
-          var comment = this.get_unformatted('-->', tag_complete);
+          comment = this.get_unformatted('-->', tag_complete);
           content.push(comment);
           this.tag_type = 'SINGLE';
         }
@@ -319,11 +322,11 @@ function style_html(html_source, options) {
       }
 
       return content.join(''); //returns fully formatted tag
-    }
+    };
 
     this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
 
-      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) != -1) {
+      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
         return '';
       }
       var input_char = '';
@@ -336,7 +339,7 @@ function style_html(html_source, options) {
         }
 
         input_char = this.input.charAt(this.pos);
-        this.pos++
+        this.pos++;
 
         if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
           if (!space) {
@@ -360,15 +363,15 @@ function style_html(html_source, options) {
         space = true;
 
 
-      } while (content.toLowerCase().indexOf(delimiter) == -1);
+      } while (content.toLowerCase().indexOf(delimiter) === -1);
       return content;
-    }
+    };
 
     this.get_token = function () { //initial handler for token-retrieval
       var token;
 
       if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
-       var type = this.last_token.substr(7)
+       var type = this.last_token.substr(7);
        token = this.get_contents_to(type);
         if (typeof token !== 'string') {
           return token;
@@ -395,15 +398,16 @@ function style_html(html_source, options) {
           return [token, tag_name_type];
         }
       }
-    }
+    };
 
     this.get_full_indent = function (level) {
       level = this.indent_level + level || 0;
-      if (level < 1)
+      if (level < 1) {
         return '';
+      }
 
       return Array(level + 1).join(this.indent_string);
-    }
+    };
 
     this.is_unformatted = function(tag_check, unformatted) {
         //is this an HTML5 block-level link?
@@ -423,7 +427,7 @@ function style_html(html_source, options) {
         } else {
             return false;
         }
-    }
+    };
 
     this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
 
@@ -455,22 +459,22 @@ function style_html(html_source, options) {
         for (var i=0; i<this.indent_level; i++) {
           arr.push(this.indent_string);
         }
-      }
+      };
 
       this.print_token = function (text) {
         this.output.push(text);
-      }
+      };
 
       this.indent = function () {
         this.indent_level++;
-      }
+      };
 
       this.unindent = function () {
         if (this.indent_level > 0) {
           this.indent_level--;
         }
-      }
-    }
+      };
+    };
     return this;
   }
 
@@ -506,8 +510,9 @@ function style_html(html_source, options) {
         if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
             var tag_name = multi_parser.token_text.match(/\w+/)[0];
             var tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length -1].match(/<\s*(\w+)/);
-            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name)
+            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name) {
                 multi_parser.print_newline(true, multi_parser.output);
+            }
         }
         multi_parser.print_token(multi_parser.token_text);
         multi_parser.current_mode = 'CONTENT';
@@ -531,19 +536,19 @@ function style_html(html_source, options) {
       case 'TK_SCRIPT':
         if (multi_parser.token_text !== '') {
           multi_parser.output.push('\n');
-          var text = multi_parser.token_text;
-          if (multi_parser.token_type == 'TK_SCRIPT') {
-            var _beautifier = typeof js_beautify == 'function' && js_beautify;
-          } else if (multi_parser.token_type == 'TK_STYLE') {
-            var _beautifier = typeof css_beautify == 'function' && css_beautify;
+          var text = multi_parser.token_text,
+              _beautifier,
+              script_indent_level = 1;
+          if (multi_parser.token_type === 'TK_SCRIPT') {
+            _beautifier = typeof js_beautify === 'function' && js_beautify;
+          } else if (multi_parser.token_type === 'TK_STYLE') {
+            _beautifier = typeof css_beautify === 'function' && css_beautify;
           }
 
-          if (options.indent_scripts == "keep") {
-            var script_indent_level = 0;
-          } else if (options.indent_scripts == "separate") {
-            var script_indent_level = -multi_parser.indent_level;
-          } else {
-            var script_indent_level = 1;
+          if (options.indent_scripts === "keep") {
+            script_indent_level = 0;
+          } else if (options.indent_scripts === "separate") {
+            script_indent_level = -multi_parser.indent_level;
           }
 
           var indentation = multi_parser.get_full_indent(script_indent_level);
@@ -575,6 +580,6 @@ function style_html(html_source, options) {
 
 // Add support for CommonJS. Just put this file somewhere on your require.paths
 // and you will be able to `var html_beautify = require("beautify").html_beautify`.
-if (typeof exports !== "undefined") {
+if (typeof exports !== 'undefined') {
     exports.html_beautify = style_html;
 }

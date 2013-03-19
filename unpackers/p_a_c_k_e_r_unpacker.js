@@ -34,7 +34,7 @@ var P_A_C_K_E_R = {
         var unpacked_source = '';
         if (P_A_C_K_E_R.detect(str)) {
             try {
-                eval('unpacked_source = ' + str.substring(4) + ';')
+                eval('unpacked_source = ' + str.substring(4) + ';');
                 if (typeof unpacked_source == 'string' && unpacked_source) {
                     str = unpacked_source;
                 }
@@ -67,4 +67,4 @@ var P_A_C_K_E_R = {
     }
 
 
-}
+};

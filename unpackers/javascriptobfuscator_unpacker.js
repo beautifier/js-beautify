@@ -21,7 +21,7 @@ var JavascriptObfuscator = {
             if (matches) {
                 var var_name = matches[1];
                 var strings = JavascriptObfuscator._smart_split(matches[2]);
-                var str = str.substring(matches[0].length);
+                str = str.substring(matches[0].length);
                 for (var k in strings) {
                     str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), 
                         JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k])));
@@ -100,4 +100,4 @@ var JavascriptObfuscator = {
     }
 
 
-}
+};
