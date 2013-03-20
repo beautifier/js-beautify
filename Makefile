@@ -1,6 +1,7 @@
 
 define AVAILABLE_ACTIONS
 
+build:		do static checking and build of js
 test:		test both implementations, js and python
 testp:		test python implementation
 testj:		test javascript implementation
@@ -10,22 +11,26 @@ export AVAILABLE_ACTIONS
 
 
 .SILENT:
+all: build test
 
-all:
+help:
 	echo "$$AVAILABLE_ACTIONS"
 
+build:
+	echo Building... ;\
+	npm install ;\
+
 testp:
+	echo Testing python implementation...
 	cd python ;\
-	echo Testing python3 ;\
-	PYTHON=python3 ./js-beautify-test ;\
-	echo Testing python2 ;\
-	PYTHON=python2 ./js-beautify-test
-	echo
+	python --version ;\
+	PYTHON=python ./js-beautify-test
 
 testj:
 	echo Testing javascript implementation...
-	./tests/run-tests
-	echo
+	node --version; \
+	npm test
+
 
 edit:
 	vim \
