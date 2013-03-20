@@ -1,4 +1,5 @@
 # JS Beautifier
+[![Build Status](https://secure.travis-ci.org/einars/js-beautify.png?branch=master)](http://travis-ci.org/einars/js-beautify)
 
 ...or, more specifically, all of the code powering
 [jsbeautifier.org](http://jsbeautifier.org/).
