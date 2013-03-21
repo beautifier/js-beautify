@@ -1228,7 +1228,7 @@ function Beautifier(js_source_text, options) {
             return;
         }
 
-        if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
+        if (last_type === 'TK_END_BLOCK' && flags.mode !== MODE.Expression) {
             print_token();
             if (flags.mode === MODE.ObjectLiteral && last_text === '}') {
                 print_newline();
