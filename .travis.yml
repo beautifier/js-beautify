@@ -1,28 +1,12 @@
-language: node_js
-
-node_js:
-  - "0.6"
-  - "0.8"
-  - "0.10"
-
+language: python
 python:
   - "2.7"
   - "3.2"
   - "3.3"
 
-matrix:
-  exclude:
-    - node_js: "0.6"
-      python: "3.2"
-    - node_js: "0.6"
-      python: "3.3"
-    - node_js: "0.8"
-      python: "2.7"
-    - node_js: "0.8"
-      python: "3.3"
-    - node_js: "0.10"
-      python: "2.7"
-    - node_js: "0.10"
-      python: "3.2"
+node_js:
+  - "0.8"
+
+
 
 script: "make"
