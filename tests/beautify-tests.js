@@ -1,12 +1,8 @@
 /*global js_beautify: true */
-/*jshint node:true */
+/*jshint */
 
-var isNode = (typeof module !== 'undefined' && module.exports);
-if (isNode) {
-    var SanityTest = require('./sanitytest'),
-        Urlencoded = require('../unpackers/urlencode_unpacker'),
-        js_beautify = require('../beautify').js_beautify;
-}
+function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
+{
 
 var opts = {
     indent_size: 4,
@@ -71,9 +67,9 @@ function bt_braces(input, expectation)
     opts.brace_style = braces_ex;
 }
 
-function run_beautifier_tests(test_obj)
+function beautifier_tests()
 {
-    sanitytest = test_obj || new SanityTest();
+    sanitytest = test_obj;
     sanitytest.test_function(test_beautifier, 'js_beautify');
 
     opts.indent_size       = 4;
@@ -822,12 +818,9 @@ function run_beautifier_tests(test_obj)
 
     return sanitytest;
 }
+    return beautifier_tests();
+}
 
-if (isNode) {
-    module.exports = run_beautifier_tests;
-
-    // http://nodejs.org/api/modules.html#modules_accessing_the_main_module
-    if (require.main === module) {
-        console.log(run_beautifier_tests().results_raw());
-    }
+if (typeof exports !== "undefined") {
+    exports.run_beautifier_tests = run_beautifier_tests;
 }

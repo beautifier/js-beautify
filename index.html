@@ -137,7 +137,7 @@ var the = {
 
 function run_tests() {
     var st = new SanityTest();
-    run_beautifier_tests(st);
+    run_beautifier_tests(st, Urlencoded, js_beautify);
     JavascriptObfuscator.run_tests(st);
     P_A_C_K_E_R.run_tests(st);
     Urlencoded.run_tests(st);
@@ -407,7 +407,7 @@ $(function() {
 
       <p class="contributors contributor-sep">Written by Einar Lielmanis, <a href="mailto:einar@jsbeautifier.org">einar@jsbeautifier.org</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
       <p class="contributors">We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
-      <p class="contributors">Made with a great help of 
+      <p class="contributors">Made with a great help of
       Jason&nbsp;Diamond,
       Patrick&nbsp;Hof,
       Nochum&nbsp;Sossonko,
