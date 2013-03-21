@@ -36,7 +36,7 @@ class BeautifierOptions:
         self.indent_char = ' '
         self.indent_with_tabs = False
         self.preserve_newlines = True
-        self.max_preserve_newlines = 10.
+        self.max_preserve_newlines = 10
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
