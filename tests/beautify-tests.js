@@ -773,6 +773,8 @@ function beautifier_tests()
     bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
     bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
     test_fragment('\n\n"x"', '"x"');
+    bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+            'a = 1;\nb = 2;');
 
     opts.preserve_newlines = true;
     bt('if (foo) // comment\n    bar();');
@@ -814,6 +816,14 @@ function beautifier_tests()
     bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f');
     bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n    c || d) &&\n    e) e = f');
     test_fragment('\n\n"x"', '"x"');
+
+    // this beavior differs between js and python, defaults to unlimited in js, 10 in python
+    bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+        'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;');
+    opts.max_preserve_newlines = 8;
+    bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+        'a = 1;\n\n\n\n\n\n\n\nb = 2;');
+
     Urlencoded.run_tests(sanitytest);
 
     return sanitytest;
