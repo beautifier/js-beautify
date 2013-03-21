@@ -989,7 +989,10 @@ function Beautifier(js_source_text, options) {
     function handle_word() {
         if (start_of_statement()) {
             // The conditional starts the statement if appropriate.
-        } else if (wanted_newline && last_type !== 'TK_OPERATOR' && last_type !== 'TK_EQUALS' && (opt.preserve_newlines || last_text !== 'var')) {
+        } else if (wanted_newline && !is_expression(flags.mode) &&
+            last_type !== 'TK_OPERATOR' && last_type !== 'TK_EQUALS' && (
+            opt.preserve_newlines || last_text !== 'var')) {
+
             print_newline();
         }
 

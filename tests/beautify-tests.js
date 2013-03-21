@@ -750,10 +750,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '        this[p] = options[p];',
            'if (options) for (var p in options) this[p] = options[p];');
 
+        bt('function f(a, b, c,\nd, e) {}',
+            'function f(a, b, c, d, e) {}');
+
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
         bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
+
         // This is not valid syntax, but still want to behave reasonably and not side-effect
         bt('(if(a) b())(if(a) b())',
             '(\nif (a) b())(\nif (a) b())');
@@ -793,6 +797,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('if (options)\n' +
            '    for (var p in options)\n' +
            '        this[p] = options[p];');
+
+        bt('function f(a, b, c,\nd, e) {}',
+            'function f(a, b, c,\n    d, e) {}');
 
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');

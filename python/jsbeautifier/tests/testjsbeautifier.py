@@ -684,6 +684,9 @@ class TestJSBeautifier(unittest.TestCase):
            '        this[p] = options[p];',
            'if (options) for (var p in options) this[p] = options[p];');
 
+        bt('function f(a, b, c,\nd, e) {}',
+            'function f(a, b, c, d, e) {}');
+
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
         bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
@@ -726,6 +729,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (options)\n' +
            '    for (var p in options)\n' +
            '        this[p] = options[p];');
+
+        bt('function f(a, b, c,\nd, e) {}',
+            'function f(a, b, c,\n    d, e) {}');
 
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');

@@ -833,9 +833,10 @@ class Beautifier:
             # The conditional starts the statement if appropriate.
             pass
         elif self.wanted_newline and \
-               self.last_type != 'TK_OPERATOR' and \
-               self.last_type != 'TK_EQUALS' and \
-               (self.opts.preserve_newlines or self.last_text != 'var'):
+                not self.is_expression(self.flags.mode) and \
+                self.last_type != 'TK_OPERATOR' and \
+                self.last_type != 'TK_EQUALS' and \
+                (self.opts.preserve_newlines or self.last_text != 'var'):
             self.append_newline()
 
         if self.flags.do_block and not self.flags.do_while:
