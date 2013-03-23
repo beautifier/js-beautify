@@ -65,7 +65,8 @@ function js_beautify(js_source_text, options) {
 
 function Beautifier(js_source_text, options) {
     "use strict";
-    var input, output, token_text, last_type, last_last_text, last_word, flags, flag_store, indent_string;
+    var input, output, token_text, last_type, last_last_text, indent_string;
+    var flags, previous_flags, flag_store;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
     var prefix, token_type;
     var wanted_newline, n_newlines, output_wrapped, output_space_before_token, whitespace_before_token;
@@ -112,6 +113,26 @@ function Beautifier(js_source_text, options) {
         'TK_UNKNOWN': handle_unknown
     };
 
+    function create_flags(flags_base, mode) {
+        return {
+            mode: mode,
+            last_text: flags_base ? flags_base.last_text : '', // last token text
+            last_word: flags_base ? flags_base.last_word : '', // last 'TK_WORD' passed
+            var_line: false,
+            var_line_tainted: false,
+            var_line_reindented: false,
+            in_html_comment: false,
+            multiline_array: false,
+            if_block: false,
+            do_block: false,
+            do_while: false,
+            in_case_statement: false, // switch(..){ INSIDE HERE }
+            in_case: false, // we're on the exact line with "case 0:"
+            case_body: false, // the indented case-action block
+            indentation_level: (flags_base ? flags_base.indentation_level + ((flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0) : 0),
+            ternary_depth: 0
+        };
+    }
 
     // Some interpreters have unexpected results with foo = baz || bar;
     options = options ? options : {};
@@ -152,7 +173,6 @@ function Beautifier(js_source_text, options) {
     // cache the source's length.
     input_length = js_source_text.length;
 
-    last_word = ''; // last 'TK_WORD' passed
     last_type = 'TK_START_BLOCK'; // last token type
     last_last_text = ''; // pre-last token text
     output = [];
@@ -383,25 +403,12 @@ function Beautifier(js_source_text, options) {
     function set_mode(mode) {
         if (flags) {
             flag_store.push(flags);
+            previous_flags = flags;
+        } else {
+            previous_flags = create_flags(null, mode);
         }
-        flags = {
-            previous_mode: flags ? flags.mode : MODE.BlockStatement,
-            mode: mode,
-            last_text: flags ? flags.last_text : '', // last token text
-            var_line: false,
-            var_line_tainted: false,
-            var_line_reindented: false,
-            in_html_comment: false,
-            multiline_array: false,
-            if_block: false,
-            do_block: false,
-            do_while: false,
-            in_case_statement: false, // switch(..){ INSIDE HERE }
-            in_case: false, // we're on the exact line with "case 0:"
-            case_body: false, // the indented case-action block
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
-            ternary_depth: 0
-        };
+
+        flags = create_flags(previous_flags, mode);
     }
 
     function is_array(mode) {
@@ -415,8 +422,8 @@ function Beautifier(js_source_text, options) {
     function restore_mode() {
         if (flag_store.length > 0) {
             var mode = flags.mode;
+            previous_flags = flags;
             flags = flag_store.pop();
-            flags.previous_mode = mode;
         }
     }
 
@@ -424,7 +431,7 @@ function Beautifier(js_source_text, options) {
         if (
          (flags.last_text === 'do' ||
              (flags.last_text === 'else' && token_text !== 'if') ||
-            (last_type === 'TK_END_EXPR' && (flags.previous_mode === MODE.ForInitializer || flags.previous_mode === MODE.Conditional)))) {
+            (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)))) {
             allow_wrap_or_preserved_newline();
             set_mode(MODE.Statement);
             indent();
@@ -662,7 +669,7 @@ function Beautifier(js_source_text, options) {
         if (c === "'" || c === '"' || // string
         (c === '/' &&
             ((last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
-            (last_type === 'TK_END_EXPR' && in_array(flags.previous_mode, [MODE.Conditional, MODE.ForInitializer])) ||
+            (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
             (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                 'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
         ]))))) { // regexp
@@ -868,7 +875,7 @@ function Beautifier(js_source_text, options) {
             // do nothing on (( and )( and ][ and ]( and .(
         } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
             output_space_before_token = true;
-        } else if (last_word === 'function' || last_word === 'typeof') {
+        } else if (flags.last_word === 'function' || flags.last_word === 'typeof') {
             // function() vs function ()
             if (opt.jslint_happy) {
                 output_space_before_token = true;
@@ -910,8 +917,8 @@ function Beautifier(js_source_text, options) {
         print_token();
 
         // do {} while () // no statement required after
-        if (flags.do_while && flags.previous_mode === MODE.Conditional) {
-            flags.previous_mode = MODE.Expression;
+        if (flags.do_while && previous_flags.mode === MODE.Conditional) {
+            previous_flags.mode = MODE.Expression;
             flags.do_block = false;
             flags.do_while = false;
 
@@ -945,7 +952,7 @@ function Beautifier(js_source_text, options) {
                 }
             } else {
                 // if TK_OPERATOR or TK_START_EXPR
-                if (is_array(flags.previous_mode) && flags.last_text === ',') {
+                if (is_array(previous_flags.mode) && flags.last_text === ',') {
                     if (last_last_text === '}') {
                         // }, { in array context
                         output_space_before_token = true;
@@ -1056,7 +1063,7 @@ function Beautifier(js_source_text, options) {
             }
 
             print_token();
-            last_word = token_text;
+            flags.last_word = token_text;
             return;
         }
 
@@ -1131,7 +1138,7 @@ function Beautifier(js_source_text, options) {
             } else if (last_type !== 'TK_END_EXPR') {
                 if ((last_type !== 'TK_START_EXPR' || token_text !== 'var') && flags.last_text !== ':') {
                     // no need to force newline on 'var': for (var x = 0...)
-                    if (token_text === 'if' && last_word === 'else' && flags.last_text !== '{') {
+                    if (token_text === 'if' && flags.last_word === 'else' && flags.last_text !== '{') {
                         // no newline for } else if {
                         output_space_before_token = true;
                     } else {
@@ -1151,7 +1158,7 @@ function Beautifier(js_source_text, options) {
             output_space_before_token = true;
         }
         print_token();
-        last_word = token_text;
+        flags.last_word = token_text;
 
         if (token_text === 'var') {
             flags.var_line = true;
