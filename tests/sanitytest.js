@@ -29,6 +29,9 @@ function SanityTest (func, name_of_test) {
         test_name = name || '';
     };
 
+    this.get_exitcode = function() {
+        return n_succeeded === 0 || n_failed !== 0 ? 1 : 0;
+    };
 
     this.expect = function(parameters, expected_value) {
         // multi-parameter calls not supported (I don't need them now).

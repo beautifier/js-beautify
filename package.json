@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "jsbeautifier.org for node",
   "main": "index.js",
   "preferGlobal": true,
@@ -13,7 +13,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "node ./tests/beautify-tests.js"
+    "test": "node ./tests/node-beautify-tests.js"
   },
   "bugs": "https://github.com/einars/js-beautify/issues",
   "homepage": "http://jsbeautifier.org/",
@@ -40,5 +40,8 @@
   "dependencies": {
     "config-chain": "~1.1.5",
     "nopt": "~2.1.1"
+  },
+  "devDependencies": {
+    "jshint": "1.1.0"
   }
 }
