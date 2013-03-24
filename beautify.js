@@ -1411,21 +1411,17 @@
     }
 
 
-    // Add support for CommonJS. Just put this file somewhere on your require.paths
-    // and you will be able to `var js_beautify = require("beautify").js_beautify`.
-    if (typeof exports !== "undefined") {
-        exports.js_beautify = js_beautify;
-    }
-
-    // Add support for require.js
-    if (typeof define !== "undefined") {
+    if (typeof define === "function") {
+        // Add support for require.js
         define(function(require, exports, module) {
             exports.js_beautify = js_beautify;
         });
-    }
-
-    // If we're running a web page, add our one global
-    if (typeof window !== "undefined") {
+    } else if (typeof exports !== "undefined") {
+        // Add support for CommonJS. Just put this file somewhere on your require.paths
+        // and you will be able to `var js_beautify = require("beautify").js_beautify`.
+        exports.js_beautify = js_beautify;
+    } else if (typeof window !== "undefined") {
+        // If we're running a web page and don't have either of the above, add our one global
         window.js_beautify = js_beautify;
     }
 
