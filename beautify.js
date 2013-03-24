@@ -1417,8 +1417,16 @@
         exports.js_beautify = js_beautify;
     }
 
+    // Add support for require.js
+    if (typeof define !== "undefined") {
+        define(function(require, exports, module) {
+            exports.js_beautify = js_beautify;
+        });
+    }
+
     // If we're running a web page, add our one global
     if (typeof window !== "undefined") {
         window.js_beautify = js_beautify;
     }
+
 }());
