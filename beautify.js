@@ -1000,8 +1000,9 @@
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
             } else if (wanted_newline && !is_expression(flags.mode) &&
-                last_type !== 'TK_OPERATOR' && last_type !== 'TK_EQUALS' && (
-                opt.preserve_newlines || flags.last_text !== 'var')) {
+                (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
+                last_type !== 'TK_EQUALS' &&
+                (opt.preserve_newlines || flags.last_text !== 'var')) {
 
                 print_newline();
             }
@@ -1291,6 +1292,12 @@
                 return;
             }
 
+            // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
+            // if there is a newline between -- or ++ and anything else we should preserve it.
+            if (wanted_newline && (token_text === '--' || token_text === '++')) {
+                print_newline();
+            }
+
             if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array (flags.last_text, line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
@@ -1302,6 +1309,7 @@
                     //        ^^^
                     space_before = true;
                 }
+
                 if (last_type === 'TK_WORD' && in_array (flags.last_text, line_starters)) {
                     space_before = true;
                 }

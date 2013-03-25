@@ -269,6 +269,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
 
+        // Handling of newlines around unary ++ and -- operators
+        bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
+        bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}');
+
+        // This is invalid, but harder to guard against. Issue #203.
+        bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}');
+
+
         // regexps
         bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
         bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
