@@ -1133,6 +1133,11 @@
                     print_newline();
                 } else {
                     trim_output(true);
+                    // If we trimmed and there's something other than a close block before us
+                    // put a newline back in.  Handles '} // comment' scenario.
+                    if (output[output.length - 1] !== '}') {
+                        print_newline();
+                    }
                     output_space_before_token = true;
                 }
             } else if (prefix === 'NEWLINE') {

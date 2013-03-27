@@ -427,6 +427,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         opts.brace_style = 'expand';
 
+        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
@@ -450,6 +451,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         opts.brace_style = 'collapse';
 
+        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
@@ -467,6 +469,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         opts.brace_style = "end-expand";
 
+        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
         bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n}\ncatch (b) {\n    c();\n}\nfinally {\n    d();\n}");
         bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n}\nelse if (c) foo();");
