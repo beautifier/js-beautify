@@ -162,6 +162,8 @@ useful or working for you. (MIT)
 
 Written by Einar Lielmanis, <einar@jsbeautifier.org>
 Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
+General maintenance and expansion by Liam Newman <bitwiseman@gmail.com>
+Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
 
 Thanks to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
