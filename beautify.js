@@ -424,7 +424,6 @@
 
         function restore_mode() {
             if (flag_store.length > 0) {
-                var mode = flags.mode;
                 previous_flags = flags;
                 flags = flag_store.pop();
             }
