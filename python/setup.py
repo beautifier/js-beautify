@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='jsbeautifier',
-      version='1.0',
+      version='1.2.0',
       description='JavaScript unobfuscator and beautifier.',
       long_description=('Beautify, unpack or deobfuscate JavaScript. '
                         'Handles popular online obfuscators.'),

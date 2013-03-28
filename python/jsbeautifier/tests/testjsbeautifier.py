@@ -226,6 +226,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
 
+        # Handling of newlines around unary ++ and -- operators
+        bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
+        bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}');
+
+        # This is invalid, but harder to guard against. Issue #203.
+        bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}');
+
+
         # regexps
         bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
         bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
@@ -383,6 +391,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("throw {}")
         bt("throw {\n    foo;\n}")
 
+        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
@@ -403,6 +412,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.brace_style = 'collapse';
 
+        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
@@ -417,6 +427,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.brace_style = "end-expand";
 
+        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
         bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n}\ncatch (b) {\n    c();\n}\nfinally {\n    d();\n}");
         bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n}\nelse if (c) foo();");
