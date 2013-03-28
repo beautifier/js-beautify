@@ -61,6 +61,16 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 });
 ```
 
+### PHP
+There is a out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
+in using it feel free. If you plan to enhance it, please consider joining this project, and updating this
+version to match current functionality.
+
+### Other Languages
+Versions of the beautifier adapted to other languages are at least two years out-of-date and are
+available on branch `attic-other`.  Take a look and feel free to resurrect them, but know it's pretty
+dusty back there.
+
 ### Options
 
 These are the command-line flags for both Python and JS scripts:
