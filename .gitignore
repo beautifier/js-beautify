@@ -1,3 +1,9 @@
+*.orig
 node_modules
-*.pyc
 gh-pages
+
+*.pyc
+python/MANIFEST
+python/build
+python/dist
+
