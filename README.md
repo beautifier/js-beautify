@@ -153,6 +153,20 @@ HTML Beautifier Options:
   -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
 ```
 
+## Attic
+This project has been around for a while.  While some parts have improved significantly over time, others fell
+into disrepair and were mothballed.
+
+### PHP
+There is a out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
+in using it feel free. If you plan to enhance it, please consider joining this project, and updating this
+version to match current functionality.
+
+### Other Languages
+Versions of the beautifier adapted to other languages are at least two years out-of-date and are
+available on branch `attic-other`.  Take a look and feel free to resurrect them, but know it's pretty
+dusty back there.
+
 ## License
 
 You are free to use this in any way you want, in case you find this
@@ -160,11 +174,11 @@ useful or working for you. (MIT)
 
 ## Credits
 
-Written by Einar Lielmanis, <einar@jsbeautifier.org>
-Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
-General maintenance and expansion by Liam Newman <bitwiseman@gmail.com>
-Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
+* Written by Einar Lielmanis, <einar@jsbeautifier.org>
+* Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
+* General maintenance and expansion by Liam Newman <bitwiseman@gmail.com>
+* Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
 
-Thanks to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
+Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
