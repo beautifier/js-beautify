@@ -449,7 +449,14 @@ function style_html(html_source, options) {
         //at this point we have an  tag; is its first child something we want to remain
         //unformatted?
         var next_tag = this.get_tag(true /* peek. */);
-        if (next_tag && this.Utils.in_array(next_tag, unformatted)){
+
+        // tets next_tag to see if it is just html tag (no external content)
+        var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
+
+        // if next_tag comes back but is not an isolated tag, then
+        // let's treat the 'a' tag as having content
+        // and respect the unformatted option
+        if (!tag || this.Utils.in_array(tag, unformatted)){
             return true;
         } else {
             return false;
