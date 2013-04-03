@@ -59,21 +59,19 @@ a.turn-off-codemirror {
     margin-left: 25px;
 }
 
-button#submit {
-    clear: both;
-    margin-top: 5px;
+button.submit {
     width: 100%;
     padding: 10px 0;
     cursor: pointer;
+    margin: 0;
 }
+
 
 #source {
     width: 100%;
-    padding-left: 0;
-    padding-right: 0;
 }
 
-button#submit em {
+button.submit em {
     font-size: 11px;
     font-style: normal;
     color: #999;
@@ -324,7 +322,7 @@ $(function() {
             beautify();
         }
     })
-    $('#submit').click(beautify);
+    $('.submit').click(beautify);
     $('select').change(beautify);
 
 
@@ -387,8 +385,11 @@ $(function() {
     </div>
 
 
-    <button id="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+    <div style="line-height: 0">
+    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
     <textarea id="source" rows="30" cols="160"></textarea>
+    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+    </div>
 
     <div class="blurb">
       <div style="float:right; width: 210px;">
