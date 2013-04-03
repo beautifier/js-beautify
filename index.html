@@ -264,7 +264,7 @@ function beautify()
     opts.space_after_anon_function = true;
 
     if (looks_like_html(source)) {
-        output = style_html(source, opts);
+        output = html_beautify(source, opts);
     } else {
         if ($('#detect-packers').attr('checked')) {
             source = unpacker_filter(source);
