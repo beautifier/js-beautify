@@ -167,10 +167,15 @@ Versions of the beautifier adapted to other languages are at least two years out
 available on branch `attic-other`.  Take a look and feel free to resurrect them, but know it's pretty
 dusty back there.
 
+### Generic Eval Unpacker
+The `attic-genericeval` branch includes an unpacker that call `eval` on whatever source is passed to it. 
+Useful when working with source that unpacks itself when eval is called on it, but also unsafe.  We keep
+it on this separate branch to keep it from hurting the other children. 
+
 ## License
 
 You are free to use this in any way you want, in case you find this
-useful or working for you. (MIT)
+useful or working for you but you must keep the copyright notice and license. (MIT)
 
 ## Credits
 
