@@ -289,44 +289,6 @@ function looks_like_html(source)
     var comment_mark = '<' + '!-' + '-';
     return (trimmed && (trimmed.substring(0, 1) === '<' && trimmed.substring(0, 4) !== comment_mark));
 }
-
-$(function() {
-
-    read_settings_from_cookie();
-
-    var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
-
-    if (the.use_codemirror && typeof CodeMirror !== 'undefined') {
-        the.editor = CodeMirror.fromTextArea($('#source').get(0))
-        the.editor.setValue(default_text);
-        $('.CodeMirror').click(function () {
-            if (the.editor.getValue() == default_text) {
-                the.editor.setValue('');
-            }
-        });
-    } else {
-        $('#source').val(default_text).bind('click focus', function () {
-            if ($(this).val() == default_text) {
-                $(this).val('');
-            }
-        }).bind('blur', function () {
-            if ( ! $(this).val()) {
-                $(this).val(default_text);
-            }
-        });
-    }
-
-
-    $(window).bind('keydown', function (e) {
-        if (e.ctrlKey && e.keyCode == 13) {
-            beautify();
-        }
-    })
-    $('.submit').click(beautify);
-    $('select').change(beautify);
-
-
-});
 </script>
 </head>
 <body>
@@ -458,6 +420,46 @@ $(function() {
 
     </div>
     <div id="testresults"></div>
+    <script>
+    $(function() {
+
+    read_settings_from_cookie();
+
+    var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
+
+    if (the.use_codemirror && typeof CodeMirror !== 'undefined') {
+        the.editor = CodeMirror.fromTextArea($('#source').get(0))
+        the.editor.setValue(default_text);
+        $('.CodeMirror').click(function () {
+            if (the.editor.getValue() == default_text) {
+                the.editor.setValue('');
+            }
+        });
+    } else {
+        $('#source').val(default_text).bind('click focus', function () {
+            if ($(this).val() == default_text) {
+                $(this).val('');
+            }
+        }).bind('blur', function () {
+            if ( ! $(this).val()) {
+                $(this).val(default_text);
+            }
+        });
+    }
+
+
+    $(window).bind('keydown', function (e) {
+        if (e.ctrlKey && e.keyCode == 13) {
+            beautify();
+        }
+    })
+    $('.submit').click(beautify);
+    $('select').change(beautify);
+
+
+    });
+
+    </script>
     <script>
         var _gaq = [['_setAccount', 'UA-7409939-1'], ['_trackPageview']];
         (function(d, t) {
