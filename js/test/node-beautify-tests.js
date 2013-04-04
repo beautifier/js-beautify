@@ -2,8 +2,8 @@
 /*jshint node:true */
 
 var SanityTest = require('./sanitytest'),
-    Urlencoded = require('../unpackers/urlencode_unpacker'),
-    js_beautify = require('../beautify').js_beautify,
+    Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
+    js_beautify = require('../lib/beautify').js_beautify,
     run_beautifier_tests = require('./beautify-tests').run_beautifier_tests;
 
 function node_beautifier_tests() {
