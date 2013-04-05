@@ -2,18 +2,20 @@
   "name": "js-beautify",
   "version": "1.2.0",
   "description": "jsbeautifier.org for node",
-  "main": "index.js",
+  "main": "js/index.js",
   "preferGlobal": true,
   "bin": {
-    "css-beautify": "./bin/css-beautify.js",
-    "html-beautify": "./bin/html-beautify.js",
-    "js-beautify": "./bin/js-beautify.js"
+    "css-beautify": "./js/bin/css-beautify.js",
+    "html-beautify": "./js/bin/html-beautify.js",
+    "js-beautify": "./js/bin/js-beautify.js"
   },
   "directories": {
-    "test": "tests"
+    "lib": "js/lib",
+    "test": "js/test"
+
   },
   "scripts": {
-    "test": "node ./tests/node-beautify-tests.js"
+    "test": "node ./js/test/node-beautify-tests.js"
   },
   "bugs": "https://github.com/einars/js-beautify/issues",
   "homepage": "http://jsbeautifier.org/",
