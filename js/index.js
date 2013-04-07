@@ -13,9 +13,9 @@ var beautify_html = require('js-beautify').html_beautify;
 
 All methods returned accept two arguments, the source string and an options object.
 **/
-var js_beautify = require('./beautify').js_beautify;
-var css_beautify = require('./beautify-css').css_beautify;
-var html_beautify = require('./beautify-html').html_beautify;
+var js_beautify = require('./lib/beautify').js_beautify;
+var css_beautify = require('./lib/beautify-css').css_beautify;
+var html_beautify = require('./lib/beautify-html').html_beautify;
 
 // the default is js
 var beautify = function (src, config) {
