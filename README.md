@@ -153,25 +153,6 @@ HTML Beautifier Options:
   -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
 ```
 
-## Attic
-This project has been around for a while.  While some parts have improved significantly over time, others fell
-into disrepair and were mothballed.
-
-### PHP
-There is a out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
-in using it feel free. If you plan to enhance it, please consider joining this project, and updating this
-version to match current functionality.
-
-### Other Languages
-Versions of the beautifier adapted to other languages are at least two years out-of-date and are
-available on branch `attic-other`.  Take a look and feel free to resurrect them, but know it's pretty
-dusty back there.
-
-### Generic Eval Unpacker
-The `attic-genericeval` branch includes an unpacker that call `eval` on whatever source is passed to it. 
-Useful when working with source that unpacks itself when eval is called on it, but also unsafe.  We keep
-it on this separate branch to keep it from hurting the other children. 
-
 ## License
 
 You are free to use this in any way you want, in case you find this
