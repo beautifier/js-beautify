@@ -126,6 +126,7 @@ var interpret = exports.interpret = function (argv, slice) {
         cleanOptions(cc.env('jsbeautify_'), knownOpts),
         parsed.config,
         cc.find('.jsbeautifyrc'),
+        cc.find(path.join(process.env.HOME, ".jsbeautifyrc")),
         __dirname + '/../config/defaults.json'
     ).snapshot;
 
