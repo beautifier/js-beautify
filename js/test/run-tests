@@ -5,13 +5,13 @@
 // a little helper for testing from command line
 // just run it, it will output the test results
 
-load('beautify.js');
-load('tests/sanitytest.js')
-load('tests/beautify-tests.js')
-load('unpackers/urlencode_unpacker.js')
+load('js/lib/beautify.js');
+load('js/test/sanitytest.js')
+load('js/test/beautify-tests.js')
+load('js/lib/unpackers/urlencode_unpacker.js')
 
 print(run_beautifier_tests().results_raw())
 
 
 // for nodejs use this from the command line from the main directory:
-// node tests/beautify-tests.js
+// node test/beautify-tests.js

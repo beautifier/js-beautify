@@ -2,21 +2,26 @@
 [![Build Status](https://secure.travis-ci.org/einars/js-beautify.png?branch=master)](http://travis-ci.org/einars/js-beautify)
 [![NPM version](https://badge.fury.io/js/js-beautify.png)](http://badge.fury.io/js/js-beautify)
 
-...or, more specifically, all of the code powering
-[jsbeautifier.org](http://jsbeautifier.org/).
-
 This little beautifier will reformat and reindent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
 as well as deobfuscate scripts processed by
 [javascriptobfuscator.com](http://javascriptobfuscator.com/).
 
-## Usage
+# Usage
+You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python. 
 
-To beautify from the command-line you can use the provided Python script/library or [npm](http://npmjs.org/) package.
+## Web Browser 
+Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI. 
 
-### Python
+## Python
+To beautify using python:
 
-`./js-beautify file.js` beautifies a file, output goes to `stdout`.
+```bash
+$ pip install jsbeautifier
+$ js-beautify file.js 
+```
+
+Beautified output goes to `stdout`.
 
 To use `jsbeautifier` as a library is simple:
 
@@ -34,7 +39,7 @@ opts.indent_size = 2
 res = jsbeautifier.beautify('some javascript', opts)
 ```
 
-### JavaScript
+## JavaScript
 
 As an alternative to the Python script, you may install the NPM package `js-beautify`. When installed globally, it provides an executable `js-beautify` script. As with the Python script, the beautified result is sent to `stdout` unless otherwise configured.
 
@@ -61,7 +66,7 @@ fs.readFile('foo.js', 'utf8', function (err, data) {
 });
 ```
 
-### Options
+## Options
 
 These are the command-line flags for both Python and JS scripts:
 
@@ -124,7 +129,7 @@ Configuration sources provided earlier in this stack will override later ones.
 
 You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
 
-#### CSS & HTML
+### CSS & HTML
 
 In addition to the `js-beautify` executable, `css-beautify` and `html-beautify` are also provided as an easy interface into those scripts. Alternatively, `js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
 
@@ -153,31 +158,12 @@ HTML Beautifier Options:
   -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
 ```
 
-## Attic
-This project has been around for a while.  While some parts have improved significantly over time, others fell
-into disrepair and were mothballed.
-
-### PHP
-There is a out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
-in using it feel free. If you plan to enhance it, please consider joining this project, and updating this
-version to match current functionality.
-
-### Other Languages
-Versions of the beautifier adapted to other languages are at least two years out-of-date and are
-available on branch `attic-other`.  Take a look and feel free to resurrect them, but know it's pretty
-dusty back there.
-
-### Generic Eval Unpacker
-The `attic-genericeval` branch includes an unpacker that call `eval` on whatever source is passed to it. 
-Useful when working with source that unpacks itself when eval is called on it, but also unsafe.  We keep
-it on this separate branch to keep it from hurting the other children. 
-
-## License
+# License
 
 You are free to use this in any way you want, in case you find this
 useful or working for you but you must keep the copyright notice and license. (MIT)
 
-## Credits
+# Credits
 
 * Written by Einar Lielmanis, <einar@jsbeautifier.org>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
