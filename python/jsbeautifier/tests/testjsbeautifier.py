@@ -298,6 +298,8 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
         bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); # typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
         bt('a=typeof(x)', 'a = typeof (x)');
