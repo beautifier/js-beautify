@@ -1096,7 +1096,7 @@
 
             if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
                 print_newline();
-                if (flags.case_body) {
+                if (flags.case_body || opt.jslint_happy) {
                     // switch cases following one another
                     flags.indentation_level--;
                     flags.case_body = false;
