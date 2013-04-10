@@ -340,13 +340,19 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a=typeof(x)', 'a = typeof (x)');
         bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
         bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+        bt('switch(x) {case 0: case 1: a(); break; default: break}',
+            "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
+        bt('switch(x){case -1:break;case !y:break;}',
+            'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
 
         opts.jslint_happy = false;
 
+        bt('switch(x) {case 0: case 1: a(); break; default: break}',
+            "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+        bt('switch(x){case -1:break;case !y:break;}',
+            'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
         test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
         bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {}, d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
