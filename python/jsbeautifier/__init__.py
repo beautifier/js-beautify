@@ -921,7 +921,7 @@ class Beautifier:
 
         if token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement):
             self.append_newline()
-            if self.flags.case_body:
+            if self.flags.case_body or self.opts.jslint_happy:
                 self.flags.case_body = False
                 self.flags.indentation_level -= 1
             self.append_token(token_text)
