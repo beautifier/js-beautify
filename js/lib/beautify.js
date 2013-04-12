@@ -869,6 +869,7 @@
                     }
                     set_mode(MODE.Expression);
                     print_token();
+                    if (options.pad_in_paren) print_single_space();
                     return;
                 }
 
@@ -923,6 +924,7 @@
                 }
             }
             print_token();
+            if (options.pad_in_paren) print_single_space();
             if (token_text === '[') {
                 set_mode(MODE.ArrayLiteral);
                 indent();
@@ -940,6 +942,7 @@
                 print_newline();
             }
             restore_mode();
+            if (options.pad_in_paren) print_single_space();
             print_token();
 
             // do {} while () // no statement required after
