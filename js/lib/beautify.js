@@ -869,7 +869,9 @@
                     }
                     set_mode(MODE.Expression);
                     print_token();
-                    if (options.pad_in_paren) print_single_space();
+                    if (options.pad_in_paren) {
+                        output_space_before_token = true;
+                    }
                     return;
                 }
 
@@ -924,7 +926,9 @@
                 }
             }
             print_token();
-            if (options.pad_in_paren) print_single_space();
+            if (options.pad_in_paren) {
+                    output_space_before_token = true;
+            }
             if (token_text === '[') {
                 set_mode(MODE.ArrayLiteral);
                 indent();
@@ -942,7 +946,9 @@
                 print_newline();
             }
             restore_mode();
-            if (options.pad_in_paren) print_single_space();
+            if (options.pad_in_paren) {
+                    output_space_before_token = true;
+            }
             print_token();
 
             // do {} while () // no statement required after
