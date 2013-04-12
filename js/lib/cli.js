@@ -157,7 +157,7 @@ if (require.main === module) {
 function usage(err) {
     var scriptName = getScriptName();
     var msg = [
-        scriptName + '@' + require('./package.json').version,
+        scriptName + '@' + require(__dirname + '/../../package.json').version,
         '',
         'CLI Options:',
         '  -f, --file       Input file(s) (Pass \'-\' for stdin)',
