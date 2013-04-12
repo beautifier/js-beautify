@@ -55,6 +55,7 @@ var fs = require('fs'),
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
+        "e4x": Boolean,
         // HTML-only
         "max_char": Number,
         "unformatted": [String, Array],
@@ -85,6 +86,7 @@ var fs = require('fs'),
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
+        "X": ["--e4x"],
         // HTML-only
         "W": ["--max_char"],
         "U": ["--unformatted"],
@@ -186,6 +188,7 @@ function usage(err) {
         msg.push('  -k, --keep-array-indentation  Preserve array indentation');
         msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
         msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
+        msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
         msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
         break;
     case "html":
