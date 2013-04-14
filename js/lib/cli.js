@@ -113,7 +113,7 @@ var interpret = exports.interpret = function (argv, slice) {
     var parsed = nopt(knownOpts, shortHands, argv, slice);
 
     if (parsed.version) {
-        console.log(require(__dirname + '/../../package.json').version);
+        console.log(require('../../package.json').version);
         process.exit(0);
     }
     else if (parsed.help) {
@@ -157,7 +157,7 @@ if (require.main === module) {
 function usage(err) {
     var scriptName = getScriptName();
     var msg = [
-        scriptName + '@' + require(__dirname + '/../../package.json').version,
+        scriptName + '@' + require('../../package.json').version,
         '',
         'CLI Options:',
         '  -f, --file       Input file(s) (Pass \'-\' for stdin)',
