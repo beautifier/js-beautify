@@ -43,7 +43,7 @@ test_cli_js_beautify()
 {
   echo ----------------------------------------
   echo Testing js-beautify cli behavior...
-  CLI_SCRIPT= $SCRIPT_DIR/../bin/js-beautify.js
+  CLI_SCRIPT=$SCRIPT_DIR/../bin/js-beautify.js
 
   $CLI_SCRIPT $SCRIPT_DIR/../bin/js-beautify.js > /dev/null || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected succeed."
