@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import getopt
 import re
@@ -149,7 +150,7 @@ def beautify_file(file_name, opts = default_options() ):
     return b.beautify(''.join(f.readlines()), opts)
 
 
-def usage():
+def usage(stream=sys.stdout):
 
     print("""Javascript beautifier (http://jsbeautifier.org/)
 
@@ -187,8 +188,11 @@ Rarely needed options:
 
  -h,  --help, --usage              prints this help statement.
 
-""")
-
+""", file=stream)
+    if stream == sys.stderr:
+        return 1
+    else:
+        return 0
 
 
 
@@ -1247,8 +1251,9 @@ def main():
                                                           'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
-    except getopt.GetoptError:
-        return usage()
+    except getopt.GetoptError as ex:
+        print(ex.msg, file=sys.stderr)
+        return usage(sys.stderr)
 
     js_options = default_options()
 
@@ -1287,9 +1292,10 @@ def main():
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
+
     if not file:
-        print("Must define at least one file.")
-        return usage()
+        print("Must define at least one file.", file=sys.stderr)
+        return usage(sys.stderr)
     else:
         if outfile == 'stdout':
             print(beautify_file(file, js_options))

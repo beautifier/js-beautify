@@ -17,27 +17,25 @@ test_cli_common()
       exit 1
   }
 
-# Not working yet for python
-#   $CLI_SCRIPT 2> /dev/null && {
-#       echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
-#       exit 1
-#   }
+  $CLI_SCRIPT 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
+      exit 1
+  }
 
-# Not working yet for python
-#   $CLI_SCRIPT -invalidParameter 2> /dev/null && {
-#       echo "[$CLI_SCRIPT_NAME -invalidParameter] Return code should be error."
-#       exit 1
-#   }
+  $CLI_SCRIPT -invalidParameter 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME -invalidParameter] Return code should be error."
+      exit 1
+  }
 
   $CLI_SCRIPT -h > /dev/null || {
       echo "[$CLI_SCRIPT_NAME -h] Return code should be success."
       exit 1
   }
 
-  $CLI_SCRIPT -v > /dev/null || {
-      echo "[$CLI_SCRIPT_NAME -v] Return code should be success."
-      exit 1
-  }
+#   $CLI_SCRIPT -v > /dev/null || {
+#       echo "[$CLI_SCRIPT_NAME -v] Return code should be success."
+#       exit 1
+#   }
 
 }
 

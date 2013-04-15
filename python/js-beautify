@@ -2,6 +2,6 @@
 #
 # Stub script to run jsbeautifier
 #
-
+import sys
 from jsbeautifier import main
-main()
+sys.exit(main())
