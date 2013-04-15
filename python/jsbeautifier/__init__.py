@@ -1288,6 +1288,7 @@ def main():
             return usage()
 
     if not file:
+        print("Must define at least one file.")
         return usage()
     else:
         if outfile == 'stdout':
