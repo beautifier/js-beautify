@@ -1247,7 +1247,7 @@ def main():
                                                           'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError as ex:
-        print(ex.msg, file=sys.stderr)
+        print(ex, file=sys.stderr)
         return usage(sys.stderr)
 
     js_options = default_options()
@@ -1292,8 +1292,15 @@ def main():
         print("Must define at least one file.", file=sys.stderr)
         return usage(sys.stderr)
     else:
-        if outfile == 'stdout':
-            print(beautify_file(file, js_options))
-        else:
-            with open(outfile, 'w') as f:
-                f.write(beautify_file(file, js_options) + '\n')
+        try:
+            if outfile == 'stdout':
+                print(beautify_file(file, js_options))
+            else:
+                with open(outfile, 'w') as f:
+                    f.write(beautify_file(file, js_options) + '\n')
+        except Exception as ex:
+            print(ex, file=sys.stderr)
+            return 1
+
+    # Success
+    return 0
