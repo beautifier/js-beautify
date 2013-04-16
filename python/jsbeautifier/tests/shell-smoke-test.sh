@@ -55,6 +55,21 @@ test_cli_js_beautify()
       exit 1
   }
 
+  $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2> /dev/null && {
+      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Return code should be error."
+      exit 1
+  }
+
+  $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2>&1 | grep -q "No such file or directory" || {
+      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Stderr should have useful message."
+      exit 1
+  }
+
+  if [ "`$CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2> /dev/null`" != "" ]; then
+      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Stdout should have no text."
+      exit 1
+  fi
+
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
       exit 1
