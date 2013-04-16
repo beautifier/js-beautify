@@ -137,17 +137,12 @@ def beautify(string, opts = default_options() ):
     return b.beautify(string, opts)
 
 def beautify_file(file_name, opts = default_options() ):
-
     if file_name == '-': # stdin
-        f = sys.stdin
+        stream = sys.stdin
     else:
-        try:
-            f = open(file_name)
-        except Exception as ex:
-            return 'The file could not be opened'
+        stream = open(file_name)
 
-    b = Beautifier()
-    return b.beautify(''.join(f.readlines()), opts)
+    return beautify(''.join(stream.readlines()), opts);
 
 
 def usage(stream=sys.stdout):
