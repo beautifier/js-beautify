@@ -3,6 +3,7 @@ import sys
 import getopt
 import re
 import string
+from __version__ import __version__
 
 #
 # The MIT License (MIT)
@@ -147,7 +148,9 @@ def beautify_file(file_name, opts = default_options() ):
 
 def usage(stream=sys.stdout):
 
-    print("""Javascript beautifier (http://jsbeautifier.org/)
+    print("jsbeautifier.py@" + __version__ + """
+
+Javascript beautifier (http://jsbeautifier.org/)
 
 Usage: jsbeautifier.py [options] <infile>
 
@@ -182,6 +185,7 @@ Rarely needed options:
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
  -h,  --help, --usage              prints this help statement.
+ -v, --version                     Show the version
 
 """, file=stream)
     if stream == sys.stderr:
@@ -1242,10 +1246,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-                                                          'jslint-happy', 'brace-style=',
-                                                          'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
-                                                          'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtfv",
+            ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+            'jslint-happy', 'brace-style=', 'keep-array-indentation', 'indent-level=',
+            'unescape-strings', 'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs',
+            'keep-function-indentation', 'version'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1284,6 +1289,8 @@ def main():
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
+        elif opt in ('--version', '-v'):
+            return print(__version__)
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 

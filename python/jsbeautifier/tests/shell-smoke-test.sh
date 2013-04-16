@@ -32,10 +32,10 @@ test_cli_common()
       exit 1
   }
 
-#   $CLI_SCRIPT -v > /dev/null || {
-#       echo "[$CLI_SCRIPT_NAME -v] Return code should be success."
-#       exit 1
-#   }
+  $CLI_SCRIPT -v > /dev/null || {
+      echo "[$CLI_SCRIPT_NAME -v] Return code should be success."
+      exit 1
+  }
 
   MISSING_FILE="$SCRIPT_DIR/../../../js/bin/missing_file"
   MISSING_FILE_MESSAGE="No such file or directory"
