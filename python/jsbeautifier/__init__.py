@@ -3,7 +3,7 @@ import sys
 import getopt
 import re
 import string
-from __version__ import __version__
+from jsbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
