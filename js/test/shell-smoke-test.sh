@@ -37,6 +37,23 @@ test_cli_common()
       exit 1
   }
 
+  MISSING_FILE="$SCRIPT_DIR/../../../js/bin/missing_file"
+  MISSING_FILE_MESSAGE="Unable to open path"
+  $CLI_SCRIPT $MISSING_FILE 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Return code should be error."
+      exit 1
+  }
+
+  $CLI_SCRIPT $MISSING_FILE 2>&1 | grep -q "$MISSING_FILE_MESSAGE" || {
+      echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Stderr should have useful message."
+      exit 1
+  }
+
+  if [ "`$CLI_SCRIPT $MISSING_FILE 2> /dev/null`" != "" ]; then
+      echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Stdout should have no text."
+      exit 1
+  fi
+
 }
 
 test_cli_js_beautify()
@@ -54,21 +71,6 @@ test_cli_js_beautify()
       echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected succeed."
       exit 1
   }
-
-  $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2> /dev/null && {
-      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Return code should be error."
-      exit 1
-  }
-
-  $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2>&1 | grep -q "Unable to open path" || {
-      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Stderr should have useful message."
-      exit 1
-  }
-
-  if [ "`$CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/missing.js 2> /dev/null`" != "" ]; then
-      echo "[js-beautify $SCRIPT_DIR/../bin/missing.js] Stdout should have no text."
-      exit 1
-  fi
 
   $CLI_SCRIPT $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
