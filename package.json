@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "jsbeautifier.org for node",
   "main": "js/index.js",
   "preferGlobal": true,
@@ -12,7 +12,6 @@
   "directories": {
     "lib": "js/lib",
     "test": "js/test"
-
   },
   "scripts": {
     "test": "./js/test/shell-smoke-test.sh && node ./js/test/node-beautify-tests.js",
