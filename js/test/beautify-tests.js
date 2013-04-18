@@ -78,7 +78,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         opts.jslint_happy      = false;
         opts.keep_array_indentation = false;
         opts.brace_style       = "collapse";
-        opts.e4x               = true;
 
 
         bt('');
@@ -850,7 +849,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         opts.max_preserve_newlines = 8;
         bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
             'a = 1;\n\n\n\n\n\n\n\nb = 2;');
+
+        // Test that e4x literals passed through when e4x-option is enabled
+        test_fragment('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
+        opts.e4x = true;
         test_fragment('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
+        opts.e4x = false;
+
 
         Urlencoded.run_tests(sanitytest);
 
