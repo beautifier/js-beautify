@@ -33,9 +33,10 @@
     <meta charset="utf-8">
     <title>Online JavaScript beautifier</title>
     <link rel="icon" href="web/favicon.png" type="image/png">
+    <link rel="stylesheet" href="web/third-party/codemirror/lib/codemirror.css">
+
     <script src="web/third-party/codemirror/lib/codemirror.js"></script>
     <script src="web/third-party/codemirror/mode/javascript/javascript.js"></script>
-    <link rel="stylesheet" href="web/third-party/codemirror/lib/codemirror.css">
 
     <style>
 
@@ -66,10 +67,6 @@ button.submit {
     margin: 0;
 }
 
-
-#source {
-    width: 100%;
-}
 
 button.submit em {
     font-size: 11px;
@@ -112,16 +109,10 @@ li.writeme {
 
 .CodeMirror {
     border: 1px solid #ccc;
+    height: 450px;
+    font-size: 90%;
     margin-bottom: 6px;
     background: white;
-}
-.CodeMirror-scroll {
-  min-height: 400px;
-  max-height: 100%;
-  height: auto;
-  overflow-y: hidden;
-  overflow-x: auto;
-  width: 100%
 }
 p {
     margin-left: 40px;
@@ -348,9 +339,9 @@ function looks_like_html(source)
 
 
     <div style="line-height: 0">
-    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
-    <textarea id="source" rows="30" cols="160"></textarea>
-    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+      <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
+      <textarea id="source" rows="30" cols="160"></textarea>
+      <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
     </div>
 
     <div class="blurb">
@@ -426,9 +417,15 @@ function looks_like_html(source)
     read_settings_from_cookie();
 
     var default_text = "// This is just a sample script. Paste your real code (javascript or HTML) here.\n\nif ('this_is'==/an_example/){of_beautifer();}else{var a=b?(c%d):e[f];}";
+    var textArea = $('#source')[0];
 
     if (the.use_codemirror && typeof CodeMirror !== 'undefined') {
-        the.editor = CodeMirror.fromTextArea($('#source').get(0))
+        the.editor = CodeMirror.fromTextArea(textArea, {
+          theme: 'default',
+          lineNumbers: true
+        });
+        the.editor.focus();
+
         the.editor.setValue(default_text);
         $('.CodeMirror').click(function () {
             if (the.editor.getValue() == default_text) {

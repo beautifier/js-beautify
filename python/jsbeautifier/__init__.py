@@ -1,7 +1,9 @@
+from __future__ import print_function
 import sys
 import getopt
 import re
 import string
+from jsbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
@@ -136,22 +138,19 @@ def beautify(string, opts = default_options() ):
     return b.beautify(string, opts)
 
 def beautify_file(file_name, opts = default_options() ):
-
     if file_name == '-': # stdin
-        f = sys.stdin
+        stream = sys.stdin
     else:
-        try:
-            f = open(file_name)
-        except Exception as ex:
-            return 'The file could not be opened'
+        stream = open(file_name)
 
-    b = Beautifier()
-    return b.beautify(''.join(f.readlines()), opts)
+    return beautify(''.join(stream.readlines()), opts);
 
 
-def usage():
+def usage(stream=sys.stdout):
 
-    print("""Javascript beautifier (http://jsbeautifier.org/)
+    print("jsbeautifier.py@" + __version__ + """
+
+Javascript beautifier (http://jsbeautifier.org/)
 
 Usage: jsbeautifier.py [options] <infile>
 
@@ -186,9 +185,13 @@ Rarely needed options:
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
  -h,  --help, --usage              prints this help statement.
+ -v, --version                     Show the version
 
-""")
-
+""", file=stream)
+    if stream == sys.stderr:
+        return 1
+    else:
+        return 0
 
 
 
@@ -1243,12 +1246,14 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-                                                          'jslint-happy', 'brace-style=',
-                                                          'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
-                                                          'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
-    except getopt.GetoptError:
-        return usage()
+        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtfv",
+            ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+            'jslint-happy', 'brace-style=', 'keep-array-indentation', 'indent-level=',
+            'unescape-strings', 'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs',
+            'keep-function-indentation', 'version'])
+    except getopt.GetoptError as ex:
+        print(ex, file=sys.stderr)
+        return usage(sys.stderr)
 
     js_options = default_options()
 
@@ -1284,14 +1289,25 @@ def main():
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
+        elif opt in ('--version', '-v'):
+            return print(__version__)
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
+
     if not file:
-        return usage()
+        print("Must define at least one file.", file=sys.stderr)
+        return usage(sys.stderr)
     else:
-        if outfile == 'stdout':
-            print(beautify_file(file, js_options))
-        else:
-            with open(outfile, 'w') as f:
-                f.write(beautify_file(file, js_options) + '\n')
+        try:
+            if outfile == 'stdout':
+                print(beautify_file(file, js_options))
+            else:
+                with open(outfile, 'w') as f:
+                    f.write(beautify_file(file, js_options) + '\n')
+        except Exception as ex:
+            print(ex, file=sys.stderr)
+            return 1
+
+    # Success
+    return 0
