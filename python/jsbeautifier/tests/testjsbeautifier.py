@@ -781,6 +781,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
             'a = 1;\n\n\n\n\n\n\n\nb = 2;');
 
+        # Test the option to have spaces within parens
+        test_fragment('if(p) foo(a,b)', 'if (p) foo(a, b)');
+        self.options.pad_in_paren = True
+        test_fragment('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
+        self.options.pad_in_paren = False
 
 
 

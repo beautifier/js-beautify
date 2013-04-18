@@ -61,6 +61,7 @@ class BeautifierOptions:
         self.indent_with_tabs = False
         self.preserve_newlines = True
         self.max_preserve_newlines = 10
+        self.pad_in_paren = False
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
@@ -85,17 +86,19 @@ keep_array_indentation = %s
 eval_code = %s
 wrap_line_length = %s
 unescape_strings = %s
+pad_in_prean = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
         self.max_preserve_newlines,
+        self.pad_in_paren,
         self.jslint_happy,
         self.indent_with_tabs,
         self.brace_style,
         self.keep_array_indentation,
         self.eval_code,
         self.wrap_line_length,
-        self.unescape_strings,
+        self.unescape_strings
         )
 
 
@@ -168,6 +171,7 @@ Output options:
  -c,  --indent-char=CHAR           character to indent with. (default space).
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
+ -P,  --pad-in-paren               add padding spaces within paren, ie. f( a, b )
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
@@ -733,6 +737,8 @@ class Beautifier:
                     self.output_space_before_token = True
                 self.set_mode(MODE.Expression)
                 self.append_token(token_text)
+                if self.opts.pad_in_paren:
+                    self.output_space_before_token = True
                 return
 
             if self.is_array(self.flags.mode):
@@ -774,6 +780,8 @@ class Beautifier:
                 self.allow_wrap_or_preserved_newline(token_text)
 
         self.append_token(token_text)
+        if self.opts.pad_in_paren:
+            self.output_space_before_token = True
         if self.token_text == '[':
             self.set_mode(MODE.ArrayLiteral)
             self.indent()
@@ -790,6 +798,8 @@ class Beautifier:
             self.append_newline()
 
         self.restore_mode()
+        if self.opts.pad_in_paren:
+            self.output_space_before_token = True
         self.append_token(token_text)
 
         # do {} while () // no statement required after
@@ -1243,8 +1253,8 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:djbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-                                                          'jslint-happy', 'brace-style=',
+        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines', 
+                                                          'pad-in-paren', 'jslint-happy', 'brace-style=',
                                                           'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
                                                           'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
     except getopt.GetoptError:
@@ -1272,6 +1282,8 @@ def main():
             js_options.indent_with_tabs = True
         elif opt in ('--disable-preserve_newlines', '-d'):
             js_options.preserve_newlines = False
+        elif opt in ('--pad-in-paren', '-P'):
+            js_options.pad_in_paren = True
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
         elif opt in ('--eval-code'):
