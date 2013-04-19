@@ -698,7 +698,14 @@
                 (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
                 (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                     'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-            ]))))) { // regexp
+            ])))) || // regexp
+            (options.e4x && c ==="<" &&
+                ((last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
+                (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
+                (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
+                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
+            ]))) && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)
+            )) { // xml literal
                 var sep = c,
                     esc = false,
                     has_char_escapes = false;
@@ -731,6 +738,37 @@
                             }
                         }
 
+                    } else if (options.e4x && sep === '<') {
+                        //
+                        // handle e4x xml literals separately
+                        //
+                        var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>/g;
+                        var xmlStr = input.slice(parser_pos - 1);
+                        var match = xmlRegExp.exec(xmlStr);
+                        if (match && match.index === 0) {
+                            var rootTag = match[2];
+                            var depth = 0;
+                            while (match) {
+                                var isEndTag = !! match[1];
+                                var tagName = match[2];
+                                var isSingletonTag = !! match[match.length - 1];
+                                if (tagName === rootTag && !isSingletonTag) {
+                                    if (isEndTag) {
+                                        --depth;
+                                    } else {
+                                        ++depth;
+                                    }
+                                }
+                                if (depth <= 0) {
+                                    break;
+                                }
+                                match = xmlRegExp.exec(xmlStr);
+                            }
+                            var xmlLength = match.index + match[0].length;
+                            parser_pos += xmlLength - 1;
+                            return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                        };
+        
                     } else {
                         //
                         // and handle string also separately
@@ -810,36 +848,6 @@
                     }
                     return [sharp, 'TK_WORD'];
                 }
-            }
-
-            if (options.e4x && c === '<') {
-                // pass e4x-literals untouched through the pretty-printing
-                var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>/g;
-                var xmlStr = input.slice(parser_pos - 1);
-                var match = xmlRegExp.exec(xmlStr);
-                if (match && match.index === 0) {
-                    var rootTag = match[2];
-                    var depth = 0;
-                    while (match) {
-                        var isEndTag = !! match[1];
-                        var tagName = match[2];
-                        var isSingletonTag = !! match[match.length - 1];
-                        if (tagName === rootTag && !isSingletonTag) {
-                            if (isEndTag) {
-                                --depth;
-                            } else {
-                                ++depth;
-                            }
-                        }
-                        if (depth <= 0) {
-                            break;
-                        }
-                        match = xmlRegExp.exec(xmlStr);
-                    }
-                    var xmlLength = match.index + match[0].length;
-                    parser_pos += xmlLength - 1;
-                    return [xmlStr.slice(0, xmlLength), "TK_WORD"];
-                };
             }
 
             if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
