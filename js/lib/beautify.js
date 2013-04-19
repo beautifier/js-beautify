@@ -692,20 +692,18 @@
 
             }
 
+
             if (c === "'" || c === '"' || // string
-            (c === '/' &&
-                ((last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
-                (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
-                (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
-                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-            ])))) || // regexp
-            (options.e4x && c ==="<" &&
-                ((last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
-                (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
-                (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
-                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-            ]))) && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)
-            )) { // xml literal
+                (
+                    (c === '/') || // regexp
+                    (options.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)) // xml
+                ) && ( // regex and xml can only appear in specific locations during parsing
+                    (last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
+                    (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
+                    (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
+                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))
+                )) {
+
                 var sep = c,
                     esc = false,
                     has_char_escapes = false;
@@ -715,7 +713,7 @@
                 if (parser_pos < input_length) {
                     if (sep === '/') {
                         //
-                        // handle regexp separately...
+                        // handle regexp
                         //
                         var in_char_class = false;
                         while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
@@ -737,10 +735,9 @@
                                 return [resulting_string, 'TK_STRING'];
                             }
                         }
-
                     } else if (options.e4x && sep === '<') {
                         //
-                        // handle e4x xml literals separately
+                        // handle e4x xml literals
                         //
                         var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>/g;
                         var xmlStr = input.slice(parser_pos - 1);
@@ -767,11 +764,10 @@
                             var xmlLength = match ? match.index + match[0].length : xmlStr.length;
                             parser_pos += xmlLength - 1;
                             return [xmlStr.slice(0, xmlLength), "TK_STRING"];
-                        };
-        
+                        }
                     } else {
                         //
-                        // and handle string also separately
+                        // handle string
                         //
                         while (esc || input.charAt(parser_pos) !== sep) {
                             resulting_string += input.charAt(parser_pos);
