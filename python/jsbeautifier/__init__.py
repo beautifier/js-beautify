@@ -1,7 +1,9 @@
+from __future__ import print_function
 import sys
 import getopt
 import re
 import string
+from jsbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
@@ -139,22 +141,19 @@ def beautify(string, opts = default_options() ):
     return b.beautify(string, opts)
 
 def beautify_file(file_name, opts = default_options() ):
-
     if file_name == '-': # stdin
-        f = sys.stdin
+        stream = sys.stdin
     else:
-        try:
-            f = open(file_name)
-        except Exception as ex:
-            return 'The file could not be opened'
+        stream = open(file_name)
 
-    b = Beautifier()
-    return b.beautify(''.join(f.readlines()), opts)
+    return beautify(''.join(stream.readlines()), opts);
 
 
-def usage():
+def usage(stream=sys.stdout):
 
-    print("""Javascript beautifier (http://jsbeautifier.org/)
+    print("jsbeautifier.py@" + __version__ + """
+
+Javascript beautifier (http://jsbeautifier.org/)
 
 Usage: jsbeautifier.py [options] <infile>
 
@@ -190,9 +189,13 @@ Rarely needed options:
  -l,  --indent-level=NUMBER        initial indentation level. (default 0).
 
  -h,  --help, --usage              prints this help statement.
+ -v, --version                     Show the version
 
-""")
-
+""", file=stream)
+    if stream == sys.stderr:
+        return 1
+    else:
+        return 0
 
 
 
@@ -250,7 +253,6 @@ class Beautifier:
 
         if opts != None:
             self.opts = opts
-
 
         if self.opts.brace_style not in ['expand', 'collapse', 'end-expand']:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
@@ -812,15 +814,17 @@ class Beautifier:
         self.set_mode(MODE.BlockStatement)
 
         empty_braces = self.is_next('}')
-        if self.opts.brace_style == 'expand-strict':
-            if not empty_braces:
+        empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
+            self.last_type == 'TK_END_EXPR'
+
+        if self.opts.brace_style == 'expand':
+            if self.last_type != 'TK_OPERATOR' and \
+                (empty_anonymous_function or
+                    self.last_type == 'TK_EQUALS' or
+                    (self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else')):
+                self.output_space_before_token = True
+            else:
                 self.append_newline()
-        elif self.opts.brace_style == 'expand':
-            if self.last_type != 'TK_OPERATOR':
-                if self.last_type == 'TK_EQUALS' or (self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else'):
-                    self.output_space_before_token = True
-                else:
-                    self.append_newline()
         else: # collapse
             if self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
                 if self.last_type == 'TK_START_BLOCK':
@@ -845,12 +849,14 @@ class Beautifier:
             self.restore_mode()
 
         self.restore_mode()
-        if self.opts.brace_style == 'expand' or self.opts.brace_style == 'expand-strict':
-            if self.last_type != 'TK_START_BLOCK':
+
+        empty_braces = self.last_type == 'TK_START_BLOCK';
+        if self.opts.brace_style == 'expand':
+            if not empty_braces:
                 self.append_newline()
         else:
             # skip {}
-            if self.last_type != 'TK_START_BLOCK':
+            if not empty_braces:
                 if self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
                     self.opts.keep_array_indentation = False
                     self.append_newline()
@@ -945,7 +951,7 @@ class Beautifier:
             if token_text not in ['else', 'catch', 'finally']:
                 prefix = 'NEWLINE'
             else:
-                if self.opts.brace_style in ['expand', 'end-expand', 'expand-strict']:
+                if self.opts.brace_style in ['expand', 'end-expand']:
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
@@ -978,8 +984,7 @@ class Beautifier:
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
-               or self.opts.brace_style == 'end-expand' \
-               or self.opts.brace_style == 'expand-strict':
+               or self.opts.brace_style == 'end-expand':
                 self.append_newline()
             else:
                 self.trim_output(True)
@@ -1253,12 +1258,14 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtf", ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines', 
-                                                          'space-in-paren', 'jslint-happy', 'brace-style=',
-                                                          'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
-                                                          'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation'])
-    except getopt.GetoptError:
-        return usage()
+        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfv",
+            ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+            'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation', 
+            'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code', 
+            'indent-with-tabs', 'keep-function-indentation', 'version'])
+    except getopt.GetoptError as ex:
+        print(ex, file=sys.stderr)
+        return usage(sys.stderr)
 
     js_options = default_options()
 
@@ -1296,14 +1303,25 @@ def main():
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
+        elif opt in ('--version', '-v'):
+            return print(__version__)
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
+
     if not file:
-        return usage()
+        print("Must define at least one file.", file=sys.stderr)
+        return usage(sys.stderr)
     else:
-        if outfile == 'stdout':
-            print(beautify_file(file, js_options))
-        else:
-            with open(outfile, 'w') as f:
-                f.write(beautify_file(file, js_options) + '\n')
+        try:
+            if outfile == 'stdout':
+                print(beautify_file(file, js_options))
+            else:
+                with open(outfile, 'w') as f:
+                    f.write(beautify_file(file, js_options) + '\n')
+        except Exception as ex:
+            print(ex, file=sys.stderr)
+            return 1
+
+    # Success
+    return 0

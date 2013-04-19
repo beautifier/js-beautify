@@ -53,17 +53,8 @@
             ---------------------------------
              function ()      function()
 
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "expand-strict"
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-
-            expand-strict: put brace on own line even in such cases:
-
-                var a =
-                {
-                    a: 5,
-                    b: 6
-                }
-            This mode may break your scripts - e.g "return { a: 1 }" will be broken into two lines, so beware.
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
 
@@ -173,6 +164,12 @@
             opt.brace_style = options.braces_on_own_line ? "expand" : "collapse";
         }
         opt.brace_style = options.brace_style ? options.brace_style : (opt.brace_style ? opt.brace_style : "collapse");
+
+        // graceful handling of deprecated option
+        if (opt.brace_style === "expand-strict") {
+            opt.brace_style = "expand";
+        }
+
 
         opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         opt.indent_char = options.indent_char ? options.indent_char : ' ';
@@ -964,19 +961,17 @@
             set_mode(MODE.BlockStatement);
 
             var empty_braces = is_next('}');
+            var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
+                last_type === 'TK_END_EXPR';
 
-            if (opt.brace_style === "expand-strict") {
-                if (!empty_braces) {
-                    print_newline();
-                }
-            } else if (opt.brace_style === "expand") {
-                if (last_type !== 'TK_OPERATOR') {
-                    if (last_type === 'TK_EQUALS' ||
-                        (is_special_word (flags.last_text) && flags.last_text !== 'else')) {
+            if (opt.brace_style === "expand") {
+                if (last_type !== 'TK_OPERATOR' &&
+                    (empty_anonymous_function ||
+                        last_type === 'TK_EQUALS' ||
+                        (is_special_word (flags.last_text) && flags.last_text !== 'else'))) {
                         output_space_before_token = true;
-                    } else {
-                        print_newline();
-                    }
+                } else {
+                    print_newline();
                 }
             } else { // collapse
                 if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
@@ -1007,13 +1002,15 @@
                 restore_mode();
             }
             restore_mode();
-            if (opt.brace_style === "expand" || opt.brace_style === "expand-strict") {
-                if  (last_type !== 'TK_START_BLOCK') {
+            var empty_braces = last_type === 'TK_START_BLOCK';
+
+            if (opt.brace_style === "expand") {
+                if  (!empty_braces) {
                     print_newline();
                 }
             } else {
                 // skip {}
-                if (last_type !== 'TK_START_BLOCK') {
+                if (!empty_braces) {
                     if (is_array(flags.mode) && opt.keep_array_indentation) {
                         // we REALLY need a newline here, but newliner would skip that
                         opt.keep_array_indentation = false;
@@ -1122,7 +1119,7 @@
                 if (!in_array(token_text, ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    if (opt.brace_style === "expand" || opt.brace_style === "end-expand" || opt.brace_style === "expand-strict") {
+                    if (opt.brace_style === "expand" || opt.brace_style === "end-expand") {
                         prefix = 'NEWLINE';
                     } else {
                         prefix = 'SPACE';
@@ -1161,7 +1158,7 @@
             }
 
             if (in_array(token_text, ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt.brace_style === "expand" || opt.brace_style === "end-expand" || opt.brace_style === "expand-strict") {
+                if (last_type !== 'TK_END_BLOCK' || opt.brace_style === "expand" || opt.brace_style === "end-expand") {
                     print_newline();
                 } else {
                     trim_output(true);

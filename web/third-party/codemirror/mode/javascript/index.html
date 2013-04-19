@@ -1,9 +1,12 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>CodeMirror: JavaScript mode</title>
     <link rel="stylesheet" href="../../lib/codemirror.css">
     <script src="../../lib/codemirror.js"></script>
+    <script src="../../addon/edit/matchbrackets.js"></script>
+    <script src="../../addon/edit/continuecomment.js"></script>
     <script src="javascript.js"></script>
     <link rel="stylesheet" href="../../doc/docs.css">
     <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
@@ -64,14 +67,22 @@ StringStream.prototype = {
     <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
-        matchBrackets: true
+        matchBrackets: true,
+        continueComments: "Enter"
       });
     </script>
 
-    <p>JavaScript mode supports a single configuration
-    option, <code>json</code>, which will set the mode to expect JSON
-    data rather than a JavaScript program.</p>
+    <p>
+      JavaScript mode supports a two configuration
+      options:
+      <ul>
+        <li><code>json</code> which will set the mode to expect JSON data rather than a JavaScript program.</li>
+        <li>
+          <code>typescript</code> which will activate additional syntax highlighting and some other things for TypeScript code (<a href="typescript.html">demo</a>).
+        </li>
+      </ul>
+    </p>
 
-    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
   </body>
 </html>
