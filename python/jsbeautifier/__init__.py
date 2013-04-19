@@ -81,6 +81,7 @@ class BeautifierOptions:
 indent_char = [%s]
 preserve_newlines = %s
 max_preserve_newlines = %d
+space_in_paren = %s
 jslint_happy = %s
 indent_with_tabs = %s
 brace_style = %s
@@ -88,7 +89,6 @@ keep_array_indentation = %s
 eval_code = %s
 wrap_line_length = %s
 unescape_strings = %s
-pad_in_prean = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
@@ -100,7 +100,7 @@ pad_in_prean = %s
         self.keep_array_indentation,
         self.eval_code,
         self.wrap_line_length,
-        self.unescape_strings
+        self.unescape_strings,
         )
 
 
