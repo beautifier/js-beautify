@@ -869,7 +869,7 @@
                     }
                     set_mode(MODE.Expression);
                     print_token();
-                    if (options.pad_in_paren) {
+                    if (options.space_in_paren) {
                         output_space_before_token = true;
                     }
                     return;
@@ -926,7 +926,7 @@
                 }
             }
             print_token();
-            if (options.pad_in_paren) {
+            if (options.space_in_paren) {
                     output_space_before_token = true;
             }
             if (token_text === '[') {
@@ -946,7 +946,7 @@
                 print_newline();
             }
             restore_mode();
-            if (options.pad_in_paren) {
+            if (options.space_in_paren) {
                     output_space_before_token = true;
             }
             print_token();

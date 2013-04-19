@@ -49,7 +49,7 @@ var fs = require('fs'),
         "indent_with_tabs": Boolean,
         "preserve_newlines": Boolean,
         "max_preserve_newlines": Number,
-        "pad_in_paren": Boolean,
+        "space_in_paren": Boolean,
         "jslint_happy": Boolean,
         "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
         "break_chained_methods": Boolean,
@@ -80,7 +80,7 @@ var fs = require('fs'),
         "t": ["--indent_with_tabs"],
         "p": ["--preserve_newlines"],
         "m": ["--max_preserve_newlines"],
-        "P": ["--pad_in_paren"],
+        "P": ["--space_in_paren"],
         "j": ["--jslint_happy"],
         "b": ["--brace_style"],
         "B": ["--break_chained_methods"],
@@ -182,7 +182,7 @@ function usage(err) {
         msg.push('  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c');
         msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
         msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
-        msg.push('  -P, --pad-in-paren            Add padding spaces within paren, ie. f( a, b )');
+        msg.push('  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )');
         msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
         msg.push('  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]');
         msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');

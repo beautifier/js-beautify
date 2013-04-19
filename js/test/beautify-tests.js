@@ -852,9 +852,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         // Test the option to have spaces within parens
         test_fragment('if(p) foo(a,b)', 'if (p) foo(a, b)');
-        opts.pad_in_paren = true
+        opts.space_in_paren = true
         test_fragment('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
-        opts.pad_in_paren = false;
+        opts.space_in_paren = false;
 
         Urlencoded.run_tests(sanitytest);
 
