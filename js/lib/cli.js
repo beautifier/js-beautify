@@ -50,6 +50,7 @@ var fs = require('fs'),
         "preserve_newlines": Boolean,
         "max_preserve_newlines": Number,
         "jslint_happy": Boolean,
+        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
@@ -181,7 +182,7 @@ function usage(err) {
         msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
         msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
         msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
-        msg.push('  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]');
+        msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
         msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');
         msg.push('  -k, --keep-array-indentation  Preserve array indentation');
         msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
