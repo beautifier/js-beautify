@@ -250,7 +250,6 @@ class Beautifier:
         if opts != None:
             self.opts = opts
 
-
         if self.opts.brace_style not in ['expand', 'collapse', 'end-expand']:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
 
@@ -805,15 +804,17 @@ class Beautifier:
         self.set_mode(MODE.BlockStatement)
 
         empty_braces = self.is_next('}')
-        if self.opts.brace_style == 'expand-strict':
-            if not empty_braces:
+        empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
+            self.last_type == 'TK_END_EXPR'
+
+        if self.opts.brace_style == 'expand':
+            if self.last_type != 'TK_OPERATOR' and \
+                (empty_anonymous_function or
+                    self.last_type == 'TK_EQUALS' or
+                    (self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else')):
+                self.output_space_before_token = True
+            else:
                 self.append_newline()
-        elif self.opts.brace_style == 'expand':
-            if self.last_type != 'TK_OPERATOR':
-                if self.last_type == 'TK_EQUALS' or (self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else'):
-                    self.output_space_before_token = True
-                else:
-                    self.append_newline()
         else: # collapse
             if self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
                 if self.last_type == 'TK_START_BLOCK':
@@ -838,12 +839,14 @@ class Beautifier:
             self.restore_mode()
 
         self.restore_mode()
-        if self.opts.brace_style == 'expand' or self.opts.brace_style == 'expand-strict':
-            if self.last_type != 'TK_START_BLOCK':
+
+        empty_braces = self.last_type == 'TK_START_BLOCK';
+        if self.opts.brace_style == 'expand':
+            if not empty_braces:
                 self.append_newline()
         else:
             # skip {}
-            if self.last_type != 'TK_START_BLOCK':
+            if not empty_braces:
                 if self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
                     self.opts.keep_array_indentation = False
                     self.append_newline()
@@ -938,7 +941,7 @@ class Beautifier:
             if token_text not in ['else', 'catch', 'finally']:
                 prefix = 'NEWLINE'
             else:
-                if self.opts.brace_style in ['expand', 'end-expand', 'expand-strict']:
+                if self.opts.brace_style in ['expand', 'end-expand']:
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
@@ -971,8 +974,7 @@ class Beautifier:
         if token_text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
-               or self.opts.brace_style == 'end-expand' \
-               or self.opts.brace_style == 'expand-strict':
+               or self.opts.brace_style == 'end-expand':
                 self.append_newline()
             else:
                 self.trim_output(True)
