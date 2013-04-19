@@ -8,17 +8,17 @@ as well as deobfuscate scripts processed by
 [javascriptobfuscator.com](http://javascriptobfuscator.com/).
 
 # Usage
-You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python. 
+You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
-## Web Browser 
-Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI. 
+## Web Browser
+Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
 
 ## Python
 To beautify using python:
 
 ```bash
 $ pip install jsbeautifier
-$ js-beautify file.js 
+$ js-beautify file.js
 ```
 
 Beautified output goes to `stdout`.
@@ -89,7 +89,7 @@ Beautifier Options:
   -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
   -j, --jslint-happy            Enable jslint-stricter mode
-  -b, --brace-style             [collapse|expand|end-expand|expand-strict] ["collapse"]
+  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
   -B, --break-chained-methods   Break chained method calls across subsequent lines
   -k, --keep-array-indentation  Preserve array indentation
   -x, --unescape-strings        Decode printable characters encoded in xNN notation
