@@ -176,6 +176,7 @@
         opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
+        opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
         opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
         opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
         opt.space_before_conditional= (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
@@ -866,6 +867,9 @@
                     }
                     set_mode(MODE.Expression);
                     print_token();
+                    if (opt.space_in_paren) {
+                        output_space_before_token = true;
+                    }
                     return;
                 }
 
@@ -920,6 +924,9 @@
                 }
             }
             print_token();
+            if (opt.space_in_paren) {
+                    output_space_before_token = true;
+            }
             if (token_text === '[') {
                 set_mode(MODE.ArrayLiteral);
                 indent();
@@ -937,6 +944,9 @@
                 print_newline();
             }
             restore_mode();
+            if (opt.space_in_paren) {
+                    output_space_before_token = true;
+            }
             print_token();
 
             // do {} while () // no statement required after
