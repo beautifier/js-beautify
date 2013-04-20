@@ -905,6 +905,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
             'a = 1;\n\n\n\n\n\n\n\nb = 2;');
 
+        // Test that e4x literals passed through when e4x-option is enabled
+        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
+        opts.e4x = true;
+        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
+        // Handles messed up tags, as long as it isn't the same name
+        // as the root tag. Also handles tags of same name as root tag
+        // as long as nesting matches.
+        bt('xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;', 
+         'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;');
+        // If xml is not terminated, the remainder of the file is treated
+        // as part of the xml-literal (passed through unaltered)
+        test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;'); 
+        opts.e4x = false;
+
+
         Urlencoded.run_tests(sanitytest);
 
         return sanitytest;
