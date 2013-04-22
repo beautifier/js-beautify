@@ -216,7 +216,7 @@ class Beautifier:
         self.flags = None
         self.previous_flags = None
         self.flag_store = []
-        self.wanted_newline = False
+        self.input_wanted_newline = False
 
         if self.opts.indent_with_tabs:
             self.indent_string = "\t"
@@ -297,7 +297,7 @@ class Beautifier:
                  for i in range(self.n_newlines):
                         self.append_newline(force_newline = True)
             else: # not keep_whitespace
-                self.wanted_newline = self.n_newlines > 0
+                self.input_wanted_newline = self.n_newlines > 0
                 if self.opts.max_preserve_newlines != 0 and self.n_newlines > self.opts.max_preserve_newlines:
                     self.n_newlines = self.opts.max_preserve_newlines
 
@@ -372,10 +372,10 @@ class Beautifier:
                 if proposed_line_length >= self.opts.wrap_line_length:
                     force_linewrap = True
 
-        if ((self.opts.preserve_newlines and self.wanted_newline) or force_linewrap) and not self.just_added_newline():
+        if ((self.opts.preserve_newlines and self.input_wanted_newline) or force_linewrap) and not self.just_added_newline():
             self.append_newline(preserve_statement_flags = True)
             self.output_wrapped = True
-            self.wanted_newline = False
+            self.input_wanted_newline = False
 
 
     def append_newline(self, force_newline = False, preserve_statement_flags = False):
@@ -490,7 +490,7 @@ class Beautifier:
         if self.parser_pos >= len(self.input):
             return '', 'TK_EOF'
 
-        self.wanted_newline = False
+        self.input_wanted_newline = False
         self.whitespace_before_token = []
 
         c = self.input[self.parser_pos]
@@ -762,7 +762,7 @@ class Beautifier:
             self.append_newline()
         elif self.last_type in ['TK_END_EXPR', 'TK_START_EXPR', 'TK_END_BLOCK'] or self.flags.last_text == '.':
             # do nothing on (( and )( and ][ and ]( and .(
-            if self.wanted_newline:
+            if self.input_wanted_newline:
                 self.append_newline()
         elif self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output_space_before_token = True
@@ -871,7 +871,7 @@ class Beautifier:
         if self.start_of_statement():
             # The conditional starts the statement if appropriate.
             pass
-        elif self.wanted_newline and \
+        elif self.input_wanted_newline and \
                 not self.is_expression(self.flags.mode) and \
                 (self.last_type != 'TK_OPERATOR' or (self.flags.last_text == '--' or self.flags.last_text == '++')) and \
                 self.last_type != 'TK_EQUALS' and \
@@ -1141,7 +1141,7 @@ class Beautifier:
 
         # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
         # if there is a newline between -- or ++ and anything else we should preserve it.
-        if self.wanted_newline and (token_text == '--' or token_text == '++'):
+        if self.input_wanted_newline and (token_text == '--' or token_text == '++'):
             self.append_newline()
 
 
@@ -1222,10 +1222,10 @@ class Beautifier:
 
 
     def handle_comment(self, token_text):
-        if self.wanted_newline:
+        if self.input_wanted_newline:
             self.append_newline(preserve_statement_flags = True)
 
-        if self.flags.last_text == ',' and not self.wanted_newline:
+        if self.flags.last_text == ',' and not self.input_wanted_newline:
             self.trim_output(True)
 
         self.output_space_before_token = True
@@ -1260,8 +1260,8 @@ def main():
     try:
         opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfv",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-            'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation', 
-            'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code', 
+            'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
+            'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
             'indent-with-tabs', 'keep-function-indentation', 'version'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)

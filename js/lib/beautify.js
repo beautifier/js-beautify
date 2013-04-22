@@ -87,8 +87,9 @@
         var flags, previous_flags, flag_store;
         var whitespace, wordchar, punct, parser_pos, line_starters, digits;
         var prefix;
-        var wanted_newline, n_newlines, output_wrapped, output_space_before_token, whitespace_before_token;
-        var input_length;
+        var input_wanted_newline;
+        var output_wrapped, output_space_before_token;
+        var input_length, n_newlines, whitespace_before_token;
         var handlers, MODE, opt;
         var preindent_string = '';
 
@@ -240,7 +241,7 @@
                         print_newline(true);
                     }
                 } else {
-                    wanted_newline = n_newlines > 0;
+                    input_wanted_newline = n_newlines > 0;
                     if (opt.max_preserve_newlines && n_newlines > opt.max_preserve_newlines) {
                         n_newlines = opt.max_preserve_newlines;
                     }
@@ -339,10 +340,10 @@
                     }
                 }
             }
-            if (((opt.preserve_newlines && wanted_newline) || force_linewrap) && !just_added_newline()) {
+            if (((opt.preserve_newlines && input_wanted_newline) || force_linewrap) && !just_added_newline()) {
                 print_newline(false, true);
                 output_wrapped = true;
-                wanted_newline = false;
+                input_wanted_newline = false;
             }
         }
 
@@ -574,7 +575,7 @@
                 return ['', 'TK_EOF'];
             }
 
-            wanted_newline = false;
+            input_wanted_newline = false;
             whitespace_before_token = [];
 
             var c = input.charAt(parser_pos);
@@ -930,7 +931,7 @@
             if  (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
             } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.') {
-                if (wanted_newline) {
+                if (input_wanted_newline) {
                     print_newline();
                 }
                 // do nothing on (( and )( and ][ and ]( and .(
@@ -1063,7 +1064,7 @@
         function handle_word() {
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
-            } else if (wanted_newline && !is_expression(flags.mode) &&
+            } else if (input_wanted_newline && !is_expression(flags.mode) &&
                 (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
                 last_type !== 'TK_EQUALS' &&
                 (opt.preserve_newlines || flags.last_text !== 'var')) {
@@ -1363,7 +1364,7 @@
 
             // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
             // if there is a newline between -- or ++ and anything else we should preserve it.
-            if (wanted_newline && (token_text === '--' || token_text === '++')) {
+            if (input_wanted_newline && (token_text === '--' || token_text === '++')) {
                 print_newline();
             }
 
@@ -1455,10 +1456,10 @@
         }
 
         function handle_comment() {
-            if (wanted_newline) {
+            if (input_wanted_newline) {
                 print_newline(false, true);
             }
-            if  (flags.last_text === ',' && !wanted_newline) {
+            if  (flags.last_text === ',' && !input_wanted_newline) {
                 trim_output(true);
             }
 
