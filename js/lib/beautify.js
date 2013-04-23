@@ -1458,8 +1458,7 @@
         function handle_comment() {
             if (input_wanted_newline) {
                 print_newline(false, true);
-            }
-            if  (flags.last_text === ',' && !input_wanted_newline) {
+            } else {
                 trim_output(true);
             }
 

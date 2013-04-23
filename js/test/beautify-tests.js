@@ -596,7 +596,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"');
         */
         opts.unescape_strings = false;
-        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
 
         bt('return function();');
         bt('var a = function();');
@@ -809,6 +808,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         // these aren't ready yet.
         //bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -859,6 +860,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         // these aren't ready yet.
         // bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -929,11 +932,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         // Handles messed up tags, as long as it isn't the same name
         // as the root tag. Also handles tags of same name as root tag
         // as long as nesting matches.
-        bt('xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;', 
+        bt('xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
          'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;');
         // If xml is not terminated, the remainder of the file is treated
         // as part of the xml-literal (passed through unaltered)
-        test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;'); 
+        test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;');
         opts.e4x = false;
 
 

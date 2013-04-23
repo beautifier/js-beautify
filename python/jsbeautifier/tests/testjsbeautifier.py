@@ -535,7 +535,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
         bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}')
 
-        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('return function();')
         bt('var a = function();')
         bt('var a = 5 + function();')
@@ -747,6 +746,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         # these aren't ready yet.
         #bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -795,6 +796,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         # these aren't ready yet.
         # bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');

@@ -1225,7 +1225,7 @@ class Beautifier:
         if self.input_wanted_newline:
             self.append_newline(preserve_statement_flags = True)
 
-        if self.flags.last_text == ',' and not self.input_wanted_newline:
+        if not self.input_wanted_newline:
             self.trim_output(True)
 
         self.output_space_before_token = True
