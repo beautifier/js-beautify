@@ -254,7 +254,6 @@ function beautify()
     opts.wrap_line_length = $('#wrap-line-length').val();
     opts.space_after_anon_function = true;
 
-    console.log(opts);
     if (looks_like_html(source)) {
         output = html_beautify(source, opts);
     } else {
