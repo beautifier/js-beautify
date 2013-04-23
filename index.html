@@ -170,26 +170,26 @@ function any(a, b) {
 function read_settings_from_cookie() {
     $('#tabsize').val(any($.cookie('tabsize'), '4'));
     $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
-    $('#detect-packers').attr('checked', $.cookie('detect-packers') !== 'off');
-    $('#preserve-newlines').attr('checked', $.cookie('preserve-newlines') !== 'off');
-    $('#keep-array-indentation').attr('checked', $.cookie('keep-array-indentation') === 'on');
-    $('#break-chained-methods').attr('checked', $.cookie('break-chained-methods') === 'on');
+    $('#detect-packers').prop('checked', $.cookie('detect-packers') !== 'off');
+    $('#preserve-newlines').prop('checked', $.cookie('preserve-newlines') !== 'off');
+    $('#keep-array-indentation').prop('checked', $.cookie('keep-array-indentation') === 'on');
+    $('#break-chained-methods').prop('checked', $.cookie('break-chained-methods') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
-    $('#space-before-conditional').attr('checked', $.cookie('space-before-conditional') !== 'off');
+    $('#space-before-conditional').prop('checked', $.cookie('space-before-conditional') !== 'off');
     $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
-    $('#unescape-strings').attr('checked', $.cookie('unescape-strings') === 'on');
+    $('#unescape-strings').prop('checked', $.cookie('unescape-strings') === 'on');
 }
 
 function store_settings_to_cookie() {
     var opts = { expires: 360 };
     $.cookie('tabsize', $('#tabsize').val(), opts);
     $.cookie('brace-style', $('#brace-style').val(), opts);
-    $.cookie('detect-packers', $('#detect-packers').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('preserve-newlines', $('#preserve-newlines').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('keep-array-indentation', $('#keep-array-indentation').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('break-chained-methods', $('#break-chained-methods').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('space-before-conditional', $('#space-before-conditional').attr('checked') ? 'on' : 'off', opts);
-    $.cookie('unescape-strings', $('#unescape-strings').attr('checked') ? 'on' : 'off', opts);
+    $.cookie('detect-packers', $('#detect-packers').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('preserve-newlines', $('#preserve-newlines').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('keep-array-indentation', $('#keep-array-indentation').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('break-chained-methods', $('#break-chained-methods').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('unescape-strings', $('#unescape-strings').prop('checked') ? 'on' : 'off', opts);
     $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
     $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
 }
@@ -244,20 +244,21 @@ function beautify()
 
     opts.indent_size = $('#tabsize').val();
     opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
-    opts.preserve_newlines = $('#preserve-newlines').attr('checked');
-    opts.keep_array_indentation = $('#keep-array-indentation').attr('checked');
-    opts.break_chained_methods = $('#break-chained-methods').attr('checked');
+    opts.preserve_newlines = $('#preserve-newlines').prop('checked');
+    opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
+    opts.break_chained_methods = $('#break-chained-methods').prop('checked');
     opts.indent_scripts = $('#indent-scripts').val();
     opts.brace_style = $('#brace-style').val();
-    opts.space_before_conditional = $('#space-before-conditional').attr('checked');
-    opts.unescape_strings = $('#unescape-strings').attr('checked');
+    opts.space_before_conditional = $('#space-before-conditional').prop('checked');
+    opts.unescape_strings = $('#unescape-strings').prop('checked');
     opts.wrap_line_length = $('#wrap-line-length').val();
     opts.space_after_anon_function = true;
 
+    console.log(opts);
     if (looks_like_html(source)) {
         output = html_beautify(source, opts);
     } else {
-        if ($('#detect-packers').attr('checked')) {
+        if ($('#detect-packers').prop('checked')) {
             source = unpacker_filter(source);
         }
         output = js_beautify(source, opts);
