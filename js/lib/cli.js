@@ -49,6 +49,7 @@ var fs = require('fs'),
         "indent_with_tabs": Boolean,
         "preserve_newlines": Boolean,
         "max_preserve_newlines": Number,
+        "space_in_paren": Boolean,
         "jslint_happy": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
@@ -56,6 +57,7 @@ var fs = require('fs'),
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
+        "e4x": Boolean,
         // HTML-only
         "max_char": Number,
         "unformatted": [String, Array],
@@ -80,12 +82,14 @@ var fs = require('fs'),
         "t": ["--indent_with_tabs"],
         "p": ["--preserve_newlines"],
         "m": ["--max_preserve_newlines"],
+        "P": ["--space_in_paren"],
         "j": ["--jslint_happy"],
         "b": ["--brace_style"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
+        "X": ["--e4x"],
         // HTML-only
         "W": ["--max_char"],
         "U": ["--unformatted"],
@@ -181,12 +185,14 @@ function usage(err) {
         msg.push('  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c');
         msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
         msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
+        msg.push('  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )');
         msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
         msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
         msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');
         msg.push('  -k, --keep-array-indentation  Preserve array indentation');
         msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
         msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
+        msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
         msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
         break;
     case "html":

@@ -176,6 +176,7 @@
         opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
+        opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
         opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
         opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
         opt.space_before_conditional= (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
@@ -689,13 +690,18 @@
 
             }
 
+
             if (c === "'" || c === '"' || // string
-            (c === '/' &&
-                ((last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
-                (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
-                (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
-                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-            ]))))) { // regexp
+                (
+                    (c === '/') || // regexp
+                    (options.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)) // xml
+                ) && ( // regex and xml can only appear in specific locations during parsing
+                    (last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
+                    (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
+                    (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
+                    'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))
+                )) {
+
                 var sep = c,
                     esc = false,
                     has_char_escapes = false;
@@ -705,7 +711,7 @@
                 if (parser_pos < input_length) {
                     if (sep === '/') {
                         //
-                        // handle regexp separately...
+                        // handle regexp
                         //
                         var in_char_class = false;
                         while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
@@ -727,10 +733,39 @@
                                 return [resulting_string, 'TK_STRING'];
                             }
                         }
-
+                    } else if (options.e4x && sep === '<') {
+                        //
+                        // handle e4x xml literals
+                        //
+                        var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>/g;
+                        var xmlStr = input.slice(parser_pos - 1);
+                        var match = xmlRegExp.exec(xmlStr);
+                        if (match && match.index === 0) {
+                            var rootTag = match[2];
+                            var depth = 0;
+                            while (match) {
+                                var isEndTag = !! match[1];
+                                var tagName = match[2];
+                                var isSingletonTag = !! match[match.length - 1];
+                                if (tagName === rootTag && !isSingletonTag) {
+                                    if (isEndTag) {
+                                        --depth;
+                                    } else {
+                                        ++depth;
+                                    }
+                                }
+                                if (depth <= 0) {
+                                    break;
+                                }
+                                match = xmlRegExp.exec(xmlStr);
+                            }
+                            var xmlLength = match ? match.index + match[0].length : xmlStr.length;
+                            parser_pos += xmlLength - 1;
+                            return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                        }
                     } else {
                         //
-                        // and handle string also separately
+                        // handle string
                         //
                         while (esc || input.charAt(parser_pos) !== sep) {
                             resulting_string += input.charAt(parser_pos);
@@ -866,6 +901,9 @@
                     }
                     set_mode(MODE.Expression);
                     print_token();
+                    if (opt.space_in_paren) {
+                        output_space_before_token = true;
+                    }
                     return;
                 }
 
@@ -920,6 +958,9 @@
                 }
             }
             print_token();
+            if (opt.space_in_paren) {
+                    output_space_before_token = true;
+            }
             if (token_text === '[') {
                 set_mode(MODE.ArrayLiteral);
                 indent();
@@ -937,6 +978,9 @@
                 print_newline();
             }
             restore_mode();
+            if (opt.space_in_paren) {
+                    output_space_before_token = true;
+            }
             print_token();
 
             // do {} while () // no statement required after
