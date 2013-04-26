@@ -342,7 +342,7 @@ class Beautifier:
 
 
     def is_expression(self, mode):
-        return mode in [MODE.ArrayLiteral, MODE.Expression, MODE.ForInitializer, MODE.Conditional]
+        return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
     def just_added_newline(self):
         return len(self.output) and self.output[-1] == '\n'
@@ -744,8 +744,10 @@ class Beautifier:
                 return
 
             if self.is_array(self.flags.mode):
-                if self.flags.last_text == '[' or (self.last_last_text == ']' and self.flags.last_text == ','):
+                if self.flags.last_text == '[' or (
+                    self.flags.last_text == ',' and (self.last_last_text == ']' or self.last_last_text == '}')):
                     # ], [ goes to a new line
+                    # }, [ goes to a new line
                     if not self.opts.keep_array_indentation:
                         self.append_newline()
 
@@ -906,9 +908,9 @@ class Beautifier:
         if token_text == 'function':
             if self.flags.var_line and self.flags.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
-            if (self.just_added_newline() or self.flags.last_text == ';') and self.flags.last_text != '{':
+            if (self.just_added_newline() or self.flags.last_text == ';') and self.flags.last_text != '{' and not self.is_array(self.flags.mode):
                 # make sure there is a nice clean space of at least one blank line
-                # before a new function definition
+                # before a new function definition, except in arrays
                 have_newlines = self.n_newlines
                 if not self.just_added_newline():
                     have_newlines = 0

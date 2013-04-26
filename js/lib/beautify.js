@@ -442,7 +442,7 @@
         }
 
         function is_expression(mode) {
-            return in_array(mode, [MODE.ArrayLiteral, MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
+            return in_array(mode, [MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
         }
 
         function restore_mode() {
@@ -909,9 +909,10 @@
                 }
 
                 if (is_array(flags.mode)) {
-                    if ( (flags.last_text === '[') ||
-                        (last_last_text === ']' && flags.last_text === ',')) {
+                    if (flags.last_text === '[' ||
+                        (flags.last_text === ',' && (last_last_text === ']' || last_last_text === '}'))) {
                         // ], [ goes to new line
+                        // }, [ goes to new line
                         if (!opt.keep_array_indentation) {
                             print_newline();
                         }
@@ -1104,9 +1105,10 @@
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
                 }
-                if ((just_added_newline() || flags.last_text === ';') && flags.last_text !== '{' && last_type !== 'TK_BLOCK_COMMENT' && last_type !== 'TK_COMMENT') {
+                if ((just_added_newline() || flags.last_text === ';') && flags.last_text !== '{' &&
+                    !is_array(flags.mode)) {
                     // make sure there is a nice clean space of at least one blank line
-                    // before a new function definition
+                    // before a new function definition, except in arrays
                     n_newlines = just_added_newline() ? n_newlines : 0;
                     if (!opt.preserve_newlines) {
                         n_newlines = 1;

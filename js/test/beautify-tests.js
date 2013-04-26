@@ -285,6 +285,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
+        bt('a=[b,c,function(){},function(){},d]',
+            "a = [b, c,\n    function() {},\n    function() {},\n    d\n]");
         bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
         bt('[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]");
 
