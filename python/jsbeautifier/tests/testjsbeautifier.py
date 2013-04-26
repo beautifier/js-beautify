@@ -242,6 +242,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
 
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]");
+        bt('a=[[1,2],[4,5],function(){},[7,8]]',
+            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
+        bt('a=[b,c,function(){},function(){},d]',
+            "a = [b, c,\n    function() {},\n    function() {},\n    d\n]");
         bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
         bt('[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]");
 
@@ -535,7 +543,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}')
         bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}')
 
-        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('return function();')
         bt('var a = function();')
         bt('var a = 5 + function();')
@@ -747,6 +754,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         # these aren't ready yet.
         #bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -795,6 +804,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
+        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
         # these aren't ready yet.
         # bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -848,6 +859,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('((e/((a+(b)*c)-d))^2)*5;', '((e / ((a + (b) * c) - d)) ^ 2) * 5;');
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+        bt('a=[];',
+            'a = [];');
+        bt('a=[b,c,d];',
+            'a = [b, c, d];');
+        bt('a= f[b];',
+            'a = f[b];');
         self.options.space_in_paren = True
         bt('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
         bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
@@ -855,6 +872,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('((e/((a+(b)*c)-d))^2)*5;', '( ( e / ( ( a + ( b ) * c ) - d ) ) ^ 2 ) * 5;');
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
             'function f( a, b ) {\n    if ( a ) b( )\n}\nfunction g( a, b ) {\n    if ( !a ) b( )\n}');
+        bt('a=[ ];',
+            'a = [ ];');
+        bt('a=[b,c,d];',
+            'a = [ b, c, d ];');
+        bt('a= f[b];',
+            'a = f[ b ];');
         self.options.space_in_paren = False
 
 
