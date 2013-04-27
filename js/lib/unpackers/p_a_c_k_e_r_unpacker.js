@@ -18,40 +18,49 @@ var P_A_C_K_E_R = {
     },
 
     get_chunks: function(str) {
-        var chunks = str.match(/eval\(\(?function\(.*?,0,\{\}\)\)/g);
+        var chunks = str.match(/eval\(\(?function\(.*?,0,\{\}\)\)($|\n)/g);
         return chunks ? chunks : [];
     },
 
     unpack: function (str) {
-        var chunks = P_A_C_K_E_R.get_chunks(str);
+        var chunks = P_A_C_K_E_R.get_chunks(str),
+            chunk;
         for(var i = 0; i < chunks.length; i++) {
-            str = str.split(chunks[i]).join( P_A_C_K_E_R.unpack_chunk(chunks[i]) );
+            chunk = chunks[i].replace(/\n$/, '');
+            str = str.split(chunk).join( P_A_C_K_E_R.unpack_chunk(chunk) );
         }
         return str;
     },
 
     unpack_chunk: function (str) {
         var unpacked_source = '';
+        var __eval = eval;
         if (P_A_C_K_E_R.detect(str)) {
             try {
-                eval('unpacked_source = ' + str.substring(4) + ';');
+                eval = function (s) { unpacked_source += s; return unpacked_source; };
+                __eval(str);
                 if (typeof unpacked_source == 'string' && unpacked_source) {
                     str = unpacked_source;
                 }
-            } catch (error) {
+            } catch (e) {
                 // well, it failed. we'll just return the original, instead of crashing on user.
             }
         }
+        eval = __eval;
         return str;
     },
 
     run_tests: function (sanity_test) {
         var t = sanity_test || new SanityTest(),
-            pk1 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))",
-            unpk1 = 'var a=1',
-            pk2 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'foo||b'.split('|'),0,{}))",
-            unpk2 = 'foo b=1',
-            pk_broken =  "eval(function(p,a,c,k,e,r){BORKBORK;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))";
+
+        pk1 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))",
+        unpk1 = 'var a=1',
+        pk2 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'foo||b'.split('|'),0,{}))",
+        unpk2 = 'foo b=1',
+        pk_broken =  "eval(function(p,a,c,k,e,r){BORKBORK;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))";
+        pk3 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1{}))',3,3,'var||a'.split('|'),0,{}))",
+        unpk4 = 'var a=1{}))',
+
         t.test_function(P_A_C_K_E_R.detect, "P_A_C_K_E_R.detect");
         t.expect('', false);
         t.expect('var a = b', false);
@@ -61,7 +70,7 @@ var P_A_C_K_E_R = {
         t.expect(pk2, unpk2);
 
         var filler = '\nfiller\n';
-        t.expect(filler + pk1 + pk_broken + filler + pk2 + filler, filler + unpk1 + pk_broken + filler + unpk2 + filler);
+        t.expect(filler + pk1 + "\n" + pk_broken + filler + pk2 + filler, filler + unpk1 + "\n" + pk_broken + filler + unpk2 + filler);
 
         return t;
     }
