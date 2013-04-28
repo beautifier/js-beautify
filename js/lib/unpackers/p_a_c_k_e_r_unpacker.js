@@ -59,7 +59,7 @@ var P_A_C_K_E_R = {
         unpk2 = 'foo b=1',
         pk_broken =  "eval(function(p,a,c,k,e,r){BORKBORK;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1',3,3,'var||a'.split('|'),0,{}))";
         pk3 = "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String)){while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('0 2=1{}))',3,3,'var||a'.split('|'),0,{}))",
-        unpk4 = 'var a=1{}))',
+        unpk3 = 'var a=1{}))',
 
         t.test_function(P_A_C_K_E_R.detect, "P_A_C_K_E_R.detect");
         t.expect('', false);
@@ -68,6 +68,7 @@ var P_A_C_K_E_R = {
         t.expect(pk_broken, pk_broken);
         t.expect(pk1, unpk1);
         t.expect(pk2, unpk2);
+        t.expect(pk3, unpk3);
 
         var filler = '\nfiller\n';
         t.expect(filler + pk1 + "\n" + pk_broken + filler + pk2 + filler, filler + unpk1 + "\n" + pk_broken + filler + unpk2 + filler);
