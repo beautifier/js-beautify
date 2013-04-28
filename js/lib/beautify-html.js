@@ -632,6 +632,12 @@
         // If we're running a web page and don't have either of the above, add our one global
         window.html_beautify = function(html_source, options) {
             return style_html(html_source, options, window.js_beautify, window.css_beautify);
-        };;
+        };
+    } else if (typeof global !== "undefined") {
+        // If we don't even have window, try global.
+        global.html_beautify = function(html_source, options) {
+            return style_html(html_source, options, global.js_beautify, global.css_beautify);
+        };
     }
+
 }());
