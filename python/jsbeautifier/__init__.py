@@ -64,6 +64,7 @@ class BeautifierOptions:
         self.preserve_newlines = True
         self.max_preserve_newlines = 10
         self.space_in_paren = False
+        self.e4x = False
         self.jslint_happy = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
@@ -177,6 +178,7 @@ Output options:
  -o,  --outfile=FILE               specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
+ -X,  --e4x                        Pass E4X xml literals through untouched
  -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
 
@@ -583,13 +585,15 @@ class Beautifier:
 
                 return comment, 'TK_COMMENT'
 
-
-
         if c == "'" or c == '"' or \
-           (c == '/' and ((self.last_type == 'TK_WORD' and self.is_special_word(self.flags.last_text)) or \
-                          (self.last_type == 'TK_END_EXPR' and self.previous_flags.mode in [MODE.ForInitializer, MODE.Conditional]) or \
-                          (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR',
-                                              'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA']))):
+            ( \
+                (c == '/') or \
+                (self.opts.e4x and c == "<" and re.match('^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
+            ) and ( \
+                (self.last_type == 'TK_WORD' and self.is_special_word(self.flags.last_text)) or \
+                (self.last_type == 'TK_END_EXPR' and self.previous_flags.mode in [MODE.Conditional, MODE.ForInitializer]) or \
+                (self.last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
+                                   'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
             sep = c
             esc = False
             esc1 = 0
@@ -616,6 +620,38 @@ class Beautifier:
                             # incomplete regex when end-of-file reached
                             # bail out with what has received so far
                             return resulting_string, 'TK_STRING'
+
+                elif self.opts.e4x and sep == '<':
+                    # handle e4x xml literals
+                    xmlRegExp = re.compile('<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>')
+                    xmlStr = self.input[self.parser_pos - 1:]
+                    match = xmlRegExp.match(xmlStr)
+                    if match:
+                        rootTag = match.group(2)
+                        depth = 0
+                        while (match):
+                            isEndTag = match.group(1)
+                            tagName = match.group(2)
+                            isSingletonTag = match.group(4)
+                            if tagName == rootTag and not isSingletonTag:
+                                if isEndTag:
+                                    depth -= 1
+                                else:
+                                    depth += 1
+
+                            if depth <= 0:
+                                break
+
+                            match = xmlRegExp.search(xmlStr, match.end())
+
+                        if match:
+                            xmlLength = match.end() # + len(match.group())
+                        else:
+                            xmlLength = len(xmlStr)
+
+                        self.parser_pos += xmlLength - 1
+                        return xmlStr[:xmlLength], 'TK_STRING'
+
                 else:
                     # handle string
                     while esc or self.input[self.parser_pos] != sep:
@@ -1260,11 +1296,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfv",
+        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvX",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
             'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
             'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
-            'indent-with-tabs', 'keep-function-indentation', 'version'])
+            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1301,6 +1337,8 @@ def main():
             js_options.brace_style = arg
         elif opt in ('--unescape-strings', '-x'):
             js_options.unescape_strings = True
+        elif opt in ('--e4x', '-X'):
+            js_options.e4x = True
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
