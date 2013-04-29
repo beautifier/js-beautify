@@ -183,6 +183,8 @@
         opt.space_before_conditional= (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
+        opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+
 
         //----------------------------------
         indent_string = '';
@@ -695,7 +697,7 @@
             if (c === "'" || c === '"' || // string
                 (
                     (c === '/') || // regexp
-                    (options.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)) // xml
+                    (opt.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>/)) // xml
                 ) && ( // regex and xml can only appear in specific locations during parsing
                     (last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
                     (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
@@ -734,7 +736,7 @@
                                 return [resulting_string, 'TK_STRING'];
                             }
                         }
-                    } else if (options.e4x && sep === '<') {
+                    } else if (opt.e4x && sep === '<') {
                         //
                         // handle e4x xml literals
                         //
