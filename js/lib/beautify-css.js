@@ -251,6 +251,9 @@
     } else if (typeof window !== "undefined") {
         // If we're running a web page and don't have either of the above, add our one global
         window.css_beautify = css_beautify;
+    } else if (typeof global !== "undefined") {
+        // If we don't even have window, try global.
+        global.css_beautify = css_beautify;
     }
 
 }());
