@@ -49,7 +49,11 @@ img {
     border: 0;
 }
 
-a.self { font-weight: bold; text-decoration: none; color: #444; border-bottom: 1px solid #aaa }
+a.self {
+    font-weight: bold;
+    text-decoration: none;
+    color: #444;
+    border-bottom: 1px solid #aaa }
 
 p, select, label, .blurb, a.turn-off-codemirror {
     font:13px/1.231 arial, sans-serif;
@@ -88,6 +92,10 @@ table#options {
 table#options td {
     vertical-align: top;
     padding-left: 10px;
+}
+
+#about {
+    float: left;
 }
 
 #about p {
@@ -284,6 +292,12 @@ function looks_like_html(source)
 </head>
 <body>
 
+    <div id="about">
+            <p><a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a></p>
+            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+    </div>
+
+
     <table id="options">
         <tr>
           <td>
@@ -311,7 +325,8 @@ function looks_like_html(source)
             <option value="end-expand">End braces on own line</option>
           </select>
 
-          <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p><select id="indent-scripts">
+          <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p>
+          <select id="indent-scripts">
             <option value="keep">Keep indent level of the tag</option>
             <option value="normal">Add one indent level</option>
             <option value="separate">Separate indentation</option>
@@ -330,12 +345,6 @@ function looks_like_html(source)
 
         </td></tr>
     </table>
-
-    <div id="about">
-            <p><a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a></p>
-            <p>All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence, <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
-    </div>
-
 
     <div style="line-height: 0">
       <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em></button>
