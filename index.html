@@ -179,7 +179,7 @@ function read_settings_from_cookie() {
     $('#tabsize').val(any($.cookie('tabsize'), '4'));
     $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
     $('#detect-packers').prop('checked', $.cookie('detect-packers') !== 'off');
-    $('#preserve-newlines').prop('checked', $.cookie('preserve-newlines') !== 'off');
+    $('#max-preserve-newlines').val(any($.cookie('max-preserve-newlines'), '5'));
     $('#keep-array-indentation').prop('checked', $.cookie('keep-array-indentation') === 'on');
     $('#break-chained-methods').prop('checked', $.cookie('break-chained-methods') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
@@ -193,7 +193,7 @@ function store_settings_to_cookie() {
     $.cookie('tabsize', $('#tabsize').val(), opts);
     $.cookie('brace-style', $('#brace-style').val(), opts);
     $.cookie('detect-packers', $('#detect-packers').prop('checked') ? 'on' : 'off', opts);
-    $.cookie('preserve-newlines', $('#preserve-newlines').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('max-preserve-newlines', $('#max-preserve-newlines').val(), opts);
     $.cookie('keep-array-indentation', $('#keep-array-indentation').prop('checked') ? 'on' : 'off', opts);
     $.cookie('break-chained-methods', $('#break-chained-methods').prop('checked') ? 'on' : 'off', opts);
     $.cookie('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off', opts);
@@ -252,7 +252,8 @@ function beautify()
 
     opts.indent_size = $('#tabsize').val();
     opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
-    opts.preserve_newlines = $('#preserve-newlines').prop('checked');
+    opts.max_preserve_newlines = $('#max-preserve-newlines').val();
+    opts.preserve_newlines = opts.max_preserve_newlines !== -1;
     opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
     opts.break_chained_methods = $('#break-chained-methods').prop('checked');
     opts.indent_scripts = $('#indent-scripts').val();
@@ -302,11 +303,20 @@ function looks_like_html(source)
         <tr>
           <td>
           <select name="tabsize" id="tabsize">
-            <option value="1">indent with a tab character</option>
-            <option value="2">indent with 2 spaces</option>
-            <option value="3">indent with 3 spaces</option>
-            <option value="4">indent with 4 spaces</option>
-            <option value="8">indent with 8 spaces</option>
+            <option value="1">Indent with a tab character</option>
+            <option value="2">Indent with 2 spaces</option>
+            <option value="3">Indent with 3 spaces</option>
+            <option value="4">Indent with 4 spaces</option>
+            <option value="8">Indent with 8 spaces</option>
+          </select><br>
+
+          <select name="max-preserve-newlines" id="max-preserve-newlines">
+            <option value="-1">Remove all extra newlines</option>
+            <option value="1">Allow 1 newline between tokens</option>
+            <option value="2">Allow 2 newlines between tokens</option>
+            <option value="5">Allow 5 newlines between tokens</option>
+            <option value="10">Allow 10 newlines between tokens</option>
+            <option value="0">Allow unlimited newlines between tokens</option>
           </select><br>
 
           <select name="wrap-line-length" id="wrap-line-length">
@@ -334,7 +344,6 @@ function looks_like_html(source)
 
         </td><td>
 
-          <input class="checkbox" type="checkbox" id="preserve-newlines"><label for="preserve-newlines"> Preserve empty lines?</label><br>
           <input class="checkbox" type="checkbox" id="detect-packers"><label for="detect-packers"> Detect packers and obfuscators?</label><br>
           <input class="checkbox" type="checkbox" id="keep-array-indentation"><label for="keep-array-indentation"> Keep array indentation?</label><br>
           <input class="checkbox" type="checkbox" id="break-chained-methods"><label for="break-chained-methods"> Break lines on chained methods?</label><br>
