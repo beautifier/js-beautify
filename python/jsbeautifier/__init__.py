@@ -1296,11 +1296,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvX",
+        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvXw:",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
             'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
             'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
-            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x'])
+            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
