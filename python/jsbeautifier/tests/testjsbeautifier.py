@@ -895,6 +895,28 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;');
         self.options.e4x = False
 
+        # START tests for issue 241
+        bt('obj\n' +
+           '    .last({\n' +
+           '        foo: 1,\n' +
+           '        bar: 2\n' +
+           '    });\n' +
+           'var test = 1;');
+
+        bt('obj\n' +
+           '    .last(function() {\n' +
+           '        var test;\n' +
+           '    });\n' +
+           'var test = 1;');
+
+        bt('obj.first()\n' +
+           '    .second()\n' +
+           '    .last(function(err, response) {\n' +
+           '        console.log(err);\n' +
+           '    });');
+
+        # END tests for issue 241
+
 
 
 
