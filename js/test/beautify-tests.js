@@ -959,6 +959,28 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;');
         opts.e4x = false;
 
+        // START tests for issue 241
+        bt('obj\n' +
+           '    .last({\n' +
+           '        foo: 1,\n' +
+           '        bar: 2\n' +
+           '    });\n' +
+           'var test = 1;');
+
+        bt('obj\n' +
+           '    .last(function() {\n' +
+           '        var test;\n' +
+           '    });\n' +
+           'var test = 1;');
+
+        bt('obj.first()\n' +
+           '    .second()\n' +
+           '    .last(function(err, response) {\n' +
+           '        console.log(err);\n' +
+           '    });');
+
+        // END tests for issue 241
+
 
         Urlencoded.run_tests(sanitytest);
 
