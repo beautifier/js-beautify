@@ -548,7 +548,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = 5 + function();')
 
         bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}')
-        bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\nfunction b(b) {}\nfunction c(c) {}')
+        bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\n\nfunction b(b) {}\n\nfunction c(c) {}')
 
 
         bt('3.*7;', '3. * 7;')
@@ -775,7 +775,7 @@ class TestJSBeautifier(unittest.TestCase):
             'function f(a, b, c, d, e) {}');
 
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         # This is not valid syntax, but still want to behave reasonably and not side-effect
@@ -823,7 +823,7 @@ class TestJSBeautifier(unittest.TestCase):
             'function f(a, b, c,\n    d, e) {}');
 
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
             'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         # This is not valid syntax, but still want to behave reasonably and not side-effect
@@ -858,7 +858,7 @@ class TestJSBeautifier(unittest.TestCase):
            'try {\n    while (true) {\n        willThrow()\n    }\n} catch (result) switch (result) {\n    case 1:\n        ++result\n}');
         bt('((e/((a+(b)*c)-d))^2)*5;', '((e / ((a + (b) * c) - d)) ^ 2) * 5;');
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\nfunction g(a, b) {\n    if (!a) b()\n}');
+            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         bt('a=[];',
             'a = [];');
         bt('a=[b,c,d];',
@@ -871,7 +871,7 @@ class TestJSBeautifier(unittest.TestCase):
            'try {\n    while ( true ) {\n        willThrow( )\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}');
         bt('((e/((a+(b)*c)-d))^2)*5;', '( ( e / ( ( a + ( b ) * c ) - d ) ) ^ 2 ) * 5;');
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f( a, b ) {\n    if ( a ) b( )\n}\nfunction g( a, b ) {\n    if ( !a ) b( )\n}');
+            'function f( a, b ) {\n    if ( a ) b( )\n}\n\nfunction g( a, b ) {\n    if ( !a ) b( )\n}');
         bt('a=[ ];',
             'a = [ ];');
         bt('a=[b,c,d];',
@@ -921,9 +921,16 @@ class TestJSBeautifier(unittest.TestCase):
 
 
 
+
     def decodesto(self, input, expectation=None):
         self.assertEqual(
             jsbeautifier.beautify(input, self.options), expectation or input)
+
+        # if the expected is different from input, run it again
+        # expected output should be unchanged when run twice.
+        if not expectation == None:
+            self.assertEqual(
+                jsbeautifier.beautify(expectation, self.options), expectation)
 
     def wrap(self, text):
         return self.wrapregex.sub('    \\1', text)

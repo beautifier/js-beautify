@@ -310,6 +310,10 @@
             return output.length && output[output.length - 1] === "\n";
         }
 
+        function just_added_blankline() {
+            return just_added_newline() && output.length - 1 > 0 && output[output.length - 2] === "\n";
+        }
+
         function _last_index_of(arr, find) {
             var i = arr.length - 1;
             if (i < 0) {
@@ -1115,16 +1119,15 @@
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
                 }
-                if ((just_added_newline() || flags.last_text === ';') && flags.last_text !== '{' &&
-                    !is_array(flags.mode)) {
+                if ((just_added_newline() || flags.last_text === ';' || flags.last_text === '}') &&
+                    flags.last_text !== '{' && !is_array(flags.mode)) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition, except in arrays
-                    n_newlines = just_added_newline() ? n_newlines : 0;
-                    if (!opt.preserve_newlines) {
-                        n_newlines = 1;
+                    if(!just_added_newline()) {
+                        print_newline(true);
                     }
 
-                    for (var i = 0; i < 2 - n_newlines; i++) {
+                    if(!just_added_blankline()) {
                         print_newline(true);
                     }
                 }

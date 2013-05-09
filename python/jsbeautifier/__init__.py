@@ -350,6 +350,9 @@ class Beautifier:
     def just_added_newline(self):
         return len(self.output) and self.output[-1] == '\n'
 
+    def just_added_blankline(self):
+        return self.just_added_newline() and len(self.output) - 1 > 0 and self.output[-2] == '\n'
+
     def last_index(self, arr, find):
         last_index = len(arr) - 1
         while last_index >= 0:
@@ -951,15 +954,13 @@ class Beautifier:
         if token_text == 'function':
             if self.flags.var_line and self.flags.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
-            if (self.just_added_newline() or self.flags.last_text == ';') and self.flags.last_text != '{' and not self.is_array(self.flags.mode):
+            if (self.just_added_newline() or self.flags.last_text == ';' or self.flags.last_text == '}') and \
+                    self.flags.last_text != '{' and not self.is_array(self.flags.mode):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
-                have_newlines = self.n_newlines
                 if not self.just_added_newline():
-                    have_newlines = 0
-                if not self.opts.preserve_newlines:
-                    have_newlines = 1
-                for i in range(2 - have_newlines):
+                    self.append_newline(True)
+                if not self.just_added_blankline():
                     self.append_newline(True)
 
             if self.last_type == 'TK_WORD':
