@@ -1478,6 +1478,10 @@
             }
 
             output_space_before_token = true;
+
+            // Adrián: Insert space before comment content.
+            token_text = token_text.substring(0, 2).trim() + ' ' + token_text.substring(2).trim();
+
             print_token();
             print_newline(false, true);
         }
