@@ -230,7 +230,6 @@ class Beautifier:
         self.last_last_text = ''         # pre-last token text
 
         self.input = None
-        self.dot_after_newline = False
         self.output = []                 # formatted javascript gets built here
         self.output_wrapped = False
         self.output_space_before_token = False
@@ -380,8 +379,11 @@ class Beautifier:
 
         if ((self.opts.preserve_newlines and self.input_wanted_newline) or force_linewrap) and not self.just_added_newline():
             self.append_newline(preserve_statement_flags = True)
-            self.output_wrapped = True
             self.input_wanted_newline = False
+
+            # Expressions and array literals already indent their contents.
+            if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode)):
+                self.output_wrapped = True
 
 
     def append_newline(self, force_newline = False, preserve_statement_flags = False):
@@ -828,10 +830,9 @@ class Beautifier:
             self.output_space_before_token = True
         if self.token_text == '[':
             self.set_mode(MODE.ArrayLiteral)
-            self.indent()
-        if self.dot_after_newline:
-            self.dot_after_newline = False
-            self.indent()
+
+        # In all cases, if we newline while inside an expression it should be indented.
+        self.indent();
 
 
 
@@ -936,9 +937,6 @@ class Beautifier:
                 # if we don't see the expected while, recover
                 self.append_newline()
                 self.flags.do_block = False
-
-        if self.dot_after_newline and self.is_special_word(token_text):
-            self.dot_after_newline = False
 
         # if may be followed by else, or not
         # Bare/inline ifs are tricky
@@ -1287,9 +1285,6 @@ class Beautifier:
             # force newlines on dots after close paren when break_chained - for bar().baz()
             self.allow_wrap_or_preserved_newline(token_text,
                 self.flags.last_text == ')' and self.opts.break_chained_methods)
-
-        if self.just_added_newline():
-            self.dot_after_newline = True
 
         self.append_token(token_text)
 

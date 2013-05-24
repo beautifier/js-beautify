@@ -116,8 +116,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a=0xff+4', 'a = 0xff + 4');
         bt('a = [1, 2, 3, 4]');
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
-        bt('a.b({c:d})', "a.b({\n    c: d\n})");
-        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n    c: d\n})");
+        bt('a.b({c:d})', "a.b({\n        c: d\n    })");
+        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n        c: d\n    })");
         bt('a=!b', 'a = !b');
         bt('a?b:c', 'a ? b : c');
         bt('a?1:2', 'a ? 1 : 2');
@@ -436,7 +436,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         bt("x = [{'a':0}]", "x = [{\n        'a': 0\n    }]");
 
-        bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n        b;\n    });\n}');
+        bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n            b;\n        });\n}');
 
         bt('a = //comment\n/regex/;');
 
@@ -695,7 +695,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
+                      '        "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -771,7 +771,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
+                      '        "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -848,9 +848,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
         // This is not valid syntax, but still want to behave reasonably and not side-effect
         bt('(if(a) b())(if(a) b())',
-            '(\nif (a) b())(\nif (a) b())');
+            '(\n    if (a) b())(\n    if (a) b())');
         bt('(if(a) b())\n\n\n(if(a) b())',
-            '(\nif (a) b())\n(\nif (a) b())');
+            '(\n    if (a) b())\n(\n    if (a) b())');
 
 
 
@@ -897,9 +897,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
             'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
         // This is not valid syntax, but still want to behave reasonably and not side-effect
         bt('(if(a) b())(if(a) b())',
-            '(\nif (a) b())(\nif (a) b())');
+            '(\n    if (a) b())(\n    if (a) b())');
         bt('(if(a) b())\n\n\n(if(a) b())',
-            '(\nif (a) b())\n\n\n(\nif (a) b())');
+            '(\n    if (a) b())\n\n\n(\n    if (a) b())');
 
 
         bt("if\n(a)\nb();", "if (a)\n    b();");
@@ -911,7 +911,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
         bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
         bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f');
-        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n    c || d) &&\n    e) e = f');
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n        c || d) &&\n    e) e = f');
         test_fragment('\n\n"x"', '"x"');
 
         // this beavior differs between js and python, defaults to unlimited in js, 10 in python

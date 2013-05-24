@@ -86,7 +86,7 @@
         var input, output, token_text, token_type, last_type, last_last_text, indent_string;
         var flags, previous_flags, flag_store;
         var whitespace, wordchar, punct, parser_pos, line_starters, digits;
-        var prefix, dot_after_newline;
+        var prefix;
         var input_wanted_newline;
         var output_wrapped, output_space_before_token;
         var input_length, n_newlines, whitespace_before_token;
@@ -348,8 +348,12 @@
             }
             if (((opt.preserve_newlines && input_wanted_newline) || force_linewrap) && !just_added_newline()) {
                 print_newline(false, true);
-                output_wrapped = true;
                 input_wanted_newline = false;
+
+                // Expressions and array literals already indent their contents.
+                if(! (is_array(flags.mode) || is_expression(flags.mode))) {
+                    output_wrapped = true;
+                }
             }
         }
 
@@ -971,12 +975,10 @@
             }
             if (token_text === '[') {
                 set_mode(MODE.ArrayLiteral);
-                indent();
             }
-            if(dot_after_newline) {
-              dot_after_newline = false;
-              indent();
-            }
+
+            // In all cases, if we newline while inside an expression it should be indented.
+            indent();
         }
 
         function handle_end_expr() {
@@ -1097,10 +1099,6 @@
                     print_newline();
                     flags.do_block = false;
                 }
-            }
-
-            if(dot_after_newline && is_special_word(token_text)) {
-              dot_after_newline = false;
             }
 
             // if may be followed by else, or not
@@ -1491,12 +1489,7 @@
                 allow_wrap_or_preserved_newline (flags.last_text === ')' && opt.break_chained_methods);
             }
 
-            if (just_added_newline()) {
-                dot_after_newline = true;
-            }
-
             print_token();
-
         }
 
         function handle_unknown() {
