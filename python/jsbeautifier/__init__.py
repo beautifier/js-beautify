@@ -1238,33 +1238,29 @@ class Beautifier:
 
 
     def handle_block_comment(self, token_text):
-
         lines = token_text.replace('\x0d', '').split('\x0a')
-        # all lines start with an asterisk? that's a proper box comment
-        if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
+        javadoc = False
+
+        # block comment starts with a new line
+        self.append_newline(preserve_statement_flags = True)
+        if  len(lines) > 1:
+            if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
+                javadoc = True
+
+        # first line always indented
+        self.append_token(lines[0])
+        for line in lines[1:]:
             self.append_newline(preserve_statement_flags = True)
-            self.append_token(lines[0])
-            for line in lines[1:]:
-                self.append_newline(preserve_statement_flags = True)
+            if javadoc:
+                # javadoc: reformat and re-indent
                 self.append_token(' ' + line.strip())
-        else:
-            # simple block comment: leave intact
-            if len(lines) > 1:
-                # multiline comment starts on a new line
-                self.append_newline(preserve_statement_flags = True)
             else:
-                # single line /* ... */ comment stays on the same line
-                self.output_space_before_token = True
-
-            self.append_token(lines[0])
-            self.output.append('\n')
-            for line in lines[1:]:
+                # normal comments output raw
                 self.output.append(line)
-                self.output.append('\n')
 
-        if not self.is_next('\n'):
+        # for comments of more than one line, make sure there's a new line after
+        if len(lines) > 1 and not self.is_next('\n'):
             self.append_newline(preserve_statement_flags = True)
-
 
     def handle_inline_comment(self, token_text):
         self.output_space_before_token = True

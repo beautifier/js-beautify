@@ -511,6 +511,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test(\n" +
+            "    /*Argument 1*/\n" +
+            "    {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/\n" +
+            "    {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         opts.brace_style = 'collapse';
 
@@ -549,6 +566,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test(\n" +
+            "    /*Argument 1*/ {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/ {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         opts.brace_style = "end-expand";
 
@@ -587,6 +619,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test(\n" +
+            "    /*Argument 1*/ {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/ {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         opts.brace_style = 'collapse';
 

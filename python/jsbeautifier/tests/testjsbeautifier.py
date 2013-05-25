@@ -465,6 +465,23 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            # expected
+            "test(\n" +
+            "    /*Argument 1*/\n" +
+            "    {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/\n" +
+            "    {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         self.options.brace_style = 'collapse';
 
@@ -503,6 +520,21 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            # expected
+            "test(\n" +
+            "    /*Argument 1*/ {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/ {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         self.options.brace_style = "end-expand";
 
@@ -541,6 +573,21 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2*/ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            # expected
+            "test(\n" +
+            "    /*Argument 1*/ {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2*/ {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 
         self.options.brace_style = 'collapse';
 

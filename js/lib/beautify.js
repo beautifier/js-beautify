@@ -1429,42 +1429,31 @@
         function handle_block_comment() {
             var lines = split_newlines(token_text);
             var j; // iterator for this case
+            var javadoc = false;
 
-            if (all_lines_start_with(lines.slice(1), '*')) {
-                // javadoc: reformat and reindent
-                print_newline(false, true);
-                print_token(lines[0]);
-                for (j = 1; j < lines.length; j++) {
-                    print_newline(false, true);
-                    print_token(' ' + trim(lines[j]));
+            // block comment starts with a new line
+            print_newline(false, true);
+            if (lines.length > 1) {
+                if (all_lines_start_with(lines.slice(1), '*')) {
+                    javadoc = true;
                 }
-
-            } else {
-
-                // simple block comment: leave intact
-                if (lines.length > 1) {
-                    // multiline comment block starts with a new line
-                    print_newline(false, true);
-                } else {
-                    // single-line /* comment */ stays where it is
-                    if (last_type === 'TK_END_BLOCK') {
-                        print_newline(false, true);
-                    } else {
-                        output_space_before_token = true;
-                    }
-
-                }
-
-                print_token(lines[0]);
-                output.push("\n");
-                for (j = 1; j < lines.length; j++) {
-                    output.push(lines[j]);
-                    output.push("\n");
-                }
-
             }
 
-            if (!is_next('\n')) {
+            // first line always indented
+            print_token(lines[0]);
+            for (j = 1; j < lines.length; j++) {
+                print_newline(false, true);
+                if (javadoc) {
+                    // javadoc: reformat and re-indent
+                    print_token(' ' + trim(lines[j]));
+                } else {
+                    // normal comments output raw
+                    output.push(lines[j]);
+                }
+            }
+
+            // for comments of more than one line, make sure there's a new line after
+            if (lines.length > 1 && !is_next('\n')) {
                 print_newline(false, true);
             }
         }
