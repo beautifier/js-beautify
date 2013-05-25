@@ -294,12 +294,12 @@ class Beautifier:
                 break
 
             keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
+            self.input_wanted_newline = self.n_newlines > 0
 
             if keep_whitespace:
                  for i in range(self.n_newlines):
                         self.append_newline(force_newline = True)
             else: # not keep_whitespace
-                self.input_wanted_newline = self.n_newlines > 0
                 if self.opts.max_preserve_newlines != 0 and self.n_newlines > self.opts.max_preserve_newlines:
                     self.n_newlines = self.opts.max_preserve_newlines
 
@@ -379,7 +379,6 @@ class Beautifier:
 
         if ((self.opts.preserve_newlines and self.input_wanted_newline) or force_linewrap) and not self.just_added_newline():
             self.append_newline(preserve_statement_flags = True)
-            self.input_wanted_newline = False
 
             # Expressions and array literals already indent their contents.
             if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode)):
@@ -409,8 +408,10 @@ class Beautifier:
 
     def append_token_line_indentation(self):
         if self.just_added_newline():
-            if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and len(self.whitespace_before_token) > 0:
-                self.output.append(''.join(self.whitespace_before_token))
+            if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and self.input_wanted_newline:
+                for item in self.whitespace_before_token:
+                    self.output.append(item)
+
             else:
                 if self.preindent_string:
                     self.output.append(self.preindent_string)
@@ -825,11 +826,12 @@ class Beautifier:
             if self.flags.mode != 'OBJECT':
                 self.allow_wrap_or_preserved_newline(token_text)
 
+        if self.token_text == '[':
+            self.set_mode(MODE.ArrayLiteral)
+
         self.append_token(token_text)
         if self.opts.space_in_paren:
             self.output_space_before_token = True
-        if self.token_text == '[':
-            self.set_mode(MODE.ArrayLiteral)
 
         # In all cases, if we newline while inside an expression it should be indented.
         self.indent();
@@ -845,10 +847,15 @@ class Beautifier:
         if self.token_text == ']' and self.is_array(self.flags.mode) and self.flags.multiline_array and not self.opts.keep_array_indentation:
             self.append_newline()
 
-        self.restore_mode()
         if self.opts.space_in_paren:
             self.output_space_before_token = True
-        self.append_token(token_text)
+
+        if self.token_text == ']' and self.opts.keep_array_indentation:
+            self.append_token(token_text)
+            self.restore_mode()
+        else:
+            self.restore_mode()
+            self.append_token(token_text)
 
         # do {} while () // no statement required after
         if self.flags.do_while and self.previous_flags.mode == MODE.Conditional:

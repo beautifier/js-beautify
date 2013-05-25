@@ -423,11 +423,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
 
         opts.keep_array_indentation = false;
-        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']",
+        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']",
             "a = ['a', 'b', 'c',\n    'd', 'e', 'f'\n]");
-        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']",
+        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f',\n        'g', 'h', 'i']",
             "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
-        bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']",
+        bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']",
             "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
         bt('var x = [{}\n]', 'var x = [{}]');
         bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
@@ -440,11 +440,15 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         // this is not great, but is accurate
         bt('{a([[a1]], {b;});}',
             '{\n    a([\n            [a1]\n        ], {\n            b;\n        });\n}');
+        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
+            "a();\n[\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
+        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
+            "function() {\n    Foo([\n            ['sdfsdfsd'],\n            ['sdfsdfsdf']\n        ]);\n}");
 
         opts.keep_array_indentation = true;
-        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
-        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
-        bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
+        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']");
+        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f',\n        'g', 'h', 'i']");
+        bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']");
         bt('var x = [{}\n]', 'var x = [{}\n]');
         bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
         bt("a = ['something',\n    'completely',\n    'different'];\nif (x);");
@@ -454,6 +458,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
             "x = [{\n        'a': 0\n    }]");
         bt('{a([[a1]], {b;});}',
             '{\n    a([[a1]], {\n            b;\n        });\n}');
+        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
+            "a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
+        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
+            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
+
         opts.keep_array_indentation = false;
 
 

@@ -394,6 +394,10 @@ class TestJSBeautifier(unittest.TestCase):
         # this is not great, but is accurate
         bt('{a([[a1]], {b;});}',
             '{\n    a([\n            [a1]\n        ], {\n            b;\n        });\n}');
+        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
+            "a();\n[\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
+        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
+            "function() {\n    Foo([\n            ['sdfsdfsd'],\n            ['sdfsdfsdf']\n        ]);\n}");
 
         self.options.keep_array_indentation = True;
         bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
@@ -408,6 +412,10 @@ class TestJSBeautifier(unittest.TestCase):
             "x = [{\n        'a': 0\n    }]");
         bt('{a([[a1]], {b;});}',
             '{\n    a([[a1]], {\n            b;\n        });\n}');
+        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
+            "a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
+        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
+            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
         self.options.keep_array_indentation = False;
 
         bt('a = //comment\n/regex/;');

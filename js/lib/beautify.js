@@ -237,13 +237,13 @@
                 }
 
                 keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
+                input_wanted_newline = n_newlines > 0;
 
                 if (keep_whitespace) {
                     for (i = 0; i < n_newlines; i += 1) {
                         print_newline(true);
                     }
                 } else {
-                    input_wanted_newline = n_newlines > 0;
                     if (opt.max_preserve_newlines && n_newlines > opt.max_preserve_newlines) {
                         n_newlines = opt.max_preserve_newlines;
                     }
@@ -348,7 +348,6 @@
             }
             if (((opt.preserve_newlines && input_wanted_newline) || force_linewrap) && !just_added_newline()) {
                 print_newline(false, true);
-                input_wanted_newline = false;
 
                 // Expressions and array literals already indent their contents.
                 if(! (is_array(flags.mode) || is_expression(flags.mode))) {
@@ -385,8 +384,10 @@
 
         function print_token_line_indentation() {
             if (just_added_newline()) {
-                if (opt.keep_array_indentation && is_array(flags.mode) && whitespace_before_token.length) {
-                    output.push(whitespace_before_token.join('') + '');
+                if (opt.keep_array_indentation && is_array(flags.mode) && input_wanted_newline) {
+                    for (var i = 0; i < whitespace_before_token.length; i += 1) {
+                        output.push(whitespace_before_token[i]);
+                    }
                 } else {
                     if (preindent_string) {
                         output.push(preindent_string);
@@ -969,12 +970,13 @@
                     }
                 }
             }
+            if (token_text === '[') {
+                set_mode(MODE.ArrayLiteral);
+            }
+
             print_token();
             if (opt.space_in_paren) {
                     output_space_before_token = true;
-            }
-            if (token_text === '[') {
-                set_mode(MODE.ArrayLiteral);
             }
 
             // In all cases, if we newline while inside an expression it should be indented.
@@ -991,11 +993,16 @@
             if (token_text === ']' && is_array(flags.mode) && flags.multiline_array && !opt.keep_array_indentation) {
                 print_newline();
             }
-            restore_mode();
             if (opt.space_in_paren) {
                     output_space_before_token = true;
             }
-            print_token();
+            if (token_text === ']' && opt.keep_array_indentation) {
+                print_token();
+                restore_mode();
+            } else {
+                restore_mode();
+                print_token();
+            }
 
             // do {} while () // no statement required after
             if (flags.do_while && previous_flags.mode === MODE.Conditional) {
