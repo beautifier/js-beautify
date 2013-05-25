@@ -375,22 +375,40 @@ class TestJSBeautifier(unittest.TestCase):
         bt('// a\n// b\n\n// c\n// d')
         bt('if (foo) //  comment\n{\n    bar();\n}')
 
-        self.options.keep_array_indentation = True;
 
+        self.options.keep_array_indentation = False;
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']",
+            "a = ['a', 'b', 'c',\n    'd', 'e', 'f'\n]");
+        bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']",
+            "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
+        bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']",
+            "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
+        bt('var x = [{}\n]', 'var x = [{}]');
+        bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
+        bt("a = ['something',\n    'completely',\n    'different'];\nif (x);",
+            "a = ['something',\n    'completely',\n    'different'\n];\nif (x);");
+        bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
+        bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
+        bt("x = [{'a':0}]",
+            "x = [{\n        'a': 0\n    }\n]");
+        # this is not great, but is accurate
+        bt('{a([[a1]], {b;});}',
+            '{\n    a([\n            [a1]\n        ], {\n            b;\n        });\n}');
+
+        self.options.keep_array_indentation = True;
         bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f']");
         bt("a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n        'g', 'h', 'i']");
         bt("a = ['a', 'b', 'c',\n        'd', 'e', 'f',\n            'g', 'h', 'i']");
-
-
         bt('var x = [{}\n]', 'var x = [{}\n]');
         bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
         bt("a = ['something',\n    'completely',\n    'different'];\nif (x);");
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
-
-        bt("x = [{'a':0}]", "x = [{\n        'a': 0\n    }]");
-
-        bt('{a([[a1]], {b;});}', '{\n    a([[a1]], {\n            b;\n        });\n}');
+        bt("x = [{'a':0}]",
+            "x = [{\n        'a': 0\n    }]");
+        bt('{a([[a1]], {b;});}',
+            '{\n    a([[a1]], {\n            b;\n        });\n}');
+        self.options.keep_array_indentation = False;
 
         bt('a = //comment\n/regex/;');
 
