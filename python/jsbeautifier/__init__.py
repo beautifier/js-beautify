@@ -450,6 +450,8 @@ class Beautifier:
     def indent(self):
         self.flags.indentation_level += 1
 
+    def deindent(self):
+        self.flags.indentation_level -= 1
 
     def set_mode(self, mode):
         if self.flags:
@@ -990,7 +992,7 @@ class Beautifier:
             self.append_newline()
             if self.flags.case_body or self.opts.jslint_happy:
                 self.flags.case_body = False
-                self.flags.indentation_level -= 1
+                self.deindent()
             self.append_token(token_text)
             self.flags.in_case = True
             self.flags.in_case_statement = True

@@ -436,6 +436,10 @@
         function indent() {
             flags.indentation_level += 1;
         }
+        
+        function deindent() {
+            flags.indentation_level -= 1;
+        }
 
         function set_mode(mode) {
             if (flags) {
@@ -1160,7 +1164,7 @@
                 print_newline();
                 if (flags.case_body || opt.jslint_happy) {
                     // switch cases following one another
-                    flags.indentation_level--;
+                    deindent();
                     flags.case_body = false;
                 }
                 print_token();
