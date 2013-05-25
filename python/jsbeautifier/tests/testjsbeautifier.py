@@ -463,7 +463,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = new function() {};');
         bt('var a = new function a()\n    {};');
         test_fragment('new function');
-
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo(\n    {\n        'a': 1\n    },\n    10);");
 
         self.options.brace_style = 'collapse';
 
@@ -500,6 +501,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
         test_fragment('new function');
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo({\n        'a': 1\n    },\n    10);");
 
         self.options.brace_style = "end-expand";
 
@@ -536,6 +539,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
         test_fragment('new function');
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo({\n        'a': 1\n    },\n    10);");
 
         self.options.brace_style = 'collapse';
 

@@ -509,7 +509,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = new function() {};');
         bt('var a = new function a()\n    {};');
         test_fragment('new function');
-
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo(\n    {\n        'a': 1\n    },\n    10);");
 
         opts.brace_style = 'collapse';
 
@@ -546,6 +547,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
         test_fragment('new function');
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo({\n        'a': 1\n    },\n    10);");
 
         opts.brace_style = "end-expand";
 
@@ -582,6 +585,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
         test_fragment('new function');
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo({\n        'a': 1\n    },\n    10);");
 
         opts.brace_style = 'collapse';
 
