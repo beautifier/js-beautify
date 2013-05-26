@@ -241,7 +241,7 @@
 
                 if (keep_whitespace) {
                     for (i = 0; i < n_newlines; i += 1) {
-                        print_newline(true);
+                        print_newline(i > 0);
                     }
                 } else {
                     if (opt.max_preserve_newlines && n_newlines > opt.max_preserve_newlines) {
@@ -1453,9 +1453,7 @@
             }
 
             // for comments of more than one line, make sure there's a new line after
-            if (lines.length > 1 && !is_next('\n')) {
-                print_newline(false, true);
-            }
+            print_newline(false, true);
         }
 
         function handle_inline_comment() {

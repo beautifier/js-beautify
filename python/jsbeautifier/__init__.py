@@ -298,7 +298,7 @@ class Beautifier:
 
             if keep_whitespace:
                  for i in range(self.n_newlines):
-                        self.append_newline(force_newline = True)
+                        self.append_newline(i > 0)
             else: # not keep_whitespace
                 if self.opts.max_preserve_newlines != 0 and self.n_newlines > self.opts.max_preserve_newlines:
                     self.n_newlines = self.opts.max_preserve_newlines
@@ -1258,9 +1258,7 @@ class Beautifier:
                 # normal comments output raw
                 self.output.append(line)
 
-        # for comments of more than one line, make sure there's a new line after
-        if len(lines) > 1 and not self.is_next('\n'):
-            self.append_newline(preserve_statement_flags = True)
+        self.append_newline(preserve_statement_flags = True)
 
     def handle_inline_comment(self, token_text):
         self.output_space_before_token = True
