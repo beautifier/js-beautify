@@ -465,6 +465,8 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
+        bt('(["foo","bar"]).each(function(i) {return i;});',
+            '(["foo", "bar"]).each(function(i)\n    {\n        return i;\n    });');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
@@ -556,6 +558,8 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt('(["foo","bar"]).each(function(i) {return i;});',
+            '(["foo", "bar"]).each(function(i) {\n        return i;\n    });');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
@@ -645,6 +649,8 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
+        bt('(["foo","bar"]).each(function(i) {return i;});',
+            '(["foo", "bar"]).each(function(i) {\n        return i;\n    });');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
