@@ -10,7 +10,7 @@ load('js/test/sanitytest.js')
 load('js/test/beautify-tests.js')
 load('js/lib/unpackers/urlencode_unpacker.js')
 
-print(run_beautifier_tests().results_raw())
+print(run_beautifier_tests(new SanityTest(), Urlencoded, js_beautify).results_raw())
 
 
 // for nodejs use this from the command line from the main directory:

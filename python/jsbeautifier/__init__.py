@@ -294,12 +294,12 @@ class Beautifier:
                 break
 
             keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
+            self.input_wanted_newline = self.n_newlines > 0
 
             if keep_whitespace:
                  for i in range(self.n_newlines):
-                        self.append_newline(force_newline = True)
+                        self.append_newline(i > 0)
             else: # not keep_whitespace
-                self.input_wanted_newline = self.n_newlines > 0
                 if self.opts.max_preserve_newlines != 0 and self.n_newlines > self.opts.max_preserve_newlines:
                     self.n_newlines = self.opts.max_preserve_newlines
 
@@ -349,6 +349,9 @@ class Beautifier:
     def just_added_newline(self):
         return len(self.output) and self.output[-1] == '\n'
 
+    def just_added_blankline(self):
+        return self.just_added_newline() and len(self.output) - 1 > 0 and self.output[-2] == '\n'
+
     def last_index(self, arr, find):
         last_index = len(arr) - 1
         while last_index >= 0:
@@ -376,8 +379,10 @@ class Beautifier:
 
         if ((self.opts.preserve_newlines and self.input_wanted_newline) or force_linewrap) and not self.just_added_newline():
             self.append_newline(preserve_statement_flags = True)
-            self.output_wrapped = True
-            self.input_wanted_newline = False
+
+            # Expressions and array literals already indent their contents.
+            if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode)):
+                self.output_wrapped = True
 
 
     def append_newline(self, force_newline = False, preserve_statement_flags = False):
@@ -403,8 +408,10 @@ class Beautifier:
 
     def append_token_line_indentation(self):
         if self.just_added_newline():
-            if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and len(self.whitespace_before_token) > 0:
-                self.output.append(''.join(self.whitespace_before_token))
+            if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and self.input_wanted_newline:
+                for item in self.whitespace_before_token:
+                    self.output.append(item)
+
             else:
                 if self.preindent_string:
                     self.output.append(self.preindent_string)
@@ -819,12 +826,15 @@ class Beautifier:
             if self.flags.mode != 'OBJECT':
                 self.allow_wrap_or_preserved_newline(token_text)
 
+        if self.token_text == '[':
+            self.set_mode(MODE.ArrayLiteral)
+
         self.append_token(token_text)
         if self.opts.space_in_paren:
             self.output_space_before_token = True
-        if self.token_text == '[':
-            self.set_mode(MODE.ArrayLiteral)
-            self.indent()
+
+        # In all cases, if we newline while inside an expression it should be indented.
+        self.indent();
 
 
 
@@ -837,10 +847,15 @@ class Beautifier:
         if self.token_text == ']' and self.is_array(self.flags.mode) and self.flags.multiline_array and not self.opts.keep_array_indentation:
             self.append_newline()
 
-        self.restore_mode()
         if self.opts.space_in_paren:
             self.output_space_before_token = True
-        self.append_token(token_text)
+
+        if self.token_text == ']' and self.opts.keep_array_indentation:
+            self.append_token(token_text)
+            self.restore_mode()
+        else:
+            self.restore_mode()
+            self.append_token(token_text)
 
         # do {} while () // no statement required after
         if self.flags.do_while and self.previous_flags.mode == MODE.Conditional:
@@ -944,15 +959,13 @@ class Beautifier:
         if token_text == 'function':
             if self.flags.var_line and self.flags.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
-            if (self.just_added_newline() or self.flags.last_text == ';') and self.flags.last_text != '{' and not self.is_array(self.flags.mode):
+            if (self.just_added_newline() or self.flags.last_text == ';' or self.flags.last_text == '}') and \
+                    self.flags.last_text != '{' and not self.is_array(self.flags.mode):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
-                have_newlines = self.n_newlines
                 if not self.just_added_newline():
-                    have_newlines = 0
-                if not self.opts.preserve_newlines:
-                    have_newlines = 1
-                for i in range(2 - have_newlines):
+                    self.append_newline(True)
+                if not self.just_added_blankline():
                     self.append_newline(True)
 
             if self.last_type == 'TK_WORD':
@@ -1225,33 +1238,27 @@ class Beautifier:
 
 
     def handle_block_comment(self, token_text):
-
         lines = token_text.replace('\x0d', '').split('\x0a')
-        # all lines start with an asterisk? that's a proper box comment
-        if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
+        javadoc = False
+
+        # block comment starts with a new line
+        self.append_newline(preserve_statement_flags = True)
+        if  len(lines) > 1:
+            if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
+                javadoc = True
+
+        # first line always indented
+        self.append_token(lines[0])
+        for line in lines[1:]:
             self.append_newline(preserve_statement_flags = True)
-            self.append_token(lines[0])
-            for line in lines[1:]:
-                self.append_newline(preserve_statement_flags = True)
+            if javadoc:
+                # javadoc: reformat and re-indent
                 self.append_token(' ' + line.strip())
-        else:
-            # simple block comment: leave intact
-            if len(lines) > 1:
-                # multiline comment starts on a new line
-                self.append_newline(preserve_statement_flags = True)
             else:
-                # single line /* ... */ comment stays on the same line
-                self.output_space_before_token = True
-
-            self.append_token(lines[0])
-            self.output.append('\n')
-            for line in lines[1:]:
+                # normal comments output raw
                 self.output.append(line)
-                self.output.append('\n')
 
-        if not self.is_next('\n'):
-            self.append_newline(preserve_statement_flags = True)
-
+        self.append_newline(preserve_statement_flags = True)
 
     def handle_inline_comment(self, token_text):
         self.output_space_before_token = True
@@ -1296,11 +1303,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvX",
+        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvXw:",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
             'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
             'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
-            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x'])
+            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)

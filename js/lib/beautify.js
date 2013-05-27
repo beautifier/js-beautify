@@ -237,13 +237,13 @@
                 }
 
                 keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
+                input_wanted_newline = n_newlines > 0;
 
                 if (keep_whitespace) {
                     for (i = 0; i < n_newlines; i += 1) {
-                        print_newline(true);
+                        print_newline(i > 0);
                     }
                 } else {
-                    input_wanted_newline = n_newlines > 0;
                     if (opt.max_preserve_newlines && n_newlines > opt.max_preserve_newlines) {
                         n_newlines = opt.max_preserve_newlines;
                     }
@@ -310,6 +310,10 @@
             return output.length && output[output.length - 1] === "\n";
         }
 
+        function just_added_blankline() {
+            return just_added_newline() && output.length - 1 > 0 && output[output.length - 2] === "\n";
+        }
+
         function _last_index_of(arr, find) {
             var i = arr.length - 1;
             if (i < 0) {
@@ -344,8 +348,11 @@
             }
             if (((opt.preserve_newlines && input_wanted_newline) || force_linewrap) && !just_added_newline()) {
                 print_newline(false, true);
-                output_wrapped = true;
-                input_wanted_newline = false;
+
+                // Expressions and array literals already indent their contents.
+                if(! (is_array(flags.mode) || is_expression(flags.mode))) {
+                    output_wrapped = true;
+                }
             }
         }
 
@@ -377,8 +384,10 @@
 
         function print_token_line_indentation() {
             if (just_added_newline()) {
-                if (opt.keep_array_indentation && is_array(flags.mode) && whitespace_before_token.length) {
-                    output.push(whitespace_before_token.join('') + '');
+                if (opt.keep_array_indentation && is_array(flags.mode) && input_wanted_newline) {
+                    for (var i = 0; i < whitespace_before_token.length; i += 1) {
+                        output.push(whitespace_before_token[i]);
+                    }
                 } else {
                     if (preindent_string) {
                         output.push(preindent_string);
@@ -961,14 +970,17 @@
                     }
                 }
             }
+            if (token_text === '[') {
+                set_mode(MODE.ArrayLiteral);
+            }
+
             print_token();
             if (opt.space_in_paren) {
                     output_space_before_token = true;
             }
-            if (token_text === '[') {
-                set_mode(MODE.ArrayLiteral);
-                indent();
-            }
+
+            // In all cases, if we newline while inside an expression it should be indented.
+            indent();
         }
 
         function handle_end_expr() {
@@ -981,11 +993,16 @@
             if (token_text === ']' && is_array(flags.mode) && flags.multiline_array && !opt.keep_array_indentation) {
                 print_newline();
             }
-            restore_mode();
             if (opt.space_in_paren) {
                     output_space_before_token = true;
             }
-            print_token();
+            if (token_text === ']' && opt.keep_array_indentation) {
+                print_token();
+                restore_mode();
+            } else {
+                restore_mode();
+                print_token();
+            }
 
             // do {} while () // no statement required after
             if (flags.do_while && previous_flags.mode === MODE.Conditional) {
@@ -1107,16 +1124,15 @@
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
                 }
-                if ((just_added_newline() || flags.last_text === ';') && flags.last_text !== '{' &&
-                    !is_array(flags.mode)) {
+                if ((just_added_newline() || flags.last_text === ';' || flags.last_text === '}') &&
+                    flags.last_text !== '{' && !is_array(flags.mode)) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition, except in arrays
-                    n_newlines = just_added_newline() ? n_newlines : 0;
-                    if (!opt.preserve_newlines) {
-                        n_newlines = 1;
+                    if(!just_added_newline()) {
+                        print_newline(true);
                     }
 
-                    for (var i = 0; i < 2 - n_newlines; i++) {
+                    if(!just_added_blankline()) {
                         print_newline(true);
                     }
                 }
@@ -1413,44 +1429,31 @@
         function handle_block_comment() {
             var lines = split_newlines(token_text);
             var j; // iterator for this case
+            var javadoc = false;
 
-            if (all_lines_start_with(lines.slice(1), '*')) {
-                // javadoc: reformat and reindent
+            // block comment starts with a new line
+            print_newline(false, true);
+            if (lines.length > 1) {
+                if (all_lines_start_with(lines.slice(1), '*')) {
+                    javadoc = true;
+                }
+            }
+
+            // first line always indented
+            print_token(lines[0]);
+            for (j = 1; j < lines.length; j++) {
                 print_newline(false, true);
-                print_token(lines[0]);
-                for (j = 1; j < lines.length; j++) {
-                    print_newline(false, true);
+                if (javadoc) {
+                    // javadoc: reformat and re-indent
                     print_token(' ' + trim(lines[j]));
-                }
-
-            } else {
-
-                // simple block comment: leave intact
-                if (lines.length > 1) {
-                    // multiline comment block starts with a new line
-                    print_newline(false, true);
                 } else {
-                    // single-line /* comment */ stays where it is
-                    if (last_type === 'TK_END_BLOCK') {
-                        print_newline(false, true);
-                    } else {
-                        output_space_before_token = true;
-                    }
-
-                }
-
-                print_token(lines[0]);
-                output.push("\n");
-                for (j = 1; j < lines.length; j++) {
+                    // normal comments output raw
                     output.push(lines[j]);
-                    output.push("\n");
                 }
-
             }
 
-            if (!is_next('\n')) {
-                print_newline(false, true);
-            }
+            // for comments of more than one line, make sure there's a new line after
+            print_newline(false, true);
         }
 
         function handle_inline_comment() {
