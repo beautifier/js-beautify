@@ -238,8 +238,27 @@ function processInputSync(filepath) {
         });
     }
     else {
-        data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, outfile, writePretty);
+        var dir = path.dirname(outfile);
+        var exists = fs.exists || path.exists;
+        var mkdirp = require('mkdirp');
+        mkdirp(dir, function (err) {
+            if (err) console.error(err)
+            else console.log('pow!')
+        });
+        exists(dir, function (exist) {
+            if (exist) {
+                data = fs.readFileSync(filepath, 'utf8');
+                makePretty(data, config, outfile, writePretty);
+            } else {
+                mkdirp(dir, function (err) {
+                    if (err) throw  'Unable to create directory "' + dir + '"';
+                    else {
+                        data = fs.readFileSync(filepath, 'utf8');
+                        makePretty(data, config, outfile, writePretty);
+                    }
+                });
+            }
+        });
     }
 }
 

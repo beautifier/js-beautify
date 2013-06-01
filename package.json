@@ -43,7 +43,8 @@
   "license": "MIT",
   "dependencies": {
     "config-chain": "~1.1.5",
-    "nopt": "~2.1.1"
+    "nopt": "~2.1.1",
+    "mkdirp": "*"
   },
   "devDependencies": {
     "jshint": "1.1.0"
