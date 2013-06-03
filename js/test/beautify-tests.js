@@ -1149,6 +1149,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
         opts.e4x = true;
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
+        // handles inline expressions
+        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
         // Handles messed up tags, as long as it isn't the same name
         // as the root tag. Also handles tags of same name as root tag
         // as long as nesting matches.
