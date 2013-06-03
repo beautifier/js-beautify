@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import sys
 import getopt
 import re
@@ -1393,8 +1394,15 @@ def main():
             if outfile == 'stdout':
                 print(beautify_file(file, js_options))
             else:
-                with open(outfile, 'w') as f:
-                    f.write(beautify_file(file, js_options) + '\n')
+                index = outfile.find('/', -1)
+                if index == -1:
+                    with open(outfile, 'w') as f:
+                        f.write(beautify_file(file, js_options) + '\n')
+                else:
+                    if not os.path.isdir(outfile[:index]):
+                        os.makedirs(outfile[:index])
+                    with open(outfile, 'w') as f:
+                        f.write(beautify_file(file, js_options) + '\n')
         except Exception as ex:
             print(ex, file=sys.stderr)
             return 1
