@@ -77,6 +77,12 @@ test_cli_js_beautify()
       exit 1
   }
 
+  rm -rf /tmp/js-beautify-mkdir
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js $SCRIPT_DIR/../bin/js-beautify.js && diff $SCRIPT_DIR/../bin/js-beautify.js /tmp/js-beautify-mkdir/js-beautify.js || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in /tmp/js-beautify-mkdir/js-beautify.js."
+      exit 1
+  }
+
   $CLI_SCRIPT $SCRIPT_DIR/../bin/css-beautify.js | diff -q $SCRIPT_DIR/../bin/css-beautify.js - && {
       echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected to be different."
       exit 1

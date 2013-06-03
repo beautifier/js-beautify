@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import os
 import getopt
 import re
 import string
@@ -1324,7 +1325,13 @@ class Beautifier:
             self.append_newline()
 
 
-
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
 
 
 def main():
@@ -1393,6 +1400,7 @@ def main():
             if outfile == 'stdout':
                 print(beautify_file(file, js_options))
             else:
+                mkdir_p(os.path.dirname(outfile))
                 with open(outfile, 'w') as f:
                     f.write(beautify_file(file, js_options) + '\n')
         except Exception as ex:
