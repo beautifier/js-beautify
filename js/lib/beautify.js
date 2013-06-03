@@ -88,6 +88,7 @@
         var whitespace, wordchar, punct, parser_pos, line_starters, digits;
         var prefix;
         var input_wanted_newline;
+        var line_indent_level;
         var output_wrapped, output_space_before_token;
         var input_length, n_newlines, whitespace_before_token;
         var handlers, MODE, opt;
@@ -133,8 +134,10 @@
         };
 
         function create_flags(flags_base, mode) {
-            return {
+            var next_indent_level =  (flags_base ? flags_base.indentation_level + ((flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0) : 0);
+            var next_flags = {
                 mode: mode,
+                parent: flags_base,
                 last_text: flags_base ? flags_base.last_text : '', // last token text
                 last_word: flags_base ? flags_base.last_word : '', // last 'TK_WORD' passed
                 var_line: false,
@@ -148,9 +151,10 @@
                 in_case_statement: false, // switch(..){ INSIDE HERE }
                 in_case: false, // we're on the exact line with "case 0:"
                 case_body: false, // the indented case-action block
-                indentation_level: (flags_base ? flags_base.indentation_level + ((flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0) : 0),
+                indentation_level: next_indent_level,
                 ternary_depth: 0
-            };
+            }
+            return next_flags;
         }
 
         // Some interpreters have unexpected results with foo = baz || bar;
@@ -203,6 +207,7 @@
 
         last_type = 'TK_START_BLOCK'; // last token type
         last_last_text = ''; // pre-last token text
+        line_indent_level = 0;
         output = [];
         output_wrapped = false;
         output_space_before_token = false;
@@ -362,7 +367,7 @@
 
             if (!preserve_statement_flags) {
                 if  (flags.last_text !== ';') {
-                    while (flags.mode === MODE.Statement && !flags.if_block) {
+                    while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
                         restore_mode();
                     }
                 }
@@ -393,22 +398,17 @@
                         output.push(preindent_string);
                     }
 
-                    print_indent_string(flags.indentation_level);
-                    print_indent_string(flags.var_line && flags.var_line_reindented);
-                    print_indent_string(output_wrapped);
+                    print_indent_string(flags.indentation_level +
+                        (flags.var_line && flags.var_line_reindented ? 1 : 0) +
+                        (output_wrapped ? 1 : 0));
                 }
             }
         }
 
         function print_indent_string(level) {
-            if (level === undefined) {
-                level = 1;
-            } else if (typeof level !== 'number') {
-                level = level ? 1 : 0;
-            }
-
             // Never indent your first output indent at the start of the file
             if (flags.last_text !== '') {
+                line_indent_level = level;
                 for (var i = 0; i < level; i += 1) {
                     output.push(indent_string);
                 }
@@ -436,9 +436,11 @@
         function indent() {
             flags.indentation_level += 1;
         }
-        
+
         function deindent() {
-            flags.indentation_level -= 1;
+            if (flags.indentation_level > 0 &&
+                ((!flags.parent) || flags.indentation_level > flags.parent.indentation_level))
+                flags.indentation_level -= 1;
         }
 
         function set_mode(mode) {
@@ -472,10 +474,20 @@
              (flags.last_text === 'do' ||
                  (flags.last_text === 'else' && token_text !== 'if') ||
                 (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)))) {
-                allow_wrap_or_preserved_newline();
+                // Issue #276:
+                // If starting a new statement with [if, for, while, do], push to a new line.
+                // if (a) if (b) if(c) d(); else e(); else f();
+                allow_wrap_or_preserved_newline(
+                    in_array(token_text, ['do', 'for', 'if', 'while']));
+
                 set_mode(MODE.Statement);
-                indent();
-                output_wrapped = false;
+                // Issue #275:
+                // If starting on a newline, all of a statement should be indented.
+                // if not, use line wrapping logic for indent.
+                if(just_added_newline()) {
+                    indent();
+                    output_wrapped = false;
+                }
                 return true;
             }
             return false;
@@ -1155,6 +1167,15 @@
                     print_newline();
                 }
 
+                if (is_expression(flags.mode)) {
+                    // Issue #274
+                    // (function inside expression that is not nested.
+                    if(!(is_expression(flags.parent.mode) || is_array(flags.parent.mode)) &&
+                        line_indent_level < flags.indentation_level) {
+                        deindent();
+                    }
+                }
+
                 print_token();
                 flags.last_word = token_text;
                 return;
@@ -1274,7 +1295,12 @@
         }
 
         function handle_semicolon() {
-            while (flags.mode === MODE.Statement && !flags.if_block) {
+            if (start_of_statement()) {
+                // The conditional starts the statement if appropriate.
+                // Semicolon can be the start (and end) of a statement
+                output_space_before_token = false;
+            }
+            while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
                 restore_mode();
             }
             print_token();

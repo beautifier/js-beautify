@@ -466,7 +466,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i)\n    {\n        return i;\n    });');
+            '(["foo", "bar"]).each(function(i)\n{\n    return i;\n});');
+        bt('(function(i) {return i;})();',
+            '(function(i)\n{\n    return i;\n})();');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
@@ -559,7 +561,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n        return i;\n    });');
+            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
+        bt('(function(i) {return i;})();',
+            '(function(i) {\n    return i;\n})();');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
@@ -650,7 +654,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n        return i;\n    });');
+            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
+        bt('(function(i) {return i;})();',
+            '(function(i) {\n    return i;\n})();');
         bt( "test( /*Argument 1*/ {\n" +
             "    'Value1': '1'\n" +
             "}, /*Argument 2\n" +
@@ -872,7 +878,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '        .okay();');
+                      '    .okay();');
 
         self.options.wrap_line_length = 70
         #..............---------1---------2---------3---------4---------5---------6---------7
@@ -885,7 +891,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '        .okay();');
+                      '    .okay();');
 
 
         self.options.wrap_line_length = 40
@@ -901,7 +907,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
-                      '        .okay();');
+                      '    .okay();');
 
         self.options.wrap_line_length = 41
         # NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -917,7 +923,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
-                      '        .okay();');
+                      '    .okay();');
 
         self.options.wrap_line_length = 45
         # NOTE: wrap is only best effort - line continues until next wrap point is found.
@@ -936,7 +942,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_\n' +
-                      '            .okay();\n' +
+                      '        .okay();\n' +
                       '}');
 
         self.options.wrap_line_length = 0
@@ -951,17 +957,35 @@ class TestJSBeautifier(unittest.TestCase):
 
         # these aren't ready yet.
         #bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
+            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
+            'if (foo)\n    if (bar)\n        if (baz) whee();\n        else a();');
+        bt('if (foo)\nbar();\nelse\ncar();',
+            'if (foo) bar();\nelse car();');
 
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo) if (bar) if (baz) whee();\na();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo) if (bar) if (baz) whee();\n        else a();');
-        bt('if (foo)\nbar();\nelse\ncar();', 'if (foo) bar();\nelse car();');
-
-        bt('if (foo) if (bar) if (baz) whee();\na();');
-        bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+        bt('if (foo) if (bar) if (baz);\na();',
+            'if (foo)\n    if (bar)\n        if (baz);\na();');
+        bt('if (foo) if (bar) if (baz) whee();\na();',
+            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
+        bt('if (foo) a()\nif (bar) if (baz) whee();\na();',
+            'if (foo) a()\nif (bar)\n    if (baz) whee();\na();');
+        bt('if (foo);\nif (bar) if (baz) whee();\na();',
+            'if (foo);\nif (bar)\n    if (baz) whee();\na();');
         bt('if (options)\n' +
            '    for (var p in options)\n' +
            '        this[p] = options[p];',
-           'if (options) for (var p in options) this[p] = options[p];');
+           'if (options)\n'+
+           '    for (var p in options) this[p] = options[p];');
+        bt('if (options) for (var p in options) this[p] = options[p];',
+           'if (options)\n    for (var p in options) this[p] = options[p];');
+
+        bt('if (options) do q(); while (b());',
+           'if (options)\n    do q(); while (b());');
+        bt('if (options) while (b()) q();',
+           'if (options)\n    while (b()) q();');
+        bt('if (options) do while (b()) q(); while (a());',
+           'if (options)\n    do\n        while (b()) q(); while (a());');
 
         bt('function f(a, b, c,\nd, e) {}',
             'function f(a, b, c, d, e) {}');
@@ -1001,15 +1025,35 @@ class TestJSBeautifier(unittest.TestCase):
 
         # these aren't ready yet.
         # bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();', 'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
-        bt('if (foo) bar();\nelse\ncar();', 'if (foo) bar();\nelse\n    car();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
+            'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
+        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
+            'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
+        bt('if (foo) bar();\nelse\ncar();',
+            'if (foo) bar();\nelse\n    car();');
 
-        bt('if (foo) if (bar) if (baz) whee();\na();');
-        bt('if (foo) a()\nif (bar) if (baz) whee();\na();');
+        bt('if (foo) if (bar) if (baz);\na();',
+            'if (foo)\n    if (bar)\n        if (baz);\na();');
+        bt('if (foo) if (bar) if (baz) whee();\na();',
+            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
+        bt('if (foo) a()\nif (bar) if (baz) whee();\na();',
+            'if (foo) a()\nif (bar)\n    if (baz) whee();\na();');
+        bt('if (foo);\nif (bar) if (baz) whee();\na();',
+            'if (foo);\nif (bar)\n    if (baz) whee();\na();');
         bt('if (options)\n' +
            '    for (var p in options)\n' +
            '        this[p] = options[p];');
+        bt('if (options) for (var p in options) this[p] = options[p];',
+           'if (options)\n    for (var p in options) this[p] = options[p];');
+
+        bt('if (options) do q(); while (b());',
+           'if (options)\n    do q(); while (b());');
+        bt('if (options) do; while (b());',
+           'if (options)\n    do; while (b());');
+        bt('if (options) while (b()) q();',
+           'if (options)\n    while (b()) q();');
+        bt('if (options) do while (b()) q(); while (a());',
+           'if (options)\n    do\n        while (b()) q(); while (a());');
 
         bt('function f(a, b, c,\nd, e) {}',
             'function f(a, b, c,\n    d, e) {}');
@@ -1096,7 +1140,7 @@ class TestJSBeautifier(unittest.TestCase):
            'var test = 1;');
 
         bt('obj\n' +
-           '    .last(function() {\n' +
+           '    .last(a, function() {\n' +
            '        var test;\n' +
            '    });\n' +
            'var test = 1;');
@@ -1110,6 +1154,26 @@ class TestJSBeautifier(unittest.TestCase):
         # END tests for issue 241
 
 
+        # START tests for issue 268 and 275
+        bt('obj.last(a,\n' +
+           '    function() {\n' +
+           '        var test;\n' +
+           '    });\n' +
+           'var test = 1;',
+           'obj.last(a, function() {\n' +
+           '    var test;\n' +
+           '});\n' +
+           'var test = 1;');
+
+        bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+           '(function() {\n' +
+           '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
+           '        var b = {\n' +
+           '            bar: "zort"\n' +
+           '        };\n' +
+           '    });\n' +
+           '})();');
+        # END tests for issue 268 and 275
 
 
 
