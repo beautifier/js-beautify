@@ -39,6 +39,7 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG
 var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
+    mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     path = require('path'),
     knownOpts = {
@@ -238,6 +239,8 @@ function processInputSync(filepath) {
         });
     }
     else {
+        var dir = path.dirname(outfile);
+        mkdirp.sync(dir);
         data = fs.readFileSync(filepath, 'utf8');
         makePretty(data, config, outfile, writePretty);
     }
