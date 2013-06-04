@@ -710,7 +710,7 @@
             if (c === "'" || c === '"' || // string
                 (
                     (c === '/') || // regexp
-                    (opt.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<([a-zA-Z:0-9]+|{[^{}]*})\s*([a-zA-Z:0-9]+=("[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
+                    (opt.e4x && c ==="<" && input.slice(parser_pos - 1).match(/^<([a-zA-Z:0-9]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([a-zA-Z:0-9]+=("[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
                 ) && ( // regex and xml can only appear in specific locations during parsing
                     (last_type === 'TK_WORD' && is_special_word (flags.last_text)) ||
                     (last_type === 'TK_END_EXPR' && in_array(previous_flags.mode, [MODE.Conditional, MODE.ForInitializer])) ||
@@ -753,7 +753,7 @@
                         //
                         // handle e4x xml literals
                         //
-                        var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+|{[^{}]*})\s*([a-zA-Z:0-9]+=("[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
+                        var xmlRegExp = /<(\/?)([a-zA-Z:0-9]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([a-zA-Z:0-9]+=("[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
                         var xmlStr = input.slice(parser_pos - 1);
                         var match = xmlRegExp.exec(xmlStr);
                         if (match && match.index === 0) {
@@ -762,7 +762,7 @@
                             while (match) {
                                 var isEndTag = !! match[1];
                                 var tagName = match[2];
-                                var isSingletonTag = !! match[match.length - 1];
+                                var isSingletonTag = (!! match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
                                 if (tagName === rootTag && !isSingletonTag) {
                                     if (isEndTag) {
                                         --depth;
