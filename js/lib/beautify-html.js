@@ -299,28 +299,26 @@
             }
             this.tag_type = 'SINGLE';
           }
-          else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
-            if (tag_check.indexOf('[if') !== -1) { //peek for <!--[if conditional comment
-              if (tag_complete.indexOf('!IE') !== -1) { //this type needs a closing --> so...
-                comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
-                content.push(comment);
-              }
-              if ( ! peek) {
-                this.tag_type = 'START';
-              }
+          else if (tag_check.charAt(0) === '!' ) { //peek for <! comment
+            // We treat all of these as unformatted, we just look for the appropriate close tag
+            if (tag_check.indexOf('![if') === 0) { //peek for <![if conditional comment
+              comment = this.get_unformatted('![endif]>', tag_complete);
+              content.push(comment);
+              this.tag_type = 'SINGLE';
             }
-            else if (tag_check.indexOf('[endif') !== -1) {//peek for <!--[endif end conditional comment
-              this.tag_type = 'END';
-              this.unindent();
-            }
-            else if (tag_check.indexOf('[cdata[') !== -1) { //if it's a <[cdata[ comment...
-              comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
+            else if (tag_check.indexOf('![cdata[') === 0) { //if it's a <[cdata[ comment...
+              comment = this.get_unformatted(']]>', tag_complete);
               content.push(comment);
               if ( ! peek) {
                 this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
               }
             }
-            else {
+            else if (tag_check.indexOf('![') === 0) { // some other ![ comment...
+              comment = this.get_unformatted(']>', tag_complete);
+              content.push(comment);
+              this.tag_type = 'SINGLE';
+            }
+            else { // even if this isn't a <!-- comment, treat it like one...
               comment = this.get_unformatted('-->', tag_complete);
               content.push(comment);
               this.tag_type = 'SINGLE';
