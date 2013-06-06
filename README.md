@@ -72,28 +72,30 @@ These are the command-line flags for both Python and JS scripts:
 
 ```text
 CLI Options:
-  -f, --file                    Input file(s) (Pass '-' for stdin). These can also be passed directly.
-  -r, --replace                 Write output in-place, replacing input
-  -o, --outfile                 Write output to file (default stdout)
-  --config                      Path to config file
-  --type                        [js|css|html] ["js"]
-  -q, --quiet                   Suppress logging to stdout
-  -v, --version                 Show the version
-  -h, --help                    Show this help
+  -f, --file       Input file(s) (Pass '-' for stdin)
+  -r, --replace    Write output in-place, replacing input
+  -o, --outfile    Write output to file (default stdout)
+  --config         Path to config file
+  --type           [js|css|html] ["js"]
+  -q, --quiet      Suppress logging to stdout
+  -h, --help       Show this help
+  -v, --version    Show the version
 
 Beautifier Options:
   -s, --indent-size             Indentation size [4]
   -c, --indent-char             Indentation character [" "]
   -l, --indent-level            Initial indentation level [0]
   -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
-  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
+  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]
+  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )
   -j, --jslint-happy            Enable jslint-stricter mode
   -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
   -B, --break-chained-methods   Break chained method calls across subsequent lines
   -k, --keep-array-indentation  Preserve array indentation
   -x, --unescape-strings        Decode printable characters encoded in xNN notation
   -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]
+  -X, --e4x                     Pass E4X xml literals through untouched
   --good-stuff                  Warm the cockles of Crockford's heart
 ```
 
@@ -173,3 +175,5 @@ useful or working for you but you must keep the copyright notice and license. (M
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
+js-beautify@1.3.4
+
