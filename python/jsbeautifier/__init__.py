@@ -1368,7 +1368,7 @@ def main():
             js_options.indent_char = arg
         elif opt in ('--indent-with-tabs', '-t'):
             js_options.indent_with_tabs = True
-        elif opt in ('--disable-preserve_newlines', '-d'):
+        elif opt in ('--disable-preserve-newlines', '-d'):
             js_options.preserve_newlines = False
         elif opt in ('--space-in-paren', '-P'):
             js_options.space_in_paren = True
