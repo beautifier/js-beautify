@@ -613,7 +613,7 @@ class Beautifier:
         if c == "'" or c == '"' or \
             ( \
                 (c == '/') or \
-                (self.opts.e4x and c == "<" and re.match('^<[a-zA-Z:0-9]+\s*([a-zA-Z:0-9]+="[^"]*"\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
+                (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[a-zA-Z:0-9]+|\{[^{}]*\})\s*([a-zA-Z:0-9]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
             ) and ( \
                 (self.last_type == 'TK_WORD' and self.is_special_word(self.flags.last_text)) or \
                 (self.last_type == 'TK_END_EXPR' and self.previous_flags.mode in [MODE.Conditional, MODE.ForInitializer]) or \
@@ -648,7 +648,7 @@ class Beautifier:
 
                 elif self.opts.e4x and sep == '<':
                     # handle e4x xml literals
-                    xmlRegExp = re.compile('<(\/?)([a-zA-Z:0-9]+)\s*([a-zA-Z:0-9]+="[^"]*"\s*)*(\/?)\s*>')
+                    xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[a-zA-Z:0-9]+|\{[^{}]*\})\s*([a-zA-Z:0-9]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
                     xmlStr = self.input[self.parser_pos - 1:]
                     match = xmlRegExp.match(xmlStr)
                     if match:
@@ -657,7 +657,7 @@ class Beautifier:
                         while (match):
                             isEndTag = match.group(1)
                             tagName = match.group(2)
-                            isSingletonTag = match.group(4)
+                            isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
                             if tagName == rootTag and not isSingletonTag:
                                 if isEndTag:
                                     depth -= 1

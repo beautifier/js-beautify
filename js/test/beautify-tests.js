@@ -1192,6 +1192,17 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
         opts.e4x = true;
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
+        bt('<a b=\'This is a quoted "c".\'/>', '<a b=\'This is a quoted "c".\'/>');
+        bt('<a b="This is a quoted \'c\'."/>', '<a b="This is a quoted \'c\'."/>');
+        bt('<a b="A quote \' inside string."/>', '<a b="A quote \' inside string."/>');
+        bt('<a b=\'A quote " inside string.\'/>', '<a b=\'A quote " inside string.\'/>');
+        bt('<a b=\'Some """ quotes ""  inside string.\'/>', '<a b=\'Some """ quotes ""  inside string.\'/>');
+        // Handles inline expressions
+        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
+        // Handles CDATA
+        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;');
+        bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');
+        bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;');
         // Handles messed up tags, as long as it isn't the same name
         // as the root tag. Also handles tags of same name as root tag
         // as long as nesting matches.
