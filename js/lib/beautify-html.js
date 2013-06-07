@@ -66,6 +66,10 @@
 
 (function() {
 
+    function trim(s) {
+        return s.replace(/^\s+|\s+$/g, '');
+    }
+
     function style_html(html_source, options, js_beautify, css_beautify) {
     //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -79,15 +83,16 @@
           max_preserve_newlines;
 
       options = options || {};
+
+      // backwards compatibility to 1.3.4
+      if(options.wrap_line_length == undefined && options.max_char != undefined) {
+        options.wrap_line_length = options.max_char;
+      }
+
       indent_size = parseInt(options.indent_size || 4);
       indent_character = options.indent_char || ' ';
       brace_style = options.brace_style || 'collapse';
       wrap_line_length = options.wrap_line_length === 0 ? 32786 : parseInt(options.wrap_line_length || 250);
-
-      // backwards compatibility to 1.3.4
-      if (options.max_char) {
-        wrap_line_length = options.max_char === 0 ? 32786 : parseInt(options.max_char || 250);
-      }
       unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
       preserve_newlines = options.preserve_newlines || true;
       max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786) : 0;
@@ -683,10 +688,10 @@
                 var reindent = multi_parser.get_full_indent(script_indent_level -_level);
                 text = text.replace(/^\s*/, indentation)
                        .replace(/\r\n|\r|\n/g, '\n' + reindent)
-                       .replace(/\s*$/, '');
+                       .replace(/\s+$/, '');
               }
               if (text) {
-                multi_parser.print_token_raw(indentation + text.trim());
+                multi_parser.print_token_raw(indentation + trim(text));
                 multi_parser.print_newline(false, multi_parser.output);
               }
             }

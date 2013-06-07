@@ -288,7 +288,7 @@
         }
 
         function trim(s) {
-            return s.replace(/^\s\s*|\s\s*$/, '');
+            return s.replace(/^\s+|\s+$/g, '');
         }
 
         // we could use just string.split, but
