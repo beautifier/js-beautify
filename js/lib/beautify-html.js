@@ -47,6 +47,9 @@
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
     unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
     indent_scripts (default normal)  - "keep"|"separate"|"normal"
+    preserve_newlines (default true) - whether existing line breaks before elements should be preserved
+                                        Only works before elements, not inside tags or for text.
+    max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
 
     e.g.
 
@@ -55,7 +58,9 @@
       'indent_char': ' ',
       'max_char': 78,
       'brace_style': 'expand',
-      'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u']
+      'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u'],
+      'preserve_newlines': true,
+      'max_preserve_newlines': 5
     });
 */
 
@@ -69,14 +74,18 @@
           indent_character,
           max_char,
           brace_style,
-          unformatted;
+          unformatted,
+          preserve_newlines,
+          max_preserve_newlines;
 
       options = options || {};
-      indent_size = options.indent_size || 4;
+      indent_size = parseInt(options.indent_size || 4);
       indent_character = options.indent_char || ' ';
       brace_style = options.brace_style || 'collapse';
-      max_char = options.max_char === 0 ? Infinity : options.max_char || 250;
+      max_char = options.max_char === 0 ? 32786 : parseInt(options.max_char || 250);
       unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+      preserve_newlines = options.preserve_newlines || true;
+      max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786) : 0;
 
       function Parser() {
 
@@ -90,6 +99,7 @@
         };
         this.tag_type = '';
         this.token_text = this.last_token = this.last_text = this.token_type = '';
+        this.newlines = 0;
 
         this.Utils = { //Uilities made available to the various functions
           whitespace: "\n\r\t ".split(''),
@@ -105,6 +115,25 @@
           }
         };
 
+        this.traverse_whitespace = function() {
+          var input_char = '';
+
+          input_char = this.input.charAt(this.pos);
+          if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
+            this.newlines = 0;
+            while (this.Utils.in_array(input_char, this.Utils.whitespace)) {
+              if(preserve_newlines && input_char === '\n' && this.newlines <= max_preserve_newlines) {
+                this.newlines += 1;
+              }
+
+              this.pos++;
+              input_char = this.input.charAt(this.pos);
+            }
+            return true;
+          }
+          return false;
+        }
+
         this.get_content = function () { //function to capture regular content between tags
 
           var input_char = '',
@@ -116,31 +145,28 @@
               return content.length?content.join(''):['', 'TK_EOF'];
             }
 
-            input_char = this.input.charAt(this.pos);
-            this.pos++;
-            this.line_char_count++;
-
-            if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
+            if (this.traverse_whitespace()) {
               if (content.length) {
                 space = true;
               }
-              this.line_char_count--;
               continue; //don't want to insert unnecessary space
             }
-            else if (space) {
+
+            input_char = this.input.charAt(this.pos);
+            this.pos++;
+
+            if (space) {
               if (this.line_char_count >= this.max_char) { //insert a line when the max_char is reached
-                content.push('\n');
-                for (var i=0; i<this.indent_level; i++) {
-                  content.push(this.indent_string);
-                }
-                this.line_char_count = 0;
+                this.print_newline(false, content);
+                this.print_indentation(content);
               }
-              else{
-                content.push(' ');
+              else {
                 this.line_char_count++;
+                content.push(' ');
               }
               space = false;
             }
+            this.line_char_count++;
             content.push(input_char); //letter at-a-time (or string) inserted to an array
           }
           return content.length?content.join(''):'';
@@ -222,19 +248,16 @@
 
             input_char = this.input.charAt(this.pos);
             this.pos++;
-            this.line_char_count++;
 
             if (this.Utils.in_array(input_char, this.Utils.whitespace)) { //don't want to insert unnecessary space
               space = true;
-              this.line_char_count--;
               continue;
             }
 
             if (input_char === "'" || input_char === '"') {
-              if (!content[1] || content[1] !== '!') { //if we're in a comment strings don't get treated specially
-                input_char += this.get_unformatted(input_char);
-                space = true;
-              }
+              input_char += this.get_unformatted(input_char);
+              space = true;
+
             }
 
             if (input_char === '=') { //no space before =
@@ -245,7 +268,7 @@
                 //no space after = or before >
               if (this.line_char_count >= this.max_char) {
                 this.print_newline(false, content);
-                this.line_char_count = 0;
+                this.print_indentation(content);
               }
               else {
                 content.push(' ');
@@ -253,10 +276,21 @@
               }
               space = false;
             }
-            if (input_char === '<') {
+
+            if (input_char === '<' && !tag_start) {
               tag_start = this.pos - 1;
             }
+
+            this.line_char_count++;
             content.push(input_char); //inserts character at-a-time (or string)
+
+            if (content[1] && content[1] === '!') { //if we're in a comment, do something special
+              // We treat all comments as literals, even more than preformatted tags
+              // we just look for the appropriate close tag
+              content = [this.get_comment(tag_start)];
+              break;
+            }
+
           } while (input_char !== '>');
 
           var tag_complete = content.join('');
@@ -300,27 +334,8 @@
             this.tag_type = 'SINGLE';
           }
           else if (tag_check.charAt(0) === '!' ) { //peek for <! comment
-            // We treat all of these as unformatted, we just look for the appropriate close tag
-            if (tag_check.indexOf('![if') === 0) { //peek for <![if conditional comment
-              comment = this.get_unformatted('![endif]>', tag_complete);
-              content.push(comment);
-              this.tag_type = 'SINGLE';
-            }
-            else if (tag_check.indexOf('![cdata[') === 0) { //if it's a <[cdata[ comment...
-              comment = this.get_unformatted(']]>', tag_complete);
-              content.push(comment);
-              if ( ! peek) {
-                this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
-              }
-            }
-            else if (tag_check.indexOf('![') === 0) { // some other ![ comment...
-              comment = this.get_unformatted(']>', tag_complete);
-              content.push(comment);
-              this.tag_type = 'SINGLE';
-            }
-            else { // even if this isn't a <!-- comment, treat it like one...
-              comment = this.get_unformatted('-->', tag_complete);
-              content.push(comment);
+            // for comments content is already correct.
+            if (! peek) {
               this.tag_type = 'SINGLE';
             }
           }
@@ -334,7 +349,10 @@
               this.tag_type = 'START';
             }
             if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
-              this.print_newline(true, this.output);
+              this.print_newline(false, this.output);
+              if(this.output.length && this.output[this.output.length - 2] !== '\n') {
+                this.print_newline(true, this.output);
+              }
             }
           }
 
@@ -344,6 +362,53 @@
           }
 
           return content.join(''); //returns fully formatted tag
+        };
+
+        this.get_comment = function (start_pos) { //function to return comment content in its entirety
+            // this is will have very poor perf, but will work for now.
+            var comment = '',
+                delimiter = '>',
+                matched = false;
+
+            this.pos = start_pos;
+            input_char = this.input.charAt(this.pos);
+            this.pos++;
+
+            while(this.pos <= this.input.length) {
+              comment += input_char;
+
+              // only need to check for the delimiter if the last chars match
+              if(comment[comment.length - 1] === delimiter[delimiter.length - 1] &&
+                  comment.indexOf(delimiter) !== -1) {
+                break;
+              }
+
+              // only need to search for custom delimiter for the first few characters
+              if (!matched && comment.length < 10) {
+                if (comment.indexOf('<![if') === 0) { //peek for <![if conditional comment
+                  delimiter = '<![endif]>';
+                  matched = true;
+                }
+                else if (comment.indexOf('<![cdata[') === 0) { //if it's a <[cdata[ comment...
+                  delimiter = ']]>';
+                  matched = true;
+                }
+                else if (comment.indexOf('<![') === 0) { // some other ![ comment? ...
+                  delimiter = ']>';
+                  matched = true;
+                }
+                else if (comment.indexOf('<!--') === 0) { // <!-- comment ...
+                  delimiter = '-->';
+                  matched = true;
+                }
+              }
+
+              input_char = this.input.charAt(this.pos);
+              this.pos++;
+            }
+
+            this.traverse_whitespace();
+            return comment;
         };
 
         this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
@@ -474,24 +539,47 @@
             this.indent_string += this.indent_character;
           }
 
-          this.print_newline = function (ignore, arr) {
+          this.print_newline = function (force, arr) {
             this.line_char_count = 0;
             if (!arr || !arr.length) {
               return;
             }
-            if (!ignore) { //we might want the extra line
-              while (this.Utils.in_array(arr[arr.length-1], this.Utils.whitespace)) {
-                arr.pop();
-              }
+            if (force || (arr[arr.length-1] !== '\n')) { //we might want the extra line
+              arr.push('\n');
             }
-            arr.push('\n');
+          };
+
+          this.print_indentation = function (arr) {
             for (var i=0; i<this.indent_level; i++) {
               arr.push(this.indent_string);
+              this.line_char_count += this.indent_string.length;
             }
           };
 
           this.print_token = function (text) {
-            this.output.push(text);
+            if (text || text !== '') {
+              if (this.output.length && this.output[this.output.length-1] === '\n') {
+                this.print_indentation(this.output);
+              }
+            }
+            this.print_token_raw(text);
+          };
+
+          this.print_token_raw = function (text) {
+            if (text && text !== '') {
+              if(text.length > 1 && text[text.length - 1] === '\n') {
+                // unformatted tags can grab newlines as their last character
+                this.output.push(text.slice(0, -1));
+                this.print_newline(false, this.output);
+              } else {
+                this.output.push(text);
+              }
+            }
+
+            for(var n=0; n < this.newlines; n++) {
+              this.print_newline(n > 0, this.output);
+            }
+            this.newlines = 0;
           };
 
           this.indent = function () {
@@ -539,8 +627,9 @@
             if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
                 var tag_name = multi_parser.token_text.match(/\w+/)[0];
                 var tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length -1].match(/<\s*(\w+)/);
-                if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name) {
-                    multi_parser.print_newline(true, multi_parser.output);
+                if (tag_extracted_from_last_output === null ||
+                    tag_extracted_from_last_output[1] !== tag_name) {
+                    multi_parser.print_newline(false, multi_parser.output);
                 }
             }
             multi_parser.print_token(multi_parser.token_text);
@@ -556,15 +645,13 @@
             multi_parser.current_mode = 'CONTENT';
             break;
           case 'TK_CONTENT':
-            if (multi_parser.token_text !== '') {
-              multi_parser.print_token(multi_parser.token_text);
-            }
+            multi_parser.print_token(multi_parser.token_text);
             multi_parser.current_mode = 'TAG';
             break;
           case 'TK_STYLE':
           case 'TK_SCRIPT':
             if (multi_parser.token_text !== '') {
-              multi_parser.output.push('\n');
+              multi_parser.print_newline(false, multi_parser.output);
               var text = multi_parser.token_text,
                   _beautifier,
                   script_indent_level = 1;
@@ -594,8 +681,8 @@
                        .replace(/\s*$/, '');
               }
               if (text) {
-                multi_parser.print_token(text);
-                multi_parser.print_newline(true, multi_parser.output);
+                multi_parser.print_token_raw(indentation + text.trim());
+                multi_parser.print_newline(false, multi_parser.output);
               }
             }
             multi_parser.current_mode = 'TAG';
