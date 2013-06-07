@@ -261,6 +261,7 @@ function beautify()
     opts.space_before_conditional = $('#space-before-conditional').prop('checked');
     opts.unescape_strings = $('#unescape-strings').prop('checked');
     opts.wrap_line_length = $('#wrap-line-length').val();
+    opts.max_char = opts.wrap_line_length; // for html-beautify
     opts.space_after_anon_function = true;
 
     if (looks_like_html(source)) {
