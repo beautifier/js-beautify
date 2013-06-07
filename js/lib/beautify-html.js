@@ -42,7 +42,7 @@
   The options are:
     indent_size (default 4)          — indentation size,
     indent_char (default space)      — character to indent with,
-    max_char (default 250)            -  maximum amount of characters per line (0 = disable)
+    wrap_line_length (default 250)            -  maximum amount of characters per line (0 = disable)
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
     unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
@@ -56,7 +56,7 @@
     style_html(html_source, {
       'indent_size': 2,
       'indent_char': ' ',
-      'max_char': 78,
+      'wrap_line_length': 78,
       'brace_style': 'expand',
       'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u'],
       'preserve_newlines': true,
@@ -72,7 +72,7 @@
       var multi_parser,
           indent_size,
           indent_character,
-          max_char,
+          wrap_line_length,
           brace_style,
           unformatted,
           preserve_newlines,
@@ -82,7 +82,12 @@
       indent_size = parseInt(options.indent_size || 4);
       indent_character = options.indent_char || ' ';
       brace_style = options.brace_style || 'collapse';
-      max_char = options.max_char === 0 ? 32786 : parseInt(options.max_char || 250);
+      wrap_line_length = options.wrap_line_length === 0 ? 32786 : parseInt(options.wrap_line_length || 250);
+
+      // backwards compatibility to 1.3.4
+      if (options.max_char) {
+        wrap_line_length = options.max_char === 0 ? 32786 : parseInt(options.max_char || 250);
+      }
       unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
       preserve_newlines = options.preserve_newlines || true;
       max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786) : 0;
@@ -156,7 +161,7 @@
             this.pos++;
 
             if (space) {
-              if (this.line_char_count >= this.max_char) { //insert a line when the max_char is reached
+              if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
                 this.print_newline(false, content);
                 this.print_indentation(content);
               }
@@ -266,7 +271,7 @@
 
             if (content.length && content[content.length-1] !== '=' && input_char !== '>' && space) {
                 //no space after = or before >
-              if (this.line_char_count >= this.max_char) {
+              if (this.line_char_count >= this.wrap_line_length) {
                 this.print_newline(false, content);
                 this.print_indentation(content);
               }
@@ -523,7 +528,7 @@
             }
         };
 
-        this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
+        this.printer = function (js_source, indent_character, indent_size, wrap_line_length, brace_style) { //handles input/output and some other printing functions
 
           this.input = js_source || ''; //gets the input for the Parser
           this.output = [];
@@ -532,8 +537,8 @@
           this.indent_size = indent_size;
           this.brace_style = brace_style;
           this.indent_level = 0;
-          this.max_char = max_char;
-          this.line_char_count = 0; //count to see if max_char was exceeded
+          this.wrap_line_length = wrap_line_length;
+          this.line_char_count = 0; //count to see if wrap_line_length was exceeded
 
           for (var i=0; i<this.indent_size; i++) {
             this.indent_string += this.indent_character;
@@ -598,7 +603,7 @@
       /*_____________________--------------------_____________________*/
 
       multi_parser = new Parser(); //wrapping functions Parser
-      multi_parser.printer(html_source, indent_character, indent_size, max_char, brace_style); //initialize starting values
+      multi_parser.printer(html_source, indent_character, indent_size, wrap_line_length, brace_style); //initialize starting values
 
       while (true) {
           var t = multi_parser.get_token();

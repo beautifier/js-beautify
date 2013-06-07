@@ -60,7 +60,7 @@ var fs = require('fs'),
         "wrap_line_length": Number,
         "e4x": Boolean,
         // HTML-only
-        "max_char": Number,
+        "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
         "indent_scripts": ["keep", "separate", "normal"],
         // CLI
@@ -92,7 +92,7 @@ var fs = require('fs'),
         "w": ["--wrap_line_length"],
         "X": ["--e4x"],
         // HTML-only
-        "W": ["--max_char"],
+        "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
         "S": ["--indent_scripts"],
         // non-dasherized hybrid shortcuts
@@ -199,7 +199,9 @@ function usage(err) {
     case "html":
         msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
         msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
-        msg.push('  -W, --max-char                Maximum characters per line (0 disables) [250]');
+        msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
+        msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
+        msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
         msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
         break;
     }
