@@ -88,7 +88,6 @@
         var whitespace, wordchar, punct, parser_pos, line_starters, digits;
         var prefix;
         var input_wanted_newline;
-        var line_indent_level;
         var output_wrapped, output_space_before_token;
         var input_length, n_newlines, whitespace_before_token;
         var handlers, MODE, opt;
@@ -134,7 +133,16 @@
         };
 
         function create_flags(flags_base, mode) {
-            var next_indent_level =  (flags_base ? flags_base.indentation_level + ((flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0) : 0);
+            var next_indent_level = 0;
+            if (flags_base) {
+                next_indent_level = flags_base.indentation_level;
+                next_indent_level += (flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0;
+                if (!just_added_newline() &&
+                    flags_base.line_indent_level > next_indent_level) {
+                    next_indent_level = flags_base.line_indent_level;
+                }
+            }
+
             var next_flags = {
                 mode: mode,
                 parent: flags_base,
@@ -144,7 +152,7 @@
                 var_line_tainted: false,
                 var_line_reindented: false,
                 in_html_comment: false,
-                multiline_array: false,
+                multiline_frame: false,
                 if_block: false,
                 do_block: false,
                 do_while: false,
@@ -152,6 +160,8 @@
                 in_case: false, // we're on the exact line with "case 0:"
                 case_body: false, // the indented case-action block
                 indentation_level: next_indent_level,
+                line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
+                start_index: output.length,
                 ternary_depth: 0
             }
             return next_flags;
@@ -207,7 +217,6 @@
 
         last_type = 'TK_START_BLOCK'; // last token type
         last_last_text = ''; // pre-last token text
-        line_indent_level = 0;
         output = [];
         output_wrapped = false;
         output_space_before_token = false;
@@ -373,10 +382,7 @@
                 }
             }
 
-            if (flags.mode === MODE.ArrayLiteral) {
-                flags.multiline_array = true;
-            }
-
+            flags.multiline_frame = true;
 
             if (!output.length) {
                 return; // no newline on start of file
@@ -390,6 +396,8 @@
         function print_token_line_indentation() {
             if (just_added_newline()) {
                 if (opt.keep_array_indentation && is_array(flags.mode) && input_wanted_newline) {
+                    // prevent removing of this whitespace as redundant
+                    output.push('');
                     for (var i = 0; i < whitespace_before_token.length; i += 1) {
                         output.push(whitespace_before_token[i]);
                     }
@@ -408,7 +416,7 @@
         function print_indent_string(level) {
             // Never indent your first output indent at the start of the file
             if (flags.last_text !== '') {
-                line_indent_level = level;
+                flags.line_indent_level = level;
                 for (var i = 0; i < level; i += 1) {
                     output.push(indent_string);
                 }
@@ -441,6 +449,44 @@
             if (flags.indentation_level > 0 &&
                 ((!flags.parent) || flags.indentation_level > flags.parent.indentation_level))
                 flags.indentation_level -= 1;
+        }
+
+        function remove_redundant_indentation(frame) {
+            // This implementation is effective but has some issues:
+            //     - less than great performance due to array splicing
+            //     - can cause line wrap to happen too soon due to indent removal
+            //           after wrap points are calculated
+            // These issues are minor compared to ugly indentation.
+
+            if(frame.multiline_frame) return;
+
+            // remove one indent from each line inside this section
+            var index = frame.start_index;
+            while (index <= output.length) {
+
+                if (output[index] != '\n') {
+                    index++;
+                    continue;
+                }
+
+                // skip consecutive newlines
+                while (index <= output.length &&
+                    output[index] == '\n') {
+                    index++;
+                }
+
+                // skip the preindent string if present
+                if (index <= output.length &&
+                    preindent_string && output[index] == preindent_string) {
+                    index++;
+                }
+
+                // remove one indent, if present
+                if (index <= output.length &&
+                    output[index] === indent_string) {
+                    output.splice(index, 1);
+                }
+            }
         }
 
         function set_mode(mode) {
@@ -919,6 +965,7 @@
                 // The conditional starts the statement if appropriate.
             }
 
+            var next_mode = MODE.Expression;
             if (token_text === '[') {
 
                 if (last_type === 'TK_WORD' || flags.last_text === ')') {
@@ -927,14 +974,17 @@
                     if (in_array (flags.last_text, line_starters)) {
                         output_space_before_token = true;
                     }
-                    set_mode(MODE.Expression);
+                    set_mode(next_mode);
                     print_token();
+                    flags.start_index = output.length
+                    indent();
                     if (opt.space_in_paren) {
                         output_space_before_token = true;
                     }
                     return;
                 }
 
+                next_mode = MODE.ArrayLiteral;
                 if (is_array(flags.mode)) {
                     if (flags.last_text === '[' ||
                         (flags.last_text === ',' && (last_last_text === ']' || last_last_text === '}'))) {
@@ -948,20 +998,20 @@
 
             } else {
                 if  (flags.last_text === 'for') {
-                    set_mode(MODE.ForInitializer);
+                    next_mode = MODE.ForInitializer;
                 } else if (in_array (flags.last_text, ['if', 'while'])) {
-                    set_mode(MODE.Conditional);
+                    next_mode = MODE.Conditional;
                 } else {
-                    set_mode(MODE.Expression);
+                    // next_mode = MODE.Expression;
                 }
             }
 
             if  (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
             } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.') {
-                if (input_wanted_newline) {
-                    print_newline();
-                }
+                // TODO: Consider whether forcing this is required.  Review failing tests when removed.
+                allow_wrap_or_preserved_newline(input_wanted_newline);
+                output_wrapped = false;
                 // do nothing on (( and )( and ][ and ]( and .(
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 output_space_before_token = true;
@@ -986,13 +1036,12 @@
                     }
                 }
             }
-            if (token_text === '[') {
-                set_mode(MODE.ArrayLiteral);
-            }
 
+            set_mode(next_mode);
             print_token();
+            flags.start_index = output.length
             if (opt.space_in_paren) {
-                    output_space_before_token = true;
+                output_space_before_token = true;
             }
 
             // In all cases, if we newline while inside an expression it should be indented.
@@ -1006,11 +1055,15 @@
                 restore_mode();
             }
 
-            if (token_text === ']' && is_array(flags.mode) && flags.multiline_array && !opt.keep_array_indentation) {
+            if (token_text === ']' && is_array(flags.mode) && flags.multiline_frame && !opt.keep_array_indentation) {
                 print_newline();
             }
+
+            if (flags.multiline_frame) {
+                allow_wrap_or_preserved_newline();
+            }
             if (opt.space_in_paren) {
-                    output_space_before_token = true;
+                output_space_before_token = true;
             }
             if (token_text === ']' && opt.keep_array_indentation) {
                 print_token();
@@ -1019,6 +1072,7 @@
                 restore_mode();
                 print_token();
             }
+            remove_redundant_indentation(previous_flags);
 
             // do {} while () // no statement required after
             if (flags.do_while && previous_flags.mode === MODE.Conditional) {
@@ -1054,7 +1108,7 @@
                     }
                 } else {
                     // if TK_OPERATOR or TK_START_EXPR
-                    if (is_array(previous_flags.mode) && flags.last_text === ',') {
+                    if (is_array(flags.mode) && flags.last_text === ',') {
                         if (last_last_text === '}') {
                             // }, { in array context
                             output_space_before_token = true;
@@ -1073,7 +1127,6 @@
             while (flags.mode === MODE.Statement) {
                 restore_mode();
             }
-            restore_mode();
             var empty_braces = last_type === 'TK_START_BLOCK';
 
             if (opt.brace_style === "expand") {
@@ -1094,6 +1147,7 @@
                     }
                 }
             }
+            restore_mode();
             print_token();
         }
 
@@ -1165,15 +1219,6 @@
                     // (function
                 } else {
                     print_newline();
-                }
-
-                if (is_expression(flags.mode)) {
-                    // Issue #274
-                    // (function inside expression that is not nested.
-                    if(!(is_expression(flags.parent.mode) || is_array(flags.parent.mode)) &&
-                        line_indent_level < flags.indentation_level) {
-                        deindent();
-                    }
                 }
 
                 print_token();

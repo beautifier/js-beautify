@@ -116,8 +116,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a=0xff+4', 'a = 0xff + 4');
         bt('a = [1, 2, 3, 4]');
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
-        bt('a.b({c:d})', "a.b({\n        c: d\n    })");
-        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n        c: d\n    })");
+        bt('a.b({c:d})', "a.b({\n    c: d\n})");
+        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n    c: d\n})");
         bt('a=!b', 'a = !b');
         bt('a?b:c', 'a ? b : c');
         bt('a?1:2', 'a ? 1 : 2');
@@ -183,7 +183,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]');
         bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]');
 
-        bt('o = [{a:b},{c:d}]', 'o = [{\n        a: b\n    }, {\n        c: d\n    }\n]');
+        bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
         bt("if (a) {\n    do();\n}"); // was: extra space appended
 
@@ -237,7 +237,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('/incomplete-regex');
 
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
-        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n        a: 1\n    }, {\n        a: 2\n    }\n];');
+        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
 
         test_fragment('{a:#1', '{\n    a: #1'); // incomplete
         test_fragment('{a:#', '{\n    a: #'); // incomplete
@@ -433,20 +433,20 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']",
             "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
         bt('var x = [{}\n]', 'var x = [{}]');
-        bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
+        bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}]');
         bt("a = ['something',\n    'completely',\n    'different'];\nif (x);",
             "a = ['something',\n    'completely',\n    'different'\n];\nif (x);");
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
+
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
         bt("x = [{'a':0}]",
-            "x = [{\n        'a': 0\n    }\n]");
-        // this is not great, but is accurate
+            "x = [{\n    'a': 0\n}]");
         bt('{a([[a1]], {b;});}',
-            '{\n    a([\n            [a1]\n        ], {\n            b;\n        });\n}');
+            '{\n    a([\n        [a1]\n    ], {\n        b;\n    });\n}');
         bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
             "a();\n[\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
         bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
-            "function() {\n    Foo([\n            ['sdfsdfsd'],\n            ['sdfsdfsdf']\n        ]);\n}");
+            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
 
         opts.keep_array_indentation = true;
         bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']");
@@ -458,9 +458,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
         bt("x = [{'a':0}]",
-            "x = [{\n        'a': 0\n    }]");
+            "x = [{\n    'a': 0\n}]");
         bt('{a([[a1]], {b;});}',
-            '{\n    a([[a1]], {\n            b;\n        });\n}');
+            '{\n    a([[a1]], {\n        b;\n    });\n}');
         bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
             "a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
         bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
@@ -898,7 +898,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '        "sassy") || (leans && mean));\n' +
+                      '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -974,7 +974,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '        "sassy") || (leans && mean));\n' +
+                      '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -1259,6 +1259,24 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '    });\n' +
            '})();');
         // END tests for issue 268 and 275
+
+        // START tests for issue 281
+        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+           '    "dojo/_base/lang", "dojo/Deferred"\n' +
+           '], function(declare, Employee, Button, lang, Deferred) {\n' +
+           '    return declare(Employee, {\n' +
+           '        constructor: function() {\n' +
+           '            new Button({\n' +
+           '                onClick: lang.hitch(this, function() {\n' +
+           '                    new Deferred().then(lang.hitch(this, function() {\n' +
+           '                        this.salary * 0.25;\n' +
+           '                    }));\n' +
+           '                })\n' +
+           '            });\n' +
+           '        }\n' +
+           '    });\n' +
+           '});');
+        // END tests for issue 281
 
 
         // This is what I think these should look like related #256
