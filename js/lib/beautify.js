@@ -462,7 +462,7 @@
 
             // remove one indent from each line inside this section
             var index = frame.start_index;
-            while (index <= output.length) {
+            while (index < output.length) {
 
                 if (output[index] != '\n') {
                     index++;
@@ -470,19 +470,19 @@
                 }
 
                 // skip consecutive newlines
-                while (index <= output.length &&
+                while (index < output.length &&
                     output[index] == '\n') {
                     index++;
                 }
 
                 // skip the preindent string if present
-                if (index <= output.length &&
+                if (index < output.length &&
                     preindent_string && output[index] == preindent_string) {
                     index++;
                 }
 
                 // remove one indent, if present
-                if (index <= output.length &&
+                if (index < output.length &&
                     output[index] === indent_string) {
                     output.splice(index, 1);
                 }
@@ -1108,7 +1108,7 @@
                     }
                 } else {
                     // if TK_OPERATOR or TK_START_EXPR
-                    if (is_array(flags.mode) && flags.last_text === ',') {
+                    if (is_array(previous_flags.mode) && flags.last_text === ',') {
                         if (last_last_text === '}') {
                             // }, { in array context
                             output_space_before_token = true;
