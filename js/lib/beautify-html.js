@@ -114,6 +114,7 @@
         this.tag_type = '';
         this.token_text = this.last_token = this.last_text = this.token_type = '';
         this.newlines = 0;
+        this.indent_content = false;
 
         this.Utils = { //Uilities made available to the various functions
           whitespace: "\n\r\t ".split(''),
@@ -362,6 +363,9 @@
             }
             else { //otherwise it's a start-tag
               this.record_tag(tag_check); //push it on the tag stack
+              if(tag_check.toLowerCase() !== 'html') {
+                  this.indent_content = true;
+              }
               this.tag_type = 'START';
 
               // Allow preserving of newlines after a start tag
@@ -632,7 +636,10 @@
           case 'TK_TAG_START':
             multi_parser.print_newline(false, multi_parser.output);
             multi_parser.print_token(multi_parser.token_text);
-            multi_parser.indent();
+            if (multi_parser.indent_content) {
+                multi_parser.indent();
+                this.indent_content = false;
+            }
             multi_parser.current_mode = 'CONTENT';
             break;
           case 'TK_TAG_STYLE':
