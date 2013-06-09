@@ -314,8 +314,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
 
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
+            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
+            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
+
 
         // inline comment
         bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -1257,6 +1260,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '})();');
         // END tests for issue 268 and 275
 
+
+        // This is what I think these should look like related #256
+        // we don't have the ability yet
+//         bt('var a=1,b={bang:2},c=3;',
+//             'var a = 1,\n    b = {\n        bang: 2\n    },\n     c = 3;');
+//         bt('var a={bing:1},b=2,c=3;',
+//             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
 
         return sanitytest;
