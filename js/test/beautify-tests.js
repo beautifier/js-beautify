@@ -799,6 +799,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = 42; // foo\n\n\nvar b;');
         bt("var a = 'foo' +\n    'bar';");
         bt("var a = \"foo\" +\n    \"bar\";");
+        bt('this.oa = new OAuth(,\n' +
+           '    _requestToken,\n' +
+           '    _accessToken,\n' +
+           '    consumer_key\n' +
+           ');');
+
 
         opts.unescape_strings = false;
         test_fragment('"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
@@ -1024,6 +1030,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('this.oa = new OAuth(,\n' +
+           '    _requestToken,\n' +
+           '    _accessToken,\n' +
+           '    consumer_key\n' +
+           ');',
+           'this.oa = new OAuth(, _requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
