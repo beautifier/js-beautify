@@ -1190,6 +1190,19 @@
                 }
             }
 
+            if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
+                print_newline();
+                if (flags.case_body || opt.jslint_happy) {
+                    // switch cases following one another
+                    deindent();
+                    flags.case_body = false;
+                }
+                print_token();
+                flags.in_case = true;
+                flags.in_case_statement = true;
+                return;
+            }
+
             if (token_text === 'function') {
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
@@ -1198,11 +1211,8 @@
                     flags.last_text !== '{' && !is_array(flags.mode)) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition, except in arrays
-                    if(!just_added_newline()) {
-                        print_newline(true);
-                    }
-
                     if(!just_added_blankline()) {
+                        print_newline();
                         print_newline(true);
                     }
                 }
@@ -1220,22 +1230,17 @@
                 } else {
                     print_newline();
                 }
-
-                print_token();
-                flags.last_word = token_text;
-                return;
             }
 
-            if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
-                print_newline();
-                if (flags.case_body || opt.jslint_happy) {
-                    // switch cases following one another
-                    deindent();
-                    flags.case_body = false;
+            if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                if (flags.mode !== MODE.ObjectLiteral) {
+                    allow_wrap_or_preserved_newline();
                 }
+            }
+
+            if (token_text === 'function') {
                 print_token();
-                flags.in_case = true;
-                flags.in_case_statement = true;
+                flags.last_word = token_text;
                 return;
             }
 
@@ -1275,12 +1280,6 @@
                     prefix = 'NEWLINE';
                 }
 
-            }
-
-            if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== MODE.ObjectLiteral) {
-                    allow_wrap_or_preserved_newline();
-                }
             }
 
             if (in_array(token_text, ['else', 'catch', 'finally'])) {

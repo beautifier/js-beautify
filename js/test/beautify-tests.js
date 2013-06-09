@@ -1240,14 +1240,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
 
         // START tests for issue 268 and 275
+        bt('obj.last(a, function() {\n' +
+           '    var test;\n' +
+           '});\n' +
+           'var test = 1;');
         bt('obj.last(a,\n' +
            '    function() {\n' +
            '        var test;\n' +
            '    });\n' +
-           'var test = 1;',
-           'obj.last(a, function() {\n' +
-           '    var test;\n' +
-           '});\n' +
            'var test = 1;');
 
         bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
@@ -1276,8 +1276,24 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '        }\n' +
            '    });\n' +
            '});');
-        // END tests for issue 281
 
+        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+           '        "dojo/_base/lang", "dojo/Deferred"\n' +
+           '    ],\n' +
+           '    function(declare, Employee, Button, lang, Deferred) {\n' +
+           '        return declare(Employee, {\n' +
+           '            constructor: function() {\n' +
+           '                new Button({\n' +
+           '                    onClick: lang.hitch(this, function() {\n' +
+           '                        new Deferred().then(lang.hitch(this, function() {\n' +
+           '                            this.salary * 0.25;\n' +
+           '                        }));\n' +
+           '                    })\n' +
+           '                });\n' +
+           '            }\n' +
+           '        });\n' +
+           '    });');
+        // END tests for issue 281
 
         // This is what I think these should look like related #256
         // we don't have the ability yet
