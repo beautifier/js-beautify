@@ -70,6 +70,10 @@
         return s.replace(/^\s+|\s+$/g, '');
     }
 
+    function ltrim(s) {
+        return s.replace(/^\s+/g, '');
+    }
+
     function style_html(html_source, options, js_beautify, css_beautify) {
     //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -570,6 +574,7 @@
             if (text || text !== '') {
               if (this.output.length && this.output[this.output.length-1] === '\n') {
                 this.print_indentation(this.output);
+                text = ltrim(text);
               }
             }
             this.print_token_raw(text);
