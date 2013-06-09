@@ -351,16 +351,21 @@
             // for comments content is already correct.
             if (! peek) {
               this.tag_type = 'SINGLE';
+              this.traverse_whitespace();
             }
           }
           else if ( ! peek) {
             if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
               this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
               this.tag_type = 'END';
+              this.traverse_whitespace();
             }
             else { //otherwise it's a start-tag
               this.record_tag(tag_check); //push it on the tag stack
               this.tag_type = 'START';
+
+              // Allow preserving of newlines after a start tag
+              this.traverse_whitespace();
             }
             if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
               this.print_newline(false, this.output);
@@ -421,7 +426,6 @@
               this.pos++;
             }
 
-            this.traverse_whitespace();
             return comment;
         };
 
