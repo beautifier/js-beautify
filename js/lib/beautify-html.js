@@ -638,7 +638,7 @@
             multi_parser.print_token(multi_parser.token_text);
             if (multi_parser.indent_content) {
                 multi_parser.indent();
-                this.indent_content = false;
+                multi_parser.indent_content = false;
             }
             multi_parser.current_mode = 'CONTENT';
             break;
