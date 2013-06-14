@@ -156,7 +156,9 @@ HTML Beautifier Options:
   -c, --indent-char             Indentation character [" "]
   -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
   -S, --indent-scripts          [keep|separate|normal] ["normal"]
-  -W, --max-char                Maximum characters per line (0 disables) [250]
+  -w, --wrap-line-length        Maximum characters per line (0 disables) [250]
+  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
 ```
 

@@ -116,8 +116,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a=0xff+4', 'a = 0xff + 4');
         bt('a = [1, 2, 3, 4]');
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
-        bt('a.b({c:d})', "a.b({\n        c: d\n    })");
-        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n        c: d\n    })");
+        bt('a.b({c:d})', "a.b({\n    c: d\n})");
+        bt('a.b\n(\n{\nc:\nd\n}\n)', "a.b({\n    c: d\n})");
         bt('a=!b', 'a = !b');
         bt('a?b:c', 'a ? b : c');
         bt('a?1:2', 'a ? 1 : 2');
@@ -183,7 +183,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]');
         bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]');
 
-        bt('o = [{a:b},{c:d}]', 'o = [{\n        a: b\n    }, {\n        c: d\n    }\n]');
+        bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
 
         bt("if (a) {\n    do();\n}"); // was: extra space appended
 
@@ -237,7 +237,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         test_fragment('/incomplete-regex');
 
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
-        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n        a: 1\n    }, {\n        a: 2\n    }\n];');
+        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
 
         test_fragment('{a:#1', '{\n    a: #1'); // incomplete
         test_fragment('{a:#', '{\n    a: #'); // incomplete
@@ -314,8 +314,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
 
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
+            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
+            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    }, {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
+
 
         // inline comment
         bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
@@ -430,20 +433,20 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']",
             "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
         bt('var x = [{}\n]', 'var x = [{}]');
-        bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
+        bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}]');
         bt("a = ['something',\n    'completely',\n    'different'];\nif (x);",
             "a = ['something',\n    'completely',\n    'different'\n];\nif (x);");
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
+
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
         bt("x = [{'a':0}]",
-            "x = [{\n        'a': 0\n    }\n]");
-        // this is not great, but is accurate
+            "x = [{\n    'a': 0\n}]");
         bt('{a([[a1]], {b;});}',
-            '{\n    a([\n            [a1]\n        ], {\n            b;\n        });\n}');
+            '{\n    a([\n        [a1]\n    ], {\n        b;\n    });\n}');
         bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
             "a();\n[\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
         bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
-            "function() {\n    Foo([\n            ['sdfsdfsd'],\n            ['sdfsdfsdf']\n        ]);\n}");
+            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
 
         opts.keep_array_indentation = true;
         bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']");
@@ -455,9 +458,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
         bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
         bt("x = [{'a':0}]",
-            "x = [{\n        'a': 0\n    }]");
+            "x = [{\n    'a': 0\n}]");
         bt('{a([[a1]], {b;});}',
-            '{\n    a([[a1]], {\n            b;\n        });\n}');
+            '{\n    a([[a1]], {\n        b;\n    });\n}');
         bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
             "a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
         bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
@@ -796,6 +799,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('var a = 42; // foo\n\n\nvar b;');
         bt("var a = 'foo' +\n    'bar';");
         bt("var a = \"foo\" +\n    \"bar\";");
+        bt('this.oa = new OAuth(\n' +
+           '    _requestToken,\n' +
+           '    _accessToken,\n' +
+           '    consumer_key\n' +
+           ');');
+
 
         opts.unescape_strings = false;
         test_fragment('"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
@@ -895,7 +904,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '        "sassy") || (leans && mean));\n' +
+                      '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -971,7 +980,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();',
                       /* expected */
                       'foo.bar().baz().cucumber((fat &&\n' +
-                      '        "sassy") || (leans && mean));\n' +
+                      '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
@@ -1021,6 +1030,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    (bar());');
         bt('if (foo) // comment\n    /asdf/;');
+        bt('this.oa = new OAuth(\n' +
+           '    _requestToken,\n' +
+           '    _accessToken,\n' +
+           '    consumer_key\n' +
+           ');',
+           'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
 
@@ -1240,14 +1255,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
 
         // START tests for issue 268 and 275
+        bt('obj.last(a, function() {\n' +
+           '    var test;\n' +
+           '});\n' +
+           'var test = 1;');
         bt('obj.last(a,\n' +
            '    function() {\n' +
            '        var test;\n' +
            '    });\n' +
-           'var test = 1;',
-           'obj.last(a, function() {\n' +
-           '    var test;\n' +
-           '});\n' +
            'var test = 1;');
 
         bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
@@ -1260,6 +1275,47 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
            '})();');
         // END tests for issue 268 and 275
 
+        // START tests for issue 281
+        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+           '    "dojo/_base/lang", "dojo/Deferred"\n' +
+           '], function(declare, Employee, Button, lang, Deferred) {\n' +
+           '    return declare(Employee, {\n' +
+           '        constructor: function() {\n' +
+           '            new Button({\n' +
+           '                onClick: lang.hitch(this, function() {\n' +
+           '                    new Deferred().then(lang.hitch(this, function() {\n' +
+           '                        this.salary * 0.25;\n' +
+           '                    }));\n' +
+           '                })\n' +
+           '            });\n' +
+           '        }\n' +
+           '    });\n' +
+           '});');
+
+        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+           '        "dojo/_base/lang", "dojo/Deferred"\n' +
+           '    ],\n' +
+           '    function(declare, Employee, Button, lang, Deferred) {\n' +
+           '        return declare(Employee, {\n' +
+           '            constructor: function() {\n' +
+           '                new Button({\n' +
+           '                    onClick: lang.hitch(this, function() {\n' +
+           '                        new Deferred().then(lang.hitch(this, function() {\n' +
+           '                            this.salary * 0.25;\n' +
+           '                        }));\n' +
+           '                    })\n' +
+           '                });\n' +
+           '            }\n' +
+           '        });\n' +
+           '    });');
+        // END tests for issue 281
+
+        // This is what I think these should look like related #256
+        // we don't have the ability yet
+//         bt('var a=1,b={bang:2},c=3;',
+//             'var a = 1,\n    b = {\n        bang: 2\n    },\n     c = 3;');
+//         bt('var a={bing:1},b=2,c=3;',
+//             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
 
         return sanitytest;
