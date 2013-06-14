@@ -1214,6 +1214,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('<a b=\'Some """ quotes ""  inside string.\'/>', '<a b=\'Some """ quotes ""  inside string.\'/>');
         // Handles inline expressions
         bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
+        // xml literals with special characters in elem names
+        // see http://www.w3.org/TR/REC-xml/#NT-NameChar
+        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;', 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;');
         // Handles CDATA
         bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;');
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');

@@ -1140,6 +1140,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('<a b=\'Some """ quotes ""  inside string.\'/>', '<a b=\'Some """ quotes ""  inside string.\'/>');
         # Handles inline expressions
         bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
+        # xml literals with special characters in elem names
+        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;', 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;');
         # Handles CDATA
         bt('xml=<a b="c"><![CDATA[d/>\n</a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/>\n</a></{}]]></a>;');
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');
