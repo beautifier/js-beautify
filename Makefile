@@ -52,6 +52,7 @@ test: testj testp
 gh:
 	git push origin master &&\
 	cd gh-pages &&\
+	git pull origin gh-pages &&\
 	git pull origin master &&\
 	git merge master &&\
 	git push origin gh-pages
