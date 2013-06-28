@@ -69,18 +69,22 @@
         var whiteRe = /^\s+$/;
         var wordRe = /[\w$\-_]/;
 
-        var pos = -1, ch;
+        var pos = -1,
+            ch;
+
         function next() {
             ch = source_text.charAt(++pos);
             return ch;
         }
+
         function peek() {
-            return source_text.charAt(pos+1);
+            return source_text.charAt(pos + 1);
         }
+
         function eatString(comma) {
             var start = pos;
-            while(next()){
-                if (ch === "\\"){
+            while (next()) {
+                if (ch === "\\") {
                     next();
                     next();
                 } else if (ch === comma) {
@@ -102,8 +106,7 @@
 
         function skipWhitespace() {
             var start = pos;
-            do{
-            }while (whiteRe.test(next()));
+            do {} while (whiteRe.test(next()));
             return pos !== start + 1;
         }
 
@@ -112,7 +115,7 @@
             next();
             while (next()) {
                 if (ch === "*" && peek() === "/") {
-                    pos ++;
+                    pos++;
                     break;
                 }
             }
@@ -122,17 +125,19 @@
 
 
         function lookBack(str) {
-            return source_text.substring(pos-str.length, pos).toLowerCase() === str;
+            return source_text.substring(pos - str.length, pos).toLowerCase() === str;
         }
 
         // printer
         var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
         var singleIndent = Array(indentSize + 1).join(indentCharacter);
         var indentLevel = 0;
+
         function indent() {
             indentLevel++;
             indentString += singleIndent;
         }
+
         function outdent() {
             indentLevel--;
             indentString = indentString.slice(0, -indentSize);
@@ -175,7 +180,7 @@
         }
         /*_____________________--------------------_____________________*/
 
-        while(true) {
+        while (true) {
             var isAfterSpace = skipWhitespace();
 
             if (!ch) {
@@ -198,21 +203,21 @@
                 output.push(eatComment(), "\n", indentString);
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
-                  output.push(ch);
-                  eatWhitespace();
-                  if (next()) {
-                    if (ch !== ')' && ch !== '"' && ch !== '\'') {
-                        output.push(eatString(')'));
-                    } else {
-                        pos--;
+                    output.push(ch);
+                    eatWhitespace();
+                    if (next()) {
+                        if (ch !== ')' && ch !== '"' && ch !== '\'') {
+                            output.push(eatString(')'));
+                        } else {
+                            pos--;
+                        }
                     }
-                  }
                 } else {
-                  if (isAfterSpace) {
-                      print.singleSpace();
-                  }
-                  output.push(ch);
-                  eatWhitespace();
+                    if (isAfterSpace) {
+                        print.singleSpace();
+                    }
+                    output.push(ch);
+                    eatWhitespace();
                 }
             } else if (ch === ')') {
                 output.push(ch);
@@ -222,7 +227,7 @@
                 print.singleSpace();
             } else if (ch === ']') {
                 output.push(ch);
-            }  else if (ch === '[' || ch === '=') { // no whitespace before or after
+            } else if (ch === '[' || ch === '=') { // no whitespace before or after
                 eatWhitespace();
                 output.push(ch);
             } else {
