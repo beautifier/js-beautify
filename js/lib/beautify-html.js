@@ -706,11 +706,8 @@
 
     if (typeof define === "function") {
         // Add support for require.js
-        define(function(require, exports, module) {
-            var js_beautify = require('./beautify.js').js_beautify;
-            var css_beautify = require('./beautify-css.js').css_beautify;
-
-            exports.html_beautify = function(html_source, options) {
+        define(["./beautify.js", "./beautify-css.js"], function(js_beautify, css_beautify) {
+            return function(html_source, options) {
                 return style_html(html_source, options, js_beautify, css_beautify);
             };
         });
