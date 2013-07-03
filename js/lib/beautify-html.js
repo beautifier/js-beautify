@@ -707,8 +707,10 @@
     if (typeof define === "function") {
         // Add support for require.js
         define(["./beautify.js", "./beautify-css.js"], function(js_beautify, css_beautify) {
-            return function(html_source, options) {
+            return {
+              html_beautify: function(html_source, options) {
                 return style_html(html_source, options, js_beautify, css_beautify);
+              }
             };
         });
     } else if (typeof exports !== "undefined") {
