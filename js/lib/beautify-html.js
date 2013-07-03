@@ -89,17 +89,17 @@
         options = options || {};
 
         // backwards compatibility to 1.3.4
-        if (options.wrap_line_length == undefined && options.max_char != undefined) {
+        if (options.wrap_line_length === undefined && options.max_char !== undefined) {
             options.wrap_line_length = options.max_char;
         }
 
-        indent_size = parseInt(options.indent_size || 4);
+        indent_size = parseInt(options.indent_size || 4, 10);
         indent_character = options.indent_char || ' ';
         brace_style = options.brace_style || 'collapse';
-        wrap_line_length = options.wrap_line_length === 0 ? 32786 : parseInt(options.wrap_line_length || 250);
+        wrap_line_length = options.wrap_line_length === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
         unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = options.preserve_newlines || true;
-        max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786) : 0;
+        max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786, 10) : 0;
 
         function Parser() {
 
@@ -147,7 +147,7 @@
                     return true;
                 }
                 return false;
-            }
+            };
 
             this.get_content = function() { //function to capture regular content between tags
 
@@ -706,11 +706,8 @@
 
     if (typeof define === "function") {
         // Add support for require.js
-        define(function(require, exports, module) {
-            var js_beautify = require('./beautify.js').js_beautify;
-            var css_beautify = require('./beautify-css.js').css_beautify;
-
-            exports.html_beautify = function(html_source, options) {
+        define(["./beautify.js", "./beautify-css.js"], function(js_beautify, css_beautify) {
+            return function(html_source, options) {
                 return style_html(html_source, options, js_beautify, css_beautify);
             };
         });
