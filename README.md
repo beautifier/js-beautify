@@ -152,7 +152,7 @@ CSS Beautifier Options:
   -c, --indent-char             Indentation character [" "]
 
 HTML Beautifier Options:
-  -s, --indent-inner-html       Indent <head> and <body> sections. (default = false)
+  -I, --indent-inner-html       Indent <head> and <body> sections. Default is false.
   -s, --indent-size             Indentation size [4]
   -c, --indent-char             Indentation character [" "]
   -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
