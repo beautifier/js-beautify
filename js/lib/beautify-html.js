@@ -40,6 +40,7 @@
     style_html(html_source, options);
 
   The options are:
+    indent_inner_html (default false)  — indent <head> and <body> sections,
     indent_size (default 4)          — indentation size,
     indent_char (default space)      — character to indent with,
     wrap_line_length (default 250)            -  maximum amount of characters per line (0 = disable)
@@ -54,6 +55,7 @@
     e.g.
 
     style_html(html_source, {
+      'indent_inner_html': false,
       'indent_size': 2,
       'indent_char': ' ',
       'wrap_line_length': 78,
@@ -78,6 +80,7 @@
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
         var multi_parser,
+            indent_inner_html,
             indent_size,
             indent_character,
             wrap_line_length,
@@ -93,6 +96,7 @@
             options.wrap_line_length = options.max_char;
         }
 
+        indent_inner_html = options.indent_inner_html || false;
         indent_size = parseInt(options.indent_size || 4, 10);
         indent_character = options.indent_char || ' ';
         brace_style = options.brace_style || 'collapse';
@@ -114,7 +118,7 @@
             this.tag_type = '';
             this.token_text = this.last_token = this.last_text = this.token_type = '';
             this.newlines = 0;
-            this.indent_content = false;
+            this.indent_content = indent_inner_html;
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
