@@ -402,8 +402,17 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         bt('{ one_char() }', "{\n\tone_char()\n}");
         bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
 
+        //set to something else than it should change to, but with tabs on, should override
+        opts.indent_size = 5;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = true;
+
+        bt('{ one_char() }', "{\n\tone_char()\n}");
+        bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
+
         opts.indent_size = 4;
         opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
 
         opts.preserve_newlines = false;
 

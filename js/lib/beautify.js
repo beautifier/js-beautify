@@ -208,6 +208,10 @@
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
 
+        if(options.indent_with_tabs){
+            opt.indent_char = '\t';
+            opt.indent_size = 1;
+        }
 
         //----------------------------------
         indent_string = '';
