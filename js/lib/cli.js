@@ -62,6 +62,7 @@ var fs = require('fs'),
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
+        "indent_inner_html": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
         // CLI
         "version": Boolean,
@@ -94,6 +95,7 @@ var fs = require('fs'),
         // HTML-only
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
+        "I": ["--indent_inner_html"],
         "S": ["--indent_scripts"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
@@ -131,7 +133,7 @@ var interpret = exports.interpret = function(argv, slice) {
         cleanOptions(cc.env('jsbeautify_'), knownOpts),
         parsed.config,
         cc.find('.jsbeautifyrc'),
-        cc.find(path.join(process.env.HOME, ".jsbeautifyrc")),
+        cc.find(path.join(process.env.HOME || "", ".jsbeautifyrc")),
         __dirname + '/../config/defaults.json'
     ).snapshot;
 
@@ -198,6 +200,7 @@ function usage(err) {
             break;
         case "html":
             msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
+            msg.push('  -I, --indent-inner-html       Indent body and head sections. Default is false.');
             msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
             msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
