@@ -141,7 +141,6 @@ var interpret = exports.interpret = function(argv, slice) {
         // Verify arguments
         checkType(cfg);
         checkFiles(cfg);
-        checkIndent(cfg);
         debug(cfg);
 
         // Process files synchronously to avoid EMFILE error
@@ -347,15 +346,6 @@ function checkType(parsed) {
         debug("type defaulted:", scriptType);
         parsed.type = scriptType;
     }
-}
-
-function checkIndent(parsed) {
-    if (parsed["indent_with_tabs"]) {
-        parsed["indent_size"] = 1;
-        parsed["indent_char"] = "\t";
-    }
-
-    return parsed;
 }
 
 function checkFiles(parsed) {
