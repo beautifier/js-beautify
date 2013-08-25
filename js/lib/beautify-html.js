@@ -510,6 +510,7 @@
                 }
                 var input_char = '';
                 var content = '';
+                var min_index = 0;
                 var space = true;
                 do {
 
@@ -541,8 +542,13 @@
                     this.line_char_count++;
                     space = true;
 
-
-                } while (content.toLowerCase().indexOf(delimiter) === -1);
+                    if (options.indent_handlebars && input_char === '{' && content.length && content[content.length - 2] === '{') {
+                        // Handlebars expressions in strings should also be unformatted.
+                        content += this.get_unformatted('}}');
+                        // These expressions are opaque.  Ignore delimiters found in them.
+                        min_index = content.length;
+                    }
+                } while (content.toLowerCase().indexOf(delimiter, min_index) === -1);
                 return content;
             };
 

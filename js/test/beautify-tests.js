@@ -1552,6 +1552,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         bth('<div unformatted="{{#if}}content{{/if}}">content</div>');
         bth('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
 
+        // Quotes found inside of Handlebars expressions inside of quoted
+        // strings themselves should not be considered string delimiters.
+        bth('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
+
         return sanitytest;
     }
 
