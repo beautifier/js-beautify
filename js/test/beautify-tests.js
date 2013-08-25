@@ -1,7 +1,7 @@
 /*global js_beautify: true */
 /*jshint */
 
-function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
+function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
 {
 
     var opts = {
@@ -15,9 +15,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         break_chained_methods: false
     };
 
-    function test_beautifier(input)
+    function test_js_beautifier(input)
     {
         return js_beautify(input, opts);
+    }
+
+    function test_html_beautifier(input)
+    {
+        return html_beautify(input, opts);
     }
 
     var sanitytest;
@@ -44,6 +49,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
         var wrapped_input, wrapped_expectation;
 
         expectation = expectation || input;
+        sanitytest.test_function(test_js_beautifier, 'js_beautify');
         test_fragment(input, expectation);
 
         // test also the returned indentation
@@ -62,6 +68,22 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 
     }
 
+    // test html
+    function bth(input, expectation)
+    {
+        var wrapped_input, wrapped_expectation;
+
+        expectation = expectation || input;
+        sanitytest.test_function(test_html_beautifier, 'html_beautify');
+        test_fragment(input, expectation);
+
+        if (opts.indent_size === 4 && input) {
+            wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
+            wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
+            test_fragment(wrapped_input, wrapped_expectation);
+        }
+    }
+
     // test the input on beautifier with the current flag settings,
     // but dont't
     function bt_braces(input, expectation)
@@ -75,7 +97,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
     function beautifier_tests()
     {
         sanitytest = test_obj;
-        sanitytest.test_function(test_beautifier, 'js_beautify');
 
         opts.indent_size       = 4;
         opts.indent_char       = ' ';
@@ -1317,6 +1338,71 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
 //         bt('var a={bing:1},b=2,c=3;',
 //             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
+
+        bth('');
+        bth('<div></div>');
+        bth('<div>content</div>');
+        bth('<div><div></div></div>',
+            '<div>\n' +
+            '    <div></div>\n' +
+            '</div>');
+        bth('<div><div>content</div></div>',
+            '<div>\n' +
+            '    <div>content</div>\n' +
+            '</div>');
+        bth('<div>\n' +
+            '    <span>content</span>\n' +
+            '</div>');
+        bth('<div>\n' +
+            '</div>');
+        bth('<div>\n' +
+            '    content\n' +
+            '</div>');
+        bth('<div>\n' +
+            '    </div>',
+            '<div>\n' +
+            '</div>');
+        bth('    <div>\n' +
+            '    </div>',
+            '<div>\n' +
+            '</div>');
+        bth('    <div>\n' +
+            '</div>',
+            '<div>\n' +
+            '</div>');
+        bth('<div        >content</div>',
+            '<div>content</div>');
+        bth('<div     thinger="preserve  space  here"   ></div  >',
+            '<div thinger="preserve  space  here"></div>');
+        bth('content\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            'content',
+            'content\n' +
+            '<div>\n' +
+            '</div>\n' +
+            'content');
+        bth('<li>\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            '</li>');
+        bth('<li>\n' +
+            '<div>\n' +
+            '</div>\n' +
+            '</li>',
+            '<li>\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            '</li>');
+        bth('<li>\n' +
+            '    content\n' +
+            '</li>\n' +
+            '<li>\n' +
+            '    content\n' +
+            '</li>');
+
+        // Tests that don't pass, but probably should.
+        // bth('<div><span>content</span></div>');
 
         return sanitytest;
     }
