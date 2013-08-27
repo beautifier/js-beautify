@@ -1188,7 +1188,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
             'a = [b, c, d];');
         bt('a= f[b];',
             'a = f[b];');
-        opts.space_in_paren = true
+        opts.space_in_paren = true;
         bt('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
         bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
            'try {\n    while ( true ) {\n        willThrow( )\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}');
@@ -1201,6 +1201,49 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify)
             'a = [ b, c, d ];');
         bt('a= f[b];',
             'a = f[ b ];');
+        opts.space_in_paren = false;
+
+        // Test the option to have spaces within empty parens
+        opts.space_in_empty_paren = true;
+        bt('if(q) foo(a,f)', 'if (q) foo(a, f)');
+        bt('try{while(true){willThrow()}}catch(result_npep)switch(result_npep){case 1:++result_npep }',
+           'try {\n    while (true) {\n        willThrow( )\n    }\n} catch (result_npep) switch (result_npep) {\n    case 1:\n        ++result_npep\n}');
+        bt('((e/((a+(f)*g)-h))^2)*5;', '((e / ((a + (f) * g) - h)) ^ 2) * 5;');
+        bt('function f(a,f) {if(a) f()}function g(a,f) {if(!a) f()}',
+            'function f(a, f) {\n    if (a) f( )\n}\n\nfunction g(a, f) {\n    if (!a) f( )\n}');
+        bt('a=[];',
+            'a = [ ];');
+        bt('a=[f,g,h];',
+            'a = [f, g, h];');
+        bt('a= f[f];',
+            'a = f[f];');
+        opts.space_in_paren = true;
+        bt('if(q) foo(i,j)', 'if ( q ) foo( i, j )');
+        bt('try{while(true){willThrow()}}catch(result_epep)switch(result_epep){case 1:++result_epep }',
+           'try {\n    while ( true ) {\n        willThrow( )\n    }\n} catch ( result_epep ) switch ( result_epep ) {\n    case 1:\n        ++result_epep\n}');
+        bt('((e/((i+(j)*k)-l))^2)*5;', '( ( e / ( ( i + ( j ) * k ) - l ) ) ^ 2 ) * 5;');
+        bt('function f(i,j) {if(i) j()}function g(i,j) {if(!i) j()}',
+            'function f( i, j ) {\n    if ( i ) j( )\n}\n\nfunction g( i, j ) {\n    if ( !i ) j( )\n}');
+        bt('i=[ ];',
+            'i = [ ];');
+        bt('i=[j,k,l];',
+            'i = [ j, k, l ];');
+        bt('i= f[j];',
+            'i = f[ j ];');
+        opts.space_in_paren = true;
+        opts.space_in_empty_paren = false;
+        bt('if(r) foo(m,n)', 'if ( r ) foo( m, n )');
+        bt('try{while(true){willThrow()}}catch(result_epnp)switch(result_epnp){case 1:++result_epnp }',
+           'try {\n    while ( true ) {\n        willThrow()\n    }\n} catch ( result_epnp ) switch ( result_epnp ) {\n    case 1:\n        ++result_epnp\n}');
+        bt('((e/((m+(n)*o)-p))^2)*5;', '( ( e / ( ( m + ( n ) * o ) - p ) ) ^ 2 ) * 5;');
+        bt('function f(m,n) {if(m) n()}function g(m,n) {if(!m) n()}',
+            'function f( m, n ) {\n    if ( m ) n()\n}\n\nfunction g( m, n ) {\n    if ( !m ) n()\n}');
+        bt('m=[ ];',
+            'm = [];');
+        bt('m=[n,o,p];',
+            'm = [ n, o, p ];');
+        bt('m= f[n];',
+            'm = f[ n ];');
         opts.space_in_paren = false;
 
         // Test that e4x literals passed through when e4x-option is enabled

@@ -201,6 +201,7 @@
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
         opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
+        opt.space_in_empty_paren = (options.space_in_empty_paren === undefined) ? opt.space_in_paren : options.space_in_empty_paren;
         opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
         opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
         opt.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
@@ -986,12 +987,16 @@
         }
 
         function handle_start_expr() {
+            var empty_paren = false;
+
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
             }
 
             var next_mode = MODE.Expression;
             if (token_text === '[') {
+
+                empty_paren = is_next(']');
 
                 if (last_type === 'TK_WORD' || flags.last_text === ')') {
                     // this is array index specifier, break immediately
@@ -1054,6 +1059,9 @@
             // a = (b &&
             //     (c || d));
             if (token_text === '(') {
+
+                empty_paren = is_next(')');
+
                 if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                     if (flags.mode !== MODE.ObjectLiteral) {
                         allow_wrap_or_preserved_newline();
@@ -1063,7 +1071,7 @@
 
             set_mode(next_mode);
             print_token();
-            if (opt.space_in_paren) {
+            if ((opt.space_in_paren && !(empty_paren && !opt.space_in_empty_paren)) || (empty_paren && opt.space_in_empty_paren)) {
                 output_space_before_token = true;
             }
 
@@ -1072,6 +1080,8 @@
         }
 
         function handle_end_expr() {
+            var empty_paren = (last_type === 'TK_START_EXPR');
+
             // statements inside expressions are not valid syntax, but...
             // statements must all be closed when their container closes
             while (flags.mode === MODE.Statement) {
@@ -1085,7 +1095,7 @@
             if (flags.multiline_frame) {
                 allow_wrap_or_preserved_newline();
             }
-            if (opt.space_in_paren) {
+            if ((opt.space_in_paren && !(empty_paren && !opt.space_in_empty_paren)) || (empty_paren && opt.space_in_empty_paren)) {
                 output_space_before_token = true;
             }
             if (token_text === ']' && opt.keep_array_indentation) {
