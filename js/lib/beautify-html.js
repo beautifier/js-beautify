@@ -174,7 +174,7 @@
                         continue; //don't want to insert unnecessary space
                     }
 
-                    if (options.indent_handlebars) {
+                    if (indent_handlebars) {
                         // Handlebars parsing is complicated.
                         // {{#foo}} and {{/foo}} are formatted tags.
                         // {{something}} should get treated as content, except:
@@ -329,7 +329,7 @@
                         space = false;
                     }
 
-                    if (options.indent_handlebars && tag_start_char === '<') {
+                    if (indent_handlebars && tag_start_char === '<') {
                         // When inside an angle-bracket tag, put spaces around
                         // handlebars not inside of strings.
                         if ((input_char + this.input.charAt(this.pos)) === '{{') {
@@ -346,7 +346,7 @@
                         tag_start_char = '<';
                     }
 
-                    if (options.indent_handlebars && !tag_start_char) {
+                    if (indent_handlebars && !tag_start_char) {
                         if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] == '{') {
                             if (input_char === '#' || input_char === '/') {
                                 tag_start = this.pos - 3;
@@ -367,7 +367,7 @@
                         break;
                     }
 
-                    if (options.indent_handlebars && tag_start_char === '{' && content.length > 2 && content[content.length - 2] === '}' && content[content.length - 1] === '}') {
+                    if (indent_handlebars && tag_start_char === '{' && content.length > 2 && content[content.length - 2] === '}' && content[content.length - 1] === '}') {
                         break;
                     }
                 } while (input_char !== '>');
@@ -383,7 +383,7 @@
                 } else { //otherwise go with the tag ending
                     tag_index = tag_complete.indexOf('>');
                 }
-                if (tag_complete[0] === '<' || !options.indent_handlebars) {
+                if (tag_complete[0] === '<' || !indent_handlebars) {
                     tag_offset = 1;
                 } else {
                     tag_offset = tag_complete[2] === '#' ? 3 : 2;
@@ -394,7 +394,7 @@
                     if (!peek) {
                         this.tag_type = 'SINGLE';
                     }
-                } else if (options.indent_handlebars && tag_complete[0] === '{' && tag_check === 'else') {
+                } else if (indent_handlebars && tag_complete[0] === '{' && tag_check === 'else') {
                     if (!peek) {
                         this.indent_to_tag('if');
                         this.tag_type = 'HANDLEBARS_ELSE';
@@ -542,7 +542,7 @@
                     this.line_char_count++;
                     space = true;
 
-                    if (options.indent_handlebars && input_char === '{' && content.length && content[content.length - 2] === '{') {
+                    if (indent_handlebars && input_char === '{' && content.length && content[content.length - 2] === '{') {
                         // Handlebars expressions in strings should also be unformatted.
                         content += this.get_unformatted('}}');
                         // These expressions are opaque.  Ignore delimiters found in them.
