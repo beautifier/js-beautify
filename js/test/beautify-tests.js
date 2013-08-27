@@ -1240,12 +1240,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         opts.space_in_paren = true
         bt('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
         bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
-           'try {\n    while ( true ) {\n        willThrow( )\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}');
+           'try {\n    while ( true ) {\n        willThrow()\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}');
         bt('((e/((a+(b)*c)-d))^2)*5;', '( ( e / ( ( a + ( b ) * c ) - d ) ) ^ 2 ) * 5;');
         bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f( a, b ) {\n    if ( a ) b( )\n}\n\nfunction g( a, b ) {\n    if ( !a ) b( )\n}');
-        bt('a=[ ];',
-            'a = [ ];');
+            'function f( a, b ) {\n    if ( a ) b()\n}\n\nfunction g( a, b ) {\n    if ( !a ) b()\n}');
+        bt('a=[];',
+            'a = [];');
         bt('a=[b,c,d];',
             'a = [ b, c, d ];');
         bt('a= f[b];',

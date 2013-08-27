@@ -1090,7 +1090,13 @@
                 allow_wrap_or_preserved_newline();
             }
             if (opt.space_in_paren) {
-                output_space_before_token = true;
+                if (last_type === 'TK_START_EXPR') {
+                    // () [] no inner space in empty parens like these, ever, ref #320
+                    trim_output();
+                    output_space_before_token = false;
+                } else {
+                    output_space_before_token = true;
+                }
             }
             if (token_text === ']' && opt.keep_array_indentation) {
                 print_token();
