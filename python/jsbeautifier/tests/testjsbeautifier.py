@@ -355,8 +355,17 @@ class TestJSBeautifier(unittest.TestCase):
         bt('{ one_char() }', "{\n\tone_char()\n}");
         bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
 
+        #set to something else than it should change to, but with tabs on, should override
+        self.options.indent_size = 5;
+        self.options.indent_char = ' ';
+        self.options.indent_with_tabs = True;
+
+        bt('{ one_char() }', "{\n\tone_char()\n}");
+        bt('x = a ? b : c; x;', 'x = a ? b : c;\nx;');
+
         self.options.indent_size = 4;
         self.options.indent_char = ' ';
+        self.options.indent_with_tabs = False;
 
         self.options.preserve_newlines = False;
         bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
