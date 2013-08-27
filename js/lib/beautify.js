@@ -208,6 +208,10 @@
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
 
+        if(options.indent_with_tabs){
+            opt.indent_char = '\t';
+            opt.indent_size = 1;
+        }
 
         //----------------------------------
         indent_string = '';
@@ -1086,7 +1090,13 @@
                 allow_wrap_or_preserved_newline();
             }
             if (opt.space_in_paren) {
-                output_space_before_token = true;
+                if (last_type === 'TK_START_EXPR') {
+                    // () [] no inner space in empty parens like these, ever, ref #320
+                    trim_output();
+                    output_space_before_token = false;
+                } else {
+                    output_space_before_token = true;
+                }
             }
             if (token_text === ']' && opt.keep_array_indentation) {
                 print_token();

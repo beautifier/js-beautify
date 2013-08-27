@@ -933,7 +933,12 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(token_text)
 
         if self.opts.space_in_paren:
-            self.output_space_before_token = True
+            if self.last_type == 'TK_START_EXPR':
+                # empty parens are always "()" and "[]", not "( )" or "[ ]"
+                self.output_space_before_token = False
+                self.trim_output()
+            else:
+                self.output_space_before_token = True
 
         if self.token_text == ']' and self.opts.keep_array_indentation:
             self.append_token(token_text)
