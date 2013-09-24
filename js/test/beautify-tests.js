@@ -1359,6 +1359,30 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
            '    });');
         // END tests for issue 281
 
+
+        // start wrap_before_operator tests
+        opts.wrap_before_operator = true;
+        opts.wrap_line_length = 20;
+      
+        test_fragment('var test = this.is.my.veriy_long_object_name.that.wraps;',
+            'var test = this.is.my\n    .veriy_long_object_name\n    .that.wraps;');
+        test_fragment('function test() {\n    var test = this.is.my.veriy_long_object_name.that.wraps\n}',
+            'function test() {\n    var test = this\n        .is.my.veriy_long_object_name\n        .that.wraps\n}');
+        test_fragment('var test = "a"+"b"+"c"+"d"+"e"+"f"+"g"+"h";',
+            'var test = "a" + "b"\n    + "c" + "d" + "e"\n    + "f" + "g" + "h";');
+
+        opts.wrap_line_length = 40;
+        test_fragment('var test = this.is.my.veriy_long_object_name.that.wraps;', 
+            'var test = this.is.my.veriy_long_object_name\n    .that.wraps;');
+        test_fragment('function test() {\n    var test = this.is.my.veriy_long_object_name.that.wraps\n}',
+            'function test() {\n    var test = this.is.my.veriy_long_object_name\n        .that.wraps\n}');
+        test_fragment('var test = "a"+"b"+"c"+"d"+"e"+"f"+"g"+"h";',
+            'var test = "a" + "b" + "c" + "d" + "e" + "f"\n    + "g" + "h";');
+
+        opts.wrap_before_operator = false;
+        opts.wrap_line_length = 0;
+        // end wrap_before_operator tests
+
         // This is what I think these should look like related #256
         // we don't have the ability yet
 //         bt('var a=1,b={bang:2},c=3;',
@@ -1366,7 +1390,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
 //         bt('var a={bing:1},b=2,c=3;',
 //             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
-
         bth('');
         bth('<div></div>');
         bth('<div>content</div>');
@@ -1567,7 +1590,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
         bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
         bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
-
         return sanitytest;
     }
 
