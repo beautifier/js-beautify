@@ -1122,7 +1122,6 @@ class TestJSBeautifier(unittest.TestCase):
             'a = [b, c, d];');
         bt('a= f[b];',
             'a = f[b];');
-
         self.options.space_in_paren = True
         bt('if(p) foo(a,b)', 'if ( p ) foo( a, b )');
         bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
@@ -1136,9 +1135,29 @@ class TestJSBeautifier(unittest.TestCase):
             'a = [ b, c, d ];');
         bt('a= f[b];',
             'a = f[ b ];');
-
         self.options.space_in_paren = False
 
+        self.options.wrap_before_operator = True
+        self.options.wrap_line_length = 20 
+
+        test_fragment('var test = this.is.my.veriy_long_object_name.that.wraps;',
+            'var test = this.is.my\n    .veriy_long_object_name\n    .that.wraps;');
+        test_fragment('function test() {\n    var test = this.is.my.veriy_long_object_name.that.wraps\n}',
+            'function test() {\n    var test = this\n        .is.my.veriy_long_object_name\n        .that.wraps\n}');
+        test_fragment('var test = "a"+"b"+"c"+"d"+"e"+"f"+"g"+"h";',
+            'var test = "a" + "b"\n    + "c" + "d" + "e"\n    + "f" + "g" + "h";');
+
+        self.options.wrap_line_length = 40;
+        test_fragment('var test = this.is.my.veriy_long_object_name.that.wraps;', 
+            'var test = this.is.my.veriy_long_object_name\n    .that.wraps;');
+        test_fragment('function test() {\n    var test = this.is.my.veriy_long_object_name.that.wraps\n}',
+            'function test() {\n    var test = this.is.my.veriy_long_object_name\n        .that.wraps\n}');
+        test_fragment('var test = "a"+"b"+"c"+"d"+"e"+"f"+"g"+"h";',
+             'var test = "a" + "b" + "c" + "d" + "e" + "f"\n    + "g" + "h";');
+
+
+        self.options.wrap_line_length = 0
+        self.options.wrap_before_operator = False
 
         # Test that e4x literals passed through when e4x-option is enabled
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');

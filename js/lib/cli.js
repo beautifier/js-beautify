@@ -59,6 +59,7 @@ var fs = require('fs'),
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "e4x": Boolean,
+        "wrap_before_operator" : Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
@@ -196,6 +197,7 @@ function usage(err) {
             msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
+            msg.push('  --wrap_before_operator        put the operator that makes a line wrap possible in the current or the next line.');
             break;
         case "html":
             msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
@@ -206,6 +208,7 @@ function usage(err) {
             msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
             break;
+        
     }
 
     if (err) {

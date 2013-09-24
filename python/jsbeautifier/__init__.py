@@ -74,6 +74,7 @@ class BeautifierOptions:
         self.unescape_strings = False
         self.wrap_line_length = 0
         self.break_chained_methods = False
+        self.wrap_before_operator = False
 
 
 
@@ -91,6 +92,7 @@ keep_array_indentation = %s
 eval_code = %s
 wrap_line_length = %s
 unescape_strings = %s
+wrap_before_operator = %s
 """ % ( self.indent_size,
         self.indent_char,
         self.preserve_newlines,
@@ -103,6 +105,7 @@ unescape_strings = %s
         self.eval_code,
         self.wrap_line_length,
         self.unescape_strings,
+        self.wrap_before_operator
         )
 
 
@@ -127,6 +130,7 @@ class BeautifierFlags:
         self.line_indent_level = 0
         self.start_line_index = 0
         self.ternary_depth = 0
+        self.wrap_before_operator = False
 
     def apply_base(self, flags_base, added_newline):
         next_indent_level = flags_base.indentation_level;
@@ -197,6 +201,7 @@ Output options:
  -X,  --e4x                        Pass E4X xml literals through untouched
  -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
+    --wrap_before_operator         (default false) - put the operator that makes a line wrap possible in the current or the next line.                                    
 
 Rarely needed options:
 
@@ -257,6 +262,8 @@ class Beautifier:
         self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::'
         self.punct += ' <?= <? ?> <%= <% %>'
         self.punct = self.punct.split(' ')
+        self.wrap_before = '. +'
+        self.wrap_before = self.wrap_before.split(' ')
 
 
         # Words which always should start on a new line
@@ -1083,7 +1090,8 @@ class Beautifier:
 
         if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.flags.mode != MODE.ObjectLiteral:
-                self.allow_wrap_or_preserved_newline(token_text)
+                if token_text not in self.wrap_before and not self.opts.wrap_before_operator:
+                    self.allow_wrap_or_preserved_newline(token_text)
 
         if token_text == 'function':
             self.append_token(token_text)
@@ -1202,7 +1210,8 @@ class Beautifier:
             self.output_space_before_token = True
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if self.flags.mode != MODE.ObjectLiteral:
-                self.allow_wrap_or_preserved_newline(token_text)
+                if token_text not in self.wrap_before and not self.opts.wrap_before_operator:
+                    self.allow_wrap_or_preserved_newline(token_text)
         else:
             self.append_newline()
 
@@ -1288,6 +1297,8 @@ class Beautifier:
         if self.input_wanted_newline and (token_text == '--' or token_text == '++'):
             self.append_newline()
 
+        if token_text in self.wrap_before and self.opts.wrap_before_operator:
+            self.allow_wrap_or_preserved_newline(token_text)
 
         if token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \
@@ -1406,7 +1417,7 @@ def main():
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
             'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
             'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
-            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x', 'wrap-line-length'])
+            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x', 'wrap-line-length','wrap_before_operator'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1447,6 +1458,8 @@ def main():
             js_options.e4x = True
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
+        elif opt in ('--wrap_before_operator', '-e'):
+            js_options.wrap_before_operator = True            
         elif opt in ('--stdin', '-i'):
             file = '-'
         elif opt in ('--version', '-v'):

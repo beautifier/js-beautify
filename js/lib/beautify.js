@@ -64,6 +64,8 @@
           NOTE: This is not a hard limit. Lines will continue until a point where a newline would
                 be preserved if it were present.
 
+    wrap_before_operator (default false) - put the operator that makes a line wrap possible in the current or the next line.          
+
     e.g
 
     js_beautify(js_source_text, {
@@ -86,7 +88,7 @@
         var input, output_lines;
         var token_text, token_type, last_type, last_last_text, indent_string;
         var flags, previous_flags, flag_store;
-        var whitespace, wordchar, punct, parser_pos, line_starters, digits;
+        var whitespace, wordchar, punct, parser_pos, line_starters, digits, wrap_before;
         var prefix;
         var input_wanted_newline;
         var output_wrapped, output_space_before_token;
@@ -101,6 +103,9 @@
         punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::';
         punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
         punct = punct.split(' ');
+
+        wrap_before = '. +';
+        wrap_before = wrap_before.split(' ');
 
         // words which should always start on new line.
         line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
@@ -207,6 +212,7 @@
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+        opt.wrap_before_operator = (options.wrap_before_operator === undefined) ? false : options.wrap_before_operator;
 
         if(options.indent_with_tabs){
             opt.indent_char = '\t';
@@ -1267,7 +1273,9 @@
 
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 if (flags.mode !== MODE.ObjectLiteral) {
-                    allow_wrap_or_preserved_newline();
+                    if(! (in_array(flags.last_text, wrap_before) && opt.wrap_before_operator)){
+                        allow_wrap_or_preserved_newline();
+                    }
                 }
             }
 
@@ -1400,7 +1408,9 @@
                 output_space_before_token = true;
             } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 if (flags.mode !== MODE.ObjectLiteral) {
-                    allow_wrap_or_preserved_newline();
+                    if(! (in_array(flags.last_text, wrap_before) && opt.wrap_before_operator)){
+                        allow_wrap_or_preserved_newline();
+                    }
                 }
             } else {
                 print_newline();
@@ -1496,7 +1506,12 @@
                 print_newline();
             }
 
-            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, line_starters) || flags.last_text === ','))) {
+            if(in_array(token_text, wrap_before) && opt.wrap_before_operator){
+                allow_wrap_or_preserved_newline();
+            }
+
+
+            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array (flags.last_text, line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
