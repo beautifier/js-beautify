@@ -47,6 +47,7 @@
     "nopt": "~2.1.1"
   },
   "devDependencies": {
-    "jshint": "1.1.0"
+    "jshint": "1.1.0",
+    "node-static": "~0.7.1"
   }
 }
