@@ -1297,6 +1297,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         bt('(if(a) b())\n\n\n(if(a) b())',
             '(\n    if (a) b())\n\n\n(\n    if (a) b())');
 
+        // space between functions
+        bt('/*\n * foo\n */\nfunction foo() {}');
+        bt('// a nice function\nfunction foo() {}');
+        bt('function foo() {}\nfunction foo() {}',
+            'function foo() {}\n\nfunction foo() {}'
+        );
+
+
 
         bt("if\n(a)\nb();", "if (a)\n    b();");
         bt('var a =\nfoo', 'var a =\n    foo');
@@ -1364,6 +1372,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;');
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');
         bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;');
+
         // Handles messed up tags, as long as it isn't the same name
         // as the root tag. Also handles tags of same name as root tag
         // as long as nesting matches.

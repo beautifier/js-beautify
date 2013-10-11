@@ -127,6 +127,7 @@ class BeautifierFlags:
         self.line_indent_level = 0
         self.start_line_index = 0
         self.ternary_depth = 0
+        self.had_comment = False
 
     def apply_base(self, flags_base, added_newline):
         next_indent_level = flags_base.indentation_level;
@@ -332,6 +333,7 @@ class Beautifier:
                 self.last_last_text = self.flags.last_text
                 self.last_type = token_type
                 self.flags.last_text = self.token_text
+            self.flags.had_comment = token_type in ['TK_COMMENT', 'TK_INLINE_COMMENT', 'TK_BLOCK_COMMENT']
 
         sweet_code = ''.join(self.output_lines[0].text)
         if len(self.output_lines) > 1:
@@ -1063,11 +1065,11 @@ class Beautifier:
         if token_text == 'function':
             if self.flags.var_line and self.flags.last_text != '=':
                 self.flags.var_line_reindented = not self.opts.keep_function_indentation
-            if (self.just_added_newline() or self.flags.last_text == ';' or self.flags.last_text == '}') and \
-                    self.flags.last_text != '{' and not self.is_array(self.flags.mode):
+
+            if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
-                if not self.just_added_blankline():
+                if not self.just_added_blankline() and not self.flags.had_comment:
                     self.append_newline()
                     self.append_newline(True)
 

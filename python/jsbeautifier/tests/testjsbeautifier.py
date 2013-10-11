@@ -1112,6 +1112,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('(if(a) b())\n\n\n(if(a) b())',
             '(\n    if (a) b())\n(\n    if (a) b())');
 
+        # space between functions
+        bt('/*\n * foo\n */\nfunction foo() {}');
+        bt('// a nice function\nfunction foo() {}');
+        bt('function foo() {}\nfunction foo() {}',
+            'function foo() {}\n\nfunction foo() {}'
+        );
+
+
+
         bt("if\n(a)\nb();", "if (a) b();");
         bt('var a =\nfoo', 'var a = foo');
         bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
