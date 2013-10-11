@@ -542,6 +542,11 @@
             }
         }
 
+        function start_of_object_property() {
+            return flags.mode === MODE.ObjectLiteral && flags.last_text === ':' &&
+                flags.ternary_depth === 0;
+        }
+
         function start_of_statement() {
             if (
                 (flags.last_text === 'do' ||
@@ -1059,7 +1064,7 @@
             //     (c || d));
             if (token_text === '(') {
                 if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                    if (flags.mode !== MODE.ObjectLiteral) {
+                    if (!start_of_object_property()) {
                         allow_wrap_or_preserved_newline();
                     }
                 }
@@ -1266,7 +1271,7 @@
             }
 
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== MODE.ObjectLiteral) {
+                if (!start_of_object_property()) {
                     allow_wrap_or_preserved_newline();
                 }
             }
@@ -1399,7 +1404,7 @@
             } else if (last_type === 'TK_WORD') {
                 output_space_before_token = true;
             } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== MODE.ObjectLiteral) {
+                if (!start_of_object_property()) {
                     allow_wrap_or_preserved_newline();
                 }
             } else {

@@ -532,6 +532,10 @@ class Beautifier:
             self.previous_flags = self.flags
             self.flags = self.flag_store.pop()
 
+    def start_of_object_property(self):
+        return self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and \
+            self.flags.ternary_depth == 0
+
     def start_of_statement(self):
         if (self.flags.last_text == 'do' \
                 or (self.flags.last_text == 'else' and self.token_text != 'if' ) \
@@ -906,7 +910,7 @@ class Beautifier:
         # a = (b &&
         #     (c || d));
         if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
-            if self.flags.mode != MODE.ObjectLiteral:
+            if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(token_text)
 
         self.set_mode(next_mode)
@@ -1082,7 +1086,7 @@ class Beautifier:
                 self.append_newline()
 
         if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
-            if self.flags.mode != MODE.ObjectLiteral:
+            if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(token_text)
 
         if token_text == 'function':
@@ -1201,7 +1205,7 @@ class Beautifier:
         elif self.last_type == 'TK_WORD':
             self.output_space_before_token = True
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
-            if self.flags.mode != MODE.ObjectLiteral:
+            if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(token_text)
         else:
             self.append_newline()
