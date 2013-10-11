@@ -256,7 +256,9 @@ function makePretty(code, config, outfile, callback) {
         var pretty = beautify[fileType](code, config);
 
         // ensure newline at end of beautified output
-        pretty += '\n';
+        if (pretty && pretty.charAt(pretty.length - 1) !== '\n') {
+            pretty += '\n';
+        }
 
         callback(null, pretty, outfile, config);
     } catch (ex) {

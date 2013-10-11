@@ -163,6 +163,7 @@
                 indentation_level: next_indent_level,
                 line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
                 start_line_index: output_lines.length,
+                had_comment: false,
                 ternary_depth: 0
             }
             return next_flags;
@@ -296,6 +297,8 @@
                     last_type = token_type;
                     flags.last_text = token_text;
                 }
+                flags.had_comment = (token_type === 'TK_INLINE_COMMENT' || token_type === 'TK_COMMENT'
+                    || token_type === 'TK_BLOCK_COMMENT');
             }
 
 
@@ -540,6 +543,11 @@
                 previous_flags = flags;
                 flags = flag_store.pop();
             }
+        }
+
+        function start_of_object_property() {
+            return flags.mode === MODE.ObjectLiteral && flags.last_text === ':' &&
+                flags.ternary_depth === 0;
         }
 
         function start_of_statement() {
@@ -1059,7 +1067,7 @@
             //     (c || d));
             if (token_text === '(') {
                 if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                    if (flags.mode !== MODE.ObjectLiteral) {
+                    if (!start_of_object_property()) {
                         allow_wrap_or_preserved_newline();
                     }
                 }
@@ -1240,11 +1248,10 @@
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
                 }
-                if ((just_added_newline() || flags.last_text === ';' || flags.last_text === '}') &&
-                    flags.last_text !== '{' && !is_array(flags.mode)) {
+                if (in_array(flags.last_text, ['}', ';']) || (just_added_newline() && ! in_array(flags.last_text, ['{', ':', '=', ',']))) {
                     // make sure there is a nice clean space of at least one blank line
-                    // before a new function definition, except in arrays
-                    if (!just_added_blankline()) {
+                    // before a new function definition
+                    if ( ! just_added_blankline() && ! flags.had_comment) {
                         print_newline();
                         print_newline(true);
                     }
@@ -1266,7 +1273,7 @@
             }
 
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== MODE.ObjectLiteral) {
+                if (!start_of_object_property()) {
                     allow_wrap_or_preserved_newline();
                 }
             }
@@ -1399,7 +1406,7 @@
             } else if (last_type === 'TK_WORD') {
                 output_space_before_token = true;
             } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (flags.mode !== MODE.ObjectLiteral) {
+                if (!start_of_object_property()) {
                     allow_wrap_or_preserved_newline();
                 }
             } else {
