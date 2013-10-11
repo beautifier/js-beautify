@@ -329,7 +329,7 @@ class Beautifier:
 
             # The cleanest handling of inline comments is to treat them as though they aren't there.
             # Just continue formatting and the behavior should be logical.
-            if token_type != 'TK_INLINE_COMMENT' and token_type != 'TK_COMMENT' and token_type != 'TK_UNKNOWN':
+            if token_type != 'TK_INLINE_COMMENT' and token_type != 'TK_COMMENT' and token_type != 'TK_BLOCK_COMMENT' and token_type != 'TK_UNKNOWN':
                 self.last_last_text = self.flags.last_text
                 self.last_type = token_type
                 self.flags.last_text = self.token_text
