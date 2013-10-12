@@ -116,6 +116,26 @@ var fs = require('fs'),
         // no shorthand for "config"
     });
 
+function verifyExists(fullPath) {
+    return fs.existsSync(fullPath) ? fullPath : null;
+}
+
+function findRecursive(dir, fileName) {
+    var fullPath = path.join(dir, fileName);
+    var nextDir = path.dirname(dir);
+    var result = verifyExists(fullPath);
+
+    if (!result && (nextDir !== dir)) {
+       result = findRecursive(nextDir, fileName);
+    }
+
+    return result;
+}
+
+function getUserHome() {
+    return process.env.HOME || process.env.USERPROFILE;
+}
+
 // var cli = require('js-beautify/cli'); cli.interpret();
 var interpret = exports.interpret = function(argv, slice) {
     var parsed = nopt(knownOpts, shortHands, argv, slice);
@@ -132,8 +152,8 @@ var interpret = exports.interpret = function(argv, slice) {
         parsed,
         cleanOptions(cc.env('jsbeautify_'), knownOpts),
         parsed.config,
-        cc.find('.jsbeautifyrc'),
-        cc.find(path.join(process.env.HOME || "", ".jsbeautifyrc")),
+        findRecursive(process.cwd(), '.jsbeautifyrc'),
+        verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
         __dirname + '/../config/defaults.json'
     ).snapshot;
 
