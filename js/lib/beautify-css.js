@@ -190,6 +190,13 @@
 
             if (!ch) {
                 break;
+            } else if (ch === '/' && peek() === '*') { // comment
+                print.newLine();
+                output.push(eatComment(), "\n", indentString);
+                var header = lookBack("")
+                if (header) {
+                    print.newLine();
+                }
             } else if (ch === '{') {
                 indent();
                 print["{"](ch);
@@ -203,9 +210,6 @@
                 output.push(eatString(ch));
             } else if (ch === ';') {
                 output.push(ch, '\n', indentString);
-            } else if (ch === '/' && peek() === '*') { // comment
-                print.newLine();
-                output.push(eatComment(), "\n", indentString);
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
                     output.push(ch);
