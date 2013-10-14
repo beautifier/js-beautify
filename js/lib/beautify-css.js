@@ -38,16 +38,18 @@
         css_beautify(source_text);
         css_beautify(source_text, options);
 
-    The options are:
-        indent_size (default 4)          — indentation size,
-        indent_char (default space)      — character to indent with,
-        end_with_newline (default true)  - end with a newline
+    The options are (default in brackets):
+        indent_size (4)              — indentation size,
+        indent_char (space)          — character to indent with,
+        remove_trailing_zero (false) - remove trailing zero (e.g. 0.9 -> .9)
+        end_with_newline (false)     - end with a newline
 
     e.g
 
     css_beautify(css_source_text, {
       'indent_size': 1,
       'indent_char': '\t',
+      'remove_trailing_zero', true,
       'end_with_newline': false,
     });
 */
@@ -60,6 +62,7 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
+        var removeTrailingZero = options.remove_trailing_zero || false;
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
@@ -248,6 +251,9 @@
             } else if (ch === '[' || ch === '=') { // no whitespace before or after
                 eatWhitespace();
                 output.push(ch);
+            } else if (removeTrailingZero && ch == "0" && peek() == "." &&
+                (lookBack(" ") || lookBack(":"))) {
+                // do nothing, just ignore "0"
             } else {
                 if (isAfterSpace) {
                     print.singleSpace();
