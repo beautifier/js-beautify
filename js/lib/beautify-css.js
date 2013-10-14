@@ -201,8 +201,14 @@
                     print.newLine();
                 }
             } else if (ch === '{') {
-                indent();
-                print["{"](ch);
+                eatWhitespace();
+                if (peek() == '}') {
+                    next();
+                    output.push(" {}");
+                } else {
+                    indent();
+                    print["{"](ch);
+                }
             } else if (ch === '}') {
                 outdent();
                 print["}"](ch);
