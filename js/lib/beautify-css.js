@@ -156,9 +156,13 @@
             print.newLine();
         };
 
+        print._lastCharWhitespace = function () {
+            return whiteRe.test(output[output.length - 1]);
+        }
+
         print.newLine = function (keepWhitespace) {
             if (!keepWhitespace) {
-                while (whiteRe.test(output[output.length - 1])) {
+                while (print._lastCharWhitespace()) {
                     output.pop();
                 }
             }
@@ -170,8 +174,8 @@
                 output.push(indentString);
             }
         };
-        print.singleSpace = function() {
-            if (output.length && !whiteRe.test(output[output.length - 1])) {
+        print.singleSpace = function () {
+            if (output.length && !print._lastCharWhitespace()) {
                 output.push(' ');
             }
         };
