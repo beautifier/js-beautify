@@ -41,12 +41,14 @@
     The options are:
         indent_size (default 4)          — indentation size,
         indent_char (default space)      — character to indent with,
+        end_with_newline (default true)  - end with a newline
 
     e.g
 
     css_beautify(css_source_text, {
       'indent_size': 1,
-      'indent_char': '\t'
+      'indent_char': '\t',
+      'end_with_newline': false,
     });
 */
 
@@ -58,6 +60,7 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
+        var endWithNewline = options.end_with_newline || false;
 
         // compatibility
         if (typeof indentSize === "string") {
@@ -250,6 +253,15 @@
 
 
         var sweetCode = output.join('').replace(/[\n ]+$/, '');
+
+        // establish end_with_newline
+        var should = endWithNewline;
+        var actually = /\n$/.test(sweetCode)
+        if (should && !actually)
+            sweetCode += "\n";
+        else if (!should && actually)
+            sweetCode = sweetCode.slice(0, -1);
+
         return sweetCode;
     }
 
