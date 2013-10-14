@@ -190,15 +190,15 @@
 
             if (!ch) {
                 break;
-            }
-
-
-            if (ch === '{') {
+            } else if (ch === '{') {
                 indent();
                 print["{"](ch);
             } else if (ch === '}') {
                 outdent();
                 print["}"](ch);
+            } else if (ch === ":") {
+                eatWhitespace();
+                output.push(ch, " ");
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
