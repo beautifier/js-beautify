@@ -81,13 +81,13 @@
             return source_text.charAt(pos + 1);
         }
 
-        function eatString(comma) {
+        function eatString(endChar) {
             var start = pos;
             while (next()) {
                 if (ch === "\\") {
                     next();
                     next();
-                } else if (ch === comma) {
+                } else if (ch === endChar) {
                     break;
                 } else if (ch === "\n") {
                     break;
