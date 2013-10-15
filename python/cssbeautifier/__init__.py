@@ -33,17 +33,17 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
-        self.remove_trailing_zero = True
+        self.selector_separator = '\n'
         self.end_with_newline = False
 
     def __repr__(self):
         return \
 """indent_size = %d
 indent_char = [%s]
-remove_trailing_zero = [%s]
+separate_selectors = [%s]
 end_with_newline = [%s]
 """ % (self.indent_size, self.indent_char, 
-       self.remove_trailing_zero, self.end_with_newline)
+       self.separate_selectors, self.end_with_newline)
 
 
 def default_options():
@@ -207,6 +207,7 @@ class Beautifier:
         indentString = m.group(0)
         printer = Printer(self.indentChar, self.indentSize, indentString)
 
+        insideRule = False
         while True:
             isAfterSpace = self.skipWhitespace()
 
@@ -229,9 +230,11 @@ class Beautifier:
             elif self.ch == '}':
                 printer.outdent()
                 printer.closeBracket()
+                insideRule = False
             elif self.ch == ":":
                 self.eatWhitespace()
                 printer.colon()
+                insideRule = True
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
@@ -257,17 +260,16 @@ class Beautifier:
             elif self.ch == ',':
                 self.eatWhitespace()
                 printer.push(self.ch)
-                printer.singleSpace()
+                if insideRule:
+                    printer.singleSpace()
+                else:
+                    printer.push(self.opts.selector_separator)
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[' or self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
                 printer.push(self.ch)
-            elif self.opts.remove_trailing_zero and \
-            self.ch == "0" and self.peek() == "." and \
-            (self.lookBack(":") or self.lookBack(" ")):
-                pass  # skip dot
             else:
                 if isAfterSpace:
                     printer.singleSpace()
