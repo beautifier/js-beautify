@@ -1,4 +1,4 @@
-#!/usr/bin/spidermonkey-1.7 -s
+#!/usr/bin/spidermonkey-1.8.5 -s
 
 //#!/usr/bin/js
 

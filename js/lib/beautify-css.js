@@ -39,17 +39,18 @@
         css_beautify(source_text, options);
 
     The options are (default in brackets):
-        indent_size (4)              — indentation size,
-        indent_char (space)          — character to indent with,
-        remove_trailing_zero (false) - remove trailing zero (e.g. 0.9 -> .9)
-        end_with_newline (false)     - end with a newline
+        indent_size (4)             — indentation size,
+        indent_char (space)         — character to indent with,
+        selector_separator (\n)     - string to separate selectors 
+                                      (e.g. "a,\nbr" or "a, br")
+        end_with_newline (false)    - end with a newline
 
     e.g
 
     css_beautify(css_source_text, {
       'indent_size': 1,
       'indent_char': '\t',
-      'remove_trailing_zero', true,
+      'selector_separator': ' ',
       'end_with_newline': false,
     });
 */
@@ -62,7 +63,7 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
-        var removeTrailingZero = options.remove_trailing_zero || false;
+        var selectorSeparator = options.selector_separator || '\n';
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
@@ -191,6 +192,7 @@
         }
         /*_____________________--------------------_____________________*/
 
+        var insideRule = false;
         while (true) {
             var isAfterSpace = skipWhitespace();
 
@@ -215,9 +217,11 @@
             } else if (ch === '}') {
                 outdent();
                 print["}"](ch);
+                insideRule = false;
             } else if (ch === ":") {
                 eatWhitespace();
                 output.push(ch, " ");
+                insideRule = true;
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
@@ -245,15 +249,16 @@
             } else if (ch === ',') {
                 eatWhitespace();
                 output.push(ch);
-                print.singleSpace();
+                if (insideRule) {
+                    print.singleSpace();
+                } else {
+                    output.push(selectorSeparator);
+                }
             } else if (ch === ']') {
                 output.push(ch);
             } else if (ch === '[' || ch === '=') { // no whitespace before or after
                 eatWhitespace();
                 output.push(ch);
-            } else if (removeTrailingZero && ch == "0" && peek() == "." &&
-                (lookBack(" ") || lookBack(":"))) {
-                // do nothing, just ignore "0"
             } else {
                 if (isAfterSpace) {
                     print.singleSpace();
