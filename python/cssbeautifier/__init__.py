@@ -218,7 +218,7 @@ class Beautifier:
                 printer.comment(comment)
                 header = self.lookBack("")
                 if header:
-                    printer.newLine()
+                    printer.push("\n\n")
             elif self.ch == '{':
                 self.eatWhitespace()
                 if self.peek() == '}':

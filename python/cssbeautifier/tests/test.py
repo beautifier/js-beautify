@@ -28,9 +28,9 @@ class CSSBeautifierTest(unittest.TestCase):
         self.resetOptions()
         t = self.decodesto
 
-        t("/* test */", "/* test */\n")
+        t("/* test */", "/* test */\n\n")
         t(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n")
-        t("/* header */.tabs {}", "/* header */\n.tabs {}\n")
+        t("/* header */.tabs {}", "/* header */\n\n.tabs {}\n")
 
 
     def testSeperateSelectors(self):
