@@ -39,11 +39,11 @@
         css_beautify(source_text, options);
 
     The options are (default in brackets):
-        indent_size (4)             — indentation size,
-        indent_char (space)         — character to indent with,
-        selector_separator (\n)     - string to separate selectors 
-                                      (e.g. "a,\nbr" or "a, br")
-        end_with_newline (false)    - end with a newline
+        indent_size (4)                   — indentation size,
+        indent_char (space)               — character to indent with,
+        selector_separator_newline (true) - separate selectors with newline or
+                                            not (e.g. "a,\nbr" or "a, br")
+        end_with_newline (false)          - end with a newline
 
     e.g
 
