@@ -1692,7 +1692,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // css beautifier
         opts.indent_size = 1;
         opts.indent_char = '\t';
-        opts.selector_separator = '\n';
+        opts.selector_separator_newline = true;
         opts.end_with_newline = true;
 
         // test basic css beautifier
@@ -1714,9 +1714,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
 
         // test options
-        opts.indent_size = 2
-        opts.indent_char = ' '
-        opts.selector_separator = ' '
+        opts.indent_size = 2;
+        opts.indent_char = ' ';
+        opts.selector_separator_newline = false;
 
         btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
         btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");

@@ -33,14 +33,14 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
-        self.selector_separator = '\n'
+        self.selector_separator_newline = True
         self.end_with_newline = False
 
     def __repr__(self):
         return \
 """indent_size = %d
 indent_char = [%s]
-separate_selectors = [%s]
+separate_selectors_newline = [%s]
 end_with_newline = [%s]
 """ % (self.indent_size, self.indent_char, 
        self.separate_selectors, self.end_with_newline)
@@ -260,10 +260,10 @@ class Beautifier:
             elif self.ch == ',':
                 self.eatWhitespace()
                 printer.push(self.ch)
-                if insideRule:
-                    printer.singleSpace()
+                if not insideRule and self.opts.selector_separator_newline:
+                    printer.newLine()
                 else:
-                    printer.push(self.opts.selector_separator)
+                    printer.singleSpace()
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[' or self.ch == '=':

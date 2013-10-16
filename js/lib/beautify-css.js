@@ -63,7 +63,9 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
-        var selectorSeparator = options.selector_separator || '\n';
+        var selectorSeparatorNewline = true;
+        if (options.selector_separator_newline != undefined)
+            selectorSeparatorNewline = options.selector_separator_newline;
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
@@ -249,10 +251,10 @@
             } else if (ch === ',') {
                 eatWhitespace();
                 output.push(ch);
-                if (insideRule) {
-                    print.singleSpace();
+                if (!insideRule && selectorSeparatorNewline) {
+                    print.newLine();
                 } else {
-                    output.push(selectorSeparator);
+                    print.singleSpace();
                 }
             } else if (ch === ']') {
                 output.push(ch);

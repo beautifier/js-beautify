@@ -8,7 +8,7 @@ class CSSBeautifierTest(unittest.TestCase):
       self.options = cssbeautifier.default_options()
       self.options.indent_size = 1
       self.options.indent_char = '\t'
-      self.options.selector_separator = '\n'
+      self.options.selector_separator_newline = True
       self.options.end_with_newline = True
 
     def testBasics(self):
@@ -45,7 +45,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.resetOptions()
         self.options.indent_size = 2
         self.options.indent_char = ' '
-        self.options.selector_separator = ' '
+        self.options.selector_separator_newline = False
         t = self.decodesto
 
         t("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n")
