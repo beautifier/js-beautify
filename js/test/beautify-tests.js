@@ -1689,6 +1689,37 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
 
 
+        opts.wrap_line_length = 0;
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+            /* expected */
+            '<div>Some test text that should wrap_inside_this section here.</div>');
+
+        opts.wrap_line_length = "0";
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+            /* expected */
+            '<div>Some test text that should wrap_inside_this section here.</div>');
+
+        //BUGBUG: This should wrap before 40 not after.
+        opts.wrap_line_length = 40;
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+            /* expected */
+            '<div>Some test text that should wrap_inside_this\n' +
+            '    section here.</div>');
+
+       opts.wrap_line_length = "40";
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+            /* expected */
+            '<div>Some test text that should wrap_inside_this\n' +
+            '    section here.</div>');
+
         // css beautifier
         opts.indent_size = 1;
         opts.indent_char = '\t';

@@ -292,7 +292,7 @@
                 // Just continue formatting and the behavior should be logical.
                 // Also ignore unknown tokens.  Again, this should result in better behavior.
                 if (token_type !== 'TK_INLINE_COMMENT' && token_type !== 'TK_COMMENT' &&
-                    token_type !== 'TK_UNKNOWN') {
+                    token_type !== 'TK_BLOCK_COMMENT' && token_type !== 'TK_UNKNOWN') {
                     last_last_text = flags.last_text;
                     last_type = token_type;
                     flags.last_text = token_text;
