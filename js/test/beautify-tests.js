@@ -1,7 +1,7 @@
 /*global js_beautify: true */
 /*jshint */
 
-function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
+function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
 
     var opts = {
@@ -12,7 +12,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
         keep_array_indentation: false,
         brace_style: 'collapse',
         space_before_conditional: true,
-        break_chained_methods: false
+        break_chained_methods: false,
+        selector_separator: '\n',
+        end_with_newline: true
     };
 
     function test_js_beautifier(input)
@@ -23,6 +25,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
     function test_html_beautifier(input)
     {
         return html_beautify(input, opts);
+    }
+
+    function test_css_beautifier(input)
+    {
+        return css_beautify(input, opts);
     }
 
     var sanitytest;
@@ -101,6 +108,16 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
             field_expectation = expectation.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
             test_fragment(field_input, field_expectation);
         }
+    }
+
+    // test css
+    function btc(input, expectation)
+    {
+        var wrapped_input, wrapped_expectation;
+
+        expectation = expectation || input;
+        sanitytest.test_function(test_css_beautifier, 'css_beautify');
+        test_fragment(input, expectation);
     }
 
     // test the input on beautifier with the current flag settings,
@@ -1703,7 +1720,38 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify)
             '<div>Some test text that should wrap_inside_this\n' +
             '    section here.</div>');
 
+        // css beautifier
+        opts.indent_size = 1;
+        opts.indent_char = '\t';
+        opts.selector_separator_newline = true;
+        opts.end_with_newline = true;
 
+        // test basic css beautifier
+        btc('', '\n');
+        btc(".tabs{}", ".tabs {}\n");
+        btc(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}\n");
+        btc(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n\tcolor: rgb(255, 255, 0)\n}\n");
+        btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}\n");
+        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
+        btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n");
+
+        // comments
+        btc("/* test */", "/* test */\n");
+        btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n");
+        btc("/* header */.tabs {}", "/* header */\n\n.tabs {}\n");
+
+        // separate selectors
+        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
+        btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
+
+        // test options
+        opts.indent_size = 2;
+        opts.indent_char = ' ';
+        opts.selector_separator_newline = false;
+
+        btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
+        btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
+        btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
 
         return sanitytest;
     }
