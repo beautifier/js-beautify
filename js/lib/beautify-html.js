@@ -607,7 +607,7 @@
                 //unformatted?
                 var next_tag = this.get_tag(true /* peek. */ );
 
-                // tets next_tag to see if it is just html tag (no external content)
+                // test next_tag to see if it is just html tag (no external content)
                 var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
 
                 // if next_tag comes back but is not an isolated tag, then
