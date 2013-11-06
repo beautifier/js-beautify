@@ -4,6 +4,7 @@ import os
 import getopt
 import re
 import string
+import errno
 from jsbeautifier.__version__ import __version__
 
 #
