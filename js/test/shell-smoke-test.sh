@@ -88,6 +88,37 @@ test_cli_js_beautify()
       exit 1
   }
 
+  export HOME=
+  export USERPROFILE=
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/example1-default.js $SCRIPT_DIR/resources/example1.js
+
+  cd $SCRIPT_DIR/resources/indent11chars
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on CWD settings."
+      exit 1
+  }
+  cd $SCRIPT_DIR/resources/indent11chars/subDir1/subDir2
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on CWD parent folder settings."
+      exit 1
+  }
+  cd $SCRIPT_DIR
+
+
+  export HOME=$SCRIPT_DIR/resources/indent11chars
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on HOME settings."
+      exit 1
+  }
+
+  export HOME=
+  export USERPROFILE=$SCRIPT_DIR/resources/indent11chars
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on USERPROFILE settings."
+      exit 1
+  }
+
+
 }
 
 test_cli_common css-beautify

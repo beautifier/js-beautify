@@ -1,0 +1,12 @@
+{
+  "name": "js-beautify",
+  "version": "1.4.2",
+  "main": [
+    "./js/lib/beautify.js",
+    "./js/lib/beautify-css.js",
+    "./js/lib/beautify-html.js"
+  ],
+  "ignore": [
+    "**/.*"
+  ]
+}
