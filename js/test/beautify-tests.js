@@ -1753,6 +1753,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
         btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
 
+        //single line comment support (less/sass)
+        btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n  // comment\n  width: 10px;\n}\n");
+        btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n  // comment\n  width: 10px;\n}\n");
+
         return sanitytest;
     }
 

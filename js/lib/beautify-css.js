@@ -119,12 +119,14 @@
             return pos !== start + 1;
         }
 
-        function eatComment() {
+        function eatComment(singleLine) {
             var start = pos;
             next();
             while (next()) {
                 if (ch === "*" && peek() === "/") {
                     pos++;
+                    break;
+                } else if (singleLine && ch === "\n") {
                     break;
                 }
             }
@@ -200,13 +202,15 @@
 
             if (!ch) {
                 break;
-            } else if (ch === '/' && peek() === '*') { // comment
+            } else if (ch === '/' && peek() === '*') { /* css comment */
                 print.newLine();
                 output.push(eatComment(), "\n", indentString);
                 var header = lookBack("")
                 if (header) {
                     print.newLine();
                 }
+            } else if (ch === '/' && peek() === '/') { // single line comment
+                output.push(eatComment(true), indentString);
             } else if (ch === '{') {
                 eatWhitespace();
                 if (peek() == '}') {
