@@ -1743,6 +1743,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //single line comment support (less/sass)
         btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
         btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
+        btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}\n");
+        btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}\n");
 
         // separate selectors
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
