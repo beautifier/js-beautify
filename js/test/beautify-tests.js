@@ -1744,6 +1744,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
 
+        // pseudoselectors
+        btc("a:hover{color:red}", "a:hover {\n\tcolor: red\n}\n");
+        btc(".test:after{content:\"after\"}", ".test:after {\n\tcontent: \"after\"\n}\n");
+
+
         // test options
         opts.indent_size = 2;
         opts.indent_char = ' ';

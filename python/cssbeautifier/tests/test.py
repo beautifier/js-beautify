@@ -40,6 +40,12 @@ class CSSBeautifierTest(unittest.TestCase):
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n")
         t("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n")
 
+    def testPseudeoselectors(self):
+        self.resetOptions()
+        t = self.decodesto
+
+        t("a:hover{color:red}", "a:hover {\n\tcolor: red\n}\n")
+        t(".test:after{content:\"after\"}", ".test:after {\n\tcontent: \"after\"\n}\n")
 
     def testOptions(self):
         self.resetOptions()

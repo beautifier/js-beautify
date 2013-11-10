@@ -195,6 +195,7 @@
         /*_____________________--------------------_____________________*/
 
         var insideRule = false;
+        var ignoreOpenBracket = false;
         while (true) {
             var isAfterSpace = skipWhitespace();
 
@@ -207,7 +208,15 @@
                 if (header) {
                     print.newLine();
                 }
+            } else if (ch === "@") {
+                output.push("@");
+                ignoreOpenBracket = true;
             } else if (ch === '{') {
+                if (ignoreOpenBracket) {
+                    ignoreOpenBracket = false;
+                } else {
+                    insideRule = true;
+                }
                 eatWhitespace();
                 if (peek() == '}') {
                     next();
@@ -222,8 +231,10 @@
                 insideRule = false;
             } else if (ch === ":") {
                 eatWhitespace();
-                output.push(ch, " ");
-                insideRule = true;
+                output.push(ch);
+                if (insideRule) {
+                    print.singleSpace();
+                }
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
