@@ -233,7 +233,11 @@
                 insideRule = false;
             } else if (ch === ":") {
                 eatWhitespace();
-                output.push(ch, " ");
+                if (lookBack("&")) {
+                    output.push(ch);
+                } else {
+                    output.push(ch, " ");
+                }
                 insideRule = true;
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
