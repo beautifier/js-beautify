@@ -140,6 +140,13 @@
                 str;
         }
 
+        function isCommentOnLine() {
+            var endOfLine = source_text.indexOf('\n', pos);
+            if (endOfLine === -1) return false;
+            var restOfLine = source_text.substring(pos, endOfLine);
+            return restOfLine.indexOf('//') !== -1;
+        }
+
         // printer
         var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
         var singleIndent = Array(indentSize + 1).join(indentCharacter);
@@ -231,7 +238,13 @@
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
-                output.push(ch, '\n', indentString);
+                if (isCommentOnLine()) {
+                    var beforeComment = eatString('/');
+                    var comment = eatComment(true);
+                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', indentString);
+                } else {
+                    output.push(ch, '\n', indentString);
+                }
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
                     output.push(ch);
