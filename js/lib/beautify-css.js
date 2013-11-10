@@ -64,9 +64,8 @@
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = true;
-        if (options.selector_separator_newline !== undefined) {
+        if (options.selector_separator_newline != undefined)
             selectorSeparatorNewline = options.selector_separator_newline;
-        }
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
