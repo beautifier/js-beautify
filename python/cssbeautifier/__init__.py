@@ -95,7 +95,7 @@ class Printer:
             self.push(self.baseIndentString)
 
     def __lastCharWhitespace(self):
-        return WHITE_RE.search(self.output[-1]) is not None
+        return len(self.output) > 0 and WHITE_RE.search(self.output[-1]) is not None
 
     def indent(self):
         self.indentLevel += 1
@@ -183,17 +183,17 @@ class Beautifier:
         else:
             return ""
 
-    def eatString(self, endChar):
+    def eatString(self, endChars):
         start = self.pos
         while self.next():
             if self.ch == "\\":
                 self.next()
                 self.next()
-            elif self.ch == endChar:
+            elif self.ch in endChars:
                 break
             elif self.ch == "\n":
                 break
-        return self.source_text[start:self.pos] + endChar
+        return self.source_text[start:self.pos] + self.ch
 
     def peekString(self, endChar):
         start = self.pos
@@ -250,11 +250,13 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
+                printer.newLine()
                 comment = self.eatComment(False)
                 printer.comment(comment)
+                printer.newLine()                
                 header = self.lookBack("")
                 if header:
-                    printer.push("\n\n")
+                    printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':
                 printer.comment(self.eatComment(True)[0:-1])
                 printer.newLine()
@@ -265,15 +267,23 @@ class Beautifier:
                 printer.push(self.ch)
 
                 # strip trailing space, if present, for hash property check
-                atRule = self.peekString(" ")
-                if atRule[-1].isspace():
-                    atRule = atRule[:-1]
+                variableOrRule = self.peekString(": ,;{}()[]/='\"")
+                if variableOrRule[-1].isspace():
+                    variableOrRule = variableOrRule[:-1]
 
                 # might be a nesting at-rule
-                if atRule in self.NESTED_AT_RULE:
+                if variableOrRule in self.NESTED_AT_RULE:
                     printer.nestedLevel += 1
-                    if atRule in self.CONDITIONAL_GROUP_RULE:
+                    if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
+                elif ':' in variableOrRule:
+                    # we have a variable, add it and a space after
+                    self.next()
+                    variableOrRule = self.eatString(":")
+                    printer.push(variableOrRule)
+                    printer.singleSpace();
+                    self.eatWhitespace();
+
 
             elif self.ch == '{':
                 self.eatWhitespace()
@@ -319,7 +329,7 @@ class Beautifier:
                     comment = self.eatComment(True)
                     printer.push(beforeComment)
                     printer.push(comment[1:-1])
-                    printer.newLine()
+                    printer.newLine(True)
                 else:
                     printer.semicolon()
             elif self.ch == '(':

@@ -88,13 +88,13 @@
             return source_text.charAt(pos + 1);
         }
 
-        function eatString(endChar) {
+        function eatString(endChars) {
             var start = pos;
             while (next()) {
                 if (ch === "\\") {
                     next();
                     next();
-                } else if (ch === endChar) {
+                } else if (endChars.indexOf(ch) !== -1) {
                     break;
                 } else if (ch === "\n") {
                     break;
@@ -222,10 +222,11 @@
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
                 print.newLine();
-                output.push(eatComment(), "\n", basebaseIndentString);
+                output.push(eatComment());
+                print.newLine();
                 var header = lookBack("");
                 if (header) {
-                    print.newLine();
+                    print.newLine(true);
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
                 output.push(eatComment(true), basebaseIndentString);
@@ -237,14 +238,21 @@
                 output.push(ch);
 
                 // strip trailing space, if present, for hash property checks
-                var atRule = peekString(" ").replace(/\s$/, '');
+                var variableOrRule = peekString(": ,;{}()[]/='\"").replace(/\s$/, '');
 
                 // might be a nesting at-rule
-                if (atRule in css_beautify.NESTED_AT_RULE) {
+                if (variableOrRule in css_beautify.NESTED_AT_RULE) {
                     nestedLevel += 1;
-                    if (atRule in css_beautify.CONDITIONAL_GROUP_RULE) {
+                    if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
                         enteringConditionalGroup = true;
                     }
+                } else if (variableOrRule.indexOf(':') > 0) {
+                    //we have a variable, add it and insert one space before continuing
+                    next();
+                    variableOrRule = eatString(":").replace(/\s$/, '');
+                    output.push(variableOrRule);
+                    print.singleSpace();
+                    eatWhitespace();
                 }
             } else if (ch === '{') {
                 eatWhitespace();
@@ -275,7 +283,8 @@
                 if ((insideRule || enteringConditionalGroup) && !lookBack("&")) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
-                    output.push(ch, " ");
+                    output.push(ch);
+                    print.singleSpace();
                 } else {
                     if (peek() === ":") {
                         // pseudo-element
@@ -292,9 +301,11 @@
                 if (isCommentOnLine()) {
                     var beforeComment = eatString('/');
                     var comment = eatComment(true);
-                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', basebaseIndentString);
+                    output.push(beforeComment, comment.substring(1, comment.length - 1));
+                    print.newLine(true);
                 } else {
-                    output.push(ch, '\n', basebaseIndentString);
+                    output.push(ch);
+                    print.newLine(true);
                 }
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {

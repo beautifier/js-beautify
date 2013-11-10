@@ -2316,6 +2316,19 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\t\tcolor: green;\n' +
             '\t}\n' +
             '}');
+            
+        //nested modifiers (&:hover etc)
+        btc(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}");
+
+        //nested rules
+        btc(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}");
+
+        //variables
+        btc("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
+        btc("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
 
         // test options
         opts.indent_size = 2;
