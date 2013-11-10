@@ -1756,6 +1756,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}\n");
         btc(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}\n");
 
+        //nested rules
+        btc(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}\n");
+
+        //variables
+        btc("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}\n");
+        btc("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}\n");
+
         // separate selectors
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
