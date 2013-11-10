@@ -111,9 +111,11 @@ class Printer:
         self.output.append("}")
         self.newLine()
 
+    def at(self):
+        self.output.append("@")
+
     def colon(self):
         self.output.append(":")
-        self.singleSpace()
 
     def semicolon(self):
         self.output.append(";")
@@ -208,6 +210,7 @@ class Beautifier:
         printer = Printer(self.indentChar, self.indentSize, indentString)
 
         insideRule = False
+        ignoreOpenBracket = False
         while True:
             isAfterSpace = self.skipWhitespace()
 
@@ -219,7 +222,14 @@ class Beautifier:
                 header = self.lookBack("")
                 if header:
                     printer.push("\n\n")
+            elif self.ch == "@":
+                printer.at();
+                ignoreOpenBracket = True
             elif self.ch == '{':
+                if ignoreOpenBracket:
+                    ignoreOpenBracket = False
+                else:
+                    insideRule = True
                 self.eatWhitespace()
                 if self.peek() == '}':
                     self.next()
@@ -234,7 +244,8 @@ class Beautifier:
             elif self.ch == ":":
                 self.eatWhitespace()
                 printer.colon()
-                insideRule = True
+                if insideRule:
+                    printer.singleSpace()
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
