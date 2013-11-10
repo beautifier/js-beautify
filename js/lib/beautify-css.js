@@ -242,6 +242,7 @@
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
+                eatWhitespace();
                 if (isCommentOnLine()) {
                     var beforeComment = eatString('/');
                     var comment = eatComment(true);
