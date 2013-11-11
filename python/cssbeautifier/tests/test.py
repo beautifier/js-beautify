@@ -32,6 +32,15 @@ class CSSBeautifierTest(unittest.TestCase):
         t(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n")
         t("/* header */.tabs {}", "/* header */\n\n.tabs {}\n")
 
+        #single line comment support (less/sass)
+        t(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n")
+        t(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n")
+        t("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}\n")
+        t(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}\n")
+        t(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}\n")
+        t(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}\n")
+        t(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}\n")
+
 
     def testSeperateSelectors(self):
         self.resetOptions()

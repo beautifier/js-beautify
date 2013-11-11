@@ -42,7 +42,7 @@ class BeautifierOptions:
 indent_char = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
-""" % (self.indent_size, self.indent_char, 
+""" % (self.indent_size, self.indent_char,
        self.separate_selectors, self.end_with_newline)
 
 
@@ -91,7 +91,7 @@ class Printer:
 
     def __lastCharWhitespace(self):
         return WHITE_RE.search(self.output[len(self.output) - 1]) is not None
-    
+
     def indent(self):
         self.indentString += self.singleIndent
 
@@ -129,7 +129,7 @@ class Printer:
 
         if len(self.output) > 0:
             self.output.append("\n")
-        
+
         if len(self.indentString) > 0:
             self.output.append(self.indentString)
 
@@ -189,18 +189,27 @@ class Beautifier:
             pass
         return self.pos != start + 1
 
-    def eatComment(self):
+    def eatComment(self, singleLine):
         start = self.pos
         self.next()
         while self.next():
             if self.ch == "*" and self.peek() == "/":
                 self.pos = self.pos + 1
                 break
+            elif singleLine and self.ch == "\n":
+                break
         return self.source_text[start:self.pos + 1]
 
     def lookBack(self, string):
         past = self.source_text[self.pos - len(string):self.pos]
         return past.lower() == string
+
+    def isCommentOnLine(self):
+        endOfLine = self.source_text.find('\n', self.pos)
+        if endOfLine == -1:
+            return False;
+        restOfLine = self.source_text[self.pos:endOfLine]
+        return restOfLine.find('//') != -1
 
     def beautify(self):
         m = re.search("^[\r\n]*[\t ]*", self.source_text)
@@ -214,11 +223,14 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                comment = self.eatComment()
+                comment = self.eatComment(False)
                 printer.comment(comment)
                 header = self.lookBack("")
                 if header:
                     printer.push("\n\n")
+            elif self.ch == '/' and self.peek() == '/':
+                printer.comment(self.eatComment(True)[0:-1])
+                printer.newLine()
             elif self.ch == '{':
                 self.eatWhitespace()
                 if self.peek() == '}':
@@ -238,7 +250,14 @@ class Beautifier:
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
-                printer.semicolon()
+                if self.isCommentOnLine():
+                    beforeComment = self.eatString('/')
+                    comment = self.eatComment(True)
+                    printer.push(beforeComment)
+                    printer.push(comment[1:-1])
+                    printer.newLine()
+                else:
+                    printer.semicolon()
             elif self.ch == '(':
                 # may be a url
                 if self.lookBack("url"):
