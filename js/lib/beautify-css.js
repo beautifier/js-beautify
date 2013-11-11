@@ -119,12 +119,14 @@
             return pos !== start + 1;
         }
 
-        function eatComment() {
+        function eatComment(singleLine) {
             var start = pos;
             next();
             while (next()) {
                 if (ch === "*" && peek() === "/") {
                     pos++;
+                    break;
+                } else if (singleLine && ch === "\n") {
                     break;
                 }
             }
@@ -136,6 +138,13 @@
         function lookBack(str) {
             return source_text.substring(pos - str.length, pos).toLowerCase() ===
                 str;
+        }
+
+        function isCommentOnLine() {
+            var endOfLine = source_text.indexOf('\n', pos);
+            if (endOfLine === -1) return false;
+            var restOfLine = source_text.substring(pos, endOfLine);
+            return restOfLine.indexOf('//') !== -1;
         }
 
         // printer
@@ -200,13 +209,15 @@
 
             if (!ch) {
                 break;
-            } else if (ch === '/' && peek() === '*') { // comment
+            } else if (ch === '/' && peek() === '*') { /* css comment */
                 print.newLine();
                 output.push(eatComment(), "\n", indentString);
                 var header = lookBack("")
                 if (header) {
                     print.newLine();
                 }
+            } else if (ch === '/' && peek() === '/') { // single line comment
+                output.push(eatComment(true), indentString);
             } else if (ch === '{') {
                 eatWhitespace();
                 if (peek() == '}') {
@@ -227,7 +238,13 @@
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
-                output.push(ch, '\n', indentString);
+                if (isCommentOnLine()) {
+                    var beforeComment = eatString('/');
+                    var comment = eatComment(true);
+                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', indentString);
+                } else {
+                    output.push(ch, '\n', indentString);
+                }
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
                     output.push(ch);

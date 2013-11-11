@@ -1740,6 +1740,15 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n");
         btc("/* header */.tabs {}", "/* header */\n\n.tabs {}\n");
 
+        //single line comment support (less/sass)
+        btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
+        btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
+        btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}\n");
+        btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}\n");
+        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}\n");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}\n");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}\n");
+
         // separate selectors
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
