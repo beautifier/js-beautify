@@ -91,16 +91,16 @@
         } 
         
         function getrow() {
-          var test1 = source_text.substr(pos, source_text.indexOf(';') + 1);
-          var test2 = source_text.substr(pos, source_text.indexOf('{') + 1);
+            var test1 = source_text.substr(pos, source_text.indexOf(';') + 1);
+            var test2 = source_text.substr(pos, source_text.indexOf('{') + 1);
           
-          if(test1.length > test2.length) {
-            return test2;
-          } else {
-            return test1;
-          }
+            if (test1.length > test2.length) {
+                return test2;
+            } else {
+                return test1;
+            }
         }
-        
+
         function eatString(endChar) {
             var start = pos;
             while (next()) {
