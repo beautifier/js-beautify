@@ -240,7 +240,6 @@
                     open_brace = text_after_pos.substr(0, text_after_pos.indexOf('{')).length,
                     test1 = (semicolon > closed_brace) ? closed_brace : semicolon;
 
-                //console.log(text_after_pos);
                 if (test1 > open_brace && open_brace !== 0) {
                     output.push(ch);
                 } else {
