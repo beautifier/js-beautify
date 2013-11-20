@@ -88,17 +88,6 @@
 
         function peek() {
             return source_text.charAt(pos + 1);
-        } 
-        
-        function getrow() {
-            var test1 = source_text.substr(pos, source_text.indexOf(';') + 1);
-            var test2 = source_text.substr(pos, source_text.indexOf('{') + 1);
-          
-            if (test1.length > test2.length) {
-                return test2;
-            } else {
-                return test1;
-            }
         }
 
         function eatString(endChar) {
@@ -244,11 +233,20 @@
                 insideRule = false;
             } else if (ch === ":") {
                 eatWhitespace();
-                if(getrow().indexOf("{") !== -1){
-                     output.push(ch);
+
+                var text_after_pos = source_text.substr(pos - 1) + ";",
+                    semicolon = text_after_pos.substr(0, text_after_pos.indexOf(';')).length,
+                    closed_brace = text_after_pos.substr(0, text_after_pos.indexOf('}')).length,
+                    open_brace = text_after_pos.substr(0, text_after_pos.indexOf('{')).length,
+                    test1 = (semicolon > closed_brace) ? closed_brace : semicolon;
+
+                //console.log(text_after_pos);
+                if (test1 > open_brace && open_brace !== 0) {
+                    output.push(ch);
                 } else {
                     output.push(ch, " ");
                 }
+
                 insideRule = true;
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
