@@ -238,7 +238,7 @@
             } else if (ch === ":") {
                 eatWhitespace();
 
-                var text_after_pos = source_text_safe.substr(pos - 1).replace(new RegExp("('|\").*('|\")", "gm"), "") + ";",
+                var text_after_pos = source_text_safe.substr(pos - 1) + ";",
                     semicolon = text_after_pos.substr(0, text_after_pos.indexOf(';')).length,
                     closed_brace = text_after_pos.substr(0, text_after_pos.indexOf('}')).length,
                     open_brace = text_after_pos.substr(0, text_after_pos.indexOf('{')).length,
