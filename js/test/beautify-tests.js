@@ -1761,6 +1761,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
         btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
         btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
+        
+        // colon character
+        btc("#foo : hover{color:purple}","#foo:hover {\n  color: purple\n}\n");
+        btc(": : selection {\ncolor: #ff0000;}", "::selection {\n  color: #ff0000;\n}");
 
         return sanitytest;
     }
