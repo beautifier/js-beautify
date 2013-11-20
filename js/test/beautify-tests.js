@@ -1765,6 +1765,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // colon character
         btc("#foo : hover{color:purple}","#foo:hover {\n  color: purple\n}\n");
         btc(": : selection {\ncolor: #ff0000;}", "::selection {\n  color: #ff0000;\n}");
+        
+        // particular edge case with braces and semicolons inside tags that allows custom text
+        btc("a: not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}", "a: not(\"foobar\\\";{}omg\") {\n    content: 'example\';{} text';\n    content: \"example\\\";{} text\";\n}");
 
         return sanitytest;
     }
