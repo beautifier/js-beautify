@@ -64,8 +64,9 @@
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = true;
-        if (options.selector_separator_newline != undefined)
+        if (options.selector_separator_newline !== undefined) {
             selectorSeparatorNewline = options.selector_separator_newline;
+        }
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
@@ -142,14 +143,16 @@
 
         function isCommentOnLine() {
             var endOfLine = source_text.indexOf('\n', pos);
-            if (endOfLine === -1) return false;
+            if (endOfLine === -1) {
+                return false;
+            }
             var restOfLine = source_text.substring(pos, endOfLine);
             return restOfLine.indexOf('//') !== -1;
         }
 
         // printer
         var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
-        var singleIndent = Array(indentSize + 1).join(indentCharacter);
+        var singleIndent = new Array(indentSize + 1).join(indentCharacter);
         var indentLevel = 0;
 
         function indent() {
@@ -176,7 +179,7 @@
 
         print._lastCharWhitespace = function () {
             return whiteRe.test(output[output.length - 1]);
-        }
+        };
 
         print.newLine = function (keepWhitespace) {
             if (!keepWhitespace) {
@@ -212,7 +215,7 @@
             } else if (ch === '/' && peek() === '*') { /* css comment */
                 print.newLine();
                 output.push(eatComment(), "\n", indentString);
-                var header = lookBack("")
+                var header = lookBack("");
                 if (header) {
                     print.newLine();
                 }
@@ -220,7 +223,7 @@
                 output.push(eatComment(true), indentString);
             } else if (ch === '{') {
                 eatWhitespace();
-                if (peek() == '}') {
+                if (peek() === '}') {
                     next();
                     output.push(" {}");
                 } else {
@@ -292,15 +295,17 @@
 
         // establish end_with_newline
         var should = endWithNewline;
-        var actually = /\n$/.test(sweetCode)
-        if (should && !actually)
+        var actually = /\n$/.test(sweetCode);
+        if (should && !actually) {
             sweetCode += "\n";
-        else if (!should && actually)
+        } else if (!should && actually) {
             sweetCode = sweetCode.slice(0, -1);
+        }
 
         return sweetCode;
     }
 
+    /*global define */
     if (typeof define === "function") {
         // Add support for require.js
         define(function (require, exports, module) {
