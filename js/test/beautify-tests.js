@@ -1734,6 +1734,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}\n");
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n");
+        btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}\n");
 
         // comments
         btc("/* test */", "/* test */\n");
@@ -1761,6 +1762,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
         btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
         btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
+        
+        // colon character
+        btc("#foo : hover{color:purple}","#foo:hover {\n  color: purple\n}\n");
+        btc(": : selection {\ncolor: #ff0000;}", "::selection {\n  color: #ff0000;\n}");
+        
+        // particular edge case with braces and semicolons inside tags that allows custom text
+        btc("a: not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}", "a:not(\"foobar\\\";{}omg\") {\n    content: 'example\\';{} text';\n    content: \"example\\\";{} text\";\n}");
 
         return sanitytest;
     }

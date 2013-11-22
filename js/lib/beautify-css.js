@@ -73,10 +73,14 @@
             indentSize = parseInt(indentSize, 10);
         }
 
-
         // tokenizer
         var whiteRe = /^\s+$/;
         var wordRe = /[\w$\-_]/;
+
+        // clean content inside tags and selectors that support custom user contents (ex: not() and content)
+        source_text_safe = source_text.replace(new RegExp("('|\").*('|\")", "gm"), function ($0) {
+            return (new Array($0.length + 1).join("-"));
+        });
 
         var pos = -1,
             ch;
@@ -233,7 +237,19 @@
                 insideRule = false;
             } else if (ch === ":") {
                 eatWhitespace();
-                output.push(ch, " ");
+
+                var text_after_pos = source_text_safe.substr(pos - 1) + ";",
+                    semicolon = text_after_pos.substr(0, text_after_pos.indexOf(';')).length,
+                    closed_brace = text_after_pos.substr(0, text_after_pos.indexOf('}')).length,
+                    open_brace = text_after_pos.substr(0, text_after_pos.indexOf('{')).length,
+                    test1 = (semicolon > closed_brace) ? closed_brace : semicolon;
+
+                if ((test1 > open_brace && open_brace !== 0) || peek() == ":") {
+                    output.push(ch);
+                } else {
+                    output.push(ch, " ");
+                }
+
                 insideRule = true;
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
