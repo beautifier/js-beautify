@@ -154,6 +154,7 @@
         var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
         var indentLevel = 0;
+        var nestedLevel = 0;
 
         function indent() {
             indentLevel++;
@@ -207,6 +208,8 @@
         /*_____________________--------------------_____________________*/
 
         var insideRule = false;
+        var enteringConditionalGroup = false;
+
         while (true) {
             var isAfterSpace = skipWhitespace();
 
@@ -221,6 +224,20 @@
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
                 output.push(eatComment(true), indentString);
+            } else if (ch === '@') {
+                // strip trailing space, if present, for hash property checks
+                var atRule = eatString(" ").replace(/ $/, '');
+
+                // pass along the space we found as a separate item
+                output.push(atRule, ch);
+
+                // might be a nesting at-rule
+                if (atRule in css_beautify.NESTED_AT_RULE) {
+                    nestedLevel += 1;
+                    if (atRule in css_beautify.CONDITIONAL_GROUP_RULE) {
+                        enteringConditionalGroup = true;
+                    }
+                }
             } else if (ch === '{') {
                 eatWhitespace();
                 if (peek() === '}') {
@@ -229,15 +246,38 @@
                 } else {
                     indent();
                     print["{"](ch);
+                    // when entering conditional groups, only rulesets are allowed
+                    if (enteringConditionalGroup) {
+                        enteringConditionalGroup = false;
+                        insideRule = (indentLevel > nestedLevel);
+                    } else {
+                        // otherwise, declarations are also allowed
+                        insideRule = (indentLevel >= nestedLevel);
+                    }
                 }
             } else if (ch === '}') {
                 outdent();
                 print["}"](ch);
                 insideRule = false;
+                if (nestedLevel) {
+                    nestedLevel--;
+                }
             } else if (ch === ":") {
                 eatWhitespace();
-                output.push(ch, " ");
-                insideRule = true;
+                if (insideRule || enteringConditionalGroup) {
+                    // 'property: value' delimiter
+                    // which could be in a conditional group query
+                    output.push(ch, " ");
+                } else {
+                    if (peek() === ":") {
+                        // pseudo-element
+                        next();
+                        output.push("::");
+                    } else {
+                        // pseudo-class
+                        output.push(ch);
+                    }
+                }
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
@@ -304,6 +344,22 @@
 
         return sweetCode;
     }
+
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
+    css_beautify.NESTED_AT_RULE = {
+        "@page": true,
+        "@font-face": true,
+        "@keyframes": true,
+        // also in CONDITIONAL_GROUP_RULE below
+        "@media": true,
+        "@supports": true,
+        "@document": true
+    };
+    css_beautify.CONDITIONAL_GROUP_RULE = {
+        "@media": true,
+        "@supports": true,
+        "@document": true
+    };
 
     /*global define */
     if (typeof define === "function") {
