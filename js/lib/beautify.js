@@ -46,6 +46,7 @@
     indent_char (default space)      - character to indent with,
     preserve_newlines (default true) - whether existing line breaks should be preserved,
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
+    comma_first (default false)      - whether a "comma first" format should be used for variables declarations and objects
 
     jslint_happy (default false) - if true, then jslint-stricter mode is enforced.
 
@@ -208,6 +209,7 @@
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+        opt.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
 
         if(options.indent_with_tabs){
             opt.indent_char = '\t';
@@ -480,6 +482,17 @@
             if (flags.indentation_level > 0 &&
                 ((!flags.parent) || flags.indentation_level > flags.parent.indentation_level))
                 flags.indentation_level -= 1;
+        }
+
+        function comma_first_indentation_workaround() {
+            // in comma-first formatting the comma is considered as
+            // part of the indentation string, so we need to change
+            // a little bit the indentation string before this comma
+            var output_text = output_lines[output_lines.length-1].text;
+            var prev_output_text = output_text[output_text.length-2];
+            if(prev_output_text.length >= 2){
+                output_text[output_text.length-2] = prev_output_text.substring(0, prev_output_text.length - 2);
+            }
         }
 
         function remove_redundant_indentation(frame) {
@@ -1198,6 +1211,7 @@
             } else if (input_wanted_newline && !is_expression(flags.mode) &&
                 (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
                 last_type !== 'TK_EQUALS' &&
+                (!opt.comma_first || last_type !== 'TK_COMMA') &&
                 (opt.preserve_newlines || flags.last_text !== 'var')) {
 
                 print_newline();
@@ -1436,28 +1450,58 @@
                     flags.var_line_reindented = true;
                 }
 
-                print_token();
-
-                if (flags.var_line_tainted) {
+                if(opt.comma_first && flags.var_line_tainted) {
                     flags.var_line_tainted = false;
                     print_newline();
-                } else {
+                }
+
+                print_token();
+
+                if(opt.comma_first) {
                     output_space_before_token = true;
+                } else {
+                    if (flags.var_line_tainted) {
+                        flags.var_line_tainted = false;
+                        print_newline();
+                    } else {
+                        output_space_before_token = true;
+                    }
                 }
                 return;
             }
 
             if (last_type === 'TK_END_BLOCK' && flags.mode !== MODE.Expression) {
-                print_token();
-                if (flags.mode === MODE.ObjectLiteral && flags.last_text === '}') {
-                    print_newline();
-                } else {
+                var check_newline_needed = function(){
+                    if (flags.mode === MODE.ObjectLiteral && flags.last_text === '}') {
+                        print_newline();
+                        return true;
+                    }
+                }
+                if(opt.comma_first) {
+                    check_newline_needed();
+                    print_token();
+                    comma_first_indentation_workaround();
                     output_space_before_token = true;
+                } else {
+                    print_token();
+                    if(!check_newline_needed()) {
+                        output_space_before_token = true;
+                    }
                 }
             } else {
                 if (flags.mode === MODE.ObjectLiteral) {
+                    if(opt.comma_first) {
+                        print_newline();
+                    }
                     print_token();
-                    print_newline();
+                    if(opt.comma_first) {
+                        comma_first_indentation_workaround();
+                    }
+                    if(!opt.comma_first) {
+                        print_newline();
+                    } else {
+                        output_space_before_token = true;
+                    }
                 } else {
                     // EXPR or DO_BLOCK
                     print_token();
@@ -1528,6 +1572,7 @@
                 if (flags.ternary_depth === 0) {
                     if (flags.mode === MODE.BlockStatement) {
                         flags.mode = MODE.ObjectLiteral;
+                        flags.object_property_deindened = false;
                     }
                     space_before = false;
                 } else {
