@@ -488,10 +488,10 @@
             // in comma-first formatting the comma is considered as
             // part of the indentation string, so we need to change
             // a little bit the indentation string before this comma
-            var output_text = output_lines[output_lines.length-1].text;
-            var prev_output_text = output_text[output_text.length-2];
-            if(prev_output_text.length >= 2){
-                output_text[output_text.length-2] = prev_output_text.substring(0, prev_output_text.length - 2);
+            var output_text = output_lines[output_lines.length - 1].text;
+            var prev_output_text = output_text[output_text.length - 2];
+            if (prev_output_text.length >= 2){
+                output_text[output_text.length - 2] = prev_output_text.substring(0, prev_output_text.length - 2);
             }
         }
 
@@ -1450,14 +1450,14 @@
                     flags.var_line_reindented = true;
                 }
 
-                if(opt.comma_first && flags.var_line_tainted) {
+                if (opt.comma_first && flags.var_line_tainted) {
                     flags.var_line_tainted = false;
                     print_newline();
                 }
 
                 print_token();
 
-                if(opt.comma_first) {
+                if (opt.comma_first) {
                     output_space_before_token = true;
                 } else {
                     if (flags.var_line_tainted) {
@@ -1477,27 +1477,27 @@
                         return true;
                     }
                 }
-                if(opt.comma_first) {
+                if (opt.comma_first) {
                     check_newline_needed();
                     print_token();
                     comma_first_indentation_workaround();
                     output_space_before_token = true;
                 } else {
                     print_token();
-                    if(!check_newline_needed()) {
+                    if (!check_newline_needed()) {
                         output_space_before_token = true;
                     }
                 }
             } else {
                 if (flags.mode === MODE.ObjectLiteral) {
-                    if(opt.comma_first) {
+                    if (opt.comma_first) {
                         print_newline();
                     }
                     print_token();
-                    if(opt.comma_first) {
+                    if (opt.comma_first) {
                         comma_first_indentation_workaround();
                     }
-                    if(!opt.comma_first) {
+                    if (!opt.comma_first) {
                         print_newline();
                     } else {
                         output_space_before_token = true;
