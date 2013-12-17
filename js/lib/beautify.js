@@ -1572,7 +1572,6 @@
                 if (flags.ternary_depth === 0) {
                     if (flags.mode === MODE.BlockStatement) {
                         flags.mode = MODE.ObjectLiteral;
-                        flags.object_property_deindened = false;
                     }
                     space_before = false;
                 } else {
