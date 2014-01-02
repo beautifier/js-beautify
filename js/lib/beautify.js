@@ -1620,7 +1620,7 @@
         } else {
             // if is AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
             define([], function() {
-                return js_beautify;
+                return {js_beautify: js_beautify};
             });
         }
 
