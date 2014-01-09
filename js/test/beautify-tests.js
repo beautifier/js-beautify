@@ -1734,6 +1734,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}\n");
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n");
+        btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}\n");
 
         // comments
         btc("/* test */", "/* test */\n");
@@ -1753,6 +1754,30 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
         btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
 
+        // block nesting
+        btc("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}\n");
+        btc("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}\n");
+/*
+@font-face {
+    font-family: 'Bitstream Vera Serif Bold';
+    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');
+}
+@media screen {
+    #foo:hover {
+        background-image: url(foo.png);
+    }
+    @media screen and (min-device-pixel-ratio: 2) {
+        @font-face {
+            font-family: 'Helvetica Neue'
+        }
+        #foo:hover {
+            background-image: url(foo@2x.png);
+        }
+    }
+}
+*/
+        btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}\n");
+
         // test options
         opts.indent_size = 2;
         opts.indent_char = ' ';
@@ -1760,7 +1785,20 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
         btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
+        btc("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}\n");
         btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
+
+        // pseudo-classes and pseudo-elements
+        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}\n");
+        btc("#foo *:hover {\n  color: purple\n}\n");
+        btc("::selection {\n  color: #ff0000;\n}\n");
+
+        // TODO: don't break nested pseduo-classes
+        btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}\n");
+
+        // particular edge case with braces and semicolons inside tags that allows custom text
+        btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
+            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}\n");
 
         return sanitytest;
     }
