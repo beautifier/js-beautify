@@ -161,34 +161,56 @@
 
                 var input_char = '',
                     content = [],
-                    space = false; //if a space is needed
+                    space = false, //if a space is needed
+		    tt_tag = false; // if Template Toolkit tag is found
 
                 while (this.input.charAt(this.pos) !== '<') {
                     if (this.pos >= this.input.length) {
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
 
-                    if (this.traverse_whitespace()) {
+		    //moved this code below indent_handlebars loop
+		    //while working on Template Toolkit - By Dinesh
+                    /*if (this.traverse_whitespace()){
                         if (content.length) {
                             space = true;
                         }
                         continue; //don't want to insert unnecessary space
+                    }*/
+
+		    //for Template toolkit [% %] tags.
+		    var peek2 = this.input.substr(this.pos, 2);
+                    if (peek2 === '[%'){
+                            space = false;
+                            tt_tag = true; //found a Template Toolkit tag
+                            content.push('');
+                            this.print_newline(false, content);
+                            this.print_indentation(content);
                     }
 
+
                     if (indent_handlebars) {
-                        // Handlebars parsing is complicated.
+			// Handlebars parsing is complicated.
+                        var peek3 = this.input.substr(this.pos, 3);
+
                         // {{#foo}} and {{/foo}} are formatted tags.
                         // {{something}} should get treated as content, except:
                         // {{else}} specifically behaves like {{#if}} and {{/if}}
-                        var peek3 = this.input.substr(this.pos, 3);
                         if (peek3 === '{{#' || peek3 === '{{/') {
                             // These are tags and not content.
                             break;
-                        } else if (this.input.substr(this.pos, 2) === '{{') {
+                        } else if (peek2 === '{{') {
                             if (this.get_tag(true) === '{{else}}') {
                                 break;
                             }
                         }
+                    }
+
+		    if (this.traverse_whitespace()){
+                        if (content.length) {
+                            space = true;
+                        }
+                        continue; //don't want to insert unnecessary space
                     }
 
                     input_char = this.input.charAt(this.pos);
@@ -206,7 +228,10 @@
                     }
                     this.line_char_count++;
                     content.push(input_char); //letter at-a-time (or string) inserted to an array
-                }
+		} //while end
+		if( tt_tag && content[content.length - 2] + input_char == '%]'){
+		    this.print_newline(false, content); // insert a line space on end of Template Toolkit tag '%]'
+		}
                 return content.length ? content.join('') : '';
             };
 
@@ -341,7 +366,6 @@
                             space = true;
                         }
                     }
-
                     if (input_char === '<' && !tag_start_char) {
                         tag_start = this.pos - 1;
                         tag_start_char = '<';
@@ -457,7 +481,6 @@
                     this.pos = orig_pos;
                     this.line_char_count = orig_line_char_count;
                 }
-
                 return content.join(''); //returns fully formatted tag
             };
 
