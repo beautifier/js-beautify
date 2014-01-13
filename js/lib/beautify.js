@@ -99,7 +99,7 @@
         digits = '0123456789'.split('');
 
         punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::';
-        punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
+        punct += ' [% %] <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
         punct = punct.split(' ');
 
         // words which should always start on new line.
@@ -685,7 +685,6 @@
 
             input_wanted_newline = false;
             whitespace_before_token = [];
-
             var c = input.charAt(parser_pos);
             parser_pos += 1;
 
@@ -708,6 +707,24 @@
 
                 c = input.charAt(parser_pos);
                 parser_pos += 1;
+            }
+
+	    if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
+                while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+                    if (parser_pos >= input_length) {
+                        break;
+                    }
+                }
+
+                if (c === ',') {
+                    return [c, 'TK_COMMA'];
+                } else if (c === '=') {
+                    return [c, 'TK_EQUALS'];
+                } else {
+                    return [c, 'TK_OPERATOR'];
+                }
             }
 
             if (in_array(c, wordchar)) {
@@ -738,11 +755,11 @@
                 return [c, 'TK_WORD'];
             }
 
-            if (c === '(' || c === '[') {
+            if (c === '(' || c === '[' ) {
                 return [c, 'TK_START_EXPR'];
             }
 
-            if (c === ')' || c === ']') {
+            if (c === ')' || c === ']' ) {
                 return [c, 'TK_END_EXPR'];
             }
 
@@ -976,7 +993,11 @@
                 return [c, 'TK_DOT'];
             }
 
-            if (in_array(c, punct)) {
+// moved to top of this function
+// to avoid [% %] considered as array
+// by Dinesh
+/*
+            if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
@@ -993,6 +1014,7 @@
                     return [c, 'TK_OPERATOR'];
                 }
             }
+*/
 
             return [c, 'TK_UNKNOWN'];
         }
