@@ -686,6 +686,7 @@
             input_wanted_newline = false;
             whitespace_before_token = [];
             var c = input.charAt(parser_pos);
+	    var tt_tag = false; // if Template Toolkit tag is found
             parser_pos += 1;
 
             while (in_array(c, whitespace)) {
@@ -709,7 +710,11 @@
                 parser_pos += 1;
             }
 
-	    if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
+	    tt_tag = ((c + input.charAt(parser_pos)) === '[%');
+
+/*
+
+	     if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
@@ -726,6 +731,8 @@
                     return [c, 'TK_OPERATOR'];
                 }
             }
+
+*/
 
             if (in_array(c, wordchar)) {
                 if (parser_pos < input_length) {
@@ -755,7 +762,7 @@
                 return [c, 'TK_WORD'];
             }
 
-            if (c === '(' || c === '[' ) {
+            if (c === '(' || (c === '[' && !tt_tag)) {
                 return [c, 'TK_START_EXPR'];
             }
 
@@ -845,7 +852,7 @@
                             resulting_string += input.charAt(parser_pos);
                             if (!esc) {
                                 esc = input.charAt(parser_pos) === '\\';
-                                if (input.charAt(parser_pos) === '[') {
+                                if (input.charAt(parser_pos) === '[' && !tt_tag ) {
                                     in_char_class = true;
                                 } else if (input.charAt(parser_pos) === ']') {
                                     in_char_class = false;
@@ -961,7 +968,7 @@
                     } while (parser_pos < input_length && c !== '#' && c !== '=');
                     if (c === '#') {
                         //
-                    } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
+                    } else if ((input.charAt(parser_pos) === '[' && !tt_tag ) && input.charAt(parser_pos + 1) === ']') {
                         sharp += '[]';
                         parser_pos += 2;
                     } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
@@ -993,11 +1000,8 @@
                 return [c, 'TK_DOT'];
             }
 
-// moved to top of this function
-// to avoid [% %] considered as array
-// by Dinesh
-/*
-            if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
+	    // checked twice to check for [%
+            if (in_array(c, punct) || tt_tag ) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
@@ -1014,7 +1018,6 @@
                     return [c, 'TK_OPERATOR'];
                 }
             }
-*/
 
             return [c, 'TK_UNKNOWN'];
         }
