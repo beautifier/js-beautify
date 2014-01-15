@@ -209,7 +209,7 @@
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
 
-        if(options.indent_with_tabs){
+        if (options.indent_with_tabs) {
             opt.indent_char = '\t';
             opt.indent_size = 1;
         }
@@ -297,8 +297,7 @@
                     last_type = token_type;
                     flags.last_text = token_text;
                 }
-                flags.had_comment = (token_type === 'TK_INLINE_COMMENT' || token_type === 'TK_COMMENT'
-                    || token_type === 'TK_BLOCK_COMMENT');
+                flags.had_comment = (token_type === 'TK_INLINE_COMMENT' || token_type === 'TK_COMMENT' || token_type === 'TK_BLOCK_COMMENT');
             }
 
 
@@ -686,7 +685,7 @@
             input_wanted_newline = false;
             whitespace_before_token = [];
             var c = input.charAt(parser_pos);
-	    var tt_tag = false; // if Template Toolkit tag is found
+            var tt_tag = false; // if Template Toolkit tag is found
             parser_pos += 1;
 
             while (in_array(c, whitespace)) {
@@ -710,9 +709,9 @@
                 parser_pos += 1;
             }
 
-	    tt_tag = ((c + input.charAt(parser_pos)) === '[%');
+            tt_tag = ((c + input.charAt(parser_pos)) === '[%');
 
-/*
+            /*
 
 	     if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
@@ -766,7 +765,7 @@
                 return [c, 'TK_START_EXPR'];
             }
 
-            if (c === ')' || c === ']' ) {
+            if (c === ')' || c === ']') {
                 return [c, 'TK_END_EXPR'];
             }
 
@@ -852,7 +851,7 @@
                             resulting_string += input.charAt(parser_pos);
                             if (!esc) {
                                 esc = input.charAt(parser_pos) === '\\';
-                                if (input.charAt(parser_pos) === '[' && !tt_tag ) {
+                                if (input.charAt(parser_pos) === '[' && !tt_tag) {
                                     in_char_class = true;
                                 } else if (input.charAt(parser_pos) === ']') {
                                     in_char_class = false;
@@ -968,7 +967,7 @@
                     } while (parser_pos < input_length && c !== '#' && c !== '=');
                     if (c === '#') {
                         //
-                    } else if ((input.charAt(parser_pos) === '[' && !tt_tag ) && input.charAt(parser_pos + 1) === ']') {
+                    } else if ((input.charAt(parser_pos) === '[' && !tt_tag) && input.charAt(parser_pos + 1) === ']') {
                         sharp += '[]';
                         parser_pos += 2;
                     } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
@@ -1000,8 +999,7 @@
                 return [c, 'TK_DOT'];
             }
 
-	    // checked twice to check for [%
-            if (in_array(c, punct) || tt_tag ) {
+            if (in_array(c, punct) || tt_tag) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
@@ -1273,10 +1271,10 @@
                 if (flags.var_line && last_type !== 'TK_EQUALS') {
                     flags.var_line_reindented = true;
                 }
-                if (in_array(flags.last_text, ['}', ';']) || (just_added_newline() && ! in_array(flags.last_text, ['{', ':', '=', ',']))) {
+                if (in_array(flags.last_text, ['}', ';']) || (just_added_newline() && !in_array(flags.last_text, ['{', ':', '=', ',']))) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
-                    if ( ! just_added_blankline() && ! flags.had_comment) {
+                    if (!just_added_blankline() && !flags.had_comment) {
                         print_newline();
                         print_newline(true);
                     }
