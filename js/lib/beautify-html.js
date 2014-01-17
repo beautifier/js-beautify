@@ -95,7 +95,7 @@
 
         // backwards compatibility to 1.3.4
         if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
-                (options.max_char === undefined || parseInt(options.max_char, 10) === 0)) {
+            (options.max_char === undefined || parseInt(options.max_char, 10) === 0)) {
             options.wrap_line_length = options.max_char;
         }
 
@@ -103,7 +103,7 @@
         indent_size = parseInt(options.indent_size || 4, 10);
         indent_character = options.indent_char || ' ';
         brace_style = options.brace_style || 'collapse';
-        wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
+        wrap_line_length = parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
         unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = options.preserve_newlines || true;
         max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786, 10) : 0;
@@ -162,15 +162,15 @@
                 var input_char = '',
                     content = [],
                     space = false, //if a space is needed
-		    tt_tag = false; // if Template Toolkit tag is found
+                    tt_tag = false; // if Template Toolkit tag is found
 
                 while (this.input.charAt(this.pos) !== '<') {
                     if (this.pos >= this.input.length) {
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
 
-		    //moved this code below indent_handlebars loop
-		    //while working on Template Toolkit - By Dinesh
+                    //moved this code below indent_handlebars loop
+                    //while working on Template Toolkit - By Dinesh
                     /*if (this.traverse_whitespace()){
                         if (content.length) {
                             space = true;
@@ -178,19 +178,19 @@
                         continue; //don't want to insert unnecessary space
                     }*/
 
-		    //for Template toolkit [% %] tags.
-		    var peek2 = this.input.substr(this.pos, 2);
-                    if (peek2 === '[%'){
-                            space = false;
-                            tt_tag = true; //found a Template Toolkit tag
-                            content.push('');
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
+                    //for Template toolkit [% %] tags.
+                    var peek2 = this.input.substr(this.pos, 2);
+                    if (peek2 === '[%') {
+                        space = false;
+                        tt_tag = true; //found a Template Toolkit tag
+                        content.push('');
+                        this.print_newline(false, content);
+                        this.print_indentation(content);
                     }
 
 
                     if (indent_handlebars) {
-			// Handlebars parsing is complicated.
+                        // Handlebars parsing is complicated.
                         var peek3 = this.input.substr(this.pos, 3);
 
                         // {{#foo}} and {{/foo}} are formatted tags.
@@ -206,7 +206,7 @@
                         }
                     }
 
-		    if (this.traverse_whitespace()){
+                    if (this.traverse_whitespace()) {
                         if (content.length) {
                             space = true;
                         }
@@ -228,10 +228,10 @@
                     }
                     this.line_char_count++;
                     content.push(input_char); //letter at-a-time (or string) inserted to an array
-		} //while end
-		if( tt_tag && content[content.length - 2] + input_char == '%]'){
-		    this.print_newline(false, content); // insert a line space on end of Template Toolkit tag '%]'
-		}
+                } //while end
+                if (tt_tag && content[content.length - 2] + input_char == '%]') {
+                    this.print_newline(false, content); // insert a line space on end of Template Toolkit tag '%]'
+                }
                 return content.length ? content.join('') : '';
             };
 
@@ -333,12 +333,12 @@
                         continue;
                     }
 
-                    if (input_char === "'" || input_char === '"' || ( input_char === '[' && this.input.charAt(this.pos) === '%' )) {
-			if ( input_char === "[" ) {
-			    input_char += this.get_unformatted('%]');
-			} else {
+                    if (input_char === "'" || input_char === '"' || (input_char === '[' && this.input.charAt(this.pos) === '%')) {
+                        if (input_char === "[") {
+                            input_char += this.get_unformatted('%]');
+                        } else {
                             input_char += this.get_unformatted(input_char);
-			}
+                        }
                         space = true;
                     }
 
@@ -836,9 +836,9 @@
         // Add support for require.js
         define(["./beautify.js", "./beautify-css.js"], function(js_beautify, css_beautify) {
             return {
-              html_beautify: function(html_source, options) {
-                return style_html(html_source, options, js_beautify, css_beautify);
-              }
+                html_beautify: function(html_source, options) {
+                    return style_html(html_source, options, js_beautify, css_beautify);
+                }
             };
         });
     } else if (typeof exports !== "undefined") {
