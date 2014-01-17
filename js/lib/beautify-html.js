@@ -333,10 +333,13 @@
                         continue;
                     }
 
-                    if (input_char === "'" || input_char === '"') {
-                        input_char += this.get_unformatted(input_char);
+                    if (input_char === "'" || input_char === '"' || ( input_char === '[' && this.input.charAt(this.pos) === '%' )) {
+			if ( input_char === "[" ) {
+			    input_char += this.get_unformatted('%]');
+			} else {
+                            input_char += this.get_unformatted(input_char);
+			}
                         space = true;
-
                     }
 
                     if (input_char === '=') { //no space before =
