@@ -711,28 +711,6 @@
 
             tt_tag = ((c + input.charAt(parser_pos)) === '[%');
 
-            /*
-
-	     if (in_array(c, punct) || in_array(c + input.charAt(parser_pos), punct)) {
-                while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
-                    c += input.charAt(parser_pos);
-                    parser_pos += 1;
-                    if (parser_pos >= input_length) {
-                        break;
-                    }
-                }
-
-                if (c === ',') {
-                    return [c, 'TK_COMMA'];
-                } else if (c === '=') {
-                    return [c, 'TK_EQUALS'];
-                } else {
-                    return [c, 'TK_OPERATOR'];
-                }
-            }
-
-*/
-
             if (in_array(c, wordchar)) {
                 if (parser_pos < input_length) {
                     while (in_array(input.charAt(parser_pos), wordchar)) {
@@ -999,7 +977,31 @@
                 return [c, 'TK_DOT'];
             }
 
-            if (in_array(c, punct) || tt_tag) {
+            if (tt_tag) {
+                while (parser_pos < input_length && (c[c.length - 2] + c[c.length - 1]) != '%]') {
+                    if (c.length == 2 && input.charAt(parser_pos) != ' ') {
+                        c += ' ';
+                    }
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+                    if (parser_pos >= input_length) {
+                        break;
+                    }
+                }
+                if (!c.match(/.+\s%\]$/)) {
+                    c = c.replace(/%\]$/, ' %]');
+                }
+                var tag_name = c.match(/\s(if|elsif|else|foreach|end)\s/i);
+                if (tag_name) {
+                    //if(tag_name[0].match(/if|else|elsif|foreach/i)){
+                    //  indent();
+                    //}
+                    print_newline(false, true);
+                }
+                return [c, 'TK_UNKNOWN'];
+            }
+
+            if (in_array(c, punct)) {
                 while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
