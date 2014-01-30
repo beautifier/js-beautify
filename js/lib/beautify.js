@@ -1611,19 +1611,11 @@
     }
 
 
-    if (typeof define === "function") {
-        // Add support for require.js
-        if (typeof define.amd === "undefined") {
-            define(function(require, exports, module) {
-                exports.js_beautify = js_beautify;
-            });
-        } else {
-            // if is AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
-            define([], function() {
-                return js_beautify;
-            });
-        }
-
+    if (typeof define === "function" && define.amd) {
+        // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
+        define([], function() {
+            return js_beautify;
+        });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
         // and you will be able to `var js_beautify = require("beautify").js_beautify`.
