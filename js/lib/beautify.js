@@ -1679,7 +1679,7 @@
 
 
     if (typeof define === "function" && define.amd) {
-        // Add support for require.js
+        // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
         define([], function() {
             return js_beautify;
         });

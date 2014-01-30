@@ -360,9 +360,9 @@
 
     /*global define */
     if (typeof define === "function" && define.amd) {
-        // Add support for require.js
+        // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
         define([], function () {
-            return css_beautify;
+            return { css_beautify: css_beautify };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
