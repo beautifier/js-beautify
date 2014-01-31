@@ -1728,13 +1728,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '<div>preserve newlines</div>');
 
         opts.preserve_newlines = true;
-        opts.max_preserve_newlines  = 0;
+        opts.max_preserve_newlines = 0;
         test_fragment('<div>Should</div>\n\n\n' +
                       '<div>preserve zero newlines</div>',
                       '<div>Should</div>\n' +
                       '<div>preserve zero newlines</div>');
 
-        opts.max_preserve_newlines  = 1;
+        opts.max_preserve_newlines = 1;
         test_fragment('<div>Should</div>\n\n\n' +
                       '<div>preserve one newline</div>',
                       '<div>Should</div>\n\n' +
