@@ -104,7 +104,7 @@
         indent_character = options.indent_char || ' ';
         brace_style = options.brace_style || 'collapse';
         wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
-        unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = options.preserve_newlines || true;
         max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786, 10) : 0;
         indent_handlebars = options.indent_handlebars || false;
@@ -138,8 +138,8 @@
                 }
             };
 
-            this.traverse_whitespace = function() {
-                var input_char = '';
+            this.gather_whitespace = function() {
+                var input_char = '', spaces = [];
 
                 input_char = this.input.charAt(this.pos);
                 if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
@@ -149,18 +149,19 @@
                             this.newlines += 1;
                         }
 
+                        spaces.push(input_char);
                         this.pos++;
                         input_char = this.input.charAt(this.pos);
                     }
-                    return true;
                 }
-                return false;
+                return spaces;
             };
 
             this.get_content = function() { //function to capture regular content between tags
 
                 var input_char = '',
                     content = [],
+                    space = [],
                     space = false; //if a space is needed
 
                 while (this.input.charAt(this.pos) !== '<') {
@@ -168,10 +169,31 @@
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
 
-                    if (this.traverse_whitespace()) {
-                        if (content.length) {
-                            space = true;
+                    spaces = this.gather_whitespace();
+
+                    if (spaces.length) {
+                        var wrap = this.line_char_count >= this.wrap_line_length;
+
+                        //insert a line when the wrap_line_length is reached
+                        if (wrap) {
+                            this.print_newline(false, content);
+                            this.print_indentation(content);
                         }
+
+                        // at least one space must be preserved
+                        // since it is a valid html character
+                        // wrapping means html will interpret a space for us...
+                        // if spacing is the same as the indent string
+                        // then we still don't need an additional space...
+                        if (!wrap) {
+                            if (spaces.join('') == ' ') {
+                                this.line_char_count++;
+                                content.push(' ');
+                            } else {
+                                space = true;
+                            }
+                        }
+
                         continue; //don't want to insert unnecessary space
                     }
 
@@ -191,6 +213,13 @@
                         }
                     }
 
+                    // do we need to preserve space?
+                    if (space) {
+                        this.line_char_count++;
+                        content.push(' ');
+                        space = false;
+                    }
+
                     input_char = this.input.charAt(this.pos);
                     this.pos++;
 
@@ -198,9 +227,6 @@
                         if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
                             this.print_newline(false, content);
                             this.print_indentation(content);
-                        } else {
-                            this.line_char_count++;
-                            content.push(' ');
                         }
                         space = false;
                     }
@@ -400,7 +426,7 @@
                         this.indent_to_tag('if');
                         this.tag_type = 'HANDLEBARS_ELSE';
                         this.indent_content = true;
-                        this.traverse_whitespace();
+                        this.gather_whitespace();
                     }
                 } else if (tag_check === 'script') { //for later script handling
                     if (!peek) {
@@ -422,19 +448,20 @@
                     tag_end = this.pos - 1;
                     if (this.Utils.in_array(this.input.charAt(tag_end + 1), this.Utils.whitespace)) {
                         content.push(this.input.charAt(tag_end + 1));
+                        this.pos++; // if we found whitespace to preserve, most past it
                     }
                     this.tag_type = 'SINGLE';
                 } else if (tag_check.charAt(0) === '!') { //peek for <! comment
                     // for comments content is already correct.
                     if (!peek) {
                         this.tag_type = 'SINGLE';
-                        this.traverse_whitespace();
+                        this.gather_whitespace();
                     }
                 } else if (!peek) {
                     if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
                         this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
                         this.tag_type = 'END';
-                        this.traverse_whitespace();
+                        this.gather_whitespace();
                     } else { //otherwise it's a start-tag
                         this.record_tag(tag_check); //push it on the tag stack
                         if (tag_check.toLowerCase() !== 'html') {
@@ -442,8 +469,11 @@
                         }
                         this.tag_type = 'START';
 
-                        // Allow preserving of newlines after a start tag
-                        this.traverse_whitespace();
+                        // Allow preserving of immediately after a tag
+                        // also preserve single space if found
+                        if (this.gather_whitespace().indexOf(' ') == 0) {
+                            content.push(' ');
+                        }
                     }
                     if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
                         this.print_newline(false, this.output);
