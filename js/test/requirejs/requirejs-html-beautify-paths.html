@@ -18,7 +18,7 @@
 		require(["html-beautify"],function(html_beautify){
 
 			var input = document.getElementById("input").value;
-			var output = html_beautify.html_beautify(input);
+			var output = html_beautify(input);
 
 			document.getElementById("output").innerHTML = output;
 		});
