@@ -808,14 +808,15 @@
 
     if (typeof define === "function") {
         // Add support for require.js
-define(function() {
-	js_beautify = require["./beautify.js"];
-	css_beautify = require["./beautify-css.js"];
-	return function(html_source, options) {
-		return style_html(html_source, options, js_beautify, css_beautify);
-	  }
-	;
-});
+        define(function() {
+            js_beautify = require["./beautify.js"];
+            css_beautify = require["./beautify-css.js"];
+            return {
+              html_beautify: function(html_source, options) {
+                return style_html(html_source, options, js_beautify, css_beautify);
+              }
+            };
+        });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
         // and you will be able to `var html_beautify = require("beautify").html_beautify`.
