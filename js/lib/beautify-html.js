@@ -78,6 +78,10 @@
         return s.replace(/^\s+/g, '');
     }
 
+    function rtrim(s) {
+        return s.replace(/\s+$/g,'');
+    }
+
     function style_html(html_source, options, js_beautify, css_beautify) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -104,7 +108,7 @@
         indent_character = options.indent_char || ' ';
         brace_style = options.brace_style || 'collapse';
         wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
-        unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = options.preserve_newlines || true;
         max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786, 10) : 0;
         indent_handlebars = options.indent_handlebars || false;
@@ -138,6 +142,17 @@
                 }
             };
 
+            // Return true iff the given text is composed entirely of
+            // whitespace.
+            this.is_whitespace = function(text) {
+                for (var n = 0; n < text.length; text++) {
+                    if (!this.Utils.in_array(text.charAt(n), this.Utils.whitespace)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
             this.traverse_whitespace = function() {
                 var input_char = '';
 
@@ -157,8 +172,19 @@
                 return false;
             };
 
-            this.get_content = function() { //function to capture regular content between tags
+            // Append a space to the given content (string array) or, if we are
+            // at the wrap_line_length, append a newline/indentation.
+            this.space_or_wrap = function(content) {
+                if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
+                    this.print_newline(false, content);
+                    this.print_indentation(content);
+                } else {
+                    this.line_char_count++;
+                    content.push(' ');
+                }
+            };
 
+            this.get_content = function() { //function to capture regular content between tags
                 var input_char = '',
                     content = [],
                     space = false; //if a space is needed
@@ -169,10 +195,8 @@
                     }
 
                     if (this.traverse_whitespace()) {
-                        if (content.length) {
-                            space = true;
-                        }
-                        continue; //don't want to insert unnecessary space
+                        this.space_or_wrap(content);
+                        continue;
                     }
 
                     if (indent_handlebars) {
@@ -193,17 +217,6 @@
 
                     input_char = this.input.charAt(this.pos);
                     this.pos++;
-
-                    if (space) {
-                        if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
-                        } else {
-                            this.line_char_count++;
-                            content.push(' ');
-                        }
-                        space = false;
-                    }
                     this.line_char_count++;
                     content.push(input_char); //letter at-a-time (or string) inserted to an array
                 }
@@ -320,13 +333,7 @@
 
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
                         //no space after = or before >
-                        if (this.line_char_count >= this.wrap_line_length) {
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
-                        } else {
-                            content.push(' ');
-                            this.line_char_count++;
-                        }
+                        this.space_or_wrap(content);
                         space = false;
                     }
 
@@ -415,14 +422,7 @@
                 } else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
                     comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
                     content.push(comment);
-                    // Preserve collapsed whitespace either before or after this tag.
-                    if (tag_start > 0 && this.Utils.in_array(this.input.charAt(tag_start - 1), this.Utils.whitespace)) {
-                        content.splice(0, 0, this.input.charAt(tag_start - 1));
-                    }
                     tag_end = this.pos - 1;
-                    if (this.Utils.in_array(this.input.charAt(tag_end + 1), this.Utils.whitespace)) {
-                        content.push(this.input.charAt(tag_end + 1));
-                    }
                     this.tag_type = 'SINGLE';
                 } else if (tag_check.charAt(0) === '!') { //peek for <! comment
                     // for comments content is already correct.
@@ -434,7 +434,11 @@
                     if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
                         this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
                         this.tag_type = 'END';
-                        this.traverse_whitespace();
+
+                        // Allow preserving of newlines after a end tag
+                        if (this.traverse_whitespace()) {
+                            this.space_or_wrap(content);
+                        }
                     } else { //otherwise it's a start-tag
                         this.record_tag(tag_check); //push it on the tag stack
                         if (tag_check.toLowerCase() !== 'html') {
@@ -443,7 +447,9 @@
                         this.tag_type = 'START';
 
                         // Allow preserving of newlines after a start tag
-                        this.traverse_whitespace();
+                        if (this.traverse_whitespace()) {
+                            this.space_or_wrap(content);
+                        }
                     }
                     if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
                         this.print_newline(false, this.output);
@@ -654,6 +660,10 @@
                 };
 
                 this.print_token = function(text) {
+                    // Avoid printing initial whitespace.
+                    if (this.is_whitespace(text) && !this.output.length) {
+                        return;
+                    }
                     if (text || text !== '') {
                         if (this.output.length && this.output[this.output.length - 1] === '\n') {
                             this.print_indentation(this.output);
@@ -664,6 +674,12 @@
                 };
 
                 this.print_token_raw = function(text) {
+                    // If we are going to print newlines, truncate trailing
+                    // whitespace, as the newlines will represent the space.
+                    if (this.newlines > 0) {
+                        text = rtrim(text);
+                    }
+
                     if (text && text !== '') {
                         if (text.length > 1 && text[text.length - 1] === '\n') {
                             // unformatted tags can grab newlines as their last character

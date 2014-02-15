@@ -1514,6 +1514,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    </div>',
             '<div>\n' +
             '</div>');
+        bth('<div>\n' +
+            '</div>\n' +
+            '    <div>\n' +
+            '    </div>',
+            '<div>\n' +
+            '</div>\n' +
+            '<div>\n' +
+            '</div>');
         bth('    <div>\n' +
             '</div>',
             '<div>\n' +
@@ -1548,6 +1556,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<li>\n' +
             '    content\n' +
             '</li>');
+
+        bth('<img>content');
+        bth('<img> content');
+        bth('<img>   content', '<img> content');
+
+        bth('<img><img>content');
+        bth('<img> <img>content');
+        bth('<img>   <img>content', '<img> <img>content');
+
+        bth('<img><b>content</b>');
+        bth('<img> <b>content</b>');
+        bth('<img>   <b>content</b>', '<img> <b>content</b>');
+
+        bth('<div>content<img>content</div>');
+        bth('<div> content <img> content</div>');
+        bth('<div>    content <img>    content </div>',
+            '<div> content <img> content </div>');
 
         // Tests that don't pass, but probably should.
         // bth('<div><span>content</span></div>');
