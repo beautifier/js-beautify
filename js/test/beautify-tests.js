@@ -1737,7 +1737,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<div>Some test text that should wrap_inside_this\n' +
             '    section here.</div>');
 
-       opts.wrap_line_length = "40";
+        opts.wrap_line_length = "40";
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
         bth('<div>Some test text that should wrap_inside_this section here.</div>',
