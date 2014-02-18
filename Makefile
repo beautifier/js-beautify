@@ -52,9 +52,10 @@ test: testj testp
 gh:
 	git push origin master &&\
 	cd gh-pages &&\
-	git pull origin gh-pages &&\
-	git pull origin master &&\
-	git merge master &&\
+	git fetch &&\
+	git checkout gh-pages &&\
+	git reset --hard origin/gh-pages &&\
+	git merge origin/master &&\
 	git push origin gh-pages
 
 .PHONY: testp testj all edit tests test
