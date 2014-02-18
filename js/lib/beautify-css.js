@@ -31,7 +31,7 @@
 
     Written by Harutyun Amirjanyan, (amirjanyan@gmail.com)
 
-    Based on code initially developed by: Einar Lielmanis, <elfz@laacz.lv>
+    Based on code initially developed by: Einar Lielmanis, <einar@jsbeautifier.org>
         http://jsbeautifier.org/
 
     Usage:
