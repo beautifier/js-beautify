@@ -806,13 +806,11 @@
         return multi_parser.output.join('');
     }
 
-    if (typeof define === "function") {
+    if (typeof define === "function" && define.amd) {
         // Add support for require.js
-        define(["./beautify.js", "./beautify-css.js"], function(js_beautify, css_beautify) {
-            return {
-              html_beautify: function(html_source, options) {
+        define(["./beautify", "./beautify-css"], function(js_beautify, css_beautify) {
+            return  function(html_source, options) {
                 return style_html(html_source, options, js_beautify, css_beautify);
-              }
             };
         });
     } else if (typeof exports !== "undefined") {
