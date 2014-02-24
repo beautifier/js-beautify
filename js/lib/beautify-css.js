@@ -362,7 +362,8 @@
     };
 
     /*global define */
-    if (typeof define === "function") {
+    if (typeof define === "function" && define.amd) {
+        // Add support for require.js
         define([], function () {
             return css_beautify;
         });

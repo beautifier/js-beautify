@@ -806,7 +806,7 @@
         return multi_parser.output.join('');
     }
 
-    if (typeof define === "function") {
+    if (typeof define === "function" && define.amd) {
         // Add support for require.js
         define(["./beautify", "./beautify-css"], function(js_beautify, css_beautify) {
             return {
