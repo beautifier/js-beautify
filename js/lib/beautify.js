@@ -165,7 +165,7 @@
                 start_line_index: output_lines.length,
                 had_comment: false,
                 ternary_depth: 0
-            }
+            };
             return next_flags;
         }
 
