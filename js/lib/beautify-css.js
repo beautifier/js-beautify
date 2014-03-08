@@ -362,10 +362,10 @@
     };
 
     /*global define */
-    if (typeof define === "function") {
+    if (typeof define === "function" && define.amd) {
         // Add support for require.js
-        define(function (require, exports, module) {
-            exports.css_beautify = css_beautify;
+        define([], function () {
+            return css_beautify;
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
