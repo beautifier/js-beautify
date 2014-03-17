@@ -1703,6 +1703,26 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             /* expected */
             '<div>Some test text that should wrap_inside_this section here.</div>');
 
+        opts.wrap_line_length = 0;
+        // wrap-line-length is 0 -> disabled there should not be any wrapping
+        // Have enought text here to be longer than the default 250 character line
+        // wrap.
+        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10
+        //...1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<span>Some test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here.</span>',
+            /* expected */
+            '<span>Some test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here.</span>');
+
+        opts.wrap_line_length = 0;
+        // wrap-line-length is 0 -> disabled there should not be any wrapping
+        // Have enought text here to be longer than the default 250 character line
+        // wrap.
+        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10
+        //...1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<p>Some test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here.</p>',
+            /* expected */
+            '<p>Some test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here. Some more test text that should not wrap here.</p>');
+
         //BUGBUG: This should wrap before 40 not after.
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
