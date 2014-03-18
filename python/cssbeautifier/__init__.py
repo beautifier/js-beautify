@@ -115,6 +115,9 @@ class Printer:
         self.output.append(":")
         self.singleSpace()
 
+    def colonNoSpace(self):
+        self.output.append(":")
+
     def semicolon(self):
         self.output.append(";")
         self.newLine()
@@ -204,6 +207,18 @@ class Beautifier:
         past = self.source_text[self.pos - len(string):self.pos]
         return past.lower() == string
 
+    # Nested pseudo-class if we are insideRule
+    # and the next special character found opens
+    # a new block
+    def foundNestedPseudoClass(self):
+        ch = self.source_text[self.pos]
+        for i in range(self.pos + 1, len(self.source_text) - 1):
+            ch = self.source_text[i]
+            if ch == "{":
+                return True
+            elif ch == ";" or self.ch == "}" or self.ch == ")":
+                return False
+
     def isCommentOnLine(self):
         endOfLine = self.source_text.find('\n', self.pos)
         if endOfLine == -1:
@@ -245,7 +260,10 @@ class Beautifier:
                 insideRule = False
             elif self.ch == ":":
                 self.eatWhitespace()
-                printer.colon()
+                if self.lookBack("&") or self.foundNestedPseudoClass():
+                    printer.colonNoSpace()
+                else:
+                    printer.colon()
                 insideRule = True
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))

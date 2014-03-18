@@ -1800,6 +1800,27 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}\n");
 
+        // SASS support tests
+        // @import should not be formated
+        btc("@import \"test\";\n");
+
+        // don't break nested pseudo-classes
+        btc("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n  color: red;\n  div:first-child {\n    color: black;\n  }\n}\n");
+
+        btc("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
+            "a:first-child, a:first-child {\n  color: red;\n  div:first-child, div:hover {\n    color: black;\n  }\n}\n");
+
+        // handle SASS/LESS parent reference
+        btc("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n  &:first-letter {\n    text-transform: uppercase;\n  }\n}\n");
+
+        // Test for issue #410
+        btc(".rule {\n  &:hover {}\n}\n");
+
+        // Test for issue #414
+        btc("time {\n  &:first-letter {\n    text-transform: uppercase;\n  }\n}\n");
+
         return sanitytest;
     }
 
