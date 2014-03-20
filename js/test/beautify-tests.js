@@ -1688,21 +1688,34 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
         bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
 
-
         opts.wrap_line_length = 0;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some text that should not wrap at all.</div>',
             /* expected */
-            '<div>Some test text that should wrap_inside_this section here.</div>');
+            '<div>Some text that should not wrap at all.</div>');
+
+        // A value of 0 means no max line length, and should not wrap.
+        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+        //...12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>',
+            /* expected */
+            '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
 
         opts.wrap_line_length = "0";
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some text that should not wrap at all.</div>',
             /* expected */
-            '<div>Some test text that should wrap_inside_this section here.</div>');
+            '<div>Some text that should not wrap at all.</div>');
 
+        // A value of "0" means no max line length, and should not wrap
+        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+        //...12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+        bth('<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>',
+            /* expected */
+            '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
+     
         //BUGBUG: This should wrap before 40 not after.
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
@@ -1712,7 +1725,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<div>Some test text that should wrap_inside_this\n' +
             '    section here.</div>');
 
-       opts.wrap_line_length = "40";
+        opts.wrap_line_length = "40";
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
         bth('<div>Some test text that should wrap_inside_this section here.</div>',
