@@ -89,7 +89,8 @@
             brace_style,
             unformatted,
             preserve_newlines,
-            max_preserve_newlines;
+            max_preserve_newlines,
+            indent_handlebars;
 
         options = options || {};
 
