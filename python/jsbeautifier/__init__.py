@@ -66,6 +66,7 @@ class BeautifierOptions:
         self.preserve_newlines = True
         self.max_preserve_newlines = 10
         self.space_in_paren = False
+        self.space_in_empty_paren = False
         self.e4x = False
         self.jslint_happy = False
         self.brace_style = 'collapse'
@@ -190,6 +191,7 @@ Output options:
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
  -P,  --space-in-paren             add padding spaces within paren, ie. f( a, b )
+ -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               more jslint-compatible output
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
@@ -940,7 +942,7 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(token_text)
 
         if self.opts.space_in_paren:
-            if self.last_type == 'TK_START_EXPR':
+            if self.last_type == 'TK_START_EXPR' and not self.opts.space_in_empty_paren:
                 # empty parens are always "()" and "[]", not "( )" or "[ ]"
                 self.output_space_before_token = False
                 self.trim_output()
@@ -1409,11 +1411,12 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dPjbkil:xhtfvXw:",
+        opts, args = getopt.getopt(argv, "s:c:o:dEPjbkil:xhtfvXw:",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-            'space-in-paren', 'jslint-happy', 'brace-style=', 'keep-array-indentation',
-            'indent-level=', 'unescape-strings', 'help', 'usage', 'stdin', 'eval-code',
-            'indent-with-tabs', 'keep-function-indentation', 'version', 'e4x', 'wrap-line-length'])
+            'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'brace-style=',
+            'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help', 'usage',
+            'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
+            'e4x', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1442,6 +1445,8 @@ def main():
             js_options.preserve_newlines = False
         elif opt in ('--space-in-paren', '-P'):
             js_options.space_in_paren = True
+        elif opt in ('--space-in-empty-paren', '-E'):
+            js_options.space_in_empty_paren = True
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
         elif opt in ('--eval-code'):

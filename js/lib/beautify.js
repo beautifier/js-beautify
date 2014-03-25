@@ -202,6 +202,7 @@
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
         opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
+        opt.space_in_empty_paren = (options.space_in_empty_paren === undefined) ? false : options.space_in_empty_paren;
         opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
         opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
         opt.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
@@ -1098,7 +1099,7 @@
                 allow_wrap_or_preserved_newline();
             }
             if (opt.space_in_paren) {
-                if (last_type === 'TK_START_EXPR') {
+                if (last_type === 'TK_START_EXPR' && ! opt.space_in_empty_paren) {
                     // () [] no inner space in empty parens like these, ever, ref #320
                     trim_output();
                     output_space_before_token = false;
