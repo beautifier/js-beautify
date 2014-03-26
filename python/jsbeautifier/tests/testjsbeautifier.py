@@ -161,6 +161,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
         bt("function x(){return - 1}", "function x() {\n    return -1\n}");
         bt("function x(){return ! a}", "function x() {\n    return !a\n}");
+        bt("x => x", "x => x");
+        bt("(x) => x", "(x) => x");
+        bt("x => { x }", "x => {\n    x\n}");
+        bt("(x) => { x }", "(x) => {\n    x\n}");
 
         # a common snippet in jQuery plugins
         bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
