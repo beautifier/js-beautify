@@ -676,7 +676,7 @@ class Beautifier:
 
                 return comment, 'TK_COMMENT'
 
-        if c == "'" or c == '"' or \
+        if c == '`' or c == "'" or c == '"' or \
             ( \
                 (c == '/') or \
                 (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
