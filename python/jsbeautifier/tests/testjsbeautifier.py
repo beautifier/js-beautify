@@ -189,6 +189,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('"incomplete-string');
         test_fragment("'incomplete-string");
         test_fragment('/incomplete-regex');
+        test_fragment('`incomplete-regex');
 
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
         test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
@@ -1260,6 +1261,9 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_in_paren = False
         self.options.space_in_empty_paren = False
 
+        # Test template strings
+        bt('`This is a ${template} string.`', '`This is a ${template} string.`');
+        bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`');
 
         # Test that e4x literals passed through when e4x-option is enabled
         bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
