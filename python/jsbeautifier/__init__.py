@@ -1131,7 +1131,7 @@ class Beautifier:
             else:
                 prefix = 'NEWLINE'
 
-        if token_text in ['else', 'catch', 'finally']:
+        if token_text == 'else' or (self.flags.last_text != '.' and token_text in ['else', 'catch', 'finally']):
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
                or self.opts.brace_style == 'end-expand':

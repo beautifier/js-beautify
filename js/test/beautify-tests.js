@@ -141,7 +141,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.keep_array_indentation = false;
         opts.brace_style       = "collapse";
 
-
         bt('');
         bt('return .5');
         test_fragment('   return .5');
@@ -279,6 +278,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // a common snippet in jQuery plugins
         bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
+
+        // promises specific
+        bt("$http().then().finally()", "$http().then().finally()");
+        bt("$http()\n.then()\n.finally()", "$http()\n    .then()\n    .finally()");
 
         bt('{xxx;}()', '{\n    xxx;\n}()');
 

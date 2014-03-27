@@ -1323,7 +1323,7 @@
 
             }
 
-            if (in_array(token_text, ['else', 'catch', 'finally'])) {
+            if (token_text === 'else' || (flags.last_text !== '.' && in_array(token_text, ['catch', 'finally']))) {
                 if (last_type !== 'TK_END_BLOCK' || opt.brace_style === "expand" || opt.brace_style === "end-expand") {
                     print_newline();
                 } else {
