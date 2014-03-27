@@ -46,6 +46,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt("a();\n\nb();", "a();\n\nb();");
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
+        bt('let a = 1 let b = 2', "let a = 1\nlet b = 2");
+        bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;');
+        bt('const a = 1 const b = 2', "const a = 1\nconst b = 2");
+        bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;');
         bt('a = " 12345 "');
         bt("a = ' 12345 '");
         bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");

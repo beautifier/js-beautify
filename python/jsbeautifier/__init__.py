@@ -264,7 +264,7 @@ class Beautifier:
 
 
         # Words which always should start on a new line
-        self.line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',')
+        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function'.split(',')
 
         self.set_mode(MODE.BlockStatement)
 
@@ -1028,7 +1028,7 @@ class Beautifier:
                 not self.is_expression(self.flags.mode) and \
                 (self.last_type != 'TK_OPERATOR' or (self.flags.last_text == '--' or self.flags.last_text == '++')) and \
                 self.last_type != 'TK_EQUALS' and \
-                (self.opts.preserve_newlines or self.flags.last_text != 'var'):
+                (self.opts.preserve_newlines or self.flags.last_text not in ['var', 'let', 'const']):
             self.append_newline()
 
         if self.flags.do_block and not self.flags.do_while:
@@ -1151,7 +1151,7 @@ class Beautifier:
                 # no newline between return nnn
                 self.output_space_before_token = True
             elif self.last_type != 'TK_END_EXPR':
-                if (self.last_type != 'TK_START_EXPR' or token_text != 'var') and self.flags.last_text != ':':
+                if (self.last_type != 'TK_START_EXPR' or token_text not in ['var', 'let', 'const']) and self.flags.last_text != ':':
                     # no need to force newline on VAR -
                     # for (var x = 0...
                     if token_text == 'if' and self.flags.last_word == 'else' and self.flags.last_text != '{':
@@ -1173,7 +1173,7 @@ class Beautifier:
         self.append_token(token_text)
         self.flags.last_word = token_text
 
-        if token_text == 'var':
+        if token_text in ['var', 'let', 'const']:
             self.flags.var_line = True
             self.flags.var_line_reindented = False
             self.flags.var_line_tainted = False

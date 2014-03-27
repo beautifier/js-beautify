@@ -152,6 +152,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
         bt('var a,\n    b,\n    c;');
+        bt('let a = 1 let b = 2', "let a = 1\nlet b = 2");
+        bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;');
+        bt('let a,\n    b,\n    c;');
+        bt('const a = 1 const b = 2', "const a = 1\nconst b = 2");
+        bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;');
+        bt('const a,\n    b,\n    c;');
         bt('a = " 12345 "');
         bt("a = ' 12345 '");
         bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
