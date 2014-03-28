@@ -173,6 +173,12 @@ class TestJSBeautifier(unittest.TestCase):
         # a common snippet in jQuery plugins
         bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
 
+        # reserved words used as property names
+        bt("$http().then().finally().default()", "$http().then().finally().default()");
+        bt("$http()\n.then()\n.finally()\n.default()", "$http()\n    .then()\n    .finally()\n    .default()");
+        bt("$http().when.in.new.catch().throw()", "$http().when.in.new.catch().throw()");
+        bt("$http()\n.when\n.in\n.new\n.catch()\n.throw()", "$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()");
+
         bt('{xxx;}()', '{\n    xxx;\n}()');
 
         bt("a = 'a'\nb = 'b'");
