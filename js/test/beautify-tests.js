@@ -142,6 +142,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.brace_style       = "collapse";
 
 
+        // unicode support
+        bt('var ' + String.fromCharCode(3232) + '_' + String.fromCharCode(3232) + ' = "hi";');
+        bt('var ' + String.fromCharCode(228) + 'x = {\n    ' + String.fromCharCode(228) + 'rgerlich: true\n};');
+
         bt('');
         bt('return .5');
         test_fragment('   return .5');
