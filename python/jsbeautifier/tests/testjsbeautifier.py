@@ -4,6 +4,7 @@
 import re
 import unittest
 import jsbeautifier
+import six
 
 class TestJSBeautifier(unittest.TestCase):
     def test_unescape(self):
@@ -37,6 +38,10 @@ class TestJSBeautifier(unittest.TestCase):
     def test_beautifier(self):
         test_fragment = self.decodesto
         bt = self.bt
+
+        # unicode support
+        bt('var ' + six.unichr(3232) + '_' + six.unichr(3232) + ' = "hi";');
+        bt('var ' + six.unichr(228) + 'x = {\n    ' + six.unichr(228) + 'rgerlich: true\n};');
 
         bt('');
         bt('return .5');
