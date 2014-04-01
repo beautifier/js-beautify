@@ -1367,6 +1367,9 @@ class Beautifier:
         if self.input_wanted_newline and (token_text == '--' or token_text == '++'):
             self.append_newline()
 
+        # Allow line wrapping between operators in an expression
+        if self.last_type == 'TK_OPERATOR':
+            self.allow_wrap_or_preserved_newline(token_text)
 
         if token_text in ['--', '++', '!'] \
                 or (token_text in ['+', '-'] \

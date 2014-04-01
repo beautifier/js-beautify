@@ -836,6 +836,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -844,6 +845,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}');
 
@@ -855,6 +857,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -863,6 +866,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}');
 
@@ -874,6 +878,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -886,6 +891,8 @@ class TestJSBeautifier(unittest.TestCase):
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap +\n' +
+                      '        !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" +\n' +
                       '        "but_this_can"\n' +
                       '}');
@@ -899,6 +906,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -911,6 +919,8 @@ class TestJSBeautifier(unittest.TestCase):
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap +\n' +
+                      '        !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" +\n' +
                       '        "but_this_can"\n' +
                       '}');
@@ -926,6 +936,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
                       '        property: first_token_should_never_wrap + but_this_can,\n' +
+                      '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '    }' +
                       '}',
@@ -940,6 +951,8 @@ class TestJSBeautifier(unittest.TestCase):
                       '    object_literal = {\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
+                      '        propertz: first_token_should_never_wrap +\n' +
+                      '            !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" +\n' +
                       '            "but_this_can"\n' +
                       '    }\n'+
@@ -954,6 +967,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -964,6 +978,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}');
 
@@ -976,6 +991,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -986,6 +1002,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    .okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}');
 
@@ -998,6 +1015,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -1011,6 +1029,8 @@ class TestJSBeautifier(unittest.TestCase):
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap +\n' +
+                      '        !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" +\n' +
                       '        "but_this_can"\n' +
                       '}');
@@ -1024,6 +1044,7 @@ class TestJSBeautifier(unittest.TestCase):
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '}',
                       # expected #
@@ -1037,6 +1058,8 @@ class TestJSBeautifier(unittest.TestCase):
                       'object_literal = {\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
+                      '    propertz: first_token_should_never_wrap +\n' +
+                      '        !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" +\n' +
                       '        "but_this_can"\n' +
                       '}');
@@ -1051,6 +1074,7 @@ class TestJSBeautifier(unittest.TestCase):
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
                       '        property: first_token_should_never_wrap + but_this_can,\n' +
+                      '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '    }' +
                       '}',
@@ -1066,6 +1090,8 @@ class TestJSBeautifier(unittest.TestCase):
                       '    object_literal = {\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
+                      '        propertz: first_token_should_never_wrap +\n' +
+                      '            !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" +\n' +
                       '            "but_this_can"\n' +
                       '    }\n'+
@@ -1086,6 +1112,8 @@ class TestJSBeautifier(unittest.TestCase):
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+
+        bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
         # these aren't ready yet.
         #bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
@@ -1168,6 +1196,8 @@ class TestJSBeautifier(unittest.TestCase):
            ');');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+
+        bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
 
         # these aren't ready yet.
         # bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
