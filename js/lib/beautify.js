@@ -200,7 +200,6 @@
             var next_indent_level = 0;
             if (flags_base) {
                 next_indent_level = flags_base.indentation_level;
-                next_indent_level += (flags_base.var_line && flags_base.var_line_reindented) ? 1 : 0;
                 if (!just_added_newline() &&
                     flags_base.line_indent_level > next_indent_level) {
                     next_indent_level = flags_base.line_indent_level;
@@ -212,9 +211,8 @@
                 parent: flags_base,
                 last_text: flags_base ? flags_base.last_text : '', // last token text
                 last_word: flags_base ? flags_base.last_word : '', // last 'TK_WORD' passed
-                var_line: false,
-                var_line_tainted: false,
-                var_line_reindented: false,
+                declaration_statement: false,
+                declaration_assignment: false,
                 in_html_comment: false,
                 multiline_frame: false,
                 if_block: false,
@@ -325,6 +323,10 @@
                 token_type = t[1];
 
                 if (token_type === 'TK_EOF') {
+                    // Unwind any open statements
+                    while (flags.mode === MODE.Statement) {
+                        restore_mode();
+                    }
                     break;
                 }
 
@@ -456,7 +458,7 @@
                 print_newline(false, true);
 
                 // Expressions and array literals already indent their contents.
-                if (!(is_array(flags.mode) || is_expression(flags.mode))) {
+                if (!(is_array(flags.mode) || is_expression(flags.mode) || flags.mode === MODE.Statement)) {
                     output_wrapped = true;
                 }
             }
@@ -467,7 +469,7 @@
             output_space_before_token = false;
 
             if (!preserve_statement_flags) {
-                if (flags.last_text !== ';') {
+                if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=') {
                     while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
                         restore_mode();
                     }
@@ -499,7 +501,6 @@
                     }
 
                     print_indent_string(flags.indentation_level +
-                        (flags.var_line && flags.var_line_reindented ? 1 : 0) +
                         (output_wrapped ? 1 : 0));
                 }
             }
@@ -606,6 +607,9 @@
             if (flag_store.length > 0) {
                 previous_flags = flags;
                 flags = flag_store.pop();
+                if (previous_flags.mode === MODE.Statement) {
+                    remove_redundant_indentation(previous_flags);
+                }
             }
         }
 
@@ -616,23 +620,26 @@
 
         function start_of_statement() {
             if (
-                ((last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
+                    (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && token_type === 'TK_WORD') ||
+                    ((last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'else' && !(token_type === 'TK_RESERVED' && token_text === 'if')) ||
                     (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)))) {
+
+                set_mode(MODE.Statement);
+                indent();
+
+                if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && token_type === 'TK_WORD') {
+                    flags.declaration_statement = true;
+                }
+
                 // Issue #276:
                 // If starting a new statement with [if, for, while, do], push to a new line.
                 // if (a) if (b) if(c) d(); else e(); else f();
                 allow_wrap_or_preserved_newline(
                     token_type === 'TK_RESERVED' && in_array(token_text, ['do', 'for', 'if', 'while']));
 
-                set_mode(MODE.Statement);
-                // Issue #275:
-                // If starting on a newline, all of a statement should be indented.
-                // if not, use line wrapping logic for indent.
-                if (just_added_newline()) {
-                    indent();
-                    output_wrapped = false;
-                }
+                output_wrapped = false;
+
                 return true;
             }
             return false;
@@ -798,7 +805,9 @@
                     return [c, 'TK_WORD'];
                 }
 
-                if (last_type !== 'TK_DOT' && in_array(c, reserved_words)) {
+                if (!(last_type === 'TK_DOT' ||
+                        (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['set', 'get'])))
+                    && in_array(c, reserved_words)) {
                     if (c === 'in') { // hack for 'in' operator
                         return [c, 'TK_OPERATOR'];
                     }
@@ -1207,7 +1216,7 @@
                         (last_type === 'TK_RESERVED' && is_special_word(flags.last_text) && flags.last_text !== 'else'))) {
                     output_space_before_token = true;
                 } else {
-                    print_newline();
+                    print_newline(false, true);
                 }
             } else { // collapse
                 if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
@@ -1267,7 +1276,7 @@
             } else if (input_wanted_newline && !is_expression(flags.mode) &&
                 (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
                 last_type !== 'TK_EQUALS' &&
-                (opt.preserve_newlines || !(last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const'])))) {
+                (opt.preserve_newlines || !(last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
 
                 print_newline();
             }
@@ -1314,9 +1323,6 @@
             }
 
             if (token_type === 'TK_RESERVED' && token_text === 'function') {
-                if (flags.var_line && last_type !== 'TK_EQUALS') {
-                    flags.var_line_reindented = true;
-                }
                 if (in_array(flags.last_text, ['}', ';']) || (just_added_newline() && ! in_array(flags.last_text, ['{', ':', '=', ',']))) {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
@@ -1415,14 +1421,10 @@
                             // no newline for } else if {
                             output_space_before_token = true;
                         } else {
-                            flags.var_line = false;
-                            flags.var_line_reindented = false;
                             print_newline();
                         }
                     }
                 } else if (token_type === 'TK_RESERVED' && in_array(token_text, line_starters) && flags.last_text !== ')') {
-                    flags.var_line = false;
-                    flags.var_line_reindented = false;
                     print_newline();
                 }
             } else if (is_array(flags.mode) && flags.last_text === ',' && last_last_text === '}') {
@@ -1432,12 +1434,6 @@
             }
             print_token();
             flags.last_word = token_text;
-
-            if (token_type === 'TK_RESERVED' && in_array(token_text, ['var', 'let', 'const'])) {
-                flags.var_line = true;
-                flags.var_line_reindented = false;
-                flags.var_line_tainted = false;
-            }
 
             if (token_type === 'TK_RESERVED' && token_text === 'do') {
                 flags.do_block = true;
@@ -1458,8 +1454,6 @@
                 restore_mode();
             }
             print_token();
-            flags.var_line = false;
-            flags.var_line_reindented = false;
             if (flags.mode === MODE.ObjectLiteral) {
                 // if we're in OBJECT mode and see a semicolon, its invalid syntax
                 // recover back to treating this as a BLOCK
@@ -1485,9 +1479,9 @@
         }
 
         function handle_equals() {
-            if (flags.var_line) {
+            if (flags.declaration_statement) {
                 // just got an '=' in a var-line, different formatting/line-breaking, etc will now be done
-                flags.var_line_tainted = true;
+                flags.declaration_assignment = true;
             }
             output_space_before_token = true;
             print_token();
@@ -1495,21 +1489,18 @@
         }
 
         function handle_comma() {
-            if (flags.var_line) {
-                if (is_expression(flags.mode) || last_type === 'TK_END_BLOCK') {
+            if (flags.declaration_statement) {
+                if (is_expression(flags.parent.mode) ||
+                    (last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.ObjectLiteral)) {
                     // do not break on comma, for(var a = 1, b = 2)
-                    flags.var_line_tainted = false;
-                }
-
-                if (flags.var_line) {
-                    flags.var_line_reindented = true;
+                    flags.declaration_assignment = false;
                 }
 
                 print_token();
 
-                if (flags.var_line_tainted) {
-                    flags.var_line_tainted = false;
-                    print_newline();
+                if (flags.declaration_assignment) {
+                    flags.declaration_assignment = false;
+                    print_newline(false, true);
                 } else {
                     output_space_before_token = true;
                 }

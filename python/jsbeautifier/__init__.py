@@ -115,9 +115,8 @@ class BeautifierFlags:
         self.parent = None
         self.last_text = ''
         self.last_word = ''
-        self.var_line = False
-        self.var_line_tainted = False
-        self.var_line_reindented = False
+        self.declaration_statement = False
+        self.declaration_assignment = False
         self.in_html_comment = False
         self.multiline_frame = False
         self.if_block = False
@@ -134,8 +133,6 @@ class BeautifierFlags:
 
     def apply_base(self, flags_base, added_newline):
         next_indent_level = flags_base.indentation_level;
-        if flags_base.var_line and flags_base.var_line_reindented:
-            next_indent_level += 1
         if not added_newline and \
             flags_base.line_indent_level > next_indent_level:
             next_indent_level = flags_base.line_indent_level;
@@ -378,6 +375,8 @@ class Beautifier:
 
             #print (token_text, self.token_type, self.flags.mode)
             if self.token_type == 'TK_EOF':
+                while self.flags.mode == MODE.Statement:
+                    self.restore_mode();
                 break
 
             keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
@@ -479,7 +478,7 @@ class Beautifier:
             self.append_newline(preserve_statement_flags = True)
 
             # Expressions and array literals already indent their contents.
-            if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode)):
+            if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode) or self.flags.mode == MODE.Statement):
                 self.output_wrapped = True
 
 
@@ -488,7 +487,7 @@ class Beautifier:
         self.output_space_before_token = False
 
         if not preserve_statement_flags:
-            if self.flags.last_text != ';':
+            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=':
                 while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
                     self.restore_mode();
 
@@ -515,8 +514,6 @@ class Beautifier:
                     line.text.append(self.preindent_string)
 
                 level = self.flags.indentation_level;
-                if self.flags.var_line and self.flags.var_line_reindented:
-                    level += 1
                 if self.output_wrapped:
                     level += 1
 
@@ -603,27 +600,33 @@ class Beautifier:
         if len(self.flag_store) > 0:
             self.previous_flags = self.flags
             self.flags = self.flag_store.pop()
+            if self.previous_flags.mode == MODE.Statement:
+                self.remove_redundant_indentation(self.previous_flags)
+
 
     def start_of_object_property(self):
         return self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and \
             self.flags.ternary_depth == 0
 
     def start_of_statement(self):
-        if ((self.last_type == 'TK_RESERVED' and self.flags.last_text == 'do') \
+        if (
+            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and self.token_type == 'TK_WORD') \
+                or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (self.token_type == 'TK_RESERVED' and self.token_text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional))):
+
+            self.set_mode(MODE.Statement);
+            self.indent();
+
+            if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and self.token_type == 'TK_WORD':
+                self.flags.declaration_statement = True
+
             # Issue #276:
             # If starting a new statement with [if, for, while, do], push to a new line.
             # if (a) if (b) if(c) d(); else e(); else f();
             self.allow_wrap_or_preserved_newline(self.token_text, self.token_type == 'TK_RESERVED' and self.token_text in ['do', 'for', 'if', 'while']);
 
-            self.set_mode(MODE.Statement);
-            # Issue #275:
-            # If starting on a newline, all of a statement should be indented.
-            # if not, use line wrapping logic for indent.
-            if self.just_added_newline():
-                self.indent()
-                self.output_wrapped = False
+            self.output_wrapped = False
 
             return True
         else:
@@ -690,7 +693,9 @@ class Beautifier:
                 t = self.get_next_token()
                 c += sign + t[0]
                 return c, 'TK_WORD'
-            if self.last_type != 'TK_DOT' and c in self.reserved_words:
+            if not (self.last_type == 'TK_DOT' \
+                        or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['set', 'get'])) \
+                    and c in self.reserved_words:
                 if c == 'in': # in is an operator, need to hack
                     return c, 'TK_OPERATOR'
 
@@ -1048,7 +1053,7 @@ class Beautifier:
                     (self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else')):
                 self.output_space_before_token = True
             else:
-                self.append_newline()
+                self.append_newline(preserve_statement_flags = True)
         else: # collapse
             if self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
                 if self.last_type == 'TK_START_BLOCK':
@@ -1098,7 +1103,7 @@ class Beautifier:
                 not self.is_expression(self.flags.mode) and \
                 (self.last_type != 'TK_OPERATOR' or (self.flags.last_text == '--' or self.flags.last_text == '++')) and \
                 self.last_type != 'TK_EQUALS' and \
-                (self.opts.preserve_newlines or not (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'])):
+                (self.opts.preserve_newlines or not (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const', 'set', 'get'])):
             self.append_newline()
 
         if self.flags.do_block and not self.flags.do_while:
@@ -1136,9 +1141,6 @@ class Beautifier:
             return
 
         if self.token_type == 'TK_RESERVED' and token_text == 'function':
-            if self.flags.var_line and self.flags.last_text != '=':
-                self.flags.var_line_reindented = not self.opts.keep_function_indentation
-
             if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
@@ -1227,12 +1229,8 @@ class Beautifier:
                     if self.token_type == 'TK_RESERVED' and token_text == 'if' and self.flags.last_word == 'else' and self.flags.last_text != '{':
                         self.output_space_before_token = True
                     else:
-                        self.flags.var_line = False
-                        self.flags.var_line_reindented = False
                         self.append_newline()
             elif self.token_type == 'TK_RESERVED' and token_text in self.line_starters and self.flags.last_text != ')':
-                self.flags.var_line = False
-                self.flags.var_line_reindented = False
                 self.append_newline()
         elif self.is_array(self.flags.mode) and self.flags.last_text == ',' and self.last_last_text == '}':
             self.append_newline() # }, in lists get a newline
@@ -1242,12 +1240,6 @@ class Beautifier:
 
         self.append_token(token_text)
         self.flags.last_word = token_text
-
-        if self.token_type == 'TK_RESERVED' and token_text in ['var', 'let', 'const']:
-            self.flags.var_line = True
-            self.flags.var_line_reindented = False
-            self.flags.var_line_tainted = False
-
 
         if self.token_type == 'TK_RESERVED' and token_text == 'do':
             self.flags.do_block = True
@@ -1265,8 +1257,6 @@ class Beautifier:
             self.restore_mode()
 
         self.append_token(token_text)
-        self.flags.var_line = False
-        self.flags.var_line_reindented = False
         if self.flags.mode == MODE.ObjectLiteral:
             # OBJECT mode is weird and doesn't get reset too well.
             self.flags.mode = MODE.BlockStatement
@@ -1289,9 +1279,9 @@ class Beautifier:
 
 
     def handle_equals(self, token_text):
-        if self.flags.var_line:
+        if self.flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will apply
-            self.flags.var_line_tainted = True
+            self.flags.declaration_assignment = True
 
         self.output_space_before_token = True
         self.append_token(token_text)
@@ -1299,19 +1289,16 @@ class Beautifier:
 
 
     def handle_comma(self, token_text):
-        if self.flags.var_line:
-            if self.is_expression(self.flags.mode) or self.last_type == 'TK_END_BLOCK':
+        if self.flags.declaration_statement:
+            if self.is_expression(self.flags.parent.mode) or (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.ObjectLiteral):
                 # do not break on comma, for ( var a = 1, b = 2
-                self.flags.var_line_tainted = False
-
-            if self.flags.var_line:
-                self.flags.var_line_reindented = True
+                self.flags.declaration_assignment = False
 
             self.append_token(token_text)
 
-            if self.flags.var_line_tainted:
-                self.flags.var_line_tainted = False
-                self.append_newline()
+            if self.flags.declaration_assignment:
+                self.flags.declaration_assignment = False
+                self.append_newline(preserve_statement_flags = True)
             else:
                 self.output_space_before_token = True
 

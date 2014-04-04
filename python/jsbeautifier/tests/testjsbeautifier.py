@@ -318,7 +318,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (a) a()\nnewline()');
         bt('a=typeof(x)', 'a = typeof(x)');
 
-        bt('var a = function() {\n    return null;\n},\n    b = false;');
+        bt('var a = function() {\n        return null;\n    },\n    b = false;');
 
         bt('var a = function() {\n    func1()\n}');
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
@@ -345,7 +345,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('switch(x){case -1:break;case !y:break;}',
             'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
         test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); # typical greasemonkey start
-        bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {}, d = '';");
+        bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
 
@@ -404,7 +404,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         self.options.preserve_newlines = True;
-        bt('var\na=do_preserve_newlines;', 'var\na = do_preserve_newlines;')
+        bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;')
         bt('// a\n// b\n\n// c\n// d')
         bt('if (foo) //  comment\n{\n    bar();\n}')
 
@@ -493,7 +493,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
         bt('var a = new function();');
         bt('var a = new function() {};');
-        bt('var a = new function a()\n    {};');
+        bt('var a = new function()\n{};', 'var a = new function() {};');
+        bt('var a = new function a()\n{};');
+        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};');
         test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
@@ -763,6 +765,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("{\n    var a = set\n    foo();\n}")
         bt("var x = {\n    get function()\n}")
         bt("var x = {\n    set function()\n}")
+        bt("var x = set\n\na() {}", "var x = set\n\n    a() {}");
         bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}")
 
         bt('<!-- foo\nbar();\n-->')
