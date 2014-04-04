@@ -1290,7 +1290,7 @@ class Beautifier:
 
     def handle_comma(self, token_text):
         if self.flags.declaration_statement:
-            if self.is_expression(self.flags.parent.mode) or (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.ObjectLiteral):
+            if self.is_expression(self.flags.parent.mode):
                 # do not break on comma, for ( var a = 1, b = 2
                 self.flags.declaration_assignment = False
 

@@ -1490,8 +1490,7 @@
 
         function handle_comma() {
             if (flags.declaration_statement) {
-                if (is_expression(flags.parent.mode) ||
-                    (last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.ObjectLiteral)) {
+                if (is_expression(flags.parent.mode)) {
                     // do not break on comma, for(var a = 1, b = 2)
                     flags.declaration_assignment = false;
                 }
