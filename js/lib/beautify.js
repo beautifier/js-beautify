@@ -158,7 +158,7 @@
         wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
         digits = '0123456789'.split('');
 
-        punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= :: =>';
+        punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! , : ? ^ ^= |= :: =>';
         punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
         punct = punct.split(' ');
 

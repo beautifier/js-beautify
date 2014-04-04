@@ -188,6 +188,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a.b({c:"d"})', 'a.b({\n    c: "d"\n})');
         bt('a.b\n(\n{\nc:\n"d"\n}\n)', 'a.b({\n    c: "d"\n})');
         bt('a=!b', 'a = !b');
+        bt('a=!!b', 'a = !!b');
         bt('a?b:c', 'a ? b : c');
         bt('a?1:2', 'a ? 1 : 2');
         bt('a?(b):c', 'a ? (b) : c');
