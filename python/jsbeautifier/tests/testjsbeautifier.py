@@ -326,7 +326,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = function() {\n    func1()\n}');
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
 
-
+        # code with and without semicolons
+        bt( 'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
+            'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}');
+        bt( 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
+            'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
 
 
         self.options.jslint_happy = True

@@ -432,6 +432,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var a = function() {\n    func1()\n}');
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
 
+        // code with and without semicolons
+        bt( 'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
+            'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}');
+        bt( 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
+            'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
 
 
         opts.jslint_happy = true;
