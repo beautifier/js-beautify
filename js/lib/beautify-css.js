@@ -64,9 +64,8 @@
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = true;
-        if (options.selector_separator_newline !== undefined) {
+        if (options.selector_separator_newline != undefined)
             selectorSeparatorNewline = options.selector_separator_newline;
-        }
         var endWithNewline = options.end_with_newline || false;
 
         // compatibility
@@ -91,13 +90,14 @@
             return source_text.charAt(pos + 1);
         }
 
-        function eatString(endChar) {
+        function eatString(endChars) {
+            endChars = Array.isArray(endChars) ? endChars : [endChars];
             var start = pos;
             while (next()) {
                 if (ch === "\\") {
                     next();
                     next();
-                } else if (ch === endChar) {
+                } else if (endChars.indexOf(ch) !== -1) {
                     break;
                 } else if (ch === "\n") {
                     break;
@@ -226,17 +226,21 @@
                 output.push(eatComment(true), indentString);
             } else if (ch === '@') {
                 // strip trailing space, if present, for hash property checks
-                var atRule = eatString(" ").replace(/ $/, '');
-
-                // pass along the space we found as a separate item
-                output.push(atRule, ch);
+                var variableOrRule = eatString([':', ' ']).replace(/ $/, '');
 
                 // might be a nesting at-rule
-                if (atRule in css_beautify.NESTED_AT_RULE) {
+                if (variableOrRule in css_beautify.NESTED_AT_RULE) {
+                    // pass along the space we found as a separate item
+                    output.push(variableOrRule, ch);
                     nestedLevel += 1;
-                    if (atRule in css_beautify.CONDITIONAL_GROUP_RULE) {
+                    if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
                         enteringConditionalGroup = true;
                     }
+                } else {
+                    //we have a variable, add it and insert one space before continuing
+                    output.push(variableOrRule);
+                    eatWhitespace();
+                    output.push(' ');
                 }
             } else if (ch === '{') {
                 eatWhitespace();
@@ -267,7 +271,11 @@
                 if (insideRule || enteringConditionalGroup) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
-                    output.push(ch, " ");
+                    if (lookBack("&")) {
+                        output.push(ch);
+                    } else {
+                        output.push(ch, " ");
+                    }
                 } else {
                     if (peek() === ":") {
                         // pseudo-element
@@ -286,6 +294,10 @@
                     var comment = eatComment(true);
                     output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', indentString);
                 } else {
+                    // only remove whitespace if we have no comment
+                    // seems we are eating up newlines and with the next line possibly an url
+                    // then we have a problem
+                    eatWhitespace();
                     output.push(ch, '\n', indentString);
                 }
             } else if (ch === '(') { // may be a url
