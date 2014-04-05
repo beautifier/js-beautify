@@ -1083,7 +1083,7 @@
             var next_mode = MODE.Expression;
             if (token_text === '[') {
 
-                if (last_type === 'TK_WORD' || last_type === 'TK_RESERVED' || flags.last_text === ')') {
+                if (last_type === 'TK_WORD' || flags.last_text === ')') {
                     // this is array index specifier, break immediately
                     // a[x], fn()[x]
                     if (last_type === 'TK_RESERVED' && in_array(flags.last_text, line_starters)) {
@@ -1127,7 +1127,7 @@
                 allow_wrap_or_preserved_newline(input_wanted_newline);
                 output_wrapped = false;
                 // do nothing on (( and )( and ][ and ]( and .(
-            } else if (last_type !== 'TK_RESERVED' && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
+            } else if (!(last_type === 'TK_RESERVED' && token_text === '(') && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 output_space_before_token = true;
             } else if (last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) {
                 // function() vs function ()
@@ -1168,13 +1168,11 @@
                 restore_mode();
             }
 
-            if (token_text === ']' && is_array(flags.mode) && flags.multiline_frame && !opt.keep_array_indentation) {
-                print_newline();
+            if (flags.multiline_frame) {
+                allow_wrap_or_preserved_newline(token_text === ']' && is_array(flags.mode) && !opt.keep_array_indentation);
+                output_wrapped = false;
             }
 
-            if (flags.multiline_frame) {
-                allow_wrap_or_preserved_newline();
-            }
             if (opt.space_in_paren) {
                 if (last_type === 'TK_START_EXPR' && ! opt.space_in_empty_paren) {
                     // () [] no inner space in empty parens like these, ever, ref #320

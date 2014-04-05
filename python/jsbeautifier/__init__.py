@@ -939,7 +939,7 @@ class Beautifier:
         next_mode = MODE.Expression
 
         if token_text == '[':
-            if self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED' or self.flags.last_text == ')':
+            if self.last_type == 'TK_WORD' or self.flags.last_text == ')':
                 if self.last_type == 'TK_RESERVED' and self.flags.last_text in self.line_starters:
                     self.output_space_before_token = True
                 self.set_mode(next_mode)
@@ -976,7 +976,7 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(token_text, self.input_wanted_newline);
             self.output_wrapped = False;
 
-        elif self.last_type not in ['TK_RESERVED', 'TK_WORD', 'TK_OPERATOR']:
+        elif not (self.last_type == 'TK_RESERVED' and token_text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output_space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof'):
             # function() vs function (), typeof() vs typeof ()
@@ -1010,11 +1010,9 @@ class Beautifier:
         while self.flags.mode == MODE.Statement:
             self.restore_mode()
 
-        if self.token_text == ']' and self.is_array(self.flags.mode) and self.flags.multiline_frame and not self.opts.keep_array_indentation:
-            self.append_newline()
-
         if self.flags.multiline_frame:
-            self.allow_wrap_or_preserved_newline(token_text)
+            self.allow_wrap_or_preserved_newline(self.token_text, self.token_text == ']' and self.is_array(self.flags.mode) and not self.opts.keep_array_indentation)
+            self.output_wrapped = False
 
         if self.opts.space_in_paren:
             if self.last_type == 'TK_START_EXPR' and not self.opts.space_in_empty_paren:
