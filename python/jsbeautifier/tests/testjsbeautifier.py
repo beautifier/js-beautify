@@ -127,6 +127,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (template.user[n] in bk) foo();');
         bt('{{}/z/}', "{\n    {}\n    /z/\n}");
         bt('return 45', "return 45");
+        bt('return this.prevObject ||\n\n    this.constructor(null);');
         bt('If[1]', "If[1]");
         bt('Then[1]', "Then[1]");
         bt('a = 1e10', "a = 1e10");

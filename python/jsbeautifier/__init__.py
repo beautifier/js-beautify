@@ -487,7 +487,7 @@ class Beautifier:
         self.output_space_before_token = False
 
         if not preserve_statement_flags:
-            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=':
+            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and self.last_type != 'TK_OPERATOR':
                 while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
                     self.restore_mode();
 
@@ -612,6 +612,7 @@ class Beautifier:
         if (
             (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and self.token_type == 'TK_WORD') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
+                or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'return' and not self.input_wanted_newline) \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (self.token_type == 'TK_RESERVED' and self.token_text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional))):
 
