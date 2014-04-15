@@ -1862,6 +1862,16 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<div>Some test text that should wrap_inside_this\n' +
             '    section here.</div>');
 
+        opts.indent_size = 1;
+        opts.indent_char = '\t';
+        opts.preserve_newlines = false;
+        bth('<div>\n\tfoo\n</div>', '<div>foo</div>');
+
+        opts.preserve_newlines = true;
+        bth('<div>\n\tfoo\n</div>');
+
+
+
         // css beautifier
         opts.indent_size = 1;
         opts.indent_char = '\t';

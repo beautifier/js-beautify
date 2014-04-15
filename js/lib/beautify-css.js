@@ -63,11 +63,8 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
-        var selectorSeparatorNewline = true;
-        if (options.selector_separator_newline !== undefined) {
-            selectorSeparatorNewline = options.selector_separator_newline;
-        }
-        var endWithNewline = options.end_with_newline || false;
+        var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
+        var endWithNewline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         // compatibility
         if (typeof indentSize === "string") {
