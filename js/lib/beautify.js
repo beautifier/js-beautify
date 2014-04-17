@@ -1690,9 +1690,8 @@
         // If we don't even have window, try global.
         global.js_beautify = js_beautify;
     } else {
-      try {
-        (73, eval)("this").js_beautify = js_beautify;
-      } catch (e) {}
+      //try last time if everything failed (rhino etc.)
+      return (function(){ return this; }());
     }
 
 }());
