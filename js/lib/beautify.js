@@ -1691,7 +1691,9 @@
         global.js_beautify = js_beautify;
     } else {
       //try last time if everything failed (rhino etc.)
-      return (function(){ return this; }());
+      try {
+        (function(){ return this; }()).js_beautify = js_beautify;
+      } catch (ex) {}
     }
 
 }());
