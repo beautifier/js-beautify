@@ -575,6 +575,8 @@ class TestJSBeautifier(unittest.TestCase):
             "try\n{\n    a();\n}\ncatch (b)\n{\n    c();\n}\ncatch (d)\n{}\nfinally\n{\n    e();\n}");
         bt('if(a){b();}else if(c) foo();',
             "if (a)\n{\n    b();\n}\nelse if (c) foo();");
+        bt('if(X)if(Y)a();else b();else c();',
+            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
         bt("if (a) {\n// comment\n}else{\n// comment\n}",
             "if (a)\n{\n    // comment\n}\nelse\n{\n    // comment\n}"); # if/else statement with empty body
         bt('if (x) {y} else { if (x) {y}}',

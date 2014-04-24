@@ -216,6 +216,7 @@
                 in_html_comment: false,
                 multiline_frame: false,
                 if_block: false,
+                else_block: false,
                 do_block: false,
                 do_while: false,
                 in_case_statement: false, // switch(..){ INSIDE HERE }
@@ -1300,11 +1301,14 @@
             // Bare/inline ifs are tricky
             // Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
             if (flags.if_block) {
-                if (!(token_type === 'TK_RESERVED' && token_text === 'else')) {
+                if (!flags.else_block && (token_type === 'TK_RESERVED' && token_text === 'else')) {
+                    flags.else_block = true;
+                } else {
                     while (flags.mode === MODE.Statement) {
                         restore_mode();
                     }
                     flags.if_block = false;
+                    flags.else_block = false;
                 }
             }
 

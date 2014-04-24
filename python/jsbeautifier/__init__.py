@@ -120,6 +120,7 @@ class BeautifierFlags:
         self.in_html_comment = False
         self.multiline_frame = False
         self.if_block = False
+        self.else_block = False
         self.do_block = False
         self.do_while = False
         self.in_case = False
@@ -1123,7 +1124,9 @@ class Beautifier:
         # Bare/inline ifs are tricky
         # Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
         if self.flags.if_block:
-            if not (self.token_type == 'TK_RESERVED' and token_text == 'else'):
+            if (not self.flags.else_block) and (self.token_type == 'TK_RESERVED' and token_text == 'else'):
+                self.flags.else_block = True
+            else:
                 while self.flags.mode == MODE.Statement:
                     self.restore_mode()
 
