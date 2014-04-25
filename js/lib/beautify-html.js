@@ -809,7 +809,10 @@
 
     if (typeof define === "function" && define.amd) {
         // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
-        define(["./beautify", "./beautify-css"], function(js_beautify, css_beautify) {
+        define(["require", "./beautify", "./beautify-css"], function(requireamd) {
+            var js_beautify =  requireamd("./beautify");
+            var css_beautify =  requireamd("./beautify-css");
+            
             return {
               html_beautify: function(html_source, options) {
                 return style_html(html_source, options, js_beautify.js_beautify, css_beautify.css_beautify);
