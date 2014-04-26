@@ -89,25 +89,28 @@
             brace_style,
             unformatted,
             preserve_newlines,
-            max_preserve_newlines;
+            max_preserve_newlines,
+            indent_handlebars;
 
         options = options || {};
 
         // backwards compatibility to 1.3.4
         if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
-                (options.max_char === undefined || parseInt(options.max_char, 10) === 0)) {
+                (options.max_char !== undefined && parseInt(options.max_char, 10) !== 0)) {
             options.wrap_line_length = options.max_char;
         }
 
-        indent_inner_html = options.indent_inner_html || false;
-        indent_size = parseInt(options.indent_size || 4, 10);
-        indent_character = options.indent_char || ' ';
-        brace_style = options.brace_style || 'collapse';
+        indent_inner_html = (options.indent_inner_html === undefined) ? false : options.indent_inner_html;
+        indent_size = (options.indent_size === undefined) ? 4 : parseInt(options.indent_size, 10);
+        indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
+        brace_style = (options.brace_style === undefined) ? 'collapse' : options.brace_style;
         wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
         unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-        preserve_newlines = options.preserve_newlines || true;
-        max_preserve_newlines = preserve_newlines ? parseInt(options.max_preserve_newlines || 32786, 10) : 0;
-        indent_handlebars = options.indent_handlebars || false;
+        preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
+        max_preserve_newlines = preserve_newlines ?
+            (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10))
+            : 0;
+        indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
 
         function Parser() {
 
@@ -807,22 +810,25 @@
     }
 
     if (typeof define === "function" && define.amd) {
-        // Add support for require.js
-        define(["./beautify", "./beautify-css"], function(js_beautify, css_beautify) {
+        // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
+        define(["require", "./beautify", "./beautify-css"], function(requireamd) {
+            var js_beautify =  requireamd("./beautify");
+            var css_beautify =  requireamd("./beautify-css");
+            
             return {
               html_beautify: function(html_source, options) {
-                return style_html(html_source, options, js_beautify, css_beautify);
+                return style_html(html_source, options, js_beautify.js_beautify, css_beautify.css_beautify);
               }
             };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
         // and you will be able to `var html_beautify = require("beautify").html_beautify`.
-        var js_beautify = require('./beautify.js').js_beautify;
-        var css_beautify = require('./beautify-css.js').css_beautify;
+        var js_beautify = require('./beautify.js');
+        var css_beautify = require('./beautify-css.js');
 
         exports.html_beautify = function(html_source, options) {
-            return style_html(html_source, options, js_beautify, css_beautify);
+            return style_html(html_source, options, js_beautify.js_beautify, css_beautify.css_beautify);
         };
     } else if (typeof window !== "undefined") {
         // If we're running a web page and don't have either of the above, add our one global

@@ -63,11 +63,8 @@
         options = options || {};
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
-        var selectorSeparatorNewline = true;
-        if (options.selector_separator_newline !== undefined) {
-            selectorSeparatorNewline = options.selector_separator_newline;
-        }
-        var endWithNewline = options.end_with_newline || false;
+        var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
+        var endWithNewline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         // compatibility
         if (typeof indentSize === "string") {
@@ -363,9 +360,9 @@
 
     /*global define */
     if (typeof define === "function" && define.amd) {
-        // Add support for require.js
+        // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
         define([], function () {
-            return css_beautify;
+            return { css_beautify: css_beautify };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths

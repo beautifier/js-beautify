@@ -178,5 +178,6 @@ useful or working for you but you must keep the copyright notice and license. (M
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
-js-beautify@1.3.4
+
+js-beautify@1.5.1
 
