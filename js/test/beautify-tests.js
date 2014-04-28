@@ -666,7 +666,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.keep_array_indentation = false;
 
 
-        bt('a = //comment\n/regex/;');
+        bt('a = //comment\n    /regex/;');
 
         test_fragment('/*\n * X\n */');
         test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
@@ -1309,6 +1309,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;', 
+           'this.type = this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
+           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');    
 
         bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
@@ -1381,7 +1385,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if (foo) // comment\n    /asdf/;');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
-
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
+        
         bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
 
         // these aren't ready yet.
