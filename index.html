@@ -232,7 +232,7 @@
             opts.indent_size = $('#tabsize').val();
             opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
             opts.max_preserve_newlines = $('#max-preserve-newlines').val();
-            opts.preserve_newlines = opts.max_preserve_newlines !== -1;
+            opts.preserve_newlines = opts.max_preserve_newlines !== "-1";
             opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
             opts.break_chained_methods = $('#break-chained-methods').prop('checked');
             opts.indent_scripts = $('#indent-scripts').val();
