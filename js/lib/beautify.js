@@ -1129,7 +1129,8 @@
                 // do nothing on (( and )( and ][ and ]( and .(
             } else if (!(last_type === 'TK_RESERVED' && token_text === '(') && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 output_space_before_token = true;
-            } else if (last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) {
+            } else if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
+                (flags.last_text === '*' && last_last_text === 'function')) {
                 // function() vs function ()
                 if (opt.jslint_happy) {
                     output_space_before_token = true;
@@ -1379,7 +1380,8 @@
                 prefix = 'SPACE';
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
-            } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
+            } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' || 
+                (flags.last_text === '*' && last_last_text === 'function')) {
                 prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {
                 prefix = 'NEWLINE';
@@ -1618,6 +1620,9 @@
                 }
             } else if (token_text === '?') {
                 flags.ternary_depth += 1;
+            } else if (token_text === '*' && last_type === 'TK_RESERVED' && flags.last_text === 'function') {
+                space_before = false;
+                space_after = false;
             }
             output_space_before_token = output_space_before_token || space_before;
             print_token();

@@ -176,7 +176,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("(x) => x", "(x) => x");
         bt("x => { x }", "x => {\n    x\n}");
         bt("(x) => { x }", "(x) => {\n    x\n}");
-
+        
         # a common snippet in jQuery plugins
         bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
 
@@ -345,6 +345,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); # typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
         bt('a=typeof(x)', 'a = typeof (x)');
+        bt('function* () {\n    yield 1;\n}');
 
         self.options.jslint_happy = False
 
@@ -356,7 +357,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
-
+        bt('function*() {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
+        
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');

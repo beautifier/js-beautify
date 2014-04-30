@@ -451,7 +451,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
-
+        bt('function* () {\n    yield 1;\n}');
+        
         opts.jslint_happy = false;
 
         bt('switch(x) {case 0: case 1: a(); break; default: break}',
@@ -462,7 +463,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}');
 
+        bt('function* x() {\n    yield 1;\n}');
+        
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');

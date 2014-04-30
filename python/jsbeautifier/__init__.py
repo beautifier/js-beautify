@@ -975,7 +975,8 @@ class Beautifier:
 
         elif not (self.last_type == 'TK_RESERVED' and token_text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output_space_before_token = True
-        elif self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof'):
+        elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
+            (self.flags.last_text == '*' and self.last_last_text =='function'):
             # function() vs function (), typeof() vs typeof ()
             if self.opts.jslint_happy:
                 self.output_space_before_token = True
@@ -1185,7 +1186,8 @@ class Beautifier:
             prefix = 'SPACE'
         elif self.last_type == 'TK_STRING':
             prefix = 'NEWLINE'
-        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
+        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD' or \
+            (self.flags.last_text == '*' and self.last_last_text == 'function'):
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
             prefix = 'NEWLINE'
@@ -1402,6 +1404,9 @@ class Beautifier:
                 self.flags.ternary_depth -= 1
         elif token_text == '?':
             self.flags.ternary_depth += 1
+        elif self.token_text == '*' and self.last_type == 'TK_RESERVED' and self.flags.last_text == 'function':
+            space_before = False
+            space_after = False
 
         if space_before:
             self.output_space_before_token = True
