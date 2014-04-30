@@ -320,7 +320,7 @@ class Beautifier:
         self.whitespace = ["\n", "\r", "\t", " "]
         self.wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
         self.digits = '0123456789'
-        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! , : ? ^ ^= |= :: =>'
+        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
         self.punct += ' <?= <? ?> <%= <% %>'
         self.punct = self.punct.split(' ')
 
@@ -1374,7 +1374,7 @@ class Beautifier:
         if self.last_type == 'TK_OPERATOR':
             self.allow_wrap_or_preserved_newline(token_text)
 
-        if token_text in ['--', '++', '!'] \
+        if token_text in ['--', '++', '!', '~'] \
                 or (token_text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
                     or self.flags.last_text in self.line_starters or self.flags.last_text == ',')):

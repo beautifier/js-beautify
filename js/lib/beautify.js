@@ -142,6 +142,7 @@
     function Beautifier(js_source_text, options) {
         "use strict";
         var input, output_lines;
+        var tokens = [], token_pos;
         var token_text, token_type, last_type, last_last_text, indent_string;
         var flags, previous_flags, flag_store;
         var whitespace, wordchar, punct, parser_pos, line_starters, reserved_words, digits;
@@ -158,7 +159,7 @@
         wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
         digits = '0123456789'.split('');
 
-        punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! , : ? ^ ^= |= :: =>';
+        punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>';
         punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
         punct = punct.split(' ');
 
