@@ -326,7 +326,7 @@ class Beautifier:
 
 
         # Words which always should start on a new line
-        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function'.split(',')
+        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
         self.reserved_words = self.line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof'];
 
         self.set_mode(MODE.BlockStatement)

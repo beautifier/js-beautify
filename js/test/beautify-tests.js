@@ -396,6 +396,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return;', 'return;');
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
+        bt('yield [1, 2]');
 
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
             'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
