@@ -142,7 +142,6 @@
     function Beautifier(js_source_text, options) {
         "use strict";
         var input, output_lines;
-        var tokens = [], token_pos;
         var token_text, token_type, last_type, last_last_text, indent_string;
         var flags, previous_flags, flag_store;
         var whitespace, wordchar, punct, parser_pos, line_starters, reserved_words, digits;
@@ -1589,7 +1588,7 @@
                 allow_wrap_or_preserved_newline();
             }
 
-            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, line_starters) || flags.last_text === ','))) {
+            if (in_array(token_text, ['--', '++', '!', '~']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
