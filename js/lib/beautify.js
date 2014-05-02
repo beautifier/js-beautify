@@ -1512,27 +1512,18 @@
                 return;
             }
 
-            if (last_type === 'TK_END_BLOCK' && flags.mode !== MODE.Expression) {
-                print_token();
-                if (flags.mode === MODE.ObjectLiteral && flags.last_text === '}') {
-                    print_newline();
-                } else {
-                    output_space_before_token = true;
+            print_token();
+            if (flags.mode === MODE.ObjectLiteral || 
+                (flags.mode === MODE.Statement && flags.parent.mode === MODE.ObjectLiteral)) {
+                if (flags.mode === MODE.Statement) {
+                    restore_mode();
                 }
+                print_newline();
             } else {
-                if (flags.mode === MODE.ObjectLiteral || 
-                    (flags.mode === MODE.Statement && flags.parent.mode === MODE.ObjectLiteral)) {
-                    if (flags.mode === MODE.Statement) {
-                        restore_mode();
-                    }
-                    print_token();
-                    print_newline();
-                } else {
-                    // EXPR or DO_BLOCK
-                    print_token();
-                    output_space_before_token = true;
-                }
+                // EXPR or DO_BLOCK
+                output_space_before_token = true;
             }
+        
         }
 
         function handle_operator() {

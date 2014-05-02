@@ -1306,24 +1306,17 @@ class Beautifier:
 
             return
 
-        if self.last_type == 'TK_END_BLOCK' and self.flags.mode != MODE.Expression:
-            self.append_token(token_text)
-            if self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == '}':
-                self.append_newline()
-            else:
-                self.output_space_before_token = True
+        self.append_token(token_text)
+
+        if self.flags.mode == MODE.ObjectLiteral \
+            or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
+            if self.flags.mode == MODE.Statement:
+                self.restore_mode()
+            
+            self.append_newline()
         else:
-            if self.flags.mode == MODE.ObjectLiteral \
-                or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
-                if self.flags.mode == MODE.Statement:
-                    self.restore_mode()
-                
-                self.append_token(token_text)
-                self.append_newline()
-            else:
-                # EXPR or DO_BLOCK
-                self.append_token(token_text)
-                self.output_space_before_token = True
+            # EXPR or DO_BLOCK
+            self.output_space_before_token = True
 
 
     def handle_operator(self, token_text):

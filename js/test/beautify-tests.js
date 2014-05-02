@@ -1623,6 +1623,17 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
            '    });');
         // END tests for issue 281
 
+        // START tests for issue 459
+        bt( '(function() {\n' +
+            '    return {\n' +
+            '        foo: function() {\n' +
+            '            return "bar";\n' +
+            '        },\n' +
+            '        bar: ["bar"]\n' +
+            '    };\n' +
+            '}());');
+        // END tests for issue 459
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
