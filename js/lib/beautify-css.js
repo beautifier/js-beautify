@@ -147,6 +147,20 @@
             return restOfLine.indexOf('//') !== -1;
         }
 
+        // Nested pseudo-class if we are insideRule
+        // and the next special character found opens
+        // a new block
+        function foundNestedPseudoClass() {
+            for (var i = pos + 1; i < source_text.length; i++){
+                var ch = source_text.charAt(i);
+                if (ch === "{"){
+                    return true;
+                } else if (ch === ";" || ch === "}" || ch === ")") {
+                    return false;
+                }
+            }
+        }
+
         // printer
         var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
@@ -262,9 +276,15 @@
             } else if (ch === ":") {
                 eatWhitespace();
                 if (insideRule || enteringConditionalGroup) {
-                    // 'property: value' delimiter
-                    // which could be in a conditional group query
-                    output.push(ch, " ");
+                    // sass/less parent reference don't use a space OR
+                    // sass nested pseudo-class don't use a space
+                    if (lookBack("&") || foundNestedPseudoClass()) {
+                        output.push(ch);
+                    } else {
+                        // 'property: value' delimiter
+                        // which could be in a conditional group query
+                        output.push(ch, " ");
+					}
                 } else {
                     if (peek() === ":") {
                         // pseudo-element

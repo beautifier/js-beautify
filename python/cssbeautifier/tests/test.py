@@ -61,6 +61,52 @@ class CSSBeautifierTest(unittest.TestCase):
         t("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n")
         t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n")
 
+    def testPseudoClasses(self):
+        self.resetOptions()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        t("div:first-child{color:black;}", "div:first-child {\n  color: black;\n}\n")
+
+    def testParentReference(self):
+        self.resetOptions()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        t("div:first-child{color: black;&:hover{color:red;}}", "div:first-child {\n  color: black;\n  &:hover {\n    color: red;\n }\n}\n")
+
+    def testNestedPseudoClasses(self):
+        self.resetOptions()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        t("a:first-child{color:red;div:first-child{color:black;}}", "a:first-child {\n  color: red;\n  div:first-child {\n    color: black;\n }\n}\n")
+        t("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}", "a:first-child, a:first-child {\n  color: red;\n  div:first-child, div:hover {\n    color: black;\n }\n}\n")
+
+    def testForIssue410(self):
+        self.resetOptions()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        t(".rule {\n  &:hover {}\n}\n")
+
+    def testForIssue414(self):
+        self.resetOptions()
+        self.options.indent_size = 2
+        self.options.indent_char = ' '
+        self.options.selector_separator_newline = False
+        t = self.decodesto
+
+        t("time {\n  &:first-letter {\n    text-transform: uppercase;\n }\n}\n")
+
     def decodesto(self, input, expectation=None):
         self.assertEqual(
             cssbeautifier.beautify(input, self.options), expectation or input)
