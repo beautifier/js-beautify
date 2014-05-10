@@ -315,7 +315,12 @@
                 }
             } else if (ch === ']') {
                 output.push(ch);
-            } else if (ch === '[' || ch === '=') { // no whitespace before or after
+            } else if (ch === '[') {
+                if (isAfterSpace) {
+                    print.singleSpace();
+                }
+                output.push(ch);
+            } else if (ch === '=') { // no whitespace before or after
                 eatWhitespace();
                 output.push(ch);
             } else {
