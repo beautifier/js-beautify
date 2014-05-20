@@ -405,12 +405,12 @@
                         this.indent_content = true;
                         this.traverse_whitespace();
                     }
-                } else if (tag_check === 'script') { //for later script handling
+                } else if (tag_check === 'script' && (tag_complete.search('type') === -1 || (tag_complete.search('type') > -1 && tag_complete.search('text/javascript') > -1))) { //for later script handling
                     if (!peek) {
                         this.record_tag(tag_check);
                         this.tag_type = 'SCRIPT';
                     }
-                } else if (tag_check === 'style') { //for future style handling (for now it justs uses get_content)
+                } else if (tag_check === 'style' && (tag_complete.search('type') === -1 || (tag_complete.search('type') > -1 && tag_complete.search('text/css') > -1))) { //for future style handling (for now it justs uses get_content)
                     if (!peek) {
                         this.record_tag(tag_check);
                         this.tag_type = 'STYLE';
