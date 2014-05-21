@@ -52,6 +52,9 @@ class CSSBeautifierTest(unittest.TestCase):
 
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n")
         t("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n")
+        t("#foo:hover {\n  background-image: url(foo@2x.png)\n}\n", "#foo:hover {\n\tbackground-image: url(foo@2x.png)\n}\n")
+        t("#foo *:hover {\n  color: purple\n}\n", "#foo *:hover {\n\tcolor: purple\n}\n")
+        # t("::selection {\n  color: #ff0000;\n}\n", "::selection {\n\tcolor: #ff0000;\n}\n")
 
 
     def testOptions(self):
