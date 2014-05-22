@@ -1719,6 +1719,26 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 			'<script type="text/javascript">\n' + 
 			'    var foo = "bar";\n' + 
 			'</script>');			
+		bth('<script type="application/javascript">var foo = "bar";</script>',
+			'<script type="application/javascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/javascript;version=1.8">var foo = "bar";</script>',
+			'<script type="application/javascript;version=1.8">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/x-javascript">var foo = "bar";</script>',
+			'<script type="application/x-javascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/ecmascript">var foo = "bar";</script>',
+			'<script type="application/ecmascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="text/javascript1.5">var foo = "bar";</script>',
+			'<script type="text/javascript1.5">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
 		bth('<script>var foo = "bar";</script>', 
 			'<script>\n' + 
 			'    var foo = "bar";\n' + 
