@@ -871,9 +871,12 @@ class Beautifier:
 
         if c == '#':
 
-            # she-bang
-            if len(self.output_lines) == 1 and len(self.output_lines[0].text) == 0 and \
-                    len(self.input) > self.parser_pos and self.input[self.parser_pos] == '!':
+            # handle known non-javascript items
+            blankfirstline = len(self.output_lines) == 1 and len(self.output_lines[0].text)
+            shebang = blankfirstline and self.input[self.parser_pos] == '!'
+            uiautomation_import = self.input[self.parser_pos:self.parser_pos + 6] == 'import'
+
+            if len(self.input) > self.parser_pos and (shebang or uiautomation_import):
                 resulting_string = c
                 while self.parser_pos < len(self.input) and c != '\n':
                     c = self.input[self.parser_pos]
