@@ -872,7 +872,7 @@ class Beautifier:
         if c == '#':
 
             # handle known non-javascript items
-            blankfirstline = len(self.output_lines) == 1 and len(self.output_lines[0].text)
+            blankfirstline = len(self.output_lines) == 1 and len(self.output_lines[0].text) == 0
             shebang = blankfirstline and self.input[self.parser_pos] == '!'
             uiautomation_import = self.input[self.parser_pos:self.parser_pos + 6] == 'import'
 
