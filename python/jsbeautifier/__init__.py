@@ -285,7 +285,7 @@ Rarely needed options:
 
 class MODE:
       BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
-      ForInitializer, Conditional, Expression = range(7)
+      ForInitializer, Conditional, Expression, BlockJSON = range(8)
 
 class Beautifier:
 
@@ -356,6 +356,8 @@ class Beautifier:
             'TK_END_EXPR': self.handle_end_expr,
             'TK_START_BLOCK': self.handle_start_block,
             'TK_END_BLOCK': self.handle_end_block,
+            'TK_START_JSON': self.handle_start_json,
+            'TK_END_JSON': self.handle_end_json,
             'TK_WORD': self.handle_word,
             'TK_RESERVED': self.handle_word,
             'TK_SEMICOLON': self.handle_semicolon,
@@ -708,10 +710,16 @@ class Beautifier:
             return c, 'TK_END_EXPR'
 
         if c == '{':
-            return c, 'TK_START_BLOCK'
+            if ")" == self.flags.last_text:
+                return c, 'TK_START_BLOCK'
+            else:
+                return c, 'TK_START_JSON'
 
         if c == '}':
-            return c, 'TK_END_BLOCK'
+            if self.flags.mode == MODE.BlockJSON:
+                return c, 'TK_END_JSON'
+            else:
+                return c, 'TK_END_BLOCK'
 
         if c == ';':
             return c, 'TK_SEMICOLON'
@@ -1087,6 +1095,30 @@ class Beautifier:
                     self.append_newline()
 
         self.restore_mode()
+        self.append_token(token_text)
+
+    def handle_start_json(self, token_text):
+        self.set_mode(MODE.BlockJSON)
+
+        self.append_token(token_text)
+        self.indent()
+
+        # put newline between first brace and non-empty content
+        if self.opts.brace_style == 'expand':
+            if not self.is_next('}'):
+                self.append_newline()
+
+
+    def handle_end_json(self, token_text):
+        # statements must all be closed when their container closes
+        while self.flags.mode == MODE.Statement:
+            self.restore_mode()
+        self.restore_mode()
+
+        empty_braces = self.last_type == 'TK_START_BLOCK';
+        if self.opts.brace_style == 'expand':
+            if not empty_braces:
+                self.append_newline()
         self.append_token(token_text)
 
 
