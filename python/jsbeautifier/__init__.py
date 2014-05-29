@@ -710,10 +710,10 @@ class Beautifier:
             return c, 'TK_END_EXPR'
 
         if c == '{':
-            if ")" == self.flags.last_text:
-                return c, 'TK_START_BLOCK'
-            else:
+            if self.last_type in ['TK_COMMA', 'TK_EQUAL']:
                 return c, 'TK_START_JSON'
+            else:
+                return c, 'TK_START_BLOCK'
 
         if c == '}':
             if self.flags.mode == MODE.BlockJSON:
