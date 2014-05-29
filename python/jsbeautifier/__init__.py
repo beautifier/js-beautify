@@ -882,7 +882,10 @@ class Beautifier:
                     c = self.input[self.parser_pos]
                     resulting_string += c
                     self.parser_pos += 1
-                return resulting_string.strip() + '\n', 'TK_UNKNOWN'
+                resulting_string = resulting_string.strip() + '\n'
+                if shebang:
+                    resulting_string += '\n'
+                return resulting_string, 'TK_UNKNOWN'
 
 
             # Spidermonkey-specific sharp variables for circular references
@@ -1504,8 +1507,6 @@ class Beautifier:
 
     def handle_unknown(self, token_text):
         self.append_token(token_text)
-        if token_text[len(token_text) - 1] == '\n':
-            self.append_newline()
 
 
 def mkdir_p(path):
