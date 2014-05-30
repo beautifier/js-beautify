@@ -1001,7 +1001,7 @@ class Beautifier:
         # Support of this kind of newline preservation:
         # a = (b &&
         #     (c || d));
-        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
+        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR', 'TK_COMMA']:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(token_text)
 
@@ -1105,6 +1105,10 @@ class Beautifier:
 
     def handle_start_json(self, token_text):
         self.set_mode(MODE.BlockJSON)
+
+        # preserve newlines for JSON as function arguments
+        if self.input_wanted_newline and self.last_type == 'TK_COMMA':
+            self.append_newline()
 
         self.append_token(token_text)
         self.indent()
