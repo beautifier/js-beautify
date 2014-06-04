@@ -9,6 +9,7 @@ var SanityTest = require('./sanitytest'),
     run_beautifier_tests = require('./beautify-tests').run_beautifier_tests;
 
 function node_beautifier_tests() {
+    console.log('Testing with node.js CommonJS...');
     var results = run_beautifier_tests(new SanityTest(), Urlencoded, js_beautify, html_beautify, css_beautify);
     console.log(results.results_raw());
     return results;

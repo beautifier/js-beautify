@@ -143,7 +143,13 @@
             P_A_C_K_E_R.run_tests(st);
             Urlencoded.run_tests(st);
             MyObfuscate.run_tests(st);
-            var results = st.results_raw().replace(/ /g, '&nbsp;').replace(/\r/g, '·').replace(/\n/g, '<br>');
+            var results = st.results_raw()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/ /g, '&nbsp;')
+                .replace(/\r/g, '·')
+                .replace(/\n/g, '<br>');
             $('#testresults').html(results).show();
         }
 
@@ -232,7 +238,7 @@
             opts.indent_size = $('#tabsize').val();
             opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
             opts.max_preserve_newlines = $('#max-preserve-newlines').val();
-            opts.preserve_newlines = opts.max_preserve_newlines !== -1;
+            opts.preserve_newlines = opts.max_preserve_newlines !== "-1";
             opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
             opts.break_chained_methods = $('#break-chained-methods').prop('checked');
             opts.indent_scripts = $('#indent-scripts').val();
@@ -362,16 +368,10 @@
     </div>
 
     <div class="blurb">
-        <div style="float:right; width: 210px;">
+        <div style="float:right;">
             <a style="display:block; float: left; padding-top: 3px" href="http://flattr.com/thing/94550/jsbeautifier-org" target="_blank">
                 <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr">
             </a>
-            <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-                <input type="hidden" name="cmd" value="_s-xclick">
-                <input type="hidden" name="hosted_button_id" value="TL28UJK2ARCUJ">
-                <input style="border:0" type="image" src="web/paypal-donate.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-            </form>
         </div>
 
         <p>Browser extensions and other uses:</p>
@@ -381,16 +381,15 @@
                 it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
 
             <li style="margin-top: 8px"><strong>Chrome</strong>: <a href="https://github.com/rixth/jsbeautify-for-chrome">jsbeautify-for-chrome</a> by Tom Rix,</li>
-            <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,
-            </li>
+            <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney,</li>
             <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson
-                (
-                <a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),</li>
+                (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),</li>
+            <li><strong>Chrome</strong>: <a href="https://chrome.google.com/webstore/detail/stackoverflow-code-beauti/pljeafjjkkbacckkollfejkciddacmeb">Stackoverflow Code Beautify</a> by Making Odd Edit Studios (<a href="https://github.com/MakingOddEdit/CodeBeautify">github</a>),</li>
             <li style="margin-top: 8px"><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy, to be
                 used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
             <li style="margin-top: 8px"><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
-            <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a> (
-                <a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+            <li style="margin-top: 8px"><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a>
+                (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
             <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
             <li style="margin-top: 8px"><strong>Sublime Text 2:</strong>  <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis
                 Clark,</li>
@@ -399,6 +398,7 @@
             <li><strong>vim:</strong>  <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
 
             <li style="margin-top: 8px"><strong>Emacs:</strong> <a href="https://github.com/yasuyk/web-beautify">Web-beautify</a> formatting package by Yasuyuki Oka,</li>
+            <li style="margin-top: 8px"><strong>C#:</strong> ghost6991 <a href="https://github.com/ghost6991/Jsbeautifier">ported the javascript formatter to C#</a>,
             <li style="margin-top: 12px"><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
                 <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
                 <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
@@ -408,16 +408,19 @@
                     no idea if it's any good,</li>
                 <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
                 <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
-                <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a> (
-                    <a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
-                <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="http://code.google.com/p/burp-suite-beautifier-extension/">beautfier extension</a>,
+                <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a>
+                    (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
+                <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="https://github.com/irsdl/BurpSuiteJSBeautifier/">beautfier extension</a>,
                     thanks to Soroush Dalili,</li>
-                <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett (
-                    <a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
+                <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett
+                    (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
                 <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets</a> by Drew
                     Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>),</li>
                 <li><a href="http://codecaddy.net/">codecaddy.net</a>, a collection of webdev-related tools, assembled by Darik Hall,
-                <li><a href="http://www.editey.com/">www.editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier.
+                <li><a href="http://www.editey.com/">editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier,
+                <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,
+                <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),
+                <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library.
                 <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
         </ul>
 

@@ -23,6 +23,10 @@ class CSSBeautifierTest(unittest.TestCase):
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n")
         t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n")
 
+        # may not eat the space before "["
+        t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}\n'); 
+        t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}\n');
+
 
     def testComments(self):
         self.resetOptions()
