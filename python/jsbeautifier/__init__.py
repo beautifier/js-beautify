@@ -608,8 +608,8 @@ class Beautifier:
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (self.token_type == 'TK_RESERVED' and self.token_text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
                 or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
-                    and not self.flags.in_case 
-                    and not (self.token_text == '--' or self.token_text == '++') 
+                    and not self.flags.in_case
+                    and not (self.token_text == '--' or self.token_text == '++')
                     and self.token_type != 'TK_WORD' and self.token_type != 'TK_RESERVED') \
                 or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
                 ):
@@ -1280,7 +1280,7 @@ class Beautifier:
         if self.start_of_statement():
             # The conditional starts the statement if appropriate.
             pass
-    
+
         if self.flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will apply
             self.flags.declaration_assignment = True
@@ -1312,7 +1312,7 @@ class Beautifier:
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
-            
+
             self.append_newline()
         else:
             # EXPR or DO_BLOCK
@@ -1325,7 +1325,7 @@ class Beautifier:
                     self.last_last_text == '{' and \
                     (self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED'):
                 self.flags.mode = MODE.ObjectLiteral
-        
+
         if self.start_of_statement():
             # The conditional starts the statement if appropriate.
             pass

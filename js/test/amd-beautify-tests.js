@@ -26,11 +26,11 @@ function amd_beautifier_tests() {
     if (results.get_exitcode() !== 0) {
         return results;
     }
-    
+
     var js_beautify = requirejs('beautify-lib/beautify'),
         css_beautify = requirejs('beautify-lib/beautify-css'),
         html_beautify = requirejs('beautify-lib/beautify-html');
-    
+
     results = run_beautifier_tests(
             new SanityTest(),
             Urlencoded,
