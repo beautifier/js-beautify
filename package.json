@@ -17,11 +17,11 @@
     "test": "./js/test/shell-smoke-test.sh && node ./js/test/node-beautify-tests.js && node ./js/test/amd-beautify-tests.js",
     "update-codemirror": "npm install codemirror && rm -rf ./web/third-party/codemirror/* && cp ./node_modules/codemirror/LICENSE ./web/third-party/codemirror/ && cp ./node_modules/codemirror/README.md ./web/third-party/codemirror/ && cp -r ./node_modules/codemirror/lib ./web/third-party/codemirror/ && mkdir -p ./web/third-party/codemirror/mode && cp -r ./node_modules/codemirror/mode/javascript ./web/third-party/codemirror/mode/ && git add -Av ./web/third-party/codemirror"
   },
-  "bugs": "https://github.com/einars/js-beautify/issues",
+  "bugs": "https://github.com/beautify-web/js-beautify/issues",
   "homepage": "http://jsbeautifier.org/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/einars/js-beautify.git"
+    "url": "git://github.com/beautify-web/js-beautify.git"
   },
   "keywords": [
     "beautify",
