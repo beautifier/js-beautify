@@ -405,12 +405,17 @@
                         this.indent_content = true;
                         this.traverse_whitespace();
                     }
-                } else if (tag_check === 'script') { //for later script handling
+                } else if (tag_check === 'script' &&
+                    (tag_complete.search('type') === -1 ||
+                    (tag_complete.search('type') > -1 &&
+                    tag_complete.search(/\b(text|application)\/(x-)?(javascript|ecmascript|jscript|livescript)/) > -1))) {
                     if (!peek) {
                         this.record_tag(tag_check);
                         this.tag_type = 'SCRIPT';
                     }
-                } else if (tag_check === 'style') { //for future style handling (for now it justs uses get_content)
+                } else if (tag_check === 'style' &&
+                    (tag_complete.search('type') === -1 ||
+                    (tag_complete.search('type') > -1 && tag_complete.search('text/css') > -1))) {
                     if (!peek) {
                         this.record_tag(tag_check);
                         this.tag_type = 'STYLE';
@@ -814,7 +819,7 @@
         define(["require", "./beautify", "./beautify-css"], function(requireamd) {
             var js_beautify =  requireamd("./beautify");
             var css_beautify =  requireamd("./beautify-css");
-            
+
             return {
               html_beautify: function(html_source, options) {
                 return style_html(html_source, options, js_beautify.js_beautify, css_beautify.css_beautify);

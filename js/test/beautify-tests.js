@@ -396,6 +396,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return;', 'return;');
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
+        bt('yield [1, 2]');
 
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
             'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
@@ -450,6 +451,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function* () {\n    yield 1;\n}');
 
         opts.jslint_happy = false;
 
@@ -461,6 +463,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}');
+
+        bt('function* x() {\n    yield 1;\n}');
 
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
@@ -666,7 +671,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.keep_array_indentation = false;
 
 
-        bt('a = //comment\n/regex/;');
+        bt('a = //comment\n    /regex/;');
 
         test_fragment('/*\n * X\n */');
         test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
@@ -1309,6 +1314,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;',
+           'this.type = this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
+           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
@@ -1381,6 +1390,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if (foo) // comment\n    /asdf/;');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
 
@@ -1612,6 +1623,17 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
            '    });');
         // END tests for issue 281
 
+        // START tests for issue 459
+        bt( '(function() {\n' +
+            '    return {\n' +
+            '        foo: function() {\n' +
+            '            return "bar";\n' +
+            '        },\n' +
+            '        bar: ["bar"]\n' +
+            '    };\n' +
+            '}());');
+        // END tests for issue 459
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
@@ -1679,7 +1701,75 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<li>\n' +
             '    content\n' +
             '</li>');
-
+		
+		// START tests for issue 453
+		bth('<script type="text/unknown"><div></div></script>',
+			'<script type="text/unknown">\n' +
+			'    <div></div>\n' +
+			'</script>');
+		bth('<script type="text/javascript"><div></div></script>',
+			'<script type="text/javascript">\n' +
+			'    < div > < /div>\n' +
+			'</script>');
+		bth('<script><div></div></script>',
+			'<script>\n' +
+			'    < div > < /div>\n' +
+			'</script>');
+		bth('<script type="text/javascript">var foo = "bar";</script>',
+			'<script type="text/javascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');			
+		bth('<script type="application/javascript">var foo = "bar";</script>',
+			'<script type="application/javascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/javascript;version=1.8">var foo = "bar";</script>',
+			'<script type="application/javascript;version=1.8">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/x-javascript">var foo = "bar";</script>',
+			'<script type="application/x-javascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="application/ecmascript">var foo = "bar";</script>',
+			'<script type="application/ecmascript">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script type="text/javascript1.5">var foo = "bar";</script>',
+			'<script type="text/javascript1.5">\n' +
+			'    var foo = "bar";\n' +
+			'</script>');
+		bth('<script>var foo = "bar";</script>',
+			'<script>\n' +
+			'    var foo = "bar";\n' +
+			'</script>');					
+					
+		bth('<style type="text/unknown"><tag></tag></style>',
+			'<style type="text/unknown">\n' +
+			'    <tag></tag>\n' +
+			'</style>');	
+		bth('<style type="text/css"><tag></tag></style>',
+			'<style type="text/css">\n' +
+			'    <tag></tag>\n' +
+			'</style>');		
+		bth('<style><tag></tag></style>',
+			'<style>\n' +
+			'    <tag></tag>\n' +
+			'</style>');				
+		bth('<style type="text/css">.selector {font-size:12px;}</style>',
+			'<style type="text/css">\n' +
+			'    .selector {\n' +
+			'        font-size: 12px;\n' +
+			'    }\n'+
+			'</style>');
+		bth('<style>.selector {font-size:12px;}</style>',
+			'<style>\n' +
+			'    .selector {\n' +
+			'        font-size: 12px;\n' +
+			'    }\n'+
+			'</style>');			
+		// END tests for issue 453
+			
         // Tests that don't pass, but probably should.
         // bth('<div><span>content</span></div>');
 
@@ -1978,6 +2068,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // particular edge case with braces and semicolons inside tags that allows custom text
         btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}\n");
+
+        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}\n'); // may not eat the space before "["
+        btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}\n');
 
         return sanitytest;
     }

@@ -7,7 +7,7 @@
 // if (JavascriptObfuscator.detect(some_string)) {
 //     var unpacked = JavascriptObfuscator.unpack(some_string);
 // }
-// 
+//
 //
 
 var JavascriptObfuscator = {
@@ -23,7 +23,7 @@ var JavascriptObfuscator = {
                 var strings = JavascriptObfuscator._smart_split(matches[2]);
                 str = str.substring(matches[0].length);
                 for (var k in strings) {
-                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'), 
+                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'),
                         JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k])));
                 }
             }

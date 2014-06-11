@@ -290,6 +290,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('return;', 'return;');
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
+        bt('yield [1, 2]');
 
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
             'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
@@ -344,6 +345,7 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); # typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
         bt('a=typeof(x)', 'a = typeof (x)');
+        bt('function* () {\n    yield 1;\n}');
 
         self.options.jslint_happy = False
 
@@ -355,6 +357,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
 
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
@@ -557,7 +561,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.keep_array_indentation = False;
 
-        bt('a = //comment\n/regex/;');
+        bt('a = //comment\n    /regex/;');
 
         test_fragment('/*\n * X\n */');
         test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
@@ -1176,6 +1180,10 @@ class TestJSBeautifier(unittest.TestCase):
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;',
+           'this.type = this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
+           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
@@ -1260,6 +1268,8 @@ class TestJSBeautifier(unittest.TestCase):
            ');');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;');
+        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
 
@@ -1483,6 +1493,17 @@ class TestJSBeautifier(unittest.TestCase):
            '        });\n' +
            '    });');
         # END tests for issue 281
+
+        # START tests for issue 459
+        bt( '(function() {\n' +
+            '    return {\n' +
+            '        foo: function() {\n' +
+            '            return "bar";\n' +
+            '        },\n' +
+            '        bar: ["bar"]\n' +
+            '    };\n' +
+            '}());');
+        # END tests for issue 459
 
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');

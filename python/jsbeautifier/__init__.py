@@ -314,20 +314,19 @@ class Beautifier:
 
         self.input = None
         self.output_lines = [ OutputLine() ]
-        self.output_wrapped = False
         self.output_space_before_token = False
         self.whitespace_before_token = []
 
         self.whitespace = ["\n", "\r", "\t", " "]
         self.wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
         self.digits = '0123456789'
-        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! , : ? ^ ^= |= :: =>'
+        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
         self.punct += ' <?= <? ?> <%= <% %>'
         self.punct = self.punct.split(' ')
 
 
         # Words which always should start on a new line
-        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function'.split(',')
+        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
         self.reserved_words = self.line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof'];
 
         self.set_mode(MODE.BlockStatement)
@@ -478,13 +477,8 @@ class Beautifier:
         if ((self.opts.preserve_newlines and self.input_wanted_newline) or force_linewrap) and not self.just_added_newline():
             self.append_newline(preserve_statement_flags = True)
 
-            # Expressions and array literals already indent their contents.
-            if not (self.is_array(self.flags.mode) or self.is_expression(self.flags.mode) or self.flags.mode == MODE.Statement):
-                self.output_wrapped = True
-
 
     def append_newline(self, force_newline = False, preserve_statement_flags = False):
-        self.output_wrapped = False
         self.output_space_before_token = False
 
         if not preserve_statement_flags:
@@ -515,8 +509,6 @@ class Beautifier:
                     line.text.append(self.preindent_string)
 
                 level = self.flags.indentation_level;
-                if self.output_wrapped:
-                    level += 1
 
                 self.append_indent_string(level)
 
@@ -539,7 +531,6 @@ class Beautifier:
 
     def append_token(self, s):
         self.append_token_line_indentation()
-        self.output_wrapped = False
         self.append_token_space_before()
         self.output_space_before_token = False
         self.output_lines[-1].text.append(s)
@@ -606,7 +597,7 @@ class Beautifier:
 
 
     def start_of_object_property(self):
-        return self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and \
+        return self.flags.parent.mode == MODE.ObjectLiteral and self.flags.mode == MODE.Statement and self.flags.last_text == ':' and \
             self.flags.ternary_depth == 0
 
     def start_of_statement(self):
@@ -615,7 +606,13 @@ class Beautifier:
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'return' and not self.input_wanted_newline) \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (self.token_type == 'TK_RESERVED' and self.token_text == 'if' )) \
-                or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional))):
+                or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
+                or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
+                    and not self.flags.in_case
+                    and not (self.token_text == '--' or self.token_text == '++')
+                    and self.token_type != 'TK_WORD' and self.token_type != 'TK_RESERVED') \
+                or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
+                ):
 
             self.set_mode(MODE.Statement);
             self.indent();
@@ -626,9 +623,8 @@ class Beautifier:
             # Issue #276:
             # If starting a new statement with [if, for, while, do], push to a new line.
             # if (a) if (b) if(c) d(); else e(); else f();
-            self.allow_wrap_or_preserved_newline(self.token_text, self.token_type == 'TK_RESERVED' and self.token_text in ['do', 'for', 'if', 'while']);
-
-            self.output_wrapped = False
+            if not self.start_of_object_property():
+                self.allow_wrap_or_preserved_newline(self.token_text, self.token_type == 'TK_RESERVED' and self.token_text in ['do', 'for', 'if', 'while']);
 
             return True
         else:
@@ -976,11 +972,11 @@ class Beautifier:
             # do nothing on (( and )( and ][ and ]( and .(
             # TODO: Consider whether forcing this is required.  Review failing tests when removed.
             self.allow_wrap_or_preserved_newline(token_text, self.input_wanted_newline);
-            self.output_wrapped = False;
 
         elif not (self.last_type == 'TK_RESERVED' and token_text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output_space_before_token = True
-        elif self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof'):
+        elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
+            (self.flags.last_text == '*' and self.last_last_text =='function'):
             # function() vs function (), typeof() vs typeof ()
             if self.opts.jslint_happy:
                 self.output_space_before_token = True
@@ -1014,7 +1010,6 @@ class Beautifier:
 
         if self.flags.multiline_frame:
             self.allow_wrap_or_preserved_newline(self.token_text, self.token_text == ']' and self.is_array(self.flags.mode) and not self.opts.keep_array_indentation)
-            self.output_wrapped = False
 
         if self.opts.space_in_paren:
             if self.last_type == 'TK_START_EXPR' and not self.opts.space_in_empty_paren:
@@ -1191,7 +1186,8 @@ class Beautifier:
             prefix = 'SPACE'
         elif self.last_type == 'TK_STRING':
             prefix = 'NEWLINE'
-        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
+        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD' or \
+            (self.flags.last_text == '*' and self.last_last_text == 'function'):
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
             prefix = 'NEWLINE'
@@ -1281,6 +1277,10 @@ class Beautifier:
 
 
     def handle_equals(self, token_text):
+        if self.start_of_statement():
+            # The conditional starts the statement if appropriate.
+            pass
+
         if self.flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will apply
             self.flags.declaration_assignment = True
@@ -1306,23 +1306,30 @@ class Beautifier:
 
             return
 
-        if self.last_type == 'TK_END_BLOCK' and self.flags.mode != MODE.Expression:
-            self.append_token(token_text)
-            if self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == '}':
-                self.append_newline()
-            else:
-                self.output_space_before_token = True
+        self.append_token(token_text)
+
+        if self.flags.mode == MODE.ObjectLiteral \
+            or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
+            if self.flags.mode == MODE.Statement:
+                self.restore_mode()
+
+            self.append_newline()
         else:
-            if self.flags.mode == MODE.ObjectLiteral:
-                self.append_token(token_text)
-                self.append_newline()
-            else:
-                # EXPR or DO_BLOCK
-                self.append_token(token_text)
-                self.output_space_before_token = True
+            # EXPR or DO_BLOCK
+            self.output_space_before_token = True
 
 
     def handle_operator(self, token_text):
+        # Check if this is a BlockStatement that should be treated as a ObjectLiteral
+        if self.token_text == ':' and self.flags.mode == MODE.BlockStatement and \
+                    self.last_last_text == '{' and \
+                    (self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED'):
+                self.flags.mode = MODE.ObjectLiteral
+
+        if self.start_of_statement():
+            # The conditional starts the statement if appropriate.
+            pass
+
         space_before = True
         space_after = True
 
@@ -1360,7 +1367,7 @@ class Beautifier:
         if self.last_type == 'TK_OPERATOR':
             self.allow_wrap_or_preserved_newline(token_text)
 
-        if token_text in ['--', '++', '!'] \
+        if token_text in ['--', '++', '!', '~'] \
                 or (token_text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
                     or self.flags.last_text in self.line_starters or self.flags.last_text == ',')):
@@ -1390,6 +1397,9 @@ class Beautifier:
                 self.flags.ternary_depth -= 1
         elif token_text == '?':
             self.flags.ternary_depth += 1
+        elif self.token_text == '*' and self.last_type == 'TK_RESERVED' and self.flags.last_text == 'function':
+            space_before = False
+            space_after = False
 
         if space_before:
             self.output_space_before_token = True
@@ -1443,6 +1453,10 @@ class Beautifier:
 
 
     def handle_dot(self, token_text):
+        if self.start_of_statement():
+            # The conditional starts the statement if appropriate.
+            pass
+
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
             self.output_space_before_token = True
         else:
