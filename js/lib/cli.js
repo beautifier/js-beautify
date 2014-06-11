@@ -53,6 +53,7 @@ var fs = require('fs'),
         "space_in_paren": Boolean,
         "space_in_empty_paren": Boolean,
         "jslint_happy": Boolean,
+        "space_after_anon_function": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
         "break_chained_methods": Boolean,
@@ -88,6 +89,7 @@ var fs = require('fs'),
         "P": ["--space_in_paren"],
         "E": ["--space_in_empty_paren"],
         "j": ["--jslint_happy"],
+        "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
@@ -205,20 +207,21 @@ function usage(err) {
 
     switch (scriptName.split('-').shift()) {
         case "js":
-            msg.push('  -l, --indent-level            Initial indentation level [0]');
-            msg.push('  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c');
-            msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
-            msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
-            msg.push('  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )');
-            msg.push('  -E, --space-in-empty-paren    Add a single space inside empty paren, ie. f( )');
-            msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
-            msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
-            msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');
-            msg.push('  -k, --keep-array-indentation  Preserve array indentation');
-            msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
-            msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
-            msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
-            msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
+            msg.push('  -l, --indent-level                Initial indentation level [0]');
+            msg.push('  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c');
+            msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
+            msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
+            msg.push('  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )');
+            msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
+            msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
+            msg.push('  -a, --space_after_anon_function   Add a space before an anonymous function\'s parens, ie. function ()');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
+            msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
+            msg.push('  -k, --keep-array-indentation      Preserve array indentation');
+            msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
+            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
+            msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
             break;
         case "html":
             msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');

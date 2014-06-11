@@ -70,6 +70,7 @@ class BeautifierOptions:
         self.space_in_empty_paren = False
         self.e4x = False
         self.jslint_happy = False
+        self.space_after_anon_function = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
         self.keep_function_indentation = False
@@ -88,6 +89,7 @@ preserve_newlines = %s
 max_preserve_newlines = %d
 space_in_paren = %s
 jslint_happy = %s
+space_after_anon_function = %s
 indent_with_tabs = %s
 brace_style = %s
 keep_array_indentation = %s
@@ -100,6 +102,7 @@ unescape_strings = %s
         self.max_preserve_newlines,
         self.space_in_paren,
         self.jslint_happy,
+        self.space_after_anon_function,
         self.indent_with_tabs,
         self.brace_style,
         self.keep_array_indentation,
@@ -258,6 +261,7 @@ Output options:
  -P,  --space-in-paren             add padding spaces within paren, ie. f( a, b )
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               more jslint-compatible output
+ -a,  --space_after_anon_function  add a space before an anonymous function's parens, ie. function ()
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
  -o,  --outfile=FILE               specify a file to output to (default stdout)
@@ -305,6 +309,11 @@ class Beautifier:
         self.previous_flags = None
         self.flag_store = []
         self.input_wanted_newline = False
+
+        # force opts.space_after_anon_function to true if opts.jslint_happy
+        if self.opts.jslint_happy:
+            self.opts.space_after_anon_function = True
+
         if self.opts.indent_with_tabs:
             self.opts.indent_char = "\t"
             self.opts.indent_size = 1
@@ -981,7 +990,7 @@ class Beautifier:
         elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
             (self.flags.last_text == '*' and self.last_last_text =='function'):
             # function() vs function (), typeof() vs typeof ()
-            if self.opts.jslint_happy:
+            if self.opts.space_after_anon_function:
                 self.output_space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in self.line_starters or self.flags.last_text == 'catch'):
             # TODO: option space_before_conditional
@@ -1498,11 +1507,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dEPjbkil:xhtfvXw:",
+        opts, args = getopt.getopt(argv, "s:c:o:dEPjabkil:xhtfvXw:",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
-            'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'brace-style=',
-            'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help', 'usage',
-            'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
+            'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
+            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
+            'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
             'e4x', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
@@ -1536,6 +1545,8 @@ def main():
             js_options.space_in_empty_paren = True
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
+        elif opt in ('--space_after_anon_function', '-a'):
+            js_options.space_after_anon_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):

@@ -457,6 +457,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
 
 
+        opts.space_after_anon_function = true;
+
+        bt('switch(x) {case 0: case 1: a(); break; default: break}',
+            "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+        bt('switch(x){case -1:break;case !y:break;}',
+            'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
+        bt('a=typeof(x)', 'a = typeof (x)');
+        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
+        bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function* () {\n    yield 1;\n}');
+
+        opts.space_after_anon_function = false;
+
         opts.jslint_happy = true;
 
         bt('a=typeof(x)', 'a = typeof (x)');

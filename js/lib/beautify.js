@@ -49,9 +49,17 @@
 
     jslint_happy (default false) - if true, then jslint-stricter mode is enforced.
 
-            jslint_happy       !jslint_happy
+            jslint_happy        !jslint_happy
             ---------------------------------
-            function ()        function()
+            function ()         function()
+
+            switch () {         switch() {
+            case 1:               case 1:
+              break;                break;
+            }                   }
+
+    space_after_anon_function (default false) - should the space before an anonymous function's parens be added, "function()" vs "function ()",
+          NOTE: This option is overriden by jslint_happy (i.e. if jslint_happy is true, space_after_anon_function is true by design)
 
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
@@ -244,9 +252,6 @@
         opt = {};
 
         // compatibility
-        if (options.space_after_anon_function !== undefined && options.jslint_happy === undefined) {
-            options.jslint_happy = options.space_after_anon_function;
-        }
         if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
             opt.brace_style = options.braces_on_own_line ? "expand" : "collapse";
         }
@@ -266,11 +271,17 @@
         opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
         opt.space_in_empty_paren = (options.space_in_empty_paren === undefined) ? false : options.space_in_empty_paren;
         opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
+        opt.space_after_anon_function = (options.space_after_anon_function === undefined) ? false : options.space_after_anon_function;
         opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
         opt.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+
+        // force opt.space_after_anon_function to true if opt.jslint_happy
+        if(opt.jslint_happy) {
+            opt.space_after_anon_function = true;
+        }
 
         if(options.indent_with_tabs){
             opt.indent_char = '\t';
@@ -1146,7 +1157,7 @@
             } else if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
                 (flags.last_text === '*' && last_last_text === 'function')) {
                 // function() vs function ()
-                if (opt.jslint_happy) {
+                if (opt.space_after_anon_function) {
                     output_space_before_token = true;
                 }
             } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, line_starters) || flags.last_text === 'catch')) {
