@@ -44,14 +44,22 @@ def unpack(source):
 
 def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
-    argsregex = (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\."
-                 r"split\('\|'\), *(\d+), *(.*)\)\)")
-    args = re.search(argsregex, source, re.DOTALL).groups()
+    juicers = [ (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
+                (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\)"),
+              ]
+    for juicer in juicers:
+        args = re.search(juicer, source, re.DOTALL)
+        if args:
+            a = args.groups()
+            try:
+                return a[0], a[3].split('|'), int(a[1]), int(a[2])
+            except ValueError:
+                raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
 
-    try:
-        return args[0], args[3].split('|'), int(args[1]), int(args[2])
-    except ValueError:
-        raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
+    # could not find a satisfying regex
+    raise UnpackingError('Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
+
+
 
 def _replacestrings(source):
     """Strip string lookup table (list) and replace values in source."""
