@@ -1,5 +1,4 @@
 /*global js_beautify: true */
-/*jshint */
 
 function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
