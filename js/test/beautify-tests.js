@@ -413,6 +413,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
         bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
+        bt('function() {\n    var a, b, c, d, e = [],\n        f;\n}');
 
         bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
@@ -1090,7 +1091,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}')
+                      '}');
 
         //.............---------1---------2---------3---------4---------5---------6---------7
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
@@ -1103,7 +1104,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '    }' +
-                      '}')
+                      '}');
 
         opts.preserve_newlines = false;
         opts.wrap_line_length = 0;
