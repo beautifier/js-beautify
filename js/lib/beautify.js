@@ -656,6 +656,20 @@
             return true;
         }
 
+        function each_line_matches_indent(lines, indent) {
+            var i = 0,
+                len = lines.length,
+                line;
+            for (; i < len; i++) {
+                line = lines[i];
+                // allow empty lines to pass through
+                if (line && line.indexOf(indent) !== 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         function is_special_word(word) {
             return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else']);
         }
@@ -1624,12 +1638,18 @@
             var lines = split_newlines(token_text);
             var j; // iterator for this case
             var javadoc = false;
+            var starless = false;
+            var lastIndent = whitespace_before_token.join('');
+            var lastIndentLength = lastIndent.length;
 
             // block comment starts with a new line
             print_newline(false, true);
             if (lines.length > 1) {
                 if (all_lines_start_with(lines.slice(1), '*')) {
                     javadoc = true;
+                }
+                else if (each_line_matches_indent(lines.slice(1), lastIndent)) {
+                    starless = true;
                 }
             }
 
@@ -1640,6 +1660,9 @@
                 if (javadoc) {
                     // javadoc: reformat and re-indent
                     print_token(' ' + trim(lines[j]));
+                } else if (starless && lines[j].length > lastIndentLength) {
+                    // starless: re-indent non-empty content, avoiding trim
+                    print_token(lines[j].substring(lastIndentLength));
                 } else {
                     // normal comments output raw
                     output_lines[output_lines.length - 1].text.push(lines[j]);
