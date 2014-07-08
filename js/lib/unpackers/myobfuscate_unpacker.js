@@ -39,26 +39,35 @@ var MyObfuscate = {
 
     unpack: function (str) {
         if (MyObfuscate.detect(str)) {
-            var modified_source = str.replace(';eval(', ';unpacked_source = (');
-            var unpacked_source = '';
-            eval(modified_source);
-            if (unpacked_source) {
-                if (MyObfuscate.starts_with(unpacked_source, 'var _escape')) {
-                    // fetch the urlencoded stuff from the script,
-                    var matches = /'([^']*)'/.exec(unpacked_source);
-                    var unescaped = unescape(matches[1]);
-                    if (MyObfuscate.starts_with(unescaped, '<script>')) {
-                        unescaped = unescaped.substr(8, unescaped.length - 8);
+            var __eval = eval;
+            try {
+                eval = function (unpacked) {
+                    if (MyObfuscate.starts_with(unpacked, 'var _escape')) {
+                        // fetch the urlencoded stuff from the script,
+                        var matches = /'([^']*)'/.exec(unpacked);
+                        var unescaped = unescape(matches[1]);
+                        if (MyObfuscate.starts_with(unescaped, '<script>')) {
+                            unescaped = unescaped.substr(8, unescaped.length - 8);
+                        }
+                        if (MyObfuscate.ends_with(unescaped, '</script>')) {
+                            unescaped = unescaped.substr(0, unescaped.length - 9);
+                        }
+                        unpacked = unescaped;
                     }
-                    if (MyObfuscate.ends_with(unescaped, '</script>')) {
-                        unescaped = unescaped.substr(0, unescaped.length - 9);
-                    }
-                    unpacked_source = unescaped;
+                    // throw to terminate the script
+                    unpacked =  "// Unpacker warning: be careful when using myobfuscate.com for your projects:\n" +
+                        "// scripts obfuscated by the free online version may call back home.\n" +
+                        "\n//\n" + unpacked;
+                    throw unpacked;
+                };
+                __eval(str); // should throw
+            } catch (e) {
+                // well, it failed. we'll just return the original, instead of crashing on user.
+                if (typeof e === "string") {
+                    str = e;
                 }
             }
-            return unpacked_source ? "// Unpacker warning: be careful when using myobfuscate.com for your projects:\n" +
-                    "// scripts obfuscated by the free online version may call back home.\n" +
-                    "\n//\n" + unpacked_source : str;
+            eval = __eval;
         }
         return str;
     },
