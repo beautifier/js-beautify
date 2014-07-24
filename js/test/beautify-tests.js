@@ -1788,7 +1788,22 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 			'    }\n'+
 			'</style>');			
 		// END tests for issue 453
-			
+
+        var unformatted = opts.unformatted;
+        opts.unformatted = ['script', 'style'];
+        bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
+            '  <ul>\n' +
+            '  # for (var i = 0; i < data.length; i++) { #\n' +
+            '    <li>#= data[i] #</li>\n' +
+            '  # } #\n' +
+            '  </ul>\n' +
+            '</script>');
+        bth('<style>\n' +
+            '  body {background-color:lightgrey}\n' +
+            '  h1   {color:blue}\n' +
+            '</style>');
+        opts.unformatted = unformatted;
+
         // Tests that don't pass, but probably should.
         // bth('<div><span>content</span></div>');
 
