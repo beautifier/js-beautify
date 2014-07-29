@@ -125,6 +125,35 @@ class CSSBeautifierTest(unittest.TestCase):
         t(  "a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
 
+    def testLessCss(self):
+        self.resetOptions()
+        t = self.decodesto
+
+        t('.well{@well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}')
+        t('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n' +
+            '\t&.active {\n' +
+            '\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '\t}\n' +
+            '}')
+        t('a {\n' +
+            '\tcolor: blue;\n' +
+            '\t&:hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '\t& & &&&.active {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}')
+
+        # Not sure if this is sensible
+        # but I believe it is correct to not remove the space in "&: hover". 
+        t('a {\n' +
+            '\t&: hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}');
+
     def decodesto(self, input, expectation=None):
         if expectation == None:
             expectation = input

@@ -195,6 +195,13 @@ class Beautifier:
                 break
         return self.source_text[start:self.pos] + endChar
 
+    def peekString(self, endChar):
+        start = self.pos
+        st = self.eatString(endChar)
+        self.pos = start - 1
+        self.next()
+        return st
+
     def eatWhitespace(self):
         start = self.pos
         while WHITE_RE.search(self.peek()) is not None:
@@ -252,15 +259,16 @@ class Beautifier:
                 printer.comment(self.eatComment(True)[0:-1])
                 printer.newLine()
             elif self.ch == '@':
+                # pass along the space we found as a separate item
+                if isAfterSpace:
+                    printer.singleSpace()
+                printer.push(self.ch)
+
                 # strip trailing space, if present, for hash property check
-                atRule = self.eatString(" ")
-                if(atRule[-1] == " "):
+                atRule = self.peekString(" ")
+                if atRule[-1].isspace():
                     atRule = atRule[:-1]
 
-                # pass along the space we found as a separate item
-                printer.push(atRule)
-                printer.push(self.ch)
-                
                 # might be a nesting at-rule
                 if atRule in self.NESTED_AT_RULE:
                     printer.nestedLevel += 1
@@ -290,7 +298,7 @@ class Beautifier:
                     printer.nestedLevel -= 1
             elif self.ch == ":":
                 self.eatWhitespace()
-                if insideRule or enteringConditionalGroup:
+                if (insideRule or enteringConditionalGroup) and not self.lookBack('&'):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     printer.push(self.ch)
