@@ -103,6 +103,13 @@
             return source_text.substring(start, pos + 1);
         }
 
+        function peekString(endChar) {
+            var str = eatString(endChar);
+            pos -= str.length;
+            next();
+            return str;
+        }
+
         function eatWhitespace() {
             var start = pos;
             while (whiteRe.test(peek())) {
@@ -222,11 +229,14 @@
             } else if (ch === '/' && peek() === '/') { // single line comment
                 output.push(eatComment(true), indentString);
             } else if (ch === '@') {
-                // strip trailing space, if present, for hash property checks
-                var atRule = eatString(" ").replace(/ $/, '');
-
                 // pass along the space we found as a separate item
-                output.push(atRule, ch);
+                if (isAfterSpace) {
+                    print.singleSpace();
+                }
+                output.push(ch);
+
+                // strip trailing space, if present, for hash property checks
+                var atRule = peekString(" ").replace(/\s$/, '');
 
                 // might be a nesting at-rule
                 if (atRule in css_beautify.NESTED_AT_RULE) {
