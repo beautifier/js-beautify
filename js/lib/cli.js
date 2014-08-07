@@ -59,6 +59,8 @@ var fs = require('fs'),
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
+        "wrap_attributes": Boolean,
+        "wrap_indent": Number,
         "e4x": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
@@ -93,6 +95,8 @@ var fs = require('fs'),
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
+        "a": ["--wrap_attributes"],
+        "i": ["--wrap_indent"],
         "X": ["--e4x"],
         // HTML-only
         "W": ["--max_char"], // obsolete since 1.3.5
@@ -225,6 +229,8 @@ function usage(err) {
             msg.push('  -I, --indent-inner-html       Indent body and head sections. Default is false.');
             msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -a, --wrap-attributes         Wrap html tag attributes to new lines');
+            msg.push('  -i, --wrap-indent             Indent wrapped tags to after N characters [indent-level]');
             msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
