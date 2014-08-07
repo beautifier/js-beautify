@@ -95,6 +95,8 @@ Beautifier Options:
   -k, --keep-array-indentation  Preserve array indentation
   -x, --unescape-strings        Decode printable characters encoded in xNN notation
   -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]
+  -a, --wrap-attributes         Wrap attributes to new lines
+  -i, --wrap-indent             Indent wrapped attributes to after N characters [indent-size]
   -X, --e4x                     Pass E4X xml literals through untouched
   --good-stuff                  Warm the cockles of Crockford's heart
 ```
@@ -117,7 +119,9 @@ These largely correspond to the underscored option keys for both library interfa
     "break_chained_methods": false,
     "eval_code": false,
     "unescape_strings": false,
-    "wrap_line_length": 0
+    "wrap_line_length": 0,
+    "wrap_attributes": false,
+    "wrap_indent": 4
 }
 ```
 
@@ -180,4 +184,3 @@ Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
 js-beautify@1.5.1
-
