@@ -1361,7 +1361,7 @@ class Beautifier:
         # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
         # if there is a newline between -- or ++ and anything else we should preserve it.
         if self.input_wanted_newline and (token_text == '--' or token_text == '++'):
-            self.append_newline()
+            self.append_newline(preserve_statement_flags = True)
 
         # Allow line wrapping between operators in an expression
         if self.last_type == 'TK_OPERATOR':
@@ -1380,7 +1380,7 @@ class Beautifier:
                 #         ^^
                 space_before = True
 
-            if self.last_type == 'TK_RESERVED':
+            if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_END_EXPR':
                 space_before = True
 
             if self.flags.mode == MODE.BlockStatement and self.flags.last_text in ['{', ';']:
