@@ -1585,7 +1585,7 @@
             // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
             // if there is a newline between -- or ++ and anything else we should preserve it.
             if (input_wanted_newline && (token_text === '--' || token_text === '++')) {
-                print_newline();
+                print_newline(false, true);
             }
 
             // Allow line wrapping between operators
@@ -1605,7 +1605,7 @@
                     space_before = true;
                 }
 
-                if (last_type === 'TK_RESERVED') {
+                if (last_type === 'TK_RESERVED' || last_type === 'TK_END_EXPR') {
                     space_before = true;
                 }
 
