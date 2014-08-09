@@ -254,7 +254,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(true)--a;','if (true) --a;');
         bt('if(true)\n--a;','if (true)\n    --a;');
 
-
         # Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
         bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}');

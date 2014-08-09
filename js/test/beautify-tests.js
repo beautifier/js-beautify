@@ -359,7 +359,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if(true)--a;','if (true) --a;');
         bt('if(true)\n--a;','if (true)\n    --a;');
 
-
         // Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
         bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}');
