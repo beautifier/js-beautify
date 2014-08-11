@@ -2089,6 +2089,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}\n'); // may not eat the space before "["
         btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}\n');
 
+        // Test leading newline
+        btc("\n@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
+
         return sanitytest;
     }
 
