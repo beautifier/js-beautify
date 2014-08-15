@@ -1464,6 +1464,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'function foo() {}\n\nfunction foo() {}'
         );
 
+        bt('[\n    function() {}\n]');
+
 
 
         bt("if\n(a)\nb();", "if (a)\n    b();");

@@ -1256,6 +1256,7 @@ class TestJSBeautifier(unittest.TestCase):
             'function foo() {}\n\nfunction foo() {}'
         );
 
+        bt('[\n    function() {}\n]');
 
 
         bt("if\n(a)\nb();", "if (a) b();");

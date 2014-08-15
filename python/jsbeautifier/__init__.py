@@ -1138,7 +1138,7 @@ class Beautifier:
             return
 
         if self.token_type == 'TK_RESERVED' and token_text == 'function':
-            if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['{', ':', '=', ',']):
+            if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['[', '{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
                 if not self.just_added_blankline() and not self.flags.had_comment:
