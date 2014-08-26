@@ -176,7 +176,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("(x) => x", "(x) => x");
         bt("x => { x }", "x => {\n    x\n}");
         bt("(x) => { x }", "(x) => {\n    x\n}");
-        
+
         # a common snippet in jQuery plugins
         bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
 
@@ -249,6 +249,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
+        bt('if(true)++a;','if (true) ++a;');
+        bt('if(true)\n++a;','if (true)\n    ++a;');
+        bt('if(true)--a;','if (true) --a;');
+        bt('if(true)\n--a;','if (true)\n    --a;');
 
         # Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
@@ -303,6 +307,19 @@ class TestJSBeautifier(unittest.TestCase):
         # javadoc comment
         bt('/**\n* foo\n*/', '/**\n * foo\n */');
         bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
+
+        # starless block comment
+        bt('/**\nfoo\n*/');
+        bt('/**\nfoo\n**/');
+        bt('/**\nfoo\nbar\n**/');
+        bt('/**\nfoo\n\nbar\n**/');
+        bt('/**\nfoo\n    bar\n**/');
+        bt('{\n/**\nfoo\n*/\n}', '{\n    /**\n    foo\n    */\n}');
+        bt('{\n/**\nfoo\n**/\n}', '{\n    /**\n    foo\n    **/\n}');
+        bt('{\n/**\nfoo\nbar\n**/\n}', '{\n    /**\n    foo\n    bar\n    **/\n}');
+        bt('{\n/**\nfoo\n\nbar\n**/\n}', '{\n    /**\n    foo\n\n    bar\n    **/\n}');
+        bt('{\n/**\nfoo\n    bar\n**/\n}', '{\n    /**\n    foo\n        bar\n    **/\n}');
+        bt('{\n    /**\n    foo\nbar\n    **/\n}');
 
         bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
         bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
@@ -359,7 +376,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
         bt('function*() {\n    yield 1;\n}');
         bt('function* x() {\n    yield 1;\n}');
-        
+
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
@@ -1180,10 +1197,10 @@ class TestJSBeautifier(unittest.TestCase):
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
-        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;', 
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;',
            'this.type = this.options =\n    // comment\n    this.enabled null;');
         bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
-           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');    
+           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
@@ -1239,6 +1256,7 @@ class TestJSBeautifier(unittest.TestCase):
             'function foo() {}\n\nfunction foo() {}'
         );
 
+        bt('[\n    function() {}\n]');
 
 
         bt("if\n(a)\nb();", "if (a) b();");
@@ -1504,7 +1522,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}());');
         # END tests for issue 459
-        
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',

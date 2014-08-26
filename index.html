@@ -115,9 +115,9 @@
             padding-top: 8px;
         }
     </style>
+
     <script src="web/third-party/jquery/jquery.js"></script>
     <script src="web/third-party/jquery/jquery.cookie.js"></script>
-
 
     <script src="js/lib/beautify.js"></script>
     <script src="js/lib/beautify-css.js"></script>
@@ -169,6 +169,7 @@
             $('#space-before-conditional').prop('checked', $.cookie('space-before-conditional') !== 'off');
             $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
             $('#unescape-strings').prop('checked', $.cookie('unescape-strings') === 'on');
+            $('#jslint-happy').prop('checked', $.cookie('jslint-happy') === 'on');
         }
 
         function store_settings_to_cookie() {
@@ -184,6 +185,7 @@
             $.cookie('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off',
                 opts);
             $.cookie('unescape-strings', $('#unescape-strings').prop('checked') ? 'on' : 'off', opts);
+            $.cookie('jslint-happy', $('jslint-happy').prop('checked') ? 'on' : 'off', opts);
             $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
             $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
         }
@@ -245,6 +247,7 @@
             opts.brace_style = $('#brace-style').val();
             opts.space_before_conditional = $('#space-before-conditional').prop('checked');
             opts.unescape_strings = $('#unescape-strings').prop('checked');
+            opts.jslint_happy = $('#jslint-happy').prop('checked');
             opts.wrap_line_length = $('#wrap-line-length').val();
             opts.space_after_anon_function = true;
 
@@ -283,7 +286,7 @@
             <a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a>
         </p>
         <p>
-            All of the source code is completely free and open, available on the <a href="https://github.com/einars/js-beautify">github</a> under MIT licence,
+            All of the source code is completely free and open, available on the <a href="https://github.com/beautify-web/js-beautify">github</a> under MIT licence,
             <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
         </p>
     </div>
@@ -352,6 +355,9 @@
                 <br>
                 <input class="checkbox" type="checkbox" id="unescape-strings">
                 <label for="unescape-strings">Unescape printable chars encoded as \xNN or \uNNNN?</label>
+                <br>
+                <input class="checkbox" type="checkbox" id="jslint-happy">
+                <label for="jslint-happy">Use JSLint-happy formatting tweaks?</label>
                 <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
 
 

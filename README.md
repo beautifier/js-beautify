@@ -1,5 +1,5 @@
 # JS Beautifier
-[![Build Status](https://secure.travis-ci.org/einars/js-beautify.png?branch=master)](http://travis-ci.org/einars/js-beautify)
+[![Build Status](https://secure.travis-ci.org/beautify-web/js-beautify.png?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
 [![NPM version](https://badge.fury.io/js/js-beautify.png)](http://badge.fury.io/js/js-beautify)
 
 This little beautifier will reformat and reindent bookmarklets, ugly

@@ -19,7 +19,7 @@ function get_beautify(js_beautify, css_beautify, html_beautify) {
     var beautify = function (src, config) {
         return js_beautify.js_beautify(src, config);
     };
-    
+
     // short aliases
     beautify.js   = js_beautify.js_beautify;
     beautify.css  = css_beautify.css_beautify;
@@ -29,7 +29,7 @@ function get_beautify(js_beautify, css_beautify, html_beautify) {
     beautify.js_beautify   = js_beautify.js_beautify;
     beautify.css_beautify  = css_beautify.css_beautify;
     beautify.html_beautify = html_beautify.html_beautify;
-    
+
     return beautify;
 }
 

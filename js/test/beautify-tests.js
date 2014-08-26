@@ -1,5 +1,4 @@
 /*global js_beautify: true */
-/*jshint */
 
 function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -355,6 +354,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
+        bt('if(true)++a;','if (true) ++a;');
+        bt('if(true)\n++a;','if (true)\n    ++a;');
+        bt('if(true)--a;','if (true) --a;');
+        bt('if(true)\n--a;','if (true)\n    --a;');
 
         // Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
@@ -411,8 +414,22 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('/**\n* foo\n*/', '/**\n * foo\n */');
         bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
 
+        // starless block comment
+        bt('/**\nfoo\n*/');
+        bt('/**\nfoo\n**/');
+        bt('/**\nfoo\nbar\n**/');
+        bt('/**\nfoo\n\nbar\n**/');
+        bt('/**\nfoo\n    bar\n**/');
+        bt('{\n/**\nfoo\n*/\n}', '{\n    /**\n    foo\n    */\n}');
+        bt('{\n/**\nfoo\n**/\n}', '{\n    /**\n    foo\n    **/\n}');
+        bt('{\n/**\nfoo\nbar\n**/\n}', '{\n    /**\n    foo\n    bar\n    **/\n}');
+        bt('{\n/**\nfoo\n\nbar\n**/\n}', '{\n    /**\n    foo\n\n    bar\n    **/\n}');
+        bt('{\n/**\nfoo\n    bar\n**/\n}', '{\n    /**\n    foo\n        bar\n    **/\n}');
+        bt('{\n    /**\n    foo\nbar\n    **/\n}');
+
         bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
         bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
+        bt('function() {\n    var a, b, c, d, e = [],\n        f;\n}');
 
         bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
 
@@ -452,7 +469,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
         bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
         bt('function* () {\n    yield 1;\n}');
-        
+
         opts.jslint_happy = false;
 
         bt('switch(x) {case 0: case 1: a(); break; default: break}',
@@ -466,7 +483,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('function*() {\n    yield 1;\n}');
 
         bt('function* x() {\n    yield 1;\n}');
-        
+
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
@@ -1090,7 +1107,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}')
+                      '}');
 
         //.............---------1---------2---------3---------4---------5---------6---------7
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
@@ -1103,7 +1120,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
                       '    }' +
-                      '}')
+                      '}');
 
         opts.preserve_newlines = false;
         opts.wrap_line_length = 0;
@@ -1314,10 +1331,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
         bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
-        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;', 
+        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;',
            'this.type = this.options =\n    // comment\n    this.enabled null;');
         bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
-           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');    
+           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
 
         bt('if (true ||\n!true) return;', 'if (true || !true) return;');
 
@@ -1392,7 +1409,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
         bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;');
         bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
-        
+
         bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
 
         // these aren't ready yet.
@@ -1446,6 +1463,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('function foo() {}\nfunction foo() {}',
             'function foo() {}\n\nfunction foo() {}'
         );
+
+        bt('[\n    function() {}\n]');
 
 
 
@@ -1703,21 +1722,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '</li>');
 		
 		// START tests for issue 453
-		bth('<script type="text/unknown"><div></div></script>', 
-			'<script type="text/unknown">\n' + 
-			'    <div></div>\n' + 
+		bth('<script type="text/unknown"><div></div></script>',
+			'<script type="text/unknown">\n' +
+			'    <div></div>\n' +
 			'</script>');
-		bth('<script type="text/javascript"><div></div></script>', 
-			'<script type="text/javascript">\n' + 
-			'    < div > < /div>\n' + 
+		bth('<script type="text/javascript"><div></div></script>',
+			'<script type="text/javascript">\n' +
+			'    < div > < /div>\n' +
 			'</script>');
-		bth('<script><div></div></script>', 
-			'<script>\n' + 
-			'    < div > < /div>\n' + 
+		bth('<script><div></div></script>',
+			'<script>\n' +
+			'    < div > < /div>\n' +
 			'</script>');
-		bth('<script type="text/javascript">var foo = "bar";</script>', 
-			'<script type="text/javascript">\n' + 
-			'    var foo = "bar";\n' + 
+		bth('<script type="text/javascript">var foo = "bar";</script>',
+			'<script type="text/javascript">\n' +
+			'    var foo = "bar";\n' +
 			'</script>');			
 		bth('<script type="application/javascript">var foo = "bar";</script>',
 			'<script type="application/javascript">\n' +
@@ -1739,34 +1758,34 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 			'<script type="text/javascript1.5">\n' +
 			'    var foo = "bar";\n' +
 			'</script>');
-		bth('<script>var foo = "bar";</script>', 
-			'<script>\n' + 
-			'    var foo = "bar";\n' + 
+		bth('<script>var foo = "bar";</script>',
+			'<script>\n' +
+			'    var foo = "bar";\n' +
 			'</script>');					
 					
-		bth('<style type="text/unknown"><tag></tag></style>', 
-			'<style type="text/unknown">\n' + 
-			'    <tag></tag>\n' + 
+		bth('<style type="text/unknown"><tag></tag></style>',
+			'<style type="text/unknown">\n' +
+			'    <tag></tag>\n' +
 			'</style>');	
-		bth('<style type="text/css"><tag></tag></style>', 
-			'<style type="text/css">\n' + 
-			'    <tag></tag>\n' + 
+		bth('<style type="text/css"><tag></tag></style>',
+			'<style type="text/css">\n' +
+			'    <tag></tag>\n' +
 			'</style>');		
-		bth('<style><tag></tag></style>', 
-			'<style>\n' + 
-			'    <tag></tag>\n' + 
+		bth('<style><tag></tag></style>',
+			'<style>\n' +
+			'    <tag></tag>\n' +
 			'</style>');				
-		bth('<style type="text/css">.selector {font-size:12px;}</style>', 
-			'<style type="text/css">\n' + 
+		bth('<style type="text/css">.selector {font-size:12px;}</style>',
+			'<style type="text/css">\n' +
 			'    .selector {\n' +
-			'        font-size: 12px;\n' + 
-			'    }\n'+ 
+			'        font-size: 12px;\n' +
+			'    }\n'+
 			'</style>');
-		bth('<style>.selector {font-size:12px;}</style>', 
-			'<style>\n' + 
+		bth('<style>.selector {font-size:12px;}</style>',
+			'<style>\n' +
 			'    .selector {\n' +
-			'        font-size: 12px;\n' + 
-			'    }\n'+ 
+			'        font-size: 12px;\n' +
+			'    }\n'+
 			'</style>');			
 		// END tests for issue 453
 			

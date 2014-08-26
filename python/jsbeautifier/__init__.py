@@ -608,8 +608,8 @@ class Beautifier:
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (self.token_type == 'TK_RESERVED' and self.token_text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
                 or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
-                    and not self.flags.in_case 
-                    and not (self.token_text == '--' or self.token_text == '++') 
+                    and not self.flags.in_case
+                    and not (self.token_text == '--' or self.token_text == '++')
                     and self.token_type != 'TK_WORD' and self.token_type != 'TK_RESERVED') \
                 or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
                 ):
@@ -1138,7 +1138,7 @@ class Beautifier:
             return
 
         if self.token_type == 'TK_RESERVED' and token_text == 'function':
-            if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['{', ':', '=', ',']):
+            if self.flags.last_text in ['}', ';'] or (self.just_added_newline() and not self.flags.last_text in ['[', '{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
                 if not self.just_added_blankline() and not self.flags.had_comment:
@@ -1280,7 +1280,7 @@ class Beautifier:
         if self.start_of_statement():
             # The conditional starts the statement if appropriate.
             pass
-    
+
         if self.flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will apply
             self.flags.declaration_assignment = True
@@ -1312,7 +1312,7 @@ class Beautifier:
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
-            
+
             self.append_newline()
         else:
             # EXPR or DO_BLOCK
@@ -1325,7 +1325,7 @@ class Beautifier:
                     self.last_last_text == '{' and \
                     (self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED'):
                 self.flags.mode = MODE.ObjectLiteral
-        
+
         if self.start_of_statement():
             # The conditional starts the statement if appropriate.
             pass
@@ -1361,7 +1361,7 @@ class Beautifier:
         # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
         # if there is a newline between -- or ++ and anything else we should preserve it.
         if self.input_wanted_newline and (token_text == '--' or token_text == '++'):
-            self.append_newline()
+            self.append_newline(preserve_statement_flags = True)
 
         # Allow line wrapping between operators in an expression
         if self.last_type == 'TK_OPERATOR':
@@ -1380,7 +1380,7 @@ class Beautifier:
                 #         ^^
                 space_before = True
 
-            if self.last_type == 'TK_RESERVED':
+            if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_END_EXPR':
                 space_before = True
 
             if self.flags.mode == MODE.BlockStatement and self.flags.last_text in ['{', ';']:
@@ -1414,12 +1414,17 @@ class Beautifier:
     def handle_block_comment(self, token_text):
         lines = token_text.replace('\x0d', '').split('\x0a')
         javadoc = False
+        starless = False
+        last_indent = ''.join(self.whitespace_before_token)
+        last_indent_length = len(last_indent)
 
         # block comment starts with a new line
         self.append_newline(preserve_statement_flags = True)
         if  len(lines) > 1:
             if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
                 javadoc = True
+            elif all(l.startswith(last_indent) or l.strip() == '' for l in lines[1:]):
+                starless = True
 
         # first line always indented
         self.append_token(lines[0])
@@ -1428,6 +1433,9 @@ class Beautifier:
             if javadoc:
                 # javadoc: reformat and re-indent
                 self.append_token(' ' + line.strip())
+            elif starless and len(line) > last_indent_length:
+                # starless: re-indent non-empty content, avoiding trim
+                self.append_token(line[last_indent_length:])
             else:
                 # normal comments output raw
                 self.output_lines[-1].text.append(line)
