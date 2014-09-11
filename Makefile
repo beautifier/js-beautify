@@ -19,8 +19,6 @@ help:
 build:
 	echo Building... ;\
 	npm install ;\
-	pip install -e ./python --user ;\
-
 
 testp:
 	echo Testing python implementation...
