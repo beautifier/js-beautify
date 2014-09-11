@@ -14,6 +14,6 @@ setup(name='jsbeautifier',
       scripts=['js-beautify'],
       packages=['jsbeautifier', 'jsbeautifier.tests',
                 'jsbeautifier.unpackers', 'jsbeautifier.unpackers.tests'],
-      install_requires=["six>=1.7.3"],
+      install_requires=["six>=1.6.1"],
       license='MIT',
      )
