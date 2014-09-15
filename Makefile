@@ -2,6 +2,8 @@
 define AVAILABLE_ACTIONS
 
 build:		do static checking and build of js
+buildp:		do static checking and build of python
+buildj:		do static checking and build of javascript
 test:		test both implementations, js and python
 testp:		test python implementation
 testj:		test javascript implementation
@@ -16,10 +18,16 @@ all: build test
 help:
 	echo "$$AVAILABLE_ACTIONS"
 
-build:
-	echo Building... ;\
+build: buildj buildp
+
+buildj:
+	echo Building javascript... ;\
 	npm install ;\
 
+buildp:
+	echo Building python... ;\
+	pip install -e ./python 
+	
 testp:
 	echo Testing python implementation...
 	cd python ;\
