@@ -46,6 +46,7 @@
     indent_char (default space)      - character to indent with,
     preserve_newlines (default true) - whether existing line breaks should be preserved,
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
+    comma_first (default false)      - whether a "comma first" format should be used for variables declarations and objects
 
     jslint_happy (default false) - if true, then jslint-stricter mode is enforced.
 
@@ -271,6 +272,7 @@
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+        opt.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
 
         if(options.indent_with_tabs){
             opt.indent_char = '\t';
@@ -1288,6 +1290,7 @@
             } else if (input_wanted_newline && !is_expression(flags.mode) &&
                 (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
                 last_type !== 'TK_EQUALS' &&
+                (!opt.comma_first || last_type !== 'TK_COMMA') &&
                 (opt.preserve_newlines || !(last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
 
                 print_newline();
@@ -1515,29 +1518,43 @@
                     flags.declaration_assignment = false;
                 }
 
+                if (opt.comma_first) {
+                    print_newline(false, true);
+                }
+
                 print_token();
 
-                if (flags.declaration_assignment) {
-                    flags.declaration_assignment = false;
-                    print_newline(false, true);
-                } else {
+                if (opt.comma_first) {
                     output_space_before_token = true;
+                } else {
+                    if (flags.declaration_assignment) {
+                        flags.declaration_assignment = false;
+                        print_newline(false, true);
+                    } else {
+                        output_space_before_token = true;
+                    }
                 }
                 return;
             }
 
-            print_token();
             if (flags.mode === MODE.ObjectLiteral ||
                 (flags.mode === MODE.Statement && flags.parent.mode === MODE.ObjectLiteral)) {
                 if (flags.mode === MODE.Statement) {
                     restore_mode();
                 }
-                print_newline();
+                if(opt.comma_first) {
+                  print_newline();
+                  print_token();
+                  output_space_before_token = true;
+                } else {
+                  print_token();
+                  print_newline();
+                }
             } else {
                 // EXPR or DO_BLOCK
+                print_token();
                 output_space_before_token = true;
             }
-
         }
 
         function handle_operator() {

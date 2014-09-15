@@ -60,6 +60,7 @@ var fs = require('fs'),
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "e4x": Boolean,
+        "comma_first": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
@@ -105,6 +106,7 @@ var fs = require('fs'),
             "--keep_function_indentation",
             "--jslint_happy"
         ],
+        "comma-first": ["--comma_first"],
         "js": ["--type", "js"],
         "css": ["--type", "css"],
         "html": ["--type", "html"],
@@ -218,6 +220,7 @@ function usage(err) {
             msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
             msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
+            msg.push('  --comma-first                 Use comma first format in variables declarations and objects');
             msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
             break;
         case "html":
