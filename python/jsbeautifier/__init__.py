@@ -132,12 +132,12 @@ class BeautifierFlags:
         self.had_comment = False
 
     def apply_base(self, flags_base, added_newline):
-        next_indent_level = flags_base.indentation_level;
+        next_indent_level = flags_base.indentation_level
         if not added_newline and \
             flags_base.line_indent_level > next_indent_level:
-            next_indent_level = flags_base.line_indent_level;
+            next_indent_level = flags_base.line_indent_level
 
-        self.parent = flags_base;
+        self.parent = flags_base
         self.last_text = flags_base.last_text
         self.last_word = flags_base.last_word
         self.indentation_level = next_indent_level
@@ -195,24 +195,24 @@ class Acorn:
         if code < 97:
             return code == 95
         if code < 123:
-            return True;
-        return code >= 0xaa and self.nonASCIIidentifierStart.match(self.six.unichr(code)) != None;
+            return True
+        return code >= 0xaa and self.nonASCIIidentifierStart.match(self.six.unichr(code)) != None
 
     # Test whether a given character is part of an identifier.
     def isIdentifierChar(self, code):
         if code < 48:
-            return code == 36;
+            return code == 36
         if code < 58:
-            return True;
+            return True
         if code < 65:
-            return False;
+            return False
         if code < 91:
-            return True;
+            return True
         if code < 97:
-            return code == 95;
+            return code == 95
         if code < 123:
-            return True;
-        return code >= 0xaa and self.nonASCIIidentifier.match(self.six.unichr(code)) != None;
+            return True
+        return code >= 0xaa and self.nonASCIIidentifier.match(self.six.unichr(code)) != None
 
 
 
@@ -230,7 +230,7 @@ def beautify_file(file_name, opts = default_options() ):
     else:
         stream = open(file_name)
 
-    return beautify(''.join(stream.readlines()), opts);
+    return beautify(''.join(stream.readlines()), opts)
 
 
 def usage(stream=sys.stdout):
@@ -295,7 +295,7 @@ class Beautifier:
 
         self.opts = opts
         self.blank_state()
-        self.acorn = Acorn();
+        self.acorn = Acorn()
 
     def blank_state(self):
 
@@ -329,7 +329,7 @@ class Beautifier:
 
         # Words which always should start on a new line
         self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
-        self.reserved_words = self.line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof'];
+        self.reserved_words = self.line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']
 
         self.set_mode(MODE.BlockStatement)
 
@@ -378,7 +378,7 @@ class Beautifier:
             #print (token_text, self.token_type, self.flags.mode)
             if self.token_type == 'TK_EOF':
                 while self.flags.mode == MODE.Statement:
-                    self.restore_mode();
+                    self.restore_mode()
                 break
 
             keep_whitespace = self.opts.keep_array_indentation and self.is_array(self.flags.mode)
@@ -409,7 +409,7 @@ class Beautifier:
         sweet_code = ''.join(self.output_lines[0].text)
         if len(self.output_lines) > 1:
             for line_index in range(1, len(self.output_lines)):
-                sweet_code += '\n' + ''.join(self.output_lines[line_index].text);
+                sweet_code += '\n' + ''.join(self.output_lines[line_index].text)
 
         sweet_code = re.sub('[\n ]+$', '', sweet_code)
         return sweet_code
@@ -486,7 +486,7 @@ class Beautifier:
         if not preserve_statement_flags:
             if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and self.last_type != 'TK_OPERATOR':
                 while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
-                    self.restore_mode();
+                    self.restore_mode()
 
         if len(self.output_lines) == 1 and self.just_added_newline():
             # no newline on start of file
@@ -502,7 +502,7 @@ class Beautifier:
             line = self.output_lines[-1]
             if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and self.input_wanted_newline:
                 # prevent removing of this whitespace as redundant
-                line.text.append('');
+                line.text.append('')
                 for item in self.whitespace_before_token:
                     line.text.append(item)
 
@@ -510,7 +510,7 @@ class Beautifier:
                 if self.preindent_string != '':
                     line.text.append(self.preindent_string)
 
-                level = self.flags.indentation_level;
+                level = self.flags.indentation_level
 
                 self.append_indent_string(level)
 
@@ -587,7 +587,7 @@ class Beautifier:
             self.previous_flags = BeautifierFlags(mode)
 
         self.flags = BeautifierFlags(mode)
-        self.flags.apply_base(self.previous_flags, self.just_added_newline());
+        self.flags.apply_base(self.previous_flags, self.just_added_newline())
         self.flags.start_line_index = len(self.output_lines)
 
     def restore_mode(self):
@@ -616,8 +616,8 @@ class Beautifier:
                 or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
                 ):
 
-            self.set_mode(MODE.Statement);
-            self.indent();
+            self.set_mode(MODE.Statement)
+            self.indent()
 
             if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and self.token_type == 'TK_WORD':
                 self.flags.declaration_statement = True
@@ -626,7 +626,7 @@ class Beautifier:
             # If starting a new statement with [if, for, while, do], push to a new line.
             # if (a) if (b) if(c) d(); else e(); else f();
             if not self.start_of_object_property():
-                self.allow_wrap_or_preserved_newline(self.token_text, self.token_type == 'TK_RESERVED' and self.token_text in ['do', 'for', 'if', 'while']);
+                self.allow_wrap_or_preserved_newline(self.token_text, self.token_type == 'TK_RESERVED' and self.token_text in ['do', 'for', 'if', 'while'])
 
             return True
         else:
@@ -973,7 +973,7 @@ class Beautifier:
         elif self.last_type in ['TK_END_EXPR', 'TK_START_EXPR', 'TK_END_BLOCK'] or self.flags.last_text == '.':
             # do nothing on (( and )( and ][ and ]( and .(
             # TODO: Consider whether forcing this is required.  Review failing tests when removed.
-            self.allow_wrap_or_preserved_newline(token_text, self.input_wanted_newline);
+            self.allow_wrap_or_preserved_newline(token_text, self.input_wanted_newline)
 
         elif not (self.last_type == 'TK_RESERVED' and token_text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output_space_before_token = True
@@ -1028,7 +1028,7 @@ class Beautifier:
             self.restore_mode()
             self.append_token(token_text)
 
-        self.remove_redundant_indentation(self.previous_flags);
+        self.remove_redundant_indentation(self.previous_flags)
 
         # do {} while () // no statement required after
         if self.flags.do_while and self.previous_flags.mode == MODE.Conditional:
@@ -1074,7 +1074,7 @@ class Beautifier:
         while self.flags.mode == MODE.Statement:
             self.restore_mode()
 
-        empty_braces = self.last_type == 'TK_START_BLOCK';
+        empty_braces = self.last_type == 'TK_START_BLOCK'
         if self.opts.brace_style == 'expand':
             if not empty_braces:
                 self.append_newline()
@@ -1127,7 +1127,7 @@ class Beautifier:
                 while self.flags.mode == MODE.Statement:
                     self.restore_mode()
 
-                self.flags.if_block = False;
+                self.flags.if_block = False
 
         if self.token_type == 'TK_RESERVED' and (token_text == 'case' or (token_text == 'default' and self.flags.in_case_statement)):
             self.append_newline()
