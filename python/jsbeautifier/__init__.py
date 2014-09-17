@@ -5,6 +5,7 @@ import getopt
 import re
 import string
 import errno
+import copy
 from jsbeautifier.__version__ import __version__
 
 #
@@ -293,7 +294,7 @@ class Beautifier:
 
     def __init__(self, opts = default_options() ):
 
-        self.opts = opts
+        self.opts = copy.copy(opts)
         self.blank_state()
         self.acorn = Acorn()
 
@@ -339,7 +340,7 @@ class Beautifier:
     def beautify(self, s, opts = None ):
 
         if opts != None:
-            self.opts = opts
+            self.opts = copy.copy(opts)
 
         if self.opts.brace_style not in ['expand', 'collapse', 'end-expand']:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
