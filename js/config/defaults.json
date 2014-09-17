@@ -6,6 +6,7 @@
     "preserve_newlines": true,
     "max_preserve_newlines": 10,
     "jslint_happy": false,
+    "space_after_anon_function": false,
     "brace_style": "collapse",
     "keep_array_indentation": false,
     "keep_function_indentation": false,
