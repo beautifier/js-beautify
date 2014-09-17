@@ -203,7 +203,7 @@
             'TK_COMMENT': handle_comment,
             'TK_DOT': handle_dot,
             'TK_UNKNOWN': handle_unknown,
-            'TK_EOF': handle_eof           
+            'TK_EOF': handle_eof
         };
 
         function create_flags(flags_base, mode) {
@@ -341,7 +341,7 @@
                 last_last_text = flags.last_text;
                 last_type = local_token.type;
                 flags.last_text = local_token.text;
-                
+
             }
 
             sweet_code = output_lines[0].text.join('');
@@ -378,7 +378,7 @@
             current_token = local_token;
             handlers[current_token.type]();
         }
-        
+
         function trim_output(eat_newlines) {
             eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
 
@@ -755,7 +755,7 @@
             return (index < 0 || index >= tokens.length) ? null : tokens[index];
         }
 
-        function tokenize() { 
+        function tokenize() {
             var Token = function(type, text, newlines, whitespace_before, mode, parent) {
                 this.type = type;
                 this.text = text;
@@ -765,7 +765,7 @@
                 this.whitespace_before = whitespace_before || [];
                 this.parent = null;
             }
-              
+
             var next, last;
             var n_newlines, whitespace_before_token;
             var in_html_comment = false
@@ -781,38 +781,38 @@
                     comments.push(next);
                     token_values = tokenize_next();
                     next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-                } 
+                }
 
                 if (comments.length) {
                     next.comments_before = comments;
                     comments = [];
                 }
-                
+
                 if (next.type === 'TK_START_BLOCK' || next.type === 'TK_START_EXPR') {
                     next.parent = last;
                     open = next;
                     open_stack.push(next);
                 }  else if ((next.type === 'TK_END_BLOCK' || next.type === 'TK_END_EXPR') &&
                     (open && (
-                        (next.text === ']' && open.text === '[') || 
-                        (next.text === ')' && open.text === '(') || 
+                        (next.text === ']' && open.text === '[') ||
+                        (next.text === ')' && open.text === '(') ||
                         (next.text === '}' && open.text === '}')))) {
                     next.parent = open.parent;
                     open = open_stack.pop();
-                }                               
-                
+                }
+
                 tokens.push(next);
                 last = next;
             }
-                                    
+
             token_pos = 0;
-        
+
             function tokenize_next() {
                 var i, resulting_string;
-            
+
                 n_newlines = 0;
                 whitespace_before_token = [];
-            
+
                 if (parser_pos >= input_length) {
                     return ['', 'TK_EOF'];
                 }
@@ -827,7 +827,7 @@
                     last_type = 'TK_START_BLOCK';
                     last_text = '';
                 }
-            
+
 
                 var c = input.charAt(parser_pos);
                 parser_pos += 1;
@@ -955,7 +955,7 @@
                         (opt.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
                     ) && ( // regex and xml can only appear in specific locations during parsing
                         (last_type === 'TK_RESERVED' && is_special_word(last_text)) ||
-                        (last_type === 'TK_END_EXPR' && last_text === ')' && 
+                        (last_type === 'TK_END_EXPR' && last_text === ')' &&
                             last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
                         (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                             'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
@@ -1147,7 +1147,7 @@
                 return [c, 'TK_UNKNOWN'];
             }
         }
-        
+
         function handle_start_expr() {
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
@@ -1773,7 +1773,7 @@
                 print_newline();
             }
         }
-        
+
         function handle_eof() {
             // Unwind any open statements
             while (flags.mode === MODE.Statement) {

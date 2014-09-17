@@ -152,7 +152,7 @@ class OutputLine:
 class Acorn:
     def __init__(self):
         # This is not pretty, but given how we did the version import
-        # it is the only way to do this without having setup.py fail on a missing six dependency. 
+        # it is the only way to do this without having setup.py fail on a missing six dependency.
         self.six = __import__("six")
         # This section of code was translated to python from acorn (javascript).
         #
@@ -397,14 +397,14 @@ class Beautifier:
             local_token = self.get_token()
             self.token_pos += 1
 
-            for comment_token in local_token.comments_before: 
+            for comment_token in local_token.comments_before:
                 # The cleanest handling of inline comments is to treat them as though they aren't there.
                 # Just continue formatting and the behavior should be logical.
                 # Also ignore unknown tokens.  Again, this should result in better behavior.
                     self.handle_token(comment_token)
-                    
+
             self.handle_token(local_token)
-            
+
             self.last_last_text = self.flags.last_text
             self.last_type = local_token.type
             self.flags.last_text = local_token.text
@@ -557,7 +557,7 @@ class Beautifier:
     def append_token(self, current_token, s=None):
         if s == None:
             s = current_token.text
-        
+
         self.append_token_line_indentation(current_token)
         self.append_token_space_before()
         self.output_space_before_token = False
@@ -636,8 +636,8 @@ class Beautifier:
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
                 or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
-                    and not self.flags.in_case 
-                    and not (current_token.text == '--' or current_token.text == '++') 
+                    and not self.flags.in_case
+                    and not (current_token.text == '--' or current_token.text == '++')
                     and current_token.type != 'TK_WORD' and current_token.type != 'TK_RESERVED') \
                 or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
                 ):
@@ -672,7 +672,7 @@ class Beautifier:
         open = None
         open_stack = []
         comments = []
-        
+
         self.in_html_comment = False
 
         while not (not last == None and last.type == 'TK_EOF'):
@@ -688,7 +688,7 @@ class Beautifier:
             if len(comments) > 0:
                 next.comments_before = comments
                 comments = []
-            
+
             if next.type == 'TK_START_BLOCK' or next.type == 'TK_START_EXPR':
                 next.parent = last
                 open = next
@@ -699,8 +699,8 @@ class Beautifier:
                     (next.text == ')' and open.text == '(') or \
                     (next.text == '}' and open.text == '}'))):
                 next.parent = open.parent
-                open = open_stack.pop()                           
-            
+                open = open_stack.pop()
+
             self.tokens.append(next)
             last = next
 
@@ -711,7 +711,7 @@ class Beautifier:
 
         self.n_newlines = 0
         self.whitespace_before_token = []
-        
+
         if self.parser_pos >= len(self.input):
             return '', 'TK_EOF'
 
@@ -1352,7 +1352,7 @@ class Beautifier:
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
-    
+
         if self.flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will apply
             self.flags.declaration_assignment = True
@@ -1384,7 +1384,7 @@ class Beautifier:
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
-            
+
             self.append_newline()
         else:
             # EXPR or DO_BLOCK
@@ -1397,7 +1397,7 @@ class Beautifier:
                     self.last_last_text == '{' and \
                     (self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED'):
                 self.flags.mode = MODE.ObjectLiteral
-        
+
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
