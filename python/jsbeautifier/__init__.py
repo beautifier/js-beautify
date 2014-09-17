@@ -307,7 +307,6 @@ class Beautifier:
 
         self.opts = copy.copy(opts)
         self.blank_state()
-        self.acorn = Acorn()
 
     def blank_state(self):
 
@@ -333,25 +332,10 @@ class Beautifier:
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
 
-        self.input = None
         self.output_lines = [ OutputLine() ]
         self.output_space_before_token = False
 
-        self.whitespace = ["\n", "\r", "\t", " "]
-        self.wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
-        self.digits = '0123456789'
-        self.punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
-        self.punct += ' <?= <? ?> <%= <% %>'
-        self.punct = self.punct.split(' ')
-
-
-        # Words which always should start on a new line
-        self.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
-        self.reserved_words = self.line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']
-
         self.set_mode(MODE.BlockStatement)
-
-        self.parser_pos = 0
 
 
     def beautify(self, s, opts = None ):
@@ -368,9 +352,8 @@ class Beautifier:
             self.preindent_string += s[0]
             s = s[1:]
 
-        self.input = self.unpack(s, self.opts.eval_code)
+        input = self.unpack(s, self.opts.eval_code)
 
-        self.parser_pos = 0
         self.handlers = {
             'TK_START_EXPR': self.handle_start_expr,
             'TK_END_EXPR': self.handle_end_expr,
@@ -391,7 +374,8 @@ class Beautifier:
             'TK_EOF': self.handle_eof
         }
 
-        self.tokenize()
+        self.tokens = Tokenizer(input, self.opts, self.indent_string).tokenize()
+        self.token_pos = 0
 
         while not self.get_token() == None:
             local_token = self.get_token()
@@ -666,340 +650,6 @@ class Beautifier:
             return self.tokens[index]
 
 
-    def tokenize(self):
-        next = None
-        last = None
-        open = None
-        open_stack = []
-        comments = []
-
-        self.in_html_comment = False
-
-        while not (not last == None and last.type == 'TK_EOF'):
-            token_values = self.tokenize_next()
-            next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
-
-            while next.type == 'TK_INLINE_COMMENT' or next.type == 'TK_COMMENT' or \
-                next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
-                comments.append(next)
-                token_values = self.tokenize_next()
-                next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
-
-            if len(comments) > 0:
-                next.comments_before = comments
-                comments = []
-
-            if next.type == 'TK_START_BLOCK' or next.type == 'TK_START_EXPR':
-                next.parent = last
-                open = next
-                open_stack.append(next)
-            elif (next.type == 'TK_END_BLOCK' or next.type == 'TK_END_EXPR') and \
-                (not open == None and ( \
-                    (next.text == ']' and open.text == '[') or \
-                    (next.text == ')' and open.text == '(') or \
-                    (next.text == '}' and open.text == '}'))):
-                next.parent = open.parent
-                open = open_stack.pop()
-
-            self.tokens.append(next)
-            last = next
-
-        token_pos = 0
-
-
-    def tokenize_next(self):
-
-        self.n_newlines = 0
-        self.whitespace_before_token = []
-
-        if self.parser_pos >= len(self.input):
-            return '', 'TK_EOF'
-
-        if len(self.tokens) > 0:
-            last_token = self.tokens[-1]
-            last_type = last_token.type
-            last_text = last_token.text
-        else:
-            last_token = None
-            last_type = 'TK_START_BLOCK'
-            last_text = ''
-
-        c = self.input[self.parser_pos]
-        self.parser_pos += 1
-
-        while c in self.whitespace:
-            if c == '\n':
-                self.n_newlines += 1
-                self.whitespace_before_token = []
-            elif c == self.indent_string:
-                self.whitespace_before_token.append(self.indent_string)
-            elif c != '\r':
-                self.whitespace_before_token.append(' ')
-
-            if self.parser_pos >= len(self.input):
-                return '', 'TK_EOF'
-
-            c = self.input[self.parser_pos]
-            self.parser_pos += 1
-
-        # NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
-        # It just treats all identifiers and numbers and such the same.
-        if self.acorn.isIdentifierChar(ord(self.input[self.parser_pos-1])):
-            if self.parser_pos < len(self.input):
-                while self.acorn.isIdentifierChar(ord(self.input[self.parser_pos])):
-                    c = c + self.input[self.parser_pos]
-                    self.parser_pos += 1
-                    if self.parser_pos == len(self.input):
-                        break
-
-            # small and surprisingly unugly hack for IE-10 representation
-            if self.parser_pos != len(self.input) and self.input[self.parser_pos] in '+-' \
-               and re.match('^[0-9]+[Ee]$', c):
-
-                sign = self.input[self.parser_pos]
-                self.parser_pos += 1
-                t = self.tokenize_next()
-                c += sign + t[0]
-                return c, 'TK_WORD'
-            if not (last_type == 'TK_DOT' \
-                        or (last_type == 'TK_RESERVED' and last_text in ['set', 'get'])) \
-                    and c in self.reserved_words:
-                if c == 'in': # in is an operator, need to hack
-                    return c, 'TK_OPERATOR'
-
-                return c, 'TK_RESERVED'
-
-            return c, 'TK_WORD'
-
-        if c in '([':
-            return c, 'TK_START_EXPR'
-
-        if c in ')]':
-            return c, 'TK_END_EXPR'
-
-        if c == '{':
-            return c, 'TK_START_BLOCK'
-
-        if c == '}':
-            return c, 'TK_END_BLOCK'
-
-        if c == ';':
-            return c, 'TK_SEMICOLON'
-
-        if c == '/':
-            comment = ''
-            inline_comment = True
-            if self.input[self.parser_pos] == '*': # peek /* .. */ comment
-                self.parser_pos += 1
-                if self.parser_pos < len(self.input):
-                    while not (self.input[self.parser_pos] == '*' and \
-                               self.parser_pos + 1 < len(self.input) and \
-                               self.input[self.parser_pos + 1] == '/')\
-                          and self.parser_pos < len(self.input):
-                        c = self.input[self.parser_pos]
-                        comment += c
-                        if c in '\r\n':
-                            inline_comment = False
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            break
-                self.parser_pos += 2
-                if inline_comment and self.n_newlines == 0:
-                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
-                else:
-                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
-
-            if self.input[self.parser_pos] == '/': # peek // comment
-                comment = c
-                while self.input[self.parser_pos] not in '\r\n':
-                    comment += self.input[self.parser_pos]
-                    self.parser_pos += 1
-                    if self.parser_pos >= len(self.input):
-                        break
-
-                return comment, 'TK_COMMENT'
-
-        if c == '`' or c == "'" or c == '"' or \
-            ( \
-                (c == '/') or \
-                (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
-            ) and ( \
-                (last_type == 'TK_RESERVED' and self.is_special_word(last_text)) or \
-                (last_type == 'TK_END_EXPR' and last_text == ')' and \
-                            last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
-                (last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
-                                   'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
-            sep = c
-            esc = False
-            esc1 = 0
-            esc2 = 0
-            resulting_string = c
-            in_char_class = False
-
-            if self.parser_pos < len(self.input):
-                if sep == '/':
-                    # handle regexp
-                    in_char_class = False
-                    while esc or in_char_class or self.input[self.parser_pos] != sep:
-                        resulting_string += self.input[self.parser_pos]
-                        if not esc:
-                            esc = self.input[self.parser_pos] == '\\'
-                            if self.input[self.parser_pos] == '[':
-                                in_char_class = True
-                            elif self.input[self.parser_pos] == ']':
-                                in_char_class = False
-                        else:
-                            esc = False
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            # incomplete regex when end-of-file reached
-                            # bail out with what has received so far
-                            return resulting_string, 'TK_STRING'
-
-                elif self.opts.e4x and sep == '<':
-                    # handle e4x xml literals
-                    xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
-                    xmlStr = self.input[self.parser_pos - 1:]
-                    match = xmlRegExp.match(xmlStr)
-                    if match:
-                        rootTag = match.group(2)
-                        depth = 0
-                        while (match):
-                            isEndTag = match.group(1)
-                            tagName = match.group(2)
-                            isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
-                            if tagName == rootTag and not isSingletonTag:
-                                if isEndTag:
-                                    depth -= 1
-                                else:
-                                    depth += 1
-
-                            if depth <= 0:
-                                break
-
-                            match = xmlRegExp.search(xmlStr, match.end())
-
-                        if match:
-                            xmlLength = match.end() # + len(match.group())
-                        else:
-                            xmlLength = len(xmlStr)
-
-                        self.parser_pos += xmlLength - 1
-                        return xmlStr[:xmlLength], 'TK_STRING'
-
-                else:
-                    # handle string
-                    while esc or self.input[self.parser_pos] != sep:
-                        resulting_string += self.input[self.parser_pos]
-                        if esc1 and esc1 >= esc2:
-                            try:
-                                esc1 = int(resulting_string[-esc2:], 16)
-                            except Exception:
-                                esc1 = False
-                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
-                                esc1 = chr(esc1)
-                                resulting_string = resulting_string[:-2 - esc2]
-                                if esc1 == sep or esc1 == '\\':
-                                        resulting_string += '\\'
-                                resulting_string += esc1
-                            esc1 = 0
-                        if esc1:
-                            esc1 += 1
-                        elif not esc:
-                            esc = self.input[self.parser_pos] == '\\'
-                        else:
-                            esc = False
-                            if self.opts.unescape_strings:
-                                if self.input[self.parser_pos] == 'x':
-                                    esc1 += 1
-                                    esc2 = 2
-                                elif self.input[self.parser_pos] == 'u':
-                                    esc1 += 1
-                                    esc2 = 4
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            # incomplete string when end-of-file reached
-                            # bail out with what has received so far
-                            return resulting_string, 'TK_STRING'
-
-
-            self.parser_pos += 1
-            resulting_string += sep
-            if sep == '/':
-                # regexps may have modifiers /regexp/MOD, so fetch those too
-                while self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.wordchar:
-                    resulting_string += self.input[self.parser_pos]
-                    self.parser_pos += 1
-            return resulting_string, 'TK_STRING'
-
-        if c == '#':
-
-            # she-bang
-            if len(self.output_lines) == 1 and len(self.output_lines[0].text) == 0 and \
-                    len(self.input) > self.parser_pos and self.input[self.parser_pos] == '!':
-                resulting_string = c
-                while self.parser_pos < len(self.input) and c != '\n':
-                    c = self.input[self.parser_pos]
-                    resulting_string += c
-                    self.parser_pos += 1
-                return resulting_string.strip() + '\n', 'TK_UNKNOWN'
-
-
-            # Spidermonkey-specific sharp variables for circular references
-            # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
-            # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
-            sharp = '#'
-            if self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.digits:
-                while True:
-                    c = self.input[self.parser_pos]
-                    sharp += c
-                    self.parser_pos += 1
-                    if self.parser_pos >= len(self.input)  or c == '#' or c == '=':
-                        break
-            if c == '#' or self.parser_pos >= len(self.input):
-                pass
-            elif self.input[self.parser_pos] == '[' and self.input[self.parser_pos + 1] == ']':
-                sharp += '[]'
-                self.parser_pos += 2
-            elif self.input[self.parser_pos] == '{' and self.input[self.parser_pos + 1] == '}':
-                sharp += '{}'
-                self.parser_pos += 2
-            return sharp, 'TK_WORD'
-
-        if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
-            self.parser_pos += 3
-            c = '<!--'
-            while self.parser_pos < len(self.input) and self.input[self.parser_pos] != '\n':
-                c += self.input[self.parser_pos]
-                self.parser_pos += 1
-            self.in_html_comment = True
-            return c, 'TK_COMMENT'
-
-        if c == '-' and self.in_html_comment and self.input[self.parser_pos - 1 : self.parser_pos + 2] == '-->':
-            self.flags.in_html_comment = False
-            self.parser_pos += 2
-            return '-->', 'TK_COMMENT'
-
-        if c == '.':
-            return c, 'TK_DOT'
-
-        if c in self.punct:
-            while self.parser_pos < len(self.input) and c + self.input[self.parser_pos] in self.punct:
-                c += self.input[self.parser_pos]
-                self.parser_pos += 1
-                if self.parser_pos >= len(self.input):
-                    break
-
-            if c == ',':
-                return c, 'TK_COMMA'
-            if c == '=':
-                return c, 'TK_EQUALS'
-
-            return c, 'TK_OPERATOR'
-
-        return c, 'TK_UNKNOWN'
-
-
     def handle_start_expr(self, current_token):
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1009,7 +659,7 @@ class Beautifier:
 
         if current_token.text == '[':
             if self.last_type == 'TK_WORD' or self.flags.last_text == ')':
-                if self.last_type == 'TK_RESERVED' and self.flags.last_text in self.line_starters:
+                if self.last_type == 'TK_RESERVED' and self.flags.last_text in Tokenizer.line_starters:
                     self.output_space_before_token = True
                 self.set_mode(next_mode)
                 self.append_token(current_token)
@@ -1051,7 +701,7 @@ class Beautifier:
             # function() vs function (), typeof() vs typeof ()
             if self.opts.space_after_anon_function:
                 self.output_space_before_token = True
-        elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in self.line_starters or self.flags.last_text == 'catch'):
+        elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
             # TODO: option space_before_conditional
             self.output_space_before_token = True
 
@@ -1267,7 +917,7 @@ class Beautifier:
             self.output_space_before_token = True
             prefix = 'NEWLINE'
 
-        if current_token.type == 'TK_RESERVED' and current_token.text in self.line_starters and self.flags.last_text != ')':
+        if current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
             if self.flags.last_text == 'else':
                 prefix = 'SPACE'
             else:
@@ -1300,7 +950,7 @@ class Beautifier:
                         self.output_space_before_token = True
                     else:
                         self.append_newline()
-            elif current_token.type == 'TK_RESERVED' and current_token.text in self.line_starters and self.flags.last_text != ')':
+            elif current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
                 self.append_newline()
         elif self.is_array(self.flags.mode) and self.flags.last_text == ',' and self.last_last_text == '}':
             self.append_newline() # }, in lists get a newline
@@ -1442,7 +1092,7 @@ class Beautifier:
         if current_token.text in ['--', '++', '!', '~'] \
                 or (current_token.text in ['+', '-'] \
                     and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
-                    or self.flags.last_text in self.line_starters or self.flags.last_text == ',')):
+                    or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')):
 
             space_before = False
             space_after = False
@@ -1565,6 +1215,358 @@ def mkdir_p(path):
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else: raise
+
+class Tokenizer:
+
+    whitespace = ["\n", "\r", "\t", " "]
+    wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
+    digits = '0123456789'
+    punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>' \
+              + ' <?= <? ?> <%= <% %>').split(' ')
+
+    # Words which always should start on a new line
+    line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
+    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']
+
+    def __init__ (self, input, opts, indent_string):
+        self.input = input
+        self.opts = opts
+        self.indent_string = indent_string
+        self.acorn = Acorn()
+
+
+    def tokenize(self):
+        self.in_html_comment = False
+        self.parser_pos = 0
+        self.tokens = []
+
+        next = None
+        last = None
+        open = None
+        open_stack = []
+        comments = []
+
+        while not (not last == None and last.type == 'TK_EOF'):
+            token_values = self.__tokenize_next()
+            next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
+
+            while next.type == 'TK_INLINE_COMMENT' or next.type == 'TK_COMMENT' or \
+                next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
+                comments.append(next)
+                token_values = self.__tokenize_next()
+                next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
+
+            if len(comments) > 0:
+                next.comments_before = comments
+                comments = []
+
+            if next.type == 'TK_START_BLOCK' or next.type == 'TK_START_EXPR':
+                next.parent = last
+                open = next
+                open_stack.append(next)
+            elif (next.type == 'TK_END_BLOCK' or next.type == 'TK_END_EXPR') and \
+                (not open == None and ( \
+                    (next.text == ']' and open.text == '[') or \
+                    (next.text == ')' and open.text == '(') or \
+                    (next.text == '}' and open.text == '}'))):
+                next.parent = open.parent
+                open = open_stack.pop()
+
+            self.tokens.append(next)
+            last = next
+        return self.tokens
+
+
+    def __tokenize_next(self):
+
+        self.n_newlines = 0
+        self.whitespace_before_token = []
+
+        if self.parser_pos >= len(self.input):
+            return '', 'TK_EOF'
+
+        if len(self.tokens) > 0:
+            last_token = self.tokens[-1]
+            last_type = last_token.type
+            last_text = last_token.text
+        else:
+            last_token = None
+            last_type = 'TK_START_BLOCK'
+            last_text = ''
+
+        c = self.input[self.parser_pos]
+        self.parser_pos += 1
+
+        while c in self.whitespace:
+            if c == '\n':
+                self.n_newlines += 1
+                self.whitespace_before_token = []
+            elif c == self.indent_string:
+                self.whitespace_before_token.append(self.indent_string)
+            elif c != '\r':
+                self.whitespace_before_token.append(' ')
+
+            if self.parser_pos >= len(self.input):
+                return '', 'TK_EOF'
+
+            c = self.input[self.parser_pos]
+            self.parser_pos += 1
+
+        # NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
+        # It just treats all identifiers and numbers and such the same.
+        if self.acorn.isIdentifierChar(ord(self.input[self.parser_pos-1])):
+            if self.parser_pos < len(self.input):
+                while self.acorn.isIdentifierChar(ord(self.input[self.parser_pos])):
+                    c = c + self.input[self.parser_pos]
+                    self.parser_pos += 1
+                    if self.parser_pos == len(self.input):
+                        break
+
+            # small and surprisingly unugly hack for IE-10 representation
+            if self.parser_pos != len(self.input) and self.input[self.parser_pos] in '+-' \
+               and re.match('^[0-9]+[Ee]$', c):
+
+                sign = self.input[self.parser_pos]
+                self.parser_pos += 1
+                t = self.__tokenize_next()
+                c += sign + t[0]
+                return c, 'TK_WORD'
+            if not (last_type == 'TK_DOT' \
+                        or (last_type == 'TK_RESERVED' and last_text in ['set', 'get'])) \
+                    and c in self.reserved_words:
+                if c == 'in': # in is an operator, need to hack
+                    return c, 'TK_OPERATOR'
+
+                return c, 'TK_RESERVED'
+
+            return c, 'TK_WORD'
+
+        if c in '([':
+            return c, 'TK_START_EXPR'
+
+        if c in ')]':
+            return c, 'TK_END_EXPR'
+
+        if c == '{':
+            return c, 'TK_START_BLOCK'
+
+        if c == '}':
+            return c, 'TK_END_BLOCK'
+
+        if c == ';':
+            return c, 'TK_SEMICOLON'
+
+        if c == '/':
+            comment = ''
+            inline_comment = True
+            if self.input[self.parser_pos] == '*': # peek /* .. */ comment
+                self.parser_pos += 1
+                if self.parser_pos < len(self.input):
+                    while not (self.input[self.parser_pos] == '*' and \
+                               self.parser_pos + 1 < len(self.input) and \
+                               self.input[self.parser_pos + 1] == '/')\
+                          and self.parser_pos < len(self.input):
+                        c = self.input[self.parser_pos]
+                        comment += c
+                        if c in '\r\n':
+                            inline_comment = False
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
+                            break
+                self.parser_pos += 2
+                if inline_comment and self.n_newlines == 0:
+                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
+                else:
+                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
+
+            if self.input[self.parser_pos] == '/': # peek // comment
+                comment = c
+                while self.input[self.parser_pos] not in '\r\n':
+                    comment += self.input[self.parser_pos]
+                    self.parser_pos += 1
+                    if self.parser_pos >= len(self.input):
+                        break
+
+                return comment, 'TK_COMMENT'
+
+        if c == '`' or c == "'" or c == '"' or \
+            ( \
+                (c == '/') or \
+                (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
+            ) and ( \
+                (last_type == 'TK_RESERVED' and last_text in ['return', 'case', 'throw', 'else', 'do']) or \
+                (last_type == 'TK_END_EXPR' and last_text == ')' and \
+                            last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
+                (last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
+                                   'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
+            sep = c
+            esc = False
+            esc1 = 0
+            esc2 = 0
+            resulting_string = c
+            in_char_class = False
+
+            if self.parser_pos < len(self.input):
+                if sep == '/':
+                    # handle regexp
+                    in_char_class = False
+                    while esc or in_char_class or self.input[self.parser_pos] != sep:
+                        resulting_string += self.input[self.parser_pos]
+                        if not esc:
+                            esc = self.input[self.parser_pos] == '\\'
+                            if self.input[self.parser_pos] == '[':
+                                in_char_class = True
+                            elif self.input[self.parser_pos] == ']':
+                                in_char_class = False
+                        else:
+                            esc = False
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
+                            # incomplete regex when end-of-file reached
+                            # bail out with what has received so far
+                            return resulting_string, 'TK_STRING'
+
+                elif self.opts.e4x and sep == '<':
+                    # handle e4x xml literals
+                    xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
+                    xmlStr = self.input[self.parser_pos - 1:]
+                    match = xmlRegExp.match(xmlStr)
+                    if match:
+                        rootTag = match.group(2)
+                        depth = 0
+                        while (match):
+                            isEndTag = match.group(1)
+                            tagName = match.group(2)
+                            isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
+                            if tagName == rootTag and not isSingletonTag:
+                                if isEndTag:
+                                    depth -= 1
+                                else:
+                                    depth += 1
+
+                            if depth <= 0:
+                                break
+
+                            match = xmlRegExp.search(xmlStr, match.end())
+
+                        if match:
+                            xmlLength = match.end() # + len(match.group())
+                        else:
+                            xmlLength = len(xmlStr)
+
+                        self.parser_pos += xmlLength - 1
+                        return xmlStr[:xmlLength], 'TK_STRING'
+
+                else:
+                    # handle string
+                    while esc or self.input[self.parser_pos] != sep:
+                        resulting_string += self.input[self.parser_pos]
+                        if esc1 and esc1 >= esc2:
+                            try:
+                                esc1 = int(resulting_string[-esc2:], 16)
+                            except Exception:
+                                esc1 = False
+                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
+                                esc1 = chr(esc1)
+                                resulting_string = resulting_string[:-2 - esc2]
+                                if esc1 == sep or esc1 == '\\':
+                                        resulting_string += '\\'
+                                resulting_string += esc1
+                            esc1 = 0
+                        if esc1:
+                            esc1 += 1
+                        elif not esc:
+                            esc = self.input[self.parser_pos] == '\\'
+                        else:
+                            esc = False
+                            if self.opts.unescape_strings:
+                                if self.input[self.parser_pos] == 'x':
+                                    esc1 += 1
+                                    esc2 = 2
+                                elif self.input[self.parser_pos] == 'u':
+                                    esc1 += 1
+                                    esc2 = 4
+                        self.parser_pos += 1
+                        if self.parser_pos >= len(self.input):
+                            # incomplete string when end-of-file reached
+                            # bail out with what has received so far
+                            return resulting_string, 'TK_STRING'
+
+
+            self.parser_pos += 1
+            resulting_string += sep
+            if sep == '/':
+                # regexps may have modifiers /regexp/MOD, so fetch those too
+                while self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.wordchar:
+                    resulting_string += self.input[self.parser_pos]
+                    self.parser_pos += 1
+            return resulting_string, 'TK_STRING'
+
+        if c == '#':
+
+            # she-bang
+            if len(self.tokens) == 0 and len(self.input) > self.parser_pos and self.input[self.parser_pos] == '!':
+                resulting_string = c
+                while self.parser_pos < len(self.input) and c != '\n':
+                    c = self.input[self.parser_pos]
+                    resulting_string += c
+                    self.parser_pos += 1
+                return resulting_string.strip() + '\n', 'TK_UNKNOWN'
+
+
+            # Spidermonkey-specific sharp variables for circular references
+            # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
+            # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
+            sharp = '#'
+            if self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.digits:
+                while True:
+                    c = self.input[self.parser_pos]
+                    sharp += c
+                    self.parser_pos += 1
+                    if self.parser_pos >= len(self.input)  or c == '#' or c == '=':
+                        break
+            if c == '#' or self.parser_pos >= len(self.input):
+                pass
+            elif self.input[self.parser_pos] == '[' and self.input[self.parser_pos + 1] == ']':
+                sharp += '[]'
+                self.parser_pos += 2
+            elif self.input[self.parser_pos] == '{' and self.input[self.parser_pos + 1] == '}':
+                sharp += '{}'
+                self.parser_pos += 2
+            return sharp, 'TK_WORD'
+
+        if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
+            self.parser_pos += 3
+            c = '<!--'
+            while self.parser_pos < len(self.input) and self.input[self.parser_pos] != '\n':
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+            self.in_html_comment = True
+            return c, 'TK_COMMENT'
+
+        if c == '-' and self.in_html_comment and self.input[self.parser_pos - 1 : self.parser_pos + 2] == '-->':
+            self.in_html_comment = False
+            self.parser_pos += 2
+            return '-->', 'TK_COMMENT'
+
+        if c == '.':
+            return c, 'TK_DOT'
+
+        if c in self.punct:
+            while self.parser_pos < len(self.input) and c + self.input[self.parser_pos] in self.punct:
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+                if self.parser_pos >= len(self.input):
+                    break
+
+            if c == ',':
+                return c, 'TK_COMMA'
+            if c == '=':
+                return c, 'TK_EQUALS'
+
+            return c, 'TK_OPERATOR'
+
+        return c, 'TK_UNKNOWN'
 
 
 def main():

@@ -141,6 +141,19 @@
       };
     })(acorn);
 
+    function in_array(what, arr) {
+        for (var i = 0; i < arr.length; i += 1) {
+            if (arr[i] === what) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function trim(s) {
+        return s.replace(/^\s+|\s+$/g, '');
+    }
+
     function js_beautify(js_source_text, options) {
         "use strict";
         var beautifier = new Beautifier(js_source_text, options);
@@ -149,31 +162,17 @@
 
     function Beautifier(js_source_text, options) {
         "use strict";
-        var input, output_lines;
+        var output_lines;
         var tokens = [], token_pos;
+        var Tokenizer;
         var current_token;
         var last_type, last_last_text, indent_string;
         var flags, previous_flags, flag_store;
-        var whitespace, wordchar, punct, parser_pos, line_starters, reserved_words, digits;
         var prefix;
         var output_space_before_token;
-        var input_length;
+
         var handlers, MODE, opt;
         var preindent_string = '';
-
-
-
-        whitespace = "\n\r\t ".split('');
-        wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
-        digits = '0123456789'.split('');
-
-        punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>';
-        punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
-        punct = punct.split(' ');
-
-        // words which should always start on new line.
-        line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',');
-        reserved_words = line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']);
 
 
         MODE = {
@@ -299,9 +298,6 @@
             preindent_string += js_source_text.charAt(0);
             js_source_text = js_source_text.substring(1);
         }
-        input = js_source_text;
-        // cache the source's length.
-        input_length = js_source_text.length;
 
         last_type = 'TK_START_BLOCK'; // last token type
         last_last_text = ''; // pre-last token text
@@ -321,13 +317,14 @@
         flag_store = [];
         set_mode(MODE.BlockStatement);
 
-        parser_pos = 0;
-
         this.beautify = function() {
+
             /*jshint onevar:true */
             var local_token, sweet_code;
+            Tokenizer = new tokenizer(js_source_text, opt, indent_string);
+            tokens = Tokenizer.tokenize();
+            token_pos = 0;
 
-            tokenize();
             while (local_token = get_token()) {
                 token_pos += 1;
                 for(var i = 0; i < local_token.comments_before.length; i++) {
@@ -402,9 +399,6 @@
             }
         }
 
-        function trim(s) {
-            return s.replace(/^\s+|\s+$/g, '');
-        }
 
         // we could use just string.split, but
         // IE doesn't like returning empty strings
@@ -677,475 +671,9 @@
             return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else']);
         }
 
-        function in_array(what, arr) {
-            for (var i = 0; i < arr.length; i += 1) {
-                if (arr[i] === what) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function unescape_string(s) {
-            var esc = false,
-                out = '',
-                pos = 0,
-                s_hex = '',
-                escaped = 0,
-                c;
-
-            while (esc || pos < s.length) {
-
-                c = s.charAt(pos);
-                pos++;
-
-                if (esc) {
-                    esc = false;
-                    if (c === 'x') {
-                        // simple hex-escape \x24
-                        s_hex = s.substr(pos, 2);
-                        pos += 2;
-                    } else if (c === 'u') {
-                        // unicode-escape, \u2134
-                        s_hex = s.substr(pos, 4);
-                        pos += 4;
-                    } else {
-                        // some common escape, e.g \n
-                        out += '\\' + c;
-                        continue;
-                    }
-                    if (!s_hex.match(/^[0123456789abcdefABCDEF]+$/)) {
-                        // some weird escaping, bail out,
-                        // leaving whole string intact
-                        return s;
-                    }
-
-                    escaped = parseInt(s_hex, 16);
-
-                    if (escaped >= 0x00 && escaped < 0x20) {
-                        // leave 0x00...0x1f escaped
-                        if (c === 'x') {
-                            out += '\\x' + s_hex;
-                        } else {
-                            out += '\\u' + s_hex;
-                        }
-                        continue;
-                    } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
-                        // single-quote, apostrophe, backslash - escape these
-                        out += '\\' + String.fromCharCode(escaped);
-                    } else if (c === 'x' && escaped > 0x7e && escaped <= 0xff) {
-                        // we bail out on \x7f..\xff,
-                        // leaving whole string escaped,
-                        // as it's probably completely binary
-                        return s;
-                    } else {
-                        out += String.fromCharCode(escaped);
-                    }
-                } else if (c === '\\') {
-                    esc = true;
-                } else {
-                    out += c;
-                }
-            }
-            return out;
-        }
-
         function get_token(offset) {
             var index = token_pos + (offset || 0);
             return (index < 0 || index >= tokens.length) ? null : tokens[index];
-        }
-
-        function tokenize() {
-            var Token = function(type, text, newlines, whitespace_before, mode, parent) {
-                this.type = type;
-                this.text = text;
-                this.comments_before = [];
-                this.newlines = newlines || 0;
-                this.wanted_newline = newlines > 0;
-                this.whitespace_before = whitespace_before || [];
-                this.parent = null;
-            }
-
-            var next, last;
-            var n_newlines, whitespace_before_token;
-            var in_html_comment = false
-            var token_values;
-            var open = null;
-            var open_stack = [];
-            var comments = [];
-            while (!(last && last.type === 'TK_EOF')) {
-                token_values = tokenize_next();
-                next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-                while(next.type === 'TK_INLINE_COMMENT' || next.type === 'TK_COMMENT' ||
-                    next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
-                    comments.push(next);
-                    token_values = tokenize_next();
-                    next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-                }
-
-                if (comments.length) {
-                    next.comments_before = comments;
-                    comments = [];
-                }
-
-                if (next.type === 'TK_START_BLOCK' || next.type === 'TK_START_EXPR') {
-                    next.parent = last;
-                    open = next;
-                    open_stack.push(next);
-                }  else if ((next.type === 'TK_END_BLOCK' || next.type === 'TK_END_EXPR') &&
-                    (open && (
-                        (next.text === ']' && open.text === '[') ||
-                        (next.text === ')' && open.text === '(') ||
-                        (next.text === '}' && open.text === '}')))) {
-                    next.parent = open.parent;
-                    open = open_stack.pop();
-                }
-
-                tokens.push(next);
-                last = next;
-            }
-
-            token_pos = 0;
-
-            function tokenize_next() {
-                var i, resulting_string;
-
-                n_newlines = 0;
-                whitespace_before_token = [];
-
-                if (parser_pos >= input_length) {
-                    return ['', 'TK_EOF'];
-                }
-
-                var last_token, last_type, last_text;
-                if (tokens.length) {
-                    last_token = tokens[tokens.length-1];
-                    last_type = last_token.type;
-                    last_text = last_token.text;
-                } else {
-                    last_token = null;
-                    last_type = 'TK_START_BLOCK';
-                    last_text = '';
-                }
-
-
-                var c = input.charAt(parser_pos);
-                parser_pos += 1;
-
-                while (in_array(c, whitespace)) {
-
-                    if (c === '\n') {
-                        n_newlines += 1;
-                        whitespace_before_token = [];
-                    } else if (n_newlines) {
-                        if (c === indent_string) {
-                            whitespace_before_token.push(indent_string);
-                        } else if (c !== '\r') {
-                            whitespace_before_token.push(' ');
-                        }
-                    }
-
-                    if (parser_pos >= input_length) {
-                        return ['', 'TK_EOF'];
-                    }
-
-                    c = input.charAt(parser_pos);
-                    parser_pos += 1;
-                }
-
-                // NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
-                // It just treats all identifiers and numbers and such the same.
-                if (acorn.isIdentifierChar(input.charCodeAt(parser_pos-1))) {
-                    if (parser_pos < input_length) {
-                        while (acorn.isIdentifierChar(input.charCodeAt(parser_pos))) {
-                            c += input.charAt(parser_pos);
-                            parser_pos += 1;
-                            if (parser_pos === input_length) {
-                                break;
-                            }
-                        }
-                    }
-
-                    // small and surprisingly unugly hack for 1E-10 representation
-                    if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
-
-                        var sign = input.charAt(parser_pos);
-                        parser_pos += 1;
-
-                        var t = tokenize_next();
-                        c += sign + t[0];
-                        return [c, 'TK_WORD'];
-                    }
-
-                    if (!(last_type === 'TK_DOT' ||
-                            (last_type === 'TK_RESERVED' && in_array(last_text, ['set', 'get'])))
-                        && in_array(c, reserved_words)) {
-                        if (c === 'in') { // hack for 'in' operator
-                            return [c, 'TK_OPERATOR'];
-                        }
-                        return [c, 'TK_RESERVED'];
-                    }
-                    return [c, 'TK_WORD'];
-                }
-
-                if (c === '(' || c === '[') {
-                    return [c, 'TK_START_EXPR'];
-                }
-
-                if (c === ')' || c === ']') {
-                    return [c, 'TK_END_EXPR'];
-                }
-
-                if (c === '{') {
-                    return [c, 'TK_START_BLOCK'];
-                }
-
-                if (c === '}') {
-                    return [c, 'TK_END_BLOCK'];
-                }
-
-                if (c === ';') {
-                    return [c, 'TK_SEMICOLON'];
-                }
-
-                if (c === '/') {
-                    var comment = '';
-                    // peek for comment /* ... */
-                    var inline_comment = true;
-                    if (input.charAt(parser_pos) === '*') {
-                        parser_pos += 1;
-                        if (parser_pos < input_length) {
-                            while (parser_pos < input_length && !(input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/')) {
-                                c = input.charAt(parser_pos);
-                                comment += c;
-                                if (c === "\n" || c === "\r") {
-                                    inline_comment = false;
-                                }
-                                parser_pos += 1;
-                                if (parser_pos >= input_length) {
-                                    break;
-                                }
-                            }
-                        }
-                        parser_pos += 2;
-                        if (inline_comment && n_newlines === 0) {
-                            return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
-                        } else {
-                            return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
-                        }
-                    }
-                    // peek for comment // ...
-                    if (input.charAt(parser_pos) === '/') {
-                        comment = c;
-                        while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
-                            comment += input.charAt(parser_pos);
-                            parser_pos += 1;
-                            if (parser_pos >= input_length) {
-                                break;
-                            }
-                        }
-                        return [comment, 'TK_COMMENT'];
-                    }
-
-                }
-
-                if (c === '`' || c === "'" || c === '"' || // string
-                    (
-                        (c === '/') || // regexp
-                        (opt.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
-                    ) && ( // regex and xml can only appear in specific locations during parsing
-                        (last_type === 'TK_RESERVED' && is_special_word(last_text)) ||
-                        (last_type === 'TK_END_EXPR' && last_text === ')' &&
-                            last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-                        (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
-                            'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-                        ]))
-                    )) {
-
-                    var sep = c,
-                        esc = false,
-                        has_char_escapes = false;
-
-                    resulting_string = c;
-
-                    if (parser_pos < input_length) {
-                        if (sep === '/') {
-                            //
-                            // handle regexp
-                            //
-                            var in_char_class = false;
-                            while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
-                                resulting_string += input.charAt(parser_pos);
-                                if (!esc) {
-                                    esc = input.charAt(parser_pos) === '\\';
-                                    if (input.charAt(parser_pos) === '[') {
-                                        in_char_class = true;
-                                    } else if (input.charAt(parser_pos) === ']') {
-                                        in_char_class = false;
-                                    }
-                                } else {
-                                    esc = false;
-                                }
-                                parser_pos += 1;
-                                if (parser_pos >= input_length) {
-                                    // incomplete string/rexp when end-of-file reached.
-                                    // bail out with what had been received so far.
-                                    return [resulting_string, 'TK_STRING'];
-                                }
-                            }
-                        } else if (opt.e4x && sep === '<') {
-                            //
-                            // handle e4x xml literals
-                            //
-                            var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
-                            var xmlStr = input.slice(parser_pos - 1);
-                            var match = xmlRegExp.exec(xmlStr);
-                            if (match && match.index === 0) {
-                                var rootTag = match[2];
-                                var depth = 0;
-                                while (match) {
-                                    var isEndTag = !! match[1];
-                                    var tagName = match[2];
-                                    var isSingletonTag = ( !! match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
-                                    if (tagName === rootTag && !isSingletonTag) {
-                                        if (isEndTag) {
-                                            --depth;
-                                        } else {
-                                            ++depth;
-                                        }
-                                    }
-                                    if (depth <= 0) {
-                                        break;
-                                    }
-                                    match = xmlRegExp.exec(xmlStr);
-                                }
-                                var xmlLength = match ? match.index + match[0].length : xmlStr.length;
-                                parser_pos += xmlLength - 1;
-                                return [xmlStr.slice(0, xmlLength), "TK_STRING"];
-                            }
-                        } else {
-                            //
-                            // handle string
-                            //
-                            while (esc || input.charAt(parser_pos) !== sep) {
-                                resulting_string += input.charAt(parser_pos);
-                                if (esc) {
-                                    if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
-                                        has_char_escapes = true;
-                                    }
-                                    esc = false;
-                                } else {
-                                    esc = input.charAt(parser_pos) === '\\';
-                                }
-                                parser_pos += 1;
-                                if (parser_pos >= input_length) {
-                                    // incomplete string/rexp when end-of-file reached.
-                                    // bail out with what had been received so far.
-                                    return [resulting_string, 'TK_STRING'];
-                                }
-                            }
-
-                        }
-                    }
-
-                    parser_pos += 1;
-                    resulting_string += sep;
-
-                    if (has_char_escapes && opt.unescape_strings) {
-                        resulting_string = unescape_string(resulting_string);
-                    }
-
-                    if (sep === '/') {
-                        // regexps may have modifiers /regexp/MOD , so fetch those, too
-                        while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
-                            resulting_string += input.charAt(parser_pos);
-                            parser_pos += 1;
-                        }
-                    }
-                    return [resulting_string, 'TK_STRING'];
-                }
-
-                if (c === '#') {
-
-
-                    if (output_lines.length === 1 && output_lines[0].text.length === 0 &&
-                        input.charAt(parser_pos) === '!') {
-                        // shebang
-                        resulting_string = c;
-                        while (parser_pos < input_length && c !== '\n') {
-                            c = input.charAt(parser_pos);
-                            resulting_string += c;
-                            parser_pos += 1;
-                        }
-                        return [trim(resulting_string) + '\n', 'TK_UNKNOWN'];
-                    }
-
-
-
-                    // Spidermonkey-specific sharp variables for circular references
-                    // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
-                    // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
-                    var sharp = '#';
-                    if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
-                        do {
-                            c = input.charAt(parser_pos);
-                            sharp += c;
-                            parser_pos += 1;
-                        } while (parser_pos < input_length && c !== '#' && c !== '=');
-                        if (c === '#') {
-                            //
-                        } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
-                            sharp += '[]';
-                            parser_pos += 2;
-                        } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
-                            sharp += '{}';
-                            parser_pos += 2;
-                        }
-                        return [sharp, 'TK_WORD'];
-                    }
-                }
-
-                if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
-                    parser_pos += 3;
-                    c = '<!--';
-                    while (input.charAt(parser_pos) !== '\n' && parser_pos < input_length) {
-                        c += input.charAt(parser_pos);
-                        parser_pos++;
-                    }
-                    in_html_comment = true;
-                    return [c, 'TK_COMMENT'];
-                }
-
-                if (c === '-' && in_html_comment && input.substring(parser_pos - 1, parser_pos + 2) === '-->') {
-                    in_html_comment = false;
-                    parser_pos += 2;
-                    return ['-->', 'TK_COMMENT'];
-                }
-
-                if (c === '.') {
-                    return [c, 'TK_DOT'];
-                }
-
-                if (in_array(c, punct)) {
-                    while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
-                        c += input.charAt(parser_pos);
-                        parser_pos += 1;
-                        if (parser_pos >= input_length) {
-                            break;
-                        }
-                    }
-
-                    if (c === ',') {
-                        return [c, 'TK_COMMA'];
-                    } else if (c === '=') {
-                        return [c, 'TK_EQUALS'];
-                    } else {
-                        return [c, 'TK_OPERATOR'];
-                    }
-                }
-
-                return [c, 'TK_UNKNOWN'];
-            }
         }
 
         function handle_start_expr() {
@@ -1159,7 +687,7 @@
                 if (last_type === 'TK_WORD' || flags.last_text === ')') {
                     // this is array index specifier, break immediately
                     // a[x], fn()[x]
-                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, line_starters)) {
+                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, Tokenizer.line_starters)) {
                         output_space_before_token = true;
                     }
                     set_mode(next_mode);
@@ -1207,7 +735,7 @@
                 if (opt.space_after_anon_function) {
                     output_space_before_token = true;
                 }
-            } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, line_starters) || flags.last_text === 'catch')) {
+            } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, Tokenizer.line_starters) || flags.last_text === 'catch')) {
                 if (opt.space_before_conditional) {
                     output_space_before_token = true;
                 }
@@ -1463,7 +991,7 @@
                 prefix = 'NEWLINE';
             }
 
-            if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, line_starters) && flags.last_text !== ')') {
+            if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, Tokenizer.line_starters) && flags.last_text !== ')') {
                 if (flags.last_text === 'else') {
                     prefix = 'SPACE';
                 } else {
@@ -1499,7 +1027,7 @@
                             print_newline();
                         }
                     }
-                } else if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, line_starters) && flags.last_text !== ')') {
+                } else if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, Tokenizer.line_starters) && flags.last_text !== ')') {
                     print_newline();
                 }
             } else if (is_array(flags.mode) && flags.last_text === ',' && last_last_text === '}') {
@@ -1652,7 +1180,7 @@
                 allow_wrap_or_preserved_newline();
             }
 
-            if (in_array(current_token.text, ['--', '++', '!', '~']) || (in_array(current_token.text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, line_starters) || flags.last_text === ','))) {
+            if (in_array(current_token.text, ['--', '++', '!', '~']) || (in_array(current_token.text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, Tokenizer.line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
@@ -1780,6 +1308,485 @@
                 restore_mode();
             }
         }
+    }
+
+    var Token = function(type, text, newlines, whitespace_before, mode, parent) {
+        this.type = type;
+        this.text = text;
+        this.comments_before = [];
+        this.newlines = newlines || 0;
+        this.wanted_newline = newlines > 0;
+        this.whitespace_before = whitespace_before || [];
+        this.parent = null;
+    }
+
+    function tokenizer(input, opts, indent_string) {
+
+        var whitespace = "\n\r\t ".split('');
+        var wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
+        var digits = '0123456789'.split('');
+
+        var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
+                +' <%= <% %> <?= <? ?>').split(' '); // try to be a good boy and try not to break the markup language identifiers
+
+        // words which should always start on new line.
+        this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',');
+        var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']);
+
+        var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
+        var input_length;
+
+        this.tokenize = function() {
+            // cache the source's length.
+            input_length = input.length
+            parser_pos = 0;
+            in_html_comment = false
+            tokens = [];
+
+            var next, last;
+            var token_values;
+            var open = null;
+            var open_stack = [];
+            var comments = [];
+
+            while (!(last && last.type === 'TK_EOF')) {
+                token_values = tokenize_next();
+                next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
+                while(next.type === 'TK_INLINE_COMMENT' || next.type === 'TK_COMMENT' ||
+                    next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
+                    comments.push(next);
+                    token_values = tokenize_next();
+                    next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
+                }
+
+                if (comments.length) {
+                    next.comments_before = comments;
+                    comments = [];
+                }
+
+                if (next.type === 'TK_START_BLOCK' || next.type === 'TK_START_EXPR') {
+                    next.parent = last;
+                    open = next;
+                    open_stack.push(next);
+                }  else if ((next.type === 'TK_END_BLOCK' || next.type === 'TK_END_EXPR') &&
+                    (open && (
+                        (next.text === ']' && open.text === '[') ||
+                        (next.text === ')' && open.text === '(') ||
+                        (next.text === '}' && open.text === '}')))) {
+                    next.parent = open.parent;
+                    open = open_stack.pop();
+                }
+
+                tokens.push(next);
+                last = next;
+            }
+
+            return tokens;
+        }
+
+        function tokenize_next() {
+            var i, resulting_string;
+
+            n_newlines = 0;
+            whitespace_before_token = [];
+
+            if (parser_pos >= input_length) {
+                return ['', 'TK_EOF'];
+            }
+
+            var last_token, last_type, last_text;
+            if (tokens.length) {
+                last_token = tokens[tokens.length-1];
+                last_type = last_token.type;
+                last_text = last_token.text;
+            } else {
+                last_token = null;
+                last_type = 'TK_START_BLOCK';
+                last_text = '';
+            }
+
+
+            var c = input.charAt(parser_pos);
+            parser_pos += 1;
+
+            while (in_array(c, whitespace)) {
+
+                if (c === '\n') {
+                    n_newlines += 1;
+                    whitespace_before_token = [];
+                } else if (n_newlines) {
+                    if (c === indent_string) {
+                        whitespace_before_token.push(indent_string);
+                    } else if (c !== '\r') {
+                        whitespace_before_token.push(' ');
+                    }
+                }
+
+                if (parser_pos >= input_length) {
+                    return ['', 'TK_EOF'];
+                }
+
+                c = input.charAt(parser_pos);
+                parser_pos += 1;
+            }
+
+            // NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
+            // It just treats all identifiers and numbers and such the same.
+            if (acorn.isIdentifierChar(input.charCodeAt(parser_pos-1))) {
+                if (parser_pos < input_length) {
+                    while (acorn.isIdentifierChar(input.charCodeAt(parser_pos))) {
+                        c += input.charAt(parser_pos);
+                        parser_pos += 1;
+                        if (parser_pos === input_length) {
+                            break;
+                        }
+                    }
+                }
+
+                // small and surprisingly unugly hack for 1E-10 representation
+                if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
+
+                    var sign = input.charAt(parser_pos);
+                    parser_pos += 1;
+
+                    var t = tokenize_next();
+                    c += sign + t[0];
+                    return [c, 'TK_WORD'];
+                }
+
+                if (!(last_type === 'TK_DOT' ||
+                        (last_type === 'TK_RESERVED' && in_array(last_text, ['set', 'get'])))
+                    && in_array(c, reserved_words)) {
+                    if (c === 'in') { // hack for 'in' operator
+                        return [c, 'TK_OPERATOR'];
+                    }
+                    return [c, 'TK_RESERVED'];
+                }
+                return [c, 'TK_WORD'];
+            }
+
+            if (c === '(' || c === '[') {
+                return [c, 'TK_START_EXPR'];
+            }
+
+            if (c === ')' || c === ']') {
+                return [c, 'TK_END_EXPR'];
+            }
+
+            if (c === '{') {
+                return [c, 'TK_START_BLOCK'];
+            }
+
+            if (c === '}') {
+                return [c, 'TK_END_BLOCK'];
+            }
+
+            if (c === ';') {
+                return [c, 'TK_SEMICOLON'];
+            }
+
+            if (c === '/') {
+                var comment = '';
+                // peek for comment /* ... */
+                var inline_comment = true;
+                if (input.charAt(parser_pos) === '*') {
+                    parser_pos += 1;
+                    if (parser_pos < input_length) {
+                        while (parser_pos < input_length && !(input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/')) {
+                            c = input.charAt(parser_pos);
+                            comment += c;
+                            if (c === "\n" || c === "\r") {
+                                inline_comment = false;
+                            }
+                            parser_pos += 1;
+                            if (parser_pos >= input_length) {
+                                break;
+                            }
+                        }
+                    }
+                    parser_pos += 2;
+                    if (inline_comment && n_newlines === 0) {
+                        return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
+                    } else {
+                        return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
+                    }
+                }
+                // peek for comment // ...
+                if (input.charAt(parser_pos) === '/') {
+                    comment = c;
+                    while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
+                        comment += input.charAt(parser_pos);
+                        parser_pos += 1;
+                        if (parser_pos >= input_length) {
+                            break;
+                        }
+                    }
+                    return [comment, 'TK_COMMENT'];
+                }
+
+            }
+
+            if (c === '`' || c === "'" || c === '"' || // string
+                (
+                    (c === '/') || // regexp
+                    (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
+                ) && ( // regex and xml can only appear in specific locations during parsing
+                    (last_type === 'TK_RESERVED' && in_array(last_text , ['return', 'case', 'throw', 'else', 'do'])) ||
+                    (last_type === 'TK_END_EXPR' && last_text === ')' &&
+                        last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
+                    (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
+                        'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
+                    ]))
+                )) {
+
+                var sep = c,
+                    esc = false,
+                    has_char_escapes = false;
+
+                resulting_string = c;
+
+                if (parser_pos < input_length) {
+                    if (sep === '/') {
+                        //
+                        // handle regexp
+                        //
+                        var in_char_class = false;
+                        while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
+                            resulting_string += input.charAt(parser_pos);
+                            if (!esc) {
+                                esc = input.charAt(parser_pos) === '\\';
+                                if (input.charAt(parser_pos) === '[') {
+                                    in_char_class = true;
+                                } else if (input.charAt(parser_pos) === ']') {
+                                    in_char_class = false;
+                                }
+                            } else {
+                                esc = false;
+                            }
+                            parser_pos += 1;
+                            if (parser_pos >= input_length) {
+                                // incomplete string/rexp when end-of-file reached.
+                                // bail out with what had been received so far.
+                                return [resulting_string, 'TK_STRING'];
+                            }
+                        }
+                    } else if (opts.e4x && sep === '<') {
+                        //
+                        // handle e4x xml literals
+                        //
+                        var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
+                        var xmlStr = input.slice(parser_pos - 1);
+                        var match = xmlRegExp.exec(xmlStr);
+                        if (match && match.index === 0) {
+                            var rootTag = match[2];
+                            var depth = 0;
+                            while (match) {
+                                var isEndTag = !! match[1];
+                                var tagName = match[2];
+                                var isSingletonTag = ( !! match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
+                                if (tagName === rootTag && !isSingletonTag) {
+                                    if (isEndTag) {
+                                        --depth;
+                                    } else {
+                                        ++depth;
+                                    }
+                                }
+                                if (depth <= 0) {
+                                    break;
+                                }
+                                match = xmlRegExp.exec(xmlStr);
+                            }
+                            var xmlLength = match ? match.index + match[0].length : xmlStr.length;
+                            parser_pos += xmlLength - 1;
+                            return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                        }
+                    } else {
+                        //
+                        // handle string
+                        //
+                        while (esc || input.charAt(parser_pos) !== sep) {
+                            resulting_string += input.charAt(parser_pos);
+                            if (esc) {
+                                if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
+                                    has_char_escapes = true;
+                                }
+                                esc = false;
+                            } else {
+                                esc = input.charAt(parser_pos) === '\\';
+                            }
+                            parser_pos += 1;
+                            if (parser_pos >= input_length) {
+                                // incomplete string/rexp when end-of-file reached.
+                                // bail out with what had been received so far.
+                                return [resulting_string, 'TK_STRING'];
+                            }
+                        }
+
+                    }
+                }
+
+                parser_pos += 1;
+                resulting_string += sep;
+
+                if (has_char_escapes && opts.unescape_strings) {
+                    resulting_string = unescape_string(resulting_string);
+                }
+
+                if (sep === '/') {
+                    // regexps may have modifiers /regexp/MOD , so fetch those, too
+                    while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
+                        resulting_string += input.charAt(parser_pos);
+                        parser_pos += 1;
+                    }
+                }
+                return [resulting_string, 'TK_STRING'];
+            }
+
+            if (c === '#') {
+
+                if (tokens.length === 0 && input.charAt(parser_pos) === '!') {
+                    // shebang
+                    resulting_string = c;
+                    while (parser_pos < input_length && c !== '\n') {
+                        c = input.charAt(parser_pos);
+                        resulting_string += c;
+                        parser_pos += 1;
+                    }
+                    return [trim(resulting_string) + '\n', 'TK_UNKNOWN'];
+                }
+
+
+
+                // Spidermonkey-specific sharp variables for circular references
+                // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
+                // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
+                var sharp = '#';
+                if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
+                    do {
+                        c = input.charAt(parser_pos);
+                        sharp += c;
+                        parser_pos += 1;
+                    } while (parser_pos < input_length && c !== '#' && c !== '=');
+                    if (c === '#') {
+                        //
+                    } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
+                        sharp += '[]';
+                        parser_pos += 2;
+                    } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
+                        sharp += '{}';
+                        parser_pos += 2;
+                    }
+                    return [sharp, 'TK_WORD'];
+                }
+            }
+
+            if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
+                parser_pos += 3;
+                c = '<!--';
+                while (input.charAt(parser_pos) !== '\n' && parser_pos < input_length) {
+                    c += input.charAt(parser_pos);
+                    parser_pos++;
+                }
+                in_html_comment = true;
+                return [c, 'TK_COMMENT'];
+            }
+
+            if (c === '-' && in_html_comment && input.substring(parser_pos - 1, parser_pos + 2) === '-->') {
+                in_html_comment = false;
+                parser_pos += 2;
+                return ['-->', 'TK_COMMENT'];
+            }
+
+            if (c === '.') {
+                return [c, 'TK_DOT'];
+            }
+
+            if (in_array(c, punct)) {
+                while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+                    if (parser_pos >= input_length) {
+                        break;
+                    }
+                }
+
+                if (c === ',') {
+                    return [c, 'TK_COMMA'];
+                } else if (c === '=') {
+                    return [c, 'TK_EQUALS'];
+                } else {
+                    return [c, 'TK_OPERATOR'];
+                }
+            }
+
+            return [c, 'TK_UNKNOWN'];
+        }
+
+
+        function unescape_string(s) {
+            var esc = false,
+                out = '',
+                pos = 0,
+                s_hex = '',
+                escaped = 0,
+                c;
+
+            while (esc || pos < s.length) {
+
+                c = s.charAt(pos);
+                pos++;
+
+                if (esc) {
+                    esc = false;
+                    if (c === 'x') {
+                        // simple hex-escape \x24
+                        s_hex = s.substr(pos, 2);
+                        pos += 2;
+                    } else if (c === 'u') {
+                        // unicode-escape, \u2134
+                        s_hex = s.substr(pos, 4);
+                        pos += 4;
+                    } else {
+                        // some common escape, e.g \n
+                        out += '\\' + c;
+                        continue;
+                    }
+                    if (!s_hex.match(/^[0123456789abcdefABCDEF]+$/)) {
+                        // some weird escaping, bail out,
+                        // leaving whole string intact
+                        return s;
+                    }
+
+                    escaped = parseInt(s_hex, 16);
+
+                    if (escaped >= 0x00 && escaped < 0x20) {
+                        // leave 0x00...0x1f escaped
+                        if (c === 'x') {
+                            out += '\\x' + s_hex;
+                        } else {
+                            out += '\\u' + s_hex;
+                        }
+                        continue;
+                    } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
+                        // single-quote, apostrophe, backslash - escape these
+                        out += '\\' + String.fromCharCode(escaped);
+                    } else if (c === 'x' && escaped > 0x7e && escaped <= 0xff) {
+                        // we bail out on \x7f..\xff,
+                        // leaving whole string escaped,
+                        // as it's probably completely binary
+                        return s;
+                    } else {
+                        out += String.fromCharCode(escaped);
+                    }
+                } else if (c === '\\') {
+                    esc = true;
+                } else {
+                    out += c;
+                }
+            }
+            return out;
+        }
+
     }
 
 
