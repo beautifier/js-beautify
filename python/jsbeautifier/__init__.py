@@ -292,7 +292,7 @@ Rarely needed options:
 
 class MODE:
       BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
-      ForInitializer, Conditional, Expression = range(7)
+      ForInitializer, Conditional, Expression, BlockJSON = range(8)
 
 class Beautifier:
 
@@ -368,6 +368,8 @@ class Beautifier:
             'TK_END_EXPR': self.handle_end_expr,
             'TK_START_BLOCK': self.handle_start_block,
             'TK_END_BLOCK': self.handle_end_block,
+            'TK_START_JSON': self.handle_start_json,
+            'TK_END_JSON': self.handle_end_json,
             'TK_WORD': self.handle_word,
             'TK_RESERVED': self.handle_word,
             'TK_SEMICOLON': self.handle_semicolon,
@@ -720,10 +722,16 @@ class Beautifier:
             return c, 'TK_END_EXPR'
 
         if c == '{':
-            return c, 'TK_START_BLOCK'
+            if self.last_type in ['TK_COMMA', 'TK_EQUAL'] or self.flags.last_text in ['(', '[']:
+                return c, 'TK_START_JSON'
+            else:
+                return c, 'TK_START_BLOCK'
 
         if c == '}':
-            return c, 'TK_END_BLOCK'
+            if self.flags.mode == MODE.BlockJSON:
+                return c, 'TK_END_JSON'
+            else:
+                return c, 'TK_END_BLOCK'
 
         if c == ';':
             return c, 'TK_SEMICOLON'
@@ -875,15 +883,21 @@ class Beautifier:
 
         if c == '#':
 
-            # she-bang
-            if len(self.output_lines) == 1 and len(self.output_lines[0].text) == 0 and \
-                    len(self.input) > self.parser_pos and self.input[self.parser_pos] == '!':
+            # handle known non-javascript items
+            blankfirstline = len(self.output_lines) == 1 and len(self.output_lines[0].text) == 0
+            shebang = blankfirstline and self.input[self.parser_pos] == '!'
+            uiautomation_import = self.input[self.parser_pos:self.parser_pos + 6] == 'import'
+
+            if len(self.input) > self.parser_pos and (shebang or uiautomation_import):
                 resulting_string = c
                 while self.parser_pos < len(self.input) and c != '\n':
                     c = self.input[self.parser_pos]
                     resulting_string += c
                     self.parser_pos += 1
-                return resulting_string.strip() + '\n', 'TK_UNKNOWN'
+                resulting_string = resulting_string.strip() + '\n'
+                if shebang:
+                    resulting_string += '\n'
+                return resulting_string, 'TK_UNKNOWN'
 
 
             # Spidermonkey-specific sharp variables for circular references
@@ -999,7 +1013,7 @@ class Beautifier:
         # Support of this kind of newline preservation:
         # a = (b &&
         #     (c || d));
-        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
+        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR', 'TK_COMMA']:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(token_text)
 
@@ -1099,6 +1113,34 @@ class Beautifier:
                     self.append_newline()
 
         self.restore_mode()
+        self.append_token(token_text)
+
+    def handle_start_json(self, token_text):
+        self.set_mode(MODE.BlockJSON)
+
+        # preserve newlines for JSON as function arguments
+        if self.input_wanted_newline and self.last_type == 'TK_COMMA':
+            self.append_newline()
+
+        self.append_token(token_text)
+        self.indent()
+
+        # put newline between first brace and non-empty content
+        if self.opts.brace_style == 'expand':
+            if not self.is_next('}'):
+                self.append_newline()
+
+
+    def handle_end_json(self, token_text):
+        # statements must all be closed when their container closes
+        while self.flags.mode == MODE.Statement:
+            self.restore_mode()
+        self.restore_mode()
+
+        empty_braces = self.last_type == 'TK_START_BLOCK';
+        if self.opts.brace_style == 'expand':
+            if not empty_braces:
+                self.append_newline()
         self.append_token(token_text)
 
 
@@ -1489,8 +1531,6 @@ class Beautifier:
 
     def handle_unknown(self, token_text):
         self.append_token(token_text)
-        if token_text[len(token_text) - 1] == '\n':
-            self.append_newline()
 
 
 def mkdir_p(path):
