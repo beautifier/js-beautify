@@ -379,7 +379,6 @@ class Beautifier:
 
         while not self.get_token() == None:
             local_token = self.get_token()
-            self.token_pos += 1
 
             for comment_token in local_token.comments_before:
                 # The cleanest handling of inline comments is to treat them as though they aren't there.
@@ -392,6 +391,7 @@ class Beautifier:
             self.last_last_text = self.flags.last_text
             self.last_type = local_token.type
             self.flags.last_text = local_token.text
+            self.token_pos += 1
 
 
         sweet_code = ''.join(self.output_lines[0].text)
@@ -756,10 +756,16 @@ class Beautifier:
             self.flags.do_while = False
 
     def handle_start_block(self, current_token):
-        self.set_mode(MODE.BlockStatement)
+        # Check if this is a BlockStatement that should be treated as a ObjectLiteral
+        next_token = self.get_token(1)
+        second_token = self.get_token(2)
+        if (not second_token == None) and second_token.text == ':' and \
+                    (next_token.type == 'TK_STRING' or next_token.type == 'TK_WORD' or next_token.type == 'TK_RESERVED'):
+            self.set_mode(MODE.ObjectLiteral)
+        else:
+            self.set_mode(MODE.BlockStatement)
 
-        next_token = self.get_token()
-        empty_braces = len(next_token.comments_before) == 0 and next_token.text == '}'
+        empty_braces = (not next_token == None) and len(next_token.comments_before) == 0 and next_token.text == '}'
         empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
             self.last_type == 'TK_END_EXPR'
 
@@ -977,9 +983,6 @@ class Beautifier:
             self.restore_mode()
 
         self.append_token(current_token)
-        if self.flags.mode == MODE.ObjectLiteral:
-            # OBJECT mode is weird and doesn't get reset too well.
-            self.flags.mode = MODE.BlockStatement
 
 
     def handle_string(self, current_token):
@@ -1042,12 +1045,6 @@ class Beautifier:
 
 
     def handle_operator(self, current_token):
-        # Check if this is a BlockStatement that should be treated as a ObjectLiteral
-        if current_token.text == ':' and self.flags.mode == MODE.BlockStatement and \
-                    self.last_last_text == '{' and \
-                    (self.last_type == 'TK_WORD' or self.last_type == 'TK_RESERVED'):
-                self.flags.mode = MODE.ObjectLiteral
-
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
@@ -1112,8 +1109,7 @@ class Beautifier:
 
         elif current_token.text == ':':
             if self.flags.ternary_depth == 0:
-                if self.flags.mode == MODE.BlockStatement:
-                    self.flags.mode = MODE.ObjectLiteral
+                # Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
                 space_before = False
             else:
                 self.flags.ternary_depth -= 1
