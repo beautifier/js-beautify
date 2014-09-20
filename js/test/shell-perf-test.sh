@@ -16,7 +16,7 @@ test_performance_js_beautify()
       curl -o /tmp/js-beautify-perf/jquery-2.0.2.js http://code.jquery.com/jquery-2.0.2.js
   fi
 
-  time $CLI_SCRIPT -o /tmp/js-beautify-perf/jquery-2.0.2-output.js /tmp/js-beautify-perf/jquery-2.0.2.js
+  time $CLI_SCRIPT --wrap-line-length 80 -o /tmp/js-beautify-perf/jquery-2.0.2-output.js /tmp/js-beautify-perf/jquery-2.0.2.js
 
 }
 
