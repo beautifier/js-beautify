@@ -390,16 +390,16 @@
 
         function allow_wrap_or_preserved_newline(force_linewrap) {
             force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
-           
+          
             if (output.just_added_newline()) {
                 return
             }
-            
+           
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
-            } else if (opt.wrap_line_length && output.current_line.text.length > 0) {
-                // never wrap the first token of a line.
-                var proposed_line_length = output.current_line.text.join('').length + current_token.text.length +
+            } else if (opt.wrap_line_length) {
+                // We never wrap the first token of a line due to newline check above.
+                var proposed_line_length = output.current_line.get_character_count() + current_token.text.length +
                     (output.space_before_token ? 1 : 0);
                 if (proposed_line_length >= opt.wrap_line_length) {
                     print_newline(false, true);
@@ -425,9 +425,9 @@
             if (output.just_added_newline()) {
                 if (opt.keep_array_indentation && is_array(flags.mode) && current_token.wanted_newline) {
                     // prevent removing of this whitespace as redundant
-                    output.current_line.text.push('');
+                    output.current_line.push('');
                     for (var i = 0; i < current_token.whitespace_before.length; i += 1) {
-                        output.current_line.text.push(current_token.whitespace_before[i]);
+                        output.current_line.push(current_token.whitespace_before[i]);
                     }
                     output.space_before_token = false;
                 } else if (output.add_indent_string(flags.indentation_level)) {
@@ -893,7 +893,7 @@
                     var line = output.current_line;
                     // If we trimmed and there's something other than a close block before us
                     // put a newline back in.  Handles '} // comment' scenario.
-                    if (line.text[line.text.length - 1] !== '}') {
+                    if (line.last() !== '}') {
                         print_newline();
                     }
                     output.space_before_token = true;
@@ -1181,6 +1181,66 @@
         }
     }
 
+    function OutputLine() {
+        var character_count = 0;
+        var line_items = [];
+
+        this.get_character_count = function() {
+            return character_count;
+        }
+
+        this.get_item_count = function() {
+            return line_items.length;
+        }
+
+        this.get_output = function() {
+            return line_items.join('');
+        }
+
+        this.last = function() {
+            if (line_items.length) {
+              return line_items[line_items.length - 1];
+            } else {
+              return null;
+            }
+        }
+
+        this.push = function(input) {
+            line_items.push(input);
+            character_count += input.length;
+        }
+
+        this.remove_indent = function(indent_string, preindent_string) {
+            var splice_index = 0;
+           
+            // skip empty lines
+            if (line_items.length === 0) {
+                return;
+            }
+
+            // skip the preindent string if present
+            if (preindent_string && line_items[0] === preindent_string) {
+                splice_index = 1;
+            }
+
+            // remove one indent, if present
+            if (line_items[splice_index] === indent_string) {
+                character_count -= line_items[splice_index].length;
+                line_items.splice(splice_index, 1);
+            }
+        }
+
+        this.trim = function(indent_string, preindent_string) {
+            while (this.get_item_count() &&
+                (this.last() === ' ' ||
+                    this.last() === indent_string ||
+                    this.last() === preindent_string)) {
+                var item = line_items.pop();
+                character_count -= item.length;
+            }
+        }
+    }
+
     function Output(indent_string, preindent_string) {
         var lines =[];
         this.preindent_string = preindent_string;
@@ -1198,23 +1258,21 @@
             }
 
             if (force_newline || !this.just_added_newline()) {
-                this.current_line = {
-                    text: []
-                };
+                this.current_line = new OutputLine();
                 lines.push(this.current_line);
                 return true;
             }
-           
+          
             return false;
         }
- 
+
         // initialize
         this.add_new_line(true);
 
         this.get_code = function() {
-            var sweet_code = lines[0].text.join('');
+            var sweet_code = lines[0].get_output();
             for (var line_index = 1; line_index < lines.length; line_index++) {
-                sweet_code += '\n' + lines[line_index].text.join('');
+                sweet_code += '\n' + lines[line_index].get_output();
             }
             sweet_code = sweet_code.replace(/[\r\n ]+$/, '');
             return sweet_code;
@@ -1222,13 +1280,13 @@
 
         this.add_indent_string = function(indentation_level) {
             if (preindent_string) {
-                this.current_line.text.push(preindent_string);
+                this.current_line.push(preindent_string);
             }
 
             // Never indent your first output indent at the start of the file
             if (lines.length > 1) {
                 for (var i = 0; i < indentation_level; i += 1) {
-                    this.current_line.text.push(indent_string);
+                    this.current_line.push(indent_string);
                 }
                 return true;
             }
@@ -1237,14 +1295,14 @@
 
         this.add_token = function(printable_token) {
             this.add_space_before_token();
-            this.current_line.text.push(printable_token);
+            this.current_line.push(printable_token);
         }
-       
+      
         this.add_space_before_token = function() {
-            if (this.space_before_token && this.current_line.text.length) {
-                var last_output = this.current_line.text[this.current_line.text.length - 1];
+            if (this.space_before_token && this.current_line.get_item_count()) {
+                var last_output = this.current_line.last();
                 if (last_output !== ' ' && last_output !== indent_string) { // prevent occassional duplicate space
-                    this.current_line.text.push(' ');
+                    this.current_line.push(' ');
                 }
             }
             this.space_before_token = false;
@@ -1261,59 +1319,30 @@
 
             // remove one indent from each line inside this section
             var index = frame.start_line_index;
-            var splice_index = 0;
             var line;
 
             var output_length = lines.length;
             while (index < output_length) {
-                line = lines[index];
+                lines[index].remove_indent(indent_string, preindent_string);
                 index++;
-
-                // skip empty lines
-                if (line.text.length === 0) {
-                    continue;
-                }
-
-                // skip the preindent string if present
-                if (preindent_string && line.text[0] === preindent_string) {
-                    splice_index = 1;
-                } else {
-                    splice_index = 0;
-                }
-
-                // remove one indent, if present
-                if (line.text[splice_index] === indent_string) {
-                    line.text.splice(splice_index, 1);
-                }
             }
         }
 
         this.trim = function(eat_newlines) {
             eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
 
-            if (lines.length) {
-                trim_line(this.current_line);
+            this.current_line.trim(indent_string, preindent_string);
 
-                while (eat_newlines && lines.length > 1 &&
-                    this.current_line.text.length === 0) {
-                    lines.pop();
-                    this.current_line = lines[lines.length - 1]
-                    trim_line(this.current_line);
-                }
-            }
-
-            function trim_line(line) {
-                while (line.text.length &&
-                    (line.text[line.text.length - 1] === ' ' ||
-                        line.text[line.text.length - 1] === indent_string ||
-                        line.text[line.text.length - 1] === preindent_string)) {
-                    line.text.pop();
-                }
+            while (eat_newlines && lines.length > 1 &&
+                this.current_line.get_item_count() === 0) {
+                lines.pop();
+                this.current_line = lines[lines.length - 1]
+                this.current_line.trim(indent_string, preindent_string);
             }
         }
 
         this.just_added_newline = function() {
-            return this.current_line.text.length === 0;
+            return this.current_line.get_item_count() === 0;
         }
 
         this.just_added_blankline = function() {
@@ -1323,7 +1352,7 @@
                 }
 
                 var line = lines[lines.length - 2];
-                return line.text.length === 0;
+                return line.get_item_count() === 0;
             }
             return false;
         }

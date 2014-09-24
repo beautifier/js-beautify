@@ -326,7 +326,7 @@ class Beautifier:
         self.preindent_string = ''
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
-       
+      
         preindent_index = 0;
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
@@ -334,7 +334,7 @@ class Beautifier:
                 self.preindent_string += js_source_text[preindent_index]
                 preindent_index += 1
             js_source_text = js_source_text[preindent_index:]
-           
+          
         self.output = Output(self.indent_string, self.preindent_string)
 
         self.set_mode(MODE.BlockStatement)
@@ -349,7 +349,7 @@ class Beautifier:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
 
         s = self.blank_state(s)
-       
+      
         input = self.unpack(s, self.opts.eval_code)
 
         self.handlers = {
@@ -439,9 +439,9 @@ class Beautifier:
 
         if (self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap:
             self.print_newline(preserve_statement_flags = True)
-        elif self.opts.wrap_line_length > 0 and len(self.output.current_line.text) > 0:
+        elif self.opts.wrap_line_length > 0 and self.output.current_line.get_item_count() > 0:
             # never wrap the first token of a line.
-            proposed_line_length = len(''.join(self.output.current_line.text)) + len(current_token.text)
+            proposed_line_length = self.output.current_line.get_character_count() + len(current_token.text)
             if self.output.space_before_token:
                 proposed_line_length += 1
 
@@ -463,9 +463,9 @@ class Beautifier:
             line = self.output.current_line
             if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and current_token.wanted_newline:
                 # prevent removing of this whitespace as redundant
-                line.text.append('')
+                line.push('')
                 for item in current_token.whitespace_before:
-                    line.text.append(item)
+                    line.push(item)
 
             elif self.output.add_indent_string(self.flags.indentation_level):
                 self.flags.line_indent_level = self.flags.indentation_level
@@ -835,10 +835,9 @@ class Beautifier:
                 self.print_newline()
             else:
                 self.output.trim(True)
-                line = self.output.current_line
                 # If we trimmed and there's something other than a close block before us
                 # put a newline back in.  Handles '} // comment' scenario.
-                if line.text[-1] != '}':
+                if self.output.current_line.last() != '}':
                     self.print_newline()
 
                 self.output.space_before_token = True
@@ -1114,7 +1113,52 @@ def mkdir_p(path):
 # Using object instead of string to allow for later expansion of info about each line
 class OutputLine:
     def __init__(self):
-        self.text = []
+        self.character_count = 0;
+        self.line_items = []
+
+    def get_character_count(self):
+        return self.character_count
+
+    def get_item_count(self):
+        return len(self.line_items)
+
+    def get_output(self):
+        return ''.join(self.line_items)
+
+    def last(self):
+        if len(self.line_items) > 0:
+            return self.line_items[-1]
+        else:
+            return None
+
+    def push(self, input):
+        self.line_items.append(input)
+        self.character_count += len(input)
+
+    def remove_indent(self, indent_string, preindent_string):
+        splice_index = 0
+        # skip empty lines
+        if self.get_item_count() == 0:
+            return
+
+        # skip the preindent string if present
+        if preindent_string != '' and \
+                 self.line_items[0] == preindent_string:
+            splice_index = 1
+
+        # remove one indent, if present
+        if  self.line_items[splice_index] == indent_string:
+            self.character_count -= len(self.line_items[splice_index])
+            del self.line_items[splice_index]
+
+    def trim(self, indent_string, preindent_string):
+        while self.get_item_count() > 0 \
+              and (
+                  self.last() == ' '\
+                  or self.last() == indent_string \
+                  or self.last() == preindent_string):
+            item = line_items.pop()
+            self.character_count -= len(item)
 
 
 class Output:
@@ -1141,34 +1185,34 @@ class Output:
         return False
 
     def get_code(self):
-        sweet_code = ''.join(self.lines[0].text)
+        sweet_code = self.lines[0].get_output()
         if len(self.lines) > 1:
             for line_index in range(1, len(self.lines)):
-                sweet_code += '\n' + ''.join(self.lines[line_index].text)
+                sweet_code += '\n' + self.lines[line_index].get_output()
 
         return re.sub('[\n ]+$', '', sweet_code)
 
     def add_indent_string(self, level):
         if self.preindent_string != '':
-            self.current_line.text.append(self.preindent_string)
+            self.current_line.push(self.preindent_string)
 
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
             for i in range(level):
-                self.current_line.text.append(self.indent_string)
+                self.current_line.push(self.indent_string)
             return True
-       
+      
         return False
 
     def add_token(self, printable_token):
         self.add_space_before_token()
-        self.current_line.text.append(printable_token)
+        self.current_line.push(printable_token)
 
     def add_space_before_token(self):
         # make sure only single space gets drawn
-        if self.space_before_token and len(self.current_line.text) and \
-                self.current_line.text[-1] not in [' ', self.indent_string]:
-            self.current_line.text.append(' ')
+        if self.space_before_token and self.current_line.get_item_count() and \
+                self.current_line.last() not in [' ', self.indent_string]:
+            self.current_line.push(' ')
         self.space_before_token = False
 
     def remove_redundant_indentation(self, frame):
@@ -1183,45 +1227,22 @@ class Output:
 
         # remove one indent from each line inside this section
         index = frame.start_line_index
-        splice_index = 0
         while index < len(self.lines):
-            line = self.lines[index]
+            self.lines[index].remove_indent(self.indent_string, self.preindent_string)
             index += 1
 
-            # skip empty lines
-            if len(line.text) == 0:
-                continue
-
-            # skip the preindent string if present
-            if self.preindent_string != '' and \
-                    line.text[0] == self.preindent_string:
-                splice_index = 1
-            else:
-                splice_index = 0
-
-            # remove one indent, if present
-            if line.text[splice_index] == self.indent_string:
-                del line.text[splice_index]
-
     def trim(self, eat_newlines = False):
-        self.trim_line(self.current_line)
+        self.current_line.trim(self.indent_string, self.preindent_string)
 
         while eat_newlines and len(self.lines) > 1 and \
-            len(self.current_line.text) == 0:
+            self.current_line.get_item_count() == 0:
             self.lines.pop()
             self.current_line = self.lines[-1]
-            self.trim_line(self.current_line)
+            self.current_line.trim(self.indent_string, self.preindent_string)
 
-    def trim_line(self, line):
-        while len(line.text) \
-              and (
-                  line.text[-1] == ' '\
-                  or line.text[-1] == self.indent_string \
-                  or line.text[-1] == self.preindent_string):
-            line.text.pop()
-     
+    
     def just_added_newline(self):
-        return len(self.current_line.text) == 0
+        return self.current_line.get_item_count() == 0
 
     def just_added_blankline(self):
         if self.just_added_newline():
@@ -1229,10 +1250,10 @@ class Output:
                 return True
 
             line = self.lines[-2]
-            return len(line.text) == 0
+            return line.get_item_count() == 0
 
         return False
-   
+  
 class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
