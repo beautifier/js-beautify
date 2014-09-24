@@ -326,7 +326,6 @@
             token_pos = 0;
 
             while (local_token = get_token()) {
-                token_pos += 1;
                 for(var i = 0; i < local_token.comments_before.length; i++) {
                     // The cleanest handling of inline comments is to treat them as though they aren't there.
                     // Just continue formatting and the behavior should be logical.
@@ -339,6 +338,7 @@
                 last_type = local_token.type;
                 flags.last_text = local_token.text;
 
+                token_pos += 1;
             }
 
             sweet_code = output_lines[0].text.join('');
@@ -801,9 +801,16 @@
         }
 
         function handle_start_block() {
-            set_mode(MODE.BlockStatement);
+            // Check if this is should be treated as a ObjectLiteral
+            var next_token = get_token(1)
+            var second_token = get_token(2)
+            if (second_token  && second_token.text == ':' &&
+                        (next_token.type === 'TK_STRING' || next_token.type == 'TK_WORD' || next_token.type == 'TK_RESERVED')) {
+                set_mode(MODE.ObjectLiteral);
+            } else {
+                set_mode(MODE.BlockStatement);
+            }
 
-            var next_token = get_token();
             var empty_braces = !next_token.comments_before.length &&  next_token.text === '}';
             var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
                 last_type === 'TK_END_EXPR';
@@ -1057,11 +1064,6 @@
                 restore_mode();
             }
             print_token();
-            if (flags.mode === MODE.ObjectLiteral) {
-                // if we're in OBJECT mode and see a semicolon, its invalid syntax
-                // recover back to treating this as a BLOCK
-                flags.mode = MODE.BlockStatement;
-            }
         }
 
         function handle_string() {
@@ -1128,13 +1130,6 @@
         }
 
         function handle_operator() {
-            // Check if this is a BlockStatement that should be treated as a ObjectLiteral
-            if (current_token.text === ':' && flags.mode === MODE.BlockStatement &&
-                    last_last_text === '{' &&
-                    (last_type === 'TK_WORD' || last_type === 'TK_RESERVED')){
-                flags.mode = MODE.ObjectLiteral;
-            }
-
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
             }
@@ -1203,9 +1198,7 @@
                 }
             } else if (current_token.text === ':') {
                 if (flags.ternary_depth === 0) {
-                    if (flags.mode === MODE.BlockStatement) {
-                        flags.mode = MODE.ObjectLiteral;
-                    }
+                    // Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
                     space_before = false;
                 } else {
                     flags.ternary_depth -= 1;

@@ -635,7 +635,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function()\n{};', 'var a = new function() {};');
@@ -732,7 +733,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
@@ -825,7 +827,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
@@ -1546,13 +1549,13 @@ class TestJSBeautifier(unittest.TestCase):
 
 
     def decodesto(self, input, expectation=None):
-        self.assertEqual(
+        self.assertMultiLineEqual(
             jsbeautifier.beautify(input, self.options), expectation or input)
 
         # if the expected is different from input, run it again
         # expected output should be unchanged when run twice.
         if not expectation == None:
-            self.assertEqual(
+            self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
     def wrap(self, text):

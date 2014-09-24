@@ -743,7 +743,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function()\n{};', 'var a = new function() {};');
@@ -840,7 +841,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
@@ -933,7 +935,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
