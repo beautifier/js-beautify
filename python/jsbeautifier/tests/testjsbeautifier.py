@@ -916,8 +916,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt("{\n    var a = set\n    foo();\n}")
         bt("var x = {\n    get function()\n}")
         bt("var x = {\n    set function()\n}")
-        bt("var x = set\n\na() {}", "var x = set\n\n    a() {}");
-        bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}")
+
+        # According to my current research get/set have no special meaning outside of an object literal
+        bt("var x = set\n\na() {}", "var x = set\n\na() {}");
+        bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}");
 
         bt('<!-- foo\nbar();\n-->')
         bt('<!-- dont crash')
@@ -1576,7 +1578,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
         # END tests for issue 514
 
-        # START tests for issue 485        
+        # START tests for issue 485
         # ensure function declarations behave the same in arrays as elsewhere
         bt( 'var v = ["a",\n' +
             '    function() {\n' +
@@ -1591,7 +1593,26 @@ class TestJSBeautifier(unittest.TestCase):
             '    id: 1\n' +
             '}];');
         # END tests for issue 485
-        
+
+        # START tests for issue 508
+        bt('set["name"]');
+        bt('get["name"]');
+        test_fragment(
+            'a = {\n' +
+            '    set b(x) {},\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        test_fragment(
+            'a = {\n' +
+            '    get b() {\n' +
+            '        retun 0;\n' +
+            '    },\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        # END tests for issue 508
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',

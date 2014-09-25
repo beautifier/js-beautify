@@ -508,8 +508,8 @@ class Beautifier:
 
 
     def start_of_object_property(self):
-        return self.flags.parent.mode == MODE.ObjectLiteral and self.flags.mode == MODE.Statement and self.flags.last_text == ':' and \
-            self.flags.ternary_depth == 0
+        return self.flags.parent.mode == MODE.ObjectLiteral and self.flags.mode == MODE.Statement and \
+                ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set']))
 
     def start_of_statement(self, current_token):
         if (
@@ -522,7 +522,8 @@ class Beautifier:
                     and not self.flags.in_case
                     and not (current_token.text == '--' or current_token.text == '++')
                     and current_token.type != 'TK_WORD' and current_token.type != 'TK_RESERVED') \
-                or (self.flags.mode == MODE.ObjectLiteral and self.flags.last_text == ':' and self.flags.ternary_depth == 0) \
+                or (self.flags.mode == MODE.ObjectLiteral and \
+                    ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set'])))
                 ):
 
             self.set_mode(MODE.Statement)
@@ -658,8 +659,9 @@ class Beautifier:
         # Check if this is a BlockStatement that should be treated as a ObjectLiteral
         next_token = self.get_token(1)
         second_token = self.get_token(2)
-        if (not second_token == None) and second_token.text == ':' and \
-                    (next_token.type == 'TK_STRING' or next_token.type == 'TK_WORD' or next_token.type == 'TK_RESERVED'):
+        if second_token != None and \
+            ((second_token.text == ':' and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
+                or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
             self.set_mode(MODE.ObjectLiteral)
         else:
             self.set_mode(MODE.BlockStatement)
@@ -718,6 +720,10 @@ class Beautifier:
 
 
     def handle_word(self, current_token):
+        if current_token.type == 'TK_RESERVED' and self.flags.mode != MODE.ObjectLiteral and \
+            current_token.text in ['set', 'get']:
+            current_token.type = 'TK_WORD'
+
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
@@ -790,7 +796,7 @@ class Beautifier:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(current_token)
 
-        if current_token.type == 'TK_RESERVED' and current_token.text == 'function':
+        if current_token.type == 'TK_RESERVED' and current_token.text in ['function', 'get', 'set']:
             self.print_token(current_token)
             self.flags.last_word = current_token.text
             return

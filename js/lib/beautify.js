@@ -482,8 +482,8 @@
         }
 
         function start_of_object_property() {
-            return flags.parent.mode === MODE.ObjectLiteral && flags.mode === MODE.Statement && flags.last_text === ':' &&
-                flags.ternary_depth === 0;
+            return flags.parent.mode === MODE.ObjectLiteral && flags.mode === MODE.Statement && (
+                (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set'])));
         }
 
         function start_of_statement() {
@@ -497,8 +497,8 @@
                         && !flags.in_case
                         && !(current_token.text === '--' || current_token.text === '++')
                         && current_token.type !== 'TK_WORD' && current_token.type !== 'TK_RESERVED') ||
-                    (flags.mode === MODE.ObjectLiteral && flags.last_text === ':' && flags.ternary_depth === 0)
-
+                    (flags.mode === MODE.ObjectLiteral && (
+                        (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set']))))
                 ) {
 
                 set_mode(MODE.Statement);
@@ -682,8 +682,10 @@
             // Check if this is should be treated as a ObjectLiteral
             var next_token = get_token(1)
             var second_token = get_token(2)
-            if (second_token  && second_token.text == ':' &&
-                        (next_token.type === 'TK_STRING' || next_token.type == 'TK_WORD' || next_token.type == 'TK_RESERVED')) {
+            if (second_token && (
+                    (second_token.text === ':' && in_array(next_token.type, ['TK_STRING', 'TK_WORD', 'TK_RESERVED']))
+                    || (in_array(next_token.text, ['get', 'set']) && in_array(second_token.type, ['TK_WORD', 'TK_RESERVED']))
+                )) {
                 set_mode(MODE.ObjectLiteral);
             } else {
                 set_mode(MODE.BlockStatement);
@@ -755,6 +757,11 @@
         }
 
         function handle_word() {
+            if (current_token.type === 'TK_RESERVED' && flags.mode !== MODE.ObjectLiteral &&
+                in_array(current_token.text, ['set', 'get'])) {
+                current_token.type = 'TK_WORD';
+            }
+
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
             } else if (current_token.wanted_newline && !is_expression(flags.mode) &&
@@ -840,7 +847,7 @@
                 }
             }
 
-            if (current_token.type === 'TK_RESERVED' && current_token.text === 'function') {
+            if (current_token.type === 'TK_RESERVED' &&  in_array(current_token.text, ['function', 'get', 'set'])) {
                 print_token();
                 flags.last_word = current_token.text;
                 return;
