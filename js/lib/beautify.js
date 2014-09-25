@@ -61,8 +61,8 @@
     space_after_anon_function (default false) - should the space before an anonymous function's parens be added, "function()" vs "function ()",
           NOTE: This option is overriden by jslint_happy (i.e. if jslint_happy is true, space_after_anon_function is true by design)
 
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
-            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
+            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
 
@@ -709,7 +709,8 @@
             var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
                 last_type === 'TK_END_EXPR';
 
-            if (opt.brace_style === "expand") {
+            if (opt.brace_style === "expand" ||
+                (opt.brace_style === "none" && current_token.wanted_newline)) {
                 if (last_type !== 'TK_OPERATOR' &&
                     (empty_anonymous_function ||
                         last_type === 'TK_EQUALS' ||
@@ -882,7 +883,9 @@
                 if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally']))) {
                     prefix = 'NEWLINE';
                 } else {
-                    if (opt.brace_style === "expand" || opt.brace_style === "end-expand") {
+                    if (opt.brace_style === "expand" ||
+                        opt.brace_style === "end-expand" ||
+                        (opt.brace_style === "none" && current_token.wanted_newline)) {
                         prefix = 'NEWLINE';
                     } else {
                         prefix = 'SPACE';
@@ -916,7 +919,10 @@
             }
 
             if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt.brace_style === "expand" || opt.brace_style === "end-expand") {
+                if (last_type !== 'TK_END_BLOCK' ||
+                    opt.brace_style === "expand" ||
+                    opt.brace_style === "end-expand" ||
+                    (opt.brace_style === "none" && current_token.wanted_newline)) {
                     print_newline();
                 } else {
                     output.trim(true);
