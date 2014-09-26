@@ -2128,9 +2128,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
 
         // pseudo-classes and pseudo-elements
-        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}\n");
-        btc("#foo *:hover {\n  color: purple\n}\n");
-        btc("::selection {\n  color: #ff0000;\n}\n");
+        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}\n", "#foo:hover {\n  background-image: url(foo@2x.png)\n}\n");
+        btc("#foo *:hover {\n  color: purple\n}\n", "#foo *:hover {\n  color: purple\n}\n");
+        btc("::selection {\n  color: #ff0000;\n}\n", "::selection {\n  color: #ff0000;\n}\n");
 
         // TODO: don't break nested pseduo-classes
         btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}\n");
