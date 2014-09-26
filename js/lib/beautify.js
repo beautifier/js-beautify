@@ -390,11 +390,11 @@
 
         function allow_wrap_or_preserved_newline(force_linewrap) {
             force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
-          
+        
             if (output.just_added_newline()) {
                 return
             }
-           
+         
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
             } else if (opt.wrap_line_length) {
@@ -1012,8 +1012,6 @@
                 // The conditional starts the statement if appropriate.
             }
 
-            var space_before = true;
-            var space_after = true;
             if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {
                 // "return" had a special handling in TK_WORD. Now we need to return the favor
                 output.space_before_token = true;
@@ -1022,7 +1020,7 @@
             }
 
             // hack for actionscript's import .*;
-            if (current_token.text === '*' && last_type === 'TK_DOT' && !last_last_text.match(/^\d+$/)) {
+            if (current_token.text === '*' && last_type === 'TK_DOT') {
                 print_token();
                 return;
             }
@@ -1053,6 +1051,9 @@
                 allow_wrap_or_preserved_newline();
             }
 
+            var space_before = true;
+            var space_after = true;
+          
             if (in_array(current_token.text, ['--', '++', '!', '~']) || (in_array(current_token.text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, Tokenizer.line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
@@ -1212,7 +1213,7 @@
 
         this.remove_indent = function(indent_string, preindent_string) {
             var splice_index = 0;
-           
+         
             // skip empty lines
             if (line_items.length === 0) {
                 return;
@@ -1262,7 +1263,7 @@
                 lines.push(this.current_line);
                 return true;
             }
-          
+        
             return false;
         }
 
@@ -1297,7 +1298,7 @@
             this.add_space_before_token();
             this.current_line.push(printable_token);
         }
-      
+    
         this.add_space_before_token = function() {
             if (this.space_before_token && this.current_line.get_item_count()) {
                 var last_output = this.current_line.last();
@@ -1372,8 +1373,7 @@
     function tokenizer(input, opts, indent_string) {
 
         var whitespace = "\n\r\t ".split('');
-        var wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
-        var digits = '0123456789'.split('');
+        var digit = /[0-9]/;
 
         var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
                 +' <%= <% %> <?= <? ?>').split(' '); // try to be a good boy and try not to break the markup language identifiers
@@ -1479,9 +1479,53 @@
                 parser_pos += 1;
             }
 
-            // NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
-            // It just treats all identifiers and numbers and such the same.
-            if (acorn.isIdentifierChar(input.charCodeAt(parser_pos-1))) {
+            if (digit.test(c)) {
+                var allow_decimal = true;
+                var allow_e = true;
+                var local_digit = digit;
+              
+                if (c === '0' && parser_pos < input_length && /[Xx]/.test(input.charAt(parser_pos))) {
+                    // switch to hex number, no decimal or e, just hex digits
+                    allow_decimal = false;
+                    allow_e = false;
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+                    local_digit = /[0123456789abcdefABCDEF]/
+                } else {
+                    // we know this first loop will run.  It keeps the logic simpler.
+                    c = '';
+                    parser_pos -= 1
+                }
+
+                // Add the digits
+                while (parser_pos < input_length && local_digit.test(input.charAt(parser_pos))) {
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+
+                    if (allow_decimal && parser_pos < input_length && input.charAt(parser_pos) === '.') {
+                        c += input.charAt(parser_pos);
+                        parser_pos += 1;
+                        allow_decimal = false;
+                    }
+
+                    if (allow_e && parser_pos < input_length && /[Ee]/.test(input.charAt(parser_pos))) {
+                        c += input.charAt(parser_pos);
+                        parser_pos += 1;
+                      
+                        if (parser_pos < input_length && /[+-]/.test(input.charAt(parser_pos))) {
+                            c += input.charAt(parser_pos);
+                            parser_pos += 1;
+                        }
+                      
+                        allow_e = false;
+                        allow_decimal = false;
+                    }
+                }
+
+                return [c, 'TK_WORD'];
+            }
+          
+            if (acorn.isIdentifierStart(input.charCodeAt(parser_pos-1))) {
                 if (parser_pos < input_length) {
                     while (acorn.isIdentifierChar(input.charCodeAt(parser_pos))) {
                         c += input.charAt(parser_pos);
@@ -1492,17 +1536,6 @@
                     }
                 }
 
-                // small and surprisingly unugly hack for 1E-10 representation
-                if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
-
-                    var sign = input.charAt(parser_pos);
-                    parser_pos += 1;
-
-                    var t = tokenize_next();
-                    c += sign + t[0];
-                    return [c, 'TK_WORD'];
-                }
-
                 if (!(last_type === 'TK_DOT' ||
                         (last_type === 'TK_RESERVED' && in_array(last_text, ['set', 'get'])))
                     && in_array(c, reserved_words)) {
@@ -1511,6 +1544,7 @@
                     }
                     return [c, 'TK_RESERVED'];
                 }
+              
                 return [c, 'TK_WORD'];
             }
 
@@ -1683,7 +1717,8 @@
 
                 if (sep === '/') {
                     // regexps may have modifiers /regexp/MOD , so fetch those, too
-                    while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
+                    // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+                    while (parser_pos < input_length && acorn.isIdentifierStart(input.charCodeAt(parser_pos))) {
                         resulting_string += input.charAt(parser_pos);
                         parser_pos += 1;
                     }
@@ -1710,7 +1745,7 @@
                 // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
                 // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
                 var sharp = '#';
-                if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
+                if (parser_pos < input_length && digit.test(input.charAt(parser_pos))) {
                     do {
                         c = input.charAt(parser_pos);
                         sharp += c;

@@ -326,7 +326,7 @@ class Beautifier:
         self.preindent_string = ''
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
-      
+    
         preindent_index = 0;
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
@@ -334,7 +334,7 @@ class Beautifier:
                 self.preindent_string += js_source_text[preindent_index]
                 preindent_index += 1
             js_source_text = js_source_text[preindent_index:]
-          
+        
         self.output = Output(self.indent_string, self.preindent_string)
 
         self.set_mode(MODE.BlockStatement)
@@ -349,7 +349,7 @@ class Beautifier:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
 
         s = self.blank_state(s)
-      
+    
         input = self.unpack(s, self.opts.eval_code)
 
         self.handlers = {
@@ -947,9 +947,6 @@ class Beautifier:
             # The conditional starts the statement if appropriate.
             pass
 
-        space_before = True
-        space_after = True
-
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
             # return had a special handling in TK_WORD
             self.output.space_before_token = True
@@ -957,7 +954,7 @@ class Beautifier:
             return
 
         # hack for actionscript's import .*;
-        if current_token.text == '*' and self.last_type == 'TK_DOT' and not self.last_last_text.isdigit():
+        if current_token.text == '*' and self.last_type == 'TK_DOT':
             self.print_token(current_token)
             return
 
@@ -983,6 +980,9 @@ class Beautifier:
         # Allow line wrapping between operators in an expression
         if self.last_type == 'TK_OPERATOR':
             self.allow_wrap_or_preserved_newline(current_token)
+
+        space_before = True
+        space_after = True
 
         if current_token.text in ['--', '++', '!', '~'] \
                 or (current_token.text in ['+', '-'] \
@@ -1201,7 +1201,7 @@ class Output:
             for i in range(level):
                 self.current_line.push(self.indent_string)
             return True
-      
+    
         return False
 
     def add_token(self, printable_token):
@@ -1240,7 +1240,7 @@ class Output:
             self.current_line = self.lines[-1]
             self.current_line.trim(self.indent_string, self.preindent_string)
 
-    
+  
     def just_added_newline(self):
         return self.current_line.get_item_count() == 0
 
@@ -1253,12 +1253,11 @@ class Output:
             return line.get_item_count() == 0
 
         return False
-  
+
 class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
-    wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
-    digits = '0123456789'
+    digit = re.compile('[0-9]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>' \
               + ' <?= <? ?> <%= <% %>').split(' ')
 
@@ -1350,9 +1349,47 @@ class Tokenizer:
             c = self.input[self.parser_pos]
             self.parser_pos += 1
 
-        # NOTE: because beautifier doesn't fully parse, it doesn't use acorn.isIdentifierStart.
-        # It just treats all identifiers and numbers and such the same.
-        if self.acorn.isIdentifierChar(ord(self.input[self.parser_pos-1])):
+        if self.digit.match(c):
+            allow_decimal = True
+            allow_e = True
+            local_digit = self.digit
+         
+            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xx]', self.input[self.parser_pos]):
+                # switch to hex number, no decimal or e, just hex digits
+                allow_decimal = False
+                allow_e = False
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+                local_digit = re.compile('[0123456789abcdefABCDEF]')
+            else:
+                # we know this first loop will run.  It keeps the logic simpler.
+                c = ''
+                self.parser_pos -= 1
+
+            # Add the digits
+            while self.parser_pos < len(self.input) and local_digit.match(self.input[self.parser_pos]):
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+
+                if allow_decimal and self.parser_pos < len(self.input) and self.input[self.parser_pos] == '.':
+                    c += self.input[self.parser_pos]
+                    self.parser_pos += 1
+                    allow_decimal = False
+
+                if allow_e and self.parser_pos < len(self.input) and re.match('[Ee]', self.input[self.parser_pos]):
+                    c += self.input[self.parser_pos]
+                    self.parser_pos += 1
+                 
+                    if self.parser_pos < len(self.input) and re.match('[+-]', self.input[self.parser_pos]):
+                        c += self.input[self.parser_pos]
+                        self.parser_pos += 1
+                 
+                    allow_e = False
+                    allow_decimal = False
+
+            return c, 'TK_WORD'
+
+        if self.acorn.isIdentifierStart(ord(self.input[self.parser_pos-1])):
             if self.parser_pos < len(self.input):
                 while self.acorn.isIdentifierChar(ord(self.input[self.parser_pos])):
                     c = c + self.input[self.parser_pos]
@@ -1360,15 +1397,6 @@ class Tokenizer:
                     if self.parser_pos == len(self.input):
                         break
 
-            # small and surprisingly unugly hack for IE-10 representation
-            if self.parser_pos != len(self.input) and self.input[self.parser_pos] in '+-' \
-               and re.match('^[0-9]+[Ee]$', c):
-
-                sign = self.input[self.parser_pos]
-                self.parser_pos += 1
-                t = self.__tokenize_next()
-                c += sign + t[0]
-                return c, 'TK_WORD'
             if not (last_type == 'TK_DOT' \
                         or (last_type == 'TK_RESERVED' and last_text in ['set', 'get'])) \
                     and c in self.reserved_words:
@@ -1535,7 +1563,8 @@ class Tokenizer:
             resulting_string += sep
             if sep == '/':
                 # regexps may have modifiers /regexp/MOD, so fetch those too
-                while self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.wordchar:
+                # Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+                while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
                     resulting_string += self.input[self.parser_pos]
                     self.parser_pos += 1
             return resulting_string, 'TK_STRING'
@@ -1556,7 +1585,7 @@ class Tokenizer:
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
             sharp = '#'
-            if self.parser_pos < len(self.input) and self.input[self.parser_pos] in self.digits:
+            if self.parser_pos < len(self.input) and self.digit.match(self.input[self.parser_pos]):
                 while True:
                     c = self.input[self.parser_pos]
                     sharp += c

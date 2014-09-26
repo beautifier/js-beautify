@@ -1122,6 +1122,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1134,6 +1135,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token + 12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap + but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1150,6 +1152,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1164,6 +1167,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1181,6 +1185,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1202,6 +1208,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1224,6 +1232,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_.okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token +\n' +
+                      '            12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap +\n' +
@@ -1245,6 +1255,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1261,6 +1272,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1280,6 +1292,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1302,6 +1316,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1325,6 +1341,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        inside_an_if_block) that_is_\n' +
                       '        .okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token +\n' +
+                      '            12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap +\n' +
