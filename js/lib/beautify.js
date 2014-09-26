@@ -111,7 +111,7 @@
 
       // Whether a single character denotes a newline.
 
-      var newline = /[\n\r\u2028\u2029]/;
+      var newline = exports.newline = /[\n\r\u2028\u2029]/;
 
       // Matches a whole line break (where CRLF is considered a single
       // line break). Used to count lines.
@@ -1628,99 +1628,95 @@
 
                 resulting_string = c;
 
-                if (parser_pos < input_length) {
-                    if (sep === '/') {
-                        //
-                        // handle regexp
-                        //
-                        var in_char_class = false;
-                        while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
-                            resulting_string += input.charAt(parser_pos);
-                            if (!esc) {
-                                esc = input.charAt(parser_pos) === '\\';
-                                if (input.charAt(parser_pos) === '[') {
-                                    in_char_class = true;
-                                } else if (input.charAt(parser_pos) === ']') {
-                                    in_char_class = false;
-                                }
-                            } else {
-                                esc = false;
+                if (sep === '/') {
+                    //
+                    // handle regexp
+                    //
+                    var in_char_class = false;
+                    while (parser_pos < input_length &&
+                            ((esc || in_char_class || input.charAt(parser_pos) !== sep) && 
+                            !acorn.newline.test(input.charAt(parser_pos)))) {
+                        resulting_string += input.charAt(parser_pos);
+                        if (!esc) {
+                            esc = input.charAt(parser_pos) === '\\';
+                            if (input.charAt(parser_pos) === '[') {
+                                in_char_class = true;
+                            } else if (input.charAt(parser_pos) === ']') {
+                                in_char_class = false;
                             }
-                            parser_pos += 1;
-                            if (parser_pos >= input_length) {
-                                // incomplete string/rexp when end-of-file reached.
-                                // bail out with what had been received so far.
-                                return [resulting_string, 'TK_STRING'];
-                            }
+                        } else {
+                            esc = false;
                         }
-                    } else if (opts.e4x && sep === '<') {
-                        //
-                        // handle e4x xml literals
-                        //
-                        var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
-                        var xmlStr = input.slice(parser_pos - 1);
-                        var match = xmlRegExp.exec(xmlStr);
-                        if (match && match.index === 0) {
-                            var rootTag = match[2];
-                            var depth = 0;
-                            while (match) {
-                                var isEndTag = !! match[1];
-                                var tagName = match[2];
-                                var isSingletonTag = ( !! match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
-                                if (tagName === rootTag && !isSingletonTag) {
-                                    if (isEndTag) {
-                                        --depth;
-                                    } else {
-                                        ++depth;
-                                    }
-                                }
-                                if (depth <= 0) {
-                                    break;
-                                }
-                                match = xmlRegExp.exec(xmlStr);
-                            }
-                            var xmlLength = match ? match.index + match[0].length : xmlStr.length;
-                            parser_pos += xmlLength - 1;
-                            return [xmlStr.slice(0, xmlLength), "TK_STRING"];
-                        }
-                    } else {
-                        //
-                        // handle string
-                        //
-                        while (esc || input.charAt(parser_pos) !== sep) {
-                            resulting_string += input.charAt(parser_pos);
-                            if (esc) {
-                                if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
-                                    has_char_escapes = true;
-                                }
-                                esc = false;
-                            } else {
-                                esc = input.charAt(parser_pos) === '\\';
-                            }
-                            parser_pos += 1;
-                            if (parser_pos >= input_length) {
-                                // incomplete string/rexp when end-of-file reached.
-                                // bail out with what had been received so far.
-                                return [resulting_string, 'TK_STRING'];
-                            }
-                        }
-
+                        parser_pos += 1;
                     }
-                }
+                } else if (opts.e4x && sep === '<') {
+                    //
+                    // handle e4x xml literals
+                    //
+                    var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
+                    var xmlStr = input.slice(parser_pos - 1);
+                    var match = xmlRegExp.exec(xmlStr);
+                    if (match && match.index === 0) {
+                        var rootTag = match[2];
+                        var depth = 0;
+                        while (match) {
+                            var isEndTag = !! match[1];
+                            var tagName = match[2];
+                            var isSingletonTag = ( !! match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
+                            if (tagName === rootTag && !isSingletonTag) {
+                                if (isEndTag) {
+                                    --depth;
+                                } else {
+                                    ++depth;
+                                }
+                            }
+                            if (depth <= 0) {
+                                break;
+                            }
+                            match = xmlRegExp.exec(xmlStr);
+                        }
+                        var xmlLength = match ? match.index + match[0].length : xmlStr.length;
+                        parser_pos += xmlLength - 1;
+                        return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                    }
+                } else {
+                    //
+                    // handle string
+                    //
+                    // Template strings can travers lines without escape characters.
+                    // Other strings cannot
+                    while (parser_pos < input_length &&
+                            (esc || (input.charAt(parser_pos) !== sep && 
+                            (sep === '`' || !acorn.newline.test(input.charAt(parser_pos)))))) {
+                        resulting_string += input.charAt(parser_pos);
+                        if (esc) {
+                            if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
+                                has_char_escapes = true;
+                            }
+                            esc = false;
+                        } else {
+                            esc = input.charAt(parser_pos) === '\\';
+                        }
+                        parser_pos += 1;
+                    }
 
-                parser_pos += 1;
-                resulting_string += sep;
+                }
 
                 if (has_char_escapes && opts.unescape_strings) {
                     resulting_string = unescape_string(resulting_string);
                 }
 
-                if (sep === '/') {
-                    // regexps may have modifiers /regexp/MOD , so fetch those, too
-                    // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-                    while (parser_pos < input_length && acorn.isIdentifierStart(input.charCodeAt(parser_pos))) {
-                        resulting_string += input.charAt(parser_pos);
-                        parser_pos += 1;
+                if (parser_pos < input_length && input.charAt(parser_pos) === sep) {
+                    resulting_string += sep;
+                    parser_pos += 1;
+
+                    if (sep === '/') {
+                        // regexps may have modifiers /regexp/MOD , so fetch those, too
+                        // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+                        while (parser_pos < input_length && acorn.isIdentifierStart(input.charCodeAt(parser_pos))) {
+                            resulting_string += input.charAt(parser_pos);
+                            parser_pos += 1;
+                        }
                     }
                 }
                 return [resulting_string, 'TK_STRING'];

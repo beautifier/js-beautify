@@ -1689,6 +1689,15 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '}());');
         // END tests for issue 459
 
+        // START tests for issue 505
+        // strings should end at newline unless continued by backslash
+        bt( 'var name = "a;\n' +
+            'name = "b";');
+        bt( 'var name = "a; \\\n' +
+            '    name = b";');
+        // END tests for issue 505
+
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',

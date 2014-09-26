@@ -1472,101 +1472,99 @@ class Tokenizer:
             resulting_string = c
             in_char_class = False
 
-            if self.parser_pos < len(self.input):
-                if sep == '/':
-                    # handle regexp
-                    in_char_class = False
-                    while esc or in_char_class or self.input[self.parser_pos] != sep:
-                        resulting_string += self.input[self.parser_pos]
-                        if not esc:
-                            esc = self.input[self.parser_pos] == '\\'
-                            if self.input[self.parser_pos] == '[':
-                                in_char_class = True
-                            elif self.input[self.parser_pos] == ']':
-                                in_char_class = False
-                        else:
-                            esc = False
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            # incomplete regex when end-of-file reached
-                            # bail out with what has received so far
-                            return resulting_string, 'TK_STRING'
-
-                elif self.opts.e4x and sep == '<':
-                    # handle e4x xml literals
-                    xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
-                    xmlStr = self.input[self.parser_pos - 1:]
-                    match = xmlRegExp.match(xmlStr)
-                    if match:
-                        rootTag = match.group(2)
-                        depth = 0
-                        while (match):
-                            isEndTag = match.group(1)
-                            tagName = match.group(2)
-                            isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
-                            if tagName == rootTag and not isSingletonTag:
-                                if isEndTag:
-                                    depth -= 1
-                                else:
-                                    depth += 1
-
-                            if depth <= 0:
-                                break
-
-                            match = xmlRegExp.search(xmlStr, match.end())
-
-                        if match:
-                            xmlLength = match.end() # + len(match.group())
-                        else:
-                            xmlLength = len(xmlStr)
-
-                        self.parser_pos += xmlLength - 1
-                        return xmlStr[:xmlLength], 'TK_STRING'
-
-                else:
-                    # handle string
-                    while esc or self.input[self.parser_pos] != sep:
-                        resulting_string += self.input[self.parser_pos]
-                        if esc1 and esc1 >= esc2:
-                            try:
-                                esc1 = int(resulting_string[-esc2:], 16)
-                            except Exception:
-                                esc1 = False
-                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
-                                esc1 = chr(esc1)
-                                resulting_string = resulting_string[:-2 - esc2]
-                                if esc1 == sep or esc1 == '\\':
-                                        resulting_string += '\\'
-                                resulting_string += esc1
-                            esc1 = 0
-                        if esc1:
-                            esc1 += 1
-                        elif not esc:
-                            esc = self.input[self.parser_pos] == '\\'
-                        else:
-                            esc = False
-                            if self.opts.unescape_strings:
-                                if self.input[self.parser_pos] == 'x':
-                                    esc1 += 1
-                                    esc2 = 2
-                                elif self.input[self.parser_pos] == 'u':
-                                    esc1 += 1
-                                    esc2 = 4
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            # incomplete string when end-of-file reached
-                            # bail out with what has received so far
-                            return resulting_string, 'TK_STRING'
-
-
-            self.parser_pos += 1
-            resulting_string += sep
             if sep == '/':
-                # regexps may have modifiers /regexp/MOD, so fetch those too
-                # Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-                while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
+                # handle regexp
+                in_char_class = False
+                while self.parser_pos < len(self.input) and \
+                        (esc or in_char_class or self.input[self.parser_pos] != sep) and \
+                        not self.acorn.newline.match(self.input[self.parser_pos]):
                     resulting_string += self.input[self.parser_pos]
+                    if not esc:
+                        esc = self.input[self.parser_pos] == '\\'
+                        if self.input[self.parser_pos] == '[':
+                            in_char_class = True
+                        elif self.input[self.parser_pos] == ']':
+                            in_char_class = False
+                    else:
+                        esc = False
                     self.parser_pos += 1
+
+            elif self.opts.e4x and sep == '<':
+                # handle e4x xml literals
+                xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
+                xmlStr = self.input[self.parser_pos - 1:]
+                match = xmlRegExp.match(xmlStr)
+                if match:
+                    rootTag = match.group(2)
+                    depth = 0
+                    while (match):
+                        isEndTag = match.group(1)
+                        tagName = match.group(2)
+                        isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
+                        if tagName == rootTag and not isSingletonTag:
+                            if isEndTag:
+                                depth -= 1
+                            else:
+                                depth += 1
+
+                        if depth <= 0:
+                            break
+
+                        match = xmlRegExp.search(xmlStr, match.end())
+
+                    if match:
+                        xmlLength = match.end() # + len(match.group())
+                    else:
+                        xmlLength = len(xmlStr)
+
+                    self.parser_pos += xmlLength - 1
+                    return xmlStr[:xmlLength], 'TK_STRING'
+
+            else:
+                # handle string
+                while self.parser_pos < len(self.input) and \
+                        (esc or (self.input[self.parser_pos] != sep and 
+                            (sep == '`' or not self.acorn.newline.match(self.input[self.parser_pos])))):
+                    resulting_string += self.input[self.parser_pos]
+                    if esc1 and esc1 >= esc2:
+                        try:
+                            esc1 = int(resulting_string[-esc2:], 16)
+                        except Exception:
+                            esc1 = False
+                        if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
+                            esc1 = chr(esc1)
+                            resulting_string = resulting_string[:-2 - esc2]
+                            if esc1 == sep or esc1 == '\\':
+                                    resulting_string += '\\'
+                            resulting_string += esc1
+                        esc1 = 0
+                    if esc1:
+                        esc1 += 1
+                    elif not esc:
+                        esc = self.input[self.parser_pos] == '\\'
+                    else:
+                        esc = False
+                        if self.opts.unescape_strings:
+                            if self.input[self.parser_pos] == 'x':
+                                esc1 += 1
+                                esc2 = 2
+                            elif self.input[self.parser_pos] == 'u':
+                                esc1 += 1
+                                esc2 = 4
+                    self.parser_pos += 1
+
+
+            if self.parser_pos < len(self.input) and self.input[self.parser_pos] == sep:
+                resulting_string += sep
+                self.parser_pos += 1
+
+                if sep == '/':
+                    # regexps may have modifiers /regexp/MOD, so fetch those too
+                    # Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+                    while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
+                        resulting_string += self.input[self.parser_pos]
+                        self.parser_pos += 1
+
             return resulting_string, 'TK_STRING'
 
         if c == '#':
