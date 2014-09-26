@@ -1567,6 +1567,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    name = b";');
         # END tests for issue 505
 
+        # START tests for issue 514
+        # some operators require spaces to distinguish them
+        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;');
+        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
+        # END tests for issue 514
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',

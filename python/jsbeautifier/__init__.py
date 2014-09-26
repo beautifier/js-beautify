@@ -326,7 +326,7 @@ class Beautifier:
         self.preindent_string = ''
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
-    
+
         preindent_index = 0;
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
@@ -334,7 +334,7 @@ class Beautifier:
                 self.preindent_string += js_source_text[preindent_index]
                 preindent_index += 1
             js_source_text = js_source_text[preindent_index:]
-        
+
         self.output = Output(self.indent_string, self.preindent_string)
 
         self.set_mode(MODE.BlockStatement)
@@ -349,7 +349,7 @@ class Beautifier:
             raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
 
         s = self.blank_state(s)
-    
+
         input = self.unpack(s, self.opts.eval_code)
 
         self.handlers = {
@@ -999,6 +999,10 @@ class Beautifier:
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_END_EXPR':
                 space_before = True
+            elif self.last_type == 'TK_OPERATOR':
+                space_before = \
+                        (current_token.text in ['--', '-'] and self.flags.last_text in ['--', '-']) or \
+                        (current_token.text in ['++', '+'] and self.flags.last_text in ['++', '+'])
 
             if self.flags.mode == MODE.BlockStatement and self.flags.last_text in ['{', ';']:
                 # { foo: --i }
@@ -1201,7 +1205,7 @@ class Output:
             for i in range(level):
                 self.current_line.push(self.indent_string)
             return True
-    
+
         return False
 
     def add_token(self, printable_token):
@@ -1240,7 +1244,7 @@ class Output:
             self.current_line = self.lines[-1]
             self.current_line.trim(self.indent_string, self.preindent_string)
 
-  
+
     def just_added_newline(self):
         return self.current_line.get_item_count() == 0
 
@@ -1353,7 +1357,7 @@ class Tokenizer:
             allow_decimal = True
             allow_e = True
             local_digit = self.digit
-         
+
             if c == '0' and self.parser_pos < len(self.input) and re.match('[Xx]', self.input[self.parser_pos]):
                 # switch to hex number, no decimal or e, just hex digits
                 allow_decimal = False
@@ -1379,11 +1383,11 @@ class Tokenizer:
                 if allow_e and self.parser_pos < len(self.input) and re.match('[Ee]', self.input[self.parser_pos]):
                     c += self.input[self.parser_pos]
                     self.parser_pos += 1
-                 
+
                     if self.parser_pos < len(self.input) and re.match('[+-]', self.input[self.parser_pos]):
                         c += self.input[self.parser_pos]
                         self.parser_pos += 1
-                 
+
                     allow_e = False
                     allow_decimal = False
 
@@ -1523,7 +1527,7 @@ class Tokenizer:
             else:
                 # handle string
                 while self.parser_pos < len(self.input) and \
-                        (esc or (self.input[self.parser_pos] != sep and 
+                        (esc or (self.input[self.parser_pos] != sep and
                             (sep == '`' or not self.acorn.newline.match(self.input[self.parser_pos])))):
                     resulting_string += self.input[self.parser_pos]
                     if esc1 and esc1 >= esc2:

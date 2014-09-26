@@ -390,11 +390,11 @@
 
         function allow_wrap_or_preserved_newline(force_linewrap) {
             force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
-        
+
             if (output.just_added_newline()) {
                 return
             }
-         
+
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
             } else if (opt.wrap_line_length) {
@@ -1053,7 +1053,7 @@
 
             var space_before = true;
             var space_after = true;
-          
+
             if (in_array(current_token.text, ['--', '++', '!', '~']) || (in_array(current_token.text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(flags.last_text, Tokenizer.line_starters) || flags.last_text === ','))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
@@ -1068,6 +1068,10 @@
 
                 if (last_type === 'TK_RESERVED' || last_type === 'TK_END_EXPR') {
                     space_before = true;
+                } else if (last_type === 'TK_OPERATOR') {
+                    space_before =
+                        (in_array(current_token.text, ['--', '-']) && in_array(flags.last_text, ['--', '-'])) ||
+                        (in_array(current_token.text, ['++', '+']) && in_array(flags.last_text, ['++', '+']));
                 }
 
                 if ((flags.mode === MODE.BlockStatement || flags.mode === MODE.Statement) && (flags.last_text === '{' || flags.last_text === ';')) {
@@ -1213,7 +1217,7 @@
 
         this.remove_indent = function(indent_string, preindent_string) {
             var splice_index = 0;
-         
+
             // skip empty lines
             if (line_items.length === 0) {
                 return;
@@ -1263,7 +1267,7 @@
                 lines.push(this.current_line);
                 return true;
             }
-        
+
             return false;
         }
 
@@ -1298,7 +1302,7 @@
             this.add_space_before_token();
             this.current_line.push(printable_token);
         }
-    
+
         this.add_space_before_token = function() {
             if (this.space_before_token && this.current_line.get_item_count()) {
                 var last_output = this.current_line.last();
@@ -1483,7 +1487,7 @@
                 var allow_decimal = true;
                 var allow_e = true;
                 var local_digit = digit;
-              
+
                 if (c === '0' && parser_pos < input_length && /[Xx]/.test(input.charAt(parser_pos))) {
                     // switch to hex number, no decimal or e, just hex digits
                     allow_decimal = false;
@@ -1511,12 +1515,12 @@
                     if (allow_e && parser_pos < input_length && /[Ee]/.test(input.charAt(parser_pos))) {
                         c += input.charAt(parser_pos);
                         parser_pos += 1;
-                      
+
                         if (parser_pos < input_length && /[+-]/.test(input.charAt(parser_pos))) {
                             c += input.charAt(parser_pos);
                             parser_pos += 1;
                         }
-                      
+
                         allow_e = false;
                         allow_decimal = false;
                     }
@@ -1524,7 +1528,7 @@
 
                 return [c, 'TK_WORD'];
             }
-          
+
             if (acorn.isIdentifierStart(input.charCodeAt(parser_pos-1))) {
                 if (parser_pos < input_length) {
                     while (acorn.isIdentifierChar(input.charCodeAt(parser_pos))) {
@@ -1544,7 +1548,7 @@
                     }
                     return [c, 'TK_RESERVED'];
                 }
-              
+
                 return [c, 'TK_WORD'];
             }
 
@@ -1634,7 +1638,7 @@
                     //
                     var in_char_class = false;
                     while (parser_pos < input_length &&
-                            ((esc || in_char_class || input.charAt(parser_pos) !== sep) && 
+                            ((esc || in_char_class || input.charAt(parser_pos) !== sep) &&
                             !acorn.newline.test(input.charAt(parser_pos)))) {
                         resulting_string += input.charAt(parser_pos);
                         if (!esc) {
@@ -1686,7 +1690,7 @@
                     // Template strings can travers lines without escape characters.
                     // Other strings cannot
                     while (parser_pos < input_length &&
-                            (esc || (input.charAt(parser_pos) !== sep && 
+                            (esc || (input.charAt(parser_pos) !== sep &&
                             (sep === '`' || !acorn.newline.test(input.charAt(parser_pos)))))) {
                         resulting_string += input.charAt(parser_pos);
                         if (esc) {
