@@ -86,17 +86,19 @@ class Printer:
     def __init__(self, indent_char, indent_size, default_indent=""):
         self.indentSize = indent_size
         self.singleIndent = (indent_size) * indent_char
-        self.indentString = default_indent
-        self.output = [default_indent]
+        self.baseIndentString = default_indent
+        self.output = []
+        if self.baseIndentString:
+            self.push(self.baseIndentString)
 
     def __lastCharWhitespace(self):
-        return WHITE_RE.search(self.output[len(self.output) - 1]) is not None
+        return WHITE_RE.search(self.output[-1]) is not None
 
     def indent(self):
-        self.indentString += self.singleIndent
+        self.baseIndentString += self.singleIndent
 
     def outdent(self):
-        self.indentString = self.indentString[:-(self.indentSize + 1)]
+        self.baseIndentString = self.baseIndentString[:-(len(self.singleIndent))]
 
     def push(self, string):
         self.output.append(string)
@@ -130,8 +132,8 @@ class Printer:
         if len(self.output) > 0:
             self.output.append("\n")
 
-        if len(self.indentString) > 0:
-            self.output.append(self.indentString)
+        if len(self.baseIndentString) > 0:
+            self.output.append(self.baseIndentString)
 
     def singleSpace(self):
         if len(self.output) > 0 and not self.__lastCharWhitespace():
@@ -212,9 +214,9 @@ class Beautifier:
         return restOfLine.find('//') != -1
 
     def beautify(self):
-        m = re.search("^[\r\n]*[\t ]*", self.source_text)
-        indentString = m.group(0)
-        printer = Printer(self.indentChar, self.indentSize, indentString)
+        m = re.search("^[\t ]*", self.source_text)
+        baseIndentString = m.group(0)
+        printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         insideRule = False
         while True:
@@ -299,15 +301,12 @@ class Beautifier:
 
                 printer.push(self.ch)
 
-        sweet_code = printer.result()
+        sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
 
         # establish end_with_newline
         should = self.opts.end_with_newline
-        actually = sweet_code.endswith("\n")
-        if should and not actually:
+        if should:
             sweet_code = sweet_code + "\n"
-        elif not should and actually:
-            sweet_code = sweet_code[:-1]
 
         return sweet_code
 

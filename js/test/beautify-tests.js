@@ -2089,6 +2089,13 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n");
         btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}\n");
 
+        //lead-in whitespace determines base-indent.
+        // lead-in newlines are stripped.
+        btc("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
+        btc("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }\n");
+        btc(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }\n");
+        btc("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
+
         // comments
         btc("/* test */", "/* test */\n");
         btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n");
@@ -2153,7 +2160,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}\n");
 
-        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}\n'); // may not eat the space before "["
+        // may not eat the space before "["
+        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}\n');
         btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}\n');
 
         return sanitytest;

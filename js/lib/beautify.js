@@ -171,7 +171,7 @@
         var prefix;
 
         var handlers, MODE, opt;
-        var preindent_string = '';
+        var baseIndentString = '';
 
 
         MODE = {
@@ -289,7 +289,7 @@
         if(js_source_text && js_source_text.length) {
             while ( (js_source_text.charAt(preindent_index) === ' ' ||
                     js_source_text.charAt(preindent_index) === '\t')) {
-                preindent_string += js_source_text.charAt(preindent_index);
+                baseIndentString += js_source_text.charAt(preindent_index);
                 preindent_index += 1;
             }
             js_source_text = js_source_text.substring(preindent_index);
@@ -297,7 +297,7 @@
 
         last_type = 'TK_START_BLOCK'; // last token type
         last_last_text = ''; // pre-last token text
-        output = new Output(indent_string, preindent_string);
+        output = new Output(indent_string, baseIndentString);
 
 
         // Stack of parsing/formatting states, including MODE.
@@ -1215,7 +1215,7 @@
             character_count += input.length;
         }
 
-        this.remove_indent = function(indent_string, preindent_string) {
+        this.remove_indent = function(indent_string, baseIndentString) {
             var splice_index = 0;
 
             // skip empty lines
@@ -1224,7 +1224,7 @@
             }
 
             // skip the preindent string if present
-            if (preindent_string && line_items[0] === preindent_string) {
+            if (baseIndentString && line_items[0] === baseIndentString) {
                 splice_index = 1;
             }
 
@@ -1235,20 +1235,20 @@
             }
         }
 
-        this.trim = function(indent_string, preindent_string) {
+        this.trim = function(indent_string, baseIndentString) {
             while (this.get_item_count() &&
                 (this.last() === ' ' ||
                     this.last() === indent_string ||
-                    this.last() === preindent_string)) {
+                    this.last() === baseIndentString)) {
                 var item = line_items.pop();
                 character_count -= item.length;
             }
         }
     }
 
-    function Output(indent_string, preindent_string) {
+    function Output(indent_string, baseIndentString) {
         var lines =[];
-        this.preindent_string = preindent_string;
+        this.baseIndentString = baseIndentString;
         this.current_line = null;
         this.space_before_token = false;
 
@@ -1279,13 +1279,13 @@
             for (var line_index = 1; line_index < lines.length; line_index++) {
                 sweet_code += '\n' + lines[line_index].get_output();
             }
-            sweet_code = sweet_code.replace(/[\r\n ]+$/, '');
+            sweet_code = sweet_code.replace(/[\r\n\t ]+$/, '');
             return sweet_code;
         }
 
         this.add_indent_string = function(indentation_level) {
-            if (preindent_string) {
-                this.current_line.push(preindent_string);
+            if (baseIndentString) {
+                this.current_line.push(baseIndentString);
             }
 
             // Never indent your first output indent at the start of the file
@@ -1328,7 +1328,7 @@
 
             var output_length = lines.length;
             while (index < output_length) {
-                lines[index].remove_indent(indent_string, preindent_string);
+                lines[index].remove_indent(indent_string, baseIndentString);
                 index++;
             }
         }
@@ -1336,13 +1336,13 @@
         this.trim = function(eat_newlines) {
             eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
 
-            this.current_line.trim(indent_string, preindent_string);
+            this.current_line.trim(indent_string, baseIndentString);
 
             while (eat_newlines && lines.length > 1 &&
                 this.current_line.get_item_count() === 0) {
                 lines.pop();
                 this.current_line = lines[lines.length - 1]
-                this.current_line.trim(indent_string, preindent_string);
+                this.current_line.trim(indent_string, baseIndentString);
             }
         }
 

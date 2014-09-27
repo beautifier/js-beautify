@@ -27,12 +27,18 @@ class CSSBeautifierTest(unittest.TestCase):
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}\n');
         t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}\n');
 
+        # lead-in whitespace determines base-indent.
+        # lead-in newlines are stripped.
+        t("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n")
+        t("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }\n")
+        t(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }\n")
+        t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n")
 
     def testComments(self):
         self.resetOptions()
         t = self.decodesto
 
-        t("/* test */", "/* test */\n\n")
+        t("/* test */", "/* test */\n")
         t(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n")
         t("/* header */.tabs {}", "/* header */\n\n.tabs {}\n")
 
@@ -53,7 +59,6 @@ class CSSBeautifierTest(unittest.TestCase):
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n")
         t("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n")
 
-
     def testOptions(self):
         self.resetOptions()
         self.options.indent_size = 2
@@ -66,7 +71,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n")
 
     def decodesto(self, input, expectation=None):
-        self.assertEqual(
+        self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation or input)
 
 if __name__ == '__main__':

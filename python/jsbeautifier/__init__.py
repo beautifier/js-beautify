@@ -323,7 +323,7 @@ class Beautifier:
 
         self.indent_string = self.opts.indent_char * self.opts.indent_size
 
-        self.preindent_string = ''
+        self.baseIndentString = ''
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
 
@@ -331,11 +331,11 @@ class Beautifier:
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
                     js_source_text[preindent_index] in [' ', '\t'] :
-                self.preindent_string += js_source_text[preindent_index]
+                self.baseIndentString += js_source_text[preindent_index]
                 preindent_index += 1
             js_source_text = js_source_text[preindent_index:]
 
-        self.output = Output(self.indent_string, self.preindent_string)
+        self.output = Output(self.indent_string, self.baseIndentString)
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
@@ -1139,15 +1139,15 @@ class OutputLine:
         self.line_items.append(input)
         self.character_count += len(input)
 
-    def remove_indent(self, indent_string, preindent_string):
+    def remove_indent(self, indent_string, baseIndentString):
         splice_index = 0
         # skip empty lines
         if self.get_item_count() == 0:
             return
 
         # skip the preindent string if present
-        if preindent_string != '' and \
-                 self.line_items[0] == preindent_string:
+        if baseIndentString != '' and \
+                 self.line_items[0] == baseIndentString:
             splice_index = 1
 
         # remove one indent, if present
@@ -1155,20 +1155,20 @@ class OutputLine:
             self.character_count -= len(self.line_items[splice_index])
             del self.line_items[splice_index]
 
-    def trim(self, indent_string, preindent_string):
+    def trim(self, indent_string, baseIndentString):
         while self.get_item_count() > 0 \
               and (
                   self.last() == ' '\
                   or self.last() == indent_string \
-                  or self.last() == preindent_string):
+                  or self.last() == baseIndentString):
             item = line_items.pop()
             self.character_count -= len(item)
 
 
 class Output:
-    def __init__(self, indent_string, preindent_string):
+    def __init__(self, indent_string, baseIndentString):
         self.indent_string = indent_string
-        self.preindent_string = preindent_string
+        self.baseIndentString = baseIndentString
         self.lines = []
         self.current_line = None
         self.space_before_token = False
@@ -1197,8 +1197,8 @@ class Output:
         return re.sub('[\n ]+$', '', sweet_code)
 
     def add_indent_string(self, level):
-        if self.preindent_string != '':
-            self.current_line.push(self.preindent_string)
+        if self.baseIndentString != '':
+            self.current_line.push(self.baseIndentString)
 
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
@@ -1232,17 +1232,17 @@ class Output:
         # remove one indent from each line inside this section
         index = frame.start_line_index
         while index < len(self.lines):
-            self.lines[index].remove_indent(self.indent_string, self.preindent_string)
+            self.lines[index].remove_indent(self.indent_string, self.baseIndentString)
             index += 1
 
     def trim(self, eat_newlines = False):
-        self.current_line.trim(self.indent_string, self.preindent_string)
+        self.current_line.trim(self.indent_string, self.baseIndentString)
 
         while eat_newlines and len(self.lines) > 1 and \
             self.current_line.get_item_count() == 0:
             self.lines.pop()
             self.current_line = self.lines[-1]
-            self.current_line.trim(self.indent_string, self.preindent_string)
+            self.current_line.trim(self.indent_string, self.baseIndentString)
 
 
     def just_added_newline(self):
