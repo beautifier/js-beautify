@@ -383,6 +383,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[[1,2],[4,5],function(){},[7,8]]',
             "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
         bt('a=[b,c,function(){},function(){},d]',
+            "a = [b, c, function() {}, function() {}, d]");
+        bt('a=[b,c,\nfunction(){},function(){},d]',
             "a = [b, c,\n    function() {},\n    function() {},\n    d\n]");
         bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
         bt('[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]");
@@ -499,7 +501,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('function* x() {\n    yield 1;\n}');
 
-        bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
+        bt('{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
+        bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
         bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
@@ -1702,6 +1705,22 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;');
         bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
         // END tests for issue 514
+        
+        // START tests for issue 485        
+        // ensure function declarations behave the same in arrays as elsewhere
+        bt( 'var v = ["a",\n' +
+            '    function() {\n' +
+            '        return;\n' +
+            '    }, {\n' +
+            '        id: 1\n' +
+            '    }\n' +
+            '];');
+        bt( 'var v = ["a", function() {\n' +
+            '    return;\n' +
+            '}, {\n' +
+            '    id: 1\n' +
+            '}];');
+        // END tests for issue 485
 
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');

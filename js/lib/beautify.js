@@ -827,7 +827,7 @@
                 } else if (last_type === 'TK_OPERATOR' || flags.last_text === '=') {
                     // foo = function
                     output.space_before_token = true;
-                } else if (is_expression(flags.mode)) {
+                } else if (!flags.multiline_frame && (is_expression(flags.mode) || is_array(flags.mode))) {
                     // (function
                 } else {
                     print_newline();
@@ -915,7 +915,7 @@
                 } else if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, Tokenizer.line_starters) && flags.last_text !== ')') {
                     print_newline();
                 }
-            } else if (is_array(flags.mode) && flags.last_text === ',' && last_last_text === '}') {
+            } else if (flags.multiline_frame && is_array(flags.mode) && flags.last_text === ',' && last_last_text === '}') {
                 print_newline(); // }, in lists get a newline treatment
             } else if (prefix === 'SPACE') {
                 output.space_before_token = true;

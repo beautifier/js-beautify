@@ -780,7 +780,7 @@ class Beautifier:
             elif self.last_type == 'TK_OPERATOR' or self.flags.last_text == '=':
                 # foo = function
                 self.output.space_before_token = True
-            elif self.is_expression(self.flags.mode):
+            elif not self.flags.multiline_frame and (self.is_expression(self.flags.mode) or self.is_array(self.flags.mode)):
                 # (function
                 pass
             else:
@@ -856,7 +856,7 @@ class Beautifier:
                         self.print_newline()
             elif current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
                 self.print_newline()
-        elif self.is_array(self.flags.mode) and self.flags.last_text == ',' and self.last_last_text == '}':
+        elif self.flags.multiline_frame and self.is_array(self.flags.mode) and self.flags.last_text == ',' and self.last_last_text == '}':
             self.print_newline() # }, in lists get a newline
         elif prefix == 'SPACE':
             self.output.space_before_token = True
