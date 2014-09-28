@@ -52,6 +52,8 @@
                                         Only works before elements, not inside tags or for text.
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
     indent_handlebars (default false) - format and indent {{#foo}} and {{/foo}}
+    end_with_newline (false)          - end with a newline
+
 
     e.g.
 
@@ -90,7 +92,8 @@
             unformatted,
             preserve_newlines,
             max_preserve_newlines,
-            indent_handlebars;
+            indent_handlebars,
+            end_with_newline;
 
         options = options || {};
 
@@ -111,6 +114,7 @@
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10))
             : 0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
+        end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         function Parser() {
 
@@ -801,8 +805,8 @@
                                 .replace(/\s+$/, '');
                         }
                         if (text) {
-                            multi_parser.print_token_raw(indentation + trim(text));
-                            multi_parser.print_newline(false, multi_parser.output);
+                            multi_parser.print_token_raw(text);
+                            multi_parser.print_newline(true, multi_parser.output);
                         }
                     }
                     multi_parser.current_mode = 'TAG';
@@ -811,7 +815,11 @@
             multi_parser.last_token = multi_parser.token_type;
             multi_parser.last_text = multi_parser.token_text;
         }
-        return multi_parser.output.join('');
+        var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
+        if (end_with_newline) {
+            sweet_code += '\n';
+        }
+        return sweet_code;
     }
 
     if (typeof define === "function" && define.amd) {

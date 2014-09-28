@@ -43,9 +43,19 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var ' + six.unichr(3232) + '_' + six.unichr(3232) + ' = "hi";');
         bt('var ' + six.unichr(228) + 'x = {\n    ' + six.unichr(228) + 'rgerlich: true\n};');
 
+        self.options.end_with_newline = True;
+        test_fragment('', '\n');
+        test_fragment('   return .5','   return .5\n');
+        test_fragment('   \n\nreturn .5\n\n\n\n','   return .5\n');
+        test_fragment('\n', '\n');
+
+        self.options.end_with_newline = False;
         bt('');
+        test_fragment('\n', '');
         bt('return .5');
-        test_fragment('    return .5');
+        test_fragment('   return .5');
+        test_fragment('   return .5;\n   a();');
+        test_fragment('   < div');
         bt('a        =          1', 'a = 1');
         bt('a=1', 'a = 1');
         bt("a();\n\nb();", "a();\n\nb();");
@@ -1658,8 +1668,11 @@ class TestJSBeautifier(unittest.TestCase):
 
 
     def decodesto(self, input, expectation=None):
+        if expectation == None:
+            expectation = input
+
         self.assertMultiLineEqual(
-            jsbeautifier.beautify(input, self.options), expectation or input)
+            jsbeautifier.beautify(input, self.options), expectation)
 
         # if the expected is different from input, run it again
         # expected output should be unchanged when run twice.
@@ -1671,7 +1684,9 @@ class TestJSBeautifier(unittest.TestCase):
         return self.wrapregex.sub('    \\1', text)
 
     def bt(self, input, expectation=None):
-        expectation = expectation or input
+        if expectation == None:
+            expectation = input
+
         self.decodesto(input, expectation)
         if self.options.indent_size == 4 and input:
             wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)

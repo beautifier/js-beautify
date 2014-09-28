@@ -64,7 +64,7 @@
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
-        var endWithNewline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
+        var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         // compatibility
         if (typeof indentSize === "string") {
@@ -336,8 +336,7 @@
         var sweetCode = output.join('').replace(/[\r\n\t ]+$/, '');
 
         // establish end_with_newline
-        var should = endWithNewline;
-        if (should) {
+        if (end_with_newline) {
             sweetCode += "\n";
         }
 

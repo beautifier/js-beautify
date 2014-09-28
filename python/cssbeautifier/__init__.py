@@ -304,9 +304,8 @@ class Beautifier:
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
 
         # establish end_with_newline
-        should = self.opts.end_with_newline
-        if should:
-            sweet_code = sweet_code + "\n"
+        if self.opts.end_with_newline:
+            sweet_code += "\n"
 
         return sweet_code
 

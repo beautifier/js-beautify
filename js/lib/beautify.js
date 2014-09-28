@@ -72,6 +72,9 @@
           NOTE: This is not a hard limit. Lines will continue until a point where a newline would
                 be preserved if it were present.
 
+    end_with_newline (default false)  - end output with a newline
+
+
     e.g
 
     js_beautify(js_source_text, {
@@ -267,6 +270,8 @@
         opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
+        opt.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
+
 
         // force opt.space_after_anon_function to true if opt.jslint_happy
         if(opt.jslint_happy) {
@@ -338,6 +343,10 @@
             }
 
             sweet_code = output.get_code();
+            if (opt.end_with_newline) {
+                sweet_code += '\n';
+            }
+
             return sweet_code;
         };
 
@@ -1320,7 +1329,7 @@
         this.add_space_before_token = function() {
             if (this.space_before_token && this.current_line.get_item_count()) {
                 var last_output = this.current_line.last();
-                if (last_output !== ' ' && last_output !== indent_string) { // prevent occassional duplicate space
+                if (last_output !== ' ' && last_output !== indent_string && last_output !== baseIndentString) { // prevent occassional duplicate space
                     this.current_line.push(' ');
                 }
             }

@@ -78,6 +78,7 @@ class BeautifierOptions:
         self.unescape_strings = False
         self.wrap_line_length = 0
         self.break_chained_methods = False
+        self.end_with_newline = False
 
 
 
@@ -272,6 +273,7 @@ Output options:
  -X,  --e4x                        Pass E4X xml literals through untouched
  -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
+ -n, --end_with_newline            End output with newline
 
 Rarely needed options:
 
@@ -393,6 +395,9 @@ class Beautifier:
 
 
         sweet_code = self.output.get_code()
+        if self.opts.end_with_newline:
+            sweet_code += "\n"
+
         return sweet_code
 
     def handle_token(self, local_token):
@@ -1205,7 +1210,7 @@ class Output:
             for line_index in range(1, len(self.lines)):
                 sweet_code += '\n' + self.lines[line_index].get_output()
 
-        return re.sub('[\n ]+$', '', sweet_code)
+        return re.sub('[\r\n\t ]+$', '', sweet_code)
 
     def add_indent_string(self, level):
         if self.baseIndentString != '':
@@ -1226,7 +1231,7 @@ class Output:
     def add_space_before_token(self):
         # make sure only single space gets drawn
         if self.space_before_token and self.current_line.get_item_count() and \
-                self.current_line.last() not in [' ', self.indent_string]:
+                self.current_line.last() not in [' ', self.indent_string, self.baseIndentString]:
             self.current_line.push(' ')
         self.space_before_token = False
 
@@ -1654,12 +1659,12 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dEPjabkil:xhtfvXw:",
+        opts, args = getopt.getopt(argv, "s:c:o:dEPjabkil:xhtfvXnw:",
             ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-            'e4x', 'wrap-line-length'])
+            'e4x', 'end-with-newline','wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1702,6 +1707,8 @@ def main():
             js_options.unescape_strings = True
         elif opt in ('--e4x', '-X'):
             js_options.e4x = True
+        elif opt in ('--end-with-newline', '-n'):
+            js_options.end_with_newline = True
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
@@ -1718,11 +1725,11 @@ def main():
     else:
         try:
             if outfile == 'stdout':
-                print(beautify_file(file, js_options))
+                sys.stdout.write(beautify_file(file, js_options))
             else:
                 mkdir_p(os.path.dirname(outfile))
                 with open(outfile, 'w') as f:
-                    f.write(beautify_file(file, js_options) + '\n')
+                    f.write(beautify_file(file, js_options))
         except Exception as ex:
             print(ex, file=sys.stderr)
             return 1

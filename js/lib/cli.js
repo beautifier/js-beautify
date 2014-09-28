@@ -61,6 +61,7 @@ var fs = require('fs'),
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "e4x": Boolean,
+        "end_with_newline": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
@@ -96,6 +97,7 @@ var fs = require('fs'),
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
         "X": ["--e4x"],
+        "n": ["--end_with_newline"],
         // HTML-only
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
@@ -222,6 +224,7 @@ function usage(err) {
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
+            msg.push('  -n, --end_with_newline            End output with newline');
             break;
         case "html":
             msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
@@ -280,11 +283,6 @@ function makePretty(code, config, outfile, callback) {
     try {
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
-
-        // ensure newline at end of beautified output
-        if (pretty && pretty.charAt(pretty.length - 1) !== '\n') {
-            pretty += '\n';
-        }
 
         callback(null, pretty, outfile, config);
     } catch (ex) {
