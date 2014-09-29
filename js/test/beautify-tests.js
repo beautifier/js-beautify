@@ -1071,6 +1071,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var a = 5 + function();');
 
         bt('3.*7;', '3. * 7;');
+        bt('a = 1.e-64 * 0.5e+4 / 6e-23;');
         bt('import foo.*;', 'import foo.*;'); // actionscript's import
         test_fragment('function f(a: a, b: b)'); // actionscript
 

@@ -938,6 +938,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         bt('3.*7;', '3. * 7;')
+        bt('a = 1.e-64 * 0.5e+4 / 6e-23;');
         bt('import foo.*;', 'import foo.*;') # actionscript's import
         test_fragment('function f(a: a, b: b)') # actionscript
         bt('foo(a, function() {})');
