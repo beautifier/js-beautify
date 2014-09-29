@@ -1602,6 +1602,19 @@ class TestJSBeautifier(unittest.TestCase):
             '};');
         # END tests for issue 440
         
+        # START tests for issue 311
+        # if-else with braces edge case
+        bt('if(x){a();}else{b();}if(y){c();}',
+            'if (x) {\n' +
+            '    a();\n' +
+            '} else {\n' +
+            '    b();\n' +
+            '}\n' +
+            'if (y) {\n' +
+            '    c();\n' +
+            '}'); 
+        # END tests for issue 311
+        
         # START tests for issue 485
         # ensure function declarations behave the same in arrays as elsewhere
         bt( 'var v = ["a",\n' +

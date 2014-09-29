@@ -861,7 +861,7 @@ class Beautifier:
                 if (self.last_type != 'TK_START_EXPR' or not (current_token.type == 'TK_RESERVED' and current_token.text in ['var', 'let', 'const'])) and self.flags.last_text != ':':
                     # no need to force newline on VAR -
                     # for (var x = 0...
-                    if current_token.type == 'TK_RESERVED' and current_token.text == 'if' and self.flags.last_word == 'else' and self.flags.last_text != '{':
+                    if current_token.type == 'TK_RESERVED' and current_token.text == 'if' and self.flags.last_text == 'else':
                         self.output.space_before_token = True
                     else:
                         self.print_newline()
