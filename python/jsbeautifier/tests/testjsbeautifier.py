@@ -1578,6 +1578,29 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
         # END tests for issue 514
 
+        # START tests for issue 440
+        # reserved words can be used as object property names
+        bt( 'a = {\n' +
+            '    function: {},\n' +
+            '    "function": {},\n' +
+            '    throw: {},\n' +
+            '    "throw": {},\n' +
+            '    var: {},\n' +
+            '    "var": {},\n' +
+            '    set: {},\n' +
+            '    "set": {},\n' +
+            '    get: {},\n' +
+            '    "get": {},\n' +
+            '    if: {},\n' +
+            '    "if": {},\n' +
+            '    then: {},\n' +
+            '    "then": {},\n' +
+            '    else: {},\n' +
+            '    "else": {},\n' +
+            '    yay: {}\n' +
+            '};');
+        # END tests for issue 440
+        
         # START tests for issue 485
         # ensure function declarations behave the same in arrays as elsewhere
         bt( 'var v = ["a",\n' +

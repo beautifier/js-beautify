@@ -762,6 +762,13 @@
                 current_token.type = 'TK_WORD';
             }
 
+            if (current_token.type === 'TK_RESERVED' && flags.mode === MODE.ObjectLiteral) {
+                var next_token = get_token(1);
+                if (next_token.text == ':') {
+                    current_token.type = 'TK_WORD';
+                }
+            }
+
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
             } else if (current_token.wanted_newline && !is_expression(flags.mode) &&

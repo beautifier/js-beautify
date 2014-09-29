@@ -724,6 +724,11 @@ class Beautifier:
             current_token.text in ['set', 'get']:
             current_token.type = 'TK_WORD'
 
+        if current_token.type == 'TK_RESERVED' and self.flags.mode == MODE.ObjectLiteral:
+            next_token = self.get_token(1)
+            if next_token.text == ':':
+                current_token.type = 'TK_WORD'
+
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
