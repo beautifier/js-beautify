@@ -34,6 +34,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}")
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
         t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}")
+        t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}")
 
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
@@ -45,6 +46,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }")
         t(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }")
         t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
+
 
     def testComments(self):
         self.resetOptions()
@@ -71,6 +73,34 @@ class CSSBeautifierTest(unittest.TestCase):
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
         t("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
 
+
+    def testBlockNesting(self):
+        self.resetOptions()
+        t = self.decodesto
+        
+        t("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
+        t("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
+
+# @font-face {
+#     font-family: 'Bitstream Vera Serif Bold';
+#     src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');
+# }
+# @media screen {
+#     #foo:hover {
+#         background-image: url(foo.png);
+#     }
+#     @media screen and (min-device-pixel-ratio: 2) {
+#         @font-face {
+#             font-family: 'Helvetica Neue'
+#         }
+#         #foo:hover {
+#             background-image: url(foo@2x.png);
+#         }
+#     }
+# }
+        t("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}")
+
+
     def testOptions(self):
         self.resetOptions()
         self.options.indent_size = 2
@@ -80,7 +110,20 @@ class CSSBeautifierTest(unittest.TestCase):
 
         t("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}")
         t("@media print {.tab{}}", "@media print {\n  .tab {}\n}")
+        t("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}")
         t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}")
+
+        # pseudo-classes and pseudo-elements
+        t("#foo:hover {\n  background-image: url(foo@2x.png)\n}")
+        t("#foo *:hover {\n  color: purple\n}")
+        t("::selection {\n  color: #ff0000;\n}")
+
+        # TODO: don't break nested pseduo-classes
+        t("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}")
+
+        # particular edge case with braces and semicolons inside tags that allows custom text
+        t(  "a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
+            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
 
     def decodesto(self, input, expectation=None):
         if expectation == None:
