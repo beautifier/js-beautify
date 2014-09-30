@@ -86,17 +86,25 @@ class Printer:
     def __init__(self, indent_char, indent_size, default_indent=""):
         self.indentSize = indent_size
         self.singleIndent = (indent_size) * indent_char
-        self.indentString = default_indent
-        self.output = [default_indent]
+        self.indentLevel = 0
+        self.nestedLevel = 0
+ 		
+        self.baseIndentString = default_indent
+        self.output = []
+        if self.baseIndentString:
+            self.push(self.baseIndentString)
 
     def __lastCharWhitespace(self):
-        return WHITE_RE.search(self.output[len(self.output) - 1]) is not None
+        return WHITE_RE.search(self.output[-1]) is not None
 
     def indent(self):
-        self.indentString += self.singleIndent
+        self.indentLevel += 1
+        self.baseIndentString += self.singleIndent
 
     def outdent(self):
-        self.indentString = self.indentString[:-(self.indentSize + 1)]
+        if self.indentLevel:
+            self.indentLevel -= 1
+            self.baseIndentString = self.baseIndentString[:-(len(self.singleIndent))]
 
     def push(self, string):
         self.output.append(string)
@@ -110,10 +118,6 @@ class Printer:
         self.newLine()
         self.output.append("}")
         self.newLine()
-
-    def colon(self):
-        self.output.append(":")
-        self.singleSpace()
 
     def semicolon(self):
         self.output.append(";")
@@ -130,8 +134,8 @@ class Printer:
         if len(self.output) > 0:
             self.output.append("\n")
 
-        if len(self.indentString) > 0:
-            self.output.append(self.indentString)
+        if len(self.baseIndentString) > 0:
+            self.output.append(self.baseIndentString)
 
     def singleSpace(self):
         if len(self.output) > 0 and not self.__lastCharWhitespace():
@@ -150,6 +154,20 @@ class Beautifier:
         self.indentChar = opts.indent_char
         self.pos = -1
         self.ch = None
+        
+        # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
+        # also in CONDITIONAL_GROUP_RULE below
+        self.NESTED_AT_RULE = [ \
+            "@page", \
+            "@font-face", \
+            "@keyframes", \
+            "@media", \
+            "@supports", \
+            "@document"]
+        self.CONDITIONAL_GROUP_RULE = [ \
+            "@media", \
+            "@supports", \
+            "@document"]
 
     def next(self):
         self.pos = self.pos + 1
@@ -212,11 +230,13 @@ class Beautifier:
         return restOfLine.find('//') != -1
 
     def beautify(self):
-        m = re.search("^[\r\n]*[\t ]*", self.source_text)
-        indentString = m.group(0)
-        printer = Printer(self.indentChar, self.indentSize, indentString)
+        m = re.search("^[\t ]*", self.source_text)
+        baseIndentString = m.group(0)
+        printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         insideRule = False
+        enteringConditionalGroup = False
+
         while True:
             isAfterSpace = self.skipWhitespace()
 
@@ -231,6 +251,22 @@ class Beautifier:
             elif self.ch == '/' and self.peek() == '/':
                 printer.comment(self.eatComment(True)[0:-1])
                 printer.newLine()
+            elif self.ch == '@':
+                # strip trailing space, if present, for hash property check
+                atRule = self.eatString(" ")
+                if(atRule[-1] == " "):
+                    atRule = atRule[:-1]
+
+                # pass along the space we found as a separate item
+                printer.push(atRule)
+                printer.push(self.ch)
+                
+                # might be a nesting at-rule
+                if atRule in self.NESTED_AT_RULE:
+                    printer.nestedLevel += 1
+                    if atRule in self.CONDITIONAL_GROUP_RULE:
+                        enteringConditionalGroup = True
+
             elif self.ch == '{':
                 self.eatWhitespace()
                 if self.peek() == '}':
@@ -239,14 +275,34 @@ class Beautifier:
                 else:
                     printer.indent()
                     printer.openBracket()
+                    # when entering conditional groups, only rulesets are allowed
+                    if enteringConditionalGroup:
+                        enteringConditionalGroup = False
+                        insideRule = printer.indentLevel > printer.nestedLevel
+                    else:
+                        # otherwise, declarations are also allowed
+                        insideRule = printer.indentLevel >= printer.nestedLevel
             elif self.ch == '}':
                 printer.outdent()
                 printer.closeBracket()
                 insideRule = False
+                if printer.nestedLevel:
+                    printer.nestedLevel -= 1
             elif self.ch == ":":
                 self.eatWhitespace()
-                printer.colon()
-                insideRule = True
+                if insideRule or enteringConditionalGroup:
+                    # 'property: value' delimiter
+                    # which could be in a conditional group query
+                    printer.push(self.ch)
+                    printer.singleSpace()
+                else:
+                    if self.peek() == ":":
+                        # pseudo-element
+                        self.next()
+                        printer.push("::")
+                    else:
+                        # pseudo-element
+                        printer.push(self.ch)                    
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
@@ -299,15 +355,10 @@ class Beautifier:
 
                 printer.push(self.ch)
 
-        sweet_code = printer.result()
+        sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
 
         # establish end_with_newline
-        should = self.opts.end_with_newline
-        actually = sweet_code.endswith("\n")
-        if should and not actually:
-            sweet_code = sweet_code + "\n"
-        elif not should and actually:
-            sweet_code = sweet_code[:-1]
+        if self.opts.end_with_newline:
+            sweet_code += "\n"
 
         return sweet_code
-
