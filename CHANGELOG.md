@@ -1,4 +1,57 @@
 # Changelog
+## v1.5.2
+
+### Description
+* Improved indenting for statements, array, variable declaration, "Starless" block-comments
+* Support for bitwise-not, yield, get, set, let, const, generator functions
+* Reserved words can be used as object property names
+* Added options: space_after_anon_function, end-with-newline
+* Properly tokenize Numbers (including decimals and exponents)
+* Do not break "x++ + y"
+* function declaration inside array behaves the same as in expression
+* Close String literals at newline
+* Support handlebar syntax 
+* Check `<script>` "type"-attribute
+* Allow `<style>` and `<script>` tags to be unformatted
+* Port css nesting fix to python
+* Fix python six dependency
+* Initial very cursory support for ES6 module, export, and import 
+
+https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
+
+### Closed Issues
+* Allow custom elements to be unformatted ([#540](https://github.com/beautify-web/js-beautify/pull/540))
+* Refactor to Output and OutputLine classes ([#536](https://github.com/beautify-web/js-beautify/pull/536))
+* Recognize ObjectLiteral on open brace ([#535](https://github.com/beautify-web/js-beautify/pull/535))
+* Refactor to fully tokenize before formatting ([#530](https://github.com/beautify-web/js-beautify/pull/530))
+* Cleanup checked in six.py file ([#527](https://github.com/beautify-web/js-beautify/pull/527))
+* Changelog.md? ([#526](https://github.com/beautify-web/js-beautify/issues/526))
+* New line added between each css declaration ([#523](https://github.com/beautify-web/js-beautify/issues/523))
+* SyntaxError: Unexpected token ++ ([#514](https://github.com/beautify-web/js-beautify/issues/514))
+* space appears before open square bracket when the object name is "set" ([#508](https://github.com/beautify-web/js-beautify/issues/508))
+* Unclosed string problem ([#505](https://github.com/beautify-web/js-beautify/issues/505))
+* "--n" and "++n" are not indented like "n--" and "n++" are... ([#495](https://github.com/beautify-web/js-beautify/issues/495))
+* Allow <style> and <script> tags to be unformatted ([#494](https://github.com/beautify-web/js-beautify/pull/494))
+* Preserve new line at end of file ([#492](https://github.com/beautify-web/js-beautify/issues/492))
+* Line wraps breaking numbers (causes syntax error) ([#488](https://github.com/beautify-web/js-beautify/issues/488))
+* jsBeautify acts differently when handling different kinds of function expressions[BUG][javascript] ([#485](https://github.com/beautify-web/js-beautify/issues/485))
+* AttributeError: 'NoneType' object has no attribute 'groups' ([#479](https://github.com/beautify-web/js-beautify/issues/479))
+* installation doco for python need update -- pip install six? ([#478](https://github.com/beautify-web/js-beautify/issues/478))
+* Move einars/js-beautify to beautify-web/js-beautify ([#475](https://github.com/beautify-web/js-beautify/issues/475))
+* Bring back space_after_anon_function ([#474](https://github.com/beautify-web/js-beautify/pull/474))
+* fix for #453, Incompatible handlebar syntax ([#468](https://github.com/beautify-web/js-beautify/pull/468))
+* Python: missing explicit dependency on "six" package ([#465](https://github.com/beautify-web/js-beautify/issues/465))
+* function declaration inside array, adds extra line.  ([#464](https://github.com/beautify-web/js-beautify/issues/464))
+* [es6] yield a array ([#458](https://github.com/beautify-web/js-beautify/issues/458))
+* Publish v1.5.2 ([#452](https://github.com/beautify-web/js-beautify/issues/452))
+* Port css colon character fix to python  ([#446](https://github.com/beautify-web/js-beautify/issues/446))
+* Cannot declare object literal properties with unquoted reserved words ([#440](https://github.com/beautify-web/js-beautify/issues/440))
+* Do not put a space within `function*` generator functions. ([#428](https://github.com/beautify-web/js-beautify/issues/428))
+* beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
+* comment breaks indent ([#413](https://github.com/beautify-web/js-beautify/issues/413))
+* Beautify HTML: Setting inline JS and CSS to stay unformatted ([#383](https://github.com/beautify-web/js-beautify/issues/383))
+
+
 ## v1.5.1
 
 ### Description
