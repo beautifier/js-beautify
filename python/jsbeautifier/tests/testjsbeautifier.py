@@ -1640,6 +1640,21 @@ class TestJSBeautifier(unittest.TestCase):
             '    id: 1\n' +
             '}];');
         # END tests for issue 485
+        
+        # START tests for issue 382
+        # initial totally cursor support for es6 module export
+        bt( 'module "Even" {\n' +
+            '    import odd from "Odd";\n' +
+            '    export function sum(x, y) {\n' +
+            '        return x + y;\n' +
+            '    }\n' +
+            '    export var pi = 3.141593;\n' +
+            '    export default moduleName;\n' +
+            '}');
+        bt( 'module "Even" {\n' +
+            '    export default function div(x, y) {}\n' +            
+            '}');
+        # END tests for issue 382
 
         # START tests for issue 508
         bt('set["name"]');

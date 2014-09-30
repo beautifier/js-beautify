@@ -789,7 +789,9 @@ class Beautifier:
                     self.print_newline(True)
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
-                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return']:
+                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return', 'export']:
+                    self.output.space_before_token = True
+                elif self.last_type == 'TK_RESERVED' and self.flags.last_text == 'default' and self.last_last_text == 'export':
                     self.output.space_before_token = True
                 else:
                     self.print_newline()
@@ -839,7 +841,7 @@ class Beautifier:
             prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
-            if self.flags.last_text == 'else':
+            if self.flags.last_text == 'else ' or self.flags.last_text == 'export':
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
@@ -1282,7 +1284,7 @@ class Tokenizer:
               + ' <?= <? ?> <%= <% %>').split(' ')
 
     # Words which always should start on a new line
-    line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield'.split(',')
+    line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,yield,import,export'.split(',')
     reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof']
 
     def __init__ (self, input, opts, indent_string):
