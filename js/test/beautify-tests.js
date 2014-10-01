@@ -386,6 +386,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
         // allow unescaped / in char classes
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+        bt('typeof /foo\\//;');
+        bt('yield /foo\\//;');
+        bt('throw /foo\\//;');
+        bt('do /foo\\//;');
+        bt('return /foo\\//;');
+        bt('switch (a) {\n    case /foo\\//:\n        b\n}');
+        bt('if (a) /foo\\//\nelse /foo\\//;');
+
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
@@ -415,6 +423,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
         bt('yield [1, 2]');
+
 
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
             'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');

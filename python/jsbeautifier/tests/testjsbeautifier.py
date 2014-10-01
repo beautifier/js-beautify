@@ -280,6 +280,13 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('a(/a[b\\[', "a(/a[b\\["); # incomplete char class
         # allow unescaped / in char classes
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+        bt('typeof /foo\\//;');
+        bt('yield /foo\\//;');
+        bt('throw /foo\\//;');
+        bt('do /foo\\//;');
+        bt('return /foo\\//;');
+        bt('switch (a) {\n    case /foo\\//:\n        b\n}');
+        bt('if (a) /foo\\//\nelse /foo\\//;');
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
