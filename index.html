@@ -252,7 +252,6 @@
             opts.jslint_happy = $('#jslint-happy').prop('checked');
             opts.end_with_newline = $('#end-with-newline').prop('checked');
             opts.wrap_line_length = $('#wrap-line-length').val();
-            opts.space_after_anon_function = true;
 
             if (looks_like_html(source)) {
                 output = html_beautify(source, opts);
