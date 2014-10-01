@@ -1484,8 +1484,8 @@ class Tokenizer:
             ) and ( \
                 (last_type == 'TK_RESERVED' and last_text in ['return', 'case', 'throw', 'else', 'do']) or \
                 (last_type == 'TK_END_EXPR' and last_text == ')' and \
-                            last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
                 (last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
+                            last_token.parent and last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
                                    'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
             sep = c
             esc = False
