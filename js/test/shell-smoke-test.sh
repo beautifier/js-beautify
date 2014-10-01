@@ -22,8 +22,8 @@ test_cli_common()
       exit 1
   }
 
-  $CLI_SCRIPT -invalidParameter 2> /dev/null && {
-      echo "[$CLI_SCRIPT_NAME -invalidParameter] Return code should be error."
+  $CLI_SCRIPT -Z 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME -Z] Return code for invalid parameter should be error."
       exit 1
   }
 

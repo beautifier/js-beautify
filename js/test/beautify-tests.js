@@ -13,7 +13,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         space_before_conditional: true,
         break_chained_methods: false,
         selector_separator: '\n',
-        end_with_newline: true
+        end_with_newline: false
     };
 
     function test_js_beautifier(input)
@@ -37,11 +37,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
-        expected = expected || input;
+        expected = expected || expected === '' ? expected : input;
         sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected != input) {
+        if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
     }
@@ -54,7 +54,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         var wrapped_input, wrapped_expectation;
 
-        expectation = expectation || input;
+        expectation = expectation || expectation === '' ? expectation : input;
         sanitytest.test_function(test_js_beautifier, 'js_beautify');
         test_fragment(input, expectation);
 
@@ -79,13 +79,16 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         var wrapped_input, wrapped_expectation, field_input, field_expectation;
 
-        expectation = expectation || input;
+        expectation = expectation || expectation === '' ? expectation : input;
         sanitytest.test_function(test_html_beautifier, 'html_beautify');
         test_fragment(input, expectation);
 
         if (opts.indent_size === 4 && input) {
             wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
             wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
+            if (opts.end_with_newline) {
+                wrapped_expectation += '\n';
+            }
             test_fragment(wrapped_input, wrapped_expectation);
         }
 
@@ -114,7 +117,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         var wrapped_input, wrapped_expectation;
 
-        expectation = expectation || input;
+        expectation = expectation || expectation === '' ? expectation : input;
         sanitytest.test_function(test_css_beautifier, 'css_beautify');
         test_fragment(input, expectation);
     }
@@ -140,15 +143,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.keep_array_indentation = false;
         opts.brace_style       = "collapse";
 
-
         // unicode support
         bt('var ' + String.fromCharCode(3232) + '_' + String.fromCharCode(3232) + ' = "hi";');
         bt('var ' + String.fromCharCode(228) + 'x = {\n    ' + String.fromCharCode(228) + 'rgerlich: true\n};');
 
+        opts.end_with_newline = true;
+        test_fragment('', '\n');
+        test_fragment('   return .5','   return .5\n');
+        test_fragment('   \n\nreturn .5\n\n\n\n','   return .5\n');
+        test_fragment('\n', '\n');
+
+        opts.end_with_newline = false;
         bt('');
+        test_fragment('\n', '');
         bt('return .5');
         test_fragment('   return .5');
         test_fragment('   return .5;\n   a();');
+        test_fragment('   < div');
         bt('a        =          1', 'a = 1');
         bt('a=1', 'a = 1');
         bt("a();\n\nb();", "a();\n\nb();");
@@ -354,6 +365,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
+        bt('if(true)++a;','if (true) ++a;');
+        bt('if(true)\n++a;','if (true)\n    ++a;');
+        bt('if(true)--a;','if (true) --a;');
+        bt('if(true)\n--a;','if (true)\n    --a;');
 
         // Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
@@ -379,6 +394,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[[1,2],[4,5],function(){},[7,8]]',
             "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
         bt('a=[b,c,function(){},function(){},d]',
+            "a = [b, c, function() {}, function() {}, d]");
+        bt('a=[b,c,\nfunction(){},function(){},d]',
             "a = [b, c,\n    function() {},\n    function() {},\n    d\n]");
         bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
         bt('[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]");
@@ -453,6 +470,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
 
 
+        opts.space_after_anon_function = true;
+
+        bt('switch(x) {case 0: case 1: a(); break; default: break}',
+            "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+        bt('switch(x){case -1:break;case !y:break;}',
+            'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
+        bt('a=typeof(x)', 'a = typeof (x)');
+        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
+        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
+        bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function* () {\n    yield 1;\n}');
+
+        opts.space_after_anon_function = false;
+
         opts.jslint_happy = true;
 
         bt('a=typeof(x)', 'a = typeof (x)');
@@ -480,7 +512,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('function* x() {\n    yield 1;\n}');
 
-        bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
+        bt('{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
+        bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
 
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
         bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
@@ -724,7 +757,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function()\n{};', 'var a = new function() {};');
@@ -821,7 +855,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
@@ -914,7 +949,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var foo = {}');
         bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        bt('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
         bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
@@ -999,8 +1035,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("{\n    var a = set\n    foo();\n}");
         bt("var x = {\n    get function()\n}");
         bt("var x = {\n    set function()\n}");
-        bt("var x = set\n\na() {}", "var x = set\n\n    a() {}");
-        bt("var x = set\n\nfunction() {}", "var x = set\n\n    function() {}");
+
+        // According to my current research get/set have no special meaning outside of an object literal
+        bt("var x = set\n\na() {}", "var x = set\n\na() {}");
+        bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}");
 
         bt('<!-- foo\nbar();\n-->');
         bt('<!-- dont crash');
@@ -1044,6 +1082,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var a = 5 + function();');
 
         bt('3.*7;', '3. * 7;');
+        bt('a = 1.e-64 * 0.5e+4 / 6e-23;');
         bt('import foo.*;', 'import foo.*;'); // actionscript's import
         test_fragment('function f(a: a, b: b)'); // actionscript
 
@@ -1100,6 +1139,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1112,6 +1152,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token + 12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap + but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1128,6 +1169,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1142,6 +1184,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1159,6 +1202,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1180,6 +1225,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1202,6 +1249,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_.okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token +\n' +
+                      '            12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap +\n' +
@@ -1223,6 +1272,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1239,6 +1289,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token + 12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap + but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
                       '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
@@ -1258,6 +1309,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1280,6 +1333,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
+                      '    propertx: first_token +\n' +
+                      '        12345678.99999E-6,\n' +
                       '    property: first_token_should_never_wrap +\n' +
                       '        but_this_can,\n' +
                       '    propertz: first_token_should_never_wrap +\n' +
@@ -1303,6 +1358,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        inside_an_if_block) that_is_\n' +
                       '        .okay();\n' +
                       '    object_literal = {\n' +
+                      '        propertx: first_token +\n' +
+                      '            12345678.99999E-6,\n' +
                       '        property: first_token_should_never_wrap +\n' +
                       '            but_this_can,\n' +
                       '        propertz: first_token_should_never_wrap +\n' +
@@ -1459,6 +1516,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('function foo() {}\nfunction foo() {}',
             'function foo() {}\n\nfunction foo() {}'
         );
+
+        bt('[\n    function() {}\n]');
 
 
 
@@ -1647,13 +1706,135 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '}());');
         // END tests for issue 459
 
+        // START tests for issue 505
+        // strings should end at newline unless continued by backslash
+        bt( 'var name = "a;\n' +
+            'name = "b";');
+        bt( 'var name = "a; \\\n' +
+            '    name = b";');
+        // END tests for issue 505
+
+        // START tests for issue 514
+        // some operators require spaces to distinguish them
+        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;');
+        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
+        // END tests for issue 514
+
+        // START tests for issue 440
+        // reserved words can be used as object property names
+        bt( 'a = {\n' +
+            '    function: {},\n' +
+            '    "function": {},\n' +
+            '    throw: {},\n' +
+            '    "throw": {},\n' +
+            '    var: {},\n' +
+            '    "var": {},\n' +
+            '    set: {},\n' +
+            '    "set": {},\n' +
+            '    get: {},\n' +
+            '    "get": {},\n' +
+            '    if: {},\n' +
+            '    "if": {},\n' +
+            '    then: {},\n' +
+            '    "then": {},\n' +
+            '    else: {},\n' +
+            '    "else": {},\n' +
+            '    yay: {}\n' +
+            '};');
+        // END tests for issue 440
+
+        // START tests for issue 311
+        // if-else with braces edge case
+        bt('if(x){a();}else{b();}if(y){c();}',
+            'if (x) {\n' +
+            '    a();\n' +
+            '} else {\n' +
+            '    b();\n' +
+            '}\n' +
+            'if (y) {\n' +
+            '    c();\n' +
+            '}'); 
+        // END tests for issue 311
+
+        // START tests for issue 485
+        // ensure function declarations behave the same in arrays as elsewhere
+        bt( 'var v = ["a",\n' +
+            '    function() {\n' +
+            '        return;\n' +
+            '    }, {\n' +
+            '        id: 1\n' +
+            '    }\n' +
+            '];');
+        bt( 'var v = ["a", function() {\n' +
+            '    return;\n' +
+            '}, {\n' +
+            '    id: 1\n' +
+            '}];');
+        // END tests for issue 485
+        
+        // START tests for issue 382
+        // initial totally cursor support for es6 module export
+        bt( 'module "Even" {\n' +
+            '    import odd from "Odd";\n' +
+            '    export function sum(x, y) {\n' +
+            '        return x + y;\n' +
+            '    }\n' +
+            '    export var pi = 3.141593;\n' +
+            '    export default moduleName;\n' +
+            '}');
+        bt( 'module "Even" {\n' +
+            '    export default function div(x, y) {}\n' +            
+            '}');
+        // END tests for issue 382
+
+        // START tests for issue 508
+        bt('set["name"]');
+        bt('get["name"]');
+        test_fragment(
+            'a = {\n' +
+            '    set b(x) {},\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        test_fragment(
+            'a = {\n' +
+            '    get b() {\n' +
+            '        retun 0;\n' +
+            '    },\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        // END tests for issue 508
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
 
+
         bth('');
+
+        opts.end_with_newline = true;
+        test_fragment('', '\n');
+        test_fragment('<div></div>\n');
+        test_fragment('<div></div>\n\n\n', '<div></div>\n');
+        test_fragment('<head>\n' +
+            '    <script>\n' +
+            '        mocha.setup("bdd");\n' +
+            '\n' +        
+            '    </script>\n' +
+            '</head>\n');
+
+
+        opts.end_with_newline = false;
+        test_fragment('<head>\n' +
+            '    <script>\n' +
+            '        mocha.setup("bdd");\n' +
+            '    </script>\n' +
+            '</head>');
+            
+        test_fragment('<div></div>\n', '<div></div>');
         bth('<div></div>');
         bth('<div>content</div>');
         bth('<div><div></div></div>',
@@ -1714,7 +1895,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<li>\n' +
             '    content\n' +
             '</li>');
-		
+
 		// START tests for issue 453
 		bth('<script type="text/unknown"><div></div></script>',
 			'<script type="text/unknown">\n' +
@@ -1731,7 +1912,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 		bth('<script type="text/javascript">var foo = "bar";</script>',
 			'<script type="text/javascript">\n' +
 			'    var foo = "bar";\n' +
-			'</script>');			
+			'</script>');
 		bth('<script type="application/javascript">var foo = "bar";</script>',
 			'<script type="application/javascript">\n' +
 			'    var foo = "bar";\n' +
@@ -1755,20 +1936,20 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 		bth('<script>var foo = "bar";</script>',
 			'<script>\n' +
 			'    var foo = "bar";\n' +
-			'</script>');					
-					
+			'</script>');
+
 		bth('<style type="text/unknown"><tag></tag></style>',
 			'<style type="text/unknown">\n' +
 			'    <tag></tag>\n' +
-			'</style>');	
+			'</style>');
 		bth('<style type="text/css"><tag></tag></style>',
 			'<style type="text/css">\n' +
 			'    <tag></tag>\n' +
-			'</style>');		
+			'</style>');
 		bth('<style><tag></tag></style>',
 			'<style>\n' +
 			'    <tag></tag>\n' +
-			'</style>');				
+			'</style>');
 		bth('<style type="text/css">.selector {font-size:12px;}</style>',
 			'<style type="text/css">\n' +
 			'    .selector {\n' +
@@ -1780,9 +1961,32 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 			'    .selector {\n' +
 			'        font-size: 12px;\n' +
 			'    }\n'+
-			'</style>');			
+			'</style>');
 		// END tests for issue 453
-			
+
+        var unformatted = opts.unformatted;
+        opts.unformatted = ['script', 'style'];
+        bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
+            '  <ul>\n' +
+            '  # for (var i = 0; i < data.length; i++) { #\n' +
+            '    <li>#= data[i] #</li>\n' +
+            '  # } #\n' +
+            '  </ul>\n' +
+            '</script>');
+        bth('<style>\n' +
+            '  body {background-color:lightgrey}\n' +
+            '  h1   {color:blue}\n' +
+            '</style>');
+        opts.unformatted = unformatted;
+
+        unformatted = opts.unformatted;
+        opts.unformatted = ['custom-element'];
+        test_fragment('<div>should <custom-element>not</custom-element>' +
+                      ' insert newlines</div>',
+                      '<div>should <custom-element>not</custom-element>' +
+                      ' insert newlines</div>');
+        opts.unformatted = unformatted;
+
         // Tests that don't pass, but probably should.
         // bth('<div><span>content</span></div>');
 
@@ -2002,43 +2206,59 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '<div>preserve one newline</div>',
                       '<div>Should</div>\n\n\n' +
                       '<div>preserve one newline</div>');
+
         // css beautifier
         opts.indent_size = 1;
         opts.indent_char = '\t';
         opts.selector_separator_newline = true;
         opts.end_with_newline = true;
-
-        // test basic css beautifier
         btc('', '\n');
+        btc('\n', '\n');
+        btc(".tabs{}\n", ".tabs {}\n");
         btc(".tabs{}", ".tabs {}\n");
-        btc(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}\n");
-        btc(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n\tcolor: rgb(255, 255, 0)\n}\n");
-        btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}\n");
-        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
-        btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}\n");
-        btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}\n");
+
+        opts.end_with_newline = false;
+        btc('', '');
+        btc('\n', '');
+        btc(".tabs{}\n", ".tabs {}");
+        
+        // test basic css beautifier
+        btc(".tabs {}");
+        btc(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}");
+        btc(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n\tcolor: rgb(255, 255, 0)\n}");
+        btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}");
+        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
+        btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}");
+        btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}");
+        
+        //lead-in whitespace determines base-indent.
+        // lead-in newlines are stripped.
+        btc("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
+        btc("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }");
+        btc(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }");
+        btc("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
 
         // comments
-        btc("/* test */", "/* test */\n");
-        btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}\n");
-        btc("/* header */.tabs {}", "/* header */\n\n.tabs {}\n");
+        btc("/* test */", "/* test */");
+        btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}");
+        btc("/* header */.tabs {}", "/* header */\n\n.tabs {}");
 
         //single line comment support (less/sass)
-        btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
-        btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}\n");
-        btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}\n");
-        btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}\n");
-        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}\n");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}\n");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}\n");
+        btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
+        btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
+        btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}");
+        btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}");
+        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}");
 
         // separate selectors
-        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}\n");
-        btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}\n");
+        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
+        btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
 
         // block nesting
-        btc("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}\n");
-        btc("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}\n");
+        btc("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}");
+        btc("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}");
 /*
 @font-face {
     font-family: 'Bitstream Vera Serif Bold';
@@ -2058,7 +2278,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     }
 }
 */
-        btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}\n");
+        btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}");
 
         // less-css cases
         btc('.well{@well-bg:@bg-color;}','.well {\n\t@well-bg: @bg-color;\n}\n');
@@ -2071,25 +2291,26 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.indent_char = ' ';
         opts.selector_separator_newline = false;
 
-        btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}\n");
-        btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}\n");
-        btc("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}\n");
-        btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}\n");
+        btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}");
+        btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}");
+        btc("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}");
+        btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}");
 
         // pseudo-classes and pseudo-elements
-        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}\n");
-        btc("#foo *:hover {\n  color: purple\n}\n");
-        btc("::selection {\n  color: #ff0000;\n}\n");
+        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}");
+        btc("#foo *:hover {\n  color: purple\n}");
+        btc("::selection {\n  color: #ff0000;\n}");
 
         // TODO: don't break nested pseduo-classes
-        btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}\n");
+        btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}");
 
         // particular edge case with braces and semicolons inside tags that allows custom text
         btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
-            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}\n");
+            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}");
 
-        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}\n'); // may not eat the space before "["
-        btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}\n');
+        // may not eat the space before "["
+        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}');
+        btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}');
 
         return sanitytest;
     }

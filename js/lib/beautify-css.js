@@ -64,7 +64,7 @@
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
-        var endWithNewline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
+        var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         // compatibility
         if (typeof indentSize === "string") {
@@ -156,19 +156,19 @@
         }
 
         // printer
-        var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
+        var basebaseIndentString = source_text.match(/^[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
         var indentLevel = 0;
         var nestedLevel = 0;
 
         function indent() {
             indentLevel++;
-            indentString += singleIndent;
+            basebaseIndentString += singleIndent;
         }
 
         function outdent() {
             indentLevel--;
-            indentString = indentString.slice(0, -indentSize);
+            basebaseIndentString = basebaseIndentString.slice(0, -indentSize);
         }
 
         var print = {};
@@ -197,8 +197,8 @@
             if (output.length) {
                 output.push('\n');
             }
-            if (indentString) {
-                output.push(indentString);
+            if (basebaseIndentString) {
+                output.push(basebaseIndentString);
             }
         };
         print.singleSpace = function() {
@@ -207,8 +207,8 @@
             }
         };
         var output = [];
-        if (indentString) {
-            output.push(indentString);
+        if (basebaseIndentString) {
+            output.push(basebaseIndentString);
         }
         /*_____________________--------------------_____________________*/
 
@@ -222,13 +222,13 @@
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
                 print.newLine();
-                output.push(eatComment(), "\n", indentString);
+                output.push(eatComment(), "\n", basebaseIndentString);
                 var header = lookBack("");
                 if (header) {
                     print.newLine();
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
-                output.push(eatComment(true), indentString);
+                output.push(eatComment(true), basebaseIndentString);
             } else if (ch === '@') {
                 // pass along the space we found as a separate item
                 if (isAfterSpace) {
@@ -292,9 +292,9 @@
                 if (isCommentOnLine()) {
                     var beforeComment = eatString('/');
                     var comment = eatComment(true);
-                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', indentString);
+                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', basebaseIndentString);
                 } else {
-                    output.push(ch, '\n', indentString);
+                    output.push(ch, '\n', basebaseIndentString);
                 }
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
@@ -344,15 +344,11 @@
         }
 
 
-        var sweetCode = output.join('').replace(/[\n ]+$/, '');
+        var sweetCode = output.join('').replace(/[\r\n\t ]+$/, '');
 
         // establish end_with_newline
-        var should = endWithNewline;
-        var actually = /\n$/.test(sweetCode);
-        if (should && !actually) {
+        if (end_with_newline) {
             sweetCode += "\n";
-        } else if (!should && actually) {
-            sweetCode = sweetCode.slice(0, -1);
         }
 
         return sweetCode;
