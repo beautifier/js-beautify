@@ -79,6 +79,7 @@ class BeautifierOptions:
         self.wrap_line_length = 0
         self.break_chained_methods = False
         self.end_with_newline = False
+        self.comma_first = False
 
 
 
@@ -475,6 +476,13 @@ class Beautifier:
 
 
     def print_token(self, current_token, s=None):
+        if self.opts.comma_first and self.last_type == 'TK_COMMA' and self.output.just_added_newline():
+            if self.output.previous_line.last() == ',':
+                self.output.previous_line.pop()
+                self.print_token_line_indentation(current_token)
+                self.output.add_token(',')
+                self.output.space_before_token = True
+
         if s == None:
             s = current_token.text
 
@@ -950,7 +958,10 @@ class Beautifier:
                 self.print_newline(preserve_statement_flags = True)
             else:
                 self.output.space_before_token = True
-
+                # for comma-first, we want to allow a newline before the comma
+                # to turn into a newline after the comma, which we will fixup later
+                if self.opts.comma_first:
+                    self.allow_wrap_or_preserved_newline(current_token)
             return
 
         self.print_token(current_token)
@@ -964,6 +975,11 @@ class Beautifier:
         else:
             # EXPR or DO_BLOCK
             self.output.space_before_token = True
+
+            # for comma-first, we want to allow a newline before the comma
+            # to turn into a newline after the comma, which we will fixup later
+            if self.opts.comma_first:
+                self.allow_wrap_or_preserved_newline(current_token)
 
 
     def handle_operator(self, current_token):
@@ -1169,6 +1185,15 @@ class OutputLine:
         self.__character_count += len(input)
         self.__empty = False
 
+
+    def pop(self):
+        item = None
+        if not self.is_empty():
+            item = self.__items.pop()
+            self.__character_count -= len(item)
+            self.__empty = len(self.__items) == 0
+        return item
+
     def remove_indent(self):
         if self.__indent_count > 0:
             self.__indent_count -= 1
@@ -1198,6 +1223,7 @@ class Output:
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.lines = []
+        self.previous_line = None
         self.current_line = None
         self.space_before_token = False
         self.add_new_line(True)
@@ -1211,6 +1237,7 @@ class Output:
             return False
 
         if force_newline or not self.just_added_newline():
+            self.previous_line = self.current_line
             self.current_line = OutputLine(self)
             self.lines.append(self.current_line)
             return True
@@ -1263,6 +1290,11 @@ class Output:
             self.lines.pop()
             self.current_line = self.lines[-1]
             self.current_line.trim()
+
+        if len(self.lines) > 1:
+            self.previous_line = self.lines[-2]
+        else:
+            self.previous_line = None
 
     def just_added_newline(self):
         return self.current_line.is_empty()
@@ -1669,12 +1701,12 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:rdEPjabkil:xhtfvXnw:",
+        opts, args = getopt.getopt(argv, "s:c:o:rdEPjabkil:xhtfvXnCw:",
             ['indent-size=','indent-char=','outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-            'e4x', 'end-with-newline','wrap-line-length'])
+            'e4x', 'end-with-newline','comma-first','wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1722,6 +1754,8 @@ def main():
             js_options.e4x = True
         elif opt in ('--end-with-newline', '-n'):
             js_options.end_with_newline = True
+        elif opt in ('--comma-first', '-C'):
+            js_options.comma_first = True
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):

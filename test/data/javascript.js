@@ -45,6 +45,53 @@ exports.test_data = {
             { fragment: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Comma-first option",
+        description: "Put commas at the start of lines instead of the end",
+        matrix: [
+        {
+            options: [
+                { name: "comma_first", value: "true" }
+            ],
+            c0: '\\n, ',
+            c1: '\\n    , ',
+            c2: '\\n        , ',
+            c3: '\\n            , '
+        }, {
+            options: [
+                { name: "comma_first", value: "false" }
+            ],
+            c0: ',\\n',
+            c1: ',\\n    ',
+            c2: ',\\n        ',
+            c3: ',\\n            '
+        }
+        ],
+        tests: [
+            { input: '{a:1, b:2}', output: "{\n    a: 1{{c1}}b: 2\n}" },
+            { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1{{c1}}b = c[d]{{c1}}e = 6;' },
+            { input: "for(var a=1,b=2,c=3;d<3;d++)\ne", output: "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e" },
+            { input: "for(var a=1,b=2,\nc=3;d<3;d++)\ne", output: "for (var a = 1, b = 2{{c2}}c = 3; d < 3; d++)\n    e" },
+            { input: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
+            { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],[7,8],]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]{{c0}}]" },
+            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}function() {}{{c1}}[7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]" },
+            { input: 'a=[b,c,function(){},function(){},d]',
+            output: "a = [b, c, function() {}, function() {}, d]" },
+            { input: 'a=[b,c,\nfunction(){},function(){},d]',
+            output: "a = [b, c{{c1}}function() {}{{c1}}function() {}{{c1}}d\n]" },
+            { input: 'a=[a[1],b[4],c[d[7]]]', output: "a = [a[1], b[4], c[d[7]]]" },
+            { input: '[1,2,[3,4,[5,6],7],8]', output: "[1, 2, [3, 4, [5, 6], 7], 8]" },
+
+            { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+            output: '[\n    [\n        ["1", "2"]{{c2}}["3", "4"]\n    ]{{c1}}[\n        ["5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]{{c1}}[\n        ["1", "2", "3"]{{c2}}["4", "5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]\n]' },
+
+        ],
+    }, {
         name: "New Test Suite"
     },
         // =======================================================

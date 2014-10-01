@@ -64,6 +64,7 @@ var fs = require('fs'),
         "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
         "end_with_newline": Boolean,
+        "comma_first": Boolean,
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
@@ -103,6 +104,7 @@ var fs = require('fs'),
         "w": ["--wrap_line_length"],
         "X": ["--e4x"],
         "n": ["--end_with_newline"],
+        "C": ["--comma_first"],
         // CSS-only
         "L": ["--selector_separator_newline"],
         "N": ["--newline_between_rules"],
@@ -234,7 +236,8 @@ function usage(err) {
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
-            msg.push('  -n, --end_with_newline            End output with newline');
+            msg.push('  -n, --end-with-newline            End output with newline');
+            msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
             break;
         case "html":
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
