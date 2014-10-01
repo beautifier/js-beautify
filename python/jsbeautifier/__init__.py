@@ -213,7 +213,7 @@ class Acorn:
         return code >= 0xaa and self.nonASCIIidentifier.match(self.six.unichr(code)) != None
 
 class Token:
-    def __init__(self, type, text, newlines = 0, whitespace_before = [], mode = None, parent = None):
+    def __init__(self, type, text, newlines = 0, whitespace_before = '', mode = None, parent = None):
         self.type = type
         self.text = text
         self.comments_before = []
@@ -439,13 +439,13 @@ class Beautifier:
 
 
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
+        # never wrap the first token of a line.
         if self.output.just_added_newline():
             return
 
         if (self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap:
             self.print_newline(preserve_statement_flags = True)
-        elif self.opts.wrap_line_length > 0 and self.output.current_line.get_item_count() > 0:
-            # never wrap the first token of a line.
+        elif self.opts.wrap_line_length > 0:
             proposed_line_length = self.output.current_line.get_character_count() + len(current_token.text)
             if self.output.space_before_token:
                 proposed_line_length += 1
@@ -467,12 +467,9 @@ class Beautifier:
         if self.output.just_added_newline():
             line = self.output.current_line
             if self.opts.keep_array_indentation and self.is_array(self.flags.mode) and current_token.wanted_newline:
-                # prevent removing of this whitespace as redundant
-                line.push('')
-                for item in current_token.whitespace_before:
-                    line.push(item)
-
-            elif self.output.add_indent_string(self.flags.indentation_level):
+                line.push(current_token.whitespace_before)
+                self.output.space_before_token = False
+            elif self.output.set_indent(self.flags.indentation_level):
                 self.flags.line_indent_level = self.flags.indentation_level
 
 
@@ -1058,7 +1055,7 @@ class Beautifier:
         lines = current_token.text.replace('\x0d', '').split('\x0a')
         javadoc = False
         starless = False
-        last_indent = ''.join(current_token.whitespace_before)
+        last_indent = current_token.whitespace_before
         last_indent_length = len(last_indent)
 
         # block comment starts with a new line
@@ -1139,59 +1136,63 @@ def mkdir_p(path):
 
 # Using object instead of string to allow for later expansion of info about each line
 class OutputLine:
-    def __init__(self):
-        self.character_count = 0;
-        self.line_items = []
+    def __init__(self, parent):
+        self.__parent = parent
+        self.__character_count = 0
+        self.__indent_count = -1
+
+        self.__items = []
+        self.__empty = True
 
     def get_character_count(self):
-        return self.character_count
+        return self.__character_count
 
-    def get_item_count(self):
-        return len(self.line_items)
+    def is_empty(self):
+        return self.__empty
 
-    def get_output(self):
-        return ''.join(self.line_items)
+    def set_indent(self, level):
+        self.__character_count = self.__parent.baseIndentLength + level * self.__parent.indent_length
+        self.__indent_count = level;
 
     def last(self):
-        if len(self.line_items) > 0:
-            return self.line_items[-1]
+        if not self.is_empty():
+            return self.__items[-1]
         else:
             return None
 
     def push(self, input):
-        self.line_items.append(input)
-        self.character_count += len(input)
+        self.__items.append(input)
+        self.__character_count += len(input)
+        self.__empty = False
 
-    def remove_indent(self, indent_string, baseIndentString):
-        splice_index = 0
-        # skip empty lines
-        if self.get_item_count() == 0:
-            return
+    def remove_indent(self):
+        if self.__indent_count > 0:
+            self.__indent_count -= 1
+            self.__character_count -= self.__parent.indent_length
 
-        # skip the preindent string if present
-        if baseIndentString != '' and \
-                 self.line_items[0] == baseIndentString:
-            splice_index = 1
+    def trim(self):
+        while self.last() == ' ':
+            item = self._items.pop()
+            self.__character_count -= 1
+        self.__empty = len(self.__items) == 0
 
-        # remove one indent, if present
-        if  self.line_items[splice_index] == indent_string:
-            self.character_count -= len(self.line_items[splice_index])
-            del self.line_items[splice_index]
-
-    def trim(self, indent_string, baseIndentString):
-        while self.get_item_count() > 0 \
-              and (
-                  self.last() == ' '\
-                  or self.last() == indent_string \
-                  or self.last() == baseIndentString):
-            item = line_items.pop()
-            self.character_count -= len(item)
+    def toString(self):
+        result = ''
+        if not self.is_empty():
+            if self.__indent_count >= 0:
+                result = self.__parent.indent_cache[self.__indent_count]
+            result += ''.join(self.__items)
+        return result
 
 
 class Output:
-    def __init__(self, indent_string, baseIndentString):
+    def __init__(self, indent_string, baseIndentString = ''):
+
         self.indent_string = indent_string
         self.baseIndentString = baseIndentString
+        self.indent_cache = [ baseIndentString ]
+        self.baseIndentLength = len(baseIndentString)
+        self.indent_length = len(indent_string)
         self.lines = []
         self.current_line = None
         self.space_before_token = False
@@ -1206,29 +1207,25 @@ class Output:
             return False
 
         if force_newline or not self.just_added_newline():
-            self.current_line = OutputLine()
+            self.current_line = OutputLine(self)
             self.lines.append(self.current_line)
             return True
         return False
 
     def get_code(self):
-        sweet_code = self.lines[0].get_output()
-        if len(self.lines) > 1:
-            for line_index in range(1, len(self.lines)):
-                sweet_code += '\n' + self.lines[line_index].get_output()
-
+        sweet_code = "\n".join(line.toString() for line in self.lines)
         return re.sub('[\r\n\t ]+$', '', sweet_code)
 
-    def add_indent_string(self, level):
-        if self.baseIndentString != '':
-            self.current_line.push(self.baseIndentString)
-
+    def set_indent(self, level):
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
-            for i in range(level):
-                self.current_line.push(self.indent_string)
-            return True
+            while level >= len(self.indent_cache):
+                self.indent_cache.append(self.indent_cache[-1] + self.indent_string)
 
+
+            self.current_line.set_indent(level)
+            return True
+        self.current_line.set_indent(0)
         return False
 
     def add_token(self, printable_token):
@@ -1236,15 +1233,12 @@ class Output:
         self.current_line.push(printable_token)
 
     def add_space_before_token(self):
-        # make sure only single space gets drawn
-        if self.space_before_token and self.current_line.get_item_count() and \
-                self.current_line.last() not in [' ', self.indent_string, self.baseIndentString]:
+        if self.space_before_token and not self.just_added_newline():
             self.current_line.push(' ')
         self.space_before_token = False
 
     def remove_redundant_indentation(self, frame):
         # This implementation is effective but has some issues:
-        #     - less than great performance due to array splicing
         #     - can cause line wrap to happen too soon due to indent removal
         #           after wrap points are calculated
         # These issues are minor compared to ugly indentation.
@@ -1255,21 +1249,19 @@ class Output:
         # remove one indent from each line inside this section
         index = frame.start_line_index
         while index < len(self.lines):
-            self.lines[index].remove_indent(self.indent_string, self.baseIndentString)
+            self.lines[index].remove_indent()
             index += 1
 
     def trim(self, eat_newlines = False):
-        self.current_line.trim(self.indent_string, self.baseIndentString)
+        self.current_line.trim()
 
-        while eat_newlines and len(self.lines) > 1 and \
-            self.current_line.get_item_count() == 0:
+        while eat_newlines and len(self.lines) > 1 and self.current_line.is_empty():
             self.lines.pop()
             self.current_line = self.lines[-1]
-            self.current_line.trim(self.indent_string, self.baseIndentString)
-
+            self.current_line.trim()
 
     def just_added_newline(self):
-        return self.current_line.get_item_count() == 0
+        return self.current_line.is_empty()
 
     def just_added_blankline(self):
         if self.just_added_newline():
@@ -1277,7 +1269,7 @@ class Output:
                 return True
 
             line = self.lines[-2]
-            return line.get_item_count() == 0
+            return line.is_empty()
 
         return False
 
@@ -1343,8 +1335,9 @@ class Tokenizer:
 
     def __tokenize_next(self):
 
+        whitespace_on_this_line = []
         self.n_newlines = 0
-        self.whitespace_before_token = []
+        self.whitespace_before_token = ''
 
         if self.parser_pos >= len(self.input):
             return '', 'TK_EOF'
@@ -1361,17 +1354,20 @@ class Tokenizer:
         while c in self.whitespace:
             if c == '\n':
                 self.n_newlines += 1
-                self.whitespace_before_token = []
+                whitespace_on_this_line = []
             elif c == self.indent_string:
-                self.whitespace_before_token.append(self.indent_string)
+                whitespace_on_this_line.append(self.indent_string)
             elif c != '\r':
-                self.whitespace_before_token.append(' ')
+                whitespace_on_this_line.append(' ')
 
             if self.parser_pos >= len(self.input):
                 return '', 'TK_EOF'
 
             c = self.input[self.parser_pos]
             self.parser_pos += 1
+
+        if len(whitespace_on_this_line) != 0:
+            self.whitespace_before_token = ''.join(whitespace_on_this_line)
 
         if self.digit.match(c):
             allow_decimal = True
