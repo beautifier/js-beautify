@@ -1346,12 +1346,9 @@ class Tokenizer:
 
         if len(self.tokens) > 0:
             last_token = self.tokens[-1]
-            last_type = last_token.type
-            last_text = last_token.text
         else:
-            last_token = None
-            last_type = 'TK_START_BLOCK'
-            last_text = ''
+            # For the sake of tokenizing we can pretend that there was on open brace to start
+            last_token = Token('TK_START_BLOCK', '{')
 
         c = self.input[self.parser_pos]
         self.parser_pos += 1
@@ -1419,8 +1416,8 @@ class Tokenizer:
                     if self.parser_pos == len(self.input):
                         break
 
-            if not (last_type == 'TK_DOT' \
-                        or (last_type == 'TK_RESERVED' and last_text in ['set', 'get'])) \
+            if not (last_token.type == 'TK_DOT' \
+                        or (last_token.type == 'TK_RESERVED' and last_token.text in ['set', 'get'])) \
                     and c in self.reserved_words:
                 if c == 'in': # in is an operator, need to hack
                     return c, 'TK_OPERATOR'
@@ -1482,10 +1479,10 @@ class Tokenizer:
                 (c == '/') or \
                 (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
             ) and ( \
-                (last_type == 'TK_RESERVED' and last_text in ['return', 'case', 'throw', 'else', 'do']) or \
-                (last_type == 'TK_END_EXPR' and last_text == ')' and \
-                (last_type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
+                (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do']) or \
+                (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
                             last_token.parent and last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
+                (last_token.type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
                                    'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
             sep = c
             esc = False
