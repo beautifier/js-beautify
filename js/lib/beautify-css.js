@@ -58,7 +58,7 @@
 // http://www.w3.org/TR/CSS21/syndata.html#tokenization
 // http://www.w3.org/TR/css3-syntax/
 
-(function () {
+(function() {
     function css_beautify(source_text, options) {
         options = options || {};
         var indentSize = options.indent_size || 4;
@@ -101,6 +101,14 @@
                 }
             }
             return source_text.substring(start, pos + 1);
+        }
+
+        function peekString(endChar) {
+            var prev_pos = pos;
+            var str = eatString(endChar);
+            pos = prev_pos - 1;
+            next();
+            return str;
         }
 
         function eatWhitespace() {
@@ -164,22 +172,22 @@
         }
 
         var print = {};
-        print["{"] = function (ch) {
+        print["{"] = function(ch) {
             print.singleSpace();
             output.push(ch);
             print.newLine();
         };
-        print["}"] = function (ch) {
+        print["}"] = function(ch) {
             print.newLine();
             output.push(ch);
             print.newLine();
         };
 
-        print._lastCharWhitespace = function () {
+        print._lastCharWhitespace = function() {
             return whiteRe.test(output[output.length - 1]);
         };
 
-        print.newLine = function (keepWhitespace) {
+        print.newLine = function(keepWhitespace) {
             if (!keepWhitespace) {
                 while (print._lastCharWhitespace()) {
                     output.pop();
@@ -193,7 +201,7 @@
                 output.push(basebaseIndentString);
             }
         };
-        print.singleSpace = function () {
+        print.singleSpace = function() {
             if (output.length && !print._lastCharWhitespace()) {
                 output.push(' ');
             }
@@ -222,11 +230,14 @@
             } else if (ch === '/' && peek() === '/') { // single line comment
                 output.push(eatComment(true), basebaseIndentString);
             } else if (ch === '@') {
-                // strip trailing space, if present, for hash property checks
-                var atRule = eatString(" ").replace(/ $/, '');
-
                 // pass along the space we found as a separate item
-                output.push(atRule, ch);
+                if (isAfterSpace) {
+                    print.singleSpace();
+                }
+                output.push(ch);
+
+                // strip trailing space, if present, for hash property checks
+                var atRule = peekString(" ").replace(/\s$/, '');
 
                 // might be a nesting at-rule
                 if (atRule in css_beautify.NESTED_AT_RULE) {
@@ -362,8 +373,10 @@
     /*global define */
     if (typeof define === "function" && define.amd) {
         // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
-        define([], function () {
-            return { css_beautify: css_beautify };
+        define([], function() {
+            return {
+                css_beautify: css_beautify
+            };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths

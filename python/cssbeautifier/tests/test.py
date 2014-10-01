@@ -125,6 +125,14 @@ class CSSBeautifierTest(unittest.TestCase):
         t(  "a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
 
+    def testLessCss(self):
+        self.resetOptions()
+        t = self.decodesto
+
+        t('.well{@well-bg:@bg-color;}','.well {\n\t@well-bg: @bg-color;\n}')
+        t('.well {\n&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n\t&.active {\n\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n\t}\n}')
+
     def decodesto(self, input, expectation=None):
         if expectation == None:
             expectation = input

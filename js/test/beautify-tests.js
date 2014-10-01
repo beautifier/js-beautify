@@ -2291,6 +2291,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 */
         btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}");
 
+        // less-css cases
+        btc('.well{@well-bg:@bg-color;}','.well {\n\t@well-bg: @bg-color;\n}');
+        btc('.well {\n&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n\t&.active {\n\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n\t}\n}');
+
+
         // test options
         opts.indent_size = 2;
         opts.indent_char = ' ';
