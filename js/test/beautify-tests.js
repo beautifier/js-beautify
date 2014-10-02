@@ -1839,7 +1839,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         opts.end_with_newline = false;
-        test_fragment('<head>\n' +
+        // error cases need love too
+        bth('<img title="Bad food!" src="foo.jpg" alt="Evil" ">');
+        bth("<!-- don't blow up if a comment is not complete");
+
+        test_fragment(
+            '<head>\n' +
             '    <script>\n' +
             '        mocha.setup("bdd");\n' +
             '    </script>\n' +
