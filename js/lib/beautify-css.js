@@ -100,7 +100,6 @@
             while (next()) {
                 if (ch === "\\") {
                     next();
-                    next();
                 } else if (endChars.indexOf(ch) !== -1) {
                     break;
                 } else if (ch === "\n") {

@@ -36,6 +36,10 @@ class CSSBeautifierTest(unittest.TestCase):
         t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}")
         t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}")
 
+        t("a:before {\n" + 
+            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}");
+            
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
         t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}')

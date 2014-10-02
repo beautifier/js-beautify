@@ -198,7 +198,6 @@ class Beautifier:
         while self.next():
             if self.ch == "\\":
                 self.next()
-                self.next()
             elif self.ch in endChars:
                 break
             elif self.ch == "\n":

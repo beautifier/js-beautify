@@ -2255,6 +2255,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}");
         btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}");
+
+        btc("a:before {\n" + 
+            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}");
         
         //lead-in whitespace determines base-indent.
         // lead-in newlines are stripped.
