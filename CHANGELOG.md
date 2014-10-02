@@ -6,6 +6,7 @@
 * Major fixes to css-beautifier to not blow up LESS/SCSS
 * Lower priority bug fixes that were very ugly
 
+https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 
 ### Closed Issues
 * [TypeError: Cannot read property 'type' of undefined] ([#548](https://github.com/beautify-web/js-beautify/issues/548))
