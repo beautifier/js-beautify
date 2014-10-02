@@ -81,11 +81,18 @@
 
         function next() {
             ch = source_text.charAt(++pos);
-            return ch;
+            return ch || '';
         }
 
-        function peek() {
-            return source_text.charAt(pos + 1);
+        function peek(skipWhitespace) {
+            var prev_pos = pos;
+            if (skipWhitespace) {
+                eatWhitespace();
+            }
+            result = source_text.charAt(pos + 1) || '';
+            pos = prev_pos - 1;
+            next();
+            return result;
         }
 
         function eatString(endChars) {
@@ -112,47 +119,45 @@
         }
 
         function eatWhitespace() {
-            var start = pos;
+            var result = '';
             while (whiteRe.test(peek())) {
-                pos++;
+                next()
+                result += ch;
             }
-            return pos !== start;
+            return result;
         }
 
         function skipWhitespace() {
-            var start = pos;
-            do {} while (whiteRe.test(next()));
-            return pos !== start + 1;
+            var result = '';
+            if (ch && whiteRe.test(ch)) {
+                result = ch;
+            }
+            while (whiteRe.test(next())) {
+                result += ch
+            }
+            return result;
         }
 
         function eatComment(singleLine) {
             var start = pos;
+            var singleLine = peek() === "/";
             next();
             while (next()) {
-                if (ch === "*" && peek() === "/") {
-                    pos++;
+                if (!singleLine && ch === "*" && peek() === "/") {
+                    next();
                     break;
                 } else if (singleLine && ch === "\n") {
-                    break;
+                    return source_text.substring(start, pos);
                 }
             }
 
-            return source_text.substring(start, pos + 1);
+            return source_text.substring(start, pos) + ch;
         }
 
 
         function lookBack(str) {
             return source_text.substring(pos - str.length, pos).toLowerCase() ===
                 str;
-        }
-
-        function isCommentOnLine() {
-            var endOfLine = source_text.indexOf('\n', pos);
-            if (endOfLine === -1) {
-                return false;
-            }
-            var restOfLine = source_text.substring(pos, endOfLine);
-            return restOfLine.indexOf('//') !== -1;
         }
 
         // printer
@@ -189,9 +194,7 @@
 
         print.newLine = function(keepWhitespace) {
             if (!keepWhitespace) {
-                while (print._lastCharWhitespace()) {
-                    output.pop();
-                }
+                print.trim();
             }
 
             if (output.length) {
@@ -206,6 +209,14 @@
                 output.push(' ');
             }
         };
+
+        print.trim = function() {
+            while (print._lastCharWhitespace()) {
+                output.pop();
+            }
+        };
+
+        
         var output = [];
         if (basebaseIndentString) {
             output.push(basebaseIndentString);
@@ -214,22 +225,33 @@
 
         var insideRule = false;
         var enteringConditionalGroup = false;
+        var top_ch = '';
+        var last_top_ch = '';
 
         while (true) {
-            var isAfterSpace = skipWhitespace();
+            var whitespace = skipWhitespace();
+            var isAfterSpace = whitespace !== '';
+            var isAfterNewline = whitespace.indexOf('\n') !== -1;
+            var last_top_ch = top_ch;
+            var top_ch = ch;
 
             if (!ch) {
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
+                var header = lookBack("");
                 print.newLine();
                 output.push(eatComment());
                 print.newLine();
-                var header = lookBack("");
                 if (header) {
                     print.newLine(true);
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
-                output.push(eatComment(true), basebaseIndentString);
+                if (!isAfterNewline && last_top_ch !== '{') {
+                    print.trim();
+                }
+                print.singleSpace();
+                output.push(eatComment());
+                print.newLine();
             } else if (ch === '@') {
                 // pass along the space we found as a separate item
                 if (isAfterSpace) {
@@ -255,10 +277,11 @@
                     eatWhitespace();
                 }
             } else if (ch === '{') {
-                eatWhitespace();
-                if (peek() === '}') {
+                if (peek(true) === '}') {
+                    eatWhitespace();
                     next();
-                    output.push(" {}");
+                    print.singleSpace();
+                    output.push("{}");
                 } else {
                     indent();
                     print["{"](ch);
@@ -283,7 +306,7 @@
                 if ((insideRule || enteringConditionalGroup) && !lookBack("&")) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
-                    output.push(ch);
+                    output.push(':');
                     print.singleSpace();
                 } else {
                     if (peek() === ":") {
@@ -292,21 +315,14 @@
                         output.push("::");
                     } else {
                         // pseudo-class
-                        output.push(ch);
+                        output.push(':');
                     }
                 }
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
-                if (isCommentOnLine()) {
-                    var beforeComment = eatString('/');
-                    var comment = eatComment(true);
-                    output.push(beforeComment, comment.substring(1, comment.length - 1));
-                    print.newLine(true);
-                } else {
-                    output.push(ch);
-                    print.newLine(true);
-                }
+                output.push(ch);
+                print.newLine();
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
                     output.push(ch);
@@ -328,8 +344,8 @@
             } else if (ch === ')') {
                 output.push(ch);
             } else if (ch === ',') {
-                eatWhitespace();
                 output.push(ch);
+                eatWhitespace();
                 if (!insideRule && selectorSeparatorNewline) {
                     print.newLine();
                 } else {
