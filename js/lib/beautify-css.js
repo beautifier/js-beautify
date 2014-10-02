@@ -58,7 +58,7 @@
 // http://www.w3.org/TR/CSS21/syndata.html#tokenization
 // http://www.w3.org/TR/css3-syntax/
 
-(function () {
+(function() {
     function css_beautify(source_text, options) {
         options = options || {};
         var indentSize = options.indent_size || 4;
@@ -81,20 +81,26 @@
 
         function next() {
             ch = source_text.charAt(++pos);
-            return ch;
+            return ch || '';
         }
 
-        function peek() {
-            return source_text.charAt(pos + 1);
+        function peek(skipWhitespace) {
+            var prev_pos = pos;
+            if (skipWhitespace) {
+                eatWhitespace();
+            }
+            result = source_text.charAt(pos + 1) || '';
+            pos = prev_pos - 1;
+            next();
+            return result;
         }
 
-        function eatString(endChar) {
+        function eatString(endChars) {
             var start = pos;
             while (next()) {
                 if (ch === "\\") {
                     next();
-                    next();
-                } else if (ch === endChar) {
+                } else if (endChars.indexOf(ch) !== -1) {
                     break;
                 } else if (ch === "\n") {
                     break;
@@ -103,48 +109,54 @@
             return source_text.substring(start, pos + 1);
         }
 
+        function peekString(endChar) {
+            var prev_pos = pos;
+            var str = eatString(endChar);
+            pos = prev_pos - 1;
+            next();
+            return str;
+        }
+
         function eatWhitespace() {
-            var start = pos;
+            var result = '';
             while (whiteRe.test(peek())) {
-                pos++;
+                next()
+                result += ch;
             }
-            return pos !== start;
+            return result;
         }
 
         function skipWhitespace() {
-            var start = pos;
-            do {} while (whiteRe.test(next()));
-            return pos !== start + 1;
+            var result = '';
+            if (ch && whiteRe.test(ch)) {
+                result = ch;
+            }
+            while (whiteRe.test(next())) {
+                result += ch
+            }
+            return result;
         }
 
         function eatComment(singleLine) {
             var start = pos;
+            var singleLine = peek() === "/";
             next();
             while (next()) {
-                if (ch === "*" && peek() === "/") {
-                    pos++;
+                if (!singleLine && ch === "*" && peek() === "/") {
+                    next();
                     break;
                 } else if (singleLine && ch === "\n") {
-                    break;
+                    return source_text.substring(start, pos);
                 }
             }
 
-            return source_text.substring(start, pos + 1);
+            return source_text.substring(start, pos) + ch;
         }
 
 
         function lookBack(str) {
             return source_text.substring(pos - str.length, pos).toLowerCase() ===
                 str;
-        }
-
-        function isCommentOnLine() {
-            var endOfLine = source_text.indexOf('\n', pos);
-            if (endOfLine === -1) {
-                return false;
-            }
-            var restOfLine = source_text.substring(pos, endOfLine);
-            return restOfLine.indexOf('//') !== -1;
         }
 
         // printer
@@ -164,26 +176,24 @@
         }
 
         var print = {};
-        print["{"] = function (ch) {
+        print["{"] = function(ch) {
             print.singleSpace();
             output.push(ch);
             print.newLine();
         };
-        print["}"] = function (ch) {
+        print["}"] = function(ch) {
             print.newLine();
             output.push(ch);
             print.newLine();
         };
 
-        print._lastCharWhitespace = function () {
+        print._lastCharWhitespace = function() {
             return whiteRe.test(output[output.length - 1]);
         };
 
-        print.newLine = function (keepWhitespace) {
+        print.newLine = function(keepWhitespace) {
             if (!keepWhitespace) {
-                while (print._lastCharWhitespace()) {
-                    output.pop();
-                }
+                print.trim();
             }
 
             if (output.length) {
@@ -193,11 +203,19 @@
                 output.push(basebaseIndentString);
             }
         };
-        print.singleSpace = function () {
+        print.singleSpace = function() {
             if (output.length && !print._lastCharWhitespace()) {
                 output.push(' ');
             }
         };
+
+        print.trim = function() {
+            while (print._lastCharWhitespace()) {
+                output.pop();
+            }
+        };
+
+        
         var output = [];
         if (basebaseIndentString) {
             output.push(basebaseIndentString);
@@ -206,40 +224,63 @@
 
         var insideRule = false;
         var enteringConditionalGroup = false;
+        var top_ch = '';
+        var last_top_ch = '';
 
         while (true) {
-            var isAfterSpace = skipWhitespace();
+            var whitespace = skipWhitespace();
+            var isAfterSpace = whitespace !== '';
+            var isAfterNewline = whitespace.indexOf('\n') !== -1;
+            var last_top_ch = top_ch;
+            var top_ch = ch;
 
             if (!ch) {
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
-                print.newLine();
-                output.push(eatComment(), "\n", basebaseIndentString);
                 var header = lookBack("");
+                print.newLine();
+                output.push(eatComment());
+                print.newLine();
                 if (header) {
-                    print.newLine();
+                    print.newLine(true);
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
-                output.push(eatComment(true), basebaseIndentString);
+                if (!isAfterNewline && last_top_ch !== '{') {
+                    print.trim();
+                }
+                print.singleSpace();
+                output.push(eatComment());
+                print.newLine();
             } else if (ch === '@') {
-                // strip trailing space, if present, for hash property checks
-                var atRule = eatString(" ").replace(/ $/, '');
-
                 // pass along the space we found as a separate item
-                output.push(atRule, ch);
+                if (isAfterSpace) {
+                    print.singleSpace();
+                }
+                output.push(ch);
+
+                // strip trailing space, if present, for hash property checks
+                var variableOrRule = peekString(": ,;{}()[]/='\"").replace(/\s$/, '');
 
                 // might be a nesting at-rule
-                if (atRule in css_beautify.NESTED_AT_RULE) {
+                if (variableOrRule in css_beautify.NESTED_AT_RULE) {
                     nestedLevel += 1;
-                    if (atRule in css_beautify.CONDITIONAL_GROUP_RULE) {
+                    if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
                         enteringConditionalGroup = true;
                     }
+                } else if (variableOrRule.indexOf(':') > 0) {
+                    //we have a variable, add it and insert one space before continuing
+                    next();
+                    variableOrRule = eatString(":").replace(/\s$/, '');
+                    output.push(variableOrRule);
+                    print.singleSpace();
+                    eatWhitespace();
                 }
             } else if (ch === '{') {
-                eatWhitespace();
-                if (peek() === '}') {
+                if (peek(true) === '}') {
+                    eatWhitespace();
                     next();
-                    output.push(" {}");
+                    print.singleSpace();
+                    output.push("{}");
                 } else {
                     indent();
                     print["{"](ch);
@@ -261,10 +302,11 @@
                 }
             } else if (ch === ":") {
                 eatWhitespace();
-                if (insideRule || enteringConditionalGroup) {
+                if ((insideRule || enteringConditionalGroup) && !lookBack("&")) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
-                    output.push(ch, " ");
+                    output.push(':');
+                    print.singleSpace();
                 } else {
                     if (peek() === ":") {
                         // pseudo-element
@@ -272,19 +314,14 @@
                         output.push("::");
                     } else {
                         // pseudo-class
-                        output.push(ch);
+                        output.push(':');
                     }
                 }
             } else if (ch === '"' || ch === '\'') {
                 output.push(eatString(ch));
             } else if (ch === ';') {
-                if (isCommentOnLine()) {
-                    var beforeComment = eatString('/');
-                    var comment = eatComment(true);
-                    output.push(beforeComment, comment.substring(1, comment.length - 1), '\n', basebaseIndentString);
-                } else {
-                    output.push(ch, '\n', basebaseIndentString);
-                }
+                output.push(ch);
+                print.newLine();
             } else if (ch === '(') { // may be a url
                 if (lookBack("url")) {
                     output.push(ch);
@@ -306,8 +343,8 @@
             } else if (ch === ')') {
                 output.push(ch);
             } else if (ch === ',') {
-                eatWhitespace();
                 output.push(ch);
+                eatWhitespace();
                 if (!insideRule && selectorSeparatorNewline) {
                     print.newLine();
                 } else {
@@ -362,8 +399,10 @@
     /*global define */
     if (typeof define === "function" && define.amd) {
         // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
-        define([], function () {
-            return { css_beautify: css_beautify };
+        define([], function() {
+            return {
+                css_beautify: css_beautify
+            };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths

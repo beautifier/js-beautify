@@ -36,6 +36,10 @@ class CSSBeautifierTest(unittest.TestCase):
         t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}")
         t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}")
 
+        t("a:before {\n" + 
+            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}");
+            
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
         t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}')
@@ -55,15 +59,20 @@ class CSSBeautifierTest(unittest.TestCase):
         t("/* test */", "/* test */")
         t(".tabs{/* test */}", ".tabs {\n\t/* test */\n}")
         t("/* header */.tabs {}", "/* header */\n\n.tabs {}")
-
+        t("/* header", "/* header");
+        t("// comment", "// comment");
+        t(".selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}",
+            ".selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}")
+            
         #single line comment support (less/sass)
         t(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}")
         t(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}")
         t("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}")
         t(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}")
-        t(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}")
-        t(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}")
-        t(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}")
+        t(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px; //end of line comment\n}")
+        t(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}")
+        t(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}")
+
 
 
     def testSeperateSelectors(self):
@@ -124,6 +133,48 @@ class CSSBeautifierTest(unittest.TestCase):
         # particular edge case with braces and semicolons inside tags that allows custom text
         t(  "a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
+
+    def testLessCss(self):
+        self.resetOptions()
+        t = self.decodesto
+
+        t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}')
+        t('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n' +
+            '\t&.active {\n' +
+            '\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '\t}\n' +
+            '}')
+        t('a {\n' +
+            '\tcolor: blue;\n' +
+            '\t&:hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '\t& & &&&.active {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}')
+
+        # Not sure if this is sensible
+        # but I believe it is correct to not remove the space in "&: hover". 
+        t('a {\n' +
+            '\t&: hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}');
+        
+        # nested modifiers (&:hover etc)
+        t(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}")
+        t(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}")
+        t(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}")
+        t(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}")
+
+        # nested rules
+        t(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}")
+
+        # variables
+        t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}")
+        t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}")
 
     def decodesto(self, input, expectation=None):
         if expectation == None:

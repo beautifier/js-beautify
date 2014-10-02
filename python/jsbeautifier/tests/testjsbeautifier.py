@@ -58,6 +58,8 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('   < div');
         bt('a        =          1', 'a = 1');
         bt('a=1', 'a = 1');
+        bt('(3) / 2');
+        bt('["a", "b"].join("")');
         bt("a();\n\nb();", "a();\n\nb();");
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
@@ -278,6 +280,13 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('a(/a[b\\[', "a(/a[b\\["); # incomplete char class
         # allow unescaped / in char classes
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+        bt('typeof /foo\\//;');
+        bt('yield /foo\\//;');
+        bt('throw /foo\\//;');
+        bt('do /foo\\//;');
+        bt('return /foo\\//;');
+        bt('switch (a) {\n    case /foo\\//:\n        b\n}');
+        bt('if (a) /foo\\//\nelse /foo\\//;');
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
@@ -1674,6 +1683,15 @@ class TestJSBeautifier(unittest.TestCase):
             '    d: function() {}\n' +
             '};');
         # END tests for issue 508
+        
+        # START tests for issue 298
+        bt("'use strict';\n" +
+            "if ([].some(function() {\n" +
+            "        return false;\n" +
+            "    })) {\n" +
+            "    console.log('hello');\n" +
+            "}");
+        # END tests for issue 298
 
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');

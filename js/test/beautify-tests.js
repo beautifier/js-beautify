@@ -162,6 +162,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('   < div');
         bt('a        =          1', 'a = 1');
         bt('a=1', 'a = 1');
+        bt('(3) / 2');
+        bt('["a", "b"].join("")');
         bt("a();\n\nb();", "a();\n\nb();");
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
@@ -384,6 +386,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
         // allow unescaped / in char classes
         bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+        bt('typeof /foo\\//;');
+        bt('yield /foo\\//;');
+        bt('throw /foo\\//;');
+        bt('do /foo\\//;');
+        bt('return /foo\\//;');
+        bt('switch (a) {\n    case /foo\\//:\n        b\n}');
+        bt('if (a) /foo\\//\nelse /foo\\//;');
+
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
@@ -413,6 +423,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return\nfunc', 'return\nfunc');
         bt('catch(e)', 'catch (e)');
         bt('yield [1, 2]');
+
 
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
             'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
@@ -1806,6 +1817,15 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '};');
         // END tests for issue 508
 
+        // START tests for issue 298
+        bt("'use strict';\n" +
+            "if ([].some(function() {\n" +
+            "        return false;\n" +
+            "    })) {\n" +
+            "    console.log('hello');\n" +
+            "}");
+        // END tests for issue 298
+        
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
@@ -1828,7 +1848,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         opts.end_with_newline = false;
-        test_fragment('<head>\n' +
+        // error cases need love too
+        bth('<img title="Bad food!" src="foo.jpg" alt="Evil" ">');
+        bth("<!-- don't blow up if a comment is not complete");
+
+        test_fragment(
+            '<head>\n' +
             '    <script>\n' +
             '        mocha.setup("bdd");\n' +
             '    </script>\n' +
@@ -2230,6 +2255,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}");
         btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}");
+
+        btc("a:before {\n" + 
+            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "}");
         
         //lead-in whitespace determines base-indent.
         // lead-in newlines are stripped.
@@ -2242,15 +2271,19 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("/* test */", "/* test */");
         btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}");
         btc("/* header */.tabs {}", "/* header */\n\n.tabs {}");
-
+        btc("/* header", "/* header");
+        btc("// comment", "// comment");
+        btc(".selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}",
+            ".selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}")
+            
         //single line comment support (less/sass)
         btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
         btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
         btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}");
         btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}");
-        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px;//end of line comment\n}");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;\n}");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px;//end of line comment\n\theight: 10px;//another\n}");
+        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px; //end of line comment\n}");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}");
+        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}");
 
         // separate selectors
         btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
@@ -2279,6 +2312,45 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 }
 */
         btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}");
+
+        // less-css cases
+        btc('.well{@well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}');
+        btc('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
+            '.well {\n' +
+            '\t&.active {\n' +
+            '\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '\t}\n' +
+            '}');
+        btc('a {\n' +
+            '\tcolor: blue;\n' +
+            '\t&:hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '\t& & &&&.active {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}');
+
+        // Not sure if this is sensible
+        // but I believe it is correct to not remove the space in "&: hover". 
+        btc('a {\n' +
+            '\t&: hover {\n' +
+            '\t\tcolor: green;\n' +
+            '\t}\n' +
+            '}');
+            
+        //nested modifiers (&:hover etc)
+        btc(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}");
+        btc(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}");
+
+        //nested rules
+        btc(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}");
+
+        //variables
+        btc("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
+        btc("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
 
         // test options
         opts.indent_size = 2;

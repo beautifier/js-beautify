@@ -95,7 +95,7 @@ class Printer:
             self.push(self.baseIndentString)
 
     def __lastCharWhitespace(self):
-        return WHITE_RE.search(self.output[-1]) is not None
+        return len(self.output) > 0 and WHITE_RE.search(self.output[-1]) is not None
 
     def indent(self):
         self.indentLevel += 1
@@ -128,14 +128,17 @@ class Printer:
 
     def newLine(self, keepWhitespace=False):
         if not keepWhitespace:
-            while self.__lastCharWhitespace():
-                self.output.pop()
+            self.trim()
 
         if len(self.output) > 0:
             self.output.append("\n")
 
         if len(self.baseIndentString) > 0:
             self.output.append(self.baseIndentString)
+
+    def trim(self):
+        while self.__lastCharWhitespace():
+            self.output.pop()
 
     def singleSpace(self):
         if len(self.output) > 0 and not self.__lastCharWhitespace():
@@ -174,60 +177,71 @@ class Beautifier:
         if self.pos < len(self.source_text):
             self.ch = self.source_text[self.pos]
         else:
-            self.ch = None
+            self.ch = ''
         return self.ch
 
-    def peek(self):
+    def peek(self,skipWhitespace=False):
+        start = self.pos
+        if skipWhitespace:
+            self.eatWhitespace()
+        result = ""
         if self.pos + 1 < len(self.source_text):
-            return self.source_text[self.pos + 1]
-        else:
-            return ""
+            result = self.source_text[self.pos + 1]
+        if skipWhitespace:
+            self.pos = start - 1
+            self.next()
 
-    def eatString(self, endChar):
+        return result
+
+    def eatString(self, endChars):
         start = self.pos
         while self.next():
             if self.ch == "\\":
                 self.next()
-                self.next()
-            elif self.ch == endChar:
+            elif self.ch in endChars:
                 break
             elif self.ch == "\n":
                 break
-        return self.source_text[start:self.pos] + endChar
+        return self.source_text[start:self.pos] + self.ch
+
+    def peekString(self, endChar):
+        start = self.pos
+        st = self.eatString(endChar)
+        self.pos = start - 1
+        self.next()
+        return st
 
     def eatWhitespace(self):
-        start = self.pos
+        result = ''
         while WHITE_RE.search(self.peek()) is not None:
-            self.pos = self.pos + 1
-        return self.pos != start
+            self.next()
+            result += self.ch
+        return result
 
     def skipWhitespace(self):
-        start = self.pos
-        while self.next() and WHITE_RE.search(self.ch) is not None:
-            pass
-        return self.pos != start + 1
+        result = ''
+        if self.ch and WHITE_RE.search(self.ch):
+            result = self.ch
+            
+        while WHITE_RE.search(self.next()) is not None:
+            result += self.ch
+        return result
 
-    def eatComment(self, singleLine):
+    def eatComment(self):
         start = self.pos
+        singleLine = self.peek() == "/"
         self.next()
         while self.next():
-            if self.ch == "*" and self.peek() == "/":
-                self.pos = self.pos + 1
+            if not singleLine and self.ch == "*" and self.peek() == "/":
+                self.next()
                 break
             elif singleLine and self.ch == "\n":
-                break
-        return self.source_text[start:self.pos + 1]
+                return self.source_text[start:self.pos]
+        return self.source_text[start:self.pos] + self.ch
 
     def lookBack(self, string):
         past = self.source_text[self.pos - len(string):self.pos]
         return past.lower() == string
-
-    def isCommentOnLine(self):
-        endOfLine = self.source_text.find('\n', self.pos)
-        if endOfLine == -1:
-            return False;
-        restOfLine = self.source_text[self.pos:endOfLine]
-        return restOfLine.find('//') != -1
 
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
@@ -236,42 +250,64 @@ class Beautifier:
 
         insideRule = False
         enteringConditionalGroup = False
-
+        top_ch = '' 
+        last_top_ch = '' 
+        
         while True:
-            isAfterSpace = self.skipWhitespace()
-
+            whitespace = self.skipWhitespace();
+            isAfterSpace = whitespace != ''
+            isAfterNewline = '\n' in whitespace;
+            last_top_ch = top_ch
+            top_ch = self.ch
+            
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                comment = self.eatComment(False)
+                printer.newLine()
+                comment = self.eatComment()
                 printer.comment(comment)
+                printer.newLine()                
                 header = self.lookBack("")
                 if header:
-                    printer.push("\n\n")
+                    printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':
-                printer.comment(self.eatComment(True)[0:-1])
+                if not isAfterNewline and last_top_ch != '{':
+                    printer.trim()
+                    
+                printer.singleSpace()
+                printer.comment(self.eatComment())
                 printer.newLine()
             elif self.ch == '@':
-                # strip trailing space, if present, for hash property check
-                atRule = self.eatString(" ")
-                if(atRule[-1] == " "):
-                    atRule = atRule[:-1]
-
                 # pass along the space we found as a separate item
-                printer.push(atRule)
+                if isAfterSpace:
+                    printer.singleSpace()
                 printer.push(self.ch)
-                
+
+                # strip trailing space, if present, for hash property check
+                variableOrRule = self.peekString(": ,;{}()[]/='\"")
+                if variableOrRule[-1].isspace():
+                    variableOrRule = variableOrRule[:-1]
+
                 # might be a nesting at-rule
-                if atRule in self.NESTED_AT_RULE:
+                if variableOrRule in self.NESTED_AT_RULE:
                     printer.nestedLevel += 1
-                    if atRule in self.CONDITIONAL_GROUP_RULE:
+                    if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
+                elif ':' in variableOrRule:
+                    # we have a variable, add it and a space after
+                    self.next()
+                    variableOrRule = self.eatString(":")
+                    printer.push(variableOrRule)
+                    printer.singleSpace();
+                    self.eatWhitespace();
+
 
             elif self.ch == '{':
-                self.eatWhitespace()
-                if self.peek() == '}':
+                if self.peek(True) == '}':
+                    self.eatWhitespace()
                     self.next()
-                    printer.push(" {}")
+                    printer.singleSpace()
+                    printer.push("{}")
                 else:
                     printer.indent()
                     printer.openBracket()
@@ -290,10 +326,10 @@ class Beautifier:
                     printer.nestedLevel -= 1
             elif self.ch == ":":
                 self.eatWhitespace()
-                if insideRule or enteringConditionalGroup:
+                if (insideRule or enteringConditionalGroup) and not self.lookBack('&'):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
-                    printer.push(self.ch)
+                    printer.push(":")
                     printer.singleSpace()
                 else:
                     if self.peek() == ":":
@@ -302,18 +338,11 @@ class Beautifier:
                         printer.push("::")
                     else:
                         # pseudo-element
-                        printer.push(self.ch)                    
+                        printer.push(":")                    
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
-                if self.isCommentOnLine():
-                    beforeComment = self.eatString('/')
-                    comment = self.eatComment(True)
-                    printer.push(beforeComment)
-                    printer.push(comment[1:-1])
-                    printer.newLine()
-                else:
-                    printer.semicolon()
+                printer.semicolon()
             elif self.ch == '(':
                 # may be a url
                 if self.lookBack("url"):
@@ -333,8 +362,8 @@ class Beautifier:
             elif self.ch == ')':
                 printer.push(self.ch)
             elif self.ch == ',':
-                self.eatWhitespace()
                 printer.push(self.ch)
+                self.eatWhitespace()
                 if not insideRule and self.opts.selector_separator_newline:
                     printer.newLine()
                 else:

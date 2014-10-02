@@ -1,4 +1,27 @@
 # Changelog
+## v1.5.3
+
+### Description
+* High priority bug fixes
+* Major fixes to css-beautifier to not blow up LESS/SCSS
+* Lower priority bug fixes that were very ugly
+
+https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
+
+### Closed Issues
+* [TypeError: Cannot read property 'type' of undefined] ([#548](https://github.com/beautify-web/js-beautify/issues/548))
+* Bug with RegExp ([#547](https://github.com/beautify-web/js-beautify/issues/547))
+* css beauitify ([#506](https://github.com/beautify-web/js-beautify/issues/506))
+* bad formatting of .less files using @variable or &:hover syntax ([#489](https://github.com/beautify-web/js-beautify/issues/489))
+* Incorrect beautifying of CSS comment including an url. ([#466](https://github.com/beautify-web/js-beautify/issues/466))
+* Handle SASS parent reference &: ([#414](https://github.com/beautify-web/js-beautify/issues/414))
+* Js-beautify breaking selectors in less code.  ([#410](https://github.com/beautify-web/js-beautify/issues/410))
+* Problem with "content" ([#364](https://github.com/beautify-web/js-beautify/issues/364))
+* Space gets inserted between function and paren for function in Define  ([#313](https://github.com/beautify-web/js-beautify/issues/313))
+* beautify-html returns null on broken html ([#301](https://github.com/beautify-web/js-beautify/issues/301))
+* Indentation of functions inside conditionals not passing jslint ([#298](https://github.com/beautify-web/js-beautify/issues/298))
+
+
 ## v1.5.2
 
 ### Description
@@ -49,7 +72,7 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * Do not put a space within `function*` generator functions. ([#428](https://github.com/beautify-web/js-beautify/issues/428))
 * beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
 * comment breaks indent ([#413](https://github.com/beautify-web/js-beautify/issues/413))
-* Beautify HTML: Setting inline JS and CSS to stay unformatted ([#383](https://github.com/beautify-web/js-beautify/issues/383))
+* AngularJS inline templates are being corrupted! ([#385](https://github.com/beautify-web/js-beautify/issues/385))
 
 
 ## v1.5.1

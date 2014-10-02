@@ -163,6 +163,16 @@
         return beautifier.beautify();
     }
 
+    var MODE = {
+            BlockStatement: 'BlockStatement', // 'BLOCK'
+            Statement: 'Statement', // 'STATEMENT'
+            ObjectLiteral: 'ObjectLiteral', // 'OBJECT',
+            ArrayLiteral: 'ArrayLiteral', //'[EXPRESSION]',
+            ForInitializer: 'ForInitializer', //'(FOR-EXPRESSION)',
+            Conditional: 'Conditional', //'(COND-EXPRESSION)',
+            Expression: 'Expression' //'(EXPRESSION)'
+        };
+
     function Beautifier(js_source_text, options) {
         "use strict";
         var output
@@ -173,19 +183,8 @@
         var flags, previous_flags, flag_store;
         var prefix;
 
-        var handlers, MODE, opt;
+        var handlers, opt;
         var baseIndentString = '';
-
-
-        MODE = {
-            BlockStatement: 'BlockStatement', // 'BLOCK'
-            Statement: 'Statement', // 'STATEMENT'
-            ObjectLiteral: 'ObjectLiteral', // 'OBJECT',
-            ArrayLiteral: 'ArrayLiteral', //'[EXPRESSION]',
-            ForInitializer: 'ForInitializer', //'(FOR-EXPRESSION)',
-            Conditional: 'Conditional', //'(COND-EXPRESSION)',
-            Expression: 'Expression' //'(EXPRESSION)'
-        };
 
         handlers = {
             'TK_START_EXPR': handle_start_expr,
@@ -1345,7 +1344,11 @@
             //           after wrap points are calculated
             // These issues are minor compared to ugly indentation.
 
-            if (frame.multiline_frame) return;
+            if (frame.multiline_frame || 
+                frame.mode === MODE.ForInitializer || 
+                frame.mode === MODE.Conditional) {
+                return;
+            }
 
             // remove one indent from each line inside this section
             var index = frame.start_line_index;
@@ -1472,15 +1475,12 @@
                 return ['', 'TK_EOF'];
             }
 
-            var last_token, last_type, last_text;
+            var last_token;
             if (tokens.length) {
                 last_token = tokens[tokens.length-1];
-                last_type = last_token.type;
-                last_text = last_token.text;
             } else {
-                last_token = null;
-                last_type = 'TK_START_BLOCK';
-                last_text = '';
+                // For the sake of tokenizing we can pretend that there was on open brace to start
+                last_token = new Token('TK_START_BLOCK', '{');
             }
 
 
@@ -1565,8 +1565,8 @@
                     }
                 }
 
-                if (!(last_type === 'TK_DOT' ||
-                        (last_type === 'TK_RESERVED' && in_array(last_text, ['set', 'get'])))
+                if (!(last_token.type === 'TK_DOT' ||
+                        (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['set', 'get'])))
                     && in_array(c, reserved_words)) {
                     if (c === 'in') { // hack for 'in' operator
                         return [c, 'TK_OPERATOR'];
@@ -1643,10 +1643,10 @@
                     (c === '/') || // regexp
                     (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
                 ) && ( // regex and xml can only appear in specific locations during parsing
-                    (last_type === 'TK_RESERVED' && in_array(last_text , ['return', 'case', 'throw', 'else', 'do'])) ||
-                    (last_type === 'TK_END_EXPR' && last_text === ')' &&
-                        last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-                    (in_array(last_type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
+                    (last_token.type === 'TK_RESERVED' && in_array(last_token.text , ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+                    (last_token.type === 'TK_END_EXPR' && last_token.text === ')' &&
+                        last_token.parent && last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
+                    (in_array(last_token.type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
                         'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
                     ]))
                 )) {
