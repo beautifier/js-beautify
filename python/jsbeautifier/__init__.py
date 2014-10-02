@@ -1244,7 +1244,7 @@ class Output:
         #           after wrap points are calculated
         # These issues are minor compared to ugly indentation.
 
-        if frame.multiline_frame:
+        if frame.multiline_frame or frame.mode == MODE.ForInitializer or frame.mode == MODE.Conditional:
             return
 
         # remove one indent from each line inside this section

@@ -163,6 +163,16 @@
         return beautifier.beautify();
     }
 
+    var MODE = {
+            BlockStatement: 'BlockStatement', // 'BLOCK'
+            Statement: 'Statement', // 'STATEMENT'
+            ObjectLiteral: 'ObjectLiteral', // 'OBJECT',
+            ArrayLiteral: 'ArrayLiteral', //'[EXPRESSION]',
+            ForInitializer: 'ForInitializer', //'(FOR-EXPRESSION)',
+            Conditional: 'Conditional', //'(COND-EXPRESSION)',
+            Expression: 'Expression' //'(EXPRESSION)'
+        };
+
     function Beautifier(js_source_text, options) {
         "use strict";
         var output
@@ -173,19 +183,8 @@
         var flags, previous_flags, flag_store;
         var prefix;
 
-        var handlers, MODE, opt;
+        var handlers, opt;
         var baseIndentString = '';
-
-
-        MODE = {
-            BlockStatement: 'BlockStatement', // 'BLOCK'
-            Statement: 'Statement', // 'STATEMENT'
-            ObjectLiteral: 'ObjectLiteral', // 'OBJECT',
-            ArrayLiteral: 'ArrayLiteral', //'[EXPRESSION]',
-            ForInitializer: 'ForInitializer', //'(FOR-EXPRESSION)',
-            Conditional: 'Conditional', //'(COND-EXPRESSION)',
-            Expression: 'Expression' //'(EXPRESSION)'
-        };
 
         handlers = {
             'TK_START_EXPR': handle_start_expr,
@@ -1345,7 +1344,11 @@
             //           after wrap points are calculated
             // These issues are minor compared to ugly indentation.
 
-            if (frame.multiline_frame) return;
+            if (frame.multiline_frame || 
+                frame.mode === MODE.ForInitializer || 
+                frame.mode === MODE.Conditional) {
+                return;
+            }
 
             // remove one indent from each line inside this section
             var index = frame.start_line_index;

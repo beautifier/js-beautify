@@ -1683,6 +1683,15 @@ class TestJSBeautifier(unittest.TestCase):
             '    d: function() {}\n' +
             '};');
         # END tests for issue 508
+        
+        # START tests for issue 298
+        bt("'use strict';\n" +
+            "if ([].some(function() {\n" +
+            "        return false;\n" +
+            "    })) {\n" +
+            "    console.log('hello');\n" +
+            "}");
+        # END tests for issue 298
 
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
