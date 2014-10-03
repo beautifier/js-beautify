@@ -83,7 +83,7 @@ function SanityTest (func, name_of_test) {
             if (quote_strings) {
                 return "'" + something.replace("'", "\\'") + "'";
             } else {
-                return something;
+                return something.replace("\n", "\\n\n");
             }
         case 'number':
             return '' + something;

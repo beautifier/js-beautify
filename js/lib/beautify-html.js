@@ -446,23 +446,19 @@
                     if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
                         this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
                         this.tag_type = 'END';
-
-                        // Allow preserving of newlines after a end tag
-                        if (this.traverse_whitespace()) {
-                            this.space_or_wrap(content);
-                        }
                     } else { //otherwise it's a start-tag
                         this.record_tag(tag_check); //push it on the tag stack
                         if (tag_check.toLowerCase() !== 'html') {
                             this.indent_content = true;
                         }
                         this.tag_type = 'START';
-
-                        // Allow preserving of newlines after a start tag
-                        if (this.traverse_whitespace()) {
-                            this.space_or_wrap(content);
-                        }
                     }
+
+                    // Allow preserving of newlines after a start or end tag
+                    if (this.traverse_whitespace()) {
+                        this.space_or_wrap(content);
+                    }
+
                     if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
                         this.print_newline(false, this.output);
                         if (this.output.length && this.output[this.output.length - 2] !== '\n') {
@@ -660,6 +656,9 @@
                         return;
                     }
                     if (force || (arr[arr.length - 1] !== '\n')) { //we might want the extra line
+                        if ((arr[arr.length - 1] !== '\n')) {
+                            arr[arr.length - 1] = rtrim(arr[arr.length - 1]);
+                        }
                         arr.push('\n');
                     }
                 };

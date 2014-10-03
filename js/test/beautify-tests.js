@@ -1945,6 +1945,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bth('<div> content <img> content</div>');
         bth('<div>    content <img>    content </div>',
             '<div> content <img> content </div>');
+        bth('Text <a href="#">Link</a> Text');
+
 
 		// START tests for issue 453
 		bth('<script type="text/unknown"><div></div></script>',
@@ -2224,7 +2226,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.indent_size = 1;
         opts.indent_char = '\t';
         opts.preserve_newlines = false;
-        bth('<div>\n\tfoo\n</div>', '<div>foo</div>');
+        bth('<div>\n\tfoo\n</div>', '<div> foo </div>');
 
         opts.preserve_newlines = true;
         bth('<div>\n\tfoo\n</div>');
@@ -2233,29 +2235,29 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // test preserve_newlines and max_preserve_newlines
         opts.preserve_newlines = false;
-        test_fragment('<div>Should not</div>\n\n\n' +
-                      '<div>preserve newlines</div>',
-                      '<div>Should not</div>\n' +
-                      '<div>preserve newlines</div>');
+        bth('<div>Should not</div>\n\n\n' +
+            '<div>preserve newlines</div>',
+            '<div>Should not</div>\n' +
+            '<div>preserve newlines</div>');
 
         opts.preserve_newlines = true;
         opts.max_preserve_newlines  = 0;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve zero newlines</div>',
-                      '<div>Should</div>\n' +
-                      '<div>preserve zero newlines</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve zero newlines</div>',
+            '<div>Should</div>\n' +
+            '<div>preserve zero newlines</div>');
 
         opts.max_preserve_newlines  = 1;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>',
-                      '<div>Should</div>\n\n' +
-                      '<div>preserve one newline</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>',
+            '<div>Should</div>\n\n' +
+            '<div>preserve one newline</div>');
 
         opts.max_preserve_newlines  = null;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>',
-                      '<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>',
+            '<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>');
 
         // css beautifier
         opts.indent_size = 1;
