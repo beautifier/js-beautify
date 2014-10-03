@@ -121,11 +121,31 @@ test_cli_js_beautify()
 
 }
 
+test_smoke_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing js-beautify functionality...
+  node $SCRIPT_DIR/node-beautify-tests.js || exit 1
+  node $SCRIPT_DIR/amd-beautify-tests.js || exit 1
+}
+
+
+test_performance_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing js-beautify performance...
+  node $SCRIPT_DIR/node-beautify-perf-tests.js || exit 1
+  echo ----------------------------------------
+
+}
+
 test_cli_common css-beautify
 test_cli_common html-beautify
 test_cli_common js-beautify
 
 test_cli_js_beautify
+test_smoke_js_beautify
+test_performance_js_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.

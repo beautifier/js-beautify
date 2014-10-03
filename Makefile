@@ -32,8 +32,7 @@ testp:
 	echo Testing python implementation...
 	cd python ;\
 	python --version ;\
-	./jsbeautifier/tests/shell-smoke-test.sh && \
-	PYTHON=python ./js-beautify-test
+	./jsbeautifier/tests/shell-smoke-test.sh
 
 testj:
 	echo Testing javascript implementation...
