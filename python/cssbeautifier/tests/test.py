@@ -36,10 +36,10 @@ class CSSBeautifierTest(unittest.TestCase):
         t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}")
         t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}")
 
-        t("a:before {\n" + 
+        t("a:before {\n" +
             "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
             "}");
-            
+
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
         t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}')
@@ -63,7 +63,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t("// comment", "// comment");
         t(".selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}",
             ".selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}")
-            
+
         #single line comment support (less/sass)
         t(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}")
         t(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}")
@@ -86,7 +86,7 @@ class CSSBeautifierTest(unittest.TestCase):
     def testBlockNesting(self):
         self.resetOptions()
         t = self.decodesto
-        
+
         t("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
         t("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
 
@@ -156,13 +156,27 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Not sure if this is sensible
-        # but I believe it is correct to not remove the space in "&: hover". 
+        # but I believe it is correct to not remove the space in "&: hover".
         t('a {\n' +
             '\t&: hover {\n' +
             '\t\tcolor: green;\n' +
             '\t}\n' +
             '}');
-        
+
+        # import
+        t('@import "test";');
+
+        # don't break nested pseudo-classes
+        t("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
+
+        t("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
+            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
+
+        # handle SASS/LESS parent reference
+        t("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
+
         # nested modifiers (&:hover etc)
         t(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}")
         t(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}")
@@ -188,6 +202,6 @@ class CSSBeautifierTest(unittest.TestCase):
         if not expectation == None:
             self.assertMultiLineEqual(
                 cssbeautifier.beautify(expectation, self.options), expectation)
-                
+
 if __name__ == '__main__':
     unittest.main()

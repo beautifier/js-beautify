@@ -2365,7 +2365,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\t\tcolor: green;\n' +
             '\t}\n' +
             '}');
-            
+
+        // import
+        btc('@import "test";');
+
+        // don't break nested pseudo-classes
+        btc("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
+
+        btc("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
+            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
+
+        // handle SASS/LESS parent reference
+        btc("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
+        
         //nested modifiers (&:hover etc)
         btc(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}");
         btc(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}");

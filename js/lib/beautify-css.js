@@ -159,6 +159,21 @@
                 str;
         }
 
+        // Nested pseudo-class if we are insideRule
+        // and the next special character found opens
+        // a new block
+        function foundNestedPseudoClass() {
+            for (var i = pos + 1; i < source_text.length; i++){
+                var ch = source_text.charAt(i);
+                if (ch === "{"){
+                    return true;
+                } else if (ch === ";" || ch === "}" || ch === ")") {
+                    return false;
+                }
+            }
+            return false;
+        }
+
         // printer
         var basebaseIndentString = source_text.match(/^[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
@@ -267,13 +282,12 @@
                     if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
                         enteringConditionalGroup = true;
                     }
-                } else if (variableOrRule.indexOf(':') > 0) {
+                } else if (': '.indexOf(variableOrRule[variableOrRule.length -1]) >= 0) {
                     //we have a variable, add it and insert one space before continuing
                     next();
-                    variableOrRule = eatString(":").replace(/\s$/, '');
+                    variableOrRule = eatString(": ").replace(/\s$/, '');
                     output.push(variableOrRule);
                     print.singleSpace();
-                    eatWhitespace();
                 }
             } else if (ch === '{') {
                 if (peek(true) === '}') {
@@ -302,12 +316,15 @@
                 }
             } else if (ch === ":") {
                 eatWhitespace();
-                if ((insideRule || enteringConditionalGroup) && !lookBack("&")) {
+                if ((insideRule || enteringConditionalGroup) && 
+                        !(lookBack("&") || foundNestedPseudoClass())) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
                     output.push(':');
                     print.singleSpace();
                 } else {
+                    // sass/less parent reference don't use a space
+                    // sass nested pseudo-class don't use a space
                     if (peek() === ":") {
                         // pseudo-element
                         next();
@@ -318,6 +335,9 @@
                     }
                 }
             } else if (ch === '"' || ch === '\'') {
+                if (isAfterSpace) {
+                    print.singleSpace();
+                }
                 output.push(eatString(ch));
             } else if (ch === ';') {
                 output.push(ch);
