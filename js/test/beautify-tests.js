@@ -122,15 +122,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment(input, expectation);
     }
 
-    // test the input on beautifier with the current flag settings,
-    // but dont't
-    function bt_braces(input, expectation)
-    {
-        var braces_ex = opts.brace_style;
-        opts.brace_style = 'expand';
-        bt(input, expectation);
-        opts.brace_style = braces_ex;
-    }
 
     function beautifier_tests()
     {
