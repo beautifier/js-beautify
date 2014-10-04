@@ -237,7 +237,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("// comment\n(function something() {})"); // typical greasemonkey start
         bt("{\n\n    x();\n\n}"); // was: duplicating newlines
         bt('if (a in b) foo();');
+        bt('if(X)if(Y)a();else b();else c();',
+            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
+        bt('if (foo) bar();\nelse break');
         bt('var a, b;');
+        bt('var a = new function();');
+        test_fragment('new function');
         //  bt('var a, b');
         bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
@@ -274,7 +279,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
         bt("if (a) b() else c();", "if (a) b()\nelse c();");
         bt("if (a) b() else if c() d();", "if (a) b()\nelse if c() d();");
-
         bt("{}");
         bt("{\n\n}");
         bt("do { a(); } while ( 1 );", "do {\n    a();\n} while (1);");
@@ -393,6 +397,8 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return /foo\\//;');
         bt('switch (a) {\n    case /foo\\//:\n        b\n}');
         bt('if (a) /foo\\//\nelse /foo\\//;');
+
+        bt('if (foo) /regex/.test();');
 
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
@@ -735,6 +741,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
+        // START tests for brace positioning
+
+        // If this is ever supported, update tests for each brace style.
+        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
 
         opts.brace_style = 'expand';
 
@@ -744,8 +754,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             "try\n{\n    a();\n}\ncatch (b)\n{\n    c();\n}\ncatch (d)\n{}\nfinally\n{\n    e();\n}");
         bt('if(a){b();}else if(c) foo();',
             "if (a)\n{\n    b();\n}\nelse if (c) foo();");
-        bt('if(X)if(Y)a();else b();else c();',
-            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
         bt("if (a) {\n// comment\n}else{\n// comment\n}",
             "if (a)\n{\n    // comment\n}\nelse\n{\n    // comment\n}"); // if/else statement with empty body
         bt('if (x) {y} else { if (x) {y}}',
@@ -755,27 +763,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo)\n    {\n        bar();\n    }');
         bt('if (foo)\n{}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
         test_fragment('return {', 'return {'); // return needs the brace.
         test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return;\n{');
         bt("throw {}");
         bt("throw {\n    foo;\n}");
         bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
         test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
         bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
         bt('var a = new function() {};');
+        bt('var a = new function a() {};', 'var a = new function a()\n{};');
         bt('var a = new function()\n{};', 'var a = new function() {};');
         bt('var a = new function a()\n{};');
         bt('var a = new function a()\n    {},\n    b = new function b()\n    {};');
-        test_fragment('new function');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo(\n    {\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
@@ -853,25 +857,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
         bt('if (foo) {} else /regex/.test();');
-        bt('if (foo) /regex/.test();');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
         test_fragment('return {', 'return {'); // return needs the brace.
         test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return; {');
         bt("throw {}");
         bt("throw {\n    foo;\n}");
         bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
         test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
         bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
-        test_fragment('new function');
+        bt('var a = new function()\n{};', 'var a = new function() {};');
+        bt('var a = new function a()\n{};', 'var a = new function a() {};');
+        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};', 'var a = new function a() {},\n    b = new function b() {};');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
@@ -947,25 +949,23 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
         bt('if (foo) {}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
         test_fragment('return {', 'return {'); // return needs the brace.
         test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
         test_fragment('return;\n{', 'return; {');
         bt("throw {}");
         bt("throw {\n    foo;\n}");
         bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
         bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
         test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
         bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
         bt('var a = new function() {};');
         bt('var a = new function a() {};');
-        test_fragment('new function');
+        bt('var a = new function()\n{};', 'var a = new function() {};');
+        bt('var a = new function a()\n{};', 'var a = new function a() {};');
+        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};', 'var a = new function a() {},\n    b = new function b() {};');
         bt("foo({\n    'a': 1\n},\n10);",
             "foo({\n        'a': 1\n    },\n    10);");
         bt('(["foo","bar"]).each(function(i) {return i;});',
@@ -1023,6 +1023,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             "    {\n" +
             "        'Value2': '2'\n" +
             "    });");
+// END tests for brace position
 
         opts.brace_style = 'collapse';
 
