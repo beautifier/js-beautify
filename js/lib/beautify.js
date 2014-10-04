@@ -694,7 +694,13 @@
                     (second_token.text === ':' && in_array(next_token.type, ['TK_STRING', 'TK_WORD', 'TK_RESERVED']))
                     || (in_array(next_token.text, ['get', 'set']) && in_array(second_token.type, ['TK_WORD', 'TK_RESERVED']))
                 )) {
-                set_mode(MODE.ObjectLiteral);
+                // We don't support TypeScript,but we didn't break it for a very long time.
+                // We'll try to keep not breaking it.
+                if (!in_array(last_last_text, ['class','interface'])) {
+                    set_mode(MODE.ObjectLiteral);
+                } else {
+                    set_mode(MODE.BlockStatement);
+                }
             } else {
                 set_mode(MODE.BlockStatement);
             }
@@ -1344,8 +1350,8 @@
             //           after wrap points are calculated
             // These issues are minor compared to ugly indentation.
 
-            if (frame.multiline_frame || 
-                frame.mode === MODE.ForInitializer || 
+            if (frame.multiline_frame ||
+                frame.mode === MODE.ForInitializer ||
                 frame.mode === MODE.Conditional) {
                 return;
             }

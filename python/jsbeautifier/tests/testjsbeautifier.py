@@ -1620,7 +1620,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    yay: {}\n' +
             '};');
         # END tests for issue 440
-        
+
         # START tests for issue 311
         # if-else with braces edge case
         bt('if(x){a();}else{b();}if(y){c();}',
@@ -1631,9 +1631,9 @@ class TestJSBeautifier(unittest.TestCase):
             '}\n' +
             'if (y) {\n' +
             '    c();\n' +
-            '}'); 
+            '}');
         # END tests for issue 311
-        
+
         # START tests for issue 485
         # ensure function declarations behave the same in arrays as elsewhere
         bt( 'var v = ["a",\n' +
@@ -1649,7 +1649,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    id: 1\n' +
             '}];');
         # END tests for issue 485
-        
+
         # START tests for issue 382
         # initial totally cursor support for es6 module export
         bt( 'module "Even" {\n' +
@@ -1661,7 +1661,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    export default moduleName;\n' +
             '}');
         bt( 'module "Even" {\n' +
-            '    export default function div(x, y) {}\n' +            
+            '    export default function div(x, y) {}\n' +
             '}');
         # END tests for issue 382
 
@@ -1683,8 +1683,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    d: function() {}\n' +
             '};');
         # END tests for issue 508
-        
+
         # START tests for issue 298
+        # do not under indent if/while/for condtionals experesions
         bt("'use strict';\n" +
             "if ([].some(function() {\n" +
             "        return false;\n" +
@@ -1692,6 +1693,19 @@ class TestJSBeautifier(unittest.TestCase):
             "    console.log('hello');\n" +
             "}");
         # END tests for issue 298
+
+        # START tests for issue 552
+        # Typescript?  Okay... we didn't break it before try not to now.
+        bt( "class Test {\n" +
+            "    blah: string[];\n" +
+            "    foo(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "    bar(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "}");
+        # END tests for issue 552
 
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');

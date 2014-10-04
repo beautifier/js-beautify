@@ -667,7 +667,12 @@ class Beautifier:
         if second_token != None and \
             ((second_token.text == ':' and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
                 or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
-            self.set_mode(MODE.ObjectLiteral)
+            # We don't support TypeScript,but we didn't break it for a very long time.
+            # We'll try to keep not breaking it.
+            if not self.last_last_text in ['class','interface']:
+                self.set_mode(MODE.ObjectLiteral);
+            else:
+                self.set_mode(MODE.BlockStatement)
         else:
             self.set_mode(MODE.BlockStatement)
 
