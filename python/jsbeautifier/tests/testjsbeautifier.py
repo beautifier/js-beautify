@@ -1705,6 +1705,15 @@ class TestJSBeautifier(unittest.TestCase):
             "        return 0;\n" +
             "    }\n" +
             "}");
+        bt( "interface Test {\n" +
+            "    blah: string[];\n" +
+            "    foo(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "    bar(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "}");
         # END tests for issue 552
 
         bt('var a=1,b={bang:2},c=3;',
