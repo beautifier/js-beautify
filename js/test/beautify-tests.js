@@ -763,7 +763,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo)\n    {\n        bar();\n    }');
         bt('if (foo)\n{}\nelse /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo)\n{');
         test_fragment('foo {', 'foo\n{');
         test_fragment('return {', 'return {'); // return needs the brace.
@@ -857,7 +856,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
         bt('if (foo) {} else /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
         test_fragment('return {', 'return {'); // return needs the brace.
@@ -949,7 +947,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
         bt('if (foo) {}\nelse /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
         test_fragment('if (foo) {', 'if (foo) {');
         test_fragment('foo {', 'foo {');
         test_fragment('return {', 'return {'); // return needs the brace.
@@ -1041,7 +1038,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
                       '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
         bt('if (foo)\n{}\nelse /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
         test_fragment('if (foo) {');
         test_fragment('foo {');
         test_fragment('return {'); // return needs the brace.
