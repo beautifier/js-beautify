@@ -243,6 +243,22 @@ class Beautifier:
         past = self.source_text[self.pos - len(string):self.pos]
         return past.lower() == string
 
+    # Nested pseudo-class if we are insideRule
+    # and the next special character found opens
+    # a new block
+    def foundNestedPseudoClass(self):
+        i = self.pos + 1
+        while i < len(self.source_text):
+            ch = self.source_text[i]
+            if ch == "{":
+                return True
+            elif ch == ";" or ch == "}" or ch == ")":
+                return False
+            i += 1;
+            
+        return False
+        
+
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
         baseIndentString = m.group(0)
@@ -293,13 +309,14 @@ class Beautifier:
                     printer.nestedLevel += 1
                     if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
-                elif ':' in variableOrRule:
+                elif variableOrRule[-1] in ": ":
                     # we have a variable, add it and a space after
                     self.next()
-                    variableOrRule = self.eatString(":")
+                    variableOrRule = self.eatString(": ")
+                    if variableOrRule[-1].isspace():
+                        variableOrRule = variableOrRule[:-1]
                     printer.push(variableOrRule)
                     printer.singleSpace();
-                    self.eatWhitespace();
 
 
             elif self.ch == '{':
@@ -326,12 +343,15 @@ class Beautifier:
                     printer.nestedLevel -= 1
             elif self.ch == ":":
                 self.eatWhitespace()
-                if (insideRule or enteringConditionalGroup) and not self.lookBack('&'):
+                if (insideRule or enteringConditionalGroup) and \
+                        not (self.lookBack('&') or self.foundNestedPseudoClass()):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     printer.push(":")
                     printer.singleSpace()
                 else:
+                    # sass/less parent reference don't use a space
+                    # sass nested pseudo-class don't use a space
                     if self.peek() == ":":
                         # pseudo-element
                         self.next()
@@ -340,6 +360,8 @@ class Beautifier:
                         # pseudo-element
                         printer.push(":")                    
             elif self.ch == '"' or self.ch == '\'':
+                if isAfterSpace:
+                    printer.singleSpace()
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
                 printer.semicolon()

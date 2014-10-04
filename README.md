@@ -97,6 +97,7 @@ Beautifier Options:
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
   -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
   -X, --e4x                         Pass E4X xml literals through untouched
+  -n, --end_with_newline            End output with newline
   --good-stuff                      Warm the cockles of Crockford's heart
 ```
 
@@ -163,6 +164,7 @@ HTML Beautifier Options:
   -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
+  -n, --end_with_newline        End output with newline
 ```
 
 # License
@@ -181,5 +183,5 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.5.1
+js-beautify@1.5.3
 

@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "jsbeautifier.org for node",
   "main": "js/index.js",
   "preferGlobal": true,
@@ -14,7 +14,7 @@
     "test": "js/test"
   },
   "scripts": {
-    "test": "./js/test/shell-smoke-test.sh && node ./js/test/node-beautify-tests.js && node ./js/test/amd-beautify-tests.js",
+    "test": "./js/test/shell-smoke-test.sh",
     "update-codemirror": "npm install codemirror && rm -rf ./web/third-party/codemirror/* && cp ./node_modules/codemirror/LICENSE ./web/third-party/codemirror/ && cp ./node_modules/codemirror/README.md ./web/third-party/codemirror/ && cp -r ./node_modules/codemirror/lib ./web/third-party/codemirror/ && mkdir -p ./web/third-party/codemirror/mode && cp -r ./node_modules/codemirror/mode/javascript ./web/third-party/codemirror/mode/ && git add -Av ./web/third-party/codemirror"
   },
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
@@ -49,6 +49,7 @@
   "devDependencies": {
     "jshint": "~2.5.6",
     "node-static": "~0.7.1",
-    "requirejs": "2.1.x"
+    "requirejs": "2.1.x",
+    "benchmark": "1.0.0"
   }
 }

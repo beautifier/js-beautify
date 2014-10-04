@@ -1764,7 +1764,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '}\n' +
             'if (y) {\n' +
             '    c();\n' +
-            '}'); 
+            '}');
         // END tests for issue 311
 
         // START tests for issue 485
@@ -1782,7 +1782,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    id: 1\n' +
             '}];');
         // END tests for issue 485
-        
+
         // START tests for issue 382
         // initial totally cursor support for es6 module export
         bt( 'module "Even" {\n' +
@@ -1794,7 +1794,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    export default moduleName;\n' +
             '}');
         bt( 'module "Even" {\n' +
-            '    export default function div(x, y) {}\n' +            
+            '    export default function div(x, y) {}\n' +
             '}');
         // END tests for issue 382
 
@@ -1818,6 +1818,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // END tests for issue 508
 
         // START tests for issue 298
+        // do not under indent if/while/for condtionals experesions
         bt("'use strict';\n" +
             "if ([].some(function() {\n" +
             "        return false;\n" +
@@ -1825,7 +1826,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             "    console.log('hello');\n" +
             "}");
         // END tests for issue 298
-        
+
+        // START tests for issue 552
+        // Typescript?  Okay... we didn't break it before try not to now.
+        bt( "class Test {\n" +
+            "    blah: string[];\n" +
+            "    foo(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "    bar(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "}");
+        // END tests for issue 552
+
+
         bt('var a=1,b={bang:2},c=3;',
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
@@ -1842,7 +1857,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('<head>\n' +
             '    <script>\n' +
             '        mocha.setup("bdd");\n' +
-            '\n' +        
+            '\n' +
             '    </script>\n' +
             '</head>\n');
 
@@ -1858,7 +1873,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        mocha.setup("bdd");\n' +
             '    </script>\n' +
             '</head>');
-            
+
         test_fragment('<div></div>\n', '<div></div>');
         bth('<div></div>');
         bth('<div>content</div>');
@@ -1884,6 +1899,14 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '</div>');
         bth('    <div>\n' +
             '    </div>',
+            '<div>\n' +
+            '</div>');
+        bth('<div>\n' +
+            '</div>\n' +
+            '    <div>\n' +
+            '    </div>',
+            '<div>\n' +
+            '</div>\n' +
             '<div>\n' +
             '</div>');
         bth('    <div>\n' +
@@ -1920,6 +1943,25 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '<li>\n' +
             '    content\n' +
             '</li>');
+
+        bth('<img>content');
+        bth('<img> content');
+        bth('<img>   content', '<img> content');
+
+        bth('<img><img>content');
+        bth('<img> <img>content');
+        bth('<img>   <img>content', '<img> <img>content');
+
+        bth('<img><b>content</b>');
+        bth('<img> <b>content</b>');
+        bth('<img>   <b>content</b>', '<img> <b>content</b>');
+
+        bth('<div>content<img>content</div>');
+        bth('<div> content <img> content</div>');
+        bth('<div>    content <img>    content </div>',
+            '<div> content <img> content </div>');
+        bth('Text <a href="#">Link</a> Text');
+
 
 		// START tests for issue 453
 		bth('<script type="text/unknown"><div></div></script>',
@@ -2199,7 +2241,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.indent_size = 1;
         opts.indent_char = '\t';
         opts.preserve_newlines = false;
-        bth('<div>\n\tfoo\n</div>', '<div>foo</div>');
+        bth('<div>\n\tfoo\n</div>', '<div> foo </div>');
 
         opts.preserve_newlines = true;
         bth('<div>\n\tfoo\n</div>');
@@ -2208,29 +2250,29 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // test preserve_newlines and max_preserve_newlines
         opts.preserve_newlines = false;
-        test_fragment('<div>Should not</div>\n\n\n' +
-                      '<div>preserve newlines</div>',
-                      '<div>Should not</div>\n' +
-                      '<div>preserve newlines</div>');
+        bth('<div>Should not</div>\n\n\n' +
+            '<div>preserve newlines</div>',
+            '<div>Should not</div>\n' +
+            '<div>preserve newlines</div>');
 
         opts.preserve_newlines = true;
         opts.max_preserve_newlines  = 0;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve zero newlines</div>',
-                      '<div>Should</div>\n' +
-                      '<div>preserve zero newlines</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve zero newlines</div>',
+            '<div>Should</div>\n' +
+            '<div>preserve zero newlines</div>');
 
         opts.max_preserve_newlines  = 1;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>',
-                      '<div>Should</div>\n\n' +
-                      '<div>preserve one newline</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>',
+            '<div>Should</div>\n\n' +
+            '<div>preserve one newline</div>');
 
         opts.max_preserve_newlines  = null;
-        test_fragment('<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>',
-                      '<div>Should</div>\n\n\n' +
-                      '<div>preserve one newline</div>');
+        bth('<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>',
+            '<div>Should</div>\n\n\n' +
+            '<div>preserve one newline</div>');
 
         // css beautifier
         opts.indent_size = 1;
@@ -2246,7 +2288,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc('', '');
         btc('\n', '');
         btc(".tabs{}\n", ".tabs {}");
-        
+
         // test basic css beautifier
         btc(".tabs {}");
         btc(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}");
@@ -2256,10 +2298,10 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}");
         btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}");
 
-        btc("a:before {\n" + 
+        btc("a:before {\n" +
             "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
             "}");
-        
+
         //lead-in whitespace determines base-indent.
         // lead-in newlines are stripped.
         btc("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
@@ -2275,7 +2317,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         btc("// comment", "// comment");
         btc(".selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}",
             ".selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}")
-            
+
         //single line comment support (less/sass)
         btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
         btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
@@ -2332,13 +2374,27 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '}');
 
         // Not sure if this is sensible
-        // but I believe it is correct to not remove the space in "&: hover". 
+        // but I believe it is correct to not remove the space in "&: hover".
         btc('a {\n' +
             '\t&: hover {\n' +
             '\t\tcolor: green;\n' +
             '\t}\n' +
             '}');
-            
+
+        // import
+        btc('@import "test";');
+
+        // don't break nested pseudo-classes
+        btc("a:first-child{color:red;div:first-child{color:black;}}",
+            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
+
+        btc("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
+            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
+
+        // handle SASS/LESS parent reference
+        btc("div{&:first-letter {text-transform: uppercase;}}",
+            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
+
         //nested modifiers (&:hover etc)
         btc(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}");
         btc(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}");

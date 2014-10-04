@@ -90,11 +90,27 @@ test_cli_js_beautify()
 
 }
 
+test_smoke_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing beautify functionality...
+	PYTHON=python $SCRIPT_DIR/../../js-beautify-test || exit 1
+}
+
+test_perf_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing beautify performance...
+	# PYTHON=python $SCRIPT_DIR/../../js-beautify-profile || exit 1
+	python $SCRIPT_DIR/test-perf-jsbeautifier.py || exit 1
+	
+}
 #test_cli_common css-beautify
 #test_cli_common html-beautify
 test_cli_common js-beautify
 
-test_cli_js_beautify
+test_smoke_js_beautify
+test_perf_js_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.
