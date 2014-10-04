@@ -1,4 +1,20 @@
 # Changelog
+## v1.5.4
+
+### Description
+* Fix for LESS/CSS pseudo/classes
+* Fix for HTML img tag spaces
+
+https://github.com/beautify-web/js-beautify/compare/v1.5.3...v1.5.4
+
+### Closed Issues
+* TypeScript oddly formatted with 1.5.3 ([#552](https://github.com/beautify-web/js-beautify/issues/552))
+* Keep space in font rule ([#491](https://github.com/beautify-web/js-beautify/issues/491))
+* [Brackets plug in] Space after </a> disappears ([#454](https://github.com/beautify-web/js-beautify/issues/454))
+* Support nested pseudo-classes and parent reference (LESS) ([#427](https://github.com/beautify-web/js-beautify/pull/427))
+* Alternate approach: preserve single spacing and treat img as inline element ([#415](https://github.com/beautify-web/js-beautify/pull/415))
+
+
 ## v1.5.3
 
 ### Description
@@ -11,7 +27,10 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 ### Closed Issues
 * [TypeError: Cannot read property 'type' of undefined] ([#548](https://github.com/beautify-web/js-beautify/issues/548))
 * Bug with RegExp ([#547](https://github.com/beautify-web/js-beautify/issues/547))
+* Odd behaviour on less ([#520](https://github.com/beautify-web/js-beautify/issues/520))
 * css beauitify ([#506](https://github.com/beautify-web/js-beautify/issues/506))
+* Extra space after scss pseudo classes. ([#500](https://github.com/beautify-web/js-beautify/issues/500))
+* Generates invalid scss when formatting ampersand selectors ([#498](https://github.com/beautify-web/js-beautify/issues/498))
 * bad formatting of .less files using @variable or &:hover syntax ([#489](https://github.com/beautify-web/js-beautify/issues/489))
 * Incorrect beautifying of CSS comment including an url. ([#466](https://github.com/beautify-web/js-beautify/issues/466))
 * Handle SASS parent reference &: ([#414](https://github.com/beautify-web/js-beautify/issues/414))
@@ -123,7 +142,7 @@ https://github.com/einars/js-beautify/compare/v1.4.2...v1.5.1
 * Incorrect formating with semicolon-less code ([#323](https://github.com/beautify-web/js-beautify/issues/323))
 
 
-## v1.4.2 
+## v1.4.2
 
 ### Description
 Release quick fix for python errno error that has started being more heavily reported
