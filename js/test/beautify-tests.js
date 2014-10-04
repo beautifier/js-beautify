@@ -1023,6 +1023,99 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             "    {\n" +
             "        'Value2': '2'\n" +
             "    });");
+
+        opts.brace_style = 'none';
+
+        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}');
+        bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
+        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
+            "try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}");
+        bt('if(a){b();}else if(c) foo();',
+            "if (a) {\n    b();\n} else if (c) foo();");
+        bt("if (a) {\n// comment\n}else{\n// comment\n}",
+            "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
+        bt('if (x) {y} else { if (x) {y}}',
+            'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
+        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
+            'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
+                      '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
+        bt('if (foo)\n{}\nelse /regex/.test();');
+        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
+        test_fragment('if (foo) {');
+        test_fragment('foo {');
+        test_fragment('return {'); // return needs the brace.
+        test_fragment('return /* inline */ {');
+        test_fragment('return;\n{');
+        bt("throw {}");
+        bt("throw {\n    foo;\n}");
+        bt('var foo = {}');
+        bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
+        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
+        bt('var a = new function() {};');
+        bt('var a = new function a() {};');
+        bt('var a = new function()\n{};', 'var a = new function() {};');
+        bt('var a = new function a()\n{};');
+        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};');
+        bt("foo({\n    'a': 1\n},\n10);",
+            "foo({\n        'a': 1\n    },\n    10);");
+        bt('(["foo","bar"]).each(function(i) {return i;});',
+            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
+        bt('(function(i) {return i;})();',
+            '(function(i) {\n    return i;\n})();');
+        bt( "test( /*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "}, /*Argument 2\n" +
+            " */ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test( /*Argument 1*/ {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2\n" +
+            "     */\n" +
+            "    {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
+        bt( "test(\n" +
+            "/*Argument 1*/ {\n" +
+            "    'Value1': '1'\n" +
+            "},\n" +
+            "/*Argument 2\n" +
+            " */ {\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test(\n" +
+            "    /*Argument 1*/\n" +
+            "    {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2\n" +
+            "     */\n" +
+            "    {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
+        bt( "test( /*Argument 1*/\n" +
+            "{\n" +
+            "    'Value1': '1'\n" +
+            "}, /*Argument 2\n" +
+            " */\n" +
+            "{\n" +
+            "    'Value2': '2'\n" +
+            "});",
+            // expected
+            "test( /*Argument 1*/\n" +
+            "    {\n" +
+            "        'Value1': '1'\n" +
+            "    },\n" +
+            "    /*Argument 2\n" +
+            "     */\n" +
+            "    {\n" +
+            "        'Value2': '2'\n" +
+            "    });");
 // END tests for brace position
 
         opts.brace_style = 'collapse';
