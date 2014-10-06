@@ -347,8 +347,8 @@ class Beautifier:
         if opts != None:
             self.opts = copy.copy(opts)
 
-        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand']:
-            raise(Exception('opts.brace_style must be "expand", "collapse" or "end-expand".'))
+        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
+            raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
 
         s = self.blank_state(s)
 
@@ -677,7 +677,8 @@ class Beautifier:
         empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
             self.last_type == 'TK_END_EXPR'
 
-        if self.opts.brace_style == 'expand':
+        if self.opts.brace_style == 'expand' or \
+            (self.opts.brace_style == 'none' and current_token.wanted_newline):
             if self.last_type != 'TK_OPERATOR' and \
                 (empty_anonymous_function or
                     self.last_type == 'TK_EQUALS' or
@@ -821,7 +822,8 @@ class Beautifier:
             if not (current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']):
                 prefix = 'NEWLINE'
             else:
-                if self.opts.brace_style in ['expand', 'end-expand']:
+                if self.opts.brace_style in ['expand', 'end-expand'] or \
+                    (self.opts.brace_style == 'none' and current_token.wanted_newline):
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
@@ -851,7 +853,8 @@ class Beautifier:
         if current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']:
             if self.last_type != 'TK_END_BLOCK' \
                or self.opts.brace_style == 'expand' \
-               or self.opts.brace_style == 'end-expand':
+               or self.opts.brace_style == 'end-expand' \
+               or (self.opts.brace_style == 'none' and current_token.wanted_newline):
                 self.print_newline()
             else:
                 self.output.trim(True)

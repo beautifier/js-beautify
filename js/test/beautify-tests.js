@@ -122,14 +122,153 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment(input, expectation);
     }
 
-    // test the input on beautifier with the current flag settings,
-    // but dont't
-    function bt_braces(input, expectation)
-    {
-        var braces_ex = opts.brace_style;
-        opts.brace_style = 'expand';
-        bt(input, expectation);
-        opts.brace_style = braces_ex;
+    // run all tests for the given brace style ("collapse", "expand", "end-expand", or "none").
+    // uses various whitespace combinations before and after opening and closing braces,
+    // respectively, for most of the tests' inputs.
+    function beautify_brace_tests(brace_style) {
+
+        var ex_brace_style = opts.brace_style,
+            indent_on_wrap_str = '    '; // could use Array(opts.indent_size + 1).join(' '); if we wanted to replace _all_ of the hardcoded 4-space in the test and expectation strings
+
+        function permute_brace_tests(expect_open_white, expect_close_white) {
+
+            // run the tests that need permutation against a specific combination of
+            // pre-opening-brace and pre-closing-brace whitespace
+            function run_brace_permutation(test_open_white, test_close_white) {
+                var to = test_open_white,
+                    tc = test_close_white,
+                    eo = expect_open_white ? expect_open_white : to === '' ? ' ' : to,
+                    ec = expect_close_white ? expect_close_white : tc === '' ? ' ' : tc,
+                    i = eo === '\n' ? indent_on_wrap_str: '';
+
+                bt( '//case 1\nif (a == 1)' + to + '{}\n//case 2\nelse if (a == 2)' + to + '{}',
+                    '//case 1\nif (a == 1)' + eo + '{}\n//case 2\nelse if (a == 2)' + eo + '{}');
+                bt( 'if(1)' + to + '{2}' + tc + 'else' + to + '{3}',
+                    'if (1)' + eo + '{\n    2\n}' + ec + 'else' + eo + '{\n    3\n}');
+                bt( 'try' + to + '{a();}' + tc +
+                    'catch(b)' + to + '{c();}' + tc +
+                    'catch(d)' + to + '{}' + tc +
+                    'finally' + to + '{e();}',
+                    // expected
+                    'try' + eo + '{\n    a();\n}' + ec +
+                    'catch (b)' + eo + '{\n    c();\n}' + ec +
+                    'catch (d)' + eo + '{}' + ec +
+                    'finally' + eo + '{\n    e();\n}');
+                bt( 'if(a)' + to + '{b();}' + tc + 'else if(c) foo();',
+                    'if (a)' + eo + '{\n    b();\n}' + ec + 'else if (c) foo();');
+                // if/else statement with empty body
+                bt( 'if (a)' + to + '{\n// comment\n}' + tc + 'else' + to + '{\n// comment\n}',
+                    'if (a)' + eo + '{\n    // comment\n}' + ec + 'else' + eo + '{\n    // comment\n}');
+                bt( 'if (x)' + to + '{y}' + tc + 'else' + to + '{ if (x)' + to + '{y}}',
+                    'if (x)' + eo + '{\n    y\n}' + ec + 'else' + eo + '{\n    if (x)' + eo + i + '{\n        y\n    }\n}');
+                bt( 'if (a)' + to + '{\nb;\n}' + tc + 'else' + to + '{\nc;\n}',
+                    'if (a)' + eo + '{\n    b;\n}' + ec + 'else' + eo + '{\n    c;\n}');
+                test_fragment('    /*\n* xx\n*/\n// xx\nif (foo)' + to + '{\n    bar();\n}',
+                              '    /*\n     * xx\n     */\n    // xx\n    if (foo)' + eo + i + '{\n        bar();\n    }');
+                bt( 'if (foo)' + to + '{}' + tc + 'else /regex/.test();',
+                    'if (foo)' + eo + '{}' + ec + 'else /regex/.test();');
+                test_fragment('if (foo)' + to + '{', 'if (foo)' + eo + '{');
+                test_fragment('foo' + to + '{', 'foo' + eo + '{');
+                test_fragment('return;' + to + '{', 'return;' + eo + '{');
+                bt( 'function x()' + to + '{\n    foo();\n}zzz', 'function x()' + eo +'{\n    foo();\n}\nzzz');
+                bt( 'var a = new function a()' + to + '{};', 'var a = new function a()' + eo + '{};');
+                bt( 'var a = new function a()' + to + '    {},\n    b = new function b()' + to + '    {};',
+                    'var a = new function a()' + eo + i + '{},\n    b = new function b()' + eo + i + '{};');
+                bt("foo(" + to + "{\n    'a': 1\n},\n10);",
+                   "foo(" + (eo === ' ' ? '' : eo) + i + "{\n        'a': 1\n    },\n    10);"); // "foo( {..." is a weird case
+                bt('(["foo","bar"]).each(function(i)' + to + '{return i;});',
+                   '(["foo", "bar"]).each(function(i)' + eo + '{\n    return i;\n});');
+                bt('(function(i)' + to + '{return i;})();', '(function(i)' + eo + '{\n    return i;\n})();');
+
+                bt( "test( /*Argument 1*/" + to + "{\n" +
+                    "    'Value1': '1'\n" +
+                    "}, /*Argument 2\n" +
+                    " */ {\n" +
+                    "    'Value2': '2'\n" +
+                    "});",
+                    // expected
+                    "test( /*Argument 1*/" + eo + i + "{\n" +
+                    "        'Value1': '1'\n" +
+                    "    },\n" +
+                    "    /*Argument 2\n" +
+                    "     */\n" +
+                    "    {\n" +
+                    "        'Value2': '2'\n" +
+                    "    });");
+
+                bt( "test( /*Argument 1*/" + to + "{\n" +
+                    "    'Value1': '1'\n" +
+                    "}, /*Argument 2\n" +
+                    " */\n" +
+                    "{\n" +
+                    "    'Value2': '2'\n" +
+                    "});",
+                    // expected
+                    "test( /*Argument 1*/" + eo + i + "{\n" +
+                    "        'Value1': '1'\n" +
+                    "    },\n" +
+                    "    /*Argument 2\n" +
+                    "     */\n" +
+                    "    {\n" +
+                    "        'Value2': '2'\n" +
+                    "    });");
+            }
+
+            run_brace_permutation('\n', '\n');
+            run_brace_permutation('\n', ' ');
+            run_brace_permutation(' ', ' ');
+            run_brace_permutation(' ', '\n');
+            run_brace_permutation('','');
+
+            // brace tests that don't make sense to permutate
+            test_fragment('return {'); // return needs the brace.
+            test_fragment('return /* inline */ {');
+            bt('throw {}');
+            bt('throw {\n    foo;\n}');
+            bt( 'var foo = {}');
+            test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+            bt( '{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
+            bt( 'var a = new function() {};');
+            bt( 'var a = new function()\n{};', 'var a = new function() {};');
+            bt( "test(\n" +
+                "/*Argument 1*/ {\n" +
+                "    'Value1': '1'\n" +
+                "},\n" +
+                "/*Argument 2\n" +
+                " */ {\n" +
+                "    'Value2': '2'\n" +
+                "});",
+                // expected
+                "test(\n" +
+                "    /*Argument 1*/\n" +
+                "    {\n" +
+                "        'Value1': '1'\n" +
+                "    },\n" +
+                "    /*Argument 2\n" +
+                "     */\n" +
+                "    {\n" +
+                "        'Value2': '2'\n" +
+                "    });");
+        }
+
+        opts.brace_style = brace_style;
+
+        switch(opts.brace_style) {
+        case 'collapse':
+            permute_brace_tests(' ', ' ');
+            break;
+        case 'expand':
+            permute_brace_tests('\n', '\n');
+            break;
+        case 'end-expand':
+            permute_brace_tests(' ', '\n');
+            break;
+        case 'none':
+            permute_brace_tests();
+            break;
+        }
+
+        opts.brace_style = ex_brace_style;
     }
 
     function beautifier_tests()
@@ -237,7 +376,12 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("// comment\n(function something() {})"); // typical greasemonkey start
         bt("{\n\n    x();\n\n}"); // was: duplicating newlines
         bt('if (a in b) foo();');
+        bt('if(X)if(Y)a();else b();else c();',
+            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
+        bt('if (foo) bar();\nelse break');
         bt('var a, b;');
+        bt('var a = new function();');
+        test_fragment('new function');
         //  bt('var a, b');
         bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
@@ -394,6 +538,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('switch (a) {\n    case /foo\\//:\n        b\n}');
         bt('if (a) /foo\\//\nelse /foo\\//;');
 
+        bt('if (foo) /regex/.test();');
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
@@ -735,297 +880,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
-
-        opts.brace_style = 'expand';
-
-        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}');
-        bt('if(1){2}else{3}', "if (1)\n{\n    2\n}\nelse\n{\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-            "try\n{\n    a();\n}\ncatch (b)\n{\n    c();\n}\ncatch (d)\n{}\nfinally\n{\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a)\n{\n    b();\n}\nelse if (c) foo();");
-        bt('if(X)if(Y)a();else b();else c();',
-            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a)\n{\n    // comment\n}\nelse\n{\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x)\n{\n    y\n}\nelse\n{\n    if (x)\n    {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo)\n    {\n        bar();\n    }');
-        bt('if (foo)\n{}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo)\n{');
-        test_fragment('foo {', 'foo\n{');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return;\n{');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function()\n{};', 'var a = new function() {};');
-        bt('var a = new function a()\n{};');
-        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo(\n    {\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i)\n{\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i)\n{\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = 'collapse';
-
-        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
-        bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-             "try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a) {\n    b();\n} else if (c) foo();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a) {\n    b;\n} else {\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
-        bt('if (foo) {} else /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo) {');
-        test_fragment('foo {', 'foo {');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return; {');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function a() {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo({\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i) {\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = "end-expand";
-
-        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
-        bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-            "try {\n    a();\n}\ncatch (b) {\n    c();\n}\ncatch (d) {}\nfinally {\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a) {\n    b();\n}\nelse if (c) foo();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a) {\n    // comment\n}\nelse {\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a) {\n    b;\n}\nelse {\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
-        bt('if (foo) {}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo) {');
-        test_fragment('foo {', 'foo {');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return; {');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function a() {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo({\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i) {\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = 'collapse';
-
+        // tests for brace positioning
+        beautify_brace_tests('expand');
+        beautify_brace_tests('collapse');
+        beautify_brace_tests('end-expand');
+        beautify_brace_tests('none');
 
         bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
         bt('a = <%= external() %> ;');
