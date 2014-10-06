@@ -418,6 +418,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
         bt("if (a) b() else c();", "if (a) b()\nelse c();");
         bt("if (a) b() else if c() d();", "if (a) b()\nelse if c() d();");
+
         bt("{}");
         bt("{\n\n}");
         bt("do { a(); } while ( 1 );", "do {\n    a();\n} while (1);");
@@ -538,7 +539,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if (a) /foo\\//\nelse /foo\\//;');
 
         bt('if (foo) /regex/.test();');
-
 
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
