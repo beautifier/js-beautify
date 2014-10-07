@@ -91,7 +91,7 @@ Beautifier Options:
   -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space_after_anon_function   Add a space before an anonymous function's parens, ie. function ()
-  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]
+  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
@@ -158,7 +158,7 @@ HTML Beautifier Options:
   -I, --indent-inner-html       Indent <head> and <body> sections. Default is false.
   -s, --indent-size             Indentation size [4]
   -c, --indent-char             Indentation character [" "]
-  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
+  -b, --brace-style             [collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts          [keep|separate|normal] ["normal"]
   -w, --wrap-line-length        Maximum characters per line (0 disables) [250]
   -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
