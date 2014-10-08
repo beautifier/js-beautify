@@ -305,47 +305,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         {{/tests}}
     {{/matrix}}
 {{/groups}}
-
-        bt("a();\n\nb();", "a();\n\nb();");
-        bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
-        bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
-        bt('var a,\n    b,\n    c;');
-        bt('let a = 1 let b = 2', "let a = 1\nlet b = 2");
-        bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;');
-        bt('let a,\n    b,\n    c;');
-        bt('const a = 1 const b = 2', "const a = 1\nconst b = 2");
-        bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;');
-        bt('const a,\n    b,\n    c;');
-        bt('a = " 12345 "');
-        bt("a = ' 12345 '");
-        bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
-        bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-        bt('if(1||2);', 'if (1 || 2);');
-        bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
-        bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
-        bt('a = a + 1');
-        bt('a = a == 1');
-        bt('/12345[^678]*9+/.match(a)');
-        bt('a /= 5');
-        bt('a = 0.5 * 3');
-        bt('a *= 10.55');
-        bt('a < .5');
-        bt('a <= .5');
-        bt('a<.5', 'a < .5');
-        bt('a<=.5', 'a <= .5');
-        bt('a = 0xff;');
-        bt('a=0xff+4', 'a = 0xff + 4');
-        bt('a = [1, 2, 3, 4]');
-        bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
-        bt('a.b({c:d})', 'a.b({\n    c: d\n})');
-        bt('a.b\n(\n{\nc:\nd\n}\n)', 'a.b({\n    c: d\n})');
-        bt('a.b({c:"d"})', 'a.b({\n    c: "d"\n})');
-        bt('a.b\n(\n{\nc:\n"d"\n}\n)', 'a.b({\n    c: "d"\n})');
-        bt('a=!b', 'a = !b');
-        bt('a=!!b', 'a = !!b');
-        bt('a?b:c', 'a ? b : c');
-        bt('a?1:2', 'a ? 1 : 2');
-        bt('a?(b):c', 'a ? (b) : c');
         bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}');
         bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');
         bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;');
