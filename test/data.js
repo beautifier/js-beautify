@@ -38,8 +38,16 @@ exports.test_data = {
             { fragment: '\n', output: '{{eof}}' }
         ],
     }, {
-        name: "Common smoke tests",
-        description: "",
+        name: "New Test Suite"
+    },
+        // =======================================================
+        // New tests groups should be added above this line.
+        // Everything below is a work in progress - converting
+        // old test to generated form.
+        // =======================================================
+    {
+        name: "Old tests",
+        description: "Largely unorganized pile of tests",
         options: [],
         tests: [
             { input: '' },

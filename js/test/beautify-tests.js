@@ -304,7 +304,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5');
         test_fragment('\n', '');
 
-        // Common smoke tests
+        // New Test Suite
+
+        // Old tests
         bt('');
         test_fragment('   return .5');
         test_fragment('   return .5;\n   a();');

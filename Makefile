@@ -13,7 +13,7 @@ export AVAILABLE_ACTIONS
 
 
 .SILENT:
-all: build test
+all: build test status
 
 help:
 	echo "$$AVAILABLE_ACTIONS"
@@ -57,6 +57,10 @@ gedit:
 tests: testj testp
 
 test: testj testp
+
+status:
+	test/git-status-clear.sh || exit 1
+
 
 gh:
 	git push origin master &&\
