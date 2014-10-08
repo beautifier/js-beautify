@@ -283,31 +283,29 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 {{#default_options}}        opts.{{name}} = {{&value}};
 {{/default_options}}
-{{#tests}}
+{{#groups}}
+    {{^matrix}}
 
-        // {{name}}
-    {{#options}}
+        // {{&name}}
+        {{#options}}
         opts.{{name}} = {{&value}};
-    {{/options}}
-    {{#values}}
-        bt({{&get_source}}{{&get_output}});
-    {{/values}}
-    {{#fragments}}
-        test_fragment({{&get_source}}{{&get_output}});
-    {{/fragments}}
-{{/tests}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}};
+        {{/tests}}
+    {{/matrix}}
+    {{#matrix}}
 
-        opts.end_with_newline = false;
-        bt('');
-        test_fragment('\n', '');
-        bt('return .5');
-        test_fragment('   return .5');
-        test_fragment('   return .5;\n   a();');
-        test_fragment('   < div');
-        bt('a        =          1', 'a = 1');
-        bt('a=1', 'a = 1');
-        bt('(3) / 2');
-        bt('["a", "b"].join("")');
+        // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        {{#options}}
+        opts.{{name}} = {{&value}};
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}};
+        {{/tests}}
+    {{/matrix}}
+{{/groups}}
+
         bt("a();\n\nb();", "a();\n\nb();");
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');

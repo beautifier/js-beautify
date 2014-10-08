@@ -57,24 +57,32 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
         bt('var ' + unicode_char(228) + 'x = {\n    ' + unicode_char(228) + 'rgerlich: true\n};')
 
-        # End With Newline 
-        self.options.end_with_newline = true;
+        # End With Newline - (eof = "\n")
+        self.options.end_with_newline = true
         test_fragment('', '\n')
         test_fragment('   return .5', '   return .5\n')
         test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n')
         test_fragment('\n')
 
-        self.options.end_with_newline = False;
-        bt('');
-        test_fragment('\n', '');
-        bt('return .5');
-        test_fragment('   return .5');
-        test_fragment('   return .5;\n   a();');
-        test_fragment('   < div');
-        bt('a        =          1', 'a = 1');
-        bt('a=1', 'a = 1');
-        bt('(3) / 2');
-        bt('["a", "b"].join("")');
+        # End With Newline - (eof = "")
+        self.options.end_with_newline = false
+        test_fragment('')
+        test_fragment('   return .5')
+        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5')
+        test_fragment('\n', '')
+
+        # Common smoke tests
+        bt('')
+        test_fragment('   return .5')
+        test_fragment('   return .5;\n   a();')
+        test_fragment('    return .5;\n    a();')
+        test_fragment('     return .5;\n     a();')
+        test_fragment('   < div')
+        bt('a        =          1', 'a = 1')
+        bt('a=1', 'a = 1')
+        bt('(3) / 2')
+        bt('["a", "b"].join("")')
+
         bt("a();\n\nb();", "a();\n\nb();");
         bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
