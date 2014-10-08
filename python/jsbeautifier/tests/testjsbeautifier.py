@@ -35,19 +35,34 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.unescape_strings = False
 
+
     def test_beautifier(self):
         test_fragment = self.decodesto
         bt = self.bt
 
-        # unicode support
-        bt('var ' + six.unichr(3232) + '_' + six.unichr(3232) + ' = "hi";');
-        bt('var ' + six.unichr(228) + 'x = {\n    ' + six.unichr(228) + 'rgerlich: true\n};');
+        true = True
+        false = False
 
-        self.options.end_with_newline = True;
-        test_fragment('', '\n');
-        test_fragment('   return .5','   return .5\n');
-        test_fragment('   \n\nreturn .5\n\n\n\n','   return .5\n');
-        test_fragment('\n', '\n');
+        def unicode_char(value):
+            return six.unichr(value)
+
+        self.options.indent_size = 4
+        self.options.indent_char = ' '
+        self.options.preserve_newlines = true
+        self.options.jslint_happy = false
+        self.options.keep_array_indentation = false
+        self.options.brace_style = 'collapse'
+
+        # Unicode Support
+        bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
+        bt('var ' + unicode_char(228) + 'x = {\n    ' + unicode_char(228) + 'rgerlich: true\n};')
+
+        # End With Newline 
+        self.options.end_with_newline = true;
+        test_fragment('', '\n')
+        test_fragment('   return .5', '   return .5\n')
+        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n')
+        test_fragment('\n')
 
         self.options.end_with_newline = False;
         bt('');
@@ -142,7 +157,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
         bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
         bt('if (template.user[n] in bk) foo();');
-        bt('{{}/z/}', "{\n    {}\n    /z/\n}");
+        bt('{{}/z/}', "{\n    {}\n    /z/\n}")
         bt('return 45', "return 45");
         bt('return this.prevObject ||\n\n    this.constructor(null);');
         bt('If[1]', "If[1]");
@@ -1033,7 +1048,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}");
 
         bt('<!-- foo\nbar();\n-->')
-        bt('<!-- dont crash')
+        bt('<!-- dont crash') # -->
         bt('for () /abc/.test()')
         bt('if (k) /aaa/m.test(v) && l();')
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}')

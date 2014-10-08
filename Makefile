@@ -26,16 +26,18 @@ buildj:
 
 buildp:
 	echo Building python... ;\
-	pip install -e ./python 
-	
+	pip install -e ./python
+
 testp:
 	echo Testing python implementation...
+	node test/generate-tests.js || exit 1;\
 	cd python ;\
 	python --version ;\
 	./jsbeautifier/tests/shell-smoke-test.sh
 
 testj:
 	echo Testing javascript implementation...
+	node test/generate-tests.js || exit 1;\
 	node --version; \
 	npm test
 

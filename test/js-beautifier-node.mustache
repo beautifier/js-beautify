@@ -92,6 +92,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             test_fragment(wrapped_input, wrapped_expectation);
         }
 
+{{=<% %>=}}
         // Test that handlebars non-block {{}} tags act as content and do not
         // get any spacing or line breaks.
         if (input.indexOf('content') != -1) {
@@ -110,6 +111,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             field_expectation = expectation.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
             test_fragment(field_input, field_expectation);
         }
+<%={{ }}=%>
     }
 
     // test css
@@ -279,23 +281,21 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         sanitytest = test_obj;
 
-        opts.indent_size = 4;
-        opts.indent_char = ' ';
-        opts.preserve_newlines = true;
-        opts.jslint_happy = false;
-        opts.keep_array_indentation = false;
-        opts.brace_style = 'collapse';
+{{#default_options}}        opts.{{name}} = {{&value}};
+{{/default_options}}
+{{#tests}}
 
-        // Unicode Support
-        bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
-        bt('var ' + unicode_char(228) + 'x = {\n    ' + unicode_char(228) + 'rgerlich: true\n};');
-
-        // End With Newline 
-        opts.end_with_newline = true;
-        test_fragment('', '\n');
-        test_fragment('   return .5', '   return .5\n');
-        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n');
-        test_fragment('\n');
+        // {{name}}
+    {{#options}}
+        opts.{{name}} = {{&value}};
+    {{/options}}
+    {{#values}}
+        bt({{&get_source}}{{&get_output}});
+    {{/values}}
+    {{#fragments}}
+        test_fragment({{&get_source}}{{&get_output}});
+    {{/fragments}}
+{{/tests}}
 
         opts.end_with_newline = false;
         bt('');
@@ -392,7 +392,9 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
         bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
         bt('if (template.user[n] in bk) foo();');
+{{=<% %>=}}
         bt('{{}/z/}', "{\n    {}\n    /z/\n}");
+<%={{ }}=%>
         bt('return 45', "return 45");
         bt('return this.prevObject ||\n\n    this.constructor(null);');
         bt('If[1]', "If[1]");
@@ -1932,6 +1934,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // Handlebars tests
         // Without the indent option on, handlebars are treated as content.
+{{=<% %>=}}
         opts.indent_handlebars = false;
         bth('{{#if 0}}\n' +
             '    <div>\n' +
@@ -2065,6 +2068,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
         bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
         bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
+<%={{ }}=%>
 
         opts.wrap_line_length = 0;
         //...---------1---------2---------3---------4---------5---------6---------7
