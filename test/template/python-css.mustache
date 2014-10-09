@@ -20,26 +20,30 @@ class CSSBeautifierTest(unittest.TestCase):
         false = False
         true = True
 
-        self.options.indent_size = 1
-        self.options.indent_char = '\t'
-        self.options.selector_separator_newline = true
-        self.options.end_with_newline = false
+{{#default_options}}        self.options.{{name}} = {{&value}}
+{{/default_options}}
+{{#groups}}
+    {{^matrix}}
 
-        # End With Newline - (eof = "\n")
-        self.options.end_with_newline = true
-        t('', '\n')
-        t('   .tabs{}', '   .tabs {}\n')
-        t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}\n')
-        t('\n')
+        # {{&name}}
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+    {{/matrix}}
+    {{#matrix}}
 
-        # End With Newline - (eof = "")
-        self.options.end_with_newline = false
-        t('')
-        t('   .tabs{}', '   .tabs {}')
-        t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}')
-        t('\n', '')
-
-        # 
+        # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+    {{/matrix}}
+{{/groups}}
 
 
     def testNewline(self):

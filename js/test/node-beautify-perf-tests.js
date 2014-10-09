@@ -3,12 +3,11 @@
 
 var fs = require('fs'),
     SanityTest = require('./sanitytest'),
-    Benchmark = require('benchmark'),    
+    Benchmark = require('benchmark'),
     Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
     js_beautify = require('../index').js_beautify,
     css_beautify = require('../index').css_beautify,
-    html_beautify = require('../index').html_beautify,
-    run_beautifier_tests = require('./beautify-tests').run_beautifier_tests;
+    html_beautify = require('../index').html_beautify;
 
 function node_beautifier_tests() {
     console.log('Testing performance...');
@@ -17,13 +16,13 @@ function node_beautifier_tests() {
     var options = {
         wrap_line_length: 80
     };
-    
+
     //warm-up
     js_beautify(data, options);
     js_beautify(data_min, options);
 
     var suite = new Benchmark.Suite;
-    
+
     suite.add("js-beautify (underscore)", function() {
         js_beautify(data, options);
     })

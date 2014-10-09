@@ -123,7 +123,8 @@
     <script src="js/lib/beautify-css.js"></script>
     <script src="js/lib/beautify-html.js"></script>
     <script src="js/test/sanitytest.js"></script>
-    <script src="js/test/beautify-tests.js"></script>
+    <script src="js/test/beautify-javascript-tests.js"></script>
+    <script src="js/test/beautify-css-tests.js"></script>
     <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
     <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
     <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
@@ -138,7 +139,8 @@
 
         function run_tests() {
             var st = new SanityTest();
-            run_beautifier_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+            run_javascript_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+            run_css_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
             JavascriptObfuscator.run_tests(st);
             P_A_C_K_E_R.run_tests(st);
             Urlencoded.run_tests(st);
