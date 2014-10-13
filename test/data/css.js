@@ -28,6 +28,16 @@ exports.test_data = {
             { fragment: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Empty braces",
+        description: "",
+        tests: [
+            { input: '.tabs{}', output: '.tabs {}' },
+            { input: '.tabs { }', output: '.tabs {}' },
+            { input: '.tabs    {    }', output: '.tabs {}' },
+            // When we support preserving newlines this will need to change
+            { input: '.tabs    \n{\n    \n  }', output: '.tabs {}' }
+        ],
+    }, {
 
     }],
     // utility mustache functions

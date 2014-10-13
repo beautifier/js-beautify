@@ -39,6 +39,12 @@ class CSSBeautifierTest(unittest.TestCase):
         t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}')
         t('\n', '')
 
+        # Empty braces
+        t('.tabs{}', '.tabs {}')
+        t('.tabs { }', '.tabs {}')
+        t('.tabs    {    }', '.tabs {}')
+        t('.tabs    \n{\n    \n  }', '.tabs {}')
+
         # 
 
 

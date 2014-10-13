@@ -75,6 +75,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}');
         t('\n', '');
 
+        // Empty braces
+        t('.tabs{}', '.tabs {}');
+        t('.tabs { }', '.tabs {}');
+        t('.tabs    {    }', '.tabs {}');
+        t('.tabs    \n{\n    \n  }', '.tabs {}');
+
         // 
 
         // test basic css beautifier
