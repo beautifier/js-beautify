@@ -21,7 +21,12 @@ function generate_tests() {
     template = fs.readFileSync(__dirname + '/template/python-css.mustache', {encoding: 'utf-8'});
     fs.writeFileSync(__dirname + '/../python/cssbeautifier/tests/test.py', mustache.render(template, test_data), {encoding: 'utf-8'});
 
+    // html
+    test_data = require(__dirname + '/data/html.js').test_data;
+    template = fs.readFileSync(__dirname + '/template/node-html.mustache', {encoding: 'utf-8'});
+    fs.writeFileSync(__dirname + '/../js/test/beautify-html-tests.js', mustache.render(template, test_data), {encoding: 'utf-8'});
 
+    // no python html beautifier, so no tests
 }
 
 generate_tests();

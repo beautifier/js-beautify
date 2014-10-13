@@ -5,7 +5,8 @@ var requirejs = require('requirejs'),
     SanityTest = require('./sanitytest'),
     Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
     run_javascript_tests = require('./beautify-javascript-tests').run_javascript_tests,
-    run_css_tests = require('./beautify-css-tests').run_css_tests;
+    run_css_tests = require('./beautify-css-tests').run_css_tests,
+    run_html_tests = require('./beautify-html-tests').run_html_tests;
 
 requirejs.config({
 	paths: {
@@ -52,8 +53,11 @@ function amd_beautifier_tests(name, test_runner) {
 
 if (require.main === module) {
     process.exit(
-        amd_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-        amd_beautifier_index_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-        amd_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
-        amd_beautifier_index_tests('css-beautifier', run_css_tests).get_exitcode());
+            amd_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
+            amd_beautifier_index_tests('js-beautifier', run_javascript_tests).get_exitcode() +
+            amd_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
+            amd_beautifier_index_tests('css-beautifier', run_css_tests).get_exitcode() +
+            amd_beautifier_tests('html-beautifier', run_html_tests).get_exitcode() +
+            amd_beautifier_index_tests('html-beautifier', run_html_tests).get_exitcode()
+        );
 }

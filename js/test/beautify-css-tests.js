@@ -227,11 +227,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         // may not eat the space before "["
         t('html.js [data-custom="123"] {\n  opacity: 1.00;\n}');
         t('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}');
-
-        return sanitytest;
     }
 
-    return beautifier_tests();
+    beautifier_tests();
 }
 
 if (typeof exports !== "undefined") {
