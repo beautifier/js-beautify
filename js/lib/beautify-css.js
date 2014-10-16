@@ -118,12 +118,12 @@
         }
 
         function eatWhitespace() {
-            var result = '';
+/*            var result = '';
             while (whiteRe.test(peek())) {
                 next()
                 result += ch;
             }
-            return result;
+            return result;*/
         }
 
         function skipWhitespace() {
