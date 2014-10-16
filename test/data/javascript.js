@@ -99,7 +99,51 @@ exports.test_data = {
             { input: 'a=!!b', output: 'a = !!b' },
             { input: 'a?b:c', output: 'a ? b : c' },
             { input: 'a?1:2', output: 'a ? 1 : 2' },
-            { input: 'a?(b):c', output: 'a ? (b) : c' }
+            { input: 'a?(b):c', output: 'a ? (b) : c' },
+            { input: 'x={a:1,b:w=="foo"?x:y,c:z}', output: 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}' },
+            { input: 'x=a?b?c?d:e:f:g;', output: 'x = a ? b ? c ? d : e : f : g;' },
+            { input: 'x=a?b?c?d:{e1:1,e2:2}:f:g;', output: 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;' },
+            { input: 'function void(void) {}' },
+            { input: 'if(!a)foo();', output: 'if (!a) foo();' },
+            { input: 'a=~a', output: 'a = ~a' },
+            { input: 'a;/*comment*/b;', output: "a; /*comment*/\nb;" },
+            { input: 'a;/* comment */b;', output: "a; /* comment */\nb;" },
+            { fragment: 'a;/*\ncomment\n*/b;', output: "a;\n/*\ncomment\n*/\nb;" }, // simple comments don't get touched at all
+            { input: 'a;/**\n* javadoc\n*/b;', output: "a;\n/**\n * javadoc\n */\nb;" },
+            { fragment: 'a;/**\n\nno javadoc\n*/b;', output: "a;\n/**\n\nno javadoc\n*/\nb;" },
+            { input: 'a;/*\n* javadoc\n*/b;', output: "a;\n/*\n * javadoc\n */\nb;" }, // comment blocks detected and reindented even w/o javadoc starter
+            { input: 'if(a)break;', output: "if (a) break;" },
+            { input: 'if(a){break}', output: "if (a) {\n    break\n}" },
+            { input: 'if((a))foo();', output: 'if ((a)) foo();' },
+            { input: 'for(var i=0;;) a', output: 'for (var i = 0;;) a' },
+            { input: 'for(var i=0;;)\na', output: 'for (var i = 0;;)\n    a' },
+            { input: 'a++;', output: 'a++;' },
+            { input: 'for(;;i++)a()', output: 'for (;; i++) a()' },
+            { input: 'for(;;i++)\na()', output: 'for (;; i++)\n    a()' },
+            { input: 'for(;;++i)a', output: 'for (;; ++i) a' },
+            { input: 'return(1)', output: 'return (1)' },
+            { input: 'try{a();}catch(b){c();}finally{d();}', output: "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}" },
+            { input: '(xx)()' }, // magic function call
+            { input: 'a[1]()' }, // another magic function call
+            { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
+            { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
+            { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
+            { input: 'a !== b' },
+            { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
+            { input: "// comment\n(function something() {})" }, // typical greasemonkey start
+            { input: "{\n\n    x();\n\n}" }, // was: duplicating newlines
+            { input: 'if (a in b) foo();' },
+            { input: 'if(X)if(Y)a();else b();else c();',
+                output: "if (X)\n    if (Y) a();\n    else b();\nelse c();" },
+            { input: 'if (foo) bar();\nelse break' },
+            { input: 'var a, b;' },
+            { input: 'var a = new function();' },
+            { fragment: 'new function' },
+            { input: 'var a, b' },
+            { input: '{a:1, b:2}', output: "{\n    a: 1,\n    b: 2\n}" },
+            { input: 'a={1:[-1],2:[+1]}', output: 'a = {\n    1: [-1],\n    2: [+1]\n}' },
+            { input: 'var l = {\\\'a\\\':\\\'1\\\', \\\'b\\\':\\\'2\\\'}', output: "var l = {\n    \\'a\\': \\'1\\',\n    \\'b\\': \\'2\\'\n}" },
+            { input: 'if (template.user[n] in bk) foo();' }
         ],
     }],
     // Example
