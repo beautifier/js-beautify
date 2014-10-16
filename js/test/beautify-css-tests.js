@@ -63,17 +63,17 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
-        t('', '\n');
-        t('   .tabs{}', '   .tabs {}\n');
-        t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}\n');
-        t('\n');
+        test_fragment('', '\n');
+        test_fragment('   .tabs{}', '   .tabs {}\n');
+        test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}\n');
+        test_fragment('\n');
 
         // End With Newline - (eof = "")
         opts.end_with_newline = false;
-        t('');
-        t('   .tabs{}', '   .tabs {}');
-        t('   \n\n.tabs{}\n\n\n\n', '   .tabs {}');
-        t('\n', '');
+        test_fragment('');
+        test_fragment('   .tabs{}', '   .tabs {}');
+        test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}');
+        test_fragment('\n', '');
 
         // Empty braces
         t('.tabs{}', '.tabs {}');

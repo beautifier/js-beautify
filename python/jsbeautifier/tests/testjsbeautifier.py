@@ -132,9 +132,13 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=~a', 'a = ~a')
         bt('a;/*comment*/b;', 'a; /*comment*/\nb;')
         bt('a;/* comment */b;', 'a; /* comment */\nb;')
+        
+        # simple comments don't get touched at all
         test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;')
         bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;')
         test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;')
+        
+        # comment blocks detected and reindented even w/o javadoc starter
         bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;')
         bt('if(a)break;', 'if (a) break;')
         bt('if(a){break}', 'if (a) {\n    break\n}')
@@ -147,14 +151,22 @@ class TestJSBeautifier(unittest.TestCase):
         bt('for(;;++i)a', 'for (;; ++i) a')
         bt('return(1)', 'return (1)')
         bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}')
+        
+        #  magic function call
         bt('(xx)()')
+        
+        # another magic function call
         bt('a[1]()')
         bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();')
         bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
         bt('a !== b')
         bt('if (a) b(); else c();', 'if (a) b();\nelse c();')
+        
+        # typical greasemonkey start
         bt('// comment\n(function something() {})')
+        
+        # duplicating newlines
         bt('{\n\n    x();\n\n}')
         bt('if (a in b) foo();')
         bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();')
@@ -168,51 +180,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var l = {\'a\':\'1\', \'b\':\'2\'}', 'var l = {\n    \'a\': \'1\',\n    \'b\': \'2\'\n}')
         bt('if (template.user[n] in bk) foo();')
 
-        bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}')
-        bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;')
-        bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;')
-        bt('function void(void) {}')
-        bt('if(!a)foo();', 'if (!a) foo();')
-        bt('a=~a', 'a = ~a')
-        bt('a;/*comment*/b;', "a; /*comment*/\nb;")
-        bt('a;/* comment */b;', "a; /* comment */\nb;")
-        test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;") # simple comments don't get touched at all
-        bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;")
-        test_fragment('a;/**\n\nno javadoc\n*/b;', "a;\n/**\n\nno javadoc\n*/\nb;")
-        bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;") # comment blocks detected and reindented even w/o javadoc starter
-
-        bt('if(a)break;', "if (a) break;")
-        bt('if(a){break}', "if (a) {\n    break\n}")
-        bt('if((a))foo();', 'if ((a)) foo();')
-        bt('for(var i=0;;) a', 'for (var i = 0;;) a')
-        bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a')
-        bt('a++;', 'a++;')
-        bt('for(;;i++)a()', 'for (;; i++) a()')
-        bt('for(;;i++)\na()', 'for (;; i++)\n    a()')
-        bt('for(;;++i)a', 'for (;; ++i) a')
-        bt('return(1)', 'return (1)')
-        bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}")
-        bt('(xx)()') # magic function call
-        bt('a[1]()') # another magic function call
-        bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();")
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}")
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
-        bt('a !== b')
-        bt('if (a) b(); else c();', "if (a) b();\nelse c();")
-        bt("// comment\n(function something() {})") # typical greasemonkey start
-        bt("{\n\n    x();\n\n}") # was: duplicating newlines
-        bt('if (a in b) foo();')
-        bt('if(X)if(Y)a();else b();else c();',
-            "if (X)\n    if (Y) a();\n    else b();\nelse c();")
-        bt('if (foo) bar();\nelse break')
-        bt('var a, b;')
-        bt('var a = new function();')
-        test_fragment('new function')
-        # bt('var a, b')
-        bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}")
-        bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}')
-        bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}")
-        bt('if (template.user[n] in bk) foo();')
         bt('{{}/z/}', "{\n    {}\n    /z/\n}")
         bt('return 45', "return 45")
         bt('return this.prevObject ||\n\n    this.constructor(null);')

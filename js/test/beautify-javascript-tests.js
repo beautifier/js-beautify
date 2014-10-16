@@ -312,9 +312,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=~a', 'a = ~a');
         bt('a;/*comment*/b;', 'a; /*comment*/\nb;');
         bt('a;/* comment */b;', 'a; /* comment */\nb;');
+        
+        // simple comments don't get touched at all
         test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;');
         bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;');
         test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;');
+        
+        // comment blocks detected and reindented even w/o javadoc starter
         bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;');
         bt('if(a)break;', 'if (a) break;');
         bt('if(a){break}', 'if (a) {\n    break\n}');
@@ -327,14 +331,22 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('for(;;++i)a', 'for (;; ++i) a');
         bt('return(1)', 'return (1)');
         bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}');
+        
+        //  magic function call
         bt('(xx)()');
+        
+        // another magic function call
         bt('a[1]()');
         bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();');
         bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}');
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
         bt('a !== b');
         bt('if (a) b(); else c();', 'if (a) b();\nelse c();');
+        
+        // typical greasemonkey start
         bt('// comment\n(function something() {})');
+        
+        // duplicating newlines
         bt('{\n\n    x();\n\n}');
         bt('if (a in b) foo();');
         bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();');
