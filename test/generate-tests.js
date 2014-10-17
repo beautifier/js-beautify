@@ -61,7 +61,7 @@ function set_formatters (data, test_method, comment_mark) {
             var comment = "";
             if (typeof this.comment === "string") {
                 comment = "\n        " + comment_mark + this.comment + '\n        ';
-            } else if (this.input instanceof Array) {
+            } else if (this.comment instanceof Array) {
                 comment = "\n        " + comment_mark + this.comment.join('\n        ' + comment_mark);
             }
 
@@ -69,17 +69,17 @@ function set_formatters (data, test_method, comment_mark) {
             var before_input = "";
             if (typeof this.input === "string") {
                 before_input = test_method + "(";
-                input = "'" + this.input.replace(/\n/g,'\\n') + "'";
+                input = "'" + this.input.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
             } else if (this.input instanceof Array) {
-                before_input = test_method + "(\n            '";
-                input = "'" + this.input.join("\\n' +\n            '") + "'";
+                before_input = test_method + "(\n            ";
+                input = "'" + this.input.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
 
             } else if (typeof this.fragment === "string") {
                 before_input = "test_fragment(";
-                input = "'" + this.fragment.replace(/\n/g,'\\n') + "'";
+                input = "'" + this.fragment.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
             } else if (this.fragment instanceof Array) {
-                before_input = "test_fragment(\n            '";
-                input = "'" + this.fragment.join("\\n' +\n            '") + "'";
+                before_input = "test_fragment(\n            ";
+                input = "'" + this.fragment.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
             }
             input = render(input);
 
@@ -87,10 +87,10 @@ function set_formatters (data, test_method, comment_mark) {
             var before_output = "";
             if (typeof this.output === "string") {
                 before_output = ', ';
-                output =  "'" + this.output.replace(/\n/g,'\\n') + "'";
+                output =  "'" + this.output.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
             } else if (this.output instanceof Array) {
                 before_output = ',\n           ';
-                output = "'" + this.output.join("\\n' +\n           '") + "'";
+                output = "'" + this.output.join("\\n' +\n           '").replace(/\t/g,'\\t') + "'";
             }
             output = render(output);
 

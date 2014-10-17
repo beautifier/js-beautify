@@ -11,8 +11,15 @@ exports.test_data = {
         name: "Unicode Support",
         description: "",
         tests: [
-            { input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";" },
-            { input: "var ' + unicode_char(228) + 'x = {\n    ' + unicode_char(228) + 'rgerlich: true\n};" }
+            {
+              input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+            },
+            {
+                input: [
+                    "var ' + unicode_char(228) + 'x = {",
+                    "    ' + unicode_char(228) + 'rgerlich: true",
+                    "};"]
+            }
         ],
     }, {
         name: "End With Newline",
@@ -143,7 +150,186 @@ exports.test_data = {
             { input: '{a:1, b:2}', output: "{\n    a: 1,\n    b: 2\n}" },
             { input: 'a={1:[-1],2:[+1]}', output: 'a = {\n    1: [-1],\n    2: [+1]\n}' },
             { input: "var l = {\\'a\\':\\'1\\', \\'b\\':\\'2\\'}", output: "var l = {\n    \\'a\\': \\'1\\',\n    \\'b\\': \\'2\\'\n}" },
-            { input: 'if (template.user[n] in bk) foo();' }
+            { input: 'if (template.user[n] in bk) foo();' },
+            { input: 'return 45', output: "return 45" },
+            { input: 'return this.prevObject ||\n\n    this.constructor(null);' },
+            { input: 'If[1]', output: "If[1]" },
+            { input: 'Then[1]', output: "Then[1]" },
+            { input: 'a = 1e10', output: "a = 1e10" },
+            { input: 'a = 1.3e10', output: "a = 1.3e10" },
+            { input: 'a = 1.3e-10', output: "a = 1.3e-10" },
+            { input: 'a = -1.3e-10', output: "a = -1.3e-10" },
+            { input: 'a = 1e-10', output: "a = 1e-10" },
+            { input: 'a = e - 10', output: "a = e - 10" },
+            { input: 'a = 11-10', output: "a = 11 - 10" },
+            { input: "a = 1;// comment", output: "a = 1; // comment" },
+            { input: "a = 1; // comment", output: "a = 1; // comment" },
+            { input: "a = 1;\n // comment", output: "a = 1;\n// comment" },
+            { input: 'a = [-1, -1, -1]' },
+
+
+            { comment: 'The exact formatting these should have is open for discussion, but they are at least reasonable',
+                input: 'a = [ // comment\n    -1, -1, -1\n]' },
+            { input: 'var a = [ // comment\n    -1, -1, -1\n]' },
+            { input: 'a = [ // comment\n    -1, // comment\n    -1, -1\n]' },
+            { input: 'var a = [ // comment\n    -1, // comment\n    -1, -1\n]' },
+
+            { input: 'o = [{a:b},{c:d}]', output: 'o = [{\n    a: b\n}, {\n    c: d\n}]' },
+
+            { comment: 'was: extra space appended',
+                input: "if (a) {\n    do();\n}" },
+
+            { comment: 'if/else statement with empty body',
+                input: "if (a) {\n// comment\n}else{\n// comment\n}", output: "if (a) {\n    // comment\n} else {\n    // comment\n}" },
+            { comment: 'multiple comments indentation', input: "if (a) {\n// comment\n// comment\n}", output: "if (a) {\n    // comment\n    // comment\n}" },
+            { input: "if (a) b() else c();", output: "if (a) b()\nelse c();" },
+            { input: "if (a) b() else if c() d();", output: "if (a) b()\nelse if c() d();" },
+
+            { input: "{}" },
+            { input: "{\n\n}" },
+            { input: "do { a(); } while ( 1 );", output: "do {\n    a();\n} while (1);" },
+            { input: "do {} while (1);" },
+            { input: "do {\n} while (1);", output: "do {} while (1);" },
+            { input: "do {\n\n} while (1);" },
+            { input: "var a = x(a, b, c)" },
+            { input: "delete x if (a) b();", output: "delete x\nif (a) b();" },
+            { input: "delete x[x] if (a) b();", output: "delete x[x]\nif (a) b();" },
+            { input: "for(var a=1,b=2)d", output: "for (var a = 1, b = 2) d" },
+            { input: "for(var a=1,b=2,c=3) d", output: "for (var a = 1, b = 2, c = 3) d" },
+            { input: "for(var a=1,b=2,c=3;d<3;d++)\ne", output: "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e" },
+            { input: "function x(){(a||b).c()}", output: "function x() {\n    (a || b).c()\n}" },
+            { input: "function x(){return - 1}", output: "function x() {\n    return -1\n}" },
+            { input: "function x(){return ! a}", output: "function x() {\n    return !a\n}" },
+            { input: "x => x", output: "x => x" },
+            { input: "(x) => x", output: "(x) => x" },
+            { input: "x => { x }", output: "x => {\n    x\n}" },
+            { input: "(x) => { x }", output: "(x) => {\n    x\n}" },
+
+            { comment: 'a common snippet in jQuery plugins',
+                input: "settings = $.extend({},defaults,settings);",
+                output: "settings = $.extend({}, defaults, settings);" },
+
+            // reserved words used as property names
+            { input: "$http().then().finally().default()", output: "$http().then().finally().default()" },
+            { input: "$http()\n.then()\n.finally()\n.default()", output: "$http()\n    .then()\n    .finally()\n    .default()" },
+            { input: "$http().when.in.new.catch().throw()", output: "$http().when.in.new.catch().throw()" },
+            { input: "$http()\n.when\n.in\n.new\n.catch()\n.throw()", output: "$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()" },
+
+            { input: '{xxx;}()', output: '{\n    xxx;\n}()' },
+
+            { input: "a = \\'a\\'\nb = \\'b\\'" },
+            { input: "a = /reg/exp" },
+            { input: "a = /reg/" },
+            { input: '/abc/.test()' },
+            { input: '/abc/i.test()' },
+            { input: "{/abc/i.test()}", output: "{\n    /abc/i.test()\n}" },
+            { input: 'var x=(a)/a;', output: 'var x = (a) / a;' },
+
+            { input: 'x != -1', output: 'x != -1' },
+
+            { input: 'for (; s-->0;)t', output: 'for (; s-- > 0;) t' },
+            { input: 'for (; s++>0;)u', output: 'for (; s++ > 0;) u' },
+            { input: 'a = s++>s--;', output: 'a = s++ > s--;' },
+            { input: 'a = s++>--s;', output: 'a = s++ > --s;' },
+
+            { input: '{x=#1=[]}', output: '{\n    x = #1=[]\n}' },
+            { input: '{a:#1={}}', output: '{\n    a: #1={}\n}' },
+            { input: '{a:#1#}', output: '{\n    a: #1#\n}' },
+
+            { fragment: '"incomplete-string' },
+            { fragment: "\\'incomplete-string" },
+            { fragment: '/incomplete-regex' },
+            { fragment: '`incomplete-template-string' },
+
+            { fragment: '{a:1},{a:2}', output: '{\n    a: 1\n}, {\n    a: 2\n}' },
+            { fragment: 'var ary=[{a:1}, {a:2}];', output: 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];' },
+
+            { comment: 'incomplete', fragment: '{a:#1', output: '{\n    a: #1' },
+            { comment: 'incomplete', fragment: '{a:#', output: '{\n    a: #' },
+
+            { comment: 'incomplete', fragment: '}}}', output: '}\n}\n}' },
+
+            { fragment: '<!--\nvoid();\n// -->', output: '<!--\nvoid();\n// -->' },
+
+            { comment: 'incomplete regexp', fragment: 'a=/regexp', output: 'a = /regexp' },
+
+            { input: '{a:#1=[],b:#1#,c:#999999#}', output: '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}' },
+
+            { input: "a = 1e+2" },
+            { input: "a = 1e-2" },
+            { input: "do{x()}while(a>1)", output: "do {\n    x()\n} while (a > 1)" },
+
+            { input: "x(); /reg/exp.match(something)", output: "x();\n/reg/exp.match(something)" },
+
+            { fragment: "something();(", output: "something();\n(" },
+            { fragment: "#!she/bangs, she bangs\nf=1", output: "#!she/bangs, she bangs\n\nf = 1" },
+            { fragment: "#!she/bangs, she bangs\n\nf=1", output: "#!she/bangs, she bangs\n\nf = 1" },
+            { fragment: "#!she/bangs, she bangs\n\n/* comment */", output: "#!she/bangs, she bangs\n\n/* comment */" },
+            { fragment: "#!she/bangs, she bangs\n\n\n/* comment */", output: "#!she/bangs, she bangs\n\n\n/* comment */" },
+            { fragment: "#", output: "#" },
+            { fragment: "#!", output: "#!" },
+
+            { input: "function namespace::something()" },
+
+            { fragment: "<!--\nsomething();\n-->", output: "<!--\nsomething();\n-->" },
+            { fragment: "<!--\nif(i<0){bla();}\n-->", output: "<!--\nif (i < 0) {\n    bla();\n}\n-->" },
+
+            { input: '{foo();--bar;}', output: '{\n    foo();\n    --bar;\n}' },
+            { input: '{foo();++bar;}', output: '{\n    foo();\n    ++bar;\n}' },
+            { input: '{--bar;}', output: '{\n    --bar;\n}' },
+            { input: '{++bar;}', output: '{\n    ++bar;\n}' },
+            { input: 'if(true)++a;', output: 'if (true) ++a;' },
+            { input: 'if(true)\n++a;', output: 'if (true)\n    ++a;' },
+            { input: 'if(true)--a;', output: 'if (true) --a;' },
+            { input: 'if(true)\n--a;', output: 'if (true)\n    --a;' },
+
+
+            { comment: 'Handling of newlines around unary ++ and -- operators',
+                input: '{foo\n++bar;}', output: '{\n    foo\n    ++bar;\n}' },
+            { input: '{foo++\nbar;}', output: '{\n    foo++\n    bar;\n}' },
+
+
+            { comment: 'This is invalid, but harder to guard against. Issue #203.',
+                input: '{foo\n++\nbar;}', output: '{\n    foo\n    ++\n    bar;\n}' },
+
+            { comment: 'regexps',
+                input: 'a(/abc\\\\/\\\\/def/);b()', output: "a(/abc\\\\/\\\\/def/);\nb()" },
+            { input: 'a(/a[b\\\\[\\\\]c]d/);b()', output: "a(/a[b\\\\[\\\\]c]d/);\nb()" },
+            { comment: 'incomplete char class', fragment: 'a(/a[b\\\\[', output: "a(/a[b\\\\[" }, 
+
+            { comment: 'allow unescaped / in char classes',
+                input: 'a(/[a/b]/);b()', output: "a(/[a/b]/);\nb()" },
+            { input: 'typeof /foo\\\\//;' },
+            { input: 'yield /foo\\\\//;' },
+            { input: 'throw /foo\\\\//;' },
+            { input: 'do /foo\\\\//;' },
+            { input: 'return /foo\\\\//;' },
+            { input: 'switch (a) {\n    case /foo\\\\//:\n        b\n}' },
+            { input: 'if (a) /foo\\\\//\nelse /foo\\\\//;' },
+
+            { input: 'if (foo) /regex/.test();' },
+
+            { input: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
+            { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]" },
+            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]" },
+            { input: 'a=[b,c,function(){},function(){},d]',
+                output: "a = [b, c, function() {}, function() {}, d]" },
+            { input: 'a=[b,c,\nfunction(){},function(){},d]',
+                output: "a = [b, c,\n    function() {},\n    function() {},\n    d\n]" },
+            { input: 'a=[a[1],b[4],c[d[7]]]', output: "a = [a[1], b[4], c[d[7]]]" },
+            { input: '[1,2,[3,4,[5,6],7],8]', output: "[1, 2, [3, 4, [5, 6], 7], 8]" },
+
+            { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+              output: '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]' },
+
+            { input: '{[x()[0]];indent;}', output: '{\n    [x()[0]];\n    indent;\n}' }
+
+
         ],
     }],
     // Example
