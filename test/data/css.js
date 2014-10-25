@@ -76,6 +76,19 @@ exports.test_data = {
             { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}'},
         ],
     }, {
+        name: "Functions braces",
+        description: "",
+        tests: [
+            { input: '.tabs(){}', output: '.tabs() {}' },
+            { input: '.tabs (){}', output: '.tabs () {}' },
+            { input: '.tabs (pa, pa(1,2)), .cols { }', output: '.tabs (pa, pa(1, 2)),\n.cols {}' },
+            { input: '.tabs(pa, pa(1,2)), .cols { }', output: '.tabs(pa, pa(1, 2)),\n.cols {}' },
+            { input: '.tabs (   )   {    }', output: '.tabs () {}' },
+            { input: '.tabs(   )   {    }', output: '.tabs() {}' },
+            { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
+            { input: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
+        ],
+    }, {
 
     }]
 }
