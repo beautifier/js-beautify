@@ -73,7 +73,7 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * space appears before open square bracket when the object name is "set" ([#508](https://github.com/beautify-web/js-beautify/issues/508))
 * Unclosed string problem ([#505](https://github.com/beautify-web/js-beautify/issues/505))
 * "--n" and "++n" are not indented like "n--" and "n++" are... ([#495](https://github.com/beautify-web/js-beautify/issues/495))
-* Allow <style> and <script> tags to be unformatted ([#494](https://github.com/beautify-web/js-beautify/pull/494))
+* Allow `<style>` and `<script>` tags to be unformatted ([#494](https://github.com/beautify-web/js-beautify/pull/494))
 * Preserve new line at end of file ([#492](https://github.com/beautify-web/js-beautify/issues/492))
 * Line wraps breaking numbers (causes syntax error) ([#488](https://github.com/beautify-web/js-beautify/issues/488))
 * jsBeautify acts differently when handling different kinds of function expressions[BUG][javascript] ([#485](https://github.com/beautify-web/js-beautify/issues/485))
