@@ -78,7 +78,7 @@
 
         var pos = -1,
             ch;
-        var roundBraceLevel = 0;
+        var parenLevel = 0;
 
         function next() {
             ch = source_text.charAt(++pos);
@@ -355,7 +355,7 @@
                         }
                     }
                 } else {
-                    roundBraceLevel++;
+                    parenLevel++;
                     if (isAfterSpace) {
                         print.singleSpace();
                     }
@@ -364,11 +364,11 @@
                 }
             } else if (ch === ')') {
                 output.push(ch);
-                roundBraceLevel--;
+                parenLevel--;
             } else if (ch === ',') {
                 output.push(ch);
                 eatWhitespace();
-                if (!insideRule && selectorSeparatorNewline && roundBraceLevel < 1) {
+                if (!insideRule && selectorSeparatorNewline && parenLevel < 1) {
                     print.newLine();
                 } else {
                     print.singleSpace();
