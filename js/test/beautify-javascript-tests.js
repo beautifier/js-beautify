@@ -1,6 +1,6 @@
 /*global js_beautify: true */
 
-function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
+function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
 
     var opts = {
@@ -24,11 +24,6 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     function test_html_beautifier(input)
     {
         return html_beautify(input, opts);
-    }
-
-    function test_css_beautifier(input)
-    {
-        return css_beautify(input, opts);
     }
 
     var sanitytest;
@@ -74,113 +69,221 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
     }
 
-    // test html
-    function bth(input, expectation)
-    {
-        var wrapped_input, wrapped_expectation, field_input, field_expectation;
+    // run all tests for the given brace style ("collapse", "expand", "end-expand", or "none").
+    // uses various whitespace combinations before and after opening and closing braces,
+    // respectively, for most of the tests' inputs.
+    function beautify_brace_tests(brace_style) {
 
-        expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_html_beautifier, 'html_beautify');
-        test_fragment(input, expectation);
+        var ex_brace_style = opts.brace_style,
+            indent_on_wrap_str = '    '; // could use Array(opts.indent_size + 1).join(' '); if we wanted to replace _all_ of the hardcoded 4-space in the test and expectation strings
 
-        if (opts.indent_size === 4 && input) {
-            wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            if (opts.end_with_newline) {
-                wrapped_expectation += '\n';
+        function permute_brace_tests(expect_open_white, expect_close_white) {
+
+            // run the tests that need permutation against a specific combination of
+            // pre-opening-brace and pre-closing-brace whitespace
+            function run_brace_permutation(test_open_white, test_close_white) {
+                var to = test_open_white,
+                    tc = test_close_white,
+                    eo = expect_open_white ? expect_open_white : to === '' ? ' ' : to,
+                    ec = expect_close_white ? expect_close_white : tc === '' ? ' ' : tc,
+                    i = eo === '\n' ? indent_on_wrap_str: '';
+
+                bt( '//case 1\nif (a == 1)' + to + '{}\n//case 2\nelse if (a == 2)' + to + '{}',
+                    '//case 1\nif (a == 1)' + eo + '{}\n//case 2\nelse if (a == 2)' + eo + '{}');
+                bt( 'if(1)' + to + '{2}' + tc + 'else' + to + '{3}',
+                    'if (1)' + eo + '{\n    2\n}' + ec + 'else' + eo + '{\n    3\n}');
+                bt( 'try' + to + '{a();}' + tc +
+                    'catch(b)' + to + '{c();}' + tc +
+                    'catch(d)' + to + '{}' + tc +
+                    'finally' + to + '{e();}',
+                    // expected
+                    'try' + eo + '{\n    a();\n}' + ec +
+                    'catch (b)' + eo + '{\n    c();\n}' + ec +
+                    'catch (d)' + eo + '{}' + ec +
+                    'finally' + eo + '{\n    e();\n}');
+                bt( 'if(a)' + to + '{b();}' + tc + 'else if(c) foo();',
+                    'if (a)' + eo + '{\n    b();\n}' + ec + 'else if (c) foo();');
+                // if/else statement with empty body
+                bt( 'if (a)' + to + '{\n// comment\n}' + tc + 'else' + to + '{\n// comment\n}',
+                    'if (a)' + eo + '{\n    // comment\n}' + ec + 'else' + eo + '{\n    // comment\n}');
+                bt( 'if (x)' + to + '{y}' + tc + 'else' + to + '{ if (x)' + to + '{y}}',
+                    'if (x)' + eo + '{\n    y\n}' + ec + 'else' + eo + '{\n    if (x)' + eo + i + '{\n        y\n    }\n}');
+                bt( 'if (a)' + to + '{\nb;\n}' + tc + 'else' + to + '{\nc;\n}',
+                    'if (a)' + eo + '{\n    b;\n}' + ec + 'else' + eo + '{\n    c;\n}');
+                test_fragment('    /*\n* xx\n*/\n// xx\nif (foo)' + to + '{\n    bar();\n}',
+                              '    /*\n     * xx\n     */\n    // xx\n    if (foo)' + eo + i + '{\n        bar();\n    }');
+                bt( 'if (foo)' + to + '{}' + tc + 'else /regex/.test();',
+                    'if (foo)' + eo + '{}' + ec + 'else /regex/.test();');
+                test_fragment('if (foo)' + to + '{', 'if (foo)' + eo + '{');
+                test_fragment('foo' + to + '{', 'foo' + eo + '{');
+                test_fragment('return;' + to + '{', 'return;' + eo + '{');
+                bt( 'function x()' + to + '{\n    foo();\n}zzz', 'function x()' + eo +'{\n    foo();\n}\nzzz');
+                bt( 'var a = new function a()' + to + '{};', 'var a = new function a()' + eo + '{};');
+                bt( 'var a = new function a()' + to + '    {},\n    b = new function b()' + to + '    {};',
+                    'var a = new function a()' + eo + i + '{},\n    b = new function b()' + eo + i + '{};');
+                bt("foo(" + to + "{\n    'a': 1\n},\n10);",
+                   "foo(" + (eo === ' ' ? '' : eo) + i + "{\n        'a': 1\n    },\n    10);"); // "foo( {..." is a weird case
+                bt('(["foo","bar"]).each(function(i)' + to + '{return i;});',
+                   '(["foo", "bar"]).each(function(i)' + eo + '{\n    return i;\n});');
+                bt('(function(i)' + to + '{return i;})();', '(function(i)' + eo + '{\n    return i;\n})();');
+
+                bt( "test( /*Argument 1*/" + to + "{\n" +
+                    "    'Value1': '1'\n" +
+                    "}, /*Argument 2\n" +
+                    " */ {\n" +
+                    "    'Value2': '2'\n" +
+                    "});",
+                    // expected
+                    "test( /*Argument 1*/" + eo + i + "{\n" +
+                    "        'Value1': '1'\n" +
+                    "    },\n" +
+                    "    /*Argument 2\n" +
+                    "     */\n" +
+                    "    {\n" +
+                    "        'Value2': '2'\n" +
+                    "    });");
+
+                bt( "test( /*Argument 1*/" + to + "{\n" +
+                    "    'Value1': '1'\n" +
+                    "}, /*Argument 2\n" +
+                    " */\n" +
+                    "{\n" +
+                    "    'Value2': '2'\n" +
+                    "});",
+                    // expected
+                    "test( /*Argument 1*/" + eo + i + "{\n" +
+                    "        'Value1': '1'\n" +
+                    "    },\n" +
+                    "    /*Argument 2\n" +
+                    "     */\n" +
+                    "    {\n" +
+                    "        'Value2': '2'\n" +
+                    "    });");
             }
-            test_fragment(wrapped_input, wrapped_expectation);
+
+            run_brace_permutation('\n', '\n');
+            run_brace_permutation('\n', ' ');
+            run_brace_permutation(' ', ' ');
+            run_brace_permutation(' ', '\n');
+            run_brace_permutation('','');
+
+            // brace tests that don't make sense to permutate
+            test_fragment('return {'); // return needs the brace.
+            test_fragment('return /* inline */ {');
+            bt('throw {}');
+            bt('throw {\n    foo;\n}');
+            bt( 'var foo = {}');
+            test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
+            bt( '{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
+            bt( 'var a = new function() {};');
+            bt( 'var a = new function()\n{};', 'var a = new function() {};');
+            bt( "test(\n" +
+                "/*Argument 1*/ {\n" +
+                "    'Value1': '1'\n" +
+                "},\n" +
+                "/*Argument 2\n" +
+                " */ {\n" +
+                "    'Value2': '2'\n" +
+                "});",
+                // expected
+                "test(\n" +
+                "    /*Argument 1*/\n" +
+                "    {\n" +
+                "        'Value1': '1'\n" +
+                "    },\n" +
+                "    /*Argument 2\n" +
+                "     */\n" +
+                "    {\n" +
+                "        'Value2': '2'\n" +
+                "    });");
         }
 
-        // Test that handlebars non-block {{}} tags act as content and do not
-        // get any spacing or line breaks.
-        if (input.indexOf('content') != -1) {
-            // Just {{field}}
-            field_input = input.replace(/content/g, '{{field}}');
-            field_expectation = expectation.replace(/content/g, '{{field}}');
-            test_fragment(field_input, field_expectation);
+        opts.brace_style = brace_style;
 
-            // handlebars comment
-            field_input = input.replace(/content/g, '{{! comment}}');
-            field_expectation = expectation.replace(/content/g, '{{! comment}}');
-            test_fragment(field_input, field_expectation);
-
-            // mixed {{field}} and content
-            field_input = input.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
-            field_expectation = expectation.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
-            test_fragment(field_input, field_expectation);
+        switch(opts.brace_style) {
+        case 'collapse':
+            permute_brace_tests(' ', ' ');
+            break;
+        case 'expand':
+            permute_brace_tests('\n', '\n');
+            break;
+        case 'end-expand':
+            permute_brace_tests(' ', '\n');
+            break;
+        case 'none':
+            permute_brace_tests();
+            break;
         }
+
+        opts.brace_style = ex_brace_style;
     }
 
-    // test css
-    function btc(input, expectation)
-    {
-        var wrapped_input, wrapped_expectation;
-
-        expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_css_beautifier, 'css_beautify');
-        test_fragment(input, expectation);
-    }
-
-    // test the input on beautifier with the current flag settings,
-    // but dont't
-    function bt_braces(input, expectation)
-    {
-        var braces_ex = opts.brace_style;
-        opts.brace_style = 'expand';
-        bt(input, expectation);
-        opts.brace_style = braces_ex;
+    function unicode_char(value) {
+        return String.fromCharCode(value)
     }
 
     function beautifier_tests()
     {
         sanitytest = test_obj;
 
-        opts.indent_size       = 4;
-        opts.indent_char       = ' ';
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
         opts.preserve_newlines = true;
-        opts.jslint_happy      = false;
+        opts.jslint_happy = false;
         opts.keep_array_indentation = false;
-        opts.brace_style       = "collapse";
+        opts.brace_style = 'collapse';
 
-        // unicode support
-        bt('var ' + String.fromCharCode(3232) + '_' + String.fromCharCode(3232) + ' = "hi";');
-        bt('var ' + String.fromCharCode(228) + 'x = {\n    ' + String.fromCharCode(228) + 'rgerlich: true\n};');
+        // Unicode Support
+        bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
+        bt(
+            'var ' + unicode_char(228) + 'x = {\n' +
+            '    ' + unicode_char(228) + 'rgerlich: true\n' +
+            '};');
 
+        // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
-        test_fragment('   return .5','   return .5\n');
-        test_fragment('   \n\nreturn .5\n\n\n\n','   return .5\n');
-        test_fragment('\n', '\n');
+        test_fragment('   return .5', '   return .5\n');
+        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n');
+        test_fragment('\n');
 
+        // End With Newline - (eof = "")
         opts.end_with_newline = false;
-        bt('');
+        test_fragment('');
+        test_fragment('   return .5');
+        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5');
         test_fragment('\n', '');
-        bt('return .5');
+
+        // New Test Suite
+
+        // Old tests
+        bt('');
         test_fragment('   return .5');
         test_fragment('   return .5;\n   a();');
+        test_fragment('    return .5;\n    a();');
+        test_fragment('     return .5;\n     a();');
         test_fragment('   < div');
         bt('a        =          1', 'a = 1');
         bt('a=1', 'a = 1');
         bt('(3) / 2');
         bt('["a", "b"].join("")');
-        bt("a();\n\nb();", "a();\n\nb();");
-        bt('var a = 1 var b = 2', "var a = 1\nvar b = 2");
+        bt('a();\n\nb();');
+        bt('var a = 1 var b = 2', 'var a = 1\nvar b = 2');
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;');
         bt('var a,\n    b,\n    c;');
-        bt('let a = 1 let b = 2', "let a = 1\nlet b = 2");
+        bt('let a = 1 let b = 2', 'let a = 1\nlet b = 2');
         bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;');
         bt('let a,\n    b,\n    c;');
-        bt('const a = 1 const b = 2', "const a = 1\nconst b = 2");
+        bt('const a = 1 const b = 2', 'const a = 1\nconst b = 2');
         bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;');
         bt('const a,\n    b,\n    c;');
         bt('a = " 12345 "');
-        bt("a = ' 12345 '");
-        bt('if (a == 1) b = 2;', "if (a == 1) b = 2;");
-        bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
+        bt('a = \' 12345 \'');
+        bt('if (a == 1) b = 2;');
+        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}');
         bt('if(1||2);', 'if (1 || 2);');
         bt('(a==1)||(b==2)', '(a == 1) || (b == 2)');
-        bt('var a = 1 if (2) 3;', "var a = 1\nif (2) 3;");
+        bt('var a = 1 if (2) 3;', 'var a = 1\nif (2) 3;');
         bt('a = a + 1');
         bt('a = a == 1');
         bt('/12345[^678]*9+/.match(a)');
@@ -210,182 +313,189 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('function void(void) {}');
         bt('if(!a)foo();', 'if (!a) foo();');
         bt('a=~a', 'a = ~a');
-        bt('a;/*comment*/b;', "a; /*comment*/\nb;");
-        bt('a;/* comment */b;', "a; /* comment */\nb;");
-        test_fragment('a;/*\ncomment\n*/b;', "a;\n/*\ncomment\n*/\nb;"); // simple comments don't get touched at all
-        bt('a;/**\n* javadoc\n*/b;', "a;\n/**\n * javadoc\n */\nb;");
-        test_fragment('a;/**\n\nno javadoc\n*/b;', "a;\n/**\n\nno javadoc\n*/\nb;");
-        bt('a;/*\n* javadoc\n*/b;', "a;\n/*\n * javadoc\n */\nb;"); // comment blocks detected and reindented even w/o javadoc starter
-        bt('if(a)break;', "if (a) break;");
-        bt('if(a){break}', "if (a) {\n    break\n}");
+        bt('a;/*comment*/b;', 'a; /*comment*/\nb;');
+        bt('a;/* comment */b;', 'a; /* comment */\nb;');
+        
+        // simple comments don't get touched at all
+        test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;');
+        bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;');
+        test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;');
+        
+        // comment blocks detected and reindented even w/o javadoc starter
+        bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;');
+        bt('if(a)break;', 'if (a) break;');
+        bt('if(a){break}', 'if (a) {\n    break\n}');
         bt('if((a))foo();', 'if ((a)) foo();');
         bt('for(var i=0;;) a', 'for (var i = 0;;) a');
         bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a');
-        bt('a++;', 'a++;');
+        bt('a++;');
         bt('for(;;i++)a()', 'for (;; i++) a()');
         bt('for(;;i++)\na()', 'for (;; i++)\n    a()');
         bt('for(;;++i)a', 'for (;; ++i) a');
         bt('return(1)', 'return (1)');
-        bt('try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}");
-        bt('(xx)()'); // magic function call
-        bt('a[1]()'); // another magic function call
-        bt('if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();");
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
+        bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}');
+        
+        //  magic function call
+        bt('(xx)()');
+        
+        // another magic function call
+        bt('a[1]()');
+        bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();');
+        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}');
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
         bt('a !== b');
-        bt('if (a) b(); else c();', "if (a) b();\nelse c();");
-        bt("// comment\n(function something() {})"); // typical greasemonkey start
-        bt("{\n\n    x();\n\n}"); // was: duplicating newlines
+        bt('if (a) b(); else c();', 'if (a) b();\nelse c();');
+        
+        // typical greasemonkey start
+        bt('// comment\n(function something() {})');
+        
+        // duplicating newlines
+        bt('{\n\n    x();\n\n}');
         bt('if (a in b) foo();');
+        bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();');
+        bt('if (foo) bar();\nelse break');
         bt('var a, b;');
-        //  bt('var a, b');
-        bt('{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}");
+        bt('var a = new function();');
+        test_fragment('new function');
+        bt('var a, b');
+        bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}');
         bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}');
-        bt('var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}");
+        bt('var l = {\'a\':\'1\', \'b\':\'2\'}', 'var l = {\n    \'a\': \'1\',\n    \'b\': \'2\'\n}');
         bt('if (template.user[n] in bk) foo();');
-        bt('{{}/z/}', "{\n    {}\n    /z/\n}");
-        bt('return 45', "return 45");
+        bt('return 45');
         bt('return this.prevObject ||\n\n    this.constructor(null);');
-        bt('If[1]', "If[1]");
-        bt('Then[1]', "Then[1]");
-        bt('a = 1e10', "a = 1e10");
-        bt('a = 1.3e10', "a = 1.3e10");
-        bt('a = 1.3e-10', "a = 1.3e-10");
-        bt('a = -1.3e-10', "a = -1.3e-10");
-        bt('a = 1e-10', "a = 1e-10");
-        bt('a = e - 10', "a = e - 10");
-        bt('a = 11-10', "a = 11 - 10");
-        bt("a = 1;// comment", "a = 1; // comment");
-        bt("a = 1; // comment", "a = 1; // comment");
-        bt("a = 1;\n // comment", "a = 1;\n// comment");
+        bt('If[1]');
+        bt('Then[1]');
+        bt('a = 1e10');
+        bt('a = 1.3e10');
+        bt('a = 1.3e-10');
+        bt('a = -1.3e-10');
+        bt('a = 1e-10');
+        bt('a = e - 10');
+        bt('a = 11-10', 'a = 11 - 10');
+        bt('a = 1;// comment', 'a = 1; // comment');
+        bt('a = 1; // comment');
+        bt('a = 1;\n // comment', 'a = 1;\n// comment');
         bt('a = [-1, -1, -1]');
-
+        
         // The exact formatting these should have is open for discussion, but they are at least reasonable
         bt('a = [ // comment\n    -1, -1, -1\n]');
         bt('var a = [ // comment\n    -1, -1, -1\n]');
         bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]');
         bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]');
-
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]');
-
-        bt("if (a) {\n    do();\n}"); // was: extra space appended
-
-        bt("if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
-        bt("if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}"); // multiple comments indentation
-        bt("if (a) b() else c();", "if (a) b()\nelse c();");
-        bt("if (a) b() else if c() d();", "if (a) b()\nelse if c() d();");
-
-        bt("{}");
-        bt("{\n\n}");
-        bt("do { a(); } while ( 1 );", "do {\n    a();\n} while (1);");
-        bt("do {} while (1);");
-        bt("do {\n} while (1);", "do {} while (1);");
-        bt("do {\n\n} while (1);");
-        bt("var a = x(a, b, c)");
-        bt("delete x if (a) b();", "delete x\nif (a) b();");
-        bt("delete x[x] if (a) b();", "delete x[x]\nif (a) b();");
-        bt("for(var a=1,b=2)d", "for (var a = 1, b = 2) d");
-        bt("for(var a=1,b=2,c=3) d", "for (var a = 1, b = 2, c = 3) d");
-        bt("for(var a=1,b=2,c=3;d<3;d++)\ne", "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e");
-        bt("function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}");
-        bt("function x(){return - 1}", "function x() {\n    return -1\n}");
-        bt("function x(){return ! a}", "function x() {\n    return !a\n}");
-        bt("x => x", "x => x");
-        bt("(x) => x", "(x) => x");
-        bt("x => { x }", "x => {\n    x\n}");
-        bt("(x) => { x }", "(x) => {\n    x\n}");
-
+        
+        // was: extra space appended
+        bt('if (a) {\n    do();\n}');
+        
+        // if/else statement with empty body
+        bt('if (a) {\n// comment\n}else{\n// comment\n}', 'if (a) {\n    // comment\n} else {\n    // comment\n}');
+        
+        // multiple comments indentation
+        bt('if (a) {\n// comment\n// comment\n}', 'if (a) {\n    // comment\n    // comment\n}');
+        bt('if (a) b() else c();', 'if (a) b()\nelse c();');
+        bt('if (a) b() else if c() d();', 'if (a) b()\nelse if c() d();');
+        bt('{}');
+        bt('{\n\n}');
+        bt('do { a(); } while ( 1 );', 'do {\n    a();\n} while (1);');
+        bt('do {} while (1);');
+        bt('do {\n} while (1);', 'do {} while (1);');
+        bt('do {\n\n} while (1);');
+        bt('var a = x(a, b, c)');
+        bt('delete x if (a) b();', 'delete x\nif (a) b();');
+        bt('delete x[x] if (a) b();', 'delete x[x]\nif (a) b();');
+        bt('for(var a=1,b=2)d', 'for (var a = 1, b = 2) d');
+        bt('for(var a=1,b=2,c=3) d', 'for (var a = 1, b = 2, c = 3) d');
+        bt('for(var a=1,b=2,c=3;d<3;d++)\ne', 'for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e');
+        bt('function x(){(a||b).c()}', 'function x() {\n    (a || b).c()\n}');
+        bt('function x(){return - 1}', 'function x() {\n    return -1\n}');
+        bt('function x(){return ! a}', 'function x() {\n    return !a\n}');
+        bt('x => x');
+        bt('(x) => x');
+        bt('x => { x }', 'x => {\n    x\n}');
+        bt('(x) => { x }', '(x) => {\n    x\n}');
+        
         // a common snippet in jQuery plugins
-        bt("settings = $.extend({},defaults,settings);", "settings = $.extend({}, defaults, settings);");
-
-        // reserved words used as property names
-        bt("$http().then().finally().default()", "$http().then().finally().default()");
-        bt("$http()\n.then()\n.finally()\n.default()", "$http()\n    .then()\n    .finally()\n    .default()");
-        bt("$http().when.in.new.catch().throw()", "$http().when.in.new.catch().throw()");
-        bt("$http()\n.when\n.in\n.new\n.catch()\n.throw()", "$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()");
-
+        bt('settings = $.extend({},defaults,settings);', 'settings = $.extend({}, defaults, settings);');
+        bt('$http().then().finally().default()');
+        bt('$http()\n.then()\n.finally()\n.default()', '$http()\n    .then()\n    .finally()\n    .default()');
+        bt('$http().when.in.new.catch().throw()');
+        bt('$http()\n.when\n.in\n.new\n.catch()\n.throw()', '$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()');
         bt('{xxx;}()', '{\n    xxx;\n}()');
-
-        bt("a = 'a'\nb = 'b'");
-        bt("a = /reg/exp");
-        bt("a = /reg/");
+        bt('a = \'a\'\nb = \'b\'');
+        bt('a = /reg/exp');
+        bt('a = /reg/');
         bt('/abc/.test()');
         bt('/abc/i.test()');
-        bt("{/abc/i.test()}", "{\n    /abc/i.test()\n}");
+        bt('{/abc/i.test()}', '{\n    /abc/i.test()\n}');
         bt('var x=(a)/a;', 'var x = (a) / a;');
-
-        bt('x != -1', 'x != -1');
-
+        bt('x != -1');
         bt('for (; s-->0;)t', 'for (; s-- > 0;) t');
         bt('for (; s++>0;)u', 'for (; s++ > 0;) u');
         bt('a = s++>s--;', 'a = s++ > s--;');
         bt('a = s++>--s;', 'a = s++ > --s;');
-
         bt('{x=#1=[]}', '{\n    x = #1=[]\n}');
         bt('{a:#1={}}', '{\n    a: #1={}\n}');
         bt('{a:#1#}', '{\n    a: #1#\n}');
-
         test_fragment('"incomplete-string');
-        test_fragment("'incomplete-string");
+        test_fragment('\'incomplete-string');
         test_fragment('/incomplete-regex');
         test_fragment('`incomplete-template-string');
-
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}');
         test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];');
-
-        test_fragment('{a:#1', '{\n    a: #1'); // incomplete
-        test_fragment('{a:#', '{\n    a: #'); // incomplete
-
-        test_fragment('}}}', '}\n}\n}'); // incomplete
-
-        test_fragment('<!--\nvoid();\n// -->', '<!--\nvoid();\n// -->');
-
-        test_fragment('a=/regexp', 'a = /regexp'); // incomplete regexp
-
+        
+        // incomplete
+        test_fragment('{a:#1', '{\n    a: #1');
+        
+        // incomplete
+        test_fragment('{a:#', '{\n    a: #');
+        
+        // incomplete
+        test_fragment('}}}', '}\n}\n}');
+        test_fragment('<!--\nvoid();\n// -->');
+        
+        // incomplete regexp
+        test_fragment('a=/regexp', 'a = /regexp');
         bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}');
-
-        bt("a = 1e+2");
-        bt("a = 1e-2");
-        bt("do{x()}while(a>1)", "do {\n    x()\n} while (a > 1)");
-
-        bt("x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)");
-
-        test_fragment("something();(", "something();\n(");
-        test_fragment("#!she/bangs, she bangs\nf=1", "#!she/bangs, she bangs\n\nf = 1");
-        test_fragment("#!she/bangs, she bangs\n\nf=1", "#!she/bangs, she bangs\n\nf = 1");
-        test_fragment("#!she/bangs, she bangs\n\n/* comment */", "#!she/bangs, she bangs\n\n/* comment */");
-        test_fragment("#!she/bangs, she bangs\n\n\n/* comment */", "#!she/bangs, she bangs\n\n\n/* comment */");
-        test_fragment("#", "#");
-        test_fragment("#!", "#!");
-
-        bt("function namespace::something()");
-
-        test_fragment("<!--\nsomething();\n-->", "<!--\nsomething();\n-->");
-        test_fragment("<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
-
+        bt('a = 1e+2');
+        bt('a = 1e-2');
+        bt('do{x()}while(a>1)', 'do {\n    x()\n} while (a > 1)');
+        bt('x(); /reg/exp.match(something)', 'x();\n/reg/exp.match(something)');
+        test_fragment('something();(', 'something();\n(');
+        test_fragment('#!she/bangs, she bangs\nf=1', '#!she/bangs, she bangs\n\nf = 1');
+        test_fragment('#!she/bangs, she bangs\n\nf=1', '#!she/bangs, she bangs\n\nf = 1');
+        test_fragment('#!she/bangs, she bangs\n\n/* comment */');
+        test_fragment('#!she/bangs, she bangs\n\n\n/* comment */');
+        test_fragment('#');
+        test_fragment('#!');
+        bt('function namespace::something()');
+        test_fragment('<!--\nsomething();\n-->');
+        test_fragment('<!--\nif(i<0){bla();}\n-->', '<!--\nif (i < 0) {\n    bla();\n}\n-->');
         bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}');
         bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}');
         bt('{--bar;}', '{\n    --bar;\n}');
         bt('{++bar;}', '{\n    ++bar;\n}');
-        bt('if(true)++a;','if (true) ++a;');
-        bt('if(true)\n++a;','if (true)\n    ++a;');
-        bt('if(true)--a;','if (true) --a;');
-        bt('if(true)\n--a;','if (true)\n    --a;');
-
+        bt('if(true)++a;', 'if (true) ++a;');
+        bt('if(true)\n++a;', 'if (true)\n    ++a;');
+        bt('if(true)--a;', 'if (true) --a;');
+        bt('if(true)\n--a;', 'if (true)\n    --a;');
+        
         // Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');
         bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}');
-
+        
         // This is invalid, but harder to guard against. Issue #203.
         bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}');
-
-
+        
         // regexps
-        bt('a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()");
-        bt('a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()");
-        test_fragment('a(/a[b\\[', "a(/a[b\\["); // incomplete char class
+        bt('a(/abc\\/\\/def/);b()', 'a(/abc\\/\\/def/);\nb()');
+        bt('a(/a[b\\[\\]c]d/);b()', 'a(/a[b\\[\\]c]d/);\nb()');
+        
+        // incomplete char class
+        test_fragment('a(/a[b\\[');
+        
         // allow unescaped / in char classes
-        bt('a(/[a/b]/);b()', "a(/[a/b]/);\nb()");
+        bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()');
         bt('typeof /foo\\//;');
         bt('yield /foo\\//;');
         bt('throw /foo\\//;');
@@ -393,27 +503,20 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return /foo\\//;');
         bt('switch (a) {\n    case /foo\\//:\n        b\n}');
         bt('if (a) /foo\\//\nelse /foo\\//;');
-
-
+        bt('if (foo) /regex/.test();');
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
-        bt('a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]");
-        bt('a=[[1,2],[4,5],function(){},[7,8]]',
-            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
-        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]',
-            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]");
-        bt('a=[[1,2],[4,5],function(){},[7,8]]',
-            "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]");
-        bt('a=[b,c,function(){},function(){},d]',
-            "a = [b, c, function() {}, function() {}, d]");
-        bt('a=[b,c,\nfunction(){},function(){},d]',
-            "a = [b, c,\n    function() {},\n    function() {},\n    d\n]");
-        bt('a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]");
-        bt('[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]");
-
-        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
-            '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]');
-
+        bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]');
+        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]');
+        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]');
+        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]');
+        bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]');
+        bt('a=[b,c,\nfunction(){},function(){},d]', 'a = [b, c,\n    function() {},\n    function() {},\n    d\n]');
+        bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]');
+        bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]');
+        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]');
         bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}');
+
+        bt('{{}/z/}', "{\n    {}\n    /z/\n}");
 
         bt('return ++i', 'return ++i');
         bt('return !!x', 'return !!x');
@@ -735,297 +838,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
-
-        opts.brace_style = 'expand';
-
-        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}');
-        bt('if(1){2}else{3}', "if (1)\n{\n    2\n}\nelse\n{\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-            "try\n{\n    a();\n}\ncatch (b)\n{\n    c();\n}\ncatch (d)\n{}\nfinally\n{\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a)\n{\n    b();\n}\nelse if (c) foo();");
-        bt('if(X)if(Y)a();else b();else c();',
-            "if (X)\n    if (Y) a();\n    else b();\nelse c();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a)\n{\n    // comment\n}\nelse\n{\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x)\n{\n    y\n}\nelse\n{\n    if (x)\n    {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo)\n    {\n        bar();\n    }');
-        bt('if (foo)\n{}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a)\n{\n    b;\n}\nelse\n{\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo)\n{');
-        test_fragment('foo {', 'foo\n{');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return;\n{');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x()\n{\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function()\n{};', 'var a = new function() {};');
-        bt('var a = new function a()\n{};');
-        bt('var a = new function a()\n    {},\n    b = new function b()\n    {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo(\n    {\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i)\n{\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i)\n{\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = 'collapse';
-
-        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
-        bt('if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-             "try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a) {\n    b();\n} else if (c) foo();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a) {\n    // comment\n} else {\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a) {\n    b;\n} else {\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
-        bt('if (foo) {} else /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo) {');
-        test_fragment('foo {', 'foo {');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return; {');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function a() {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo({\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i) {\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = "end-expand";
-
-        bt('//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
-        bt('if(1){2}else{3}', "if (1) {\n    2\n}\nelse {\n    3\n}");
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}',
-            "try {\n    a();\n}\ncatch (b) {\n    c();\n}\ncatch (d) {}\nfinally {\n    e();\n}");
-        bt('if(a){b();}else if(c) foo();',
-            "if (a) {\n    b();\n}\nelse if (c) foo();");
-        bt("if (a) {\n// comment\n}else{\n// comment\n}",
-            "if (a) {\n    // comment\n}\nelse {\n    // comment\n}"); // if/else statement with empty body
-        bt('if (x) {y} else { if (x) {y}}',
-            'if (x) {\n    y\n}\nelse {\n    if (x) {\n        y\n    }\n}');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
-            'if (a) {\n    b;\n}\nelse {\n    c;\n}');
-        test_fragment('    /*\n* xx\n*/\n// xx\nif (foo) {\n    bar();\n}',
-                      '    /*\n     * xx\n     */\n    // xx\n    if (foo) {\n        bar();\n    }');
-        bt('if (foo) {}\nelse /regex/.test();');
-        bt('if (foo) /regex/.test();');
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n}\nelse {\n    c;\n}');
-        test_fragment('if (foo) {', 'if (foo) {');
-        test_fragment('foo {', 'foo {');
-        test_fragment('return {', 'return {'); // return needs the brace.
-        test_fragment('return /* inline */ {', 'return /* inline */ {');
-        // test_fragment('return\n{', 'return\n{'); // can't support this?, but that's an improbable and extreme case anyway.
-        test_fragment('return;\n{', 'return; {');
-        bt("throw {}");
-        bt("throw {\n    foo;\n}");
-        bt('var foo = {}');
-        bt('if (foo) bar();\nelse break');
-        bt('function x() {\n    foo();\n}zzz', 'function x() {\n    foo();\n}\nzzz');
-        test_fragment('a: do {} while (); xxx', 'a: do {} while ();\nxxx');
-        bt('{a: do {} while (); xxx}', '{\n    a: do {} while ();xxx\n}');
-        bt('var a = new function();');
-        bt('var a = new function() {};');
-        bt('var a = new function a() {};');
-        test_fragment('new function');
-        bt("foo({\n    'a': 1\n},\n10);",
-            "foo({\n        'a': 1\n    },\n    10);");
-        bt('(["foo","bar"]).each(function(i) {return i;});',
-            '(["foo", "bar"]).each(function(i) {\n    return i;\n});');
-        bt('(function(i) {return i;})();',
-            '(function(i) {\n    return i;\n})();');
-        bt( "test( /*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test(\n" +
-            "/*Argument 1*/ {\n" +
-            "    'Value1': '1'\n" +
-            "},\n" +
-            "/*Argument 2\n" +
-            " */ {\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test(\n" +
-            "    /*Argument 1*/\n" +
-            "    {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-        bt( "test( /*Argument 1*/\n" +
-            "{\n" +
-            "    'Value1': '1'\n" +
-            "}, /*Argument 2\n" +
-            " */\n" +
-            "{\n" +
-            "    'Value2': '2'\n" +
-            "});",
-            // expected
-            "test( /*Argument 1*/ {\n" +
-            "        'Value1': '1'\n" +
-            "    },\n" +
-            "    /*Argument 2\n" +
-            "     */\n" +
-            "    {\n" +
-            "        'Value2': '2'\n" +
-            "    });");
-
-        opts.brace_style = 'collapse';
-
+        // tests for brace positioning
+        beautify_brace_tests('expand');
+        beautify_brace_tests('collapse');
+        beautify_brace_tests('end-expand');
+        beautify_brace_tests('none');
 
         bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
         bt('a = <%= external() %> ;');
@@ -1052,7 +869,7 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}");
 
         bt('<!-- foo\nbar();\n-->');
-        bt('<!-- dont crash');
+        bt('<!-- dont crash'); // -->
         bt('for () /abc/.test()');
         bt('if (k) /aaa/m.test(v) && l();');
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
@@ -1838,6 +1655,15 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             "        return 0;\n" +
             "    }\n" +
             "}");
+        bt( "interface Test {\n" +
+            "    blah: string[];\n" +
+            "    foo(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "    bar(): number {\n" +
+            "        return 0;\n" +
+            "    }\n" +
+            "}");
         // END tests for issue 552
 
 
@@ -1846,600 +1672,11 @@ function run_beautifier_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('var a={bing:1},b=2,c=3;',
             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
-
-
-        bth('');
-
-        opts.end_with_newline = true;
-        test_fragment('', '\n');
-        test_fragment('<div></div>\n');
-        test_fragment('<div></div>\n\n\n', '<div></div>\n');
-        test_fragment('<head>\n' +
-            '    <script>\n' +
-            '        mocha.setup("bdd");\n' +
-            '\n' +
-            '    </script>\n' +
-            '</head>\n');
-
-
-        opts.end_with_newline = false;
-        // error cases need love too
-        bth('<img title="Bad food!" src="foo.jpg" alt="Evil" ">');
-        bth("<!-- don't blow up if a comment is not complete");
-
-        test_fragment(
-            '<head>\n' +
-            '    <script>\n' +
-            '        mocha.setup("bdd");\n' +
-            '    </script>\n' +
-            '</head>');
-
-        test_fragment('<div></div>\n', '<div></div>');
-        bth('<div></div>');
-        bth('<div>content</div>');
-        bth('<div><div></div></div>',
-            '<div>\n' +
-            '    <div></div>\n' +
-            '</div>');
-        bth('<div><div>content</div></div>',
-            '<div>\n' +
-            '    <div>content</div>\n' +
-            '</div>');
-        bth('<div>\n' +
-            '    <span>content</span>\n' +
-            '</div>');
-        bth('<div>\n' +
-            '</div>');
-        bth('<div>\n' +
-            '    content\n' +
-            '</div>');
-        bth('<div>\n' +
-            '    </div>',
-            '<div>\n' +
-            '</div>');
-        bth('    <div>\n' +
-            '    </div>',
-            '<div>\n' +
-            '</div>');
-        bth('<div>\n' +
-            '</div>\n' +
-            '    <div>\n' +
-            '    </div>',
-            '<div>\n' +
-            '</div>\n' +
-            '<div>\n' +
-            '</div>');
-        bth('    <div>\n' +
-            '</div>',
-            '<div>\n' +
-            '</div>');
-        bth('<div        >content</div>',
-            '<div>content</div>');
-        bth('<div     thinger="preserve  space  here"   ></div  >',
-            '<div thinger="preserve  space  here"></div>');
-        bth('content\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            'content',
-            'content\n' +
-            '<div>\n' +
-            '</div>\n' +
-            'content');
-        bth('<li>\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '</li>');
-        bth('<li>\n' +
-            '<div>\n' +
-            '</div>\n' +
-            '</li>',
-            '<li>\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '</li>');
-        bth('<li>\n' +
-            '    content\n' +
-            '</li>\n' +
-            '<li>\n' +
-            '    content\n' +
-            '</li>');
-
-        bth('<img>content');
-        bth('<img> content');
-        bth('<img>   content', '<img> content');
-
-        bth('<img><img>content');
-        bth('<img> <img>content');
-        bth('<img>   <img>content', '<img> <img>content');
-
-        bth('<img><b>content</b>');
-        bth('<img> <b>content</b>');
-        bth('<img>   <b>content</b>', '<img> <b>content</b>');
-
-        bth('<div>content<img>content</div>');
-        bth('<div> content <img> content</div>');
-        bth('<div>    content <img>    content </div>',
-            '<div> content <img> content </div>');
-        bth('Text <a href="#">Link</a> Text');
-
-
-		// START tests for issue 453
-		bth('<script type="text/unknown"><div></div></script>',
-			'<script type="text/unknown">\n' +
-			'    <div></div>\n' +
-			'</script>');
-		bth('<script type="text/javascript"><div></div></script>',
-			'<script type="text/javascript">\n' +
-			'    < div > < /div>\n' +
-			'</script>');
-		bth('<script><div></div></script>',
-			'<script>\n' +
-			'    < div > < /div>\n' +
-			'</script>');
-		bth('<script type="text/javascript">var foo = "bar";</script>',
-			'<script type="text/javascript">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script type="application/javascript">var foo = "bar";</script>',
-			'<script type="application/javascript">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script type="application/javascript;version=1.8">var foo = "bar";</script>',
-			'<script type="application/javascript;version=1.8">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script type="application/x-javascript">var foo = "bar";</script>',
-			'<script type="application/x-javascript">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script type="application/ecmascript">var foo = "bar";</script>',
-			'<script type="application/ecmascript">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script type="text/javascript1.5">var foo = "bar";</script>',
-			'<script type="text/javascript1.5">\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-		bth('<script>var foo = "bar";</script>',
-			'<script>\n' +
-			'    var foo = "bar";\n' +
-			'</script>');
-
-		bth('<style type="text/unknown"><tag></tag></style>',
-			'<style type="text/unknown">\n' +
-			'    <tag></tag>\n' +
-			'</style>');
-		bth('<style type="text/css"><tag></tag></style>',
-			'<style type="text/css">\n' +
-			'    <tag></tag>\n' +
-			'</style>');
-		bth('<style><tag></tag></style>',
-			'<style>\n' +
-			'    <tag></tag>\n' +
-			'</style>');
-		bth('<style type="text/css">.selector {font-size:12px;}</style>',
-			'<style type="text/css">\n' +
-			'    .selector {\n' +
-			'        font-size: 12px;\n' +
-			'    }\n'+
-			'</style>');
-		bth('<style>.selector {font-size:12px;}</style>',
-			'<style>\n' +
-			'    .selector {\n' +
-			'        font-size: 12px;\n' +
-			'    }\n'+
-			'</style>');
-		// END tests for issue 453
-
-        var unformatted = opts.unformatted;
-        opts.unformatted = ['script', 'style'];
-        bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
-            '  <ul>\n' +
-            '  # for (var i = 0; i < data.length; i++) { #\n' +
-            '    <li>#= data[i] #</li>\n' +
-            '  # } #\n' +
-            '  </ul>\n' +
-            '</script>');
-        bth('<style>\n' +
-            '  body {background-color:lightgrey}\n' +
-            '  h1   {color:blue}\n' +
-            '</style>');
-        opts.unformatted = unformatted;
-
-        unformatted = opts.unformatted;
-        opts.unformatted = ['custom-element'];
-        test_fragment('<div>should <custom-element>not</custom-element>' +
-                      ' insert newlines</div>',
-                      '<div>should <custom-element>not</custom-element>' +
-                      ' insert newlines</div>');
-        opts.unformatted = unformatted;
-
-        // Tests that don't pass, but probably should.
-        // bth('<div><span>content</span></div>');
-
-        // Handlebars tests
-        // Without the indent option on, handlebars are treated as content.
-        opts.indent_handlebars = false;
-        bth('{{#if 0}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}',
-            '{{#if 0}}\n' +
-            '<div>\n' +
-            '</div>\n' +
-            '{{/if}}');
-        bth('<div>\n' +
-            '{{#each thing}}\n' +
-            '    {{name}}\n' +
-            '{{/each}}\n' +
-            '</div>',
-            '<div>\n' +
-            '    {{#each thing}} {{name}} {{/each}}\n' +
-            '</div>');
-
-        opts.indent_handlebars = true;
-        bth('{{#if 0}}{{/if}}');
-        bth('{{#if 0}}content{{/if}}');
-        bth('{{#if 0}}\n' +
-            '{{/if}}');
-        bth('{{#if     words}}{{/if}}',
-            '{{#if words}}{{/if}}');
-        bth('{{#if     words}}content{{/if}}',
-            '{{#if words}}content{{/if}}');
-        bth('{{#if     words}}content{{/if}}',
-            '{{#if words}}content{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '<div>\n' +
-            '</div>\n' +
-            '{{/if}}',
-            '{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-        bth('<div>\n' +
-            '    {{#if 1}}\n' +
-            '    {{/if}}\n' +
-            '</div>');
-        bth('<div>\n' +
-            '{{#if 1}}\n' +
-            '{{/if}}\n' +
-            '</div>',
-            '<div>\n' +
-            '    {{#if 1}}\n' +
-            '    {{/if}}\n' +
-            '</div>');
-        bth('{{#if}}\n' +
-            '{{#each}}\n' +
-            '{{#if}}\n' +
-            'content\n' +
-            '{{/if}}\n' +
-            '{{#if}}\n' +
-            'content\n' +
-            '{{/if}}\n' +
-            '{{/each}}\n' +
-            '{{/if}}',
-            '{{#if}}\n' +
-            '    {{#each}}\n' +
-            '        {{#if}}\n' +
-            '            content\n' +
-            '        {{/if}}\n' +
-            '        {{#if}}\n' +
-            '            content\n' +
-            '        {{/if}}\n' +
-            '    {{/each}}\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-
-        // Test {{else}} aligned with {{#if}} and {{/if}}
-        bth('{{#if 1}}\n' +
-            '    content\n' +
-            '    {{else}}\n' +
-            '    content\n' +
-            '{{/if}}',
-            '{{#if 1}}\n' +
-            '    content\n' +
-            '{{else}}\n' +
-            '    content\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    {{else}}\n' +
-            '    {{/if}}',
-            '{{#if 1}}\n' +
-            '{{else}}\n' +
-            '{{/if}}');
-        bth('{{#if thing}}\n' +
-            '{{#if otherthing}}\n' +
-            '    content\n' +
-            '    {{else}}\n' +
-            'content\n' +
-            '    {{/if}}\n' +
-            '       {{else}}\n'+
-            'content\n' +
-            '{{/if}}',
-            '{{#if thing}}\n' +
-            '    {{#if otherthing}}\n' +
-            '        content\n' +
-            '    {{else}}\n' +
-            '        content\n' +
-            '    {{/if}}\n' +
-            '{{else}}\n'+
-            '    content\n' +
-            '{{/if}}');
-
-        // Test {{}} inside of <> tags, which should be separated by spaces
-        // for readability, unless they are inside a string.
-        bth('<div{{somestyle}}></div>',
-            '<div {{somestyle}}></div>');
-        bth('<div{{#if test}}class="foo"{{/if}}>content</div>',
-            '<div {{#if test}} class="foo" {{/if}}>content</div>');
-        bth('<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</div>',
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>content</div>');
-        bth('<span{{#if condition}}class="foo"{{/if}}>content</span>',
-            '<span {{#if condition}} class="foo" {{/if}}>content</span>');
-        bth('<div unformatted="{{#if}}content{{/if}}">content</div>');
-        bth('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
-
-        // Quotes found inside of Handlebars expressions inside of quoted
-        // strings themselves should not be considered string delimiters.
-        bth('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
-        bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
-        bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
-        bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
-
-        opts.wrap_line_length = 0;
-        //...---------1---------2---------3---------4---------5---------6---------7
-        //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some text that should not wrap at all.</div>',
-            /* expected */
-            '<div>Some text that should not wrap at all.</div>');
-
-        // A value of 0 means no max line length, and should not wrap.
-        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
-        //...12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>',
-            /* expected */
-            '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
-
-        opts.wrap_line_length = "0";
-        //...---------1---------2---------3---------4---------5---------6---------7
-        //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some text that should not wrap at all.</div>',
-            /* expected */
-            '<div>Some text that should not wrap at all.</div>');
-
-        // A value of "0" means no max line length, and should not wrap
-        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
-        //...12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>',
-            /* expected */
-            '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
-
-        //BUGBUG: This should wrap before 40 not after.
-        opts.wrap_line_length = 40;
-        //...---------1---------2---------3---------4---------5---------6---------7
-        //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
-            /* expected */
-            '<div>Some test text that should wrap_inside_this\n' +
-            '    section here.</div>');
-
-        opts.wrap_line_length = "40";
-        //...---------1---------2---------3---------4---------5---------6---------7
-        //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
-            /* expected */
-            '<div>Some test text that should wrap_inside_this\n' +
-            '    section here.</div>');
-
-        opts.indent_size = 1;
-        opts.indent_char = '\t';
-        opts.preserve_newlines = false;
-        bth('<div>\n\tfoo\n</div>', '<div> foo </div>');
-
-        opts.preserve_newlines = true;
-        bth('<div>\n\tfoo\n</div>');
-
-
-
-        // test preserve_newlines and max_preserve_newlines
-        opts.preserve_newlines = false;
-        bth('<div>Should not</div>\n\n\n' +
-            '<div>preserve newlines</div>',
-            '<div>Should not</div>\n' +
-            '<div>preserve newlines</div>');
-
-        opts.preserve_newlines = true;
-        opts.max_preserve_newlines  = 0;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve zero newlines</div>',
-            '<div>Should</div>\n' +
-            '<div>preserve zero newlines</div>');
-
-        opts.max_preserve_newlines  = 1;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>',
-            '<div>Should</div>\n\n' +
-            '<div>preserve one newline</div>');
-
-        opts.max_preserve_newlines  = null;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>',
-            '<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>');
-
-        // css beautifier
-        opts.indent_size = 1;
-        opts.indent_char = '\t';
-        opts.selector_separator_newline = true;
-        opts.end_with_newline = true;
-        btc('', '\n');
-        btc('\n', '\n');
-        btc(".tabs{}\n", ".tabs {}\n");
-        btc(".tabs{}", ".tabs {}\n");
-
-        opts.end_with_newline = false;
-        btc('', '');
-        btc('\n', '');
-        btc(".tabs{}\n", ".tabs {}");
-
-        // test basic css beautifier
-        btc(".tabs {}");
-        btc(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}");
-        btc(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n\tcolor: rgb(255, 255, 0)\n}");
-        btc(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}");
-        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
-        btc("@media print {.tab{}}", "@media print {\n\t.tab {}\n}");
-        btc("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}");
-
-        btc("a:before {\n" +
-            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
-            "}");
-
-        //lead-in whitespace determines base-indent.
-        // lead-in newlines are stripped.
-        btc("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
-        btc("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }");
-        btc(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }");
-        btc("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
-
-        // comments
-        btc("/* test */", "/* test */");
-        btc(".tabs{/* test */}", ".tabs {\n\t/* test */\n}");
-        btc("/* header */.tabs {}", "/* header */\n\n.tabs {}");
-        btc("/* header", "/* header");
-        btc("// comment", "// comment");
-        btc(".selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}",
-            ".selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}")
-
-        //single line comment support (less/sass)
-        btc(".tabs{\n// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
-        btc(".tabs{// comment\nwidth:10px;\n}", ".tabs {\n\t// comment\n\twidth: 10px;\n}");
-        btc("//comment\n.tabs{width:10px;}", "//comment\n.tabs {\n\twidth: 10px;\n}");
-        btc(".tabs{//comment\n//2nd single line comment\nwidth:10px;}", ".tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}");
-        btc(".tabs{width:10px;//end of line comment\n}", ".tabs {\n\twidth: 10px; //end of line comment\n}");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}");
-        btc(".tabs{width:10px;//end of line comment\nheight:10px;//another\n}", ".tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}");
-
-        // separate selectors
-        btc("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}");
-        btc("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}");
-
-        // block nesting
-        btc("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}");
-        btc("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}");
-/*
-@font-face {
-    font-family: 'Bitstream Vera Serif Bold';
-    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');
-}
-@media screen {
-    #foo:hover {
-        background-image: url(foo.png);
-    }
-    @media screen and (min-device-pixel-ratio: 2) {
-        @font-face {
-            font-family: 'Helvetica Neue'
-        }
-        #foo:hover {
-            background-image: url(foo@2x.png);
-        }
-    }
-}
-*/
-        btc("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}");
-
-        // less-css cases
-        btc('.well{@well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}');
-        btc('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
-            '.well {\n' +
-            '\t&.active {\n' +
-            '\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
-            '\t}\n' +
-            '}');
-        btc('a {\n' +
-            '\tcolor: blue;\n' +
-            '\t&:hover {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
-            '\t& & &&&.active {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
-            '}');
-
-        // Not sure if this is sensible
-        // but I believe it is correct to not remove the space in "&: hover".
-        btc('a {\n' +
-            '\t&: hover {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
-            '}');
-
-        // import
-        btc('@import "test";');
-
-        // don't break nested pseudo-classes
-        btc("a:first-child{color:red;div:first-child{color:black;}}",
-            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
-
-        btc("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
-            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
-
-        // handle SASS/LESS parent reference
-        btc("div{&:first-letter {text-transform: uppercase;}}",
-            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
-
-        //nested modifiers (&:hover etc)
-        btc(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}");
-        btc(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}");
-        btc(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}");
-        btc(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}");
-
-        //nested rules
-        btc(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}");
-
-        //variables
-        btc("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
-        btc("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
-
-        // test options
-        opts.indent_size = 2;
-        opts.indent_char = ' ';
-        opts.selector_separator_newline = false;
-
-        btc("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}");
-        btc("@media print {.tab{}}", "@media print {\n  .tab {}\n}");
-        btc("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}");
-        btc("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}");
-
-        // pseudo-classes and pseudo-elements
-        btc("#foo:hover {\n  background-image: url(foo@2x.png)\n}");
-        btc("#foo *:hover {\n  color: purple\n}");
-        btc("::selection {\n  color: #ff0000;\n}");
-
-        // TODO: don't break nested pseduo-classes
-        btc("@media screen {.tab,.bat:hover {color:red}}", "@media screen {\n  .tab, .bat:hover {\n    color: red\n  }\n}");
-
-        // particular edge case with braces and semicolons inside tags that allows custom text
-        btc("a:not(\"foobar\\\";{}omg\"){\ncontent: 'example\\';{} text';\ncontent: \"example\\\";{} text\";}",
-            "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}");
-
-        // may not eat the space before "["
-        btc('html.js [data-custom="123"] {\n  opacity: 1.00;\n}');
-        btc('html.js *[data-custom="123"] {\n  opacity: 1.00;\n}');
-
-        return sanitytest;
     }
 
-    return beautifier_tests();
+    beautifier_tests();
 }
 
 if (typeof exports !== "undefined") {
-    exports.run_beautifier_tests = run_beautifier_tests;
+    exports.run_javascript_tests = run_javascript_tests;
 }

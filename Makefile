@@ -13,7 +13,7 @@ export AVAILABLE_ACTIONS
 
 
 .SILENT:
-all: build test
+all: build test status
 
 help:
 	echo "$$AVAILABLE_ACTIONS"
@@ -26,16 +26,18 @@ buildj:
 
 buildp:
 	echo Building python... ;\
-	pip install -e ./python 
-	
+	pip install -e ./python
+
 testp:
 	echo Testing python implementation...
+	node test/generate-tests.js || exit 1;\
 	cd python ;\
 	python --version ;\
 	./jsbeautifier/tests/shell-smoke-test.sh
 
 testj:
 	echo Testing javascript implementation...
+	node test/generate-tests.js || exit 1;\
 	node --version; \
 	npm test
 
@@ -55,6 +57,10 @@ gedit:
 tests: testj testp
 
 test: testj testp
+
+status:
+	test/git-status-clear.sh || exit 1
+
 
 gh:
 	git push origin master &&\

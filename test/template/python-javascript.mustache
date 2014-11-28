@@ -46,297 +46,34 @@ class TestJSBeautifier(unittest.TestCase):
         def unicode_char(value):
             return six.unichr(value)
 
-        self.options.indent_size = 4
-        self.options.indent_char = ' '
-        self.options.preserve_newlines = true
-        self.options.jslint_happy = false
-        self.options.keep_array_indentation = false
-        self.options.brace_style = 'collapse'
+{{#default_options}}        self.options.{{name}} = {{&value}}
+{{/default_options}}
+{{#groups}}
+    {{^matrix}}
 
-        # Unicode Support
-        bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
-        bt(
-            'var ' + unicode_char(228) + 'x = {\n' +
-            '    ' + unicode_char(228) + 'rgerlich: true\n' +
-            '};')
+        # {{&name}}
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+    {{/matrix}}
+    {{#matrix}}
 
-        # End With Newline - (eof = "\n")
-        self.options.end_with_newline = true
-        test_fragment('', '\n')
-        test_fragment('   return .5', '   return .5\n')
-        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n')
-        test_fragment('\n')
+        # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        {{#options}}
+        self.options.{{name}} = {{&value}}
+        {{/options}}
+        {{#tests}}
+        {{#test_line}}.{{/test_line}}
+        {{/tests}}
+    {{/matrix}}
+{{/groups}}
 
-        # End With Newline - (eof = "")
-        self.options.end_with_newline = false
-        test_fragment('')
-        test_fragment('   return .5')
-        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5')
-        test_fragment('\n', '')
-
-        # New Test Suite
-
-        # Old tests
-        bt('')
-        test_fragment('   return .5')
-        test_fragment('   return .5;\n   a();')
-        test_fragment('    return .5;\n    a();')
-        test_fragment('     return .5;\n     a();')
-        test_fragment('   < div')
-        bt('a        =          1', 'a = 1')
-        bt('a=1', 'a = 1')
-        bt('(3) / 2')
-        bt('["a", "b"].join("")')
-        bt('a();\n\nb();')
-        bt('var a = 1 var b = 2', 'var a = 1\nvar b = 2')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;')
-        bt('var a,\n    b,\n    c;')
-        bt('let a = 1 let b = 2', 'let a = 1\nlet b = 2')
-        bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;')
-        bt('let a,\n    b,\n    c;')
-        bt('const a = 1 const b = 2', 'const a = 1\nconst b = 2')
-        bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;')
-        bt('const a,\n    b,\n    c;')
-        bt('a = " 12345 "')
-        bt('a = \' 12345 \'')
-        bt('if (a == 1) b = 2;')
-        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('if(1||2);', 'if (1 || 2);')
-        bt('(a==1)||(b==2)', '(a == 1) || (b == 2)')
-        bt('var a = 1 if (2) 3;', 'var a = 1\nif (2) 3;')
-        bt('a = a + 1')
-        bt('a = a == 1')
-        bt('/12345[^678]*9+/.match(a)')
-        bt('a /= 5')
-        bt('a = 0.5 * 3')
-        bt('a *= 10.55')
-        bt('a < .5')
-        bt('a <= .5')
-        bt('a<.5', 'a < .5')
-        bt('a<=.5', 'a <= .5')
-        bt('a = 0xff;')
-        bt('a=0xff+4', 'a = 0xff + 4')
-        bt('a = [1, 2, 3, 4]')
-        bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b')
-        bt('a.b({c:d})', 'a.b({\n    c: d\n})')
-        bt('a.b\n(\n{\nc:\nd\n}\n)', 'a.b({\n    c: d\n})')
-        bt('a.b({c:"d"})', 'a.b({\n    c: "d"\n})')
-        bt('a.b\n(\n{\nc:\n"d"\n}\n)', 'a.b({\n    c: "d"\n})')
-        bt('a=!b', 'a = !b')
-        bt('a=!!b', 'a = !!b')
-        bt('a?b:c', 'a ? b : c')
-        bt('a?1:2', 'a ? 1 : 2')
-        bt('a?(b):c', 'a ? (b) : c')
-        bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}')
-        bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;')
-        bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;')
-        bt('function void(void) {}')
-        bt('if(!a)foo();', 'if (!a) foo();')
-        bt('a=~a', 'a = ~a')
-        bt('a;/*comment*/b;', 'a; /*comment*/\nb;')
-        bt('a;/* comment */b;', 'a; /* comment */\nb;')
-        
-        # simple comments don't get touched at all
-        test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;')
-        bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;')
-        test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;')
-        
-        # comment blocks detected and reindented even w/o javadoc starter
-        bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;')
-        bt('if(a)break;', 'if (a) break;')
-        bt('if(a){break}', 'if (a) {\n    break\n}')
-        bt('if((a))foo();', 'if ((a)) foo();')
-        bt('for(var i=0;;) a', 'for (var i = 0;;) a')
-        bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a')
-        bt('a++;')
-        bt('for(;;i++)a()', 'for (;; i++) a()')
-        bt('for(;;i++)\na()', 'for (;; i++)\n    a()')
-        bt('for(;;++i)a', 'for (;; ++i) a')
-        bt('return(1)', 'return (1)')
-        bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}')
-        
-        #  magic function call
-        bt('(xx)()')
-        
-        # another magic function call
-        bt('a[1]()')
-        bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
-        bt('a !== b')
-        bt('if (a) b(); else c();', 'if (a) b();\nelse c();')
-        
-        # typical greasemonkey start
-        bt('// comment\n(function something() {})')
-        
-        # duplicating newlines
-        bt('{\n\n    x();\n\n}')
-        bt('if (a in b) foo();')
-        bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();')
-        bt('if (foo) bar();\nelse break')
-        bt('var a, b;')
-        bt('var a = new function();')
-        test_fragment('new function')
-        bt('var a, b')
-        bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}')
-        bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}')
-        bt('var l = {\'a\':\'1\', \'b\':\'2\'}', 'var l = {\n    \'a\': \'1\',\n    \'b\': \'2\'\n}')
-        bt('if (template.user[n] in bk) foo();')
-        bt('return 45')
-        bt('return this.prevObject ||\n\n    this.constructor(null);')
-        bt('If[1]')
-        bt('Then[1]')
-        bt('a = 1e10')
-        bt('a = 1.3e10')
-        bt('a = 1.3e-10')
-        bt('a = -1.3e-10')
-        bt('a = 1e-10')
-        bt('a = e - 10')
-        bt('a = 11-10', 'a = 11 - 10')
-        bt('a = 1;// comment', 'a = 1; // comment')
-        bt('a = 1; // comment')
-        bt('a = 1;\n // comment', 'a = 1;\n// comment')
-        bt('a = [-1, -1, -1]')
-        
-        # The exact formatting these should have is open for discussion, but they are at least reasonable
-        bt('a = [ // comment\n    -1, -1, -1\n]')
-        bt('var a = [ // comment\n    -1, -1, -1\n]')
-        bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]')
-        bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]')
-        bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]')
-        
-        # was: extra space appended
-        bt('if (a) {\n    do();\n}')
-        
-        # if/else statement with empty body
-        bt('if (a) {\n// comment\n}else{\n// comment\n}', 'if (a) {\n    // comment\n} else {\n    // comment\n}')
-        
-        # multiple comments indentation
-        bt('if (a) {\n// comment\n// comment\n}', 'if (a) {\n    // comment\n    // comment\n}')
-        bt('if (a) b() else c();', 'if (a) b()\nelse c();')
-        bt('if (a) b() else if c() d();', 'if (a) b()\nelse if c() d();')
-        bt('{}')
-        bt('{\n\n}')
-        bt('do { a(); } while ( 1 );', 'do {\n    a();\n} while (1);')
-        bt('do {} while (1);')
-        bt('do {\n} while (1);', 'do {} while (1);')
-        bt('do {\n\n} while (1);')
-        bt('var a = x(a, b, c)')
-        bt('delete x if (a) b();', 'delete x\nif (a) b();')
-        bt('delete x[x] if (a) b();', 'delete x[x]\nif (a) b();')
-        bt('for(var a=1,b=2)d', 'for (var a = 1, b = 2) d')
-        bt('for(var a=1,b=2,c=3) d', 'for (var a = 1, b = 2, c = 3) d')
-        bt('for(var a=1,b=2,c=3;d<3;d++)\ne', 'for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e')
-        bt('function x(){(a||b).c()}', 'function x() {\n    (a || b).c()\n}')
-        bt('function x(){return - 1}', 'function x() {\n    return -1\n}')
-        bt('function x(){return ! a}', 'function x() {\n    return !a\n}')
-        bt('x => x')
-        bt('(x) => x')
-        bt('x => { x }', 'x => {\n    x\n}')
-        bt('(x) => { x }', '(x) => {\n    x\n}')
-        
-        # a common snippet in jQuery plugins
-        bt('settings = $.extend({},defaults,settings);', 'settings = $.extend({}, defaults, settings);')
-        bt('$http().then().finally().default()')
-        bt('$http()\n.then()\n.finally()\n.default()', '$http()\n    .then()\n    .finally()\n    .default()')
-        bt('$http().when.in.new.catch().throw()')
-        bt('$http()\n.when\n.in\n.new\n.catch()\n.throw()', '$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()')
-        bt('{xxx;}()', '{\n    xxx;\n}()')
-        bt('a = \'a\'\nb = \'b\'')
-        bt('a = /reg/exp')
-        bt('a = /reg/')
-        bt('/abc/.test()')
-        bt('/abc/i.test()')
-        bt('{/abc/i.test()}', '{\n    /abc/i.test()\n}')
-        bt('var x=(a)/a;', 'var x = (a) / a;')
-        bt('x != -1')
-        bt('for (; s-->0;)t', 'for (; s-- > 0;) t')
-        bt('for (; s++>0;)u', 'for (; s++ > 0;) u')
-        bt('a = s++>s--;', 'a = s++ > s--;')
-        bt('a = s++>--s;', 'a = s++ > --s;')
-        bt('{x=#1=[]}', '{\n    x = #1=[]\n}')
-        bt('{a:#1={}}', '{\n    a: #1={}\n}')
-        bt('{a:#1#}', '{\n    a: #1#\n}')
-        test_fragment('"incomplete-string')
-        test_fragment('\'incomplete-string')
-        test_fragment('/incomplete-regex')
-        test_fragment('`incomplete-template-string')
-        test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}')
-        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];')
-        
-        # incomplete
-        test_fragment('{a:#1', '{\n    a: #1')
-        
-        # incomplete
-        test_fragment('{a:#', '{\n    a: #')
-        
-        # incomplete
-        test_fragment('}}}', '}\n}\n}')
-        test_fragment('<!--\nvoid();\n// -->')
-        
-        # incomplete regexp
-        test_fragment('a=/regexp', 'a = /regexp')
-        bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}')
-        bt('a = 1e+2')
-        bt('a = 1e-2')
-        bt('do{x()}while(a>1)', 'do {\n    x()\n} while (a > 1)')
-        bt('x(); /reg/exp.match(something)', 'x();\n/reg/exp.match(something)')
-        test_fragment('something();(', 'something();\n(')
-        test_fragment('#!she/bangs, she bangs\nf=1', '#!she/bangs, she bangs\n\nf = 1')
-        test_fragment('#!she/bangs, she bangs\n\nf=1', '#!she/bangs, she bangs\n\nf = 1')
-        test_fragment('#!she/bangs, she bangs\n\n/* comment */')
-        test_fragment('#!she/bangs, she bangs\n\n\n/* comment */')
-        test_fragment('#')
-        test_fragment('#!')
-        bt('function namespace::something()')
-        test_fragment('<!--\nsomething();\n-->')
-        test_fragment('<!--\nif(i<0){bla();}\n-->', '<!--\nif (i < 0) {\n    bla();\n}\n-->')
-        bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}')
-        bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}')
-        bt('{--bar;}', '{\n    --bar;\n}')
-        bt('{++bar;}', '{\n    ++bar;\n}')
-        bt('if(true)++a;', 'if (true) ++a;')
-        bt('if(true)\n++a;', 'if (true)\n    ++a;')
-        bt('if(true)--a;', 'if (true) --a;')
-        bt('if(true)\n--a;', 'if (true)\n    --a;')
-        
-        # Handling of newlines around unary ++ and -- operators
-        bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}')
-        bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}')
-        
-        # This is invalid, but harder to guard against. Issue #203.
-        bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}')
-        
-        # regexps
-        bt('a(/abc\\/\\/def/);b()', 'a(/abc\\/\\/def/);\nb()')
-        bt('a(/a[b\\[\\]c]d/);b()', 'a(/a[b\\[\\]c]d/);\nb()')
-        
-        # incomplete char class
-        test_fragment('a(/a[b\\[')
-        
-        # allow unescaped / in char classes
-        bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()')
-        bt('typeof /foo\\//;')
-        bt('yield /foo\\//;')
-        bt('throw /foo\\//;')
-        bt('do /foo\\//;')
-        bt('return /foo\\//;')
-        bt('switch (a) {\n    case /foo\\//:\n        b\n}')
-        bt('if (a) /foo\\//\nelse /foo\\//;')
-        bt('if (foo) /regex/.test();')
-        bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
-        bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
-        bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
-        bt('a=[b,c,\nfunction(){},function(){},d]', 'a = [b, c,\n    function() {},\n    function() {},\n    d\n]')
-        bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
-        bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
-        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
-        bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}')
-
+{{=<% %>=}}
         bt('{{}/z/}', "{\n    {}\n    /z/\n}")
+<%={{ }}=%>
         bt('return ++i', 'return ++i')
         bt('return !!x', 'return !!x')
         bt('return !x', 'return !x')

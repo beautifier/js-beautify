@@ -55,7 +55,7 @@ var fs = require('fs'),
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
+        "brace_style": ["collapse", "expand", "end-expand", "expand-strict", "none"],
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -217,7 +217,7 @@ function usage(err) {
             msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space_after_anon_function   Add a space before an anonymous function\'s parens, ie. function ()');
-            msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
