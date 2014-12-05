@@ -268,6 +268,7 @@ class Beautifier:
         enteringConditionalGroup = False
         top_ch = '' 
         last_top_ch = '' 
+        parenLevel = 0
         
         while True:
             whitespace = self.skipWhitespace();
@@ -377,16 +378,18 @@ class Beautifier:
                         else:
                             self.pos = self.pos - 1
                 else:
+                    parenLevel += 1
                     if isAfterSpace:
                         printer.singleSpace()
                     printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
                 printer.push(self.ch)
+                parenLevel -= 1
             elif self.ch == ',':
                 printer.push(self.ch)
                 self.eatWhitespace()
-                if not insideRule and self.opts.selector_separator_newline:
+                if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()

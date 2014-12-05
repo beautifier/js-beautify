@@ -38,6 +38,16 @@ exports.test_data = {
             { input: '.tabs    \n{\n    \n  }', output: '.tabs {}' }
         ],
     }, {
+        name: "Functions braces",
+        description: "",
+        tests: [
+            { input: '.tabs(){}', output: '.tabs() {}' },
+            { input: '.tabs (pa, pa(1,2)), .cols { }', output: '.tabs (pa, pa(1, 2)),\n.cols {}' },
+//          Still not supported to check if there are opening roundBracs after name
+//          { input: '.tabs (   )   {    }', output: '.tabs() {}' },
+            { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' }
+        ],
+    }, {
 
     }]
 }
