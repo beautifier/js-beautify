@@ -35,6 +35,7 @@ class BeautifierOptions:
         self.indent_char = ' '
         self.selector_separator_newline = True
         self.end_with_newline = False
+        self.newline_between_rules = True
 
     def __repr__(self):
         return \
@@ -42,8 +43,9 @@ class BeautifierOptions:
 indent_char = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
+newline_between_rules = [%s]
 """ % (self.indent_size, self.indent_char,
-       self.separate_selectors, self.end_with_newline)
+       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
 
 
 def default_options():
@@ -325,6 +327,9 @@ class Beautifier:
                     self.next()
                     printer.singleSpace()
                     printer.push("{}")
+                    printer.newLine()
+                    if self.opts.newline_between_rules and printer.indentLevel == 0:
+                        printer.newLine(True)
                 else:
                     printer.indent()
                     printer.openBracket()
@@ -341,6 +346,8 @@ class Beautifier:
                 insideRule = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
+                if self.opts.newline_between_rules and printer.indentLevel == 0:
+                    printer.newLine(True)
             elif self.ch == ":":
                 self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
