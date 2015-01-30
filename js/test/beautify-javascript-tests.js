@@ -13,7 +13,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         space_before_conditional: true,
         break_chained_methods: false,
         selector_separator: '\n',
-        end_with_newline: false
+        end_with_newline: false,
+        allow_bool_op_first: false
     };
 
     function test_js_beautifier(input)
@@ -304,12 +305,34 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a.b\n(\n{\nc:\n"d"\n}\n)', 'a.b({\n    c: "d"\n})');
         bt('a=!b', 'a = !b');
         bt('a=!!b', 'a = !!b');
-        bt('a?b:c', 'a ? b : c');
-        bt('a?1:2', 'a ? 1 : 2');
-        bt('a?(b):c', 'a ? (b) : c');
-        bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}');
-        bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');
-        bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;');
+        
+        var ternary = [
+            function() {
+                bt('a?b:c', 'a ? b : c');
+            },
+            function() {
+                bt('a?1:2', 'a ? 1 : 2');
+            },
+            function() {
+                bt('a?(b):c', 'a ? (b) : c');
+            },
+            function() {
+                bt('b?c:\nd;', 'b ? c :\n    d;');
+            },
+            function() {
+                bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}');
+            },
+            function() {
+                bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;');
+            },
+            function() {
+                bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;');
+            }
+        ];
+        ternary.forEach(function(t) {
+            t();
+        });
+        
         bt('function void(void) {}');
         bt('if(!a)foo();', 'if (!a) foo();');
         bt('a=~a', 'a = ~a');
@@ -1671,6 +1694,29 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
         bt('var a={bing:1},b=2,c=3;',
             'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
+            
+        // first we'll test isolated cases for proof of concept, then grab a couple large tests to catch things I didn't think of.
+        opts.allow_bool_op_first = true;
+
+        // isolated ternary op first
+        bt('var z=(a)\n?\nb\n:\nc\n;', 'var z = (a)\n    ? b\n    : c;');
+
+        // isolated bool op first
+        bt('a\n||\nb\n&&\nc;', 'a\n    || b\n    &&\n    c;');
+        bt('a\n||b\n&&c;', 'a\n    || b\n    && c;');
+
+        // don't change existing ternary behavior
+        ternary.forEach(function(t) {
+            t();
+        });
+
+        // nor existing bool op behavior
+        bt('a||b&&c;', 'a || b && c;');
+        bt('a||\nb&&c;', 'a ||\n    b && c;');
+        bt('a||b&&\nc;', 'a || b &&\n    c;');
+
+        opts.allow_bool_op_first = false;
+            
         Urlencoded.run_tests(sanitytest);
     }
 
