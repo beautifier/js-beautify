@@ -1,6 +1,8 @@
 # JS Beautifier
-[![Build Status](https://secure.travis-ci.org/beautify-web/js-beautify.png?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
-[![NPM version](https://badge.fury.io/js/js-beautify.png)](http://badge.fury.io/js/js-beautify)
+[![Build Status](https://img.shields.io/travis/beautify-web/js-beautify/master.svg)](http://travis-ci.org/beautify-web/js-beautify)
+[![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+[![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+
 
 This little beautifier will reformat and reindent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
