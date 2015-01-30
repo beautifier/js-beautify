@@ -206,8 +206,8 @@
             'TK_EOF': handle_eof
         };
         
-		// sub-types
-		var boolOps = ['&&', '||', '?', ':'];
+        // sub-types
+        var boolOps = ['&&', '||', '?', ':'];
 
         function create_flags(flags_base, mode) {
             var next_indent_level = 0;
@@ -868,12 +868,12 @@
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
                 // taking care of ambiguous case allow_bool_op_first case where a variable is on its own line after an operator
                 var nextTok = get_token(1);
-				var ambiguousBoolOpCase = opt.allow_bool_op_first &&
-					last_type === 'TK_OPERATOR' &&
-					in_array(flags.last_text, boolOps) &&
-					current_token.wanted_newline &&
-					nextTok.wanted_newline;
-				
+                var ambiguousBoolOpCase = opt.allow_bool_op_first &&
+                    last_type === 'TK_OPERATOR' &&
+                    in_array(flags.last_text, boolOps) &&
+                    current_token.wanted_newline &&
+                    nextTok.wanted_newline;
+                
                 if (!start_of_object_property() && !ambiguousBoolOpCase) {
                     allow_wrap_or_preserved_newline();
                 }
@@ -1095,7 +1095,7 @@
             // Support ternary newline preservation
             // a = (b === c)
             //     ? c
-            //	   : d;
+            //     : d;
             //
             // and also boolean operators
             // a = (b === c)
