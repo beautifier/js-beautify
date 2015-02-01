@@ -278,39 +278,41 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty);
+            makePretty(data, config, filepath, outfile, writePretty);
         });
     } else {
         var dir = path.dirname(outfile);
         mkdirp.sync(dir);
         data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, outfile, writePretty);
+        makePretty(data, config, filepath, outfile, writePretty);
     }
 }
 
-function makePretty(code, config, outfile, callback) {
+function makePretty(code, config, filepath, outfile, callback) {
     try {
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
-        callback(null, pretty, outfile, config);
+        callback(null, pretty, filepath, outfile, config, code);
     } catch (ex) {
         callback(ex);
     }
 }
 
-function writePretty(err, pretty, outfile, config) {
+function writePretty(err, pretty, filepath, outfile, config, code) {
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     if (outfile) {
-        try {
-            fs.writeFileSync(outfile, pretty, 'utf8');
-            logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
-        } catch (ex) {
-            onOutputError(ex);
+        if (!(code === pretty && filepath === outfile)) {
+            try {
+                fs.writeFileSync(outfile, pretty, 'utf8');
+                logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
+            } catch (ex) {
+                onOutputError(ex);
+            }
         }
     } else {
         process.stdout.write(pretty);

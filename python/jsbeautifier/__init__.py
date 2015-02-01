@@ -1730,9 +1730,11 @@ def main():
             if outfile == 'stdout':
                 sys.stdout.write(beautify_file(file, js_options))
             else:
-                mkdir_p(os.path.dirname(outfile))
-                with open(outfile, 'w') as f:
-                    f.write(beautify_file(file, js_options))
+                result = beautify_file(file, js_options)
+                if not (result == ''.join(open(file).readlines()) and file == outfile):
+                    mkdir_p(os.path.dirname(outfile))
+                    with open(outfile, 'w') as f:
+                        f.write(result)
         except Exception as ex:
             print(ex, file=sys.stderr)
             return 1
