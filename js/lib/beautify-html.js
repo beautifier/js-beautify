@@ -97,7 +97,8 @@
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
-            end_with_newline;
+            end_with_newline,
+            extra_liners;
 
         options = options || {};
 
@@ -119,7 +120,7 @@
             : 0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-
+        extra_liners = Array.isArray(options.extra_liners) ? options.extra_liners : 'head,body,/html'.split(',');
         function Parser() {
 
             this.pos = 0; //Parser position
@@ -138,7 +139,7 @@
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
                 single_token: 'br,input,link,meta,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed,?php,?,?='.split(','), //all the single tags for HTML
-                extra_liners: 'head,body,/html'.split(','), //for tags that need a line of whitespace before them
+                extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
                         if (what === arr[i]) {
@@ -158,7 +159,7 @@
                     }
                 }
                 return true;
-            }
+            };
 
             this.traverse_whitespace = function() {
                 var input_char = '';
@@ -362,7 +363,7 @@
                     }
 
                     if (indent_handlebars && !tag_start_char) {
-                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] == '{') {
+                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] === '{') {
                             if (input_char === '#' || input_char === '/') {
                                 tag_start = this.pos - 3;
                             } else {
