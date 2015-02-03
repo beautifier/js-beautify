@@ -44,6 +44,7 @@
         selector_separator_newline (true) - separate selectors with newline or
                                             not (e.g. "a,\nbr" or "a, br")
         end_with_newline (false)          - end with a newline
+        newline_between_rules (true)      - add a new line after every css rule
 
     e.g
 
@@ -52,6 +53,7 @@
       'indent_char': '\t',
       'selector_separator': ' ',
       'end_with_newline': false,
+      'newline_between_rules': true
     });
 */
 
