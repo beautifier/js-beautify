@@ -5,7 +5,8 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
-        { name: "brace_style", value: "'collapse'" }
+        { name: "brace_style", value: "'collapse'" },
+        { name: "extra_liners", value: "['html', 'head', '/html']" }
     ],
     groups: [{
         name: "End With Newline",
@@ -29,6 +30,20 @@ exports.test_data = {
             { fragment: '<div></div>', output: '<div></div>{{eof}}' },
             // { fragment: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
             { fragment: '\n', output: '{{eof}}' }
+        ],
+    }, {
+        name: "Custom Extra Liners",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "[]" }
+                ]
+            },
+
+        ],
+        tests: [
+            { fragment: '<html><head><meta></head></html>', output: '<html>\n<head>\n    <meta>\n</head>\n</html>' }
         ],
     }, {
         name: "New Test Suite"

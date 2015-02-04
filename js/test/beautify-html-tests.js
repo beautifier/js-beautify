@@ -90,6 +90,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.jslint_happy = false;
         opts.keep_array_indentation = false;
         opts.brace_style = 'collapse';
+        opts.extra_liners = ['html', 'head', '/html'];
 
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
@@ -102,6 +103,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('');
         test_fragment('<div></div>');
         test_fragment('\n', '');
+
+        // Custom Extra Liners - ()
+        opts.extra_liners = [];
+        test_fragment('<html><head><meta></head></html>', '<html>\n<head>\n    <meta>\n</head>\n</html>');
 
         // New Test Suite
 
