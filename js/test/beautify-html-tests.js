@@ -104,9 +104,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div></div>');
         test_fragment('\n', '');
 
-        // Custom Extra Liners - ()
+        // Custom Extra Liners (empty) - ()
         opts.extra_liners = [];
         test_fragment('<html><head><meta></head></html>', '<html>\n<head>\n    <meta>\n</head>\n</html>');
+
+        // Custom Extra Liners (default) - ()
+        opts.extra_liners = null;
+        test_fragment('<html><head></head><body></body></html>', '<html>\n\n<head></head>\n\n<body></body>\n\n</html>');
+
+        // Custom Extra Liners (p) - ()
+        opts.extra_liners = ['p', '/p'];
+        test_fragment('<div><p>x</p></div>', '<div>\n\n    <p>x\n\n    </p>\n</div>');
 
         // New Test Suite
 

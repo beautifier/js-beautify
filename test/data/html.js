@@ -32,7 +32,7 @@ exports.test_data = {
             { fragment: '\n', output: '{{eof}}' }
         ],
     }, {
-        name: "Custom Extra Liners",
+        name: "Custom Extra Liners (empty)",
         description: "",
         matrix: [
             {
@@ -44,6 +44,34 @@ exports.test_data = {
         ],
         tests: [
             { fragment: '<html><head><meta></head></html>', output: '<html>\n<head>\n    <meta>\n</head>\n</html>' }
+        ],
+    }, {
+        name: "Custom Extra Liners (default)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "null" }
+                ]
+            },
+
+        ],
+        tests: [
+            { fragment: '<html><head></head><body></body></html>', output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>' }
+        ],
+    }, {
+        name: "Custom Extra Liners (p)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "['p', '/p']" }
+                ]
+            },
+
+        ],
+        tests: [
+            { fragment: '<div><p>x</p></div>', output: '<div>\n\n    <p>x\n\n    </p>\n</div>' }
         ],
     }, {
         name: "New Test Suite"
