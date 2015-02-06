@@ -53,7 +53,7 @@
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
     indent_handlebars (default false) - format and indent {{#foo}} and {{/foo}}
     end_with_newline (false)          - end with a newline
-    extra_liners (default ['html', 'head', '/html']) - add an extra newline after these tags
+    extra_liners (default [head,body,/html]) -List of tags that should have an extra newline before them.
 
     e.g.
 
@@ -121,7 +121,9 @@
             : 0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-        extra_liners = Array.isArray(options.extra_liners) ? options.extra_liners : 'head,body,/html'.split(',');
+        extra_liners = Array.isArray(options.extra_liners) ?
+            options.extra_liners : (typeof options.extra_liners === 'string') ?
+            options.extra_liners.split(',') : 'head,body,/html'.split(',');
         function Parser() {
 
             this.pos = 0; //Parser position
