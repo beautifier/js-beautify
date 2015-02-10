@@ -295,7 +295,7 @@ exports.test_data = {
             { comment: 'regexps',
                 input: 'a(/abc\\\\/\\\\/def/);b()', output: "a(/abc\\\\/\\\\/def/);\nb()" },
             { input: 'a(/a[b\\\\[\\\\]c]d/);b()', output: "a(/a[b\\\\[\\\\]c]d/);\nb()" },
-            { comment: 'incomplete char class', fragment: 'a(/a[b\\\\[', output: "a(/a[b\\\\[" }, 
+            { comment: 'incomplete char class', fragment: 'a(/a[b\\\\[', output: "a(/a[b\\\\[" },
 
             { comment: 'allow unescaped / in char classes',
                 input: 'a(/[a/b]/);b()', output: "a(/[a/b]/);\nb()" },
@@ -327,9 +327,11 @@ exports.test_data = {
             { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
               output: '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]' },
 
-            { input: '{[x()[0]];indent;}', output: '{\n    [x()[0]];\n    indent;\n}' }
-
-
+            { input: '{[x()[0]];indent;}', output: '{\n    [x()[0]];\n    indent;\n}' },
+            { input: '/*\n foo trailing space    \n * bar trailing space   \n**/',
+             output: '/*\n foo trailing space    \n * bar trailing space   \n**/'},
+            { input: '{\n    /*\n    foo    \n    * bar    \n    */\n}',
+             output: '{\n    /*\n    foo    \n    * bar    \n    */\n}'}
         ],
     }],
     // Example

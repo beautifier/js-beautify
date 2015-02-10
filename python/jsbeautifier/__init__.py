@@ -1075,7 +1075,7 @@ class Beautifier:
             self.print_newline(preserve_statement_flags = True)
             if javadoc:
                 # javadoc: reformat and re-indent
-                self.print_token(current_token, ' ' + line.strip())
+                self.print_token(current_token, ' ' + line.lstrip())
             elif starless and len(line) > last_indent_length:
                 # starless: re-indent non-empty content, avoiding trim
                 self.print_token(current_token, line[last_indent_length:])
