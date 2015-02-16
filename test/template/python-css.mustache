@@ -12,6 +12,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.indent_char = '\t'
         self.options.selector_separator_newline = true
         self.options.end_with_newline = false
+        self.options.newline_between_rules = false
 
     def testGenerated(self):
         self.resetOptions()
