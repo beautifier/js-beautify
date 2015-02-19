@@ -278,44 +278,55 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, filepath, outfile, writePretty);
+            makePretty(data, config, outfile, writePretty);
         });
     } else {
         var dir = path.dirname(outfile);
         mkdirp.sync(dir);
         data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, filepath, outfile, writePretty);
+        makePretty(data, config, outfile, writePretty);
     }
 }
 
-function makePretty(code, config, filepath, outfile, callback) {
+function makePretty(code, config, outfile, callback) {
     try {
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
-        callback(null, pretty, filepath, outfile, config, code);
+        callback(null, pretty, outfile, config);
     } catch (ex) {
         callback(ex);
     }
 }
 
-function writePretty(err, pretty, filepath, outfile, config, code) {
+function writePretty(err, pretty, outfile, config) {
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     if (outfile) {
-        if (!(code === pretty && filepath === outfile)) {
+        if (isFileDifferent(outfile, pretty)) {
             try {
                 fs.writeFileSync(outfile, pretty, 'utf8');
                 logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
             } catch (ex) {
                 onOutputError(ex);
             }
+        } else {
+            logToStdout('beautified ' + path.relative(process.cwd(), outfile) + ' - unchanged', config);
         }
     } else {
         process.stdout.write(pretty);
+    }
+}
+
+function isFileDifferent(filePath, expected) {
+    try {
+        return fs.readFileSync(filePath, 'utf8') !== expected;
+    } catch (ex) {
+        // failing to read is the same as different
+        return true;
     }
 }
 

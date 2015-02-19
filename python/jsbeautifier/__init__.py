@@ -267,6 +267,7 @@ Output options:
  -a,  --space_after_anon_function  add a space before an anonymous function's parens, ie. function ()
  -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
  -k,  --keep-array-indentation     keep array indentation.
+ -r,  --replace                    write output in-place, replacing input
  -o,  --outfile=FILE               specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
@@ -1656,14 +1657,20 @@ class Tokenizer:
 
         return c, 'TK_UNKNOWN'
 
+def isFileDifferent(filepath, expected):
+    try:
+        return (''.join(open(filepath).readlines()) != expected)
+    except:
+        return True
+
 
 def main():
 
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:dEPjabkil:xhtfvXnw:",
-            ['indent-size=','indent-char=','outfile=', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:o:rdEPjabkil:xhtfvXnw:",
+            ['indent-size=','indent-char=','outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
@@ -1676,6 +1683,7 @@ def main():
 
     file = None
     outfile = 'stdout'
+    replace = False
     if len(args) == 1:
         file = args[0]
 
@@ -1686,6 +1694,8 @@ def main():
             js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
             outfile = arg
+        elif opt in ('--replace', '-r'):
+            replace = True
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
@@ -1727,14 +1737,19 @@ def main():
         return usage(sys.stderr)
     else:
         try:
+            if outfile == 'stdout' and replace and not file == '-':
+                outfile = file
+
+            pretty = beautify_file(file, js_options)
+
             if outfile == 'stdout':
-                sys.stdout.write(beautify_file(file, js_options))
+                sys.stdout.write(pretty)
             else:
-                result = beautify_file(file, js_options)
-                if not (result == ''.join(open(file).readlines()) and file == outfile):
+                if isFileDifferent(outfile, pretty):
                     mkdir_p(os.path.dirname(outfile))
                     with open(outfile, 'w') as f:
-                        f.write(result)
+                        f.write(pretty)
+
         except Exception as ex:
             print(ex, file=sys.stderr)
             return 1
