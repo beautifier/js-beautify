@@ -123,7 +123,9 @@
     <script src="js/lib/beautify-css.js"></script>
     <script src="js/lib/beautify-html.js"></script>
     <script src="js/test/sanitytest.js"></script>
-    <script src="js/test/beautify-tests.js"></script>
+    <script src="js/test/beautify-javascript-tests.js"></script>
+    <script src="js/test/beautify-css-tests.js"></script>
+    <script src="js/test/beautify-html-tests.js"></script>
     <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
     <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
     <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
@@ -138,7 +140,9 @@
 
         function run_tests() {
             var st = new SanityTest();
-            run_beautifier_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+            run_javascript_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+            run_css_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+            run_html_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
             JavascriptObfuscator.run_tests(st);
             P_A_C_K_E_R.run_tests(st);
             Urlencoded.run_tests(st);
@@ -170,6 +174,7 @@
             $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
             $('#unescape-strings').prop('checked', $.cookie('unescape-strings') === 'on');
             $('#jslint-happy').prop('checked', $.cookie('jslint-happy') === 'on');
+            $('#end-with-newline').prop('checked', $.cookie('end-with-newline') === 'on');
         }
 
         function store_settings_to_cookie() {
@@ -185,7 +190,8 @@
             $.cookie('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off',
                 opts);
             $.cookie('unescape-strings', $('#unescape-strings').prop('checked') ? 'on' : 'off', opts);
-            $.cookie('jslint-happy', $('jslint-happy').prop('checked') ? 'on' : 'off', opts);
+            $.cookie('jslint-happy', $('#jslint-happy').prop('checked') ? 'on' : 'off', opts);
+            $.cookie('end-with-newline', $('#end-with-newline').prop('checked') ? 'on' : 'off', opts);
             $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
             $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
         }
@@ -248,8 +254,8 @@
             opts.space_before_conditional = $('#space-before-conditional').prop('checked');
             opts.unescape_strings = $('#unescape-strings').prop('checked');
             opts.jslint_happy = $('#jslint-happy').prop('checked');
+            opts.end_with_newline = $('#end-with-newline').prop('checked');
             opts.wrap_line_length = $('#wrap-line-length').val();
-            opts.space_after_anon_function = true;
 
             if (looks_like_html(source)) {
                 output = html_beautify(source, opts);
@@ -329,6 +335,8 @@
                     <option value="collapse">Braces with control statement</option>
                     <option value="expand">Braces on own line</option>
                     <option value="end-expand">End braces on own line</option>
+                    <option value="none">Attempt to keep braces where
+                    they are</option>
                 </select>
 
                 <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p>
@@ -340,7 +348,9 @@
 
             </td>
             <td>
-
+                <input class="checkbox" type="checkbox" id="end-with-newline">
+                <label for="end-with-newline">End script and style with newline?</label>
+                <br>
                 <input class="checkbox" type="checkbox" id="detect-packers">
                 <label for="detect-packers">Detect packers and obfuscators?</label>
                 <br>
@@ -405,6 +415,7 @@
 
             <li style="margin-top: 8px"><strong>Emacs:</strong> <a href="https://github.com/yasuyk/web-beautify">Web-beautify</a> formatting package by Yasuyuki Oka,</li>
             <li style="margin-top: 8px"><strong>C#:</strong> ghost6991 <a href="https://github.com/ghost6991/Jsbeautifier">ported the javascript formatter to C#</a>,
+            <li style="margin-top: 8px"><strong>Go:</strong> ditashi has <a href="https://github.com/ditashi/jsbeautifier-go">ported the javascript formatter to golang</a>,
             <li style="margin-top: 12px"><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
                 <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
                 <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
@@ -426,7 +437,8 @@
                 <li><a href="http://www.editey.com/">editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier,
                 <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,
                 <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),
-                <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library.
+                <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library,
+                <li><a href="https://github.com/Diogenesthecynic/FullScreenMario-JSON/">FullScreenMario</a>, a HTML5/javascript remake of Super Mario Bros game, uses the library in its level editor.
                 <li class="writeme">Doing anything interesting? Write me to einar@jsbeautifier.org and I'll include your link.</li>
         </ul>
 

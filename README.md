@@ -1,6 +1,8 @@
 # JS Beautifier
-[![Build Status](https://secure.travis-ci.org/beautify-web/js-beautify.png?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
-[![NPM version](https://badge.fury.io/js/js-beautify.png)](http://badge.fury.io/js/js-beautify)
+[![Build Status](https://img.shields.io/travis/beautify-web/js-beautify/master.svg)](http://travis-ci.org/beautify-web/js-beautify)
+[![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+[![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+
 
 This little beautifier will reformat and reindent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
@@ -82,23 +84,25 @@ CLI Options:
   -v, --version    Show the version
 
 Beautifier Options:
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
-  -l, --indent-level            Initial indentation level [0]
-  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
-  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]
-  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )
-  -j, --jslint-happy            Enable jslint-stricter mode
-  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
-  -B, --break-chained-methods   Break chained method calls across subsequent lines
-  -k, --keep-array-indentation  Preserve array indentation
-  -x, --unescape-strings        Decode printable characters encoded in xNN notation
-  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]
-  -a, --wrap-attributes         Wrap attributes to new lines
-  -i, --wrap-indent             Indent wrapped attributes to after N characters [indent-size]
-  -X, --e4x                     Pass E4X xml literals through untouched
-  --good-stuff                  Warm the cockles of Crockford's heart
+  -s, --indent-size                 Indentation size [4]
+  -c, --indent-char                 Indentation character [" "]
+  -l, --indent-level                Initial indentation level [0]
+  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
+  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]
+  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
+  -j, --jslint-happy                Enable jslint-stricter mode
+  -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
+  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]
+  -B, --break-chained-methods       Break chained method calls across subsequent lines
+  -k, --keep-array-indentation      Preserve array indentation
+  -x, --unescape-strings            Decode printable characters encoded in xNN notation
+  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
+  -a, --wrap-attributes             Wrap attributes to new lines
+  -i, --wrap-indent                 Indent wrapped attributes to after N characters [indent-size]  
+  -X, --e4x                         Pass E4X xml literals through untouched
+  -n, --end_with_newline            End output with newline
+  --good-stuff                      Warm the cockles of Crockford's heart
 ```
 
 These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
@@ -112,6 +116,7 @@ These largely correspond to the underscored option keys for both library interfa
     "preserve_newlines": true,
     "max_preserve_newlines": 10,
     "jslint_happy": false,
+    "space_after_anon_function": false,
     "brace_style": "collapse",
     "keep_array_indentation": false,
     "keep_function_indentation": false,
@@ -152,19 +157,22 @@ The CSS & HTML beautifiers are much simpler in scope, and possess far fewer opti
 
 ```text
 CSS Beautifier Options:
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -L, --selector-separator-newline   Add a newline between multiple selectors
+  -N, --newline-between-rules        Add a newline between CSS rules
 
 HTML Beautifier Options:
-  -I, --indent-inner-html       Indent <head> and <body> sections. Default is false.
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
-  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
-  -S, --indent-scripts          [keep|separate|normal] ["normal"]
-  -w, --wrap-line-length        Maximum characters per line (0 disables) [250]
-  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
-  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
+  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
+  -S, --indent-scripts               [keep|separate|normal] ["normal"]
+  -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
+  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
+  -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
+  -n, --end_with_newline             End output with newline
 ```
 
 # License
@@ -183,4 +191,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.5.1
+js-beautify@1.5.3

@@ -2,6 +2,8 @@
 define AVAILABLE_ACTIONS
 
 build:		do static checking and build of js
+buildp:		do static checking and build of python
+buildj:		do static checking and build of javascript
 test:		test both implementations, js and python
 testp:		test python implementation
 testj:		test javascript implementation
@@ -11,24 +13,31 @@ export AVAILABLE_ACTIONS
 
 
 .SILENT:
-all: build test
+all: build test status
 
 help:
 	echo "$$AVAILABLE_ACTIONS"
 
-build:
-	echo Building... ;\
+build: buildj buildp
+
+buildj:
+	echo Building javascript... ;\
 	npm install ;\
+
+buildp:
+	echo Building python... ;\
+	pip install -e ./python
 
 testp:
 	echo Testing python implementation...
+	node test/generate-tests.js || exit 1;\
 	cd python ;\
 	python --version ;\
-	./jsbeautifier/tests/shell-smoke-test.sh && \
-	PYTHON=python ./js-beautify-test
+	./jsbeautifier/tests/shell-smoke-test.sh
 
 testj:
 	echo Testing javascript implementation...
+	node test/generate-tests.js || exit 1;\
 	node --version; \
 	npm test
 
@@ -48,6 +57,10 @@ gedit:
 tests: testj testp
 
 test: testj testp
+
+status:
+	test/git-status-clear.sh || exit 1
+
 
 gh:
 	git push origin master &&\

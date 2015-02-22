@@ -6,4 +6,4 @@ gh-pages
 python/MANIFEST
 python/build
 python/dist
-
+python/jsbeautifier.egg-info
