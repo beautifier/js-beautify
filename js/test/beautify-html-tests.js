@@ -103,6 +103,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div></div>');
         test_fragment('\n', '');
 
+        // Attribute Wrap - (eof = "\n", indent_attr = "    ")
+        opts.wrap_attributes = true;
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n    attr1="123"\n    data-attr2="hello    t here" />');
+
+        // Attribute Wrap - (eof = "\n", indent_attr = "        ")
+        opts.wrap_attributes = true;
+        opts.wrap_indent = 8;
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n        attr1="123"\n        data-attr2="hello    t here">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n        attr1="123"\n        data-attr2="hello    t here" />');
+
+        // Attribute Wrap - (eof = " ", indent_attr = "")
+        opts.wrap_attributes = false;
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+
         // New Test Suite
 
         opts.end_with_newline = true;
@@ -529,7 +545,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>Should</div>\n\n\n' +
             '<div>preserve one newline</div>');
     }
-    
+
     beautifier_tests();
 }
 

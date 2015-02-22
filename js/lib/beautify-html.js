@@ -344,19 +344,19 @@
                     }
 
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
-                        if (!first_attr && wrap_attributes) {
+                        //no space after = or before >
+                        this.space_or_wrap(content);
+                        space = false;
+                        if (!first_attr && wrap_attributes &&  input_char !== '/') {
                             this.print_newline(true, content);
                             this.print_indentation(content);
                             for (var count = 0; count < wrap_indent; count++) {
                                 content.push(indent_character);
                             }
                         }
-                        //no space after = or before >
-                        this.space_or_wrap(content);
                         if (content.filter(function (i) { return i === ' ';}).length === 1){
                             first_attr = false;
                         }
-                        space = false;
                     }
 
                     if (indent_handlebars && tag_start_char === '<') {
