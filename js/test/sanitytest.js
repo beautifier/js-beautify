@@ -37,7 +37,7 @@ function SanityTest (func, name_of_test) {
         // multi-parameter calls not supported (I don't need them now).
         var result = test_func(parameters);
         // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
-        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') == expected_value.join(', '))) {
+        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') === expected_value.join(', '))) {
             n_succeeded += 1;
         } else {
             n_failed += 1;
@@ -96,7 +96,7 @@ function SanityTest (func, name_of_test) {
                 var x = [];
                 var expected_index = 0;
                 for (var k in something) {
-                    if (k == expected_index) {
+                    if (k === expected_index) {
                         x.push(this.prettyprint(something[k], true));
                         expected_index += 1;
                     } else {

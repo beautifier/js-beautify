@@ -362,7 +362,7 @@
                     }
 
                     if (indent_handlebars && !tag_start_char) {
-                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] == '{') {
+                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] === '{') {
                             if (input_char === '#' || input_char === '/') {
                                 tag_start = this.pos - 3;
                             } else {
