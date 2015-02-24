@@ -36,20 +36,28 @@ exports.test_data = {
         matrix: [
           {
               options: [
-                  { name: "wrap_attributes", value: "true" }
+                  { name: "wrap_attributes", value: "'force'" }
               ],
               eof: '\\n',
               indent_attr: '    '
           }, {
               options: [
-                  { name: "wrap_attributes", value: "true" },
-                  { name: "wrap_indent", value: "8" },
+                  { name: "wrap_attributes", value: "'force'" },
+                  { name: "wrap_line_length", value: "80" }
+              ],
+              eof: '\\n',
+              indent_attr: '    '
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'force'" },
+                  { name: "wrap_attributes_indent_size", value: "8" },
               ],
               eof: '\\n',
               indent_attr: '        '
           }, {
               options: [
-                  { name: "wrap_attributes", value: "false" }
+                  { name: "wrap_attributes", value: "'auto'" },
+                  { name: "wrap_line_length", value: "0" }
               ],
               eof: ' ',
               indent_attr: ''
@@ -59,6 +67,10 @@ exports.test_data = {
             {
                 fragment: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
                 output: '<div attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
+            },
+            {
+                fragment: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+                output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{eof}}{{indent_attr}}attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here"{{eof}}{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
             },
             {
                 fragment: '<img attr0 attr1="123" data-attr2="hello    t here"/>',

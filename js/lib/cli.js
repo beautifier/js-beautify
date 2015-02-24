@@ -60,8 +60,8 @@ var fs = require('fs'),
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
-        "wrap_attributes": Boolean,
-        "wrap_indent": Number,
+        "wrap_attributes": ["auto", "force"],
+        "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
         "end_with_newline": Boolean,
         // CSS-only
@@ -101,14 +101,14 @@ var fs = require('fs'),
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
-        "a": ["--wrap_attributes"],
-        "i": ["--wrap_indent"],
         "X": ["--e4x"],
         "n": ["--end_with_newline"],
         // CSS-only
         "L": ["--selector_separator_newline"],
         "N": ["--newline_between_rules"],
         // HTML-only
+        "A": ["--wrap_attributes"],
+        "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
         "I": ["--indent_inner_html"],
@@ -237,15 +237,15 @@ function usage(err) {
             msg.push('  -n, --end_with_newline            End output with newline');
             break;
         case "html":
-            msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
-            msg.push('  -I, --indent-inner-html       Indent body and head sections. Default is false.');
-            msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
-            msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
-            msg.push('  -a, --wrap-attributes         Wrap html tag attributes to new lines');
-            msg.push('  -i, --wrap-indent             Indent wrapped tags to after N characters [indent-level]');
-            msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
-            msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
-            msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
+            msg.push('  -I, --indent-inner-html           Indent body and head sections. Default is false.');
+            msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
+            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
+            msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
+            msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
+            msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
+            msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
             break;
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.')

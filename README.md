@@ -98,8 +98,6 @@ Beautifier Options:
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
   -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
-  -a, --wrap-attributes             Wrap attributes to new lines
-  -i, --wrap-indent                 Indent wrapped attributes to after N characters [indent-size]  
   -X, --e4x                         Pass E4X xml literals through untouched
   -n, --end_with_newline            End output with newline
   --good-stuff                      Warm the cockles of Crockford's heart
@@ -125,8 +123,8 @@ These largely correspond to the underscored option keys for both library interfa
     "eval_code": false,
     "unescape_strings": false,
     "wrap_line_length": 0,
-    "wrap_attributes": false,
-    "wrap_indent": 4
+    "wrap_attributes": "auto",
+    "wrap_attributes_indent_size": 4
 }
 ```
 
@@ -169,6 +167,8 @@ HTML Beautifier Options:
   -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
+  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
   -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
