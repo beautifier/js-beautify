@@ -529,7 +529,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>Should</div>\n\n\n' +
             '<div>preserve one newline</div>');
     }
-    
+
     beautifier_tests();
 }
 

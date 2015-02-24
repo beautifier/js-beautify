@@ -159,7 +159,7 @@ class Beautifier:
         self.indentChar = opts.indent_char
         self.pos = -1
         self.ch = None
-        
+
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
         self.NESTED_AT_RULE = [ \
@@ -224,7 +224,7 @@ class Beautifier:
         result = ''
         if self.ch and WHITE_RE.search(self.ch):
             result = self.ch
-            
+
         while WHITE_RE.search(self.next()) is not None:
             result += self.ch
         return result
@@ -257,9 +257,9 @@ class Beautifier:
             elif ch == ";" or ch == "}" or ch == ")":
                 return False
             i += 1;
-            
+
         return False
-        
+
 
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
@@ -270,14 +270,14 @@ class Beautifier:
         enteringConditionalGroup = False
         top_ch = '' 
         last_top_ch = '' 
-        
+
         while True:
             whitespace = self.skipWhitespace();
             isAfterSpace = whitespace != ''
             isAfterNewline = '\n' in whitespace;
             last_top_ch = top_ch
             top_ch = self.ch
-            
+
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
@@ -291,7 +291,7 @@ class Beautifier:
             elif self.ch == '/' and self.peek() == '/':
                 if not isAfterNewline and last_top_ch != '{':
                     printer.trim()
-                    
+
                 printer.singleSpace()
                 printer.comment(self.eatComment())
                 printer.newLine()

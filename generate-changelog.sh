@@ -5,10 +5,10 @@ if [ "$#" -ne 1 ]; then
     echo "Usage: ./generate-changelog.sh user/repo"
     exit 1
 fi
- 
+
 IFS=$'\n'
 echo "# Changelog" > CHANGELOG.md
- 
+
 for m in $(curl -s "https://api.github.com/repos/$1/milestones?state=closed" | jq -c '.[] | [.title, .number, .description]' | sort -r); do
     mid=$(echo $m | sed 's/\[".*",\(.*\),".*"\]/\1/')
     title=$(echo $m | sed 's/\["\(.*\)",.*,".*"\]/\1/')
