@@ -354,8 +354,11 @@
                                 content.push(indent_character);
                             }
                         }
-                        if (content.filter(function (i) { return i === ' ';}).length === 1){
+                        for (var i = 0; i < content.length; i++) {
+                          if (content[i] === ' ') {
                             first_attr = false;
+                            break;
+                          }
                         }
                     }
 
