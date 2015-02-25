@@ -31,6 +31,65 @@ exports.test_data = {
             { fragment: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Attribute Wrap",
+        description: "Wraps attributes inside of html tags",
+        matrix: [
+          {
+              options: [
+                  { name: "wrap_attributes", value: "'force'" }
+              ],
+              eof: '\\n',
+              indent_attr: '    ',
+              over80: '\\n'
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'force'" },
+                  { name: "wrap_line_length", value: "80" }
+              ],
+              eof: '\\n',
+              indent_attr: '    ',
+              over80: '\\n'
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'force'" },
+                  { name: "wrap_attributes_indent_size", value: "8" },
+              ],
+              eof: '\\n',
+              indent_attr: '        ',
+              over80: '\\n'
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'auto'" },
+                  { name: "wrap_line_length", value: "80" }
+              ],
+              eof: ' ',
+              indent_attr: '',
+              over80: '\\n'
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'auto'" },
+                  { name: "wrap_line_length", value: "0" }
+              ],
+              eof: ' ',
+              indent_attr: '',
+              over80: ' '
+          }
+        ],
+        tests: [
+            {
+                fragment: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+                output: '<div attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
+            },
+            {
+                fragment: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+                output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{eof}}{{indent_attr}}attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here"{{over80}}{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
+            },
+            {
+                fragment: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+                output: '<img attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here" />'
+            }
+        ]
+    }, {
         name: "New Test Suite"
     }]
-}
+};

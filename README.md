@@ -122,7 +122,9 @@ These largely correspond to the underscored option keys for both library interfa
     "break_chained_methods": false,
     "eval_code": false,
     "unescape_strings": false,
-    "wrap_line_length": 0
+    "wrap_line_length": 0,
+    "wrap_attributes": "auto",
+    "wrap_attributes_indent_size": 4
 }
 ```
 
@@ -165,6 +167,8 @@ HTML Beautifier Options:
   -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
+  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
   -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
@@ -188,4 +192,3 @@ Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
 js-beautify@1.5.3
-
