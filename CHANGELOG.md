@@ -9,6 +9,7 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.3...v1.5.4
 
 ### Closed Issues
 * TypeScript oddly formatted with 1.5.3 ([#552](https://github.com/beautify-web/js-beautify/issues/552))
+* HTML beautifier inserts double spaces between adjacent tags ([#525](https://github.com/beautify-web/js-beautify/issues/525))
 * Keep space in font rule ([#491](https://github.com/beautify-web/js-beautify/issues/491))
 * [Brackets plug in] Space after </a> disappears ([#454](https://github.com/beautify-web/js-beautify/issues/454))
 * Support nested pseudo-classes and parent reference (LESS) ([#427](https://github.com/beautify-web/js-beautify/pull/427))
