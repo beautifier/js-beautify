@@ -213,6 +213,9 @@
             'TK_UNKNOWN': handle_unknown,
             'TK_EOF': handle_eof
         };
+        
+        // sub-types
+        var boolOps = ['&&', '||', '?', ':'];
 
         function create_flags(flags_base, mode) {
             var next_indent_level = 0;
@@ -278,6 +281,7 @@
         opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
         opt.e4x = (options.e4x === undefined) ? false : options.e4x;
         opt.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
+        opt.allow_bool_op_first = (typeof options.allow_bool_op_first === 'undefined') ? false : options.allow_bool_op_first;
 
 
         // force opt.space_after_anon_function to true if opt.jslint_happy
@@ -869,7 +873,15 @@
             }
 
             if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (!start_of_object_property()) {
+                // taking care of ambiguous case allow_bool_op_first case where a variable is on its own line after an operator
+                var nextTok = get_token(1);
+                var ambiguousBoolOpCase = opt.allow_bool_op_first &&
+                    last_type === 'TK_OPERATOR' &&
+                    in_array(flags.last_text, boolOps) &&
+                    current_token.wanted_newline &&
+                    nextTok.wanted_newline;
+                
+                if (!start_of_object_property() && !ambiguousBoolOpCase) {
                     allow_wrap_or_preserved_newline();
                 }
             }
@@ -1083,6 +1095,26 @@
             // if there is a newline between -- or ++ and anything else we should preserve it.
             if (current_token.wanted_newline && (current_token.text === '--' || current_token.text === '++')) {
                 print_newline(false, true);
+            }
+            
+            // opt.allow_bool_op_first
+            //
+            // Support ternary newline preservation
+            // a = (b === c)
+            //     ? c
+            //     : d;
+            //
+            // and also boolean operators
+            // a = (b === c)
+            //     && d
+            //     || e
+
+            if (opt.allow_bool_op_first && in_array(current_token.text, boolOps)) {
+                if (last_type === 'TK_END_EXPR' || last_type === 'TK_WORD' || last_type === 'TK_STRING') {
+                    if (!start_of_object_property()) {
+                        allow_wrap_or_preserved_newline();
+                    }
+                }
             }
 
             // Allow line wrapping between operators
