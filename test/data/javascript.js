@@ -308,6 +308,7 @@ exports.test_data = {
             { input: 'if (a) /foo\\\\//\nelse /foo\\\\//;' },
 
             { input: 'if (foo) /regex/.test();' },
+            { input: 'result = yield pgClient.query_(queryString);' },
 
             { input: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
