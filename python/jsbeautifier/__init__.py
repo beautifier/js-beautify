@@ -616,6 +616,10 @@ class Beautifier:
             # TODO: option space_before_conditional
             self.output.space_before_token = True
 
+        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'await':
+            self.output.space_before_token = True
+
+
         # Support of this kind of newline preservation:
         # a = (b &&
         #     (c || d));
@@ -801,7 +805,7 @@ class Beautifier:
                     self.print_newline(True)
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
-                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return', 'export']:
+                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return', 'export', 'async']:
                     self.output.space_before_token = True
                 elif self.last_type == 'TK_RESERVED' and self.flags.last_text == 'default' and self.last_last_text == 'export':
                     self.output.space_before_token = True
@@ -1326,7 +1330,7 @@ class Tokenizer:
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
-    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield']
+    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await']
 
     def __init__ (self, input, opts, indent_string):
         self.input = input

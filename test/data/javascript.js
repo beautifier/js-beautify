@@ -94,6 +94,27 @@ exports.test_data = {
     }, {
         name: "New Test Suite"
     },
+    {
+        name: "Async / await tests",
+        description: "ES7 async / await tests",
+        tests: [
+            { input: "async function foo() {}" },
+            { input: "let w = async function foo() {}" },
+            { input: "async function foo() {}\nvar x = await foo();"},
+            {
+                comment: "async function as an input to another function",
+                input: "wrapper(async function foo() {})"},
+            {
+                comment: "await on inline anonymous function. should have a space after await",
+                input: "async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}",
+                output: "async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}"
+            },
+            {
+                comment: "ensure that this doesn't break anyone with the async library",
+                input: "async.map(function(t) {})"
+            }
+        ]
+    },
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting

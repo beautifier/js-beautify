@@ -292,6 +292,20 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // New Test Suite
 
+        // Async / await tests
+        bt('async function foo() {}');
+        bt('let w = async function foo() {}');
+        bt('async function foo() {}\nvar x = await foo();');
+        
+        // async function as an input to another function
+        bt('wrapper(async function foo() {})');
+        
+        // await on inline anonymous function. should have a space after await
+        bt('async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}', 'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}');
+        
+        // ensure that this doesn't break anyone with the async library
+        bt('async.map(function(t) {})');
+
         // Old tests
         bt('');
         test_fragment('   return .5');
