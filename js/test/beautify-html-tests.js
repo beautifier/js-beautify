@@ -137,6 +137,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
 
+        // Unformatted tags
+        test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
+        test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
+
         // New Test Suite
 
         opts.end_with_newline = true;

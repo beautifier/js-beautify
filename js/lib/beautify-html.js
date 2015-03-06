@@ -777,7 +777,7 @@
                             tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length - 1].match(/(?:<|{{#)\s*(\w+)/);
                         }
                         if (tag_extracted_from_last_output === null ||
-                            tag_extracted_from_last_output[1] !== tag_name) {
+                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted))) {
                             multi_parser.print_newline(false, multi_parser.output);
                         }
                     }

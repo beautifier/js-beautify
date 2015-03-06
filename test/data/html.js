@@ -90,6 +90,14 @@ exports.test_data = {
             }
         ]
     }, {
+        name: "Unformatted tags",
+        description: "Unformatted tag behavior",
+        options: [],
+        tests: [
+            { fragment: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
+            { fragment: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+        ]
+    }, {
         name: "New Test Suite"
     }]
 };
