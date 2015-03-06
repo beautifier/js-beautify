@@ -515,6 +515,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if(true)\n++a;', 'if (true)\n    ++a;');
         bt('if(true)--a;', 'if (true) --a;');
         bt('if(true)\n--a;', 'if (true)\n    --a;');
+        bt('elem[array]++;');
+        bt('elem++ * elem[array]++;');
+        bt('elem-- * -elem[array]++;');
+        bt('elem-- + elem[array]++;');
+        bt('elem-- - elem[array]++;');
+        bt('elem-- - -elem[array]++;');
+        bt('elem-- - +elem[array]++;');
         
         // Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}');

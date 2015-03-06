@@ -329,12 +329,18 @@ exports.test_data = {
             { input: 'if(true)\n++a;', output: 'if (true)\n    ++a;' },
             { input: 'if(true)--a;', output: 'if (true) --a;' },
             { input: 'if(true)\n--a;', output: 'if (true)\n    --a;' },
+            { input: 'elem[array]++;' },
+            { input: 'elem++ * elem[array]++;' },
+            { input: 'elem-- * -elem[array]++;' },
+            { input: 'elem-- + elem[array]++;' },
+            { input: 'elem-- - elem[array]++;' },
+            { input: 'elem-- - -elem[array]++;' },
+            { input: 'elem-- - +elem[array]++;' },
 
 
             { comment: 'Handling of newlines around unary ++ and -- operators',
                 input: '{foo\n++bar;}', output: '{\n    foo\n    ++bar;\n}' },
             { input: '{foo++\nbar;}', output: '{\n    foo++\n    bar;\n}' },
-
 
             { comment: 'This is invalid, but harder to guard against. Issue #203.',
                 input: '{foo\n++\nbar;}', output: '{\n    foo\n    ++\n    bar;\n}' },

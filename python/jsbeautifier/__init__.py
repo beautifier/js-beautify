@@ -1012,11 +1012,6 @@ class Beautifier:
             self.print_token(current_token)
             return
 
-        # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
-        # if there is a newline between -- or ++ and anything else we should preserve it.
-        if current_token.wanted_newline and (current_token.text == '--' or current_token.text == '++'):
-            self.print_newline(preserve_statement_flags = True)
-
         # Allow line wrapping between operators in an expression
         if self.last_type == 'TK_OPERATOR':
             self.allow_wrap_or_preserved_newline(current_token)
@@ -1032,17 +1027,30 @@ class Beautifier:
             space_before = False
             space_after = False
 
+            # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
+            # if there is a newline between -- or ++ and anything else we should preserve it.
+            if current_token.wanted_newline and (current_token.text == '--' or current_token.text == '++'):
+                self.print_newline(preserve_statement_flags = True)
+
             if self.flags.last_text == ';' and self.is_expression(self.flags.mode):
                 # for (;; ++i)
                 #         ^^
                 space_before = True
 
-            if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_END_EXPR':
+            if self.last_type == 'TK_RESERVED':
                 space_before = True
+            elif self.last_type == 'TK_END_EXPR':
+                space_before = not (self.flags.last_text == ']' and current_token.text in ['--', '++'])
             elif self.last_type == 'TK_OPERATOR':
-                space_before = \
-                        (current_token.text in ['--', '-'] and self.flags.last_text in ['--', '-']) or \
-                        (current_token.text in ['++', '+'] and self.flags.last_text in ['++', '+'])
+                # a++ + ++b
+                # a - -b
+                space_before = current_token.text in ['--', '-','++', '+'] and self.flags.last_text in ['--', '-','++', '+']
+                # + and - are not unary when preceeded by -- or ++ operator
+                # a-- + b
+                # a * +b
+                # a - -b
+                if current_token.text in ['-', '+'] and self.flags.last_text in ['--', '++']:
+                    space_after = True
 
             if self.flags.mode == MODE.BlockStatement and self.flags.last_text in ['{', ';']:
                 # { foo: --i }

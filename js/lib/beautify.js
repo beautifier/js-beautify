@@ -1100,12 +1100,6 @@
                 return;
             }
 
-            // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
-            // if there is a newline between -- or ++ and anything else we should preserve it.
-            if (current_token.wanted_newline && (current_token.text === '--' || current_token.text === '++')) {
-                print_newline(false, true);
-            }
-
             // Allow line wrapping between operators
             if (last_type === 'TK_OPERATOR') {
                 allow_wrap_or_preserved_newline();
@@ -1120,18 +1114,33 @@
                 space_before = false;
                 space_after = false;
 
+                // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
+                // if there is a newline between -- or ++ and anything else we should preserve it.
+                if (current_token.wanted_newline && (current_token.text === '--' || current_token.text === '++')) {
+                    print_newline(false, true);
+                }
+
                 if (flags.last_text === ';' && is_expression(flags.mode)) {
                     // for (;; ++i)
                     //        ^^^
                     space_before = true;
                 }
 
-                if (last_type === 'TK_RESERVED' || last_type === 'TK_END_EXPR') {
+                if (last_type === 'TK_RESERVED') {
                     space_before = true;
+                } else if (last_type === 'TK_END_EXPR') {
+                    space_before = !(flags.last_text === ']' && (current_token.text === '--' || current_token.text === '++'));
                 } else if (last_type === 'TK_OPERATOR') {
-                    space_before =
-                        (in_array(current_token.text, ['--', '-']) && in_array(flags.last_text, ['--', '-'])) ||
-                        (in_array(current_token.text, ['++', '+']) && in_array(flags.last_text, ['++', '+']));
+                    // a++ + ++b;
+                    // a - -b
+                    space_before = in_array(current_token.text, ['--', '-', '++', '+']) && in_array(flags.last_text, ['--', '-', '++', '+']);
+                    // + and - are not unary when preceeded by -- or ++ operator
+                    // a-- + b
+                    // a * +b
+                    // a - -b
+                    if (in_array(current_token.text, ['+', '-']) && in_array(flags.last_text, ['--', '++'])) {
+                        space_after = true;
+                    }
                 }
 
                 if ((flags.mode === MODE.BlockStatement || flags.mode === MODE.Statement) && (flags.last_text === '{' || flags.last_text === ';')) {
