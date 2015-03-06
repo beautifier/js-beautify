@@ -176,6 +176,7 @@
             $('#jslint-happy').prop('checked', $.cookie('jslint-happy') === 'on');
             $('#end-with-newline').prop('checked', $.cookie('end-with-newline') === 'on');
             $('#indent-inner-html').prop('checked', $.cookie('indent-inner-html') === 'on');
+            $('#comma-first').prop('checked', $.cookie('indent-inner-html') === 'on');
         }
 
         function store_settings_to_cookie() {
@@ -196,7 +197,8 @@
             $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
             $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
             $.cookie('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
-            
+            $.cookie('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
+
         }
 
         function unpacker_filter(source) {
@@ -260,6 +262,7 @@
             opts.end_with_newline = $('#end-with-newline').prop('checked');
             opts.wrap_line_length = $('#wrap-line-length').val();
             opts.indent_inner_html = $('#indent-inner-html').prop('checked');
+            opts.comma_first = $('#comma-first').prop('checked');
 
             if (looks_like_html(source)) {
                 output = html_beautify(source, opts);
@@ -354,6 +357,9 @@
             <td>
                 <input class="checkbox" type="checkbox" id="end-with-newline">
                 <label for="end-with-newline">End script and style with newline?</label>
+                <br>
+                <input class="checkbox" type="checkbox" id="comma-first">
+                <label for="comma-first">Use comma-first list style?</label>
                 <br>
                 <input class="checkbox" type="checkbox" id="detect-packers">
                 <label for="detect-packers">Detect packers and obfuscators?</label>
