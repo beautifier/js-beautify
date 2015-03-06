@@ -111,7 +111,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
 
         # New Test Suite
-
+        // Async / Await Tests
+        bt('async function(){}', 'async function() {}');
+        bt('var b = function(){}', 'var b = function() {}');
+        bt('var b = async function(){}', 'var b = async function() {}');
+        bt('b = await awaitableFunction();', 'b = await awaitableFunction();');
+        
         # Old tests
         bt('')
         test_fragment('   return .5')
@@ -171,12 +176,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=~a', 'a = ~a')
         bt('a;/*comment*/b;', 'a; /*comment*/\nb;')
         bt('a;/* comment */b;', 'a; /* comment */\nb;')
-        
+
         # simple comments don't get touched at all
         test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;')
         bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;')
         test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;')
-        
+
         # comment blocks detected and reindented even w/o javadoc starter
         bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;')
         bt('if(a)break;', 'if (a) break;')
@@ -190,10 +195,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt('for(;;++i)a', 'for (;; ++i) a')
         bt('return(1)', 'return (1)')
         bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}')
-        
+
         #  magic function call
         bt('(xx)()')
-        
+
         # another magic function call
         bt('a[1]()')
         bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();')
@@ -201,10 +206,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
         bt('a !== b')
         bt('if (a) b(); else c();', 'if (a) b();\nelse c();')
-        
+
         # typical greasemonkey start
         bt('// comment\n(function something() {})')
-        
+
         # duplicating newlines
         bt('{\n\n    x();\n\n}')
         bt('if (a in b) foo();')
@@ -233,20 +238,20 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 1; // comment')
         bt('a = 1;\n // comment', 'a = 1;\n// comment')
         bt('a = [-1, -1, -1]')
-        
+
         # The exact formatting these should have is open for discussion, but they are at least reasonable
         bt('a = [ // comment\n    -1, -1, -1\n]')
         bt('var a = [ // comment\n    -1, -1, -1\n]')
         bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]')
         bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]')
         bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]')
-        
+
         # was: extra space appended
         bt('if (a) {\n    do();\n}')
-        
+
         # if/else statement with empty body
         bt('if (a) {\n// comment\n}else{\n// comment\n}', 'if (a) {\n    // comment\n} else {\n    // comment\n}')
-        
+
         # multiple comments indentation
         bt('if (a) {\n// comment\n// comment\n}', 'if (a) {\n    // comment\n    // comment\n}')
         bt('if (a) b() else c();', 'if (a) b()\nelse c();')
@@ -270,7 +275,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('(x) => x')
         bt('x => { x }', 'x => {\n    x\n}')
         bt('(x) => { x }', '(x) => {\n    x\n}')
-        
+
         # a common snippet in jQuery plugins
         bt('settings = $.extend({},defaults,settings);', 'settings = $.extend({}, defaults, settings);')
         bt('$http().then().finally().default()')
@@ -299,17 +304,17 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('`incomplete-template-string')
         test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}')
         test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];')
-        
+
         # incomplete
         test_fragment('{a:#1', '{\n    a: #1')
-        
+
         # incomplete
         test_fragment('{a:#', '{\n    a: #')
-        
+
         # incomplete
         test_fragment('}}}', '}\n}\n}')
         test_fragment('<!--\nvoid();\n// -->')
-        
+
         # incomplete regexp
         test_fragment('a=/regexp', 'a = /regexp')
         bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}')
@@ -335,21 +340,21 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(true)\n++a;', 'if (true)\n    ++a;')
         bt('if(true)--a;', 'if (true) --a;')
         bt('if(true)\n--a;', 'if (true)\n    --a;')
-        
+
         # Handling of newlines around unary ++ and -- operators
         bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}')
         bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}')
-        
+
         # This is invalid, but harder to guard against. Issue #203.
         bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}')
-        
+
         # regexps
         bt('a(/abc\\/\\/def/);b()', 'a(/abc\\/\\/def/);\nb()')
         bt('a(/a[b\\[\\]c]d/);b()', 'a(/a[b\\[\\]c]d/);\nb()')
-        
+
         # incomplete char class
         test_fragment('a(/a[b\\[')
-        
+
         # allow unescaped / in char classes
         bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()')
         bt('typeof /foo\\//;')
