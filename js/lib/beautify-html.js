@@ -97,6 +97,8 @@
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
+            wrap_attributes,
+            wrap_attributes_indent_size,
             end_with_newline;
 
         options = options || {};
@@ -118,6 +120,8 @@
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10))
             : 0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
+        wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
+        wrap_attributes_indent_size = (options.wrap_attributes_indent_size === undefined) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10) || indent_size;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
 
         function Parser() {
@@ -158,7 +162,7 @@
                     }
                 }
                 return true;
-            }
+            };
 
             this.traverse_whitespace = function() {
                 var input_char = '';
@@ -304,6 +308,7 @@
                     content = [],
                     comment = '',
                     space = false,
+                    first_attr = true,
                     tag_start, tag_end,
                     tag_start_char,
                     orig_pos = this.pos,
@@ -342,6 +347,19 @@
                         //no space after = or before >
                         this.space_or_wrap(content);
                         space = false;
+                        if (!first_attr && wrap_attributes === 'force' &&  input_char !== '/') {
+                            this.print_newline(true, content);
+                            this.print_indentation(content);
+                            for (var count = 0; count < wrap_attributes_indent_size; count++) {
+                                content.push(indent_character);
+                            }
+                        }
+                        for (var i = 0; i < content.length; i++) {
+                          if (content[i] === ' ') {
+                            first_attr = false;
+                            break;
+                          }
+                        }
                     }
 
                     if (indent_handlebars && tag_start_char === '<') {
@@ -362,7 +380,7 @@
                     }
 
                     if (indent_handlebars && !tag_start_char) {
-                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] == '{') {
+                        if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] === '{') {
                             if (input_char === '#' || input_char === '/') {
                                 tag_start = this.pos - 3;
                             } else {
@@ -759,7 +777,7 @@
                             tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length - 1].match(/(?:<|{{#)\s*(\w+)/);
                         }
                         if (tag_extracted_from_last_output === null ||
-                            tag_extracted_from_last_output[1] !== tag_name) {
+                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted))) {
                             multi_parser.print_newline(false, multi_parser.output);
                         }
                     }

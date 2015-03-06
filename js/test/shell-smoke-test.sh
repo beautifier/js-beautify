@@ -83,6 +83,25 @@ test_cli_js_beautify()
       exit 1
   }
 
+  # ensure unchanged files are not overwritten
+  cp -p /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js
+  touch -A -05 /tmp/js-beautify-mkdir/js-beautify.js
+  touch -A -01 /tmp/js-beautify-mkdir/js-beautify-old.js
+  $CLI_SCRIPT -r /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -r"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and same file name"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and different file name"
+      exit 1
+  }
+
   $CLI_SCRIPT $SCRIPT_DIR/../bin/css-beautify.js | diff -q $SCRIPT_DIR/../bin/css-beautify.js - && {
       echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected to be different."
       exit 1

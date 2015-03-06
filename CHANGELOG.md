@@ -1,4 +1,30 @@
 # Changelog
+## v1.5.5
+
+### Description
+* Initial implementation of comma-first formatting - Diff-friendly literals!
+* CSS: Add newline between rules
+* LESS: improved function parameter formatting
+* HTML: options for wrapping attributes
+* General bug fixing
+
+### Closed Issues
+* Add GUI support for `--indent-inner-html`. ([#633](https://github.com/beautify-web/js-beautify/pull/633))
+* Publish v1.5.5 ([#629](https://github.com/beautify-web/js-beautify/issues/629))
+* CSS: Updating the documentation for the 'newline_between_rules' ([#615](https://github.com/beautify-web/js-beautify/pull/615))
+* Equal Sign Removed from Filter Properties Alpha Opacity Assignment ([#599](https://github.com/beautify-web/js-beautify/issues/599))
+* Keep trailing spaces on comments ([#598](https://github.com/beautify-web/js-beautify/issues/598))
+* only print the file names of changed files ([#597](https://github.com/beautify-web/js-beautify/issues/597))
+*  CSS: support add newline between rules ([#574](https://github.com/beautify-web/js-beautify/pull/574))
+* elem[array]++ changes to elem[array] ++ inserting unnecessary gap ([#570](https://github.com/beautify-web/js-beautify/issues/570))
+* add support to less functions paramters braces ([#568](https://github.com/beautify-web/js-beautify/pull/568))
+* yield statements are being beautified to their own newlines since 1.5.2 ([#560](https://github.com/beautify-web/js-beautify/issues/560))
+* HTML beautifier inserts extra newline into <li>s ending with <code> ([#524](https://github.com/beautify-web/js-beautify/issues/524))
+* Add wrap_attributes option ([#476](https://github.com/beautify-web/js-beautify/issues/476))
+* Add or preserve empty line between CSS rules ([#467](https://github.com/beautify-web/js-beautify/issues/467))
+* Support comma first style of variable declaration ([#245](https://github.com/beautify-web/js-beautify/issues/245))
+
+
 ## v1.5.4
 
 ### Description
@@ -9,6 +35,7 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.3...v1.5.4
 
 ### Closed Issues
 * TypeScript oddly formatted with 1.5.3 ([#552](https://github.com/beautify-web/js-beautify/issues/552))
+* HTML beautifier inserts double spaces between adjacent tags ([#525](https://github.com/beautify-web/js-beautify/issues/525))
 * Keep space in font rule ([#491](https://github.com/beautify-web/js-beautify/issues/491))
 * [Brackets plug in] Space after </a> disappears ([#454](https://github.com/beautify-web/js-beautify/issues/454))
 * Support nested pseudo-classes and parent reference (LESS) ([#427](https://github.com/beautify-web/js-beautify/pull/427))
