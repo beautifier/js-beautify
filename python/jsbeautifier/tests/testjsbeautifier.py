@@ -111,7 +111,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
 
         # New Test Suite
-        // Async / Await Tests
+        # Async / Await Tests
         bt('async function(){}', 'async function() {}')
         bt('var b = async function(){}', 'var b = async function() {}')
         bt('b = await awaitableFunction();', 'b = await awaitableFunction();')
