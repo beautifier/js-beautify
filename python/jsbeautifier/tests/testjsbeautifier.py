@@ -112,11 +112,11 @@ class TestJSBeautifier(unittest.TestCase):
 
         # New Test Suite
         // Async / Await Tests
-        bt('async function(){}', 'async function() {}');
-        bt('var b = function(){}', 'var b = function() {}');
-        bt('var b = async function(){}', 'var b = async function() {}');
-        bt('b = await awaitableFunction();', 'b = await awaitableFunction();');
-        
+        bt('async function(){}', 'async function() {}')
+        bt('var b = function(){}', 'var b = function() {}')
+        bt('var b = async function(){}', 'var b = async function() {}')
+        bt('b = await awaitableFunction();', 'b = await awaitableFunction();')
+
         # Old tests
         bt('')
         test_fragment('   return .5')
