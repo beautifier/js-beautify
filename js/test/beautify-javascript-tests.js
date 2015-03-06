@@ -294,7 +294,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // Async / Await Tests
         bt('async function(){}', 'async function() {}');
-        bt('var b = function(){}', 'var b = function() {}');
         bt('var b = async function(){}', 'var b = async function() {}');
         bt('b = await awaitableFunction();', 'b = await awaitableFunction();');
 
