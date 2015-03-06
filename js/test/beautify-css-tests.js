@@ -83,6 +83,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs    {    }', '.tabs {}');
         t('.tabs    \n{\n    \n  }', '.tabs {}');
 
+        // 
+        t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}');
+
         // Newline Between Rules - (separator = "\n")
         opts.newline_between_rules = true;
         t('.div {}\n.span {}', '.div {}\n\n.span {}');

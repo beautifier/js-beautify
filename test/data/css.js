@@ -39,6 +39,15 @@ exports.test_data = {
             { input: '.tabs    \n{\n    \n  }', output: '.tabs {}' }
         ],
     }, {
+        name: "",
+        description: "",
+        tests: [
+            {
+                input:  '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
+                output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
+            },
+        ],
+    }, {
         name: "Newline Between Rules",
         description: "",
         matrix: [

@@ -388,7 +388,8 @@
                 }
                 output.push(ch);
             } else if (ch === '=') { // no whitespace before or after
-                eatWhitespace();
+                eatWhitespace()
+                ch = '=';
                 output.push(ch);
             } else {
                 if (isAfterSpace) {

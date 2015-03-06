@@ -90,7 +90,7 @@ class Printer:
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
         self.nestedLevel = 0
- 		
+
         self.baseIndentString = default_indent
         self.output = []
         if self.baseIndentString:
@@ -268,8 +268,8 @@ class Beautifier:
 
         insideRule = False
         enteringConditionalGroup = False
-        top_ch = '' 
-        last_top_ch = '' 
+        top_ch = ''
+        last_top_ch = ''
 
         while True:
             whitespace = self.skipWhitespace();
@@ -284,7 +284,7 @@ class Beautifier:
                 printer.newLine()
                 comment = self.eatComment()
                 printer.comment(comment)
-                printer.newLine()                
+                printer.newLine()
                 header = self.lookBack("")
                 if header:
                     printer.newLine(True)
@@ -365,7 +365,7 @@ class Beautifier:
                         printer.push("::")
                     else:
                         # pseudo-element
-                        printer.push(":")                    
+                        printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
                 if isAfterSpace:
                     printer.singleSpace()
@@ -406,6 +406,7 @@ class Beautifier:
             elif self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
+                self.ch = '='
                 printer.push(self.ch)
             else:
                 if isAfterSpace:
