@@ -90,7 +90,7 @@ class Printer:
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
         self.nestedLevel = 0
- 		
+
         self.baseIndentString = default_indent
         self.output = []
         if self.baseIndentString:
@@ -159,7 +159,7 @@ class Beautifier:
         self.indentChar = opts.indent_char
         self.pos = -1
         self.ch = None
-        
+
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
         self.NESTED_AT_RULE = [ \
@@ -224,7 +224,7 @@ class Beautifier:
         result = ''
         if self.ch and WHITE_RE.search(self.ch):
             result = self.ch
-            
+
         while WHITE_RE.search(self.next()) is not None:
             result += self.ch
         return result
@@ -257,9 +257,9 @@ class Beautifier:
             elif ch == ";" or ch == "}" or ch == ")":
                 return False
             i += 1;
-            
+
         return False
-        
+
 
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
@@ -268,30 +268,31 @@ class Beautifier:
 
         insideRule = False
         enteringConditionalGroup = False
-        top_ch = '' 
-        last_top_ch = '' 
-        
+        top_ch = ''
+        last_top_ch = ''
+        parenLevel = 0
+
         while True:
             whitespace = self.skipWhitespace();
             isAfterSpace = whitespace != ''
             isAfterNewline = '\n' in whitespace;
             last_top_ch = top_ch
             top_ch = self.ch
-            
+
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
                 printer.newLine()
                 comment = self.eatComment()
                 printer.comment(comment)
-                printer.newLine()                
+                printer.newLine()
                 header = self.lookBack("")
                 if header:
                     printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':
                 if not isAfterNewline and last_top_ch != '{':
                     printer.trim()
-                    
+
                 printer.singleSpace()
                 printer.comment(self.eatComment())
                 printer.newLine()
@@ -365,7 +366,7 @@ class Beautifier:
                         printer.push("::")
                     else:
                         # pseudo-element
-                        printer.push(":")                    
+                        printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
                 if isAfterSpace:
                     printer.singleSpace()
@@ -384,16 +385,18 @@ class Beautifier:
                         else:
                             self.pos = self.pos - 1
                 else:
+                    parenLevel += 1
                     if isAfterSpace:
                         printer.singleSpace()
                     printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
                 printer.push(self.ch)
+                parenLevel -= 1
             elif self.ch == ',':
                 printer.push(self.ch)
                 self.eatWhitespace()
-                if not insideRule and self.opts.selector_separator_newline:
+                if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()
@@ -406,6 +409,7 @@ class Beautifier:
             elif self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
+                self.ch = '='
                 printer.push(self.ch)
             else:
                 if isAfterSpace:
