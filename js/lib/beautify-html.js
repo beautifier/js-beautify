@@ -122,7 +122,7 @@
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = Array.isArray(options.extra_liners) ?
-            options.extra_liners : (typeof options.extra_liners === 'string') ?
+            options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
         function Parser() {
 

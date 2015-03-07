@@ -106,15 +106,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Custom Extra Liners (empty) - ()
         opts.extra_liners = [];
-        test_fragment('<html><head><meta></head></html>', '<html>\n<head>\n    <meta>\n</head>\n</html>');
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>');
 
         // Custom Extra Liners (default) - ()
         opts.extra_liners = null;
         test_fragment('<html><head></head><body></body></html>', '<html>\n\n<head></head>\n\n<body></body>\n\n</html>');
 
+        // Custom Extra Liners (p, string) - ()
+        opts.extra_liners = 'p,/p';
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
+
         // Custom Extra Liners (p) - ()
         opts.extra_liners = ['p', '/p'];
-        test_fragment('<div><p>x</p></div>', '<div>\n\n    <p>x\n\n    </p>\n</div>');
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
 
         // New Test Suite
 
