@@ -219,6 +219,8 @@
                         if (peek3 === '{{#' || peek3 === '{{/') {
                             // These are tags and not content.
                             break;
+                        } else if (peek3 === '{{!') {
+                            return [this.get_tag(), 'TK_TAG_HANDLEBARS_COMMENT'];
                         } else if (this.input.substr(this.pos, 2) === '{{') {
                             if (this.get_tag(true) === '{{else}}') {
                                 break;
@@ -381,7 +383,7 @@
 
                     if (indent_handlebars && !tag_start_char) {
                         if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] === '{') {
-                            if (input_char === '#' || input_char === '/') {
+                            if (input_char === '#' || input_char === '/' || input_char === '!') {
                                 tag_start = this.pos - 3;
                             } else {
                                 tag_start = this.pos - 2;
@@ -394,6 +396,13 @@
                     content.push(input_char); //inserts character at-a-time (or string)
 
                     if (content[1] && content[1] === '!') { //if we're in a comment, do something special
+                        // We treat all comments as literals, even more than preformatted tags
+                        // we just look for the appropriate close tag
+                        content = [this.get_comment(tag_start)];
+                        break;
+                    }
+
+                    if (indent_handlebars && content[1] && content[1] === '{' && content[2] && content[2] === '!') { //if we're in a comment, do something special
                         // We treat all comments as literals, even more than preformatted tags
                         // we just look for the appropriate close tag
                         content = [this.get_comment(tag_start)];
@@ -525,6 +534,9 @@
                             matched = true;
                         } else if (comment.indexOf('<!--') === 0) { // <!-- comment ...
                             delimiter = '-->';
+                            matched = true;
+                        } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
+                            delimiter = '}}';
                             matched = true;
                         }
                     }
@@ -800,6 +812,10 @@
                         multi_parser.indent_content = false;
                     }
                     multi_parser.current_mode = 'CONTENT';
+                    break;
+                case 'TK_TAG_HANDLEBARS_COMMENT':
+                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.current_mode = 'TAG';
                     break;
                 case 'TK_CONTENT':
                     multi_parser.print_token(multi_parser.token_text);
