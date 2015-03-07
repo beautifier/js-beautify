@@ -94,6 +94,22 @@ exports.test_data = {
     }, {
         name: "New Test Suite"
     },
+    {
+        name: "Async / await tests",
+        description: "ES7 async / await tests",
+        tests: [
+            {input: "async function foo(){}", output: "async function foo() {}"},
+            {input: "let w = async function foo(){}", output: "let w = async function foo() {}"},
+            // async function as an input to another function
+            {input: "wrapper(async function foo(){})", output: "wrapper(async function foo() {})"},
+            // await on inline anonymous function. should have a space after await
+            { input: "async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}",
+             output: "async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}"},
+            {input: "async function foo() {}\nvar x = await foo();"},
+            // ensure that this doesn't break anyone with the async library
+            {input: "async.map(function(t) {})"}
+        ]
+    },
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting
@@ -329,12 +345,18 @@ exports.test_data = {
             { input: 'if(true)\n++a;', output: 'if (true)\n    ++a;' },
             { input: 'if(true)--a;', output: 'if (true) --a;' },
             { input: 'if(true)\n--a;', output: 'if (true)\n    --a;' },
+            { input: 'elem[array]++;' },
+            { input: 'elem++ * elem[array]++;' },
+            { input: 'elem-- * -elem[array]++;' },
+            { input: 'elem-- + elem[array]++;' },
+            { input: 'elem-- - elem[array]++;' },
+            { input: 'elem-- - -elem[array]++;' },
+            { input: 'elem-- - +elem[array]++;' },
 
 
             { comment: 'Handling of newlines around unary ++ and -- operators',
                 input: '{foo\n++bar;}', output: '{\n    foo\n    ++bar;\n}' },
             { input: '{foo++\nbar;}', output: '{\n    foo++\n    bar;\n}' },
-
 
             { comment: 'This is invalid, but harder to guard against. Issue #203.',
                 input: '{foo\n++\nbar;}', output: '{\n    foo\n    ++\n    bar;\n}' },

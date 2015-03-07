@@ -90,7 +90,7 @@ class Printer:
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
         self.nestedLevel = 0
- 		
+
         self.baseIndentString = default_indent
         self.output = []
         if self.baseIndentString:
@@ -268,8 +268,9 @@ class Beautifier:
 
         insideRule = False
         enteringConditionalGroup = False
-        top_ch = '' 
-        last_top_ch = '' 
+        top_ch = ''
+        last_top_ch = ''
+        parenLevel = 0
 
         while True:
             whitespace = self.skipWhitespace();
@@ -284,7 +285,7 @@ class Beautifier:
                 printer.newLine()
                 comment = self.eatComment()
                 printer.comment(comment)
-                printer.newLine()                
+                printer.newLine()
                 header = self.lookBack("")
                 if header:
                     printer.newLine(True)
@@ -365,7 +366,7 @@ class Beautifier:
                         printer.push("::")
                     else:
                         # pseudo-element
-                        printer.push(":")                    
+                        printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
                 if isAfterSpace:
                     printer.singleSpace()
@@ -384,16 +385,18 @@ class Beautifier:
                         else:
                             self.pos = self.pos - 1
                 else:
+                    parenLevel += 1
                     if isAfterSpace:
                         printer.singleSpace()
                     printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
                 printer.push(self.ch)
+                parenLevel -= 1
             elif self.ch == ',':
                 printer.push(self.ch)
                 self.eatWhitespace()
-                if not insideRule and self.opts.selector_separator_newline:
+                if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()
@@ -406,6 +409,7 @@ class Beautifier:
             elif self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
+                self.ch = '='
                 printer.push(self.ch)
             else:
                 if isAfterSpace:
