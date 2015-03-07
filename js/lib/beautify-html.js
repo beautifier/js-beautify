@@ -219,6 +219,8 @@
                         if (peek3 === '{{#' || peek3 === '{{/') {
                             // These are tags and not content.
                             break;
+                        } else if (peek3 === '{{!') {
+                            return [this.get_tag(), 'TK_TAG_HANDLEBARS_COMMENT'];
                         } else if (this.input.substr(this.pos, 2) === '{{') {
                             if (this.get_tag(true) === '{{else}}') {
                                 break;
@@ -381,7 +383,7 @@
 
                     if (indent_handlebars && !tag_start_char) {
                         if (content.length >= 2 && content[content.length - 1] === '{' && content[content.length - 2] === '{') {
-                            if (input_char === '#' || input_char === '/') {
+                            if (input_char === '#' || input_char === '/' || input_char === '!') {
                                 tag_start = this.pos - 3;
                             } else {
                                 tag_start = this.pos - 2;
@@ -400,6 +402,13 @@
                         break;
                     }
 
+                    if (indent_handlebars && content[1] && content[1] === '{' && content[2] && content[2] === '!') { //if we're in a comment, do something special
+                        // We treat all comments as literals, even more than preformatted tags
+                        // we just look for the appropriate close tag
+                        content = [this.get_handlebars_comment(tag_start)];
+                        break;
+                    }
+
                     if (indent_handlebars && tag_start_char === '{' && content.length > 2 && content[content.length - 2] === '}' && content[content.length - 1] === '}') {
                         break;
                     }
@@ -408,7 +417,6 @@
                 var tag_complete = content.join('');
                 var tag_index;
                 var tag_offset;
-
                 if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
                 } else if (tag_complete[0] === '{') {
@@ -489,7 +497,6 @@
                     this.pos = orig_pos;
                     this.line_char_count = orig_line_char_count;
                 }
-
                 return content.join(''); //returns fully formatted tag
             };
 
@@ -527,6 +534,31 @@
                             delimiter = '-->';
                             matched = true;
                         }
+                    }
+
+                    input_char = this.input.charAt(this.pos);
+                    this.pos++;
+                }
+
+                return comment;
+            };
+
+            this.get_handlebars_comment = function(start_pos) { //function to return handlebars comment content in its entirety
+                var comment = '',
+                    delimiter = '}}',
+                    matched = false;
+
+                this.pos = start_pos;
+                input_char = this.input.charAt(this.pos);
+                this.pos++;
+
+                while (this.pos <= this.input.length) {
+                    comment += input_char;
+
+                    // only need to check for the delimiter if the last chars match
+                    if (comment[comment.length - 1] === delimiter[delimiter.length - 1] &&
+                        comment.indexOf(delimiter) !== -1) {
+                        break;
                     }
 
                     input_char = this.input.charAt(this.pos);
@@ -587,7 +619,6 @@
 
             this.get_token = function() { //initial handler for token-retrieval
                 var token;
-
                 if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
                     var type = this.last_token.substr(7);
                     token = this.get_contents_to(type);
@@ -800,6 +831,10 @@
                         multi_parser.indent_content = false;
                     }
                     multi_parser.current_mode = 'CONTENT';
+                    break;
+                case 'TK_TAG_HANDLEBARS_COMMENT':
+                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.current_mode = 'TAG';
                     break;
                 case 'TK_CONTENT':
                     multi_parser.print_token(multi_parser.token_text);
