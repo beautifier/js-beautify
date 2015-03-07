@@ -417,6 +417,7 @@
                 var tag_complete = content.join('');
                 var tag_index;
                 var tag_offset;
+
                 if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
                 } else if (tag_complete[0] === '{') {
@@ -497,6 +498,7 @@
                     this.pos = orig_pos;
                     this.line_char_count = orig_line_char_count;
                 }
+
                 return content.join(''); //returns fully formatted tag
             };
 
@@ -619,6 +621,7 @@
 
             this.get_token = function() { //initial handler for token-retrieval
                 var token;
+
                 if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
                     var type = this.last_token.substr(7);
                     token = this.get_contents_to(type);
