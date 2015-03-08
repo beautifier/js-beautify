@@ -23,10 +23,10 @@ exports.test_data = {
             }
         ],
         tests: [
-            { fragment: '', output: '{{eof}}' },
-            { fragment: '   .tabs{}', output: '   .tabs {}{{eof}}' },
-            { fragment: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
-            { fragment: '\n', output: '{{eof}}' }
+            { fragment: true, input: '', output: '{{eof}}' },
+            { fragment: true, input: '   .tabs{}', output: '   .tabs {}{{eof}}' },
+            { fragment: true, input: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
+            { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
         name: "Empty braces",

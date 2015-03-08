@@ -34,7 +34,22 @@ function generate_tests() {
     // no python html beautifier, so no tests
 }
 
+function isStringOrArray(val) {
+    return typeof val === "string" || val instanceof Array;
+}
+
+function getTestString(val) {
+    if (typeof val === "string") {
+        return "'" + val.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
+    } else if (val instanceof Array) {
+        return  "'" + val.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
+    } else {
+        return null;
+    }
+}
+
 function set_formatters (data, test_method, comment_mark) {
+
     // utility mustache functions
     data.matrix_context_string = function() {
         var context = this;
@@ -56,6 +71,10 @@ function set_formatters (data, test_method, comment_mark) {
 
     data.test_line = function() {
         return function(text, render) {
+            var method_text = test_method;
+            if (this.fragment) {
+                method_text = 'test_fragment';
+            }
 
             // text is ignored for this.
             var comment = "";
@@ -65,38 +84,57 @@ function set_formatters (data, test_method, comment_mark) {
                 comment = "\n        " + comment_mark + this.comment.join('\n        ' + comment_mark);
             }
 
-            var input = "";
+            var input = null;
             var before_input = "";
-            if (typeof this.input === "string") {
-                before_input = test_method + "(";
-                input = "'" + this.input.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
-            } else if (this.input instanceof Array) {
-                before_input = test_method + "(\n            ";
-                input = "'" + this.input.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
 
-            } else if (typeof this.fragment === "string") {
-                before_input = "test_fragment(";
-                input = "'" + this.fragment.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
-            } else if (this.fragment instanceof Array) {
-                before_input = "test_fragment(\n            ";
-                input = "'" + this.fragment.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
+            function set_input(field) {
+                if (input !== null && isStringOrArray(field)) {
+                    throw "Only one test input field allowed (input, input_, or unchanged): " + input;
+                }
+                if (typeof field === "string") {
+                    before_input = method_text + "(";
+                    input = getTestString(field);
+                } else if (field instanceof Array) {
+                    before_input = method_text + "(\n            ";
+                    input = getTestString(field);
+                }
             }
-            input = render(input);
 
-            var output = "";
+            set_input(this.input);
+
+            // allow underscore for formatting alignment with "output"
+            set_input(this.input_);
+
+            // use "unchanged" instead of "input" if there is no output
+            set_input(this.unchanged);
+            if(isStringOrArray(this.unchanged) && isStringOrArray(this.output)) {
+                throw "Cannot specify 'output' with 'unchanged' test input: " + input;
+            }
+
+            if (input === null) {
+                throw "Missing test input field (input, input_, or unchanged).";
+            }
+
+            var output = null;
             var before_output = "";
             if (typeof this.output === "string") {
                 before_output = ', ';
-                output =  "'" + this.output.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
+                output = getTestString(this.output);
             } else if (this.output instanceof Array) {
                 before_output = ',\n           ';
-                output = "'" + this.output.join("\\n' +\n           '").replace(/\t/g,'\\t') + "'";
+                output = getTestString(this.output);
             }
+
+            if (input === output) {
+                throw "Test strings are identical.  Omit 'output' and use 'unchanged': " + input;
+            }
+
+            input = render(input);
             output = render(output);
 
             if (output === input) {
-                output = "";
                 before_output = "";
+                output = "";
             }
             return  comment  + before_input + input + before_output + output + ")";
         }

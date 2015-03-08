@@ -25,10 +25,10 @@ exports.test_data = {
 
         ],
         tests: [
-            { fragment: '', output: '{{eof}}' },
-            { fragment: '<div></div>', output: '<div></div>{{eof}}' },
-            // { fragment: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
-            { fragment: '\n', output: '{{eof}}' }
+            { fragment: true, input: '', output: '{{eof}}' },
+            { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
+            // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
+            { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
         name: "Attribute Wrap",
@@ -77,15 +77,18 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+                fragment: true,
+                input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
                 output: '<div attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
             },
             {
-                fragment: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+                fragment: true,
+                input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
                 output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{eof}}{{indent_attr}}attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here"{{over80}}{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
             },
             {
-                fragment: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+                fragment: true,
+                input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
                 output: '<img attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here" />'
             }
         ]
@@ -94,8 +97,8 @@ exports.test_data = {
         description: "Unformatted tag behavior",
         options: [],
         tests: [
-            { fragment: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
-            { fragment: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+            { fragment: true, input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
+            { fragment: true, input: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
     }, {
         name: "New Test Suite"
