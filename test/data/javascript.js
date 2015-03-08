@@ -115,6 +115,75 @@ exports.test_data = {
             }
         ]
     },
+    {
+        name: "jslint and space after anon function",
+        description: "jslint_happy and space_after_anon_function tests",
+        matrix: [
+            {
+                options: [
+                    { name: "jslint_happy", value: "true" },
+                    { name: "space_after_anon_function", value: "true" }
+                ],
+                f: ' ',
+                c: ''
+            }, {
+                options: [
+                    { name: "jslint_happy", value: "true" },
+                    { name: "space_after_anon_function", value: "false" }
+                ],
+                f: ' ',
+                c: ''
+            }, {
+                options: [
+                    { name: "jslint_happy", value: "false" },
+                    { name: "space_after_anon_function", value: "true" }
+                ],
+                f: ' ',
+                c: '    '
+            }, {
+                options: [
+                    { name: "jslint_happy", value: "false" },
+                    { name: "space_after_anon_function", value: "false" }
+                ],
+                f: '',
+                c: '    '
+            }
+
+
+        ],
+        tests: [
+            { input_: 'a=typeof(x)',
+                output: 'a = typeof{{f}}(x)' },
+            { input_: 'x();\n\nfunction(){}',
+                output: 'x();\n\nfunction{{f}}() {}' },
+            { input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
+                output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}' },
+
+            { input_: 'switch(x) {case 0: case 1: a(); break; default: break}',
+                output: 'switch (x) {\n{{c}}case 0:\n{{c}}case 1:\n{{c}}    a();\n{{c}}    break;\n{{c}}default:\n{{c}}    break\n}' },
+            { input: 'switch(x){case -1:break;case !y:break;}',
+                output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y:\n{{c}}    break;\n}' },
+            { comment: 'typical greasemonkey start',
+                fragment: true,
+                unchanged: '// comment 2\n(function{{f}}()'
+            },
+
+            {
+                input_: 'var a2, b2, c2, d2 = 0, c = function() {}, d = \\\'\\\';',
+                output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
+            },
+            {
+                input_: 'var a2, b2, c2, d2 = 0, c = function() {},\nd = \\\'\\\';',
+                output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
+            },
+            {
+                input_: 'var o2=$.extend(a);function(){alert(x);}',
+                output: 'var o2 = $.extend(a);\n\nfunction{{f}}() {\n    alert(x);\n}'
+            },
+            { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}'},
+            { unchanged: 'function* x() {\n    yield 1;\n}' },
+        ]
+    },
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting
@@ -404,7 +473,88 @@ exports.test_data = {
 
             { input: '{[x()[0]];indent;}', output: '{\n    [x()[0]];\n    indent;\n}' },
             { unchanged: '/*\n foo trailing space    \n * bar trailing space   \n**/'},
-            { unchanged: '{\n    /*\n    foo    \n    * bar    \n    */\n}'}
+            { unchanged: '{\n    /*\n    foo    \n    * bar    \n    */\n}'},
+
+            { unchanged: 'return ++i' },
+            { unchanged: 'return !!x' },
+            { unchanged: 'return !x' },
+            { input: 'return [1,2]', output: 'return [1, 2]' },
+            { unchanged: 'return;' },
+            { unchanged: 'return\nfunc' },
+            { input: 'catch(e)', output: 'catch (e)' },
+            { unchanged: 'yield [1, 2]' },
+
+            { input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
+                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;' },
+            { input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
+                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;' },
+
+            {
+                comment: 'inline comment',
+                input_: 'function x(/*int*/ start, /*string*/ foo)',
+                output: 'function x( /*int*/ start, /*string*/ foo)'
+            },
+
+            { comment: 'javadoc comment',
+                input: '/**\n* foo\n*/', output: '/**\n * foo\n */' },
+            { input: '{\n/**\n* foo\n*/\n}', output: '{\n    /**\n     * foo\n     */\n}' },
+
+            { comment: 'starless block comment',
+                unchanged: '/**\nfoo\n*/' },
+            { unchanged: '/**\nfoo\n**/' },
+            { unchanged: '/**\nfoo\nbar\n**/' },
+            { unchanged: '/**\nfoo\n\nbar\n**/' },
+            { unchanged: '/**\nfoo\n    bar\n**/' },
+            { input: '{\n/**\nfoo\n*/\n}', output: '{\n    /**\n    foo\n    */\n}' },
+            { input: '{\n/**\nfoo\n**/\n}', output: '{\n    /**\n    foo\n    **/\n}' },
+            { input: '{\n/**\nfoo\nbar\n**/\n}', output: '{\n    /**\n    foo\n    bar\n    **/\n}' },
+            { input: '{\n/**\nfoo\n\nbar\n**/\n}', output: '{\n    /**\n    foo\n\n    bar\n    **/\n}' },
+            { input: '{\n/**\nfoo\n    bar\n**/\n}', output: '{\n    /**\n    foo\n        bar\n    **/\n}' },
+            { unchanged: '{\n    /**\n    foo\nbar\n    **/\n}' },
+
+            { input: 'var a,b,c=1,d,e,f=2;', output: 'var a, b, c = 1,\n    d, e, f = 2;' },
+            { input: 'var a,b,c=[],d,e,f=2;', output: 'var a, b, c = [],\n    d, e, f = 2;' },
+            { unchanged: 'function() {\n    var a, b, c, d, e = [],\n        f;\n}' },
+
+            { input: 'do/regexp/;\nwhile(1);', output: 'do /regexp/;\nwhile (1);' },
+            { input: 'var a = a,\na;\nb = {\nb\n}', output: 'var a = a,\n    a;\nb = {\n    b\n}' },
+
+            { unchanged: 'var a = a,\n    /* c */\n    b;' },
+            { unchanged: 'var a = a,\n    // c\n    b;' },
+
+            { comment: 'weird element referencing',
+                unchanged: 'foo.("bar");' },
+
+
+            { unchanged: 'if (a) a()\nelse b()\nnewline()' },
+            { unchanged: 'if (a) a()\nnewline()' },
+            { input: 'a=typeof(x)', output: 'a = typeof(x)' },
+
+            { unchanged: 'var a = function() {\n        return null;\n    },\n    b = false;' },
+
+            { unchanged: 'var a = function() {\n    func1()\n}' },
+            { unchanged: 'var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}' },
+
+            { comment: 'code with and without semicolons',
+                input_: 'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
+                output: 'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}' },
+            { input: 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
+                 output: 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}' },
+
+            { input: '{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', output: '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}' },
+            { input: '{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', output: '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}' },
+
+            { input: '{"1":{"1a":"1b"},"2"}', output: '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}' },
+            { input: '{a:{a:b},c}', output: '{\n    a: {\n        a: b\n    },\n    c\n}' },
+
+            { input: '{[y[a]];keep_indent;}', output: '{\n    [y[a]];\n    keep_indent;\n}' },
+
+            { input: 'if (x) {y} else { if (x) {y}}', output: 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}' },
+
+            { unchanged: 'if (foo) one()\ntwo()\nthree()' },
+            { unchanged: 'if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()' },
+            { unchanged: 'if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();' },
+
         ],
     }],
     // Example
