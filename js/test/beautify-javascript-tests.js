@@ -292,6 +292,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // New Test Suite
 
+        // Async / await tests
+        bt('async function foo(){}', 'async function foo() {}');
+        bt('let w = async function foo(){}', 'let w = async function foo() {}');
+        bt('wrapper(async function foo(){})', 'wrapper(async function foo() {})');
+        bt('async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}', 'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}');
+        bt('async function foo() {}\nvar x = await foo();');
+        bt('async.map(function(t) {})');
+
         // Old tests
         bt('');
         test_fragment('   return .5');
