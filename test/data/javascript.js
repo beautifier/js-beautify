@@ -183,7 +183,293 @@ exports.test_data = {
             { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}'},
             { unchanged: 'function* x() {\n    yield 1;\n}' },
         ]
+    }, {
+        name: "Regression tests",
+        description: "Ensure specific bugs do not recur",
+        options: [],
+        tests: [
+            {
+                comment: "Issue 241",
+                unchanged: [
+                    'obj',
+                    '    .last({',
+                    '        foo: 1,',
+                    '        bar: 2',
+                    '    });',
+                    'var test = 1;' ]
+            },
+            {
+                unchanged: [
+                    'obj',
+                    '    .last(a, function() {',
+                    '        var test;',
+                    '    });',
+                    'var test = 1;' ]
+            },
+            {
+                unchanged: [
+                    'obj.first()',
+                    '    .second()',
+                    '    .last(function(err, response) {',
+                    '        console.log(err);',
+                    '    });' ]
+            },
+            {
+                comment: "Issue 268 and 275",
+                unchanged: [
+                    'obj.last(a, function() {',
+                    '    var test;',
+                    '});',
+                    'var test = 1;' ]
+            },
+            {
+                unchanged: [
+                    'obj.last(a,',
+                    '    function() {',
+                    '        var test;',
+                    '    });',
+                    'var test = 1;' ]
+            },
+            {
+                input: '(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+                output: [
+                    '(function() {',
+                    '    if (!window.FOO) window.FOO || (window.FOO = function() {',
+                    '        var b = {',
+                    '            bar: "zort"',
+                    '        };',
+                    '    });',
+                    '})();' ]
+            },
+            {
+                comment: "Issue 281",
+                unchanged: [
+                    'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",',
+                    '    "dojo/_base/lang", "dojo/Deferred"',
+                    '], function(declare, Employee, Button, lang, Deferred) {',
+                    '    return declare(Employee, {',
+                    '        constructor: function() {',
+                    '            new Button({',
+                    '                onClick: lang.hitch(this, function() {',
+                    '                    new Deferred().then(lang.hitch(this, function() {',
+                    '                        this.salary * 0.25;',
+                    '                    }));',
+                    '                })',
+                    '            });',
+                    '        }',
+                    '    });',
+                    '});' ]
+            },
+            {
+                unchanged: [
+                    'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",',
+                    '        "dojo/_base/lang", "dojo/Deferred"',
+                    '    ],',
+                    '    function(declare, Employee, Button, lang, Deferred) {',
+                    '        return declare(Employee, {',
+                    '            constructor: function() {',
+                    '                new Button({',
+                    '                    onClick: lang.hitch(this, function() {',
+                    '                        new Deferred().then(lang.hitch(this, function() {',
+                    '                            this.salary * 0.25;',
+                    '                        }));',
+                    '                    })',
+                    '                });',
+                    '            }',
+                    '        });',
+                    '    });' ]
+            },
+            {
+                comment: "Issue 459",
+                unchanged: [
+                    '(function() {',
+                    '    return {',
+                    '        foo: function() {',
+                    '            return "bar";',
+                    '        },',
+                    '        bar: ["bar"]',
+                    '    };',
+                    '}());' ]
+            },
+            {
+                comment: "Issue 505 - strings should end at newline unless continued by backslash",
+                unchanged: [
+                    'var name = "a;',
+                    'name = "b";' ]
+            },
+            {
+                unchanged: [
+                    'var name = "a;\\\\',
+                    '    name = b";' ]
+            },
+            {
+                comment: "Issue 514 - some operators require spaces to distinguish them",
+                unchanged: 'var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;'
+            },
+            {
+                unchanged: 'var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;'
+            },
+            {
+                comment: "Issue 440 - reserved words can be used as object property names",
+                unchanged: [
+                    'a = {',
+                    '    function: {},',
+                    '    "function": {},',
+                    '    throw: {},',
+                    '    "throw": {},',
+                    '    var: {},',
+                    '    "var": {},',
+                    '    set: {},',
+                    '    "set": {},',
+                    '    get: {},',
+                    '    "get": {},',
+                    '    if: {},',
+                    '    "if": {},',
+                    '    then: {},',
+                    '    "then": {},',
+                    '    else: {},',
+                    '    "else": {},',
+                    '    yay: {}',
+                    '};' ]
+            },
+            {
+                comment: "Issue 331 - if-else with braces edge case",
+                input: 'if(x){a();}else{b();}if(y){c();}',
+                output: [
+                    'if (x) {',
+                    '    a();',
+                    '} else {',
+                    '    b();',
+                    '}',
+                    'if (y) {',
+                    '    c();',
+                    '}' ]
+            },
+            {
+                comment: "Issue 485 - ensure function declarations behave the same in arrays as elsewhere",
+                unchanged: [
+                    'var v = ["a",',
+                    '    function() {',
+                    '        return;',
+                    '    }, {',
+                    '        id: 1',
+                    '    }',
+                    '];' ]
+            },
+            {
+                unchanged: [
+                    'var v = ["a", function() {',
+                    '    return;',
+                    '}, {',
+                    '    id: 1',
+                    '}];' ]
+            },
+            {
+                comment: "Issue 382 - initial totally cursory support for es6 module export",
+                unchanged: [
+                    'module "Even" {',
+                    '    import odd from "Odd";',
+                    '    export function sum(x, y) {',
+                    '        return x + y;',
+                    '    }',
+                    '    export var pi = 3.141593;',
+                    '    export default moduleName;',
+                    '}' ]
+            },
+            {
+                unchanged: [
+                    'module "Even" {',
+                    '    export default function div(x, y) {}',
+                    '}' ]
+            },
+            {
+                comment: "Issue 508",
+                unchanged: 'set["name"]'
+            },
+            {
+                unchanged: 'get["name"]'
+            },
+            {
+                fragmeent: true,
+                unchanged: [
+                    'a = {',
+                    '    set b(x) {},',
+                    '    c: 1,',
+                    '    d: function() {}',
+                    '};' ]
+            },
+            {
+                fragmeent: true,
+                unchanged: [
+                    'a = {',
+                    '    get b() {',
+                    '        retun 0;',
+                    '    },',
+                    '    c: 1,',
+                    '    d: function() {}',
+                    '};' ]
+            },
+            {
+                comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+                unchanged: [
+                    '\\\'use strict\\\';',
+                    'if ([].some(function() {',
+                    '        return false;',
+                    '    })) {',
+                    '    console.log("hello");',
+                    '}' ]
+            },
+            {
+                comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
+                unchanged: [
+                    '\\\'use strict\\\';',
+                    'if ([].some(function() {',
+                    '        return false;',
+                    '    })) {',
+                    '    console.log("hello");',
+                    '}' ]
+            },
+            {
+                comment: "Issue 552 - Typescript?  Okay... we didn't break it before, so try not to break it now.",
+                unchanged: [
+                    'class Test {',
+                    '    blah: string[];',
+                    '    foo(): number {',
+                    '        return 0;',
+                    '    }',
+                    '    bar(): number {',
+                    '        return 0;',
+                    '    }',
+                    '}' ]
+            },
+            {
+                unchanged: [
+                    'interface Test {',
+                    '    blah: string[];',
+                    '    foo(): number {',
+                    '        return 0;',
+                    '    }',
+                    '    bar(): number {',
+                    '        return 0;',
+                    '    }',
+                    '}' ]
+            }
+
+//             ,
+//             {
+//                 intput: '',
+//                 output: ''
+//             },
+//
+//             {
+//                 comment: "",
+//                 intput: '',
+//                 output: ''
+//             },
+//
+        ]
     },
+
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting
@@ -554,6 +840,9 @@ exports.test_data = {
             { unchanged: 'if (foo) one()\ntwo()\nthree()' },
             { unchanged: 'if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()' },
             { unchanged: 'if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();' },
+
+            { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
+            { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
 
         ],
     }],

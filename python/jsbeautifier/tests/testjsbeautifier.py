@@ -194,6 +194,230 @@ class TestJSBeautifier(unittest.TestCase):
         bt('function*() {\n    yield 1;\n}')
         bt('function* x() {\n    yield 1;\n}')
 
+        # Regression tests
+        
+        # Issue 241
+        bt(
+            'obj\n' +
+            '    .last({\n' +
+            '        foo: 1,\n' +
+            '        bar: 2\n' +
+            '    });\n' +
+            'var test = 1;')
+        bt(
+            'obj\n' +
+            '    .last(a, function() {\n' +
+            '        var test;\n' +
+            '    });\n' +
+            'var test = 1;')
+        bt(
+            'obj.first()\n' +
+            '    .second()\n' +
+            '    .last(function(err, response) {\n' +
+            '        console.log(err);\n' +
+            '    });')
+        
+        # Issue 268 and 275
+        bt(
+            'obj.last(a, function() {\n' +
+            '    var test;\n' +
+            '});\n' +
+            'var test = 1;')
+        bt(
+            'obj.last(a,\n' +
+            '    function() {\n' +
+            '        var test;\n' +
+            '    });\n' +
+            'var test = 1;')
+        bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+           '(function() {\n' +
+            '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
+            '        var b = {\n' +
+            '            bar: "zort"\n' +
+            '        };\n' +
+            '    });\n' +
+            '})();')
+        
+        # Issue 281
+        bt(
+            'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+            '    "dojo/_base/lang", "dojo/Deferred"\n' +
+            '], function(declare, Employee, Button, lang, Deferred) {\n' +
+            '    return declare(Employee, {\n' +
+            '        constructor: function() {\n' +
+            '            new Button({\n' +
+            '                onClick: lang.hitch(this, function() {\n' +
+            '                    new Deferred().then(lang.hitch(this, function() {\n' +
+            '                        this.salary * 0.25;\n' +
+            '                    }));\n' +
+            '                })\n' +
+            '            });\n' +
+            '        }\n' +
+            '    });\n' +
+            '});')
+        bt(
+            'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+            '        "dojo/_base/lang", "dojo/Deferred"\n' +
+            '    ],\n' +
+            '    function(declare, Employee, Button, lang, Deferred) {\n' +
+            '        return declare(Employee, {\n' +
+            '            constructor: function() {\n' +
+            '                new Button({\n' +
+            '                    onClick: lang.hitch(this, function() {\n' +
+            '                        new Deferred().then(lang.hitch(this, function() {\n' +
+            '                            this.salary * 0.25;\n' +
+            '                        }));\n' +
+            '                    })\n' +
+            '                });\n' +
+            '            }\n' +
+            '        });\n' +
+            '    });')
+        
+        # Issue 459
+        bt(
+            '(function() {\n' +
+            '    return {\n' +
+            '        foo: function() {\n' +
+            '            return "bar";\n' +
+            '        },\n' +
+            '        bar: ["bar"]\n' +
+            '    };\n' +
+            '}());')
+        
+        # Issue 505 - strings should end at newline unless continued by backslash
+        bt(
+            'var name = "a;\n' +
+            'name = "b";')
+        bt(
+            'var name = "a;\\\n' +
+            '    name = b";')
+        
+        # Issue 514 - some operators require spaces to distinguish them
+        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;')
+        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;')
+        
+        # Issue 440 - reserved words can be used as object property names
+        bt(
+            'a = {\n' +
+            '    function: {},\n' +
+            '    "function": {},\n' +
+            '    throw: {},\n' +
+            '    "throw": {},\n' +
+            '    var: {},\n' +
+            '    "var": {},\n' +
+            '    set: {},\n' +
+            '    "set": {},\n' +
+            '    get: {},\n' +
+            '    "get": {},\n' +
+            '    if: {},\n' +
+            '    "if": {},\n' +
+            '    then: {},\n' +
+            '    "then": {},\n' +
+            '    else: {},\n' +
+            '    "else": {},\n' +
+            '    yay: {}\n' +
+            '};')
+        
+        # Issue 331 - if-else with braces edge case
+        bt('if(x){a();}else{b();}if(y){c();}',
+           'if (x) {\n' +
+            '    a();\n' +
+            '} else {\n' +
+            '    b();\n' +
+            '}\n' +
+            'if (y) {\n' +
+            '    c();\n' +
+            '}')
+        
+        # Issue 485 - ensure function declarations behave the same in arrays as elsewhere
+        bt(
+            'var v = ["a",\n' +
+            '    function() {\n' +
+            '        return;\n' +
+            '    }, {\n' +
+            '        id: 1\n' +
+            '    }\n' +
+            '];')
+        bt(
+            'var v = ["a", function() {\n' +
+            '    return;\n' +
+            '}, {\n' +
+            '    id: 1\n' +
+            '}];')
+        
+        # Issue 382 - initial totally cursory support for es6 module export
+        bt(
+            'module "Even" {\n' +
+            '    import odd from "Odd";\n' +
+            '    export function sum(x, y) {\n' +
+            '        return x + y;\n' +
+            '    }\n' +
+            '    export var pi = 3.141593;\n' +
+            '    export default moduleName;\n' +
+            '}')
+        bt(
+            'module "Even" {\n' +
+            '    export default function div(x, y) {}\n' +
+            '}')
+        
+        # Issue 508
+        bt('set["name"]')
+        bt('get["name"]')
+        bt(
+            'a = {\n' +
+            '    set b(x) {},\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};')
+        bt(
+            'a = {\n' +
+            '    get b() {\n' +
+            '        retun 0;\n' +
+            '    },\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};')
+        
+        # Issue 298 - do not under indent if/while/for condtionals experesions
+        bt(
+            '\'use strict\';\n' +
+            'if ([].some(function() {\n' +
+            '        return false;\n' +
+            '    })) {\n' +
+            '    console.log("hello");\n' +
+            '}')
+        
+        # Issue 298 - do not under indent if/while/for condtionals experesions
+        bt(
+            '\'use strict\';\n' +
+            'if ([].some(function() {\n' +
+            '        return false;\n' +
+            '    })) {\n' +
+            '    console.log("hello");\n' +
+            '}')
+        
+        # Issue 552 - Typescript?  Okay... we didn't break it before, so try not to break it now.
+        bt(
+            'class Test {\n' +
+            '    blah: string[];\n' +
+            '    foo(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '    bar(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'interface Test {\n' +
+            '    blah: string[];\n' +
+            '    foo(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '    bar(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '}')
+
         # Old tests
         bt('')
         test_fragment('   return .5')
@@ -522,6 +746,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (foo) one()\ntwo()\nthree()')
         bt('if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()')
         bt('if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();')
+        bt('var a=1,b={bang:2},c=3;', 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;')
+        bt('var a={bing:1},b=2,c=3;', 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;')
 
         bt('{{}/z/}', "{\n    {}\n    /z/\n}")
 
@@ -1676,234 +1902,6 @@ class TestJSBeautifier(unittest.TestCase):
         # as part of the xml-literal (passed through unaltered)
         test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;')
         self.options.e4x = False
-
-        # START tests for issue 241
-        bt('obj\n' +
-           '    .last({\n' +
-           '        foo: 1,\n' +
-           '        bar: 2\n' +
-           '    });\n' +
-           'var test = 1;')
-
-        bt('obj\n' +
-           '    .last(a, function() {\n' +
-           '        var test;\n' +
-           '    });\n' +
-           'var test = 1;')
-
-        bt('obj.first()\n' +
-           '    .second()\n' +
-           '    .last(function(err, response) {\n' +
-           '        console.log(err);\n' +
-           '    });')
-
-        # END tests for issue 241
-
-
-        # START tests for issue 268 and 275
-        bt('obj.last(a, function() {\n' +
-           '    var test;\n' +
-           '});\n' +
-           'var test = 1;')
-
-        bt('obj.last(a,\n' +
-           '    function() {\n' +
-           '        var test;\n' +
-           '    });\n' +
-           'var test = 1;')
-
-        bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
-           '(function() {\n' +
-           '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
-           '        var b = {\n' +
-           '            bar: "zort"\n' +
-           '        };\n' +
-           '    });\n' +
-           '})();')
-        # END tests for issue 268 and 275
-
-        # START tests for issue 281
-        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
-           '    "dojo/_base/lang", "dojo/Deferred"\n' +
-           '], function(declare, Employee, Button, lang, Deferred) {\n' +
-           '    return declare(Employee, {\n' +
-           '        constructor: function() {\n' +
-           '            new Button({\n' +
-           '                onClick: lang.hitch(this, function() {\n' +
-           '                    new Deferred().then(lang.hitch(this, function() {\n' +
-           '                        this.salary * 0.25;\n' +
-           '                    }));\n' +
-           '                })\n' +
-           '            });\n' +
-           '        }\n' +
-           '    });\n' +
-           '});')
-        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
-           '        "dojo/_base/lang", "dojo/Deferred"\n' +
-           '    ],\n' +
-           '    function(declare, Employee, Button, lang, Deferred) {\n' +
-           '        return declare(Employee, {\n' +
-           '            constructor: function() {\n' +
-           '                new Button({\n' +
-           '                    onClick: lang.hitch(this, function() {\n' +
-           '                        new Deferred().then(lang.hitch(this, function() {\n' +
-           '                            this.salary * 0.25;\n' +
-           '                        }));\n' +
-           '                    })\n' +
-           '                });\n' +
-           '            }\n' +
-           '        });\n' +
-           '    });')
-        # END tests for issue 281
-
-        # START tests for issue 459
-        bt( '(function() {\n' +
-            '    return {\n' +
-            '        foo: function() {\n' +
-            '            return "bar";\n' +
-            '        },\n' +
-            '        bar: ["bar"]\n' +
-            '    };\n' +
-            '}());')
-        # END tests for issue 459
-
-        # START tests for issue 505
-        # strings should end at newline unless continued by backslash
-        bt( 'var name = "a;\n' +
-            'name = "b";')
-        bt( 'var name = "a; \\\n' +
-            '    name = b";')
-        # END tests for issue 505
-
-        # START tests for issue 514
-        # some operators require spaces to distinguish them
-        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;')
-        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;')
-        # END tests for issue 514
-
-        # START tests for issue 440
-        # reserved words can be used as object property names
-        bt( 'a = {\n' +
-            '    function: {},\n' +
-            '    "function": {},\n' +
-            '    throw: {},\n' +
-            '    "throw": {},\n' +
-            '    var: {},\n' +
-            '    "var": {},\n' +
-            '    set: {},\n' +
-            '    "set": {},\n' +
-            '    get: {},\n' +
-            '    "get": {},\n' +
-            '    if: {},\n' +
-            '    "if": {},\n' +
-            '    then: {},\n' +
-            '    "then": {},\n' +
-            '    else: {},\n' +
-            '    "else": {},\n' +
-            '    yay: {}\n' +
-            '};')
-        # END tests for issue 440
-
-        # START tests for issue 311
-        # if-else with braces edge case
-        bt('if(x){a();}else{b();}if(y){c();}',
-            'if (x) {\n' +
-            '    a();\n' +
-            '} else {\n' +
-            '    b();\n' +
-            '}\n' +
-            'if (y) {\n' +
-            '    c();\n' +
-            '}')
-        # END tests for issue 311
-
-        # START tests for issue 485
-        # ensure function declarations behave the same in arrays as elsewhere
-        bt( 'var v = ["a",\n' +
-            '    function() {\n' +
-            '        return;\n' +
-            '    }, {\n' +
-            '        id: 1\n' +
-            '    }\n' +
-            '];')
-        bt( 'var v = ["a", function() {\n' +
-            '    return;\n' +
-            '}, {\n' +
-            '    id: 1\n' +
-            '}];')
-        # END tests for issue 485
-
-        # START tests for issue 382
-        # initial totally cursor support for es6 module export
-        bt( 'module "Even" {\n' +
-            '    import odd from "Odd";\n' +
-            '    export function sum(x, y) {\n' +
-            '        return x + y;\n' +
-            '    }\n' +
-            '    export var pi = 3.141593;\n' +
-            '    export default moduleName;\n' +
-            '}')
-        bt( 'module "Even" {\n' +
-            '    export default function div(x, y) {}\n' +
-            '}')
-        # END tests for issue 382
-
-        # START tests for issue 508
-        bt('set["name"]')
-        bt('get["name"]')
-        test_fragment(
-            'a = {\n' +
-            '    set b(x) {},\n' +
-            '    c: 1,\n' +
-            '    d: function() {}\n' +
-            '};')
-        test_fragment(
-            'a = {\n' +
-            '    get b() {\n' +
-            '        retun 0;\n' +
-            '    },\n' +
-            '    c: 1,\n' +
-            '    d: function() {}\n' +
-            '};')
-        # END tests for issue 508
-
-        # START tests for issue 298
-        # do not under indent if/while/for condtionals experesions
-        bt("'use strict';\n" +
-            "if ([].some(function() {\n" +
-            "        return false;\n" +
-            "    })) {\n" +
-            "    console.log('hello');\n" +
-            "}")
-        # END tests for issue 298
-
-        # START tests for issue 552
-        # Typescript?  Okay... we didn't break it before try not to now.
-        bt( "class Test {\n" +
-            "    blah: string[];\n" +
-            "    foo(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "    bar(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "}")
-        bt( "interface Test {\n" +
-            "    blah: string[];\n" +
-            "    foo(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "    bar(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "}")
-        # END tests for issue 552
-
-        bt('var a=1,b={bang:2},c=3;',
-            'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;')
-        bt('var a={bing:1},b=2,c=3;',
-            'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;')
-
 
 
     def decodesto(self, input, expectation=None):
