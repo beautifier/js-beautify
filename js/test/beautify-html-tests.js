@@ -67,6 +67,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             field_expectation = expectation.replace(/content/g, '{{! comment}}');
             test_fragment(field_input, field_expectation);
 
+            // issue 635 test that handlebars comments including multi-line remain unformatted
+            if (opts.indent_handlebars) {
+                field_input = input.replace(/content/g, '{{! \n mult-line\ncomment \n}}');
+                field_expectation = expectation.replace(/content/g, '{{! \n mult-line\ncomment \n}}');
+                test_fragment(field_input, field_expectation);
+            }
+
             // mixed {{field}} and content
             field_input = input.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
             field_expectation = expectation.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
