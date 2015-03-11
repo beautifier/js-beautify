@@ -116,6 +116,15 @@ exports.test_data = {
         ]
     },
     {
+        name: "Multiple braces",
+        description: "",
+        template: "^^^ $$$",
+        options: [],
+        tests: [
+            { input: '{{}/z/}', output: '{\n    {}\n    /z/\n}' }
+        ]
+    },
+    {
         name: "jslint and space after anon function",
         description: "jslint_happy and space_after_anon_function tests",
         matrix: [
@@ -454,19 +463,6 @@ exports.test_data = {
                     '    }',
                     '}' ]
             }
-
-//             ,
-//             {
-//                 intput: '',
-//                 output: ''
-//             },
-//
-//             {
-//                 comment: "",
-//                 intput: '',
-//                 output: ''
-//             },
-//
         ]
     },
 

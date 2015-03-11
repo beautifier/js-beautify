@@ -93,6 +93,209 @@ exports.test_data = {
             }
         ]
     }, {
+        name: "Handlebars Indenting Off",
+        description: "Test handlebar behavior when indenting is off",
+        template: "^^^ $$$",
+        options: [
+            { name: "indent_handlebars", value: "false" }
+        ],
+        tests: [
+            { fragment: true,
+                input_:
+                '{{#if 0}}\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '{{/if}}',
+                output:
+                '{{#if 0}}\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '{{/if}}' },
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '{{#each thing}}\n' +
+                '    {{name}}\n' +
+                '{{/each}}\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '    {{#each thing}} {{name}} {{/each}}\n' +
+                '</div>'}
+
+        ]
+    }, {
+        name: "Handlebars Indenting On",
+        description: "Test handlebar formatting",
+        template: "^^^ $$$",
+        matrix: [
+            {
+                options: [
+                    { name: "indent_handlebars", value: "true" }
+                ],
+                content: '{{field}}'
+            }, {
+                options: [
+                    { name: "indent_handlebars", value: "true" }
+                ],
+                content: '{{! comment}}'
+            }, {
+                options: [
+                    { name: "indent_handlebars", value: "true" }
+                ],
+                content: '{pre{{field1}} {{field2}} {{field3}}post'
+            }
+        ],
+        tests: [
+            { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
+            { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
+            { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' },
+            { fragment: true,
+                input_: '{{#if     words}}{{/if}}',
+                output: '{{#if words}}{{/if}}' },
+            { fragment: true,
+                input_: '{{#if     words}}^^^content$$${{/if}}',
+                output: '{{#if words}}^^^content$$${{/if}}' },
+            { fragment: true,
+                input_: '{{#if     words}}^^^content$$${{/if}}',
+                output: '{{#if words}}^^^content$$${{/if}}' },
+            { fragment: true,
+                unchanged:
+                '{{#if 1}}\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '{{/if}}' },
+            { fragment: true,
+                input_:
+                '{{#if 1}}\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '{{/if}}',
+                output:
+                '{{#if 1}}\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '{{/if}}' },
+            { fragment: true,
+                unchanged:
+                '<div>\n' +
+                '    {{#if 1}}\n' +
+                '    {{/if}}\n' +
+                '</div>' },
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '{{#if 1}}\n' +
+                '{{/if}}\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '    {{#if 1}}\n' +
+                '    {{/if}}\n' +
+                '</div>' },
+            { fragment: true,
+                input_:
+                '{{#if}}\n' +
+                '{{#each}}\n' +
+                '{{#if}}\n' +
+                '^^^content$$$\n' +
+                '{{/if}}\n' +
+                '{{#if}}\n' +
+                '^^^content$$$\n' +
+                '{{/if}}\n' +
+                '{{/each}}\n' +
+                '{{/if}}',
+                output:
+                '{{#if}}\n' +
+                '    {{#each}}\n' +
+                '        {{#if}}\n' +
+                '            ^^^content$$$\n' +
+                '        {{/if}}\n' +
+                '        {{#if}}\n' +
+                '            ^^^content$$$\n' +
+                '        {{/if}}\n' +
+                '    {{/each}}\n' +
+                '{{/if}}' },
+            { fragment: true, unchanged: '{{#if 1}}\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '{{/if}}' },
+
+            // Test {{else}} aligned with {{#if}} and {{/if}}
+            { fragment: true,
+                input_:
+                '{{#if 1}}\n' +
+                '    ^^^content$$$\n' +
+                '    {{else}}\n' +
+                '    ^^^content$$$\n' +
+                '{{/if}}',
+                output:
+                '{{#if 1}}\n' +
+                '    ^^^content$$$\n' +
+                '{{else}}\n' +
+                '    ^^^content$$$\n' +
+                '{{/if}}' },
+            { fragment: true,
+                input_:
+                '{{#if 1}}\n' +
+                '    {{else}}\n' +
+                '    {{/if}}',
+                output:
+                '{{#if 1}}\n' +
+                '{{else}}\n' +
+                '{{/if}}' },
+            { fragment: true,
+                input_:
+                '{{#if thing}}\n' +
+                '{{#if otherthing}}\n' +
+                '    ^^^content$$$\n' +
+                '    {{else}}\n' +
+                '^^^content$$$\n' +
+                '    {{/if}}\n' +
+                '       {{else}}\n'+
+                '^^^content$$$\n' +
+                '{{/if}}',
+                output:
+                '{{#if thing}}\n' +
+                '    {{#if otherthing}}\n' +
+                '        ^^^content$$$\n' +
+                '    {{else}}\n' +
+                '        ^^^content$$$\n' +
+                '    {{/if}}\n' +
+                '{{else}}\n'+
+                '    ^^^content$$$\n' +
+                '{{/if}}' },
+                // Test {{}} inside of <> tags, which should be separated by spaces
+                // for readability, unless they are inside a string.
+            { fragment: true,
+                input_: '<div{{somestyle}}></div>',
+                output: '<div {{somestyle}}></div>' },
+            { fragment: true,
+                input_: '<div{{#if test}}class="foo"{{/if}}>^^^content$$$</div>',
+                output: '<div {{#if test}} class="foo" {{/if}}>^^^content$$$</div>' },
+            { fragment: true,
+                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^content$$$</div>',
+                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^content$$$</div>' },
+            { fragment: true,
+                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^content$$$</span>',
+                output: '<span {{#if condition}} class="foo" {{/if}}>^^^content$$$</span>' },
+            { fragment: true,
+                unchanged: '<div unformatted="{{#if}}^^^content$$${{/if}}">^^^content$$$</div>' },
+            { fragment: true,
+                unchanged: '<div unformatted="{{#if  }}    ^^^content$$${{/if}}">^^^content$$$</div>' },
+
+            // Quotes found inside of Handlebars expressions inside of quoted
+            // strings themselves should not be considered string delimiters.
+            { fragment: true,
+                unchanged: '<div class="{{#if thingIs "value"}}^^^content$$${{/if}}"></div>' },
+            { fragment: true,
+                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}"></div>' },
+            { fragment: true,
+                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^content$$${{/if}}\\\'></div>' },
+            { fragment: true,
+                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>' }
+        ],
+    }, {
         name: "Unformatted tags",
         description: "Unformatted tag behavior",
         options: [],
@@ -102,5 +305,5 @@ exports.test_data = {
         ]
     }, {
         name: "New Test Suite"
-    }]
+    }],
 };

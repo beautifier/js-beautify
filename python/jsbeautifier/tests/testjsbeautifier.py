@@ -121,76 +121,134 @@ class TestJSBeautifier(unittest.TestCase):
         bt('wrapper(async function foo() {})')
         
         # await on inline anonymous function. should have a space after await
-        bt('async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}', 'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}')
+        bt(
+            'async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}',
+            'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}')
         
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
 
+        # Multiple braces
+        bt('{{}/z/}', '{\n    {}\n    /z/\n}')
+
         # jslint and space after anon function - (f = " ", c = "")
         self.options.jslint_happy = true
         self.options.space_after_anon_function = true
-        bt('a=typeof(x)', 'a = typeof (x)')
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}')
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)')
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}')
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}')
         
         # typical greasemonkey start
         test_fragment('// comment 2\n(function ()')
-        bt('var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
         bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
         bt('function* x() {\n    yield 1;\n}')
 
         # jslint and space after anon function - (f = " ", c = "")
         self.options.jslint_happy = true
         self.options.space_after_anon_function = false
-        bt('a=typeof(x)', 'a = typeof (x)')
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}')
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)')
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}')
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}')
         
         # typical greasemonkey start
         test_fragment('// comment 2\n(function ()')
-        bt('var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
         bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
         bt('function* x() {\n    yield 1;\n}')
 
         # jslint and space after anon function - (f = " ", c = "    ")
         self.options.jslint_happy = false
         self.options.space_after_anon_function = true
-        bt('a=typeof(x)', 'a = typeof (x)')
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}')
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)')
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}')
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
         
         # typical greasemonkey start
         test_fragment('// comment 2\n(function ()')
-        bt('var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
-        bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
         bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
         bt('function* x() {\n    yield 1;\n}')
 
         # jslint and space after anon function - (f = "", c = "    ")
         self.options.jslint_happy = false
         self.options.space_after_anon_function = false
-        bt('a=typeof(x)', 'a = typeof(x)')
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction() {}')
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}', 'function() {\n    var a, b, c, d, e = [],\n        f;\n}')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
+        bt(
+            'a=typeof(x)',
+            'a = typeof(x)')
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction() {}')
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
+            'function() {\n    var a, b, c, d, e = [],\n        f;\n}')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
         bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
         
         # typical greasemonkey start
         test_fragment('// comment 2\n(function()')
-        bt('var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
-        bt('var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';', 'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
-        bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}')
         bt('function*() {\n    yield 1;\n}')
         bt('function* x() {\n    yield 1;\n}')
 
@@ -229,8 +287,9 @@ class TestJSBeautifier(unittest.TestCase):
             '        var test;\n' +
             '    });\n' +
             'var test = 1;')
-        bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
-           '(function() {\n' +
+        bt(
+            '(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+            '(function() {\n' +
             '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
             '        var b = {\n' +
             '            bar: "zort"\n' +
@@ -319,8 +378,9 @@ class TestJSBeautifier(unittest.TestCase):
             '};')
         
         # Issue 331 - if-else with braces edge case
-        bt('if(x){a();}else{b();}if(y){c();}',
-           'if (x) {\n' +
+        bt(
+            'if(x){a();}else{b();}if(y){c();}',
+            'if (x) {\n' +
             '    a();\n' +
             '} else {\n' +
             '    b();\n' +
@@ -578,7 +638,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('(x) => { x }', '(x) => {\n    x\n}')
         
         # a common snippet in jQuery plugins
-        bt('settings = $.extend({},defaults,settings);', 'settings = $.extend({}, defaults, settings);')
+        bt(
+            'settings = $.extend({},defaults,settings);',
+            'settings = $.extend({}, defaults, settings);')
         bt('$http().then().finally().default()')
         bt('$http()\n.then()\n.finally()\n.default()', '$http()\n    .then()\n    .finally()\n    .default()')
         bt('$http().when.in.new.catch().throw()')
@@ -699,7 +761,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;')
         
         # inline comment
-        bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)')
+        bt(
+            'function x(/*int*/ start, /*string*/ foo)',
+            'function x( /*int*/ start, /*string*/ foo)')
         
         # javadoc comment
         bt('/**\n* foo\n*/', '/**\n * foo\n */')
@@ -735,7 +799,9 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}')
         
         # code with and without semicolons
-        bt('var whatever = require("whatever");\nfunction() {\n    a = 6;\n}', 'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}')
+        bt(
+            'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
+            'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}')
         bt('var whatever = require("whatever")\nfunction() {\n    a = 6\n}', 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}')
         bt('{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}')
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}')

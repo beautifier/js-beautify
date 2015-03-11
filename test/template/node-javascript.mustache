@@ -228,8 +228,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 {{#default_options}}        opts.{{name}} = {{&value}};
 {{/default_options}}
-{{#groups}}
-    {{^matrix}}
+{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}{{^matrix}}
 
         // {{&name}}
         {{#options}}
@@ -238,8 +237,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         {{#tests}}
         {{#test_line}}.{{/test_line}};
         {{/tests}}
-    {{/matrix}}
-    {{#matrix}}
+    {{/matrix}}{{#matrix}}
 
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         {{#options}}
@@ -248,12 +246,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         {{#tests}}
         {{#test_line}}.{{/test_line}};
         {{/tests}}
-    {{/matrix}}
+    {{/matrix}}{{#unset_mustache_tags}}.{{/unset_mustache_tags}}
 {{/groups}}
 
-{{=<% %>=}}
-        bt('{{}/z/}', "{\n    {}\n    /z/\n}");
-<%={{ }}=%>
 
         opts.indent_size = 1;
         opts.indent_char = ' ';
