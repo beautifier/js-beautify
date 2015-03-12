@@ -81,7 +81,7 @@ function set_formatters (data, test_method, comment_mark) {
             if (typeof this.comment === 'string') {
                 comment = '\n        ' + comment_mark + this.comment + '\n        ';
             } else if (this.comment instanceof Array) {
-                comment = '\n        ' + comment_mark + this.comment.join('\n        ' + comment_mark);
+                comment = '\n        ' + comment_mark + this.comment.join('\n        ' + comment_mark) + '\n        ';
             }
 
             var input = null;

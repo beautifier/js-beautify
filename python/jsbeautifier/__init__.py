@@ -1526,7 +1526,7 @@ class Tokenizer:
         if c == '`' or c == "'" or c == '"' or \
             ( \
                 (c == '/') or \
-                (self.opts.e4x and c == "<" and re.match('^<(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*\/?\s*>', self.input[self.parser_pos - 1:])) \
+                (self.opts.e4x and c == "<" and re.match('^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[^{}]*}))*\s*(/?)\s*>', self.input[self.parser_pos - 1:])) \
             ) and ( \
                 (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
                 (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
@@ -1559,7 +1559,7 @@ class Tokenizer:
 
             elif self.opts.e4x and sep == '<':
                 # handle e4x xml literals
-                xmlRegExp = re.compile('<(\/?)(!\[CDATA\[[\s\S]*?\]\]|[-a-zA-Z:0-9_.]+|\{[^{}]*\})\s*([-a-zA-Z:0-9_.]+=(\{[^{}]*\}|"[^"]*"|\'[^\']*\')\s*)*(\/?)\s*>')
+                xmlRegExp = re.compile('<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[^{}]*}))*\s*(/?)\s*>')
                 xmlStr = self.input[self.parser_pos - 1:]
                 match = xmlRegExp.match(xmlStr)
                 if match:

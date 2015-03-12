@@ -116,6 +116,124 @@ exports.test_data = {
         ]
     },
     {
+        name: "e4x - Test that e4x literals passed through when e4x-option is enabled",
+        description: "",
+        options: [
+            { name: 'e4x', value: true }
+        ],
+        tests: [
+            { input: 'xml=<a b="c"><d/><e>\n foo</e>x</a>;', output: 'xml = <a b="c"><d/><e>\n foo</e>x</a>;' },
+            { unchanged: '<a b=\\\'This is a quoted "c".\\\'/>' },
+            { unchanged: '<a b="This is a quoted \\\'c\\\'."/>' },
+            { unchanged: '<a b="A quote \\\' inside string."/>' },
+            { unchanged: '<a b=\\\'A quote " inside string.\\\'/>' },
+            { unchanged: '<a b=\\\'Some """ quotes ""  inside string.\\\'/>' },
+
+            {
+                comment: 'Handles inline expressions',
+                input: 'xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;',
+                output: 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;' },
+            {
+                input: 'xml=<{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;',
+                output: 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;' },
+            {
+                comment: 'xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar',
+                unchanged: 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;'
+            },
+
+            {
+                comment: 'Handles CDATA',
+                input: 'xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;',
+                output: 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;' },
+            { input: 'xml=<![CDATA[]]>;', output: 'xml = <![CDATA[]]>;' },
+            { input: 'xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', output: 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;' },
+
+            {
+                comment: [
+                    "Handles messed up tags, as long as it isn't the same name",
+                    "as the root tag. Also handles tags of same name as root tag",
+                    "as long as nesting matches."
+                ],
+                input_: 'xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
+                output: 'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;' },
+
+            {
+                comment: [
+                    "If xml is not terminated, the remainder of the file is treated",
+                    "as part of the xml-literal (passed through unaltered)"
+                ],
+                fragment: true,
+                input_: 'xml=<a></b>\nc<b;',
+                output: 'xml = <a></b>\nc<b;' },
+            {
+                comment: 'Issue #646 = whitespace is allowed in attribute declarations',
+                unchanged: [
+                    'let a = React.createClass({',
+                    '    render() {',
+                    '        return (',
+                    '            <p className=\\\'a\\\'>',
+                    '                <span>c</span>',
+                    '            </p>',
+                    '        );',
+                    '    }',
+                    '});'
+                ]
+            },
+            {
+                unchanged: [
+                    'let a = React.createClass({',
+                    '    render() {',
+                    '        return (',
+                    '            <p className = \\\'b\\\'>',
+                    '                <span>c</span>',
+                    '            </p>',
+                    '        );',
+                    '    }',
+                    '});'
+                ]
+            },
+            {
+                unchanged: [
+                    'let a = React.createClass({',
+                    '    render() {',
+                    '        return (',
+                    '            <p className = "c">',
+                    '                <span>c</span>',
+                    '            </p>',
+                    '        );',
+                    '    }',
+                    '});'
+                ]
+            },
+            {
+                unchanged: [
+                    'let a = React.createClass({',
+                    '    render() {',
+                    '        return (',
+                    '            <{e}  className = {d}>',
+                    '                <span>c</span>',
+                    '            </{e}>',
+                    '        );',
+                    '    }',
+                    '});'
+                ]
+            }
+        ]
+    },
+    {
+        name: "e4x disabled",
+        description: "",
+        options: [
+            { name: 'e4x', value: false }
+        ],
+        tests: [
+            {
+                input_: 'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
+                output: 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;'
+            }
+        ]
+    },
+    {
         name: "Multiple braces",
         description: "",
         template: "^^^ $$$",

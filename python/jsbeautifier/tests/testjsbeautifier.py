@@ -128,6 +128,88 @@ class TestJSBeautifier(unittest.TestCase):
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
 
+        # e4x - Test that e4x literals passed through when e4x-option is enabled
+        self.options.e4x = true
+        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;')
+        bt('<a b=\'This is a quoted "c".\'/>')
+        bt('<a b="This is a quoted \'c\'."/>')
+        bt('<a b="A quote \' inside string."/>')
+        bt('<a b=\'A quote " inside string.\'/>')
+        bt('<a b=\'Some """ quotes ""  inside string.\'/>')
+        
+        # Handles inline expressions
+        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;')
+        bt('xml=<{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;')
+        
+        # xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar
+        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;')
+        
+        # Handles CDATA
+        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;')
+        bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;')
+        bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;')
+        
+        # Handles messed up tags, as long as it isn't the same name
+        # as the root tag. Also handles tags of same name as root tag
+        # as long as nesting matches.
+        bt(
+            'xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
+            'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;')
+        
+        # If xml is not terminated, the remainder of the file is treated
+        # as part of the xml-literal (passed through unaltered)
+        test_fragment(
+            'xml=<a></b>\nc<b;',
+            'xml = <a></b>\nc<b;')
+        
+        # Issue #646 = whitespace is allowed in attribute declarations
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className=\'a\'>\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});')
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className = \'b\'>\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});')
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className = "c">\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});')
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <{e}  className = {d}>\n' +
+            '                <span>c</span>\n' +
+            '            </{e}>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});')
+
+        # e4x disabled
+        self.options.e4x = false
+        bt(
+            'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
+            'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;')
+
         # Multiple braces
         bt('{{}/z/}', '{\n    {}\n    /z/\n}')
 
@@ -1941,33 +2023,6 @@ class TestJSBeautifier(unittest.TestCase):
         # Test template strings
         bt('`This is a ${template} string.`', '`This is a ${template} string.`')
         bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`')
-
-        # Test that e4x literals passed through when e4x-option is enabled
-        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;')
-        self.options.e4x = True
-        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;')
-        bt('<a b=\'This is a quoted "c".\'/>', '<a b=\'This is a quoted "c".\'/>')
-        bt('<a b="This is a quoted \'c\'."/>', '<a b="This is a quoted \'c\'."/>')
-        bt('<a b="A quote \' inside string."/>', '<a b="A quote \' inside string."/>')
-        bt('<a b=\'A quote " inside string.\'/>', '<a b=\'A quote " inside string.\'/>')
-        bt('<a b=\'Some """ quotes ""  inside string.\'/>', '<a b=\'Some """ quotes ""  inside string.\'/>')
-        # Handles inline expressions
-        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;')
-        # xml literals with special characters in elem names
-        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;', 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;')
-        # Handles CDATA
-        bt('xml=<a b="c"><![CDATA[d/>\n</a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/>\n</a></{}]]></a>;')
-        bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;')
-        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;')
-        # Handles messed up tags, as long as it isn't the same name
-        # as the root tag. Also handles tags of same name as root tag
-        # as long as nesting matches.
-        bt('xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
-         'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;')
-        # If xml is not terminated, the remainder of the file is treated
-        # as part of the xml-literal (passed through unaltered)
-        test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;')
-        self.options.e4x = False
 
 
     def decodesto(self, input, expectation=None):
