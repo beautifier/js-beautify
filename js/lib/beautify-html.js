@@ -405,7 +405,7 @@
                     if (indent_handlebars && content[1] && content[1] === '{' && content[2] && content[2] === '!') { //if we're in a comment, do something special
                         // We treat all comments as literals, even more than preformatted tags
                         // we just look for the appropriate close tag
-                        content = [this.get_handlebars_comment(tag_start)];
+                        content = [this.get_comment(tag_start)];
                         break;
                     }
 
@@ -535,32 +535,10 @@
                         } else if (comment.indexOf('<!--') === 0) { // <!-- comment ...
                             delimiter = '-->';
                             matched = true;
+                        } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
+                            delimiter = '}}';
+                            matched = true;
                         }
-                    }
-
-                    input_char = this.input.charAt(this.pos);
-                    this.pos++;
-                }
-
-                return comment;
-            };
-
-            this.get_handlebars_comment = function(start_pos) { //function to return handlebars comment content in its entirety
-                var comment = '',
-                    delimiter = '}}',
-                    matched = false;
-
-                this.pos = start_pos;
-                input_char = this.input.charAt(this.pos);
-                this.pos++;
-
-                while (this.pos <= this.input.length) {
-                    comment += input_char;
-
-                    // only need to check for the delimiter if the last chars match
-                    if (comment[comment.length - 1] === delimiter[delimiter.length - 1] &&
-                        comment.indexOf(delimiter) !== -1) {
-                        break;
                     }
 
                     input_char = this.input.charAt(this.pos);
