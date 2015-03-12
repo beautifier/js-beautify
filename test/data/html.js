@@ -145,6 +145,12 @@ exports.test_data = {
                 ],
                 content: '{pre{{field1}} {{field2}} {{field3}}post'
             }
+            , {
+                options: [
+                    { name: "indent_handlebars", value: "true" }
+                ],
+                content: '{{! \\n mult-line\\ncomment  \\n     with spacing\\n}}'
+            }
         ],
         tests: [
             { fragment: true, unchanged: '{{#if 0}}{{/if}}' },

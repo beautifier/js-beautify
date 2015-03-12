@@ -293,6 +293,60 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
     
+        // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
+        opts.indent_handlebars = true;
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}\n{{#if}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            {{! \n mult-line\ncomment  \n     with spacing\n}}\n        {{/if}}\n        {{#if}}\n            {{! \n mult-line\ncomment  \n     with spacing\n}}\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}',
+            '{{#if 1}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{/if}}\n       {{else}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n        {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{/if}}\n{{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div {{#if test}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>');
+        test_fragment('<div unformatted="{{#if}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment('<div unformatted="{{#if  }}    {{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+    
 
 
         // Unformatted tags
