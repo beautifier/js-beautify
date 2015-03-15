@@ -125,7 +125,8 @@ These largely correspond to the underscored option keys for both library interfa
     "unescape_strings": false,
     "wrap_line_length": 0,
     "wrap_attributes": "auto",
-    "wrap_attributes_indent_size": 4
+    "wrap_attributes_indent_size": 4,
+    "end_with_newline": false
 }
 ```
 
