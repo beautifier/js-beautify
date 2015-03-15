@@ -122,6 +122,7 @@ These largely correspond to the underscored option keys for both library interfa
     "break_chained_methods": false,
     "eval_code": false,
     "unescape_strings": false,
+    "end_with_newline": false,
     "wrap_line_length": 0
 }
 ```
