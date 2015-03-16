@@ -149,6 +149,59 @@ class TestJSBeautifier(unittest.TestCase):
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;')
         bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;')
         
+        # JSX - working jsx from http://prettydiff.com/unit_tests/beautification_javascript_jsx.txt
+        bt(
+            'var ListItem = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <li className="ListItem">\n' +
+            '                <a href={ "/items/" + this.props.item.id }>\n' +
+            '                    this.props.item.name\n' +
+            '                </a>\n' +
+            '            </li>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            '\n' +
+            'var List = React.createClass({\n' +
+            '    renderList: function() {\n' +
+            '        return this.props.items.map(function(item) {\n' +
+            '            return <ListItem item={item} key={item.id} />;\n' +
+            '        });\n' +
+            '    },\n' +
+            '\n' +
+            '    render: function() {\n' +
+            '        return <ul className="List">\n' +
+            '                this.renderList()\n' +
+            '            </ul>\n' +
+            '    }\n' +
+            '});\n' +
+            'var Mist = React.createClass({\n' +
+            '    renderList: function() {\n' +
+            '        return this.props.items.map(function(item) {\n' +
+            '            return <ListItem item={return <tag>{item}</tag>} key={item.id} />;\n' +
+            '        });\n' +
+            '    }\n' +
+            '});\n' +
+            '\n' +
+            '// JSX\n' +
+            'var box = <Box>\n' +
+            '    {shouldShowAnswer(user) ?\n' +
+            '        <Answer value={false}>no</Answer> : <Box.Comment>\n' +
+            '        Text Content\n' +
+            '        </Box.Comment>}\n' +
+            '    </Box>;\n' +
+            'var a = function() {\n' +
+            '    return <tsdf>asdf</tsdf>;\n' +
+            '};\n' +
+            '\n' +
+            'var HelloMessage = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        return <div>Hello {this.props.name}</div>;\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<HelloMessage name="John" />, mountNode);')
+        
         # Handles messed up tags, as long as it isn't the same name
         # as the root tag. Also handles tags of same name as root tag
         # as long as nesting matches.
