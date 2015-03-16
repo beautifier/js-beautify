@@ -1774,8 +1774,9 @@
                             match = xmlRegExp.exec(xmlStr);
                         }
                         var xmlLength = match ? match.index + match[0].length : xmlStr.length;
+                        xmlStr = xmlStr.slice(0, xmlLength);
                         parser_pos += xmlLength - 1;
-                        return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                        return [xmlStr, "TK_STRING"];
                     }
                 } else {
                     //

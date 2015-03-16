@@ -350,8 +350,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '            </li>\n' +
             '        );\n' +
             '    }\n' +
-            '});\n' +
-            '\n' +
+            '});');
+        bt(
             'var List = React.createClass({\n' +
             '    renderList: function() {\n' +
             '        return this.props.items.map(function(item) {\n' +
@@ -364,15 +364,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '                this.renderList()\n' +
             '            </ul>\n' +
             '    }\n' +
-            '});\n' +
+            '});');
+        bt(
             'var Mist = React.createClass({\n' +
             '    renderList: function() {\n' +
             '        return this.props.items.map(function(item) {\n' +
             '            return <ListItem item={return <tag>{item}</tag>} key={item.id} />;\n' +
             '        });\n' +
             '    }\n' +
-            '});\n' +
-            '\n' +
+            '});');
+        bt(
             '// JSX\n' +
             'var box = <Box>\n' +
             '    {shouldShowAnswer(user) ?\n' +
@@ -390,6 +391,164 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }\n' +
             '});\n' +
             'React.render(<HelloMessage name="John" />, mountNode);');
+        bt(
+            'var Timer = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            secondsElapsed: 0\n' +
+            '        };\n' +
+            '    },\n' +
+            '    tick: function() {\n' +
+            '        this.setState({\n' +
+            '            secondsElapsed: this.state.secondsElapsed + 1\n' +
+            '        });\n' +
+            '    },\n' +
+            '    componentDidMount: function() {\n' +
+            '        this.interval = setInterval(this.tick, 1000);\n' +
+            '    },\n' +
+            '    componentWillUnmount: function() {\n' +
+            '        clearInterval(this.interval);\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div>Seconds Elapsed: {this.state.secondsElapsed}</div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<Timer />, mountNode);');
+        bt(
+            'var TodoList = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        var createItem = function(itemText) {\n' +
+            '            return <li>{itemText}</li>;\n' +
+            '        };\n' +
+            '        return <ul>{this.props.items.map(createItem)}</ul>;\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'var TodoApp = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            items: [],\n' +
+            '            text: \'\'\n' +
+            '        };\n' +
+            '    },\n' +
+            '    onChange: function(e) {\n' +
+            '        this.setState({\n' +
+            '            text: e.target.value\n' +
+            '        });\n' +
+            '    },\n' +
+            '    handleSubmit: function(e) {\n' +
+            '        e.preventDefault();\n' +
+            '        var nextItems = this.state.items.concat([this.state.text]);\n' +
+            '        var nextText = \'\';\n' +
+            '        this.setState({\n' +
+            '            items: nextItems,\n' +
+            '            text: nextText\n' +
+            '        });\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div>\n' +
+            '                <h3>TODO</h3>\n' +
+            '                <TodoList items={this.state.items} />\n' +
+            '                <form onSubmit={this.handleSubmit}>\n' +
+            '                    <input onChange={this.onChange} value={this.state.text} />\n' +
+            '                    <button>{\'Add #\' + (this.state.items.length + 1)}</button>\n' +
+            '                </form>\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<TodoApp />, mountNode);');
+        bt(
+            'var converter = new Showdown.converter();\n' +
+            'var MarkdownEditor = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {value: \'Type some *markdown* here!\'};\n' +
+            '    },\n' +
+            '    handleChange: function() {\n' +
+            '        this.setState({value: this.refs.textarea.getDOMNode().value});\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div className="MarkdownEditor">\n' +
+            '                <h3>Input</h3>\n' +
+            '                <textarea\n' +
+            '                    onChange={this.handleChange}\n' +
+            '                    ref="textarea"\n' +
+            '                    defaultValue={this.state.value} />\n' +
+            '                <h3>Output</h3>\n' +
+            '            <div\n' +
+            '                className="content"\n' +
+            '                dangerouslySetInnerHTML=\n' +
+            '                />\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<MarkdownEditor />, mountNode);',
+            'var converter = new Showdown.converter();\n' +
+            'var MarkdownEditor = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            value: \'Type some *markdown* here!\'\n' +
+            '        };\n' +
+            '    },\n' +
+            '    handleChange: function() {\n' +
+            '        this.setState({\n' +
+            '            value: this.refs.textarea.getDOMNode().value\n' +
+            '        });\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div className="MarkdownEditor">\n' +
+            '                <h3>Input</h3>\n' +
+            '                <textarea\n' +
+            '                    onChange={this.handleChange}\n' +
+            '                    ref="textarea"\n' +
+            '                    defaultValue={this.state.value} />\n' +
+            '                <h3>Output</h3>\n' +
+            '            <div\n' +
+            '                className="content"\n' +
+            '                dangerouslySetInnerHTML=\n' +
+            '                />\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<MarkdownEditor />, mountNode);');
+        
+        // JSX - Not quite correct jsx formatting that still works
+        bt(
+            'var content = (\n' +
+            '        <Nav>\n' +
+            '            {/* child comment, put {} around */}\n' +
+            '            <Person\n' +
+            '                /* multi\n' +
+            '         line\n' +
+            '         comment */\n' +
+            '         //attr="test"\n' +
+            '                name={window.isLoggedIn ? window.name : \'\'} // end of line comment\n' +
+            '            />\n' +
+            '        </Nav>\n' +
+            '    );\n' +
+            'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;\n' +
+            'render(dropdown);',
+            'var content = (\n' +
+            '    <Nav>\n' +
+            '            {/* child comment, put {} around */}\n' +
+            '            <Person\n' +
+            '                /* multi\n' +
+            '         line\n' +
+            '         comment */\n' +
+            '         //attr="test"\n' +
+            '                name={window.isLoggedIn ? window.name : \'\'} // end of line comment\n' +
+            '            />\n' +
+            '        </Nav>\n' +
+            ');\n' +
+            'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;\n' +
+            'render(dropdown);');
         
         // Handles messed up tags, as long as it isn't the same name
         // as the root tag. Also handles tags of same name as root tag
