@@ -2263,6 +2263,14 @@ class TestJSBeautifier(unittest.TestCase):
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
 
+            # Everywhere we do newlines, they should be replaced with opts.eol
+            self.options.eol = '\r\\n';
+            wrapped_input = wrapped_input.replace('\n', '\r\n')
+            wrapped_expect = wrapped_expect.replace('\n', '\r\n')
+            self.decodesto(wrapped_input, wrapped_expect)
+            self.options.eol = '\n'
+
+
     @classmethod
     def setUpClass(cls):
         options = jsbeautifier.default_options()
@@ -2274,6 +2282,8 @@ class TestJSBeautifier(unittest.TestCase):
         options.brace_style = 'collapse'
         options.indent_level = 0
         options.break_chained_methods = False
+        options.eol = '\n'
+
 
         cls.options = options
         cls.wrapregex = re.compile('^(.+)$', re.MULTILINE)

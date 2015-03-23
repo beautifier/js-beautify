@@ -46,6 +46,7 @@ var fs = require('fs'),
         // Beautifier
         "indent_size": Number,
         "indent_char": String,
+        "eol": String,
         "indent_level": Number,
         "indent_with_tabs": Boolean,
         "preserve_newlines": Boolean,
@@ -89,6 +90,7 @@ var fs = require('fs'),
         // Beautifier
         "s": ["--indent_size"],
         "c": ["--indent_char"],
+        "e": ["--eol"],
         "l": ["--indent_level"],
         "t": ["--indent_with_tabs"],
         "p": ["--preserve_newlines"],
@@ -223,6 +225,7 @@ function usage(err) {
         case "js":
             msg.push('  -l, --indent-level                Initial indentation level [0]');
             msg.push('  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c');
+            msg.push('  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )');

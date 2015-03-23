@@ -64,6 +64,7 @@ class BeautifierOptions:
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
+        self.eol = '\n'
         self.preserve_newlines = True
         self.max_preserve_newlines = 10
         self.space_in_paren = False
@@ -260,6 +261,7 @@ Output options:
 
  -s,  --indent-size=NUMBER         indentation size. (default 4).
  -c,  --indent-char=CHAR           character to indent with. (default space).
+ -e,  --eol=STRING                 character(s) to use as line terminators. (default newline - "\\n")
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
  -d,  --disable-preserve-newlines  do not preserve existing line breaks.
  -P,  --space-in-paren             add padding spaces within paren, ie. f( a, b )
@@ -324,6 +326,8 @@ class Beautifier:
         if self.opts.indent_with_tabs:
             self.opts.indent_char = "\t"
             self.opts.indent_size = 1
+
+        self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
         self.indent_string = self.opts.indent_char * self.opts.indent_size
 
@@ -398,7 +402,11 @@ class Beautifier:
 
         sweet_code = self.output.get_code()
         if self.opts.end_with_newline:
-            sweet_code += "\n"
+            sweet_code += self.opts.eol
+
+        if not self.opts.eol == '\n':
+            sweet_code = sweet_code.replace('\r\n', '\n')
+            sweet_code = sweet_code.replace('\n', self.opts.eol)
 
         return sweet_code
 
@@ -1594,6 +1602,11 @@ class Tokenizer:
                         (esc or (self.input[self.parser_pos] != sep and
                             (sep == '`' or not self.acorn.newline.match(self.input[self.parser_pos])))):
                     resulting_string += self.input[self.parser_pos]
+                    # Handle \r\n linebreaks after escapes or in template strings
+                    if self.input[self.parser_pos] == '\r' and self.parser_pos + 1 < len(self.input) and self.input[self.parser_pos + 1] == '\n':
+                        self.parser_pos += 1
+                        resulting_string += '\n'
+
                     if esc1 and esc1 >= esc2:
                         try:
                             esc1 = int(resulting_string[-esc2:], 16)
@@ -1713,8 +1726,8 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:o:rdEPjabkil:xhtfvXnCw:",
-            ['indent-size=','indent-char=','outfile=', 'replace', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCw:",
+            ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
@@ -1744,6 +1757,8 @@ def main():
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):
             js_options.indent_char = arg
+        elif opt in ('--eol', '-e'):
+            js_options.eol = arg
         elif opt in ('--indent-with-tabs', '-t'):
             js_options.indent_with_tabs = True
         elif opt in ('--disable-preserve-newlines', '-d'):

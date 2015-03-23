@@ -86,6 +86,7 @@ CLI Options:
 Beautifier Options:
   -s, --indent-size                 Indentation size [4]
   -c, --indent-char                 Indentation character [" "]
+  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
   -l, --indent-level                Initial indentation level [0]
   -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
   -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)
@@ -110,6 +111,7 @@ These largely correspond to the underscored option keys for both library interfa
 {
     "indent_size": 4,
     "indent_char": " ",
+    "eol": "\n",
     "indent_level": 0,
     "indent_with_tabs": false,
     "preserve_newlines": true,

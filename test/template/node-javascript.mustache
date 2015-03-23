@@ -65,6 +65,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
+
+            // Everywhere we do newlines, they should be replaced with opts.eol
+            opts.eol = '\r\\n';
+            wrapped_input = wrapped_input.replace(/[\n]/mg, '\r\n');
+            wrapped_expectation = wrapped_expectation.replace(/[\n]/mg, '\r\n');
+            test_fragment(wrapped_input, wrapped_expectation);
+            opts.eol = '\n';
         }
 
     }
