@@ -53,7 +53,7 @@
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
     indent_handlebars (default false) - format and indent {{#foo}} and {{/foo}}
     end_with_newline (false)          - end with a newline
-
+    extra_liners (default [head,body,/html]) -List of tags that should have an extra newline before them.
 
     e.g.
 
@@ -66,7 +66,8 @@
       'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u'],
       'preserve_newlines': true,
       'max_preserve_newlines': 5,
-      'indent_handlebars': false
+      'indent_handlebars': false,
+      'extra_liners': ['/html']
     });
 */
 
@@ -99,7 +100,8 @@
             indent_handlebars,
             wrap_attributes,
             wrap_attributes_indent_size,
-            end_with_newline;
+            end_with_newline,
+            extra_liners;
 
         options = options || {};
 
@@ -123,7 +125,9 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (options.wrap_attributes_indent_size === undefined) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10) || indent_size;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-
+        extra_liners = Array.isArray(options.extra_liners) ?
+            options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
+            options.extra_liners.split(',') : 'head,body,/html'.split(',');
         function Parser() {
 
             this.pos = 0; //Parser position
@@ -142,7 +146,7 @@
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
                 single_token: 'br,input,link,meta,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed,?php,?,?='.split(','), //all the single tags for HTML
-                extra_liners: 'head,body,/html'.split(','), //for tags that need a line of whitespace before them
+                extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
                         if (what === arr[i]) {

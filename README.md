@@ -177,6 +177,7 @@ HTML Beautifier Options:
   -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -n, --end-with-newline             End output with newline
+  -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
 ```
 
 # License

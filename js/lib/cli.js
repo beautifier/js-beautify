@@ -74,6 +74,7 @@ var fs = require('fs'),
         "unformatted": [String, Array],
         "indent_inner_html": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
+        "extra_liners": [String, Array],
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -117,6 +118,7 @@ var fs = require('fs'),
         "U": ["--unformatted"],
         "I": ["--indent_inner_html"],
         "S": ["--indent_scripts"],
+        "E": ["--extra_liners"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -252,6 +254,7 @@ function usage(err) {
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -E, --extra_liners            List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.')

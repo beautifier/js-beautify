@@ -5,7 +5,8 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
-        { name: "brace_style", value: "'collapse'" }
+        { name: "brace_style", value: "'collapse'" },
+        { name: "extra_liners", value: "['html', 'head', '/html']" }
     ],
     groups: [{
         name: "End With Newline",
@@ -29,6 +30,71 @@ exports.test_data = {
             { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
             // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
             { fragment: true, input: '\n', output: '{{eof}}' }
+        ],
+    }, {
+        name: "Custom Extra Liners (empty)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "[]" }
+                ]
+            },
+
+        ],
+        tests: [
+            {
+                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
+            }
+        ],
+    }, {
+        name: "Custom Extra Liners (default)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "null" }
+                ]
+            },
+
+        ],
+        tests: [
+            { fragment: '<html><head></head><body></body></html>', output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>' }
+        ],
+    }, {
+        name: "Custom Extra Liners (p, string)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "'p,/p'" }
+                ]
+            },
+
+        ],
+        tests: [
+            {
+                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
+            }
+        ],
+    }, {
+        name: "Custom Extra Liners (p)",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "extra_liners", value: "['p', '/p']" }
+                ]
+            },
+
+        ],
+        tests: [
+            {
+                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
+            }
         ],
     }, {
         name: "Attribute Wrap",

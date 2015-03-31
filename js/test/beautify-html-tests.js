@@ -71,6 +71,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.jslint_happy = false;
         opts.keep_array_indentation = false;
         opts.brace_style = 'collapse';
+        opts.extra_liners = ['html', 'head', '/html'];
 
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
@@ -84,6 +85,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div></div>');
         test_fragment('\n', '');
     
+
+        // Custom Extra Liners (empty) - ()
+        opts.extra_liners = [];
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>');
+
+        // Custom Extra Liners (default) - ()
+        opts.extra_liners = null;
+        test_fragment('<html><head></head><body></body></html>', '<html>\n\n<head></head>\n\n<body></body>\n\n</html>');
+
+        // Custom Extra Liners (p, string) - ()
+        opts.extra_liners = 'p,/p';
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
+
+        // Custom Extra Liners (p) - ()
+        opts.extra_liners = ['p', '/p'];
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
 
         // Attribute Wrap - (eof = "\n", indent_attr = "    ", over80 = "\n")
         opts.wrap_attributes = 'force';
