@@ -153,8 +153,7 @@
                 }
             };
 
-            // Return true iff the given text is composed entirely of
-            // whitespace.
+            // Return true if the given text is composed entirely of whitespace.
             this.is_whitespace = function(text) {
                 for (var n = 0; n < text.length; text++) {
                     if (!this.Utils.in_array(text.charAt(n), this.Utils.whitespace)) {
