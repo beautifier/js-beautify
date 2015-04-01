@@ -89,6 +89,16 @@ exports.test_data = {
             { input: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
         ],
     }, {
+        name: "Psuedo-classes vs Variables",
+        description: "",
+        tests: [
+            { unchanged: '@page :first {}' },
+            { comment: "Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.",
+              input: '@page:first {}',
+              output: '@page: first {}' },
+            { unchanged: '@page: first {}' }
+        ],
+    }, {
 
     }]
 }

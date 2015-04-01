@@ -304,6 +304,16 @@ class Beautifier:
 
                 # strip trailing space, if present, for hash property check
                 variableOrRule = self.peekString(": ,;{}()[]/='\"")
+
+                if variableOrRule[-1] in ": ":
+                    # wwe have a variable or pseudo-class, add it and insert one space before continuing
+                    self.next()
+                    variableOrRule = self.eatString(": ")
+                    if variableOrRule[-1].isspace():
+                        variableOrRule = variableOrRule[:-1]
+                    printer.push(variableOrRule)
+                    printer.singleSpace();
+
                 if variableOrRule[-1].isspace():
                     variableOrRule = variableOrRule[:-1]
 
@@ -312,15 +322,6 @@ class Beautifier:
                     printer.nestedLevel += 1
                     if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
-                elif variableOrRule[-1] in ": ":
-                    # we have a variable, add it and a space after
-                    self.next()
-                    variableOrRule = self.eatString(": ")
-                    if variableOrRule[-1].isspace():
-                        variableOrRule = variableOrRule[:-1]
-                    printer.push(variableOrRule)
-                    printer.singleSpace();
-
 
             elif self.ch == '{':
                 if self.peek(True) == '}':
