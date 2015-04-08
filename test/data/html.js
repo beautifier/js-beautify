@@ -44,7 +44,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
             }
         ],
@@ -60,7 +61,11 @@ exports.test_data = {
 
         ],
         tests: [
-            { fragment: '<html><head></head><body></body></html>', output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>' }
+            {
+                fragment: true,
+                input: '<html><head></head><body></body></html>',
+                output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>'
+            }
         ],
     }, {
         name: "Custom Extra Liners (p, string)",
@@ -75,7 +80,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
             }
         ],
@@ -92,7 +98,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
             }
         ],
