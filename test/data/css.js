@@ -23,10 +23,10 @@ exports.test_data = {
             }
         ],
         tests: [
-            { fragment: '', output: '{{eof}}' },
-            { fragment: '   .tabs{}', output: '   .tabs {}{{eof}}' },
-            { fragment: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
-            { fragment: '\n', output: '{{eof}}' }
+            { fragment: true, input: '', output: '{{eof}}' },
+            { fragment: true, input: '   .tabs{}', output: '   .tabs {}{{eof}}' },
+            { fragment: true, input: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
+            { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
         name: "Empty braces",
@@ -87,6 +87,16 @@ exports.test_data = {
             { input: '.tabs(   )   {    }', output: '.tabs() {}' },
             { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
             { input: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
+        ],
+    }, {
+        name: "Psuedo-classes vs Variables",
+        description: "",
+        tests: [
+            { unchanged: '@page :first {}' },
+            { comment: "Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.",
+              input: '@page:first {}',
+              output: '@page: first {}' },
+            { unchanged: '@page: first {}' }
         ],
     }, {
 

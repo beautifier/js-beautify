@@ -265,6 +265,7 @@
 
         opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         opt.indent_char = options.indent_char ? options.indent_char : ' ';
+        opt.eol = options.eol ? options.eol : '\n';
         opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
@@ -290,6 +291,8 @@
             opt.indent_char = '\t';
             opt.indent_size = 1;
         }
+
+        opt.eol = opt.eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
 
         //----------------------------------
         indent_string = '';
@@ -353,6 +356,10 @@
             sweet_code = output.get_code();
             if (opt.end_with_newline) {
                 sweet_code += '\n';
+            }
+
+            if (opt.eol != '\n') {
+                sweet_code = sweet_code.replace(/[\r]?[\n]/mg, opt.eol);
             }
 
             return sweet_code;
@@ -641,6 +648,11 @@
                 }
             }
 
+            // Should be a space between await and an IIFE
+            if(current_token.text === '(' && last_type === 'TK_RESERVED' && flags.last_word === 'await'){
+                output.space_before_token = true;
+            }
+
             // Support of this kind of newline preservation.
             // a = (b &&
             //     (c || d));
@@ -862,7 +874,7 @@
                     }
                 }
                 if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
-                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set', 'new', 'return', 'export'])) {
+                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set', 'new', 'return', 'export', 'async'])) {
                         output.space_before_token = true;
                     } else if (last_type === 'TK_RESERVED' && flags.last_text === 'default' && last_last_text === 'export') {
                         output.space_before_token = true;
@@ -1471,7 +1483,7 @@
 
         // words which should always start on new line.
         this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
-        var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield']);
+        var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await']);
 
         var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
         var input_length;
@@ -1705,7 +1717,7 @@
             if (c === '`' || c === "'" || c === '"' || // string
                 (
                     (c === '/') || // regexp
-                    (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*\/?\s*>/)) // xml
+                    (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.*?}))*\s*(\/?)\s*>/)) // xml
                 ) && ( // regex and xml can only appear in specific locations during parsing
                     (last_token.type === 'TK_RESERVED' && in_array(last_token.text , ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
                     (last_token.type === 'TK_END_EXPR' && last_token.text === ')' &&
@@ -1746,7 +1758,7 @@
                     //
                     // handle e4x xml literals
                     //
-                    var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])\s*([-a-zA-Z:0-9_.]+=('[^']*'|"[^"]*"|{[^{}]*})\s*)*(\/?)\s*>/g;
+                    var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.*?}))*\s*(\/?)\s*>/g;
                     var xmlStr = input.slice(parser_pos - 1);
                     var match = xmlRegExp.exec(xmlStr);
                     if (match && match.index === 0) {
@@ -1769,8 +1781,9 @@
                             match = xmlRegExp.exec(xmlStr);
                         }
                         var xmlLength = match ? match.index + match[0].length : xmlStr.length;
+                        xmlStr = xmlStr.slice(0, xmlLength);
                         parser_pos += xmlLength - 1;
-                        return [xmlStr.slice(0, xmlLength), "TK_STRING"];
+                        return [xmlStr, "TK_STRING"];
                     }
                 } else {
                     //
@@ -1782,6 +1795,11 @@
                             (esc || (input.charAt(parser_pos) !== sep &&
                             (sep === '`' || !acorn.newline.test(input.charAt(parser_pos)))))) {
                         resulting_string += input.charAt(parser_pos);
+                        // Handle \r\n linebreaks after escapes or in template strings
+                        if (input.charAt(parser_pos) === '\r' && input.charAt(parser_pos + 1) === '\n') {
+                            parser_pos += 1;
+                            resulting_string += '\n';
+                        }
                         if (esc) {
                             if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
                                 has_char_escapes = true;

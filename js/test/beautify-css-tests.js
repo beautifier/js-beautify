@@ -122,6 +122,13 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}');
         t('.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}');
 
+        // Psuedo-classes vs Variables
+        t('@page :first {}');
+        
+        // Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.
+        t('@page:first {}', '@page: first {}');
+        t('@page: first {}');
+
         // 
 
         // test basic css beautifier

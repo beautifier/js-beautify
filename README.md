@@ -86,6 +86,7 @@ CLI Options:
 Beautifier Options:
   -s, --indent-size                 Indentation size [4]
   -c, --indent-char                 Indentation character [" "]
+  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
   -l, --indent-level                Initial indentation level [0]
   -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
   -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)
@@ -110,6 +111,7 @@ These largely correspond to the underscored option keys for both library interfa
 {
     "indent_size": 4,
     "indent_char": " ",
+    "eol": "\n",
     "indent_level": 0,
     "indent_with_tabs": false,
     "preserve_newlines": true,
@@ -125,7 +127,8 @@ These largely correspond to the underscored option keys for both library interfa
     "unescape_strings": false,
     "wrap_line_length": 0,
     "wrap_attributes": "auto",
-    "wrap_attributes_indent_size": 4
+    "wrap_attributes_indent_size": 4,
+    "end_with_newline": false
 }
 ```
 
@@ -174,6 +177,7 @@ HTML Beautifier Options:
   -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -n, --end-with-newline             End output with newline
+  -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
 ```
 
 # License

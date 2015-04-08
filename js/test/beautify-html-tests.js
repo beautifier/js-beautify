@@ -53,25 +53,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             }
             test_fragment(wrapped_input, wrapped_expectation);
         }
-
-        // Test that handlebars non-block {{}} tags act as content and do not
-        // get any spacing or line breaks.
-        if (input.indexOf('content') != -1) {
-            // Just {{field}}
-            field_input = input.replace(/content/g, '{{field}}');
-            field_expectation = expectation.replace(/content/g, '{{field}}');
-            test_fragment(field_input, field_expectation);
-
-            // handlebars comment
-            field_input = input.replace(/content/g, '{{! comment}}');
-            field_expectation = expectation.replace(/content/g, '{{! comment}}');
-            test_fragment(field_input, field_expectation);
-
-            // mixed {{field}} and content
-            field_input = input.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
-            field_expectation = expectation.replace(/content/g, 'pre{{field1}} {{field2}} {{field3}}post');
-            test_fragment(field_input, field_expectation);
-        }
     }
 
     function unicode_char(value) {
@@ -90,58 +71,309 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.jslint_happy = false;
         opts.keep_array_indentation = false;
         opts.brace_style = 'collapse';
+        opts.extra_liners = ['html', 'head', '/html'];
 
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('<div></div>', '<div></div>\n');
         test_fragment('\n');
-
+    
         // End With Newline - (eof = "")
         opts.end_with_newline = false;
         test_fragment('');
         test_fragment('<div></div>');
         test_fragment('\n', '');
+    
+
+        // Custom Extra Liners (empty) - ()
+        opts.extra_liners = [];
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>');
+
+        // Custom Extra Liners (default) - ()
+        opts.extra_liners = null;
+        test_fragment('<html><head></head><body></body></html>', '<html>\n\n<head></head>\n\n<body></body>\n\n</html>');
+
+        // Custom Extra Liners (p, string) - ()
+        opts.extra_liners = 'p,/p';
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
+
+        // Custom Extra Liners (p) - ()
+        opts.extra_liners = ['p', '/p'];
+        test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
 
         // Attribute Wrap - (eof = "\n", indent_attr = "    ", over80 = "\n")
         opts.wrap_attributes = 'force';
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n    attr1="123"\n    data-attr2="hello    t here" />');
-
+    
         // Attribute Wrap - (eof = "\n", indent_attr = "    ", over80 = "\n")
         opts.wrap_attributes = 'force';
         opts.wrap_line_length = 80;
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n    attr1="123"\n    data-attr2="hello    t here" />');
-
+    
         // Attribute Wrap - (eof = "\n", indent_attr = "        ", over80 = "\n")
         opts.wrap_attributes = 'force';
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n        attr1="123"\n        data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n        attr0\n        attr1="123"\n        data-attr2="hello    t here"\n        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n        attr1="123"\n        data-attr2="hello    t here" />');
-
+    
         // Attribute Wrap - (eof = " ", indent_attr = "", over80 = "\n")
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 80;
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\nheymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
-
+    
         // Attribute Wrap - (eof = " ", indent_attr = "", over80 = " ")
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 0;
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+    
+
+
+        // Handlebars Indenting Off
+        opts.indent_handlebars = false;
+        test_fragment(
+            '{{#if 0}}\n    <div>\n    </div>\n{{/if}}',
+            '{{#if 0}}\n<div>\n</div>\n{{/if}}');
+        test_fragment(
+            '<div>\n{{#each thing}}\n    {{name}}\n{{/each}}\n</div>',
+            '<div>\n    {{#each thing}} {{name}} {{/each}}\n</div>');
+
+
+        // Handlebars Indenting On - (content = "{{field}}")
+        opts.indent_handlebars = true;
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}{{field}}{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{field}}{{/if}}',
+            '{{#if words}}{{field}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{field}}{{/if}}',
+            '{{#if words}}{{field}}{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\n{{field}}\n{{/if}}\n{{#if}}\n{{field}}\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            {{field}}\n        {{/if}}\n        {{#if}}\n            {{field}}\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{field}}\n    {{else}}\n    {{field}}\n{{/if}}',
+            '{{#if 1}}\n    {{field}}\n{{else}}\n    {{field}}\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    {{field}}\n    {{else}}\n{{field}}\n    {{/if}}\n       {{else}}\n{{field}}\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        {{field}}\n    {{else}}\n        {{field}}\n    {{/if}}\n{{else}}\n    {{field}}\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>{{field}}</div>',
+            '<div {{#if test}} class="foo" {{/if}}>{{field}}</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>{{field}}</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>{{field}}</span>');
+        test_fragment('<div unformatted="{{#if}}{{field}}{{/if}}">{{field}}</div>');
+        test_fragment('<div unformatted="{{#if  }}    {{field}}{{/if}}">{{field}}</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{{field}}{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{{field}}{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
+    
+        // Handlebars Indenting On - (content = "{{! comment}}")
+        opts.indent_handlebars = true;
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}{{! comment}}{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! comment}}{{/if}}',
+            '{{#if words}}{{! comment}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! comment}}{{/if}}',
+            '{{#if words}}{{! comment}}{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\n{{! comment}}\n{{/if}}\n{{#if}}\n{{! comment}}\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            {{! comment}}\n        {{/if}}\n        {{#if}}\n            {{! comment}}\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{! comment}}\n    {{else}}\n    {{! comment}}\n{{/if}}',
+            '{{#if 1}}\n    {{! comment}}\n{{else}}\n    {{! comment}}\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    {{! comment}}\n    {{else}}\n{{! comment}}\n    {{/if}}\n       {{else}}\n{{! comment}}\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        {{! comment}}\n    {{else}}\n        {{! comment}}\n    {{/if}}\n{{else}}\n    {{! comment}}\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>{{! comment}}</div>',
+            '<div {{#if test}} class="foo" {{/if}}>{{! comment}}</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>{{! comment}}</span>');
+        test_fragment('<div unformatted="{{#if}}{{! comment}}{{/if}}">{{! comment}}</div>');
+        test_fragment('<div unformatted="{{#if  }}    {{! comment}}{{/if}}">{{! comment}}</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{{! comment}}{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{{! comment}}{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{{! comment}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! comment}}{{/if}}\'></div>');
+    
+        // Handlebars Indenting On - (content = "{pre{{field1}} {{field2}} {{field3}}post")
+        opts.indent_handlebars = true;
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}',
+            '{{#if words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
+        test_fragment(
+            '{{#if     words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}',
+            '{{#if words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\n{pre{{field1}} {{field2}} {{field3}}post\n{{/if}}\n{{#if}}\n{pre{{field1}} {{field2}} {{field3}}post\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            {pre{{field1}} {{field2}} {{field3}}post\n        {{/if}}\n        {{#if}}\n            {pre{{field1}} {{field2}} {{field3}}post\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {pre{{field1}} {{field2}} {{field3}}post\n    {{else}}\n    {pre{{field1}} {{field2}} {{field3}}post\n{{/if}}',
+            '{{#if 1}}\n    {pre{{field1}} {{field2}} {{field3}}post\n{{else}}\n    {pre{{field1}} {{field2}} {{field3}}post\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    {pre{{field1}} {{field2}} {{field3}}post\n    {{else}}\n{pre{{field1}} {{field2}} {{field3}}post\n    {{/if}}\n       {{else}}\n{pre{{field1}} {{field2}} {{field3}}post\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        {pre{{field1}} {{field2}} {{field3}}post\n    {{else}}\n        {pre{{field1}} {{field2}} {{field3}}post\n    {{/if}}\n{{else}}\n    {pre{{field1}} {{field2}} {{field3}}post\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>',
+            '<div {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>');
+        test_fragment('<div unformatted="{{#if}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
+        test_fragment('<div unformatted="{{#if  }}    {pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
+    
+        // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
+        opts.indent_handlebars = true;
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}\n{{#if}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            {{! \n mult-line\ncomment  \n     with spacing\n}}\n        {{/if}}\n        {{#if}}\n            {{! \n mult-line\ncomment  \n     with spacing\n}}\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}',
+            '{{#if 1}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{/if}}\n       {{else}}\n{{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{else}}\n        {{! \n mult-line\ncomment  \n     with spacing\n}}\n    {{/if}}\n{{else}}\n    {{! \n mult-line\ncomment  \n     with spacing\n}}\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div {{#if test}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>');
+        test_fragment('<div unformatted="{{#if}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment('<div unformatted="{{#if  }}    {{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+    
+
 
         // Unformatted tags
         test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
 
+
+
         // New Test Suite
+
 
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -352,139 +584,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Handlebars tests
         // Without the indent option on, handlebars are treated as content.
-        opts.indent_handlebars = false;
-        bth('{{#if 0}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}',
-            '{{#if 0}}\n' +
-            '<div>\n' +
-            '</div>\n' +
-            '{{/if}}');
-        bth('<div>\n' +
-            '{{#each thing}}\n' +
-            '    {{name}}\n' +
-            '{{/each}}\n' +
-            '</div>',
-            '<div>\n' +
-            '    {{#each thing}} {{name}} {{/each}}\n' +
-            '</div>');
-
-        opts.indent_handlebars = true;
-        bth('{{#if 0}}{{/if}}');
-        bth('{{#if 0}}content{{/if}}');
-        bth('{{#if 0}}\n' +
-            '{{/if}}');
-        bth('{{#if     words}}{{/if}}',
-            '{{#if words}}{{/if}}');
-        bth('{{#if     words}}content{{/if}}',
-            '{{#if words}}content{{/if}}');
-        bth('{{#if     words}}content{{/if}}',
-            '{{#if words}}content{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '<div>\n' +
-            '</div>\n' +
-            '{{/if}}',
-            '{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-        bth('<div>\n' +
-            '    {{#if 1}}\n' +
-            '    {{/if}}\n' +
-            '</div>');
-        bth('<div>\n' +
-            '{{#if 1}}\n' +
-            '{{/if}}\n' +
-            '</div>',
-            '<div>\n' +
-            '    {{#if 1}}\n' +
-            '    {{/if}}\n' +
-            '</div>');
-        bth('{{#if}}\n' +
-            '{{#each}}\n' +
-            '{{#if}}\n' +
-            'content\n' +
-            '{{/if}}\n' +
-            '{{#if}}\n' +
-            'content\n' +
-            '{{/if}}\n' +
-            '{{/each}}\n' +
-            '{{/if}}',
-            '{{#if}}\n' +
-            '    {{#each}}\n' +
-            '        {{#if}}\n' +
-            '            content\n' +
-            '        {{/if}}\n' +
-            '        {{#if}}\n' +
-            '            content\n' +
-            '        {{/if}}\n' +
-            '    {{/each}}\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    <div>\n' +
-            '    </div>\n' +
-            '{{/if}}');
-
-        // Test {{else}} aligned with {{#if}} and {{/if}}
-        bth('{{#if 1}}\n' +
-            '    content\n' +
-            '    {{else}}\n' +
-            '    content\n' +
-            '{{/if}}',
-            '{{#if 1}}\n' +
-            '    content\n' +
-            '{{else}}\n' +
-            '    content\n' +
-            '{{/if}}');
-        bth('{{#if 1}}\n' +
-            '    {{else}}\n' +
-            '    {{/if}}',
-            '{{#if 1}}\n' +
-            '{{else}}\n' +
-            '{{/if}}');
-        bth('{{#if thing}}\n' +
-            '{{#if otherthing}}\n' +
-            '    content\n' +
-            '    {{else}}\n' +
-            'content\n' +
-            '    {{/if}}\n' +
-            '       {{else}}\n'+
-            'content\n' +
-            '{{/if}}',
-            '{{#if thing}}\n' +
-            '    {{#if otherthing}}\n' +
-            '        content\n' +
-            '    {{else}}\n' +
-            '        content\n' +
-            '    {{/if}}\n' +
-            '{{else}}\n'+
-            '    content\n' +
-            '{{/if}}');
-
-        // Test {{}} inside of <> tags, which should be separated by spaces
-        // for readability, unless they are inside a string.
-        bth('<div{{somestyle}}></div>',
-            '<div {{somestyle}}></div>');
-        bth('<div{{#if test}}class="foo"{{/if}}>content</div>',
-            '<div {{#if test}} class="foo" {{/if}}>content</div>');
-        bth('<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</div>',
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>content</div>');
-        bth('<span{{#if condition}}class="foo"{{/if}}>content</span>',
-            '<span {{#if condition}} class="foo" {{/if}}>content</span>');
-        bth('<div unformatted="{{#if}}content{{/if}}">content</div>');
-        bth('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
-
-        // Quotes found inside of Handlebars expressions inside of quoted
-        // strings themselves should not be considered string delimiters.
-        bth('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
-        bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
-        bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
-        bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
 
         opts.wrap_line_length = 0;
         //...---------1---------2---------3---------4---------5---------6---------7

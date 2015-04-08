@@ -65,6 +65,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
+
+            // Everywhere we do newlines, they should be replaced with opts.eol
+            opts.eol = '\r\\n';
+            wrapped_input = wrapped_input.replace(/[\n]/mg, '\r\n');
+            wrapped_expectation = wrapped_expectation.replace(/[\n]/mg, '\r\n');
+            test_fragment(wrapped_input, wrapped_expectation);
+            opts.eol = '\n';
         }
 
     }
@@ -233,6 +240,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.keep_array_indentation = false;
         opts.brace_style = 'collapse';
 
+
         // Unicode Support
         bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
         bt(
@@ -240,19 +248,21 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};');
 
+
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('   return .5', '   return .5\n');
         test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n');
         test_fragment('\n');
-
+    
         // End With Newline - (eof = "")
         opts.end_with_newline = false;
         test_fragment('');
         test_fragment('   return .5');
         test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5');
         test_fragment('\n', '');
+    
 
         // Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ")
         opts.comma_first = true;
@@ -271,7 +281,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]');
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]');
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"]\n        , ["3", "4"]\n    ]\n    , [\n        ["5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n    , [\n        ["1", "2", "3"]\n        , ["4", "5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n]');
-
+    
         // Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ")
         opts.comma_first = false;
         bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}');
@@ -289,8 +299,683 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]');
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]');
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]');
+    
+
 
         // New Test Suite
+
+
+
+        // Async / await tests
+        bt('async function foo() {}');
+        bt('let w = async function foo() {}');
+        bt('async function foo() {}\nvar x = await foo();');
+        
+        // async function as an input to another function
+        bt('wrapper(async function foo() {})');
+        
+        // await on inline anonymous function. should have a space after await
+        bt(
+            'async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}',
+            'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}');
+        
+        // ensure that this doesn't break anyone with the async library
+        bt('async.map(function(t) {})');
+
+
+
+        // e4x - Test that e4x literals passed through when e4x-option is enabled
+        opts.e4x = true;
+        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
+        bt('<a b=\'This is a quoted "c".\'/>');
+        bt('<a b="This is a quoted \'c\'."/>');
+        bt('<a b="A quote \' inside string."/>');
+        bt('<a b=\'A quote " inside string.\'/>');
+        bt('<a b=\'Some """ quotes ""  inside string.\'/>');
+        
+        // Handles inline expressions
+        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
+        bt('xml=<{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;');
+        
+        // xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar
+        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;');
+        
+        // Handles CDATA
+        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;');
+        bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');
+        bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;');
+        
+        // JSX - working jsx from http://prettydiff.com/unit_tests/beautification_javascript_jsx.txt
+        bt(
+            'var ListItem = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <li className="ListItem">\n' +
+            '                <a href={ "/items/" + this.props.item.id }>\n' +
+            '                    this.props.item.name\n' +
+            '                </a>\n' +
+            '            </li>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'var List = React.createClass({\n' +
+            '    renderList: function() {\n' +
+            '        return this.props.items.map(function(item) {\n' +
+            '            return <ListItem item={item} key={item.id} />;\n' +
+            '        });\n' +
+            '    },\n' +
+            '\n' +
+            '    render: function() {\n' +
+            '        return <ul className="List">\n' +
+            '                this.renderList()\n' +
+            '            </ul>\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'var Mist = React.createClass({\n' +
+            '    renderList: function() {\n' +
+            '        return this.props.items.map(function(item) {\n' +
+            '            return <ListItem item={return <tag>{item}</tag>} key={item.id} />;\n' +
+            '        });\n' +
+            '    }\n' +
+            '});');
+        bt(
+            '// JSX\n' +
+            'var box = <Box>\n' +
+            '    {shouldShowAnswer(user) ?\n' +
+            '        <Answer value={false}>no</Answer> : <Box.Comment>\n' +
+            '        Text Content\n' +
+            '        </Box.Comment>}\n' +
+            '    </Box>;\n' +
+            'var a = function() {\n' +
+            '    return <tsdf>asdf</tsdf>;\n' +
+            '};\n' +
+            '\n' +
+            'var HelloMessage = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        return <div>Hello {this.props.name}</div>;\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<HelloMessage name="John" />, mountNode);');
+        bt(
+            'var Timer = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            secondsElapsed: 0\n' +
+            '        };\n' +
+            '    },\n' +
+            '    tick: function() {\n' +
+            '        this.setState({\n' +
+            '            secondsElapsed: this.state.secondsElapsed + 1\n' +
+            '        });\n' +
+            '    },\n' +
+            '    componentDidMount: function() {\n' +
+            '        this.interval = setInterval(this.tick, 1000);\n' +
+            '    },\n' +
+            '    componentWillUnmount: function() {\n' +
+            '        clearInterval(this.interval);\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div>Seconds Elapsed: {this.state.secondsElapsed}</div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<Timer />, mountNode);');
+        bt(
+            'var TodoList = React.createClass({\n' +
+            '    render: function() {\n' +
+            '        var createItem = function(itemText) {\n' +
+            '            return <li>{itemText}</li>;\n' +
+            '        };\n' +
+            '        return <ul>{this.props.items.map(createItem)}</ul>;\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'var TodoApp = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            items: [],\n' +
+            '            text: \'\'\n' +
+            '        };\n' +
+            '    },\n' +
+            '    onChange: function(e) {\n' +
+            '        this.setState({\n' +
+            '            text: e.target.value\n' +
+            '        });\n' +
+            '    },\n' +
+            '    handleSubmit: function(e) {\n' +
+            '        e.preventDefault();\n' +
+            '        var nextItems = this.state.items.concat([this.state.text]);\n' +
+            '        var nextText = \'\';\n' +
+            '        this.setState({\n' +
+            '            items: nextItems,\n' +
+            '            text: nextText\n' +
+            '        });\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div>\n' +
+            '                <h3>TODO</h3>\n' +
+            '                <TodoList items={this.state.items} />\n' +
+            '                <form onSubmit={this.handleSubmit}>\n' +
+            '                    <input onChange={this.onChange} value={this.state.text} />\n' +
+            '                    <button>{\'Add #\' + (this.state.items.length + 1)}</button>\n' +
+            '                </form>\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<TodoApp />, mountNode);');
+        bt(
+            'var converter = new Showdown.converter();\n' +
+            'var MarkdownEditor = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {value: \'Type some *markdown* here!\'};\n' +
+            '    },\n' +
+            '    handleChange: function() {\n' +
+            '        this.setState({value: this.refs.textarea.getDOMNode().value});\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div className="MarkdownEditor">\n' +
+            '                <h3>Input</h3>\n' +
+            '                <textarea\n' +
+            '                    onChange={this.handleChange}\n' +
+            '                    ref="textarea"\n' +
+            '                    defaultValue={this.state.value} />\n' +
+            '                <h3>Output</h3>\n' +
+            '            <div\n' +
+            '                className="content"\n' +
+            '                dangerouslySetInnerHTML=\n' +
+            '                />\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<MarkdownEditor />, mountNode);',
+            'var converter = new Showdown.converter();\n' +
+            'var MarkdownEditor = React.createClass({\n' +
+            '    getInitialState: function() {\n' +
+            '        return {\n' +
+            '            value: \'Type some *markdown* here!\'\n' +
+            '        };\n' +
+            '    },\n' +
+            '    handleChange: function() {\n' +
+            '        this.setState({\n' +
+            '            value: this.refs.textarea.getDOMNode().value\n' +
+            '        });\n' +
+            '    },\n' +
+            '    render: function() {\n' +
+            '        return (\n' +
+            '            <div className="MarkdownEditor">\n' +
+            '                <h3>Input</h3>\n' +
+            '                <textarea\n' +
+            '                    onChange={this.handleChange}\n' +
+            '                    ref="textarea"\n' +
+            '                    defaultValue={this.state.value} />\n' +
+            '                <h3>Output</h3>\n' +
+            '            <div\n' +
+            '                className="content"\n' +
+            '                dangerouslySetInnerHTML=\n' +
+            '                />\n' +
+            '            </div>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});\n' +
+            'React.render(<MarkdownEditor />, mountNode);');
+        
+        // JSX - Not quite correct jsx formatting that still works
+        bt(
+            'var content = (\n' +
+            '        <Nav>\n' +
+            '            {/* child comment, put {} around */}\n' +
+            '            <Person\n' +
+            '                /* multi\n' +
+            '         line\n' +
+            '         comment */\n' +
+            '         //attr="test"\n' +
+            '                name={window.isLoggedIn ? window.name : \'\'} // end of line comment\n' +
+            '            />\n' +
+            '        </Nav>\n' +
+            '    );\n' +
+            'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;\n' +
+            'render(dropdown);',
+            'var content = (\n' +
+            '    <Nav>\n' +
+            '            {/* child comment, put {} around */}\n' +
+            '            <Person\n' +
+            '                /* multi\n' +
+            '         line\n' +
+            '         comment */\n' +
+            '         //attr="test"\n' +
+            '                name={window.isLoggedIn ? window.name : \'\'} // end of line comment\n' +
+            '            />\n' +
+            '        </Nav>\n' +
+            ');\n' +
+            'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;\n' +
+            'render(dropdown);');
+        
+        // Handles messed up tags, as long as it isn't the same name
+        // as the root tag. Also handles tags of same name as root tag
+        // as long as nesting matches.
+        bt(
+            'xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
+            'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;');
+        
+        // If xml is not terminated, the remainder of the file is treated
+        // as part of the xml-literal (passed through unaltered)
+        test_fragment(
+            'xml=<a></b>\nc<b;',
+            'xml = <a></b>\nc<b;');
+        
+        // Issue #646 = whitespace is allowed in attribute declarations
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className=\'a\'>\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className = \'b\'>\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <p className = "c">\n' +
+            '                <span>c</span>\n' +
+            '            </p>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});');
+        bt(
+            'let a = React.createClass({\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <{e}  className = {d}>\n' +
+            '                <span>c</span>\n' +
+            '            </{e}>\n' +
+            '        );\n' +
+            '    }\n' +
+            '});');
+
+
+
+        // e4x disabled
+        opts.e4x = false;
+        bt(
+            'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
+            'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
+
+
+
+        // Multiple braces
+        bt('{{}/z/}', '{\n    {}\n    /z/\n}');
+
+
+        // jslint and space after anon function - (f = " ", c = "")
+        opts.jslint_happy = true;
+        opts.space_after_anon_function = true;
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)');
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}');
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}');
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+        
+        // typical greasemonkey start
+        test_fragment('// comment 2\n(function ()');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
+    
+        // jslint and space after anon function - (f = " ", c = "")
+        opts.jslint_happy = true;
+        opts.space_after_anon_function = false;
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)');
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}');
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}');
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
+        
+        // typical greasemonkey start
+        test_fragment('// comment 2\n(function ()');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
+    
+        // jslint and space after anon function - (f = " ", c = "    ")
+        opts.jslint_happy = false;
+        opts.space_after_anon_function = true;
+        bt(
+            'a=typeof(x)',
+            'a = typeof (x)');
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction () {}');
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}');
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
+        
+        // typical greasemonkey start
+        test_fragment('// comment 2\n(function ()');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';');
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
+    
+        // jslint and space after anon function - (f = "", c = "    ")
+        opts.jslint_happy = false;
+        opts.space_after_anon_function = false;
+        bt(
+            'a=typeof(x)',
+            'a = typeof(x)');
+        bt(
+            'x();\n\nfunction(){}',
+            'x();\n\nfunction() {}');
+        bt(
+            'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
+            'function() {\n    var a, b, c, d, e = [],\n        f;\n}');
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}');
+        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
+        
+        // typical greasemonkey start
+        test_fragment('// comment 2\n(function()');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
+            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';');
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
+        bt('function*() {\n    yield 1;\n}');
+        bt('function* x() {\n    yield 1;\n}');
+    
+
+
+        // Regression tests
+        
+        // Issue 241
+        bt(
+            'obj\n' +
+            '    .last({\n' +
+            '        foo: 1,\n' +
+            '        bar: 2\n' +
+            '    });\n' +
+            'var test = 1;');
+        bt(
+            'obj\n' +
+            '    .last(a, function() {\n' +
+            '        var test;\n' +
+            '    });\n' +
+            'var test = 1;');
+        bt(
+            'obj.first()\n' +
+            '    .second()\n' +
+            '    .last(function(err, response) {\n' +
+            '        console.log(err);\n' +
+            '    });');
+        
+        // Issue 268 and 275
+        bt(
+            'obj.last(a, function() {\n' +
+            '    var test;\n' +
+            '});\n' +
+            'var test = 1;');
+        bt(
+            'obj.last(a,\n' +
+            '    function() {\n' +
+            '        var test;\n' +
+            '    });\n' +
+            'var test = 1;');
+        bt(
+            '(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+            '(function() {\n' +
+            '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
+            '        var b = {\n' +
+            '            bar: "zort"\n' +
+            '        };\n' +
+            '    });\n' +
+            '})();');
+        
+        // Issue 281
+        bt(
+            'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+            '    "dojo/_base/lang", "dojo/Deferred"\n' +
+            '], function(declare, Employee, Button, lang, Deferred) {\n' +
+            '    return declare(Employee, {\n' +
+            '        constructor: function() {\n' +
+            '            new Button({\n' +
+            '                onClick: lang.hitch(this, function() {\n' +
+            '                    new Deferred().then(lang.hitch(this, function() {\n' +
+            '                        this.salary * 0.25;\n' +
+            '                    }));\n' +
+            '                })\n' +
+            '            });\n' +
+            '        }\n' +
+            '    });\n' +
+            '});');
+        bt(
+            'define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
+            '        "dojo/_base/lang", "dojo/Deferred"\n' +
+            '    ],\n' +
+            '    function(declare, Employee, Button, lang, Deferred) {\n' +
+            '        return declare(Employee, {\n' +
+            '            constructor: function() {\n' +
+            '                new Button({\n' +
+            '                    onClick: lang.hitch(this, function() {\n' +
+            '                        new Deferred().then(lang.hitch(this, function() {\n' +
+            '                            this.salary * 0.25;\n' +
+            '                        }));\n' +
+            '                    })\n' +
+            '                });\n' +
+            '            }\n' +
+            '        });\n' +
+            '    });');
+        
+        // Issue 459
+        bt(
+            '(function() {\n' +
+            '    return {\n' +
+            '        foo: function() {\n' +
+            '            return "bar";\n' +
+            '        },\n' +
+            '        bar: ["bar"]\n' +
+            '    };\n' +
+            '}());');
+        
+        // Issue 505 - strings should end at newline unless continued by backslash
+        bt(
+            'var name = "a;\n' +
+            'name = "b";');
+        bt(
+            'var name = "a;\\\n' +
+            '    name = b";');
+        
+        // Issue 514 - some operators require spaces to distinguish them
+        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;');
+        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
+        
+        // Issue 440 - reserved words can be used as object property names
+        bt(
+            'a = {\n' +
+            '    function: {},\n' +
+            '    "function": {},\n' +
+            '    throw: {},\n' +
+            '    "throw": {},\n' +
+            '    var: {},\n' +
+            '    "var": {},\n' +
+            '    set: {},\n' +
+            '    "set": {},\n' +
+            '    get: {},\n' +
+            '    "get": {},\n' +
+            '    if: {},\n' +
+            '    "if": {},\n' +
+            '    then: {},\n' +
+            '    "then": {},\n' +
+            '    else: {},\n' +
+            '    "else": {},\n' +
+            '    yay: {}\n' +
+            '};');
+        
+        // Issue 331 - if-else with braces edge case
+        bt(
+            'if(x){a();}else{b();}if(y){c();}',
+            'if (x) {\n' +
+            '    a();\n' +
+            '} else {\n' +
+            '    b();\n' +
+            '}\n' +
+            'if (y) {\n' +
+            '    c();\n' +
+            '}');
+        
+        // Issue 485 - ensure function declarations behave the same in arrays as elsewhere
+        bt(
+            'var v = ["a",\n' +
+            '    function() {\n' +
+            '        return;\n' +
+            '    }, {\n' +
+            '        id: 1\n' +
+            '    }\n' +
+            '];');
+        bt(
+            'var v = ["a", function() {\n' +
+            '    return;\n' +
+            '}, {\n' +
+            '    id: 1\n' +
+            '}];');
+        
+        // Issue 382 - initial totally cursory support for es6 module export
+        bt(
+            'module "Even" {\n' +
+            '    import odd from "Odd";\n' +
+            '    export function sum(x, y) {\n' +
+            '        return x + y;\n' +
+            '    }\n' +
+            '    export var pi = 3.141593;\n' +
+            '    export default moduleName;\n' +
+            '}');
+        bt(
+            'module "Even" {\n' +
+            '    export default function div(x, y) {}\n' +
+            '}');
+        
+        // Issue 508
+        bt('set["name"]');
+        bt('get["name"]');
+        bt(
+            'a = {\n' +
+            '    set b(x) {},\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        bt(
+            'a = {\n' +
+            '    get b() {\n' +
+            '        retun 0;\n' +
+            '    },\n' +
+            '    c: 1,\n' +
+            '    d: function() {}\n' +
+            '};');
+        
+        // Issue 298 - do not under indent if/while/for condtionals experesions
+        bt(
+            '\'use strict\';\n' +
+            'if ([].some(function() {\n' +
+            '        return false;\n' +
+            '    })) {\n' +
+            '    console.log("hello");\n' +
+            '}');
+        
+        // Issue 298 - do not under indent if/while/for condtionals experesions
+        bt(
+            '\'use strict\';\n' +
+            'if ([].some(function() {\n' +
+            '        return false;\n' +
+            '    })) {\n' +
+            '    console.log("hello");\n' +
+            '}');
+        
+        // Issue 552 - Typescript?  Okay... we didn't break it before, so try not to break it now.
+        bt(
+            'class Test {\n' +
+            '    blah: string[];\n' +
+            '    foo(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '    bar(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '}');
+        bt(
+            'interface Test {\n' +
+            '    blah: string[];\n' +
+            '    foo(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '    bar(): number {\n' +
+            '        return 0;\n' +
+            '    }\n' +
+            '}');
+
+
 
         // Old tests
         bt('');
@@ -452,7 +1137,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('(x) => { x }', '(x) => {\n    x\n}');
         
         // a common snippet in jQuery plugins
-        bt('settings = $.extend({},defaults,settings);', 'settings = $.extend({}, defaults, settings);');
+        bt(
+            'settings = $.extend({},defaults,settings);',
+            'settings = $.extend({}, defaults, settings);');
         bt('$http().then().finally().default()');
         bt('$http()\n.then()\n.finally()\n.default()', '$http()\n    .then()\n    .finally()\n    .default()');
         bt('$http().when.in.new.catch().throw()');
@@ -561,32 +1248,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}');
         bt('/*\n foo trailing space    \n * bar trailing space   \n**/');
         bt('{\n    /*\n    foo    \n    * bar    \n    */\n}');
-
-        bt('{{}/z/}', "{\n    {}\n    /z/\n}");
-
-        bt('return ++i', 'return ++i');
-        bt('return !!x', 'return !!x');
-        bt('return !x', 'return !x');
+        bt('return ++i');
+        bt('return !!x');
+        bt('return !x');
         bt('return [1,2]', 'return [1, 2]');
-        bt('return;', 'return;');
-        bt('return\nfunc', 'return\nfunc');
+        bt('return;');
+        bt('return\nfunc');
         bt('catch(e)', 'catch (e)');
         bt('yield [1, 2]');
-
-
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
-            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
-            'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
-
-
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
+        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
+        
         // inline comment
-        bt('function x(/*int*/ start, /*string*/ foo)', 'function x( /*int*/ start, /*string*/ foo)');
-
+        bt(
+            'function x(/*int*/ start, /*string*/ foo)',
+            'function x( /*int*/ start, /*string*/ foo)');
+        
         // javadoc comment
         bt('/**\n* foo\n*/', '/**\n * foo\n */');
         bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}');
-
+        
         // starless block comment
         bt('/**\nfoo\n*/');
         bt('/**\nfoo\n**/');
@@ -599,92 +1280,41 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('{\n/**\nfoo\n\nbar\n**/\n}', '{\n    /**\n    foo\n\n    bar\n    **/\n}');
         bt('{\n/**\nfoo\n    bar\n**/\n}', '{\n    /**\n    foo\n        bar\n    **/\n}');
         bt('{\n    /**\n    foo\nbar\n    **/\n}');
-
         bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;');
         bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;');
         bt('function() {\n    var a, b, c, d, e = [],\n        f;\n}');
-
-        bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);'); // hmmm
-
+        bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);');
         bt('var a = a,\na;\nb = {\nb\n}', 'var a = a,\n    a;\nb = {\n    b\n}');
-
         bt('var a = a,\n    /* c */\n    b;');
         bt('var a = a,\n    // c\n    b;');
-
-        bt('foo.("bar");'); // weird element referencing
-
-
+        
+        // weird element referencing
+        bt('foo.("bar");');
         bt('if (a) a()\nelse b()\nnewline()');
         bt('if (a) a()\nnewline()');
         bt('a=typeof(x)', 'a = typeof(x)');
-
         bt('var a = function() {\n        return null;\n    },\n    b = false;');
-
         bt('var a = function() {\n    func1()\n}');
         bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}');
-
+        
         // code with and without semicolons
-        bt( 'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
+        bt(
+            'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
             'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}');
-        bt( 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
-            'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
-
-
-        opts.space_after_anon_function = true;
-
-        bt('switch(x) {case 0: case 1: a(); break; default: break}',
-            "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
-        bt('switch(x){case -1:break;case !y:break;}',
-            'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
-        bt('a=typeof(x)', 'a = typeof (x)');
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
-        test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
-        bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
-        bt('function* () {\n    yield 1;\n}');
-
-        opts.space_after_anon_function = false;
-
-        opts.jslint_happy = true;
-
-        bt('a=typeof(x)', 'a = typeof (x)');
-        bt('x();\n\nfunction(){}', 'x();\n\nfunction () {}');
-        bt('function () {\n    var a, b, c, d, e = [],\n        f;\n}');
-        bt('switch(x) {case 0: case 1: a(); break; default: break}',
-            "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}");
-        bt('switch(x){case -1:break;case !y:break;}',
-            'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}');
-        test_fragment("// comment 1\n(function()", "// comment 1\n(function ()"); // typical greasemonkey start
-        bt('var o1=$.extend(a);function(){alert(x);}', 'var o1 = $.extend(a);\n\nfunction () {\n    alert(x);\n}');
-        bt('function* () {\n    yield 1;\n}');
-
-        opts.jslint_happy = false;
-
-        bt('switch(x) {case 0: case 1: a(); break; default: break}',
-            "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}");
-        bt('switch(x){case -1:break;case !y:break;}',
-            'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}');
-        test_fragment("// comment 2\n(function()", "// comment 2\n(function()"); // typical greasemonkey start
-        bt("var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
-        bt("var a2, b2, c2, d2 = 0, c = function() {},\nd = '';", "var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = '';");
-        bt('var o2=$.extend(a);function(){alert(x);}', 'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}');
-        bt('function*() {\n    yield 1;\n}');
-
-        bt('function* x() {\n    yield 1;\n}');
-
+        bt('var whatever = require("whatever")\nfunction() {\n    a = 6\n}', 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}');
         bt('{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}');
         bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}');
-
         bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}');
         bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}');
-
         bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}');
-
         bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}');
-
         bt('if (foo) one()\ntwo()\nthree()');
         bt('if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()');
         bt('if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();');
+        bt('var a=1,b={bang:2},c=3;', 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
+        bt('var a={bing:1},b=2,c=3;', 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
+
+
 
         opts.indent_size = 1;
         opts.indent_char = ' ';
@@ -1461,262 +2091,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('`This is a ${template} string.`', '`This is a ${template} string.`');
         bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`');
 
-        // Test that e4x literals passed through when e4x-option is enabled
-        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;');
-        opts.e4x = true;
-        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;');
-        bt('<a b=\'This is a quoted "c".\'/>', '<a b=\'This is a quoted "c".\'/>');
-        bt('<a b="This is a quoted \'c\'."/>', '<a b="This is a quoted \'c\'."/>');
-        bt('<a b="A quote \' inside string."/>', '<a b="A quote \' inside string."/>');
-        bt('<a b=\'A quote " inside string.\'/>', '<a b=\'A quote " inside string.\'/>');
-        bt('<a b=\'Some """ quotes ""  inside string.\'/>', '<a b=\'Some """ quotes ""  inside string.\'/>');
-        // Handles inline expressions
-        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;');
-        // xml literals with special characters in elem names
-        // see http://www.w3.org/TR/REC-xml/#NT-NameChar
-        bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;', 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;');
-        // Handles CDATA
-        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;');
-        bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;');
-        bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;');
-
-        // Handles messed up tags, as long as it isn't the same name
-        // as the root tag. Also handles tags of same name as root tag
-        // as long as nesting matches.
-        bt('xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
-         'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;');
-        // If xml is not terminated, the remainder of the file is treated
-        // as part of the xml-literal (passed through unaltered)
-        test_fragment('xml=<a></b>\nc<b;', 'xml = <a></b>\nc<b;');
-        opts.e4x = false;
-
-        // START tests for issue 241
-        bt('obj\n' +
-           '    .last({\n' +
-           '        foo: 1,\n' +
-           '        bar: 2\n' +
-           '    });\n' +
-           'var test = 1;');
-
-        bt('obj\n' +
-           '    .last(a, function() {\n' +
-           '        var test;\n' +
-           '    });\n' +
-           'var test = 1;');
-
-        bt('obj.first()\n' +
-           '    .second()\n' +
-           '    .last(function(err, response) {\n' +
-           '        console.log(err);\n' +
-           '    });');
-
-        // END tests for issue 241
-
-
-        // START tests for issue 268 and 275
-        bt('obj.last(a, function() {\n' +
-           '    var test;\n' +
-           '});\n' +
-           'var test = 1;');
-        bt('obj.last(a,\n' +
-           '    function() {\n' +
-           '        var test;\n' +
-           '    });\n' +
-           'var test = 1;');
-
-        bt('(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
-           '(function() {\n' +
-           '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
-           '        var b = {\n' +
-           '            bar: "zort"\n' +
-           '        };\n' +
-           '    });\n' +
-           '})();');
-        // END tests for issue 268 and 275
-
-        // START tests for issue 281
-        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
-           '    "dojo/_base/lang", "dojo/Deferred"\n' +
-           '], function(declare, Employee, Button, lang, Deferred) {\n' +
-           '    return declare(Employee, {\n' +
-           '        constructor: function() {\n' +
-           '            new Button({\n' +
-           '                onClick: lang.hitch(this, function() {\n' +
-           '                    new Deferred().then(lang.hitch(this, function() {\n' +
-           '                        this.salary * 0.25;\n' +
-           '                    }));\n' +
-           '                })\n' +
-           '            });\n' +
-           '        }\n' +
-           '    });\n' +
-           '});');
-
-        bt('define(["dojo/_base/declare", "my/Employee", "dijit/form/Button",\n' +
-           '        "dojo/_base/lang", "dojo/Deferred"\n' +
-           '    ],\n' +
-           '    function(declare, Employee, Button, lang, Deferred) {\n' +
-           '        return declare(Employee, {\n' +
-           '            constructor: function() {\n' +
-           '                new Button({\n' +
-           '                    onClick: lang.hitch(this, function() {\n' +
-           '                        new Deferred().then(lang.hitch(this, function() {\n' +
-           '                            this.salary * 0.25;\n' +
-           '                        }));\n' +
-           '                    })\n' +
-           '                });\n' +
-           '            }\n' +
-           '        });\n' +
-           '    });');
-        // END tests for issue 281
-
-        // START tests for issue 459
-        bt( '(function() {\n' +
-            '    return {\n' +
-            '        foo: function() {\n' +
-            '            return "bar";\n' +
-            '        },\n' +
-            '        bar: ["bar"]\n' +
-            '    };\n' +
-            '}());');
-        // END tests for issue 459
-
-        // START tests for issue 505
-        // strings should end at newline unless continued by backslash
-        bt( 'var name = "a;\n' +
-            'name = "b";');
-        bt( 'var name = "a; \\\n' +
-            '    name = b";');
-        // END tests for issue 505
-
-        // START tests for issue 514
-        // some operators require spaces to distinguish them
-        bt('var c = "_ACTION_TO_NATIVEAPI_" + ++g++ + +new Date;');
-        bt('var c = "_ACTION_TO_NATIVEAPI_" - --g-- - -new Date;');
-        // END tests for issue 514
-
-        // START tests for issue 440
-        // reserved words can be used as object property names
-        bt( 'a = {\n' +
-            '    function: {},\n' +
-            '    "function": {},\n' +
-            '    throw: {},\n' +
-            '    "throw": {},\n' +
-            '    var: {},\n' +
-            '    "var": {},\n' +
-            '    set: {},\n' +
-            '    "set": {},\n' +
-            '    get: {},\n' +
-            '    "get": {},\n' +
-            '    if: {},\n' +
-            '    "if": {},\n' +
-            '    then: {},\n' +
-            '    "then": {},\n' +
-            '    else: {},\n' +
-            '    "else": {},\n' +
-            '    yay: {}\n' +
-            '};');
-        // END tests for issue 440
-
-        // START tests for issue 311
-        // if-else with braces edge case
-        bt('if(x){a();}else{b();}if(y){c();}',
-            'if (x) {\n' +
-            '    a();\n' +
-            '} else {\n' +
-            '    b();\n' +
-            '}\n' +
-            'if (y) {\n' +
-            '    c();\n' +
-            '}');
-        // END tests for issue 311
-
-        // START tests for issue 485
-        // ensure function declarations behave the same in arrays as elsewhere
-        bt( 'var v = ["a",\n' +
-            '    function() {\n' +
-            '        return;\n' +
-            '    }, {\n' +
-            '        id: 1\n' +
-            '    }\n' +
-            '];');
-        bt( 'var v = ["a", function() {\n' +
-            '    return;\n' +
-            '}, {\n' +
-            '    id: 1\n' +
-            '}];');
-        // END tests for issue 485
-
-        // START tests for issue 382
-        // initial totally cursor support for es6 module export
-        bt( 'module "Even" {\n' +
-            '    import odd from "Odd";\n' +
-            '    export function sum(x, y) {\n' +
-            '        return x + y;\n' +
-            '    }\n' +
-            '    export var pi = 3.141593;\n' +
-            '    export default moduleName;\n' +
-            '}');
-        bt( 'module "Even" {\n' +
-            '    export default function div(x, y) {}\n' +
-            '}');
-        // END tests for issue 382
-
-        // START tests for issue 508
-        bt('set["name"]');
-        bt('get["name"]');
-        test_fragment(
-            'a = {\n' +
-            '    set b(x) {},\n' +
-            '    c: 1,\n' +
-            '    d: function() {}\n' +
-            '};');
-        test_fragment(
-            'a = {\n' +
-            '    get b() {\n' +
-            '        retun 0;\n' +
-            '    },\n' +
-            '    c: 1,\n' +
-            '    d: function() {}\n' +
-            '};');
-        // END tests for issue 508
-
-        // START tests for issue 298
-        // do not under indent if/while/for condtionals experesions
-        bt("'use strict';\n" +
-            "if ([].some(function() {\n" +
-            "        return false;\n" +
-            "    })) {\n" +
-            "    console.log('hello');\n" +
-            "}");
-        // END tests for issue 298
-
-        // START tests for issue 552
-        // Typescript?  Okay... we didn't break it before try not to now.
-        bt( "class Test {\n" +
-            "    blah: string[];\n" +
-            "    foo(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "    bar(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "}");
-        bt( "interface Test {\n" +
-            "    blah: string[];\n" +
-            "    foo(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "    bar(): number {\n" +
-            "        return 0;\n" +
-            "    }\n" +
-            "}");
-        // END tests for issue 552
-
-
-        bt('var a=1,b={bang:2},c=3;',
-            'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;');
-        bt('var a={bing:1},b=2,c=3;',
-            'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;');
         Urlencoded.run_tests(sanitytest);
     }
 
