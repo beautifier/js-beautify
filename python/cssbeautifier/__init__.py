@@ -36,6 +36,7 @@ class BeautifierOptions:
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
+        self.consistent_comment_rule = False
 
     def __repr__(self):
         return \
@@ -44,8 +45,9 @@ indent_char = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
+consistent_comment_rule = [%s]
 """ % (self.indent_size, self.indent_char,
-       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
+       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules, self.consistent_comment_rule)
 
 
 def default_options():
@@ -90,6 +92,7 @@ class Printer:
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
         self.nestedLevel = 0
+        self.isAfterNewline = 0
 
         self.baseIndentString = default_indent
         self.output = []
@@ -159,6 +162,9 @@ class Beautifier:
         self.indentChar = opts.indent_char
         self.pos = -1
         self.ch = None
+        m = re.search("^[\t ]*", self.source_text)
+        baseIndentString = m.group(0)
+        self.printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -259,48 +265,57 @@ class Beautifier:
             i += 1;
 
         return False
-
+		
+    def process_consistent_comment(self):
+        if not self.printer.isAfterNewline:
+            self.printer.trim()
+        self.printer.singleSpace()
+        self.printer.comment(self.eatComment())
+        self.printer.newLine()
+        if self.printer.indentLevel == 0:
+            self.printer.newLine(True)
 
     def beautify(self):
-        m = re.search("^[\t ]*", self.source_text)
-        baseIndentString = m.group(0)
-        printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         insideRule = False
         enteringConditionalGroup = False
         top_ch = ''
         last_top_ch = ''
         parenLevel = 0
-
+        
         while True:
             whitespace = self.skipWhitespace();
             isAfterSpace = whitespace != ''
-            isAfterNewline = '\n' in whitespace;
+            self.printer.isAfterNewline = '\n' in whitespace;
             last_top_ch = top_ch
             top_ch = self.ch
 
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                printer.newLine()
-                comment = self.eatComment()
-                printer.comment(comment)
-                printer.newLine()
-                header = self.lookBack("")
-                if header:
-                    printer.newLine(True)
+                if self.opts.consistent_comment_rule:
+                    self.process_consistent_comment()
+                else:
+                    self.printer.newLine()
+                    self.printer.comment(self.eatComment())
+                    self.printer.newLine()
+                    header = self.lookBack("")
+                    if header:
+                        self.printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':
-                if not isAfterNewline and last_top_ch != '{':
-                    printer.trim()
-
-                printer.singleSpace()
-                printer.comment(self.eatComment())
-                printer.newLine()
+                if self.opts.consistent_comment_rule:
+                    self.process_consistent_comment()
+                else:
+                    if not self.printer.isAfterNewline and last_top_ch != '{':
+                        self.printer.trim()
+                    self.printer.singleSpace()
+                    self.printer.comment(self.eatComment())
+                    self.printer.newLine()
             elif self.ch == '@':
                 # pass along the space we found as a separate item
                 if isAfterSpace:
-                    printer.singleSpace()
-                printer.push(self.ch)
+                    self.printer.singleSpace()
+                self.printer.push(self.ch)
 
                 # strip trailing space, if present, for hash property check
                 variableOrRule = self.peekString(": ,;{}()[]/='\"")
@@ -311,15 +326,15 @@ class Beautifier:
                     variableOrRule = self.eatString(": ")
                     if variableOrRule[-1].isspace():
                         variableOrRule = variableOrRule[:-1]
-                    printer.push(variableOrRule)
-                    printer.singleSpace();
+                    self.printer.push(variableOrRule)
+                    self.printer.singleSpace();
 
                 if variableOrRule[-1].isspace():
                     variableOrRule = variableOrRule[:-1]
 
                 # might be a nesting at-rule
                 if variableOrRule in self.NESTED_AT_RULE:
-                    printer.nestedLevel += 1
+                    self.printer.nestedLevel += 1
                     if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
 
@@ -327,98 +342,98 @@ class Beautifier:
                 if self.peek(True) == '}':
                     self.eatWhitespace()
                     self.next()
-                    printer.singleSpace()
-                    printer.push("{}")
-                    printer.newLine()
-                    if self.opts.newline_between_rules and printer.indentLevel == 0:
-                        printer.newLine(True)
+                    self.printer.singleSpace()
+                    self.printer.push("{}")
+                    self.printer.newLine()
+                    if self.opts.newline_between_rules and self.printer.indentLevel == 0:
+                        self.printer.newLine(True)
                 else:
-                    printer.indent()
-                    printer.openBracket()
+                    self.printer.indent()
+                    self.printer.openBracket()
                     # when entering conditional groups, only rulesets are allowed
                     if enteringConditionalGroup:
                         enteringConditionalGroup = False
-                        insideRule = printer.indentLevel > printer.nestedLevel
+                        insideRule = self.printer.indentLevel > self.printer.nestedLevel
                     else:
                         # otherwise, declarations are also allowed
-                        insideRule = printer.indentLevel >= printer.nestedLevel
+                        insideRule = self.printer.indentLevel >= self.printer.nestedLevel
             elif self.ch == '}':
-                printer.outdent()
-                printer.closeBracket()
+                self.printer.outdent()
+                self.printer.closeBracket()
                 insideRule = False
-                if printer.nestedLevel:
-                    printer.nestedLevel -= 1
-                if self.opts.newline_between_rules and printer.indentLevel == 0:
-                    printer.newLine(True)
+                if self.printer.nestedLevel:
+                    self.printer.nestedLevel -= 1
+                if self.opts.newline_between_rules and self.printer.indentLevel == 0:
+                    self.printer.newLine(True)
             elif self.ch == ":":
                 self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
                         not (self.lookBack('&') or self.foundNestedPseudoClass()):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
-                    printer.push(":")
-                    printer.singleSpace()
+                    self.printer.push(":")
+                    self.printer.singleSpace()
                 else:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space
                     if self.peek() == ":":
                         # pseudo-element
                         self.next()
-                        printer.push("::")
+                        self.printer.push("::")
                     else:
                         # pseudo-element
-                        printer.push(":")
+                        self.printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
                 if isAfterSpace:
-                    printer.singleSpace()
-                printer.push(self.eatString(self.ch))
+                    self.printer.singleSpace()
+                self.printer.push(self.eatString(self.ch))
             elif self.ch == ';':
-                printer.semicolon()
+                self.printer.semicolon()
             elif self.ch == '(':
                 # may be a url
                 if self.lookBack("url"):
-                    printer.push(self.ch)
+                    self.printer.push(self.ch)
                     self.eatWhitespace()
                     if self.next():
                         if self.ch is not ')' and self.ch is not '"' \
                         and self.ch is not '\'':
-                            printer.push(self.eatString(')'))
+                            self.printer.push(self.eatString(')'))
                         else:
                             self.pos = self.pos - 1
                 else:
                     parenLevel += 1
                     if isAfterSpace:
-                        printer.singleSpace()
-                    printer.push(self.ch)
+                        self.printer.singleSpace()
+                    self.printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
-                printer.push(self.ch)
+                self.printer.push(self.ch)
                 parenLevel -= 1
             elif self.ch == ',':
-                printer.push(self.ch)
+                self.printer.push(self.ch)
                 self.eatWhitespace()
                 if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
-                    printer.newLine()
+                    self.printer.newLine()
                 else:
-                    printer.singleSpace()
+                    self.printer.singleSpace()
             elif self.ch == ']':
-                printer.push(self.ch)
+                self.printer.push(self.ch)
             elif self.ch == '[':
                 if isAfterSpace:
-                    printer.singleSpace()
-                printer.push(self.ch)
+                    self.printer.singleSpace()
+                self.printer.push(self.ch)
             elif self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
                 self.ch = '='
-                printer.push(self.ch)
+                self.printer.push(self.ch)
             else:
                 if isAfterSpace:
-                    printer.singleSpace()
+                    self.printer.singleSpace()
 
-                printer.push(self.ch)
+                self.printer.push(self.ch)
 
-        sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
+        sweet_code = re.sub('[\r\n\t ]+$', '', self.printer.result())
 
         # establish end_with_newline
         if self.opts.end_with_newline:
