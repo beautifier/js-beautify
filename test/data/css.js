@@ -5,6 +5,7 @@ exports.test_data = {
         { name: "selector_separator_newline", value: "true" },
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false"},
+        { name: "consistent_comment_rule", value: "false"}
     ],
     groups: [{
         name: "End With Newline",
@@ -46,6 +47,48 @@ exports.test_data = {
                 input:  '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
                 output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
             },
+        ],
+    }, {
+        name: "turn on consistent_comment_rule",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "consistent_comment_rule", value: "true" },
+                    { name: "newline_between_rules", value: "true" }
+                ]
+            }
+        ],
+        tests: [
+            {
+				input: '.selector1{}\n// comment\n.selector1{}',
+				output: '.selector1 {}\n\n// comment\n\n.selector1 {}'
+			},
+            {
+				input: '/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}\n// comment\n.selector1{// comment\nmargin: 0;// comment\n}\n/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}',
+				output: '/* comment */\n\n.selector1 { /* comment */\n\tmargin: 0; /* comment */\n}\n\n// comment\n\n.selector1 { // comment\n\tmargin: 0; // comment\n}\n\n/* comment */\n\n.selector1 { /* comment */\n\tmargin: 0; /* comment */\n}'
+			},
+        ],
+    }, {
+        name: "turn off consistent_comment_rule",
+        description: "",
+        matrix: [
+            {
+                options: [
+                    { name: "consistent_comment_rule", value: "false" },
+                    { name: "newline_between_rules", value: "true" }
+                ]
+            }
+        ],
+        tests: [
+            {
+				input: '.selector1{}\n// comment\n.selector1{}',
+				output: '.selector1 {}\n\n// comment\n.selector1 {}'
+			},
+            {
+				input: '/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}\n// comment\n.selector1{// comment\nmargin: 0;// comment\n}\n/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}',
+				output: '/* comment */\n\n.selector1 {\n\t/* comment */\n\t\n\tmargin: 0;\n\t/* comment */\n}\n\n// comment\n.selector1 {\n\t// comment\n\tmargin: 0; // comment\n}\n/* comment */\n\n.selector1 {\n\t/* comment */\n\t\n\tmargin: 0;\n\t/* comment */\n}'
+			},
         ],
     }, {
         name: "Newline Between Rules",
