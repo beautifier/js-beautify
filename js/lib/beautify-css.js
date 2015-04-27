@@ -68,12 +68,12 @@
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
+        var consistent_comment_rule = (options.consistent_comment_rule === undefined) ? false : options.consistent_comment_rule;
 
         // compatibility
         if (typeof indentSize === "string") {
             indentSize = parseInt(indentSize, 10);
         }
-
 
         // tokenizer
         var whiteRe = /^\s+$/;
@@ -252,24 +252,55 @@
             var isAfterNewline = whitespace.indexOf('\n') !== -1;
             last_top_ch = top_ch;
             top_ch = ch;
-
-            if (!ch) {
-                break;
-            } else if (ch === '/' && peek() === '*') { /* css comment */
-                var header = lookBack("");
-                print.newLine();
-                output.push(eatComment());
-                print.newLine();
-                if (header) {
-                    print.newLine(true);
-                }
-            } else if (ch === '/' && peek() === '/') { // single line comment
-                if (!isAfterNewline && last_top_ch !== '{') {
+            
+            function process_consistent_comment()
+            {
+                if (!isAfterNewline)
+                {
                     print.trim();
                 }
                 print.singleSpace();
                 output.push(eatComment());
                 print.newLine();
+                if (indentLevel === 0)
+                {
+                    print.newLine(true);
+                }
+            }
+
+            if (!ch) {
+                break;
+            } else if (ch === '/' && peek() === '*') { /* css comment */
+                if (consistent_comment_rule)
+                {
+                    process_consistent_comment();
+                }
+                else
+                {
+                    var header = lookBack("");
+                    print.newLine();
+                    output.push(eatComment());
+                    print.newLine();
+                    if (header)
+                    {
+                        print.newLine(true);
+                    }
+                }
+            } else if (ch === '/' && peek() === '/') { // single line comment
+                if (consistent_comment_rule)
+                {
+                    process_consistent_comment();
+                }
+                else
+                {
+                    if (!isAfterNewline && last_top_ch !== '{')
+                    {
+                        print.trim();
+                    }
+                    print.singleSpace();
+                    output.push(eatComment());
+                    print.newLine();
+                }
             } else if (ch === '@') {
                 // pass along the space we found as a separate item
                 if (isAfterSpace) {

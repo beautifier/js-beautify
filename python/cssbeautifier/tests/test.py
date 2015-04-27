@@ -13,6 +13,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.selector_separator_newline = true
         self.options.end_with_newline = false
         self.options.newline_between_rules = false
+        self.options.consistent_comment_rule = false
 
     def testGenerated(self):
         self.resetOptions()
@@ -27,6 +28,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.selector_separator_newline = true
         self.options.end_with_newline = false
         self.options.newline_between_rules = false
+        self.options.consistent_comment_rule = false
 
         # End With Newline - (eof = "\n")
         self.options.end_with_newline = true
@@ -50,6 +52,18 @@ class CSSBeautifierTest(unittest.TestCase):
 
         # 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
+
+        # turn on consistent_comment_rule - ()
+        self.options.consistent_comment_rule = true
+        self.options.newline_between_rules = true
+        t('.selector1{}\n// comment\n.selector1{}', '.selector1 {}\n\n// comment\n\n.selector1 {}')
+        t('/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}\n// comment\n.selector1{// comment\nmargin: 0;// comment\n}\n/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}', '/* comment */\n\n.selector1 { /* comment */\n\tmargin: 0; /* comment */\n}\n\n// comment\n\n.selector1 { // comment\n\tmargin: 0; // comment\n}\n\n/* comment */\n\n.selector1 { /* comment */\n\tmargin: 0; /* comment */\n}')
+
+        # turn off consistent_comment_rule - ()
+        self.options.consistent_comment_rule = false
+        self.options.newline_between_rules = true
+        t('.selector1{}\n// comment\n.selector1{}', '.selector1 {}\n\n// comment\n.selector1 {}')
+        t('/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}\n// comment\n.selector1{// comment\nmargin: 0;// comment\n}\n/* comment */\n.selector1{/* comment */\nmargin: 0;/* comment */\n}', '/* comment */\n\n.selector1 {\n\t/* comment */\n\t\n\tmargin: 0;\n\t/* comment */\n}\n\n// comment\n.selector1 {\n\t// comment\n\tmargin: 0; // comment\n}\n/* comment */\n\n.selector1 {\n\t/* comment */\n\t\n\tmargin: 0;\n\t/* comment */\n}')
 
         # Newline Between Rules - (separator = "\n")
         self.options.newline_between_rules = true
