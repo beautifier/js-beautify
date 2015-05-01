@@ -142,6 +142,7 @@
             this.token_text = this.last_token = this.last_text = this.token_type = '';
             this.newlines = 0;
             this.indent_content = indent_inner_html;
+            this.wrap_attributes = wrap_attributes;
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
@@ -317,7 +318,8 @@
                     tag_start, tag_end,
                     tag_start_char,
                     orig_pos = this.pos,
-                    orig_line_char_count = this.line_char_count;
+                    orig_line_char_count = this.line_char_count,
+                    wrap_attributes = this.wrap_attributes;
 
                 peek = peek !== undefined ? peek : false;
 
@@ -341,11 +343,15 @@
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
-
                     }
 
                     if (input_char === '=') { //no space before =
                         space = false;
+                    }
+
+                    if (input_char === '?' && tag_start_char === '<' && tag_start === this.pos -2) {
+                        // XML declaration or processing instruction. Don't force wrap attributes.
+                        wrap_attributes = 'auto';
                     }
 
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
@@ -466,6 +472,9 @@
                         this.record_tag(tag_check);
                         this.tag_type = 'STYLE';
                     }
+                } else if (tag_check === '?xml') {
+                    // XML declaration
+                    this.tag_type = 'SINGLE';
                 } else if (tag_check.charAt(0) === '!') { //peek for <! comment
                     // for comments content is already correct.
                     if (!peek) {
