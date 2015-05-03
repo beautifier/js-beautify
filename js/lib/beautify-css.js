@@ -74,6 +74,10 @@
             indentSize = parseInt(indentSize, 10);
         }
 
+        if(options.indent_with_tabs){
+            indentCharacter = '\t';
+            indentSize = 1;
+        }
 
         // tokenizer
         var whiteRe = /^\s+$/;
