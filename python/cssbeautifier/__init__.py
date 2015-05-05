@@ -160,6 +160,10 @@ class Beautifier:
         self.pos = -1
         self.ch = None
 
+        if self.opts.indent_with_tabs:
+            self.indentChar = "\t"
+            self.indentSize = 1
+
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
         self.NESTED_AT_RULE = [ \
