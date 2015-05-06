@@ -33,6 +33,7 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
+        self.indent_with_tabs = False
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
@@ -41,10 +42,11 @@ class BeautifierOptions:
         return \
 """indent_size = %d
 indent_char = [%s]
+indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
-""" % (self.indent_size, self.indent_char,
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
 
 
