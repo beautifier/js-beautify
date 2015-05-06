@@ -383,6 +383,27 @@ exports.test_data = {
             { fragment: true, input: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
     }, {
+        name: "Indent with tabs",
+        description: "Use one tab instead of several spaces for indentation",
+        matrix: [
+            {
+                options: [
+                    { name: "indent_with_tabs", value: "true" }
+                ],
+                indent: "\t"
+            }, {
+                options: [
+                    { name: "indent_with_tabs", value: "false" }
+                ],
+                indent: "    "
+            }
+
+        ],
+        tests: [
+            { input: "<div>\n<div>\n</div>\n</div>",
+              output: "<div>\n{{indent}}<div>\n{{indent}}</div>\n</div>" },
+        ],
+    }, {
         name: "New Test Suite"
     }],
 };
