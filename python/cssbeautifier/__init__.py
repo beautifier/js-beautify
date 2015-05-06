@@ -46,7 +46,7 @@ indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
-""" % (self.indent_size, self.indent_char, self.indent_with_tabs
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
 
 
