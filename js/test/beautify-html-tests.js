@@ -67,6 +67,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         opts.indent_size = 4;
         opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
         opts.preserve_newlines = true;
         opts.jslint_happy = false;
         opts.keep_array_indentation = false;
@@ -373,6 +374,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Unformatted tags
         test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
+
+
+
+        // Indent with tabs
+        opts.indent_with_tabs = true;
+        test_fragment(
+            '<div>\n<div>\n</div>\n</div>',
+            '<div>\n\t<div>\n\t</div>\n</div>');
+
+
+
+        // Indent without tabs
+        opts.indent_with_tabs = false;
+        test_fragment(
+            '<div>\n<div>\n</div>\n</div>',
+            '<div>\n    <div>\n    </div>\n</div>');
 
 
 
