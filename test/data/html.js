@@ -2,6 +2,7 @@ exports.test_data = {
     default_options: [
         { name: "indent_size", value: "4" },
         { name: "indent_char", value: "' '" },
+        { name: "indent_with_tabs", value: "false" },
         { name: "preserve_newlines", value: "true" },
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
@@ -382,28 +383,47 @@ exports.test_data = {
             { fragment: true, input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
             { fragment: true, input: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
-    }, {
+      }, {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
-        matrix: [
-            {
-                options: [
-                    { name: "indent_with_tabs", value: "true" }
-                ],
-                indent: "\t"
-            }, {
-                options: [
-                    { name: "indent_with_tabs", value: "false" }
-                ],
-                indent: "    "
-            }
-
+        template: "^^^ $$$",
+        options: [
+            { name: "indent_with_tabs", value: "true" }
         ],
         tests: [
-            { input: "<div>\n<div>\n</div>\n</div>",
-              output: "<div>\n{{indent}}<div>\n{{indent}}</div>\n</div>" },
-        ],
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '\t<div>\n' +
+                '\t</div>\n' +
+                '</div>' }
+        ]
     }, {
-        name: "New Test Suite"
-    }],
+        name: "Indent without tabs",
+        description: "Use several spaces for indentation",
+        template: "^^^ $$$",
+        options: [
+            { name: "indent_with_tabs", value: "false" }
+        ],
+        tests: [
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '</div>' }
+        ]
+      }, {
+          name: "New Test Suite"
+      }],
 };
