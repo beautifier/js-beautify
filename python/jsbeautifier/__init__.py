@@ -1374,13 +1374,13 @@ class Tokenizer:
 
             if next.type == 'TK_START_BLOCK' or next.type == 'TK_START_EXPR':
                 next.parent = last
+                open_stack.append(open)
                 open = next
-                open_stack.append(next)
             elif (next.type == 'TK_END_BLOCK' or next.type == 'TK_END_EXPR') and \
                 (not open == None and ( \
                     (next.text == ']' and open.text == '[') or \
                     (next.text == ')' and open.text == '(') or \
-                    (next.text == '}' and open.text == '}'))):
+                    (next.text == '}' and open.text == '{'))):
                 next.parent = open.parent
                 open = open_stack.pop()
 
