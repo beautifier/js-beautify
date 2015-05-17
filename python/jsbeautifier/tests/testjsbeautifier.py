@@ -1029,6 +1029,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('switch (a) {\n    case /foo\\//:\n        b\n}')
         bt('if (a) /foo\\//\nelse /foo\\//;')
         bt('if (foo) /regex/.test();')
+        bt('for (index in [1, 2, 3]) /^test$/i.test(s)')
         bt('result = yield pgClient.query_(queryString);')
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
         bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')

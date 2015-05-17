@@ -1518,13 +1518,13 @@
 
                 if (next.type === 'TK_START_BLOCK' || next.type === 'TK_START_EXPR') {
                     next.parent = last;
+                    open_stack.push(open);
                     open = next;
-                    open_stack.push(next);
                 }  else if ((next.type === 'TK_END_BLOCK' || next.type === 'TK_END_EXPR') &&
                     (open && (
                         (next.text === ']' && open.text === '[') ||
                         (next.text === ')' && open.text === '(') ||
-                        (next.text === '}' && open.text === '}')))) {
+                        (next.text === '}' && open.text === '{')))) {
                     next.parent = open.parent;
                     open = open_stack.pop();
                 }
