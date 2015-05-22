@@ -89,6 +89,7 @@
         }
 
         function peek(skipWhitespace) {
+            var result = '';
             var prev_pos = pos;
             if (skipWhitespace) {
                 eatWhitespace();
