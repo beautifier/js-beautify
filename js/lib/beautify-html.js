@@ -128,6 +128,12 @@
         extra_liners = Array.isArray(options.extra_liners) ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
+
+        if(options.indent_with_tabs){
+            indent_character = '\t';
+            indent_size = 1;
+        }
+
         function Parser() {
 
             this.pos = 0; //Parser position
