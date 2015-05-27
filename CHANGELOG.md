@@ -19,7 +19,7 @@
 * elem[array]++ changes to elem[array] ++ inserting unnecessary gap ([#570](https://github.com/beautify-web/js-beautify/issues/570))
 * add support to less functions paramters braces ([#568](https://github.com/beautify-web/js-beautify/pull/568))
 * yield statements are being beautified to their own newlines since 1.5.2 ([#560](https://github.com/beautify-web/js-beautify/issues/560))
-* HTML beautifier inserts extra newline into <li>s ending with <code> ([#524](https://github.com/beautify-web/js-beautify/issues/524))
+* HTML beautifier inserts extra newline into `<li>`s ending with `<code>` ([#524](https://github.com/beautify-web/js-beautify/issues/524))
 * Add wrap_attributes option ([#476](https://github.com/beautify-web/js-beautify/issues/476))
 * Add or preserve empty line between CSS rules ([#467](https://github.com/beautify-web/js-beautify/issues/467))
 * Support comma first style of variable declaration ([#245](https://github.com/beautify-web/js-beautify/issues/245))
