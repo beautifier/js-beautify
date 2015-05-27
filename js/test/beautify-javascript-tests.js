@@ -974,6 +974,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        return 0;\n' +
             '    }\n' +
             '}');
+        
+        // Issue 583 - Functions with comments after them should still indent correctly.
+        bt(
+            'function exit(code) {\n' +
+            '    setTimeout(function() {\n' +
+            '        phantom.exit(code);\n' +
+            '    }, 0);\n' +
+            '    phantom.onError = function() {};\n' +
+            '}\n' +
+            '// Comment');
 
 
 

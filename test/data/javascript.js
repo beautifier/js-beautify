@@ -837,7 +837,19 @@ exports.test_data = {
                     '        return 0;',
                     '    }',
                     '}' ]
-            }
+            },
+            {
+                comment: "Issue 583 - Functions with comments after them should still indent correctly.",
+                unchanged: [
+                    'function exit(code) {',
+                    '    setTimeout(function() {',
+                    '        phantom.exit(code);',
+                    '    }, 0);',
+                    '    phantom.onError = function() {};',
+                    '}',
+                    '// Comment' ]
+            },
+
         ]
     },
 
