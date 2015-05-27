@@ -371,6 +371,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
 
 
+        // Unclosed html elements
+        test_fragment('<source>\n<source>');
+        test_fragment('<br>\n<br>');
+        test_fragment('<input>\n<input>');
+        test_fragment('<meta>\n<meta>');
+        test_fragment('<link>\n<link>');
+
+
+
         // Unformatted tags
         test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');

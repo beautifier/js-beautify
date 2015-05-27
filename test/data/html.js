@@ -376,14 +376,25 @@ exports.test_data = {
                 unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>' }
         ],
     }, {
+        name: "Unclosed html elements",
+        description: "Unclosed elements should not indent",
+        options: [],
+        tests: [
+            { fragment: true, unchanged: '<source>\n<source>' },
+            { fragment: true, unchanged: '<br>\n<br>' },
+            { fragment: true, unchanged: '<input>\n<input>' },
+            { fragment: true, unchanged: '<meta>\n<meta>' },
+            { fragment: true, unchanged: '<link>\n<link>' }
+        ]
+    }, {
         name: "Unformatted tags",
         description: "Unformatted tag behavior",
         options: [],
         tests: [
-            { fragment: true, input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
-            { fragment: true, input: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+            { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
+            { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
-      }, {
+    }, {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
         template: "^^^ $$$",
