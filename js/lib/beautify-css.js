@@ -215,15 +215,16 @@
         };
 
         print.newLine = function(keepWhitespace) {
-            if (!keepWhitespace) {
-                print.trim();
-            }
-
             if (output.length) {
+                if (!keepWhitespace && output[output.length - 1] !== '\n') {
+                    print.trim();
+                }
+
                 output.push('\n');
-            }
-            if (basebaseIndentString) {
-                output.push(basebaseIndentString);
+
+                if (basebaseIndentString) {
+                    output.push(basebaseIndentString);
+                }
             }
         };
         print.singleSpace = function() {
@@ -240,9 +241,6 @@
 
 
         var output = [];
-        if (basebaseIndentString) {
-            output.push(basebaseIndentString);
-        }
         /*_____________________--------------------_____________________*/
 
         var insideRule = false;
@@ -260,15 +258,19 @@
             if (!ch) {
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
-                var header = lookBack("");
-                print.newLine();
+                var header = indentLevel === 0;
+
+                if (isAfterNewline || header) {
+                    print.newLine();
+                }
+
                 output.push(eatComment());
                 print.newLine();
                 if (header) {
                     print.newLine(true);
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
-                if (!isAfterNewline && last_top_ch !== '{') {
+                if (!isAfterNewline && last_top_ch !== '{' ) {
                     print.trim();
                 }
                 print.singleSpace();
@@ -412,7 +414,12 @@
         }
 
 
-        var sweetCode = output.join('').replace(/[\r\n\t ]+$/, '');
+        var sweetCode = '';
+        if (basebaseIndentString) {
+            sweetCode += basebaseIndentString;
+        }
+
+        sweetCode += output.join('').replace(/[\r\n\t ]+$/, '');
 
         // establish end_with_newline
         if (end_with_newline) {
