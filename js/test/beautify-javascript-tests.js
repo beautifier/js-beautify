@@ -974,6 +974,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        return 0;\n' +
             '    }\n' +
             '}');
+        
+        // Issue 583 - Functions with comments after them should still indent correctly.
+        bt(
+            'function exit(code) {\n' +
+            '    setTimeout(function() {\n' +
+            '        phantom.exit(code);\n' +
+            '    }, 0);\n' +
+            '    phantom.onError = function() {};\n' +
+            '}\n' +
+            '// Comment');
 
 
 
@@ -1234,6 +1244,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('switch (a) {\n    case /foo\\//:\n        b\n}');
         bt('if (a) /foo\\//\nelse /foo\\//;');
         bt('if (foo) /regex/.test();');
+        bt('for (index in [1, 2, 3]) /^test$/i.test(s)');
         bt('result = yield pgClient.query_(queryString);');
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]');

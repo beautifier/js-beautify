@@ -2,7 +2,7 @@
 
 
 ## Report issues
-If you find a bug, please report it, including environment andexamples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
+If you find a bug, please report it, including environment and examples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
 
 ## Fix issues
 Pull requests with fixes are totally welcome. Familiarize yourself with the folder structure and code style before you dive in.  Where possible fixes should include tests to prevent future regressions in functionality.  Also, if they apply and you have the ability, make fixes to both python and javascript implementations.

@@ -67,6 +67,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         opts.indent_size = 4;
         opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
         opts.preserve_newlines = true;
         opts.jslint_happy = false;
         opts.keep_array_indentation = false;
@@ -89,18 +90,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Custom Extra Liners (empty) - ()
         opts.extra_liners = [];
         test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>');
+    
 
         // Custom Extra Liners (default) - ()
         opts.extra_liners = null;
         test_fragment('<html><head></head><body></body></html>', '<html>\n\n<head></head>\n\n<body></body>\n\n</html>');
+    
 
         // Custom Extra Liners (p, string) - ()
         opts.extra_liners = 'p,/p';
         test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
+    
 
         // Custom Extra Liners (p) - ()
         opts.extra_liners = ['p', '/p'];
         test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
+    
 
         // Attribute Wrap - (eof = "\n", indent_attr = "    ", over80 = "\n")
         opts.wrap_attributes = 'force';
@@ -366,9 +371,34 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
 
 
+        // Unclosed html elements
+        test_fragment('<source>\n<source>');
+        test_fragment('<br>\n<br>');
+        test_fragment('<input>\n<input>');
+        test_fragment('<meta>\n<meta>');
+        test_fragment('<link>\n<link>');
+
+
+
         // Unformatted tags
         test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
+
+
+
+        // Indent with tabs
+        opts.indent_with_tabs = true;
+        test_fragment(
+            '<div>\n<div>\n</div>\n</div>',
+            '<div>\n\t<div>\n\t</div>\n</div>');
+
+
+
+        // Indent without tabs
+        opts.indent_with_tabs = false;
+        test_fragment(
+            '<div>\n<div>\n</div>\n</div>',
+            '<div>\n    <div>\n    </div>\n</div>');
 
 
 

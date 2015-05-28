@@ -540,6 +540,7 @@ class Beautifier:
                 or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
                     and not self.flags.in_case
                     and not (current_token.text == '--' or current_token.text == '++')
+                    and self.last_last_text != 'function'
                     and current_token.type != 'TK_WORD' and current_token.type != 'TK_RESERVED') \
                 or (self.flags.mode == MODE.ObjectLiteral and \
                     ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set'])))
@@ -1168,7 +1169,8 @@ class Beautifier:
 
 def mkdir_p(path):
     try:
-        os.makedirs(path)
+        if path:
+            os.makedirs(path)
     except OSError as exc: # Python >2.5
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
@@ -1374,13 +1376,13 @@ class Tokenizer:
 
             if next.type == 'TK_START_BLOCK' or next.type == 'TK_START_EXPR':
                 next.parent = last
+                open_stack.append(open)
                 open = next
-                open_stack.append(next)
             elif (next.type == 'TK_END_BLOCK' or next.type == 'TK_END_EXPR') and \
                 (not open == None and ( \
                     (next.text == ']' and open.text == '[') or \
                     (next.text == ')' and open.text == '(') or \
-                    (next.text == '}' and open.text == '}'))):
+                    (next.text == '}' and open.text == '{'))):
                 next.parent = open.parent
                 open = open_stack.pop()
 

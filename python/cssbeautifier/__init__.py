@@ -33,6 +33,7 @@ class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
         self.indent_char = ' '
+        self.indent_with_tabs = False
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
@@ -41,10 +42,11 @@ class BeautifierOptions:
         return \
 """indent_size = %d
 indent_char = [%s]
+indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
-""" % (self.indent_size, self.indent_char,
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
 
 
@@ -93,8 +95,6 @@ class Printer:
 
         self.baseIndentString = default_indent
         self.output = []
-        if self.baseIndentString:
-            self.push(self.baseIndentString)
 
     def __lastCharWhitespace(self):
         return len(self.output) > 0 and WHITE_RE.search(self.output[-1]) is not None
@@ -129,14 +129,14 @@ class Printer:
         self.output.append(comment)
 
     def newLine(self, keepWhitespace=False):
-        if not keepWhitespace:
-            self.trim()
+        if len(self.output) > 0 :
+            if not keepWhitespace and self.output[-1] != '\n':
+                self.trim()
 
-        if len(self.output) > 0:
             self.output.append("\n")
 
-        if len(self.baseIndentString) > 0:
-            self.output.append(self.baseIndentString)
+            if len(self.baseIndentString) > 0:
+                self.output.append(self.baseIndentString)
 
     def trim(self):
         while self.__lastCharWhitespace():
@@ -147,7 +147,10 @@ class Printer:
             self.output.append(" ")
 
     def result(self):
-        return "".join(self.output)
+        if self.baseIndentString:
+            return self.baseIndentString + "".join(self.output);
+        else:
+            return "".join(self.output)
 
 
 class Beautifier:
@@ -159,6 +162,10 @@ class Beautifier:
         self.indentChar = opts.indent_char
         self.pos = -1
         self.ch = None
+
+        if self.opts.indent_with_tabs:
+            self.indentChar = "\t"
+            self.indentSize = 1
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -282,11 +289,15 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                printer.newLine()
+                header = printer.indentLevel == 0
+
+                if not isAfterNewline or header:
+                    printer.newLine()
+
+                
                 comment = self.eatComment()
                 printer.comment(comment)
                 printer.newLine()
-                header = self.lookBack("")
                 if header:
                     printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':

@@ -2,6 +2,7 @@ exports.test_data = {
     default_options: [
         { name: "indent_size", value: "4" },
         { name: "indent_char", value: "' '" },
+        { name: "indent_with_tabs", value: "false" },
         { name: "preserve_newlines", value: "true" },
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
@@ -44,7 +45,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
             }
         ],
@@ -60,7 +62,11 @@ exports.test_data = {
 
         ],
         tests: [
-            { fragment: '<html><head></head><body></body></html>', output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>' }
+            {
+                fragment: true,
+                input: '<html><head></head><body></body></html>',
+                output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>'
+            }
         ],
     }, {
         name: "Custom Extra Liners (p, string)",
@@ -75,7 +81,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
             }
         ],
@@ -92,7 +99,8 @@ exports.test_data = {
         ],
         tests: [
             {
-                fragment: '<html><head><meta></head><body><div><p>x</p></div></body></html>', 
+                fragment: true,
+                input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
                 output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
             }
         ],
@@ -368,14 +376,65 @@ exports.test_data = {
                 unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>' }
         ],
     }, {
+        name: "Unclosed html elements",
+        description: "Unclosed elements should not indent",
+        options: [],
+        tests: [
+            { fragment: true, unchanged: '<source>\n<source>' },
+            { fragment: true, unchanged: '<br>\n<br>' },
+            { fragment: true, unchanged: '<input>\n<input>' },
+            { fragment: true, unchanged: '<meta>\n<meta>' },
+            { fragment: true, unchanged: '<link>\n<link>' }
+        ]
+    }, {
         name: "Unformatted tags",
         description: "Unformatted tag behavior",
         options: [],
         tests: [
-            { fragment: true, input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
-            { fragment: true, input: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+            { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
+            { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
     }, {
-        name: "New Test Suite"
-    }],
+        name: "Indent with tabs",
+        description: "Use one tab instead of several spaces for indentation",
+        template: "^^^ $$$",
+        options: [
+            { name: "indent_with_tabs", value: "true" }
+        ],
+        tests: [
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '\t<div>\n' +
+                '\t</div>\n' +
+                '</div>' }
+        ]
+    }, {
+        name: "Indent without tabs",
+        description: "Use several spaces for indentation",
+        template: "^^^ $$$",
+        options: [
+            { name: "indent_with_tabs", value: "false" }
+        ],
+        tests: [
+            { fragment: true,
+                input_:
+                '<div>\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '</div>',
+                output:
+                '<div>\n' +
+                '    <div>\n' +
+                '    </div>\n' +
+                '</div>' }
+        ]
+      }, {
+          name: "New Test Suite"
+      }],
 };

@@ -1,4 +1,31 @@
 # Changelog
+## v1.5.6
+
+### Description
+* JSX support!
+* Alternative Newline Characters
+* CSS and JS comment formatting fixes 
+* General bug fixing
+
+
+### Closed Issues
+* Fix tokenizer's bracket pairs' open stack ([#693](https://github.com/beautify-web/js-beautify/pull/693))
+* Indentation is incorrect for HTML5 void tag <source> ([#692](https://github.com/beautify-web/js-beautify/issues/692))
+* Line wrapping breaks at the wrong place when the line is indented. ([#691](https://github.com/beautify-web/js-beautify/issues/691))
+* Publish v1.5.6 ([#687](https://github.com/beautify-web/js-beautify/issues/687))
+* Replace existing file fails using python beautifier ([#686](https://github.com/beautify-web/js-beautify/issues/686))
+* Pseudo-classes formatted incorrectly and inconsistently with @page ([#661](https://github.com/beautify-web/js-beautify/issues/661))
+* doc: add end_with_newline option ([#650](https://github.com/beautify-web/js-beautify/pull/650))
+* Improve support for xml parts of jsx (React) => spaces, spread attributes and nested objects break the process ([#646](https://github.com/beautify-web/js-beautify/issues/646))
+* html-beautify formats handlebars comments but does not format html comments ([#635](https://github.com/beautify-web/js-beautify/issues/635))
+* Support for ES7 async ([#630](https://github.com/beautify-web/js-beautify/issues/630))
+* css beautify adding an extra newline after a comment line in a css block ([#609](https://github.com/beautify-web/js-beautify/issues/609))
+* No option to "Indent with tabs" for HTML files ([#587](https://github.com/beautify-web/js-beautify/issues/587))
+* Function body is indented when followed by a comment ([#583](https://github.com/beautify-web/js-beautify/issues/583))
+* JSX support ([#425](https://github.com/beautify-web/js-beautify/issues/425))
+* Alternative Newline Characters ([#260](https://github.com/beautify-web/js-beautify/issues/260))
+
+
 ## v1.5.5
 
 ### Description
@@ -19,7 +46,7 @@
 * elem[array]++ changes to elem[array] ++ inserting unnecessary gap ([#570](https://github.com/beautify-web/js-beautify/issues/570))
 * add support to less functions paramters braces ([#568](https://github.com/beautify-web/js-beautify/pull/568))
 * yield statements are being beautified to their own newlines since 1.5.2 ([#560](https://github.com/beautify-web/js-beautify/issues/560))
-* HTML beautifier inserts extra newline into <li>s ending with <code> ([#524](https://github.com/beautify-web/js-beautify/issues/524))
+* HTML beautifier inserts extra newline into `<li>`s ending with `<code>` ([#524](https://github.com/beautify-web/js-beautify/issues/524))
 * Add wrap_attributes option ([#476](https://github.com/beautify-web/js-beautify/issues/476))
 * Add or preserve empty line between CSS rules ([#467](https://github.com/beautify-web/js-beautify/issues/467))
 * Support comma first style of variable declaration ([#245](https://github.com/beautify-web/js-beautify/issues/245))

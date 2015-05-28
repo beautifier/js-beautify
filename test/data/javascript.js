@@ -837,7 +837,19 @@ exports.test_data = {
                     '        return 0;',
                     '    }',
                     '}' ]
-            }
+            },
+            {
+                comment: "Issue 583 - Functions with comments after them should still indent correctly.",
+                unchanged: [
+                    'function exit(code) {',
+                    '    setTimeout(function() {',
+                    '        phantom.exit(code);',
+                    '    }, 0);',
+                    '    phantom.onError = function() {};',
+                    '}',
+                    '// Comment' ]
+            },
+
         ]
     },
 
@@ -1108,6 +1120,7 @@ exports.test_data = {
             { unchanged: 'if (a) /foo\\\\//\nelse /foo\\\\//;' },
 
             { unchanged: 'if (foo) /regex/.test();' },
+            { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)"},
             { unchanged: 'result = yield pgClient.query_(queryString);' },
 
             { unchanged: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },

@@ -89,6 +89,29 @@ exports.test_data = {
             { input: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
         ],
     }, {
+        name: "Comments",
+        description: "",
+        tests: [
+            { unchanged: '/* test */' },
+            { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
+            { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
+            { input: '/* header */.tabs {}', output: '/* header */\n\n.tabs {}' },
+            { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
+            { unchanged: '/* header' },
+            { unchanged: '// comment' },
+            { input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
+                output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'},
+
+            { comment: "single line comment support (less/sass)",
+                input:'.tabs{\n// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
+            { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
+            { input: '//comment\n.tabs{width:10px;}', output: '//comment\n.tabs {\n\twidth: 10px;\n}' },
+            { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
+            { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
+            { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
+            { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' }
+        ],
+    }, {
         name: "Psuedo-classes vs Variables",
         description: "",
         tests: [

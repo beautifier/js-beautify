@@ -3,6 +3,8 @@
 [![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
 [![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
 
+[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
+
 
 This little beautifier will reformat and reindent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
