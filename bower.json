@@ -1,6 +1,5 @@
 {
   "name": "js-beautify",
-  "version": "1.5.6",
   "main": [
     "./js/lib/beautify.js",
     "./js/lib/beautify-css.js",
