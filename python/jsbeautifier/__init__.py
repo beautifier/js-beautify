@@ -308,6 +308,7 @@ class Beautifier:
 
         self.opts = copy.copy(opts)
         self.blank_state()
+        self.acorn = Acorn()
 
     def blank_state(self, js_source_text = None):
 
@@ -373,7 +374,6 @@ class Beautifier:
             'TK_OPERATOR': self.handle_operator,
             'TK_COMMA': self.handle_comma,
             'TK_BLOCK_COMMENT': self.handle_block_comment,
-            'TK_INLINE_COMMENT': self.handle_inline_comment,
             'TK_COMMENT': self.handle_comment,
             'TK_DOT': self.handle_dot,
             'TK_UNKNOWN': self.handle_unknown,
@@ -1093,7 +1093,13 @@ class Beautifier:
 
 
     def handle_block_comment(self, current_token):
-        lines = current_token.text.replace('\x0d', '').split('\x0a')
+        if not self.acorn.newline.search(current_token.text) and not current_token.wanted_newline:
+            self.output.space_before_token = True
+            self.print_token(current_token)
+            self.output.space_before_token = True
+            return
+
+        lines = self.acorn.lineBreak.split(current_token.text)
         javadoc = False
         starless = False
         last_indent = current_token.whitespace_before
@@ -1122,12 +1128,6 @@ class Beautifier:
                 self.output.add_token(line)
 
         self.print_newline(preserve_statement_flags = True)
-
-    def handle_inline_comment(self, current_token):
-        self.output.space_before_token = True
-        self.print_token(current_token)
-        self.output.space_before_token = True
-
 
     def handle_comment(self, current_token):
         if current_token.wanted_newline:
@@ -1335,6 +1335,7 @@ class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
+    digit_hex = re.compile('[0123456789abcdefABCDEF]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>' \
               + ' <?= <? ?> <%= <% %>').split(' ')
 
@@ -1347,6 +1348,11 @@ class Tokenizer:
         self.opts = opts
         self.indent_string = indent_string
         self.acorn = Acorn()
+        #  /* ... */ comment ends with nearest */ or end of file
+        self.block_comment_pattern = re.compile('([\s\S]*?)((?:\*\/)|$)')
+
+        # comment ends just before nearest linefeed or end of file
+        self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
 
 
     def tokenize(self):
@@ -1364,8 +1370,7 @@ class Tokenizer:
             token_values = self.__tokenize_next()
             next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
 
-            while next.type == 'TK_INLINE_COMMENT' or next.type == 'TK_COMMENT' or \
-                next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
+            while next.type == 'TK_COMMENT' or next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
                 comments.append(next)
                 token_values = self.__tokenize_next()
                 next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
@@ -1438,7 +1443,7 @@ class Tokenizer:
                 allow_e = False
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
-                local_digit = re.compile('[0123456789abcdefABCDEF]')
+                local_digit = self.digit_hex
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''
@@ -1505,32 +1510,16 @@ class Tokenizer:
             inline_comment = True
             if self.input[self.parser_pos] == '*': # peek /* .. */ comment
                 self.parser_pos += 1
-                if self.parser_pos < len(self.input):
-                    while not (self.input[self.parser_pos] == '*' and \
-                               self.parser_pos + 1 < len(self.input) and \
-                               self.input[self.parser_pos + 1] == '/')\
-                          and self.parser_pos < len(self.input):
-                        c = self.input[self.parser_pos]
-                        comment += c
-                        if c in '\r\n':
-                            inline_comment = False
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            break
-                self.parser_pos += 2
-                if inline_comment and self.n_newlines == 0:
-                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
-                else:
-                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
+                comment_match = self.block_comment_pattern.match(self.input, self.parser_pos)
+                comment = '/*' + comment_match.group(0)
+                self.parser_pos += len(comment) - 2;
+                return comment, 'TK_BLOCK_COMMENT'
 
             if self.input[self.parser_pos] == '/': # peek // comment
-                comment = c
-                while self.input[self.parser_pos] not in '\r\n':
-                    comment += self.input[self.parser_pos]
-                    self.parser_pos += 1
-                    if self.parser_pos >= len(self.input):
-                        break
-
+                self.parser_pos += 1
+                comment_match = self.comment_pattern.match(self.input, self.parser_pos)
+                comment = '//' + comment_match.group(0)
+                self.parser_pos += len(comment) - 2;
                 return comment, 'TK_COMMENT'
 
         if c == '`' or c == "'" or c == '"' or \

@@ -207,7 +207,6 @@
             'TK_OPERATOR': handle_operator,
             'TK_COMMA': handle_comma,
             'TK_BLOCK_COMMENT': handle_block_comment,
-            'TK_INLINE_COMMENT': handle_inline_comment,
             'TK_COMMENT': handle_comment,
             'TK_DOT': handle_dot,
             'TK_UNKNOWN': handle_unknown,
@@ -1180,6 +1179,14 @@
         }
 
         function handle_block_comment() {
+            // inline block
+            if (!acorn.newline.test(current_token.text) && !current_token.wanted_newline) {
+                output.space_before_token = true;
+                print_token();
+                output.space_before_token = true;
+                return;
+            }
+
             var lines = split_newlines(current_token.text);
             var j; // iterator for this case
             var javadoc = false;
@@ -1216,12 +1223,6 @@
 
             // for comments of more than one line, make sure there's a new line after
             print_newline(false, true);
-        }
-
-        function handle_inline_comment() {
-            output.space_before_token = true;
-            print_token();
-            output.space_before_token = true;
         }
 
         function handle_comment() {
@@ -1478,6 +1479,7 @@
 
         var whitespace = "\n\r\t ".split('');
         var digit = /[0-9]/;
+        var digit_hex = /[0123456789abcdefABCDEF]/;
 
         var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>'
                 +' <%= <% %> <?= <? ?>').split(' '); // try to be a good boy and try not to break the markup language identifiers
@@ -1485,6 +1487,12 @@
         // words which should always start on new line.
         this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
         var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await']);
+
+        //  /* ... */ comment ends with nearest */ or end of file
+        var block_comment_pattern = /([\s\S]*?)((?:\*\/)|$)/g;
+
+        // comment ends just before nearest linefeed or end of file
+        var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
 
         var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
         var input_length;
@@ -1505,8 +1513,7 @@
             while (!(last && last.type === 'TK_EOF')) {
                 token_values = tokenize_next();
                 next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-                while(next.type === 'TK_INLINE_COMMENT' || next.type === 'TK_COMMENT' ||
-                    next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
+                while(next.type === 'TK_COMMENT' || next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
                     comments.push(next);
                     token_values = tokenize_next();
                     next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
@@ -1596,7 +1603,7 @@
                     allow_e = false;
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
-                    local_digit = /[0123456789abcdefABCDEF]/
+                    local_digit = digit_hex
                 } else {
                     // we know this first loop will run.  It keeps the logic simpler.
                     c = '';
@@ -1677,39 +1684,21 @@
             if (c === '/') {
                 var comment = '';
                 // peek for comment /* ... */
-                var inline_comment = true;
                 if (input.charAt(parser_pos) === '*') {
                     parser_pos += 1;
-                    if (parser_pos < input_length) {
-                        while (parser_pos < input_length && !(input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/')) {
-                            c = input.charAt(parser_pos);
-                            comment += c;
-                            if (c === "\n" || c === "\r") {
-                                inline_comment = false;
-                            }
-                            parser_pos += 1;
-                            if (parser_pos >= input_length) {
-                                break;
-                            }
-                        }
-                    }
-                    parser_pos += 2;
-                    if (inline_comment && n_newlines === 0) {
-                        return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
-                    } else {
-                        return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
-                    }
+                    block_comment_pattern.lastIndex = parser_pos;
+                    var comment_match = block_comment_pattern.exec(input);
+                    comment = '/*' + comment_match[0];
+                    parser_pos += comment.length - 2;
+                    return [comment, 'TK_BLOCK_COMMENT'];
                 }
                 // peek for comment // ...
                 if (input.charAt(parser_pos) === '/') {
-                    comment = c;
-                    while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
-                        comment += input.charAt(parser_pos);
-                        parser_pos += 1;
-                        if (parser_pos >= input_length) {
-                            break;
-                        }
-                    }
+                    parser_pos += 1;
+                    comment_pattern.lastIndex = parser_pos;
+                    var comment_match = comment_pattern.exec(input);
+                    comment = '//' + comment_match[0];
+                    parser_pos += comment.length - 2;
                     return [comment, 'TK_COMMENT'];
                 }
 
