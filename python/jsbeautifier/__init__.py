@@ -82,6 +82,9 @@ class BeautifierOptions:
         self.end_with_newline = False
         self.comma_first = False
 
+        # For testing of beautify ignore:start directive
+        self.test_output_raw = False
+
 
 
     def __repr__(self):
@@ -345,6 +348,8 @@ class Beautifier:
             js_source_text = js_source_text[preindent_index:]
 
         self.output = Output(self.indent_string, self.baseIndentString)
+        # If testing the ignore directive, start with output disable set to true
+        self.output.raw =self.opts.test_output_raw;
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
@@ -484,6 +489,10 @@ class Beautifier:
 
 
     def print_token(self, current_token, s=None):
+        if self.output.raw:
+            self.output.add_raw_token(current_token)
+            return
+
         if self.opts.comma_first and self.last_type == 'TK_COMMA' and self.output.just_added_newline():
             if self.output.previous_line.last() == ',':
                 self.output.previous_line.pop()
@@ -1093,6 +1102,11 @@ class Beautifier:
 
 
     def handle_block_comment(self, current_token):
+        if self.output.raw:
+            self.output.add_raw_token(current_token)
+            return
+
+        # inline block
         if not self.acorn.newline.search(current_token.text) and not current_token.wanted_newline:
             self.output.space_before_token = True
             self.print_token(current_token)
@@ -1244,11 +1258,17 @@ class Output:
         self.indent_cache = [ baseIndentString ]
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
+        self.raw = False
         self.lines = []
         self.previous_line = None
         self.current_line = None
         self.space_before_token = False
-        self.add_new_line(True)
+        self.add_outputline()
+
+    def add_outputline(self):
+        self.previous_line = self.current_line
+        self.current_line = OutputLine(self)
+        self.lines.append(self.current_line)
 
     def get_line_number(self):
         return len(self.lines)
@@ -1259,9 +1279,8 @@ class Output:
             return False
 
         if force_newline or not self.just_added_newline():
-            self.previous_line = self.current_line
-            self.current_line = OutputLine(self)
-            self.lines.append(self.current_line)
+            if not self.raw:
+                self.add_outputline()
             return True
         return False
 
@@ -1280,6 +1299,14 @@ class Output:
             return True
         self.current_line.set_indent(0)
         return False
+
+    def add_raw_token(self, token):
+        for _ in range(token.newlines):
+            self.add_outputline()
+
+        self.current_line.push(token.whitespace_before)
+        self.current_line.push(token.text)
+        self.space_before_token = False
 
     def add_token(self, printable_token):
         self.add_space_before_token()
@@ -1415,13 +1442,13 @@ class Tokenizer:
         self.parser_pos += 1
 
         while c in self.whitespace:
-            if c == '\n':
-                self.n_newlines += 1
-                whitespace_on_this_line = []
-            elif c == self.indent_string:
-                whitespace_on_this_line.append(self.indent_string)
-            elif c != '\r':
-                whitespace_on_this_line.append(' ')
+            if self.acorn.newline.match(c):
+                # treat \r\n as one newline
+                if not (c == '\n' and self.input[self.parser_pos-2] == '\r'):
+                    self.n_newlines += 1
+                    whitespace_on_this_line = []
+            else:
+                whitespace_on_this_line.append(c)
 
             if self.parser_pos >= len(self.input):
                 return '', 'TK_EOF'

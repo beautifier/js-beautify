@@ -2269,10 +2269,22 @@ class TestJSBeautifier(unittest.TestCase):
             expectation = input
 
         self.decodesto(input, expectation)
+        # If we set raw, input should be unchanged
+        self.options.test_output_raw = True
+        if self.options.end_with_newline:
+            elf.decodesto(input, input)
+        self.options.test_output_raw = False
+
         if self.options.indent_size == 4 and input:
             wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
+
+            # If we set raw, input should be unchanged
+            self.options.test_output_raw = True
+            if self.options.end_with_newline:
+                elf.decodesto(wrapped_input, wrapped_input)
+            self.options.test_output_raw = False
 
             # Everywhere we do newlines, they should be replaced with opts.eol
             self.options.eol = '\r\\n';

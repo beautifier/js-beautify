@@ -53,6 +53,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         sanitytest.test_function(test_js_beautifier, 'js_beautify');
         test_fragment(input, expectation);
 
+        // If we set raw, input should be unchanged
+        opts.test_output_raw = true;
+        if (!opts.end_with_newline) {
+            test_fragment(input, input);
+        }
+        opts.test_output_raw = false;
+
         // test also the returned indentation
         // e.g if input = "asdf();"
         // then test that this remains properly formatted as well:
@@ -65,6 +72,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
+
+            // If we set raw, input should be unchanged
+            opts.test_output_raw = true;
+            if (!opts.end_with_newline) {
+                test_fragment(wrapped_input, wrapped_input);
+            }
+            opts.test_output_raw = false;
 
             // Everywhere we do newlines, they should be replaced with opts.eol
             opts.eol = '\r\\n';

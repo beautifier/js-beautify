@@ -280,6 +280,8 @@
         opt.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         opt.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
 
+        // For testing of beautify ignore:start directive
+        opt.test_output_raw = (options.test_output_raw === undefined) ? false : options.test_output_raw;
 
         // force opt.space_after_anon_function to true if opt.jslint_happy
         if(opt.jslint_happy) {
@@ -313,6 +315,9 @@
         last_type = 'TK_START_BLOCK'; // last token type
         last_last_text = ''; // pre-last token text
         output = new Output(indent_string, baseIndentString);
+
+        // If testing the ignore directive, start with output disable set to true
+        output.raw = opt.test_output_raw;
 
 
         // Stack of parsing/formatting states, including MODE.
@@ -455,6 +460,11 @@
         }
 
         function print_token(printable_token) {
+            if (output.raw) {
+                output.add_raw_token(current_token)
+                return;
+            }
+
             if (opt.comma_first && last_type === 'TK_COMMA'
                 && output.just_added_newline()) {
                 if(output.previous_line.last() === ',') {
@@ -1179,6 +1189,11 @@
         }
 
         function handle_block_comment() {
+            if (output.raw) {
+                output.add_raw_token(current_token)
+                return;
+            }
+
             // inline block
             if (!acorn.newline.test(current_token.text) && !current_token.wanted_newline) {
                 output.space_before_token = true;
@@ -1347,6 +1362,7 @@
         this.indent_cache = [ baseIndentString ];
         this.baseIndentLength = baseIndentString.length;
         this.indent_length = indent_string.length;
+        this.raw = false;
 
         var lines =[];
         this.baseIndentString = baseIndentString;
@@ -1354,6 +1370,16 @@
         this.previous_line = null;
         this.current_line = null;
         this.space_before_token = false;
+
+        this.add_outputline = function() {
+            this.previous_line = this.current_line;
+            this.current_line = new OutputLine(this);
+            lines.push(this.current_line);
+        }
+
+        // initialize
+        this.add_outputline();
+
 
         this.get_line_number = function() {
             return lines.length;
@@ -1366,17 +1392,14 @@
             }
 
             if (force_newline || !this.just_added_newline()) {
-                this.previous_line = this.current_line;
-                this.current_line = new OutputLine(this);
-                lines.push(this.current_line);
+                if (!this.raw) {
+                    this.add_outputline();
+                }
                 return true;
             }
 
             return false;
         }
-
-        // initialize
-        this.add_new_line(true);
 
         this.get_code = function() {
             var sweet_code = lines.join('\n').replace(/[\r\n\t ]+$/, '');
@@ -1395,6 +1418,15 @@
             }
             this.current_line.set_indent(0);
             return false;
+        }
+
+        this.add_raw_token = function(token) {
+            for (var x = 0; x < token.newlines; x++) {
+                this.add_outputline();
+            }
+            this.current_line.push(token.whitespace_before);
+            this.current_line.push(token.text);
+            this.space_before_token = false;
         }
 
         this.add_token = function(printable_token) {
@@ -1566,18 +1598,16 @@
 
             var c = input.charAt(parser_pos);
             parser_pos += 1;
-
+            
             while (in_array(c, whitespace)) {
 
-                if (c === '\n') {
-                    n_newlines += 1;
-                    whitespace_on_this_line = [];
-                } else if (n_newlines) {
-                    if (c === indent_string) {
-                        whitespace_on_this_line.push(indent_string);
-                    } else if (c !== '\r') {
-                        whitespace_on_this_line.push(' ');
+                if (acorn.newline.test(c)) {
+                    if (!(c === '\n' && input.charAt(parser_pos-2) === '\r')) {
+                        n_newlines += 1;
+                        whitespace_on_this_line = [];
                     }
+                } else {
+                    whitespace_on_this_line.push(c);
                 }
 
                 if (parser_pos >= input_length) {
