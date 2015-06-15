@@ -226,6 +226,7 @@ class Token:
         self.wanted_newline = newlines > 0
         self.whitespace_before = whitespace_before
         self.parent = None
+        self.directives = None
 
 
 def default_options():
@@ -1104,6 +1105,17 @@ class Beautifier:
     def handle_block_comment(self, current_token):
         if self.output.raw:
             self.output.add_raw_token(current_token)
+            if current_token.directives and current_token.directives['preserve'] == 'end':
+                self.output.raw = False
+            return
+
+        if current_token.directives:
+            self.print_newline(preserve_statement_flags = True)
+            self.print_token(current_token)
+            if current_token.directives['preserve'] == 'start':
+                self.output.raw = True
+
+            self.print_newline(preserve_statement_flags = True)
             return
 
         # inline block
@@ -1381,6 +1393,8 @@ class Tokenizer:
         # comment ends just before nearest linefeed or end of file
         self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
 
+        self.directives_pattern = re.compile('\/\*\sbeautify\s(\w+[:]\w+)+\s\*\/')
+
 
     def tokenize(self):
         self.in_html_comment = False
@@ -1398,6 +1412,9 @@ class Tokenizer:
             next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
 
             while next.type == 'TK_COMMENT' or next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
+                if next.type == 'TK_BLOCK_COMMENT':
+                    next.directives = token_values[2]
+
                 comments.append(next)
                 token_values = self.__tokenize_next()
                 next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
@@ -1421,6 +1438,15 @@ class Tokenizer:
             self.tokens.append(next)
             last = next
         return self.tokens
+
+    def get_directives (self, text):
+        directives = None
+        directives_match = self.directives_pattern.match(text)
+        if directives_match:
+            directives = {}
+            directive = directives_match.group(1).split(':')
+            directives[directive[0]] = directive[1]
+        return directives
 
 
     def __tokenize_next(self):
@@ -1540,7 +1566,7 @@ class Tokenizer:
                 comment_match = self.block_comment_pattern.match(self.input, self.parser_pos)
                 comment = '/*' + comment_match.group(0)
                 self.parser_pos += len(comment) - 2;
-                return comment, 'TK_BLOCK_COMMENT'
+                return comment, 'TK_BLOCK_COMMENT', self.get_directives(comment)
 
             if self.input[self.parser_pos] == '/': # peek // comment
                 self.parser_pos += 1

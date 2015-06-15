@@ -640,6 +640,46 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('{{}/z/}', '{\n    {}\n    /z/\n}');
 
 
+
+        // Beautify preserve formatting
+        bt('/* beautify preserve:start */\n/* beautify preserve:end */');
+        bt('/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt('var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt('/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */');
+        bt(
+            'var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt(
+            'var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt(
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '    /* beautify preserve:end */\n' +
+            '};');
+        bt(
+            'var a = {\n' +
+            '/* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};');
+
+
         // jslint and space after anon function - (f = " ", c = "")
         opts.jslint_happy = true;
         opts.space_after_anon_function = true;

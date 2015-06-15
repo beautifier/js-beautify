@@ -1191,6 +1191,19 @@
         function handle_block_comment() {
             if (output.raw) {
                 output.add_raw_token(current_token)
+                if (current_token.directives && current_token.directives['preserve'] === 'end') {
+                    output.raw = false;
+                }
+                return;
+            }
+
+            if (current_token.directives) {
+                print_newline(false, true);
+                print_token();
+                if (current_token.directives['preserve'] === 'start') {
+                    output.raw = true;
+                }
+                print_newline(false, true);
                 return;
             }
 
@@ -1505,6 +1518,7 @@
         this.wanted_newline = newlines > 0;
         this.whitespace_before = whitespace_before || '';
         this.parent = null;
+        this.directives = null;
     }
 
     function tokenizer(input, opts, indent_string) {
@@ -1526,6 +1540,8 @@
         // comment ends just before nearest linefeed or end of file
         var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
 
+        var directives_pattern = /\/\*\sbeautify\s(\w+[:]\w+)+\s\*\//g;
+
         var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
         var input_length;
 
@@ -1546,6 +1562,9 @@
                 token_values = tokenize_next();
                 next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
                 while(next.type === 'TK_COMMENT' || next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
+                    if (next.type === 'TK_BLOCK_COMMENT') {
+                        next.directives = token_values[2];
+                    }
                     comments.push(next);
                     token_values = tokenize_next();
                     next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
@@ -1576,6 +1595,17 @@
             return tokens;
         }
 
+        function get_directives (text) {
+            var directives = null;
+            var directives_match = directives_pattern.exec(text);
+            if (directives_match) {
+                directives = {};
+                var directive = directives_match[1].split(':');
+                directives[directive[0]] = directive[1];
+            }
+            return directives;
+        }
+
         function tokenize_next() {
             var i, resulting_string;
             var whitespace_on_this_line = [];
@@ -1598,7 +1628,7 @@
 
             var c = input.charAt(parser_pos);
             parser_pos += 1;
-            
+
             while (in_array(c, whitespace)) {
 
                 if (acorn.newline.test(c)) {
@@ -1720,7 +1750,7 @@
                     var comment_match = block_comment_pattern.exec(input);
                     comment = '/*' + comment_match[0];
                     parser_pos += comment.length - 2;
-                    return [comment, 'TK_BLOCK_COMMENT'];
+                    return [comment, 'TK_BLOCK_COMMENT', get_directives(comment)];
                 }
                 // peek for comment // ...
                 if (input.charAt(parser_pos) === '/') {
