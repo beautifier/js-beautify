@@ -519,7 +519,7 @@ exports.test_data = {
                 unchanged: [
                     'var a = {',
                     '    /* beautify preserve:start */',
-                    '    one   :  1,',
+                    '    one   :  1',
                     '    two   :  2,',
                     '    three :  3,',
                     '    ten   : 10',
@@ -546,6 +546,53 @@ exports.test_data = {
                     '    three :  3,',
                     '    ten   : 10',
                     '/* beautify preserve:end */',
+                    '};'
+                ]
+            },
+            // ignore
+            { unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */" },
+            { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */" },
+            { unchanged: "var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */" },
+            { unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */" },
+            {
+              input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+            },
+            {
+              input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+            },
+            {
+                unchanged: [
+                    'var a = {',
+                    '    /* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '    /* beautify ignore:end */',
+                    '};'
+                ]
+            },
+            {
+                input: [
+                    'var a = {',
+                    '/* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '/* beautify ignore:end */',
+                    '};'
+                ],
+                output: [
+                    'var a = {',
+                    '    /* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '/* beautify ignore:end */',
                     '};'
                 ]
             }

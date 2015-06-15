@@ -439,7 +439,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'var a = {\n' +
             '    /* beautify preserve:start */\n' +
-            '    one   :  1,\n' +
+            '    one   :  1\n' +
             '    two   :  2,\n' +
             '    three :  3,\n' +
             '    ten   : 10\n' +
@@ -461,6 +461,42 @@ class TestJSBeautifier(unittest.TestCase):
             '    three :  3,\n' +
             '    ten   : 10\n' +
             '/* beautify preserve:end */\n' +
+            '};')
+        bt('/* beautify ignore:start */\n/* beautify ignore:end */')
+        bt('/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt('var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */')
+        bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */')
+        bt(
+            'var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt(
+            'var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt(
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '    /* beautify ignore:end */\n' +
+            '};')
+        bt(
+            'var a = {\n' +
+            '/* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
             '};')
 
         # jslint and space after anon function - (f = " ", c = "")

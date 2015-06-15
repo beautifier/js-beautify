@@ -1541,6 +1541,7 @@
         var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
 
         var directives_pattern = /\/\*\sbeautify\s(\w+[:]\w+)+\s\*\//g;
+        var directives_end_ignore_pattern = /([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)/g;
 
         var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
         var input_length;
@@ -1749,8 +1750,15 @@
                     block_comment_pattern.lastIndex = parser_pos;
                     var comment_match = block_comment_pattern.exec(input);
                     comment = '/*' + comment_match[0];
-                    parser_pos += comment.length - 2;
-                    return [comment, 'TK_BLOCK_COMMENT', get_directives(comment)];
+                    parser_pos += comment_match[0].length;
+                    var directives = get_directives(comment);
+                    if (directives && directives['ignore'] === 'start') {
+                        directives_end_ignore_pattern.lastIndex = parser_pos;
+                        comment_match = directives_end_ignore_pattern.exec(input)
+                        comment += comment_match[0];
+                        parser_pos += comment_match[0].length;
+                    }
+                    return [comment, 'TK_BLOCK_COMMENT', directives];
                 }
                 // peek for comment // ...
                 if (input.charAt(parser_pos) === '/') {
@@ -1758,7 +1766,7 @@
                     comment_pattern.lastIndex = parser_pos;
                     var comment_match = comment_pattern.exec(input);
                     comment = '//' + comment_match[0];
-                    parser_pos += comment.length - 2;
+                    parser_pos += comment_match[0].length;
                     return [comment, 'TK_COMMENT'];
                 }
 

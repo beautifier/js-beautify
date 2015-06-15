@@ -1105,14 +1105,14 @@ class Beautifier:
     def handle_block_comment(self, current_token):
         if self.output.raw:
             self.output.add_raw_token(current_token)
-            if current_token.directives and current_token.directives['preserve'] == 'end':
+            if current_token.directives and current_token.directives.get('preserve') == 'end':
                 self.output.raw = False
             return
 
         if current_token.directives:
             self.print_newline(preserve_statement_flags = True)
             self.print_token(current_token)
-            if current_token.directives['preserve'] == 'start':
+            if current_token.directives.get('preserve') == 'start':
                 self.output.raw = True
 
             self.print_newline(preserve_statement_flags = True)
@@ -1394,6 +1394,7 @@ class Tokenizer:
         self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
 
         self.directives_pattern = re.compile('\/\*\sbeautify\s(\w+[:]\w+)+\s\*\/')
+        self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
 
     def tokenize(self):
@@ -1565,14 +1566,20 @@ class Tokenizer:
                 self.parser_pos += 1
                 comment_match = self.block_comment_pattern.match(self.input, self.parser_pos)
                 comment = '/*' + comment_match.group(0)
-                self.parser_pos += len(comment) - 2;
-                return comment, 'TK_BLOCK_COMMENT', self.get_directives(comment)
+                self.parser_pos += len(comment_match.group(0))
+                directives = self.get_directives(comment)
+                if directives and directives.get('ignore') == 'start':
+                    comment_match = self.directives_end_ignore_pattern.match(self.input, self.parser_pos)
+                    comment += comment_match.group(0)
+                    self.parser_pos += len(comment_match.group(0))
+
+                return comment, 'TK_BLOCK_COMMENT', directives
 
             if self.input[self.parser_pos] == '/': # peek // comment
                 self.parser_pos += 1
                 comment_match = self.comment_pattern.match(self.input, self.parser_pos)
                 comment = '//' + comment_match.group(0)
-                self.parser_pos += len(comment) - 2;
+                self.parser_pos += len(comment_match.group(0));
                 return comment, 'TK_COMMENT'
 
         if c == '`' or c == "'" or c == '"' or \
