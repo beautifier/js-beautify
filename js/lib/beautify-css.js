@@ -234,6 +234,12 @@
             }
         };
 
+        print.preservedSingleSpace = function() {
+            if (isAfterSpace) {
+                print.singleSpace();
+            }
+        };
+
         print.trim = function() {
             while (print._lastCharWhitespace()) {
                 output.pop();
@@ -278,10 +284,7 @@
                 output.push(eatComment());
                 print.newLine();
             } else if (ch === '@') {
-                // pass along the space we found as a separate item
-                if (isAfterSpace) {
-                    print.singleSpace();
-                }
+                print.preservedSingleSpace();
                 output.push(ch);
 
                 // strip trailing space, if present, for hash property checks
@@ -304,6 +307,9 @@
                         enteringConditionalGroup = true;
                     }
                 }
+            } else if (ch === '#' && peek() === '{') {
+              print.preservedSingleSpace();
+              output.push(eatString('}'));
             } else if (ch === '{') {
                 if (peek(true) === '}') {
                     eatWhitespace();
@@ -357,9 +363,7 @@
                     }
                 }
             } else if (ch === '"' || ch === '\'') {
-                if (isAfterSpace) {
-                    print.singleSpace();
-                }
+                print.preservedSingleSpace();
                 output.push(eatString(ch));
             } else if (ch === ';') {
                 output.push(ch);
@@ -377,9 +381,7 @@
                     }
                 } else {
                     parenLevel++;
-                    if (isAfterSpace) {
-                        print.singleSpace();
-                    }
+                    print.preservedSingleSpace();
                     output.push(ch);
                     eatWhitespace();
                 }
@@ -397,19 +399,14 @@
             } else if (ch === ']') {
                 output.push(ch);
             } else if (ch === '[') {
-                if (isAfterSpace) {
-                    print.singleSpace();
-                }
+                print.preservedSingleSpace();
                 output.push(ch);
             } else if (ch === '=') { // no whitespace before or after
                 eatWhitespace()
                 ch = '=';
                 output.push(ch);
             } else {
-                if (isAfterSpace) {
-                    print.singleSpace();
-                }
-
+                print.preservedSingleSpace();
                 output.push(ch);
             }
         }

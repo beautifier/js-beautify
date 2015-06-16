@@ -122,6 +122,20 @@ exports.test_data = {
             { unchanged: '@page: first {}' }
         ],
     }, {
+        name: "SASS/SCSS",
+        description: "",
+        tests: [
+            { comment: "Basic Interpolation",
+              unchanged: 'p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}'},
+            { unchanged: 'p.#{$name} {}' },
+            { unchanged: [
+                '@mixin itemPropertiesCoverItem($items, $margin) {',
+                '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});',
+                '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;',
+                '}'
+            ]}
+        ],
+    }, {
 
     }]
 }

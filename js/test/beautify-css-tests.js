@@ -148,6 +148,17 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('@page:first {}', '@page: first {}');
         t('@page: first {}');
 
+        // SASS/SCSS
+        
+        // Basic Interpolation
+        t('p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}');
+        t('p.#{$name} {}');
+        t(
+            '@mixin itemPropertiesCoverItem($items, $margin) {\n' +
+            '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});\n' +
+            '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
+            '}');
+
         // 
 
         // test basic css beautifier

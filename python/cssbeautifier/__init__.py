@@ -146,6 +146,10 @@ class Printer:
         if len(self.output) > 0 and not self.__lastCharWhitespace():
             self.output.append(" ")
 
+    def preserveSingleSpace(self,isAfterSpace):
+        if isAfterSpace:
+            self.singleSpace()
+
     def result(self):
         if self.baseIndentString:
             return self.baseIndentString + "".join(self.output);
@@ -280,9 +284,9 @@ class Beautifier:
         parenLevel = 0
 
         while True:
-            whitespace = self.skipWhitespace();
+            whitespace = self.skipWhitespace()
             isAfterSpace = whitespace != ''
-            isAfterNewline = '\n' in whitespace;
+            isAfterNewline = '\n' in whitespace
             last_top_ch = top_ch
             top_ch = self.ch
 
@@ -294,7 +298,7 @@ class Beautifier:
                 if not isAfterNewline or header:
                     printer.newLine()
 
-                
+
                 comment = self.eatComment()
                 printer.comment(comment)
                 printer.newLine()
@@ -308,9 +312,7 @@ class Beautifier:
                 printer.comment(self.eatComment())
                 printer.newLine()
             elif self.ch == '@':
-                # pass along the space we found as a separate item
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
                 # strip trailing space, if present, for hash property check
@@ -333,7 +335,9 @@ class Beautifier:
                     printer.nestedLevel += 1
                     if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
-
+            elif self.ch == '#' and self.peek() == '{':
+                printer.preserveSingleSpace(isAfterSpace)
+                printer.push(self.eatString('}'));
             elif self.ch == '{':
                 if self.peek(True) == '}':
                     self.eatWhitespace()
@@ -380,8 +384,7 @@ class Beautifier:
                         # pseudo-element
                         printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
                 printer.semicolon()
@@ -398,8 +401,7 @@ class Beautifier:
                             self.pos = self.pos - 1
                 else:
                     parenLevel += 1
-                    if isAfterSpace:
-                        printer.singleSpace()
+                    printer.preserveSingleSpace(isAfterSpace)
                     printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
@@ -415,8 +417,7 @@ class Beautifier:
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[':
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
             elif self.ch == '=':
                 # no whitespace before or after
@@ -424,9 +425,7 @@ class Beautifier:
                 self.ch = '='
                 printer.push(self.ch)
             else:
-                if isAfterSpace:
-                    printer.singleSpace()
-
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
