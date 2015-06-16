@@ -155,6 +155,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Handlebars Indenting On - (content = "{{field}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{field}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -209,6 +210,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{{! comment}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{! comment}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -263,6 +265,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{pre{{field1}} {{field2}} {{field3}}post")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -317,6 +320,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');

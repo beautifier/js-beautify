@@ -227,6 +227,7 @@ exports.test_data = {
             }
         ],
         tests: [
+            { fragment: true, unchanged: '{{page-title}}' },
             { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' },
