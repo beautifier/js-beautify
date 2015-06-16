@@ -1543,6 +1543,8 @@
         var directives_pattern = /\/\*\sbeautify\s(\w+[:]\w+)+\s\*\//g;
         var directives_end_ignore_pattern = /([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)/g;
 
+        var template_pattern = /((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)/g
+
         var n_newlines, whitespace_before_token, in_html_comment, tokens, parser_pos;
         var input_length;
 
@@ -1926,6 +1928,16 @@
                         parser_pos += 2;
                     }
                     return [sharp, 'TK_WORD'];
+                }
+            }
+
+            if (c === '<' && (input.charAt(parser_pos) === '?' || input.charAt(parser_pos) === '%')) {
+                template_pattern.lastIndex = parser_pos - 1;
+                var template_match = template_pattern.exec(input);
+                if(template_match) {
+                    c = template_match[0];
+                    parser_pos += c.length - 1;
+                    return [c, 'TK_STRING'];
                 }
             }
 

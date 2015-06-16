@@ -716,6 +716,20 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '};');
 
 
+
+        // Template Formatting
+        bt('<?=$view["name"]; ?>');
+        bt('a = <?= external() ?>;');
+        bt(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+        bt('a = <%= external() %>;');
+
+
         // jslint and space after anon function - (f = " ", c = "")
         opts.jslint_happy = true;
         opts.space_after_anon_function = true;
@@ -1620,9 +1634,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         beautify_brace_tests('collapse');
         beautify_brace_tests('end-expand');
         beautify_brace_tests('none');
-
-        bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
-        bt('a = <%= external() %> ;');
 
         bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment');
 

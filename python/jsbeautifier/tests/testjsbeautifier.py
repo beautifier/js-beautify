@@ -499,6 +499,18 @@ class TestJSBeautifier(unittest.TestCase):
             '/* beautify ignore:end */\n' +
             '};')
 
+        # Template Formatting
+        bt('<?=$view["name"]; ?>')
+        bt('a = <?= external() ?>;')
+        bt(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>')
+        bt('a = <%= external() %>;')
+
         # jslint and space after anon function - (f = " ", c = "")
         self.options.jslint_happy = true
         self.options.space_after_anon_function = true
@@ -1768,9 +1780,6 @@ class TestJSBeautifier(unittest.TestCase):
         # END tests for brace position
 
         self.options.brace_style = 'collapse';
-
-        bt('a = <?= external() ?> ;') # not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
-        bt('a = <%= external() %> ;')
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};')
         test_fragment("if (zz) {\n    // ....\n}\n(function")

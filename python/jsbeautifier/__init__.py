@@ -1396,6 +1396,7 @@ class Tokenizer:
         self.directives_pattern = re.compile('\/\*\sbeautify\s(\w+[:]\w+)+\s\*\/')
         self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
+        self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
 
     def tokenize(self):
         self.in_html_comment = False
@@ -1731,6 +1732,14 @@ class Tokenizer:
                 sharp += '{}'
                 self.parser_pos += 2
             return sharp, 'TK_WORD'
+
+        if c == '<' and self.input[self.parser_pos] in ['?', '%']:
+            template_match = self.template_pattern.match(self.input, self.parser_pos - 1);
+            if template_match:
+                c = template_match.group(0)
+                self.parser_pos += len(c) - 1
+                return c, 'TK_STRING'
+
 
         if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
             self.parser_pos += 3

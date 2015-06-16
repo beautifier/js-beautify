@@ -599,6 +599,26 @@ exports.test_data = {
         ]
     },
     {
+        name: "Template Formatting",
+        description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
+        options: [],
+        tests: [
+            { unchanged: '<?=$view["name"]; ?>' },
+            { unchanged: 'a = <?= external() ?>;' },
+            { unchanged:
+                [
+                    '<?php',
+                    'for($i = 1; $i <= 100; $i++;) {',
+                    '    #count to 100!',
+                    '    echo($i . "</br>");',
+                    '}',
+                    '?>'
+                ]
+            },
+            { unchanged: 'a = <%= external() %>;' }
+        ]
+    },
+    {
         name: "jslint and space after anon function",
         description: "jslint_happy and space_after_anon_function tests",
         matrix: [
