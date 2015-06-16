@@ -2202,6 +2202,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // Test template strings
         bt('`This is a ${template} string.`', '`This is a ${template} string.`');
         bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`');
+        bt('a = `This is a continuation\\\nstring.`', 'a = `This is a continuation\\\nstring.`');
+        bt('a = "This is a continuation\\\nstring."', 'a = "This is a continuation\\\nstring."');
 
         Urlencoded.run_tests(sanitytest);
     }
