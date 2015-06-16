@@ -395,6 +395,38 @@ exports.test_data = {
             { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
         ]
     }, {
+        name: "Php formatting",
+        description: "Php (<?php ... ?>) treated as comments.",
+        options: [],
+        tests: [
+            { fragment: true, unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>' },
+            { fragment: true, unchanged:
+                [
+                    '<?php',
+                    'for($i = 1; $i <= 100; $i++;) {',
+                    '    #count to 100!',
+                    '    echo($i . "</br>");',
+                    '}',
+                    '?>'
+                ]
+            },
+        ]
+    }, {
+        name: "underscore.js  formatting",
+        description: "underscore.js templates (<% ... %>) treated as comments.",
+        options: [],
+        tests: [
+            { fragment: true, unchanged:
+                [
+                    '<div class="col-sm-9">',
+                    '    <textarea id="notes" class="form-control" rows="3">',
+                    '        <%= notes %>',
+                    '    </textarea>',
+                    '</div>'
+                ]
+            },
+        ]
+    }, {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
         template: "^^^ $$$",

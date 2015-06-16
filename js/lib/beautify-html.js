@@ -116,7 +116,9 @@
         indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
         brace_style = (options.brace_style === undefined) ? 'collapse' : options.brace_style;
         wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
-        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd',
+            'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike',
+            'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         max_preserve_newlines = preserve_newlines ?
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10))
@@ -151,7 +153,7 @@
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
-                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed,?php,?,?='.split(','), //all the single tags for HTML
+                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,embed'.split(','), //all the single tags for HTML
                 extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
@@ -404,7 +406,7 @@
                     this.line_char_count++;
                     content.push(input_char); //inserts character at-a-time (or string)
 
-                    if (content[1] && content[1] === '!') { //if we're in a comment, do something special
+                    if (content[1] && (content[1] === '!' || content[1] === '?' || content[1] === '%')) { //if we're in a comment, do something special
                         // We treat all comments as literals, even more than preformatted tags
                         // we just look for the appropriate close tag
                         content = [this.get_comment(tag_start)];
@@ -546,6 +548,12 @@
                             matched = true;
                         } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
                             delimiter = '}}';
+                            matched = true;
+                        } else if (comment.indexOf('<?') === 0) { // {{! handlebars comment
+                            delimiter = '?>';
+                            matched = true;
+                        } else if (comment.indexOf('<%') === 0) { // {{! handlebars comment
+                            delimiter = '%>';
                             matched = true;
                         }
                     }

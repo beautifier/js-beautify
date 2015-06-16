@@ -386,6 +386,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
 
+        // Php formatting
+        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        test_fragment(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+
+
+
+        // underscore.js  formatting
+        test_fragment(
+            '<div class="col-sm-9">\n' +
+            '    <textarea id="notes" class="form-control" rows="3">\n' +
+            '        <%= notes %>\n' +
+            '    </textarea>\n' +
+            '</div>');
+
+
+
         // Indent with tabs
         opts.indent_with_tabs = true;
         test_fragment(
