@@ -39,6 +39,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        opts.eol = '\r\\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        input = input.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        opts.eol = '\n';
     }
 
 
@@ -79,13 +87,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                 test_fragment(wrapped_input, wrapped_input);
             }
             opts.test_output_raw = false;
-
-            // Everywhere we do newlines, they should be replaced with opts.eol
-            opts.eol = '\r\\n';
-            wrapped_input = wrapped_input.replace(/[\n]/mg, '\r\n');
-            wrapped_expectation = wrapped_expectation.replace(/[\n]/mg, '\r\n');
-            test_fragment(wrapped_input, wrapped_expectation);
-            opts.eol = '\n';
         }
 
     }
@@ -463,9 +464,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         bt('a = //comment\n    /regex/;');
-
-        test_fragment('/*\n * X\n */');
-        test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
 
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 

@@ -1398,9 +1398,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('a = //comment\n    /regex/;')
 
-        test_fragment('/*\n * X\n */')
-        test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */')
-
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}')
 
         bt('var a = new function();')
@@ -2345,6 +2342,16 @@ class TestJSBeautifier(unittest.TestCase):
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
+        # Everywhere we do newlines, they should be replaced with opts.eol
+        self.options.eol = '\r\\n';
+        expectation = expectation.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            jsbeautifier.beautify(input, self.options), expectation)
+        input = input.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            jsbeautifier.beautify(input, self.options), expectation)
+        self.options.eol = '\n'
+
     def wrap(self, text):
         return self.wrapregex.sub('    \\1', text)
 
@@ -2369,13 +2376,6 @@ class TestJSBeautifier(unittest.TestCase):
             if self.options.end_with_newline:
                 elf.decodesto(wrapped_input, wrapped_input)
             self.options.test_output_raw = False
-
-            # Everywhere we do newlines, they should be replaced with opts.eol
-            self.options.eol = '\r\\n';
-            wrapped_input = wrapped_input.replace('\n', '\r\n')
-            wrapped_expect = wrapped_expect.replace('\n', '\r\n')
-            self.decodesto(wrapped_input, wrapped_expect)
-            self.options.eol = '\n'
 
 
     @classmethod

@@ -220,14 +220,15 @@ function usage(err) {
         '',
         'Beautifier Options:',
         '  -s, --indent-size             Indentation size [4]',
-        '  -c, --indent-char             Indentation character [" "]'
+        '  -c, --indent-char             Indentation character [" "]',
+        '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
+        '  -e, --eol                     Character(s) to use as line terminators. (default newline - "\\n")',
+        '  -n, --end-with-newline        End output with newline'
     ];
 
     switch (scriptName.split('-').shift()) {
         case "js":
             msg.push('  -l, --indent-level                Initial indentation level [0]');
-            msg.push('  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c');
-            msg.push('  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )');
@@ -241,7 +242,6 @@ function usage(err) {
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
-            msg.push('  -n, --end-with-newline            End output with newline');
             msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
             break;
         case "html":
@@ -254,7 +254,7 @@ function usage(err) {
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
-            msg.push('  -E, --extra_liners            List of tags (defaults to [head,body,/html] that should have an extra newline');
+            msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.')

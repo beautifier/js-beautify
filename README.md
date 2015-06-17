@@ -164,22 +164,27 @@ The CSS & HTML beautifiers are much simpler in scope, and possess far fewer opti
 CSS Beautifier Options:
   -s, --indent-size                  Indentation size [4]
   -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
 
 HTML Beautifier Options:
-  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
   -s, --indent-size                  Indentation size [4]
   -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
+  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
   -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
-  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
-  -n, --end-with-newline             End output with newline
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
 ```
 

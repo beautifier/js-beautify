@@ -35,6 +35,14 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        opts.eol = '\r\\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        input = input.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        opts.eol = '\n';
     }
 
     // test css

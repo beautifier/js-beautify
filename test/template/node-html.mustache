@@ -34,6 +34,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        opts.eol = '\r\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        input = input.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        opts.eol = '\n';
     }
 
     // test html
@@ -48,9 +56,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         if (opts.indent_size === 4 && input) {
             wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
             wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            if (opts.end_with_newline) {
-                wrapped_expectation += '\n';
-            }
             test_fragment(wrapped_input, wrapped_expectation);
         }
     }

@@ -119,7 +119,7 @@
       // Matches a whole line break (where CRLF is considered a single
       // line break). Used to count lines.
 
-      var lineBreak = /\r\n|[\n\r\u2028\u2029]/g;
+      var lineBreak = exports.lineBreak = /\r\n|[\n\r\u2028\u2029]/g;
 
       // Test whether a given character code starts an identifier.
 
@@ -363,7 +363,7 @@
             }
 
             if (opt.eol != '\n') {
-                sweet_code = sweet_code.replace(/[\r]?[\n]/mg, opt.eol);
+                sweet_code = sweet_code.replace(/[\n]/g, opt.eol);
             }
 
             return sweet_code;
@@ -1760,6 +1760,7 @@
                         comment += comment_match[0];
                         parser_pos += comment_match[0].length;
                     }
+                    comment = comment.replace(acorn.lineBreak, '\n');
                     return [comment, 'TK_BLOCK_COMMENT', directives];
                 }
                 // peek for comment // ...
@@ -1843,6 +1844,7 @@
                         var xmlLength = match ? match.index + match[0].length : xmlStr.length;
                         xmlStr = xmlStr.slice(0, xmlLength);
                         parser_pos += xmlLength - 1;
+                        xmlStr = xmlStr.replace(acorn.lineBreak, '\n');
                         return [xmlStr, "TK_STRING"];
                     }
                 } else {
@@ -1854,11 +1856,14 @@
                     while (parser_pos < input_length &&
                             (esc || (input.charAt(parser_pos) !== sep &&
                             (sep === '`' || !acorn.newline.test(input.charAt(parser_pos)))))) {
-                        resulting_string += input.charAt(parser_pos);
                         // Handle \r\n linebreaks after escapes or in template strings
-                        if (input.charAt(parser_pos) === '\r' && input.charAt(parser_pos + 1) === '\n') {
-                            parser_pos += 1;
+                        if ((esc || sep === '`') && acorn.newline.test(input.charAt(parser_pos))) {
+                            if (input.charAt(parser_pos) === '\r' && input.charAt(parser_pos + 1) === '\n') {
+                                parser_pos += 1;
+                            }
                             resulting_string += '\n';
+                        } else {
+                            resulting_string += input.charAt(parser_pos);
                         }
                         if (esc) {
                             if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
@@ -1937,6 +1942,7 @@
                 if(template_match) {
                     c = template_match[0];
                     parser_pos += c.length - 1;
+                    c = c.replace(acorn.lineBreak, '\n');
                     return [c, 'TK_STRING'];
                 }
             }
@@ -1944,7 +1950,7 @@
             if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
                 parser_pos += 3;
                 c = '<!--';
-                while (input.charAt(parser_pos) !== '\n' && parser_pos < input_length) {
+                while (!acorn.newline.test(input.charAt(parser_pos)) && parser_pos < input_length) {
                     c += input.charAt(parser_pos);
                     parser_pos++;
                 }

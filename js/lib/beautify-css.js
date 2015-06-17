@@ -63,11 +63,16 @@
 (function() {
     function css_beautify(source_text, options) {
         options = options || {};
+        source_text = source_text || '';
+        // HACK: newline parsing inconsistent. This brute force normalizes the input.
+        source_text = source_text.replace(/\r\n|[\r\u2028\u2029]/g, '\n')
+
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
+        var eol = options.eol ? options.eol : '\n';
 
         // compatibility
         if (typeof indentSize === "string") {
@@ -78,6 +83,9 @@
             indentCharacter = '\t';
             indentSize = 1;
         }
+
+        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
+
 
         // tokenizer
         var whiteRe = /^\s+$/;
@@ -434,7 +442,11 @@
 
         // establish end_with_newline
         if (end_with_newline) {
-            sweetCode += "\n";
+            sweetCode += '\n';
+        }
+
+        if (eol != '\n') {
+            sweetCode = sweetCode.replace(/[\n]/g, eol);
         }
 
         return sweetCode;

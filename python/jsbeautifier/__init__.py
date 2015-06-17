@@ -406,12 +406,12 @@ class Beautifier:
             self.token_pos += 1
 
 
+
         sweet_code = self.output.get_code()
         if self.opts.end_with_newline:
-            sweet_code += self.opts.eol
+            sweet_code += '\n'
 
         if not self.opts.eol == '\n':
-            sweet_code = sweet_code.replace('\r\n', '\n')
             sweet_code = sweet_code.replace('\n', self.opts.eol)
 
         return sweet_code
@@ -1573,7 +1573,7 @@ class Tokenizer:
                     comment_match = self.directives_end_ignore_pattern.match(self.input, self.parser_pos)
                     comment += comment_match.group(0)
                     self.parser_pos += len(comment_match.group(0))
-
+                comment = re.sub(self.acorn.lineBreak, '\n', comment)
                 return comment, 'TK_BLOCK_COMMENT', directives
 
             if self.input[self.parser_pos] == '/': # peek // comment
@@ -1646,7 +1646,8 @@ class Tokenizer:
                         xmlLength = len(xmlStr)
 
                     self.parser_pos += xmlLength - 1
-                    return xmlStr[:xmlLength], 'TK_STRING'
+                    xmlStr = re.sub(self.acorn.lineBreak, '\n', xmlStr[:xmlLength])
+                    return xmlStr, 'TK_STRING'
 
             else:
                 # handle string
@@ -1697,6 +1698,7 @@ class Tokenizer:
                     while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
                         resulting_string += self.input[self.parser_pos]
                         self.parser_pos += 1
+            resulting_string = re.sub(self.acorn.lineBreak, '\n', resulting_string)
 
             return resulting_string, 'TK_STRING'
 
@@ -1738,13 +1740,14 @@ class Tokenizer:
             if template_match:
                 c = template_match.group(0)
                 self.parser_pos += len(c) - 1
+                c = re.sub(self.acorn.lineBreak, '\n', c)
                 return c, 'TK_STRING'
 
 
         if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
             self.parser_pos += 3
             c = '<!--'
-            while self.parser_pos < len(self.input) and self.input[self.parser_pos] != '\n':
+            while self.parser_pos < len(self.input) and not self.acorn.newline.match(self.input[self.parser_pos]):
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
             self.in_html_comment = True

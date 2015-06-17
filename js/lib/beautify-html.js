@@ -101,7 +101,8 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             end_with_newline,
-            extra_liners;
+            extra_liners,
+            eol;
 
         options = options || {};
 
@@ -130,11 +131,14 @@
         extra_liners = Array.isArray(options.extra_liners) ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
+        eol = options.eol ? options.eol : '\n';
 
         if(options.indent_with_tabs){
             indent_character = '\t';
             indent_size = 1;
         }
+
+        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
 
         function Parser() {
 
@@ -684,6 +688,10 @@
             this.printer = function(js_source, indent_character, indent_size, wrap_line_length, brace_style) { //handles input/output and some other printing functions
 
                 this.input = js_source || ''; //gets the input for the Parser
+
+                // HACK: newline parsing inconsistent. This brute force normalizes the input.
+                this.input = this.input.replace(/\r\n|[\r\u2028\u2029]/g, '\n')
+
                 this.output = [];
                 this.indent_character = indent_character;
                 this.indent_string = '';
@@ -859,8 +867,11 @@
 
                         var indentation = multi_parser.get_full_indent(script_indent_level);
                         if (_beautifier) {
+
                             // call the Beautifier if avaliable
-                            text = _beautifier(text.replace(/^\s*/, indentation), options);
+                            var child_options = JSON.parse(JSON.stringify(options));
+                            child_options.eol = '\n';
+                            text = _beautifier(text.replace(/^\s*/, indentation), child_options);
                         } else {
                             // simply indent the string otherwise
                             var white = text.match(/^\s*/)[0];
@@ -889,9 +900,16 @@
             multi_parser.last_text = multi_parser.token_text;
         }
         var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
+
+        // establish end_with_newline
         if (end_with_newline) {
             sweet_code += '\n';
         }
+
+        if (eol != '\n') {
+            sweet_code = sweet_code.replace(/[\n]/g, eol);
+        }
+
         return sweet_code;
     }
 
