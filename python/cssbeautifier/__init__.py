@@ -261,11 +261,19 @@ class Beautifier:
     # a new block
     def foundNestedPseudoClass(self):
         i = self.pos + 1
+        openParen = 0
         while i < len(self.source_text):
             ch = self.source_text[i]
             if ch == "{":
                 return True
-            elif ch == ";" or ch == "}" or ch == ")":
+            elif ch == "(":
+                # pseudoclasses can contain ()
+                openParen += 1
+            elif ch == ")":
+                if openParen == 0:
+                    return False
+                openParen -= 1
+            elif ch == ";" or ch == "}":
                 return False
             i += 1;
 

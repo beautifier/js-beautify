@@ -172,11 +172,20 @@
         // and the next special character found opens
         // a new block
         function foundNestedPseudoClass() {
+            var openParen = 0;
             for (var i = pos + 1; i < source_text.length; i++) {
                 var ch = source_text.charAt(i);
                 if (ch === "{") {
                     return true;
-                } else if (ch === ";" || ch === "}" || ch === ")") {
+                } else if (ch === '(') {
+                    // pseudoclasses can contain ()
+                    openParen += 1;
+                } else if (ch === ')') {
+                    if (openParen == 0) {
+                        return false;
+                    }
+                    openParen -= 1;
+                } else if (ch === ";" || ch === "}") {
                     return false;
                 }
             }
@@ -234,7 +243,7 @@
             }
         };
 
-        print.preservedSingleSpace = function() {
+        print.preserveSingleSpace = function() {
             if (isAfterSpace) {
                 print.singleSpace();
             }
@@ -284,7 +293,7 @@
                 output.push(eatComment());
                 print.newLine();
             } else if (ch === '@') {
-                print.preservedSingleSpace();
+                print.preserveSingleSpace();
                 output.push(ch);
 
                 // strip trailing space, if present, for hash property checks
@@ -308,7 +317,7 @@
                     }
                 }
             } else if (ch === '#' && peek() === '{') {
-              print.preservedSingleSpace();
+              print.preserveSingleSpace();
               output.push(eatString('}'));
             } else if (ch === '{') {
                 if (peek(true) === '}') {
@@ -363,7 +372,7 @@
                     }
                 }
             } else if (ch === '"' || ch === '\'') {
-                print.preservedSingleSpace();
+                print.preserveSingleSpace();
                 output.push(eatString(ch));
             } else if (ch === ';') {
                 output.push(ch);
@@ -381,7 +390,7 @@
                     }
                 } else {
                     parenLevel++;
-                    print.preservedSingleSpace();
+                    print.preserveSingleSpace();
                     output.push(ch);
                     eatWhitespace();
                 }
@@ -399,14 +408,14 @@
             } else if (ch === ']') {
                 output.push(ch);
             } else if (ch === '[') {
-                print.preservedSingleSpace();
+                print.preserveSingleSpace();
                 output.push(ch);
             } else if (ch === '=') { // no whitespace before or after
                 eatWhitespace()
                 ch = '=';
                 output.push(ch);
             } else {
-                print.preservedSingleSpace();
+                print.preserveSingleSpace();
                 output.push(ch);
             }
         }
