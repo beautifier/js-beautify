@@ -48,6 +48,49 @@ exports.test_data = {
             },
         ],
     }, {
+        name: 'Selector Separator',
+        description: '',
+        matrix: [
+            {
+                options: [
+                    { name: 'selector_separator_newline', value: 'false' },
+                    { name: 'selector_separator', value: '" "' }
+                ],
+                separator: ' ',
+                separator1: ' '
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'false' },
+                    { name: 'selector_separator', value: '"  "' }
+                ],
+                // BUG: #713
+                separator: ' ',
+                separator1: ' '
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'true' },
+                    { name: 'selector_separator', value: '" "' }
+                ],
+                separator: '\\n',
+                separator1: '\\n\\t'
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'true' },
+                    { name: 'selector_separator', value: '"  "' }
+                ],
+                separator: '\\n',
+                separator1: '\\n\\t'
+            }
+        ],
+        tests: [
+            { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}'},
+            { input: '@media print {.tab{}}', output: '@media print {\n\t.tab {}\n}'},
+            { input: '@media print {.tab,.bat{}}', output: '@media print {\n\t.tab,{{separator1}}.bat {}\n}'},
+            { input: '#bla, #foo{color:black}', output: '#bla,{{separator}}#foo {\n\tcolor: black\n}'},
+            { input: 'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+              output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'}
+        ]
+    }, {
         name: "Newline Between Rules",
         description: "",
         matrix: [

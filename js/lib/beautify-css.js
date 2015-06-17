@@ -260,6 +260,7 @@
         /*_____________________--------------------_____________________*/
 
         var insideRule = false;
+        var insidePropertyValue = false;
         var enteringConditionalGroup = false;
         var top_ch = '';
         var last_top_ch = '';
@@ -345,6 +346,7 @@
                 outdent();
                 print["}"](ch);
                 insideRule = false;
+                insidePropertyValue = false;
                 if (nestedLevel) {
                     nestedLevel--;
                 }
@@ -357,6 +359,7 @@
                     !(lookBack("&") || foundNestedPseudoClass())) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
+                    insidePropertyValue = true;
                     output.push(':');
                     print.singleSpace();
                 } else {
@@ -375,6 +378,7 @@
                 print.preserveSingleSpace();
                 output.push(eatString(ch));
             } else if (ch === ';') {
+                insidePropertyValue = false;
                 output.push(ch);
                 print.newLine();
             } else if (ch === '(') { // may be a url
@@ -400,7 +404,7 @@
             } else if (ch === ',') {
                 output.push(ch);
                 eatWhitespace();
-                if (!insideRule && selectorSeparatorNewline && parenLevel < 1) {
+                if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1) {
                     print.newLine();
                 } else {
                     print.singleSpace();

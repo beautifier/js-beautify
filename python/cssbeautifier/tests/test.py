@@ -51,6 +51,42 @@ class CSSBeautifierTest(unittest.TestCase):
         # 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
 
+        # Selector Separator - (separator = " ", separator1 = " ")
+        self.options.selector_separator_newline = false
+        self.options.selector_separator = " "
+        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = " ", separator1 = " ")
+        self.options.selector_separator_newline = false
+        self.options.selector_separator = "  "
+        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = " "
+        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = "  "
+        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
+
         # Newline Between Rules - (separator = "\n")
         self.options.newline_between_rules = true
         t('.div {}\n.span {}', '.div {}\n\n.span {}')
@@ -211,11 +247,6 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.selector_separator_newline = False
         t = self.decodesto
 
-        t("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}")
-        t("@media print {.tab{}}", "@media print {\n  .tab {}\n}")
-        t("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}")
-        t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}")
-
         # pseudo-classes and pseudo-elements
         t("#foo:hover {\n  background-image: url(foo@2x.png)\n}")
         t("#foo *:hover {\n  color: purple\n}")
@@ -263,9 +294,6 @@ class CSSBeautifierTest(unittest.TestCase):
         # don't break nested pseudo-classes
         t("a:first-child{color:red;div:first-child{color:black;}}",
             "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
-
-        t("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
-            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
 
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",

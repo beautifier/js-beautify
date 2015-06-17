@@ -286,6 +286,7 @@ class Beautifier:
         printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         insideRule = False
+        insidePropertyValue = False
         enteringConditionalGroup = False
         top_ch = ''
         last_top_ch = ''
@@ -369,6 +370,7 @@ class Beautifier:
                 printer.outdent()
                 printer.closeBracket()
                 insideRule = False
+                insidePropertyValue = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
                 if self.opts.newline_between_rules and printer.indentLevel == 0:
@@ -379,6 +381,7 @@ class Beautifier:
                         not (self.lookBack('&') or self.foundNestedPseudoClass()):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
+                    insidePropertyValue = True
                     printer.push(":")
                     printer.singleSpace()
                 else:
@@ -395,6 +398,7 @@ class Beautifier:
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
+                insidePropertyValue = False
                 printer.semicolon()
             elif self.ch == '(':
                 # may be a url
@@ -418,7 +422,7 @@ class Beautifier:
             elif self.ch == ',':
                 printer.push(self.ch)
                 self.eatWhitespace()
-                if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
+                if not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()
