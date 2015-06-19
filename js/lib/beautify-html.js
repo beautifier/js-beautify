@@ -435,15 +435,15 @@
 
                 if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
-                } else if (tag_complete[0] === '{') {
+                } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');
                 } else { //otherwise go with the tag ending
                     tag_index = tag_complete.indexOf('>');
                 }
-                if (tag_complete[0] === '<' || !indent_handlebars) {
+                if (tag_complete.charAt(0) === '<' || !indent_handlebars) {
                     tag_offset = 1;
                 } else {
-                    tag_offset = tag_complete[2] === '#' ? 3 : 2;
+                    tag_offset = tag_complete.charAt(2) === '#' ? 3 : 2;
                 }
                 var tag_check = tag_complete.substring(tag_offset, tag_index).toLowerCase();
                 if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
@@ -451,7 +451,7 @@
                     if (!peek) {
                         this.tag_type = 'SINGLE';
                     }
-                } else if (indent_handlebars && tag_complete[0] === '{' && tag_check === 'else') {
+                } else if (indent_handlebars && tag_complete.charAt(0) === '{' && tag_check === 'else') {
                     if (!peek) {
                         this.indent_to_tag('if');
                         this.tag_type = 'HANDLEBARS_ELSE';
@@ -531,7 +531,7 @@
                     comment += input_char;
 
                     // only need to check for the delimiter if the last chars match
-                    if (comment[comment.length - 1] === delimiter[delimiter.length - 1] &&
+                    if (comment.charAt(comment.length - 1) === delimiter.charAt(delimiter.length - 1) &&
                         comment.indexOf(delimiter) !== -1) {
                         break;
                     }
@@ -608,7 +608,7 @@
                     this.line_char_count++;
                     space = true;
 
-                    if (indent_handlebars && input_char === '{' && content.length && content[content.length - 2] === '{') {
+                    if (indent_handlebars && input_char === '{' && content.length && content.charAt(content.length - 2) === '{') {
                         // Handlebars expressions in strings should also be unformatted.
                         content += this.get_unformatted('}}');
                         // These expressions are opaque.  Ignore delimiters found in them.
@@ -747,7 +747,7 @@
                     }
 
                     if (text && text !== '') {
-                        if (text.length > 1 && text[text.length - 1] === '\n') {
+                        if (text.length > 1 && text.charAt(text.length - 1) === '\n') {
                             // unformatted tags can grab newlines as their last character
                             this.output.push(text.slice(0, -1));
                             this.print_newline(false, this.output);
