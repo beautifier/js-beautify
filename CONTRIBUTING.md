@@ -58,7 +58,6 @@ NOTE: Before you do any of these make sure the latest changes have passed the tr
 
 ##Web
 Merge changes from `master` to `gh-pages` branch.  This is very low cost and can be done whenever is convenient.
-If doing a general release, update the `bower.json` file to the new version and commit the change.
 
 ##Python
 NOTE: For now, we'd like to keep python and node version numbers synchronized,
