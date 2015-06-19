@@ -145,6 +145,30 @@ Configuration sources provided earlier in this stack will override later ones.
 
 You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
 
+## Directives to Ignore or Preserve sections (Javascript only) 
+
+Beautifier for  supports directives in comments inside the file.
+This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.  
+The example input below will remain changed after beautification
+
+```js
+// Use preserve when the content is not javascript, but you don't want it reformatted.
+/* beautify preserve:start */
+{
+    browserName: 'internet explorer',
+    platform:    'Windows 7',
+    version:     '8'
+}
+/* beautify preserve:end */
+
+// Use ignore when the content is not parsable as javascript.  
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
+
 ### CSS & HTML
 
 In addition to the `js-beautify` executable, `css-beautify` and `html-beautify` are also provided as an easy interface into those scripts. Alternatively, `js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
