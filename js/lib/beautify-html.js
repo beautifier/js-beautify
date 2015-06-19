@@ -101,7 +101,8 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             end_with_newline,
-            extra_liners;
+            extra_liners,
+            eol;
 
         options = options || {};
 
@@ -116,7 +117,9 @@
         indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
         brace_style = (options.brace_style === undefined) ? 'collapse' : options.brace_style;
         wrap_line_length =  parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
-        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+        unformatted = options.unformatted || ['a', 'span', 'img', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd',
+            'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike',
+            'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         max_preserve_newlines = preserve_newlines ?
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10))
@@ -125,14 +128,17 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (options.wrap_attributes_indent_size === undefined) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10) || indent_size;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-        extra_liners = Array.isArray(options.extra_liners) ?
+        extra_liners = (typeof options.extra_liners == 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
+        eol = options.eol ? options.eol : '\n';
 
         if(options.indent_with_tabs){
             indent_character = '\t';
             indent_size = 1;
         }
+
+        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
 
         function Parser() {
 
@@ -151,7 +157,7 @@
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
-                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed,?php,?,?='.split(','), //all the single tags for HTML
+                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,embed'.split(','), //all the single tags for HTML
                 extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
@@ -404,7 +410,7 @@
                     this.line_char_count++;
                     content.push(input_char); //inserts character at-a-time (or string)
 
-                    if (content[1] && content[1] === '!') { //if we're in a comment, do something special
+                    if (content[1] && (content[1] === '!' || content[1] === '?' || content[1] === '%')) { //if we're in a comment, do something special
                         // We treat all comments as literals, even more than preformatted tags
                         // we just look for the appropriate close tag
                         content = [this.get_comment(tag_start)];
@@ -429,15 +435,15 @@
 
                 if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
-                } else if (tag_complete[0] === '{') {
+                } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');
                 } else { //otherwise go with the tag ending
                     tag_index = tag_complete.indexOf('>');
                 }
-                if (tag_complete[0] === '<' || !indent_handlebars) {
+                if (tag_complete.charAt(0) === '<' || !indent_handlebars) {
                     tag_offset = 1;
                 } else {
-                    tag_offset = tag_complete[2] === '#' ? 3 : 2;
+                    tag_offset = tag_complete.charAt(2) === '#' ? 3 : 2;
                 }
                 var tag_check = tag_complete.substring(tag_offset, tag_index).toLowerCase();
                 if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
@@ -445,7 +451,7 @@
                     if (!peek) {
                         this.tag_type = 'SINGLE';
                     }
-                } else if (indent_handlebars && tag_complete[0] === '{' && tag_check === 'else') {
+                } else if (indent_handlebars && tag_complete.charAt(0) === '{' && tag_check === 'else') {
                     if (!peek) {
                         this.indent_to_tag('if');
                         this.tag_type = 'HANDLEBARS_ELSE';
@@ -525,7 +531,7 @@
                     comment += input_char;
 
                     // only need to check for the delimiter if the last chars match
-                    if (comment[comment.length - 1] === delimiter[delimiter.length - 1] &&
+                    if (comment.charAt(comment.length - 1) === delimiter.charAt(delimiter.length - 1) &&
                         comment.indexOf(delimiter) !== -1) {
                         break;
                     }
@@ -546,6 +552,12 @@
                             matched = true;
                         } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
                             delimiter = '}}';
+                            matched = true;
+                        } else if (comment.indexOf('<?') === 0) { // {{! handlebars comment
+                            delimiter = '?>';
+                            matched = true;
+                        } else if (comment.indexOf('<%') === 0) { // {{! handlebars comment
+                            delimiter = '%>';
                             matched = true;
                         }
                     }
@@ -596,7 +608,7 @@
                     this.line_char_count++;
                     space = true;
 
-                    if (indent_handlebars && input_char === '{' && content.length && content[content.length - 2] === '{') {
+                    if (indent_handlebars && input_char === '{' && content.length && content.charAt(content.length - 2) === '{') {
                         // Handlebars expressions in strings should also be unformatted.
                         content += this.get_unformatted('}}');
                         // These expressions are opaque.  Ignore delimiters found in them.
@@ -676,6 +688,10 @@
             this.printer = function(js_source, indent_character, indent_size, wrap_line_length, brace_style) { //handles input/output and some other printing functions
 
                 this.input = js_source || ''; //gets the input for the Parser
+
+                // HACK: newline parsing inconsistent. This brute force normalizes the input.
+                this.input = this.input.replace(/\r\n|[\r\u2028\u2029]/g, '\n')
+
                 this.output = [];
                 this.indent_character = indent_character;
                 this.indent_string = '';
@@ -731,7 +747,7 @@
                     }
 
                     if (text && text !== '') {
-                        if (text.length > 1 && text[text.length - 1] === '\n') {
+                        if (text.length > 1 && text.charAt(text.length - 1) === '\n') {
                             // unformatted tags can grab newlines as their last character
                             this.output.push(text.slice(0, -1));
                             this.print_newline(false, this.output);
@@ -851,8 +867,14 @@
 
                         var indentation = multi_parser.get_full_indent(script_indent_level);
                         if (_beautifier) {
+
                             // call the Beautifier if avaliable
-                            text = _beautifier(text.replace(/^\s*/, indentation), options);
+                            var Child_options = function() {
+                                this.eol = '\n';
+                            };
+                            Child_options.prototype = options;
+                            var child_options = new Child_options();
+                            text = _beautifier(text.replace(/^\s*/, indentation), child_options);
                         } else {
                             // simply indent the string otherwise
                             var white = text.match(/^\s*/)[0];
@@ -881,9 +903,16 @@
             multi_parser.last_text = multi_parser.token_text;
         }
         var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
+
+        // establish end_with_newline
         if (end_with_newline) {
             sweet_code += '\n';
         }
+
+        if (eol != '\n') {
+            sweet_code = sweet_code.replace(/[\n]/g, eol);
+        }
+
         return sweet_code;
     }
 

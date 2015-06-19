@@ -2,6 +2,7 @@
 [![Build Status](https://img.shields.io/travis/beautify-web/js-beautify/master.svg)](http://travis-ci.org/beautify-web/js-beautify)
 [![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
 [![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+[![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
 
@@ -144,6 +145,30 @@ Configuration sources provided earlier in this stack will override later ones.
 
 You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
 
+## Directives to Ignore or Preserve sections (Javascript only) 
+
+Beautifier for  supports directives in comments inside the file.
+This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.  
+The example input below will remain changed after beautification
+
+```js
+// Use preserve when the content is not javascript, but you don't want it reformatted.
+/* beautify preserve:start */
+{
+    browserName: 'internet explorer',
+    platform:    'Windows 7',
+    version:     '8'
+}
+/* beautify preserve:end */
+
+// Use ignore when the content is not parsable as javascript.  
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
+
 ### CSS & HTML
 
 In addition to the `js-beautify` executable, `css-beautify` and `html-beautify` are also provided as an easy interface into those scripts. Alternatively, `js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
@@ -163,22 +188,27 @@ The CSS & HTML beautifiers are much simpler in scope, and possess far fewer opti
 CSS Beautifier Options:
   -s, --indent-size                  Indentation size [4]
   -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
 
 HTML Beautifier Options:
-  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
   -s, --indent-size                  Indentation size [4]
   -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
+  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
   -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
-  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
-  -n, --end-with-newline             End output with newline
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
 ```
 
@@ -198,4 +228,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.5.5
+js-beautify@1.5.7

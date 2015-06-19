@@ -34,6 +34,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        opts.eol = '\r\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        input = input.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        opts.eol = '\n';
     }
 
     // test html
@@ -48,9 +56,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         if (opts.indent_size === 4 && input) {
             wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
             wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            if (opts.end_with_newline) {
-                wrapped_expectation += '\n';
-            }
             test_fragment(wrapped_input, wrapped_expectation);
         }
     }
@@ -155,6 +160,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Handlebars Indenting On - (content = "{{field}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{field}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -209,6 +215,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{{! comment}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{! comment}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -263,6 +270,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{pre{{field1}} {{field2}} {{field3}}post")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -317,6 +325,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
         // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
         opts.indent_handlebars = true;
+        test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
         test_fragment('{{#if 0}}\n{{/if}}');
@@ -383,6 +392,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Unformatted tags
         test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
+
+
+
+        // Php formatting
+        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        test_fragment(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+
+
+
+        // underscore.js  formatting
+        test_fragment(
+            '<div class="col-sm-9">\n' +
+            '    <textarea id="notes" class="form-control" rows="3">\n' +
+            '        <%= notes %>\n' +
+            '    </textarea>\n' +
+            '</div>');
 
 
 

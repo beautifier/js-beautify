@@ -1,4 +1,26 @@
 # Changelog
+## v1.5.7
+
+### Description
+* Beautifier does not break PHP and Underscore.js templates
+* Fix for SCSS pseudo classes and intperpolation/mixins
+* Alternative Newline Characters in CSS and HTML
+* Preserve formatting or completely ignore section of javascript using comments
+
+
+### Closed Issues
+* Support for legacy JavaScript versions (e.g. WSH+JScript & Co) ([#720](https://github.com/beautify-web/js-beautify/pull/720))
+* Is \\n hard coded into CSS Beautifier logic? ([#715](https://github.com/beautify-web/js-beautify/issues/715))
+* Spaces and linebreaks after # and around { } messing up interpolation/mixins (SASS/SCSS) ([#689](https://github.com/beautify-web/js-beautify/issues/689))
+* Calls to functions get completely messed up in Sass (*.scss) ([#675](https://github.com/beautify-web/js-beautify/issues/675))
+* No new line after selector in scss files ([#666](https://github.com/beautify-web/js-beautify/issues/666))
+* using html-beautify on handlebars template deletes unclosed tag if on second line ([#623](https://github.com/beautify-web/js-beautify/issues/623))
+* more Extra space after scss pseudo classes ([#557](https://github.com/beautify-web/js-beautify/issues/557))
+* Unnecessary spaces in PHP code ([#490](https://github.com/beautify-web/js-beautify/issues/490))
+* Some underscore.js template tags are broken ([#417](https://github.com/beautify-web/js-beautify/issues/417))
+* Selective ignore using comments (feature request) ([#384](https://github.com/beautify-web/js-beautify/issues/384))
+
+
 ## v1.5.6
 
 ### Description
@@ -45,6 +67,7 @@
 *  CSS: support add newline between rules ([#574](https://github.com/beautify-web/js-beautify/pull/574))
 * elem[array]++ changes to elem[array] ++ inserting unnecessary gap ([#570](https://github.com/beautify-web/js-beautify/issues/570))
 * add support to less functions paramters braces ([#568](https://github.com/beautify-web/js-beautify/pull/568))
+* selector_separator_newline: true for Sass doesn't work ([#563](https://github.com/beautify-web/js-beautify/issues/563))
 * yield statements are being beautified to their own newlines since 1.5.2 ([#560](https://github.com/beautify-web/js-beautify/issues/560))
 * HTML beautifier inserts extra newline into `<li>`s ending with `<code>` ([#524](https://github.com/beautify-web/js-beautify/issues/524))
 * Add wrap_attributes option ([#476](https://github.com/beautify-web/js-beautify/issues/476))
@@ -117,12 +140,14 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
 ### Closed Issues
 * Allow custom elements to be unformatted ([#540](https://github.com/beautify-web/js-beautify/pull/540))
+* Need option to ignore brace style ([#538](https://github.com/beautify-web/js-beautify/issues/538))
 * Refactor to Output and OutputLine classes ([#536](https://github.com/beautify-web/js-beautify/pull/536))
 * Recognize ObjectLiteral on open brace ([#535](https://github.com/beautify-web/js-beautify/pull/535))
 * Refactor to fully tokenize before formatting ([#530](https://github.com/beautify-web/js-beautify/pull/530))
 * Cleanup checked in six.py file ([#527](https://github.com/beautify-web/js-beautify/pull/527))
 * Changelog.md? ([#526](https://github.com/beautify-web/js-beautify/issues/526))
 * New line added between each css declaration ([#523](https://github.com/beautify-web/js-beautify/issues/523))
+* Kendo Template scripts get messed up! ([#516](https://github.com/beautify-web/js-beautify/issues/516))
 * SyntaxError: Unexpected token ++ ([#514](https://github.com/beautify-web/js-beautify/issues/514))
 * space appears before open square bracket when the object name is "set" ([#508](https://github.com/beautify-web/js-beautify/issues/508))
 * Unclosed string problem ([#505](https://github.com/beautify-web/js-beautify/issues/505))
@@ -144,8 +169,6 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * Cannot declare object literal properties with unquoted reserved words ([#440](https://github.com/beautify-web/js-beautify/issues/440))
 * Do not put a space within `function*` generator functions. ([#428](https://github.com/beautify-web/js-beautify/issues/428))
 * beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
-* comment breaks indent ([#413](https://github.com/beautify-web/js-beautify/issues/413))
-* AngularJS inline templates are being corrupted! ([#385](https://github.com/beautify-web/js-beautify/issues/385))
 
 
 ## v1.5.1

@@ -39,6 +39,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         if (expected !== input) {
             sanitytest.expect(expected, expected);
         }
+
+        // Everywhere we do newlines, they should be replaced with opts.eol
+        opts.eol = '\r\\n';
+        expected = expected.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        input = input.replace(/[\n]/g, '\r\n');
+        sanitytest.expect(input, expected);
+        opts.eol = '\n';
     }
 
 
@@ -53,6 +61,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         sanitytest.test_function(test_js_beautifier, 'js_beautify');
         test_fragment(input, expectation);
 
+        // If we set raw, input should be unchanged
+        opts.test_output_raw = true;
+        if (!opts.end_with_newline) {
+            test_fragment(input, input);
+        }
+        opts.test_output_raw = false;
+
         // test also the returned indentation
         // e.g if input = "asdf();"
         // then test that this remains properly formatted as well:
@@ -66,12 +81,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
 
-            // Everywhere we do newlines, they should be replaced with opts.eol
-            opts.eol = '\r\\n';
-            wrapped_input = wrapped_input.replace(/[\n]/mg, '\r\n');
-            wrapped_expectation = wrapped_expectation.replace(/[\n]/mg, '\r\n');
-            test_fragment(wrapped_input, wrapped_expectation);
-            opts.eol = '\n';
+            // If we set raw, input should be unchanged
+            opts.test_output_raw = true;
+            if (!opts.end_with_newline) {
+                test_fragment(wrapped_input, wrapped_input);
+            }
+            opts.test_output_raw = false;
         }
 
     }
@@ -624,6 +639,96 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         // Multiple braces
         bt('{{}/z/}', '{\n    {}\n    /z/\n}');
+
+
+
+        // Beautify preserve formatting
+        bt('/* beautify preserve:start */\n/* beautify preserve:end */');
+        bt('/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt('var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt('/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */');
+        bt(
+            'var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt(
+            'var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */');
+        bt(
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '    /* beautify preserve:end */\n' +
+            '};');
+        bt(
+            'var a = {\n' +
+            '/* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};');
+        bt('/* beautify ignore:start */\n/* beautify ignore:end */');
+        bt('/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */');
+        bt('var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */');
+        bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */');
+        bt(
+            'var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */');
+        bt(
+            'var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */');
+        bt(
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '    /* beautify ignore:end */\n' +
+            '};');
+        bt(
+            'var a = {\n' +
+            '/* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '};');
+
+
+
+        // Template Formatting
+        bt('<?=$view["name"]; ?>');
+        bt('a = <?= external() ?>;');
+        bt(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+        bt('a = <%= external() %>;');
 
 
         // jslint and space after anon function - (f = " ", c = "")
@@ -1520,9 +1625,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         bt('a = //comment\n    /regex/;');
 
-        test_fragment('/*\n * X\n */');
-        test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */');
-
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
 
         // tests for brace positioning
@@ -1530,9 +1632,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         beautify_brace_tests('collapse');
         beautify_brace_tests('end-expand');
         beautify_brace_tests('none');
-
-        bt('a = <?= external() ?> ;'); // not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
-        bt('a = <%= external() %> ;');
 
         bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment');
 
@@ -2101,6 +2200,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // Test template strings
         bt('`This is a ${template} string.`', '`This is a ${template} string.`');
         bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`');
+        bt('a = `This is a continuation\\\nstring.`', 'a = `This is a continuation\\\nstring.`');
+        bt('a = "This is a continuation\\\nstring."', 'a = "This is a continuation\\\nstring."');
 
         Urlencoded.run_tests(sanitytest);
     }

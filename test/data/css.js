@@ -48,6 +48,49 @@ exports.test_data = {
             },
         ],
     }, {
+        name: 'Selector Separator',
+        description: '',
+        matrix: [
+            {
+                options: [
+                    { name: 'selector_separator_newline', value: 'false' },
+                    { name: 'selector_separator', value: '" "' }
+                ],
+                separator: ' ',
+                separator1: ' '
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'false' },
+                    { name: 'selector_separator', value: '"  "' }
+                ],
+                // BUG: #713
+                separator: ' ',
+                separator1: ' '
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'true' },
+                    { name: 'selector_separator', value: '" "' }
+                ],
+                separator: '\\n',
+                separator1: '\\n\\t'
+            }, {
+                options: [
+                    { name: 'selector_separator_newline', value: 'true' },
+                    { name: 'selector_separator', value: '"  "' }
+                ],
+                separator: '\\n',
+                separator1: '\\n\\t'
+            }
+        ],
+        tests: [
+            { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}'},
+            { input: '@media print {.tab{}}', output: '@media print {\n\t.tab {}\n}'},
+            { input: '@media print {.tab,.bat{}}', output: '@media print {\n\t.tab,{{separator1}}.bat {}\n}'},
+            { input: '#bla, #foo{color:black}', output: '#bla,{{separator}}#foo {\n\tcolor: black\n}'},
+            { input: 'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+              output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'}
+        ]
+    }, {
         name: "Newline Between Rules",
         description: "",
         matrix: [
@@ -74,6 +117,7 @@ exports.test_data = {
             { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}'},
             { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n{{separator}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}'},
             { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}'},
+            { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}'},
         ],
     }, {
         name: "Functions braces",
@@ -120,6 +164,20 @@ exports.test_data = {
               input: '@page:first {}',
               output: '@page: first {}' },
             { unchanged: '@page: first {}' }
+        ],
+    }, {
+        name: "SASS/SCSS",
+        description: "",
+        tests: [
+            { comment: "Basic Interpolation",
+              unchanged: 'p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}'},
+            { unchanged: 'p.#{$name} {}' },
+            { unchanged: [
+                '@mixin itemPropertiesCoverItem($items, $margin) {',
+                '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});',
+                '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;',
+                '}'
+            ]}
         ],
     }, {
 

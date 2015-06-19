@@ -425,6 +425,92 @@ class TestJSBeautifier(unittest.TestCase):
         # Multiple braces
         bt('{{}/z/}', '{\n    {}\n    /z/\n}')
 
+        # Beautify preserve formatting
+        bt('/* beautify preserve:start */\n/* beautify preserve:end */')
+        bt('/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+        bt('var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+        bt('/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */')
+        bt(
+            'var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+        bt(
+            'var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
+            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+        bt(
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '    /* beautify preserve:end */\n' +
+            '};')
+        bt(
+            'var a = {\n' +
+            '/* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify preserve:start */\n' +
+            '    one   :  1,\n' +
+            '    two   :  2,\n' +
+            '    three :  3,\n' +
+            '    ten   : 10\n' +
+            '/* beautify preserve:end */\n' +
+            '};')
+        bt('/* beautify ignore:start */\n/* beautify ignore:end */')
+        bt('/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt('var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */')
+        bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */')
+        bt(
+            'var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt(
+            'var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
+            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+        bt(
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '    /* beautify ignore:end */\n' +
+            '};')
+        bt(
+            'var a = {\n' +
+            '/* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '};',
+            'var a = {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three : {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '};')
+
+        # Template Formatting
+        bt('<?=$view["name"]; ?>')
+        bt('a = <?= external() ?>;')
+        bt(
+            '<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>')
+        bt('a = <%= external() %>;')
+
         # jslint and space after anon function - (f = " ", c = "")
         self.options.jslint_happy = true
         self.options.space_after_anon_function = true
@@ -1312,9 +1398,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         bt('a = //comment\n    /regex/;')
 
-        test_fragment('/*\n * X\n */')
-        test_fragment('/*\r\n * X\r\n */', '/*\n * X\n */')
-
         bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}')
 
         bt('var a = new function();')
@@ -1694,9 +1777,6 @@ class TestJSBeautifier(unittest.TestCase):
         # END tests for brace position
 
         self.options.brace_style = 'collapse';
-
-        bt('a = <?= external() ?> ;') # not the most perfect thing in the world, but you're the weirdo beaufifying php mix-ins with javascript beautifier
-        bt('a = <%= external() %> ;')
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};')
         test_fragment("if (zz) {\n    // ....\n}\n(function")
@@ -2246,7 +2326,8 @@ class TestJSBeautifier(unittest.TestCase):
         # Test template strings
         bt('`This is a ${template} string.`', '`This is a ${template} string.`')
         bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`')
-
+        bt('a = `This is a continuation\\\nstring.`', 'a = `This is a continuation\\\nstring.`');
+        bt('a = "This is a continuation\\\nstring."', 'a = "This is a continuation\\\nstring."');
 
     def decodesto(self, input, expectation=None):
         if expectation == None:
@@ -2261,6 +2342,16 @@ class TestJSBeautifier(unittest.TestCase):
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
+        # Everywhere we do newlines, they should be replaced with opts.eol
+        self.options.eol = '\r\\n';
+        expectation = expectation.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            jsbeautifier.beautify(input, self.options), expectation)
+        input = input.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            jsbeautifier.beautify(input, self.options), expectation)
+        self.options.eol = '\n'
+
     def wrap(self, text):
         return self.wrapregex.sub('    \\1', text)
 
@@ -2269,17 +2360,22 @@ class TestJSBeautifier(unittest.TestCase):
             expectation = input
 
         self.decodesto(input, expectation)
+        # If we set raw, input should be unchanged
+        self.options.test_output_raw = True
+        if self.options.end_with_newline:
+            elf.decodesto(input, input)
+        self.options.test_output_raw = False
+
         if self.options.indent_size == 4 and input:
             wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
 
-            # Everywhere we do newlines, they should be replaced with opts.eol
-            self.options.eol = '\r\\n';
-            wrapped_input = wrapped_input.replace('\n', '\r\n')
-            wrapped_expect = wrapped_expect.replace('\n', '\r\n')
-            self.decodesto(wrapped_input, wrapped_expect)
-            self.options.eol = '\n'
+            # If we set raw, input should be unchanged
+            self.options.test_output_raw = True
+            if self.options.end_with_newline:
+                elf.decodesto(wrapped_input, wrapped_input)
+            self.options.test_output_raw = False
 
 
     @classmethod

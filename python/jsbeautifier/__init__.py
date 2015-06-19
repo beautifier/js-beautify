@@ -82,6 +82,9 @@ class BeautifierOptions:
         self.end_with_newline = False
         self.comma_first = False
 
+        # For testing of beautify ignore:start directive
+        self.test_output_raw = False
+
 
 
     def __repr__(self):
@@ -223,6 +226,7 @@ class Token:
         self.wanted_newline = newlines > 0
         self.whitespace_before = whitespace_before
         self.parent = None
+        self.directives = None
 
 
 def default_options():
@@ -308,6 +312,7 @@ class Beautifier:
 
         self.opts = copy.copy(opts)
         self.blank_state()
+        self.acorn = Acorn()
 
     def blank_state(self, js_source_text = None):
 
@@ -344,6 +349,8 @@ class Beautifier:
             js_source_text = js_source_text[preindent_index:]
 
         self.output = Output(self.indent_string, self.baseIndentString)
+        # If testing the ignore directive, start with output disable set to true
+        self.output.raw =self.opts.test_output_raw;
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
@@ -373,7 +380,6 @@ class Beautifier:
             'TK_OPERATOR': self.handle_operator,
             'TK_COMMA': self.handle_comma,
             'TK_BLOCK_COMMENT': self.handle_block_comment,
-            'TK_INLINE_COMMENT': self.handle_inline_comment,
             'TK_COMMENT': self.handle_comment,
             'TK_DOT': self.handle_dot,
             'TK_UNKNOWN': self.handle_unknown,
@@ -400,12 +406,12 @@ class Beautifier:
             self.token_pos += 1
 
 
+
         sweet_code = self.output.get_code()
         if self.opts.end_with_newline:
-            sweet_code += self.opts.eol
+            sweet_code += '\n'
 
         if not self.opts.eol == '\n':
-            sweet_code = sweet_code.replace('\r\n', '\n')
             sweet_code = sweet_code.replace('\n', self.opts.eol)
 
         return sweet_code
@@ -484,6 +490,10 @@ class Beautifier:
 
 
     def print_token(self, current_token, s=None):
+        if self.output.raw:
+            self.output.add_raw_token(current_token)
+            return
+
         if self.opts.comma_first and self.last_type == 'TK_COMMA' and self.output.just_added_newline():
             if self.output.previous_line.last() == ',':
                 self.output.previous_line.pop()
@@ -1093,7 +1103,29 @@ class Beautifier:
 
 
     def handle_block_comment(self, current_token):
-        lines = current_token.text.replace('\x0d', '').split('\x0a')
+        if self.output.raw:
+            self.output.add_raw_token(current_token)
+            if current_token.directives and current_token.directives.get('preserve') == 'end':
+                self.output.raw = False
+            return
+
+        if current_token.directives:
+            self.print_newline(preserve_statement_flags = True)
+            self.print_token(current_token)
+            if current_token.directives.get('preserve') == 'start':
+                self.output.raw = True
+
+            self.print_newline(preserve_statement_flags = True)
+            return
+
+        # inline block
+        if not self.acorn.newline.search(current_token.text) and not current_token.wanted_newline:
+            self.output.space_before_token = True
+            self.print_token(current_token)
+            self.output.space_before_token = True
+            return
+
+        lines = self.acorn.lineBreak.split(current_token.text)
         javadoc = False
         starless = False
         last_indent = current_token.whitespace_before
@@ -1122,12 +1154,6 @@ class Beautifier:
                 self.output.add_token(line)
 
         self.print_newline(preserve_statement_flags = True)
-
-    def handle_inline_comment(self, current_token):
-        self.output.space_before_token = True
-        self.print_token(current_token)
-        self.output.space_before_token = True
-
 
     def handle_comment(self, current_token):
         if current_token.wanted_newline:
@@ -1244,11 +1270,17 @@ class Output:
         self.indent_cache = [ baseIndentString ]
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
+        self.raw = False
         self.lines = []
         self.previous_line = None
         self.current_line = None
         self.space_before_token = False
-        self.add_new_line(True)
+        self.add_outputline()
+
+    def add_outputline(self):
+        self.previous_line = self.current_line
+        self.current_line = OutputLine(self)
+        self.lines.append(self.current_line)
 
     def get_line_number(self):
         return len(self.lines)
@@ -1259,9 +1291,8 @@ class Output:
             return False
 
         if force_newline or not self.just_added_newline():
-            self.previous_line = self.current_line
-            self.current_line = OutputLine(self)
-            self.lines.append(self.current_line)
+            if not self.raw:
+                self.add_outputline()
             return True
         return False
 
@@ -1280,6 +1311,14 @@ class Output:
             return True
         self.current_line.set_indent(0)
         return False
+
+    def add_raw_token(self, token):
+        for _ in range(token.newlines):
+            self.add_outputline()
+
+        self.current_line.push(token.whitespace_before)
+        self.current_line.push(token.text)
+        self.space_before_token = False
 
     def add_token(self, printable_token):
         self.add_space_before_token()
@@ -1335,6 +1374,7 @@ class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
+    digit_hex = re.compile('[0123456789abcdefABCDEF]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>' \
               + ' <?= <? ?> <%= <% %>').split(' ')
 
@@ -1347,7 +1387,16 @@ class Tokenizer:
         self.opts = opts
         self.indent_string = indent_string
         self.acorn = Acorn()
+        #  /* ... */ comment ends with nearest */ or end of file
+        self.block_comment_pattern = re.compile('([\s\S]*?)((?:\*\/)|$)')
 
+        # comment ends just before nearest linefeed or end of file
+        self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
+
+        self.directives_pattern = re.compile('\/\*\sbeautify\s(\w+[:]\w+)+\s\*\/')
+        self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
+
+        self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
 
     def tokenize(self):
         self.in_html_comment = False
@@ -1364,8 +1413,10 @@ class Tokenizer:
             token_values = self.__tokenize_next()
             next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
 
-            while next.type == 'TK_INLINE_COMMENT' or next.type == 'TK_COMMENT' or \
-                next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
+            while next.type == 'TK_COMMENT' or next.type == 'TK_BLOCK_COMMENT' or next.type == 'TK_UNKNOWN':
+                if next.type == 'TK_BLOCK_COMMENT':
+                    next.directives = token_values[2]
+
                 comments.append(next)
                 token_values = self.__tokenize_next()
                 next = Token(token_values[1], token_values[0], self.n_newlines, self.whitespace_before_token)
@@ -1390,6 +1441,15 @@ class Tokenizer:
             last = next
         return self.tokens
 
+    def get_directives (self, text):
+        directives = None
+        directives_match = self.directives_pattern.match(text)
+        if directives_match:
+            directives = {}
+            directive = directives_match.group(1).split(':')
+            directives[directive[0]] = directive[1]
+        return directives
+
 
     def __tokenize_next(self):
 
@@ -1410,13 +1470,13 @@ class Tokenizer:
         self.parser_pos += 1
 
         while c in self.whitespace:
-            if c == '\n':
-                self.n_newlines += 1
-                whitespace_on_this_line = []
-            elif c == self.indent_string:
-                whitespace_on_this_line.append(self.indent_string)
-            elif c != '\r':
-                whitespace_on_this_line.append(' ')
+            if self.acorn.newline.match(c):
+                # treat \r\n as one newline
+                if not (c == '\n' and self.input[self.parser_pos-2] == '\r'):
+                    self.n_newlines += 1
+                    whitespace_on_this_line = []
+            else:
+                whitespace_on_this_line.append(c)
 
             if self.parser_pos >= len(self.input):
                 return '', 'TK_EOF'
@@ -1438,7 +1498,7 @@ class Tokenizer:
                 allow_e = False
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
-                local_digit = re.compile('[0123456789abcdefABCDEF]')
+                local_digit = self.digit_hex
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''
@@ -1505,32 +1565,22 @@ class Tokenizer:
             inline_comment = True
             if self.input[self.parser_pos] == '*': # peek /* .. */ comment
                 self.parser_pos += 1
-                if self.parser_pos < len(self.input):
-                    while not (self.input[self.parser_pos] == '*' and \
-                               self.parser_pos + 1 < len(self.input) and \
-                               self.input[self.parser_pos + 1] == '/')\
-                          and self.parser_pos < len(self.input):
-                        c = self.input[self.parser_pos]
-                        comment += c
-                        if c in '\r\n':
-                            inline_comment = False
-                        self.parser_pos += 1
-                        if self.parser_pos >= len(self.input):
-                            break
-                self.parser_pos += 2
-                if inline_comment and self.n_newlines == 0:
-                    return '/*' + comment + '*/', 'TK_INLINE_COMMENT'
-                else:
-                    return '/*' + comment + '*/', 'TK_BLOCK_COMMENT'
+                comment_match = self.block_comment_pattern.match(self.input, self.parser_pos)
+                comment = '/*' + comment_match.group(0)
+                self.parser_pos += len(comment_match.group(0))
+                directives = self.get_directives(comment)
+                if directives and directives.get('ignore') == 'start':
+                    comment_match = self.directives_end_ignore_pattern.match(self.input, self.parser_pos)
+                    comment += comment_match.group(0)
+                    self.parser_pos += len(comment_match.group(0))
+                comment = re.sub(self.acorn.lineBreak, '\n', comment)
+                return comment, 'TK_BLOCK_COMMENT', directives
 
             if self.input[self.parser_pos] == '/': # peek // comment
-                comment = c
-                while self.input[self.parser_pos] not in '\r\n':
-                    comment += self.input[self.parser_pos]
-                    self.parser_pos += 1
-                    if self.parser_pos >= len(self.input):
-                        break
-
+                self.parser_pos += 1
+                comment_match = self.comment_pattern.match(self.input, self.parser_pos)
+                comment = '//' + comment_match.group(0)
+                self.parser_pos += len(comment_match.group(0));
                 return comment, 'TK_COMMENT'
 
         if c == '`' or c == "'" or c == '"' or \
@@ -1596,7 +1646,8 @@ class Tokenizer:
                         xmlLength = len(xmlStr)
 
                     self.parser_pos += xmlLength - 1
-                    return xmlStr[:xmlLength], 'TK_STRING'
+                    xmlStr = re.sub(self.acorn.lineBreak, '\n', xmlStr[:xmlLength])
+                    return xmlStr, 'TK_STRING'
 
             else:
                 # handle string
@@ -1647,6 +1698,7 @@ class Tokenizer:
                     while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
                         resulting_string += self.input[self.parser_pos]
                         self.parser_pos += 1
+            resulting_string = re.sub(self.acorn.lineBreak, '\n', resulting_string)
 
             return resulting_string, 'TK_STRING'
 
@@ -1683,10 +1735,19 @@ class Tokenizer:
                 self.parser_pos += 2
             return sharp, 'TK_WORD'
 
+        if c == '<' and self.input[self.parser_pos] in ['?', '%']:
+            template_match = self.template_pattern.match(self.input, self.parser_pos - 1);
+            if template_match:
+                c = template_match.group(0)
+                self.parser_pos += len(c) - 1
+                c = re.sub(self.acorn.lineBreak, '\n', c)
+                return c, 'TK_STRING'
+
+
         if c == '<' and self.input[self.parser_pos - 1 : self.parser_pos + 3] == '<!--':
             self.parser_pos += 3
             c = '<!--'
-            while self.parser_pos < len(self.input) and self.input[self.parser_pos] != '\n':
+            while self.parser_pos < len(self.input) and not self.acorn.newline.match(self.input[self.parser_pos]):
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
             self.in_html_comment = True

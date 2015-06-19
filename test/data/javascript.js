@@ -500,6 +500,125 @@ exports.test_data = {
         ]
     },
     {
+        name: "Beautify preserve formatting",
+        description: "Allow beautifier to preserve sections",
+        tests: [
+            { unchanged: "/* beautify preserve:start */\n/* beautify preserve:end */" },
+            { unchanged: "/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */" },
+            { unchanged: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */" },
+            { unchanged: "/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */" },
+            {
+              input_: "var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+              output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+            },
+            {
+              input_: "var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+              output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+            },
+            {
+                unchanged: [
+                    'var a = {',
+                    '    /* beautify preserve:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three :  3,',
+                    '    ten   : 10',
+                    '    /* beautify preserve:end */',
+                    '};'
+                ]
+            },
+            {
+                input: [
+                    'var a = {',
+                    '/* beautify preserve:start */',
+                    '    one   :  1,',
+                    '    two   :  2,',
+                    '    three :  3,',
+                    '    ten   : 10',
+                    '/* beautify preserve:end */',
+                    '};'
+                ],
+                output: [
+                    'var a = {',
+                    '    /* beautify preserve:start */',
+                    '    one   :  1,',
+                    '    two   :  2,',
+                    '    three :  3,',
+                    '    ten   : 10',
+                    '/* beautify preserve:end */',
+                    '};'
+                ]
+            },
+            // ignore
+            { unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */" },
+            { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */" },
+            { unchanged: "var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */" },
+            { unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */" },
+            {
+              input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+            },
+            {
+              input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+            },
+            {
+                unchanged: [
+                    'var a = {',
+                    '    /* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '    /* beautify ignore:end */',
+                    '};'
+                ]
+            },
+            {
+                input: [
+                    'var a = {',
+                    '/* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '/* beautify ignore:end */',
+                    '};'
+                ],
+                output: [
+                    'var a = {',
+                    '    /* beautify ignore:start */',
+                    '    one   :  1',
+                    '    two   :  2,',
+                    '    three : {',
+                    '    ten   : 10',
+                    '/* beautify ignore:end */',
+                    '};'
+                ]
+            }
+        ]
+    },
+    {
+        name: "Template Formatting",
+        description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
+        options: [],
+        tests: [
+            { unchanged: '<?=$view["name"]; ?>' },
+            { unchanged: 'a = <?= external() ?>;' },
+            { unchanged:
+                [
+                    '<?php',
+                    'for($i = 1; $i <= 100; $i++;) {',
+                    '    #count to 100!',
+                    '    echo($i . "</br>");',
+                    '}',
+                    '?>'
+                ]
+            },
+            { unchanged: 'a = <%= external() %>;' }
+        ]
+    },
+    {
         name: "jslint and space after anon function",
         description: "jslint_happy and space_after_anon_function tests",
         matrix: [

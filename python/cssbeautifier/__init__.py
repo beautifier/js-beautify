@@ -37,6 +37,8 @@ class BeautifierOptions:
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
+        self.eol = '\n'
+
 
     def __repr__(self):
         return \
@@ -146,6 +148,10 @@ class Printer:
         if len(self.output) > 0 and not self.__lastCharWhitespace():
             self.output.append(" ")
 
+    def preserveSingleSpace(self,isAfterSpace):
+        if isAfterSpace:
+            self.singleSpace()
+
     def result(self):
         if self.baseIndentString:
             return self.baseIndentString + "".join(self.output);
@@ -156,6 +162,17 @@ class Printer:
 class Beautifier:
 
     def __init__(self, source_text, opts=default_options()):
+        # This is not pretty, but given how we did the version import
+        # it is the only way to do this without having setup.py fail on a missing six dependency.
+        self.six = __import__("six")
+
+        if not source_text:
+            source_text = ''
+
+        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
+        lineBreak = re.compile(self.six.u("\r\n|[\r\u2028\u2029]"))
+        source_text = re.sub(lineBreak, '\n', source_text)
+
         self.source_text = source_text
         self.opts = opts
         self.indentSize = opts.indent_size
@@ -166,6 +183,8 @@ class Beautifier:
         if self.opts.indent_with_tabs:
             self.indentChar = "\t"
             self.indentSize = 1
+
+        self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -257,11 +276,19 @@ class Beautifier:
     # a new block
     def foundNestedPseudoClass(self):
         i = self.pos + 1
+        openParen = 0
         while i < len(self.source_text):
             ch = self.source_text[i]
             if ch == "{":
                 return True
-            elif ch == ";" or ch == "}" or ch == ")":
+            elif ch == "(":
+                # pseudoclasses can contain ()
+                openParen += 1
+            elif ch == ")":
+                if openParen == 0:
+                    return False
+                openParen -= 1
+            elif ch == ";" or ch == "}":
                 return False
             i += 1;
 
@@ -274,15 +301,16 @@ class Beautifier:
         printer = Printer(self.indentChar, self.indentSize, baseIndentString)
 
         insideRule = False
+        insidePropertyValue = False
         enteringConditionalGroup = False
         top_ch = ''
         last_top_ch = ''
         parenLevel = 0
 
         while True:
-            whitespace = self.skipWhitespace();
+            whitespace = self.skipWhitespace()
             isAfterSpace = whitespace != ''
-            isAfterNewline = '\n' in whitespace;
+            isAfterNewline = '\n' in whitespace
             last_top_ch = top_ch
             top_ch = self.ch
 
@@ -294,7 +322,7 @@ class Beautifier:
                 if not isAfterNewline or header:
                     printer.newLine()
 
-                
+
                 comment = self.eatComment()
                 printer.comment(comment)
                 printer.newLine()
@@ -308,9 +336,7 @@ class Beautifier:
                 printer.comment(self.eatComment())
                 printer.newLine()
             elif self.ch == '@':
-                # pass along the space we found as a separate item
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
                 # strip trailing space, if present, for hash property check
@@ -333,7 +359,9 @@ class Beautifier:
                     printer.nestedLevel += 1
                     if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                         enteringConditionalGroup = True
-
+            elif self.ch == '#' and self.peek() == '{':
+                printer.preserveSingleSpace(isAfterSpace)
+                printer.push(self.eatString('}'));
             elif self.ch == '{':
                 if self.peek(True) == '}':
                     self.eatWhitespace()
@@ -357,6 +385,7 @@ class Beautifier:
                 printer.outdent()
                 printer.closeBracket()
                 insideRule = False
+                insidePropertyValue = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
                 if self.opts.newline_between_rules and printer.indentLevel == 0:
@@ -367,6 +396,7 @@ class Beautifier:
                         not (self.lookBack('&') or self.foundNestedPseudoClass()):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
+                    insidePropertyValue = True
                     printer.push(":")
                     printer.singleSpace()
                 else:
@@ -380,10 +410,10 @@ class Beautifier:
                         # pseudo-element
                         printer.push(":")
             elif self.ch == '"' or self.ch == '\'':
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.eatString(self.ch))
             elif self.ch == ';':
+                insidePropertyValue = False
                 printer.semicolon()
             elif self.ch == '(':
                 # may be a url
@@ -398,8 +428,7 @@ class Beautifier:
                             self.pos = self.pos - 1
                 else:
                     parenLevel += 1
-                    if isAfterSpace:
-                        printer.singleSpace()
+                    printer.preserveSingleSpace(isAfterSpace)
                     printer.push(self.ch)
                     self.eatWhitespace()
             elif self.ch == ')':
@@ -408,15 +437,14 @@ class Beautifier:
             elif self.ch == ',':
                 printer.push(self.ch)
                 self.eatWhitespace()
-                if not insideRule and self.opts.selector_separator_newline and parenLevel < 1:
+                if not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[':
-                if isAfterSpace:
-                    printer.singleSpace()
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
             elif self.ch == '=':
                 # no whitespace before or after
@@ -424,15 +452,16 @@ class Beautifier:
                 self.ch = '='
                 printer.push(self.ch)
             else:
-                if isAfterSpace:
-                    printer.singleSpace()
-
+                printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
 
         # establish end_with_newline
         if self.opts.end_with_newline:
-            sweet_code += "\n"
+            sweet_code += '\n'
+
+        if not self.opts.eol == '\n':
+            sweet_code = sweet_code.replace('\n', self.opts.eol)
 
         return sweet_code

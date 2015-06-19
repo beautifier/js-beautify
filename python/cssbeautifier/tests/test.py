@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import unittest
 import cssbeautifier
 
@@ -51,6 +54,42 @@ class CSSBeautifierTest(unittest.TestCase):
         # 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
 
+        # Selector Separator - (separator = " ", separator1 = " ")
+        self.options.selector_separator_newline = false
+        self.options.selector_separator = " "
+        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = " ", separator1 = " ")
+        self.options.selector_separator_newline = false
+        self.options.selector_separator = "  "
+        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = " "
+        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
+
+        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = "  "
+        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
+        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}')
+        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}')
+        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
+        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
+
         # Newline Between Rules - (separator = "\n")
         self.options.newline_between_rules = true
         t('.div {}\n.span {}', '.div {}\n\n.span {}')
@@ -63,6 +102,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n\n.div {\n\theight: 15px;\n}')
         t('@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}')
         t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n\n.div {\n\theight: 15px;\n}')
+        t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n\n.div {\n\theight: 15px;\n}')
 
         # Newline Between Rules - (separator = "")
         self.options.newline_between_rules = false
@@ -76,6 +116,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div {\n\theight: 15px;\n}')
         t('@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}')
         t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}')
+        t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}')
 
         # Functions braces
         t('.tabs(){}', '.tabs() {}')
@@ -112,6 +153,17 @@ class CSSBeautifierTest(unittest.TestCase):
         # Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.
         t('@page:first {}', '@page: first {}')
         t('@page: first {}')
+
+        # SASS/SCSS
+        
+        # Basic Interpolation
+        t('p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}')
+        t('p.#{$name} {}')
+        t(
+            '@mixin itemPropertiesCoverItem($items, $margin) {\n' +
+            '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});\n' +
+            '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
+            '}')
 
         # 
 
@@ -198,11 +250,6 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.selector_separator_newline = False
         t = self.decodesto
 
-        t("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}")
-        t("@media print {.tab{}}", "@media print {\n  .tab {}\n}")
-        t("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}")
-        t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}")
-
         # pseudo-classes and pseudo-elements
         t("#foo:hover {\n  background-image: url(foo@2x.png)\n}")
         t("#foo *:hover {\n  color: purple\n}")
@@ -251,9 +298,6 @@ class CSSBeautifierTest(unittest.TestCase):
         t("a:first-child{color:red;div:first-child{color:black;}}",
             "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
 
-        t("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
-            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
-
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",
             "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
@@ -280,9 +324,19 @@ class CSSBeautifierTest(unittest.TestCase):
 
         # if the expected is different from input, run it again
         # expected output should be unchanged when run twice.
-        if not expectation == None:
+        if not expectation != input:
             self.assertMultiLineEqual(
                 cssbeautifier.beautify(expectation, self.options), expectation)
+
+        # Everywhere we do newlines, they should be replaced with opts.eol
+        self.options.eol = '\r\\n';
+        expectation = expectation.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+        input = input.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+        self.options.eol = '\n'
 
 if __name__ == '__main__':
     unittest.main()

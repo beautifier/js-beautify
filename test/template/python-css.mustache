@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import unittest
 import cssbeautifier
 
@@ -130,11 +133,6 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.selector_separator_newline = False
         t = self.decodesto
 
-        t("#bla, #foo{color:green}", "#bla, #foo {\n  color: green\n}")
-        t("@media print {.tab{}}", "@media print {\n  .tab {}\n}")
-        t("@media print {.tab,.bat{}}", "@media print {\n  .tab, .bat {}\n}")
-        t("#bla, #foo{color:black}", "#bla, #foo {\n  color: black\n}")
-
         # pseudo-classes and pseudo-elements
         t("#foo:hover {\n  background-image: url(foo@2x.png)\n}")
         t("#foo *:hover {\n  color: purple\n}")
@@ -183,9 +181,6 @@ class CSSBeautifierTest(unittest.TestCase):
         t("a:first-child{color:red;div:first-child{color:black;}}",
             "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
 
-        t("a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}",
-            "a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}");
-
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",
             "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
@@ -212,9 +207,19 @@ class CSSBeautifierTest(unittest.TestCase):
 
         # if the expected is different from input, run it again
         # expected output should be unchanged when run twice.
-        if not expectation == None:
+        if not expectation != input:
             self.assertMultiLineEqual(
                 cssbeautifier.beautify(expectation, self.options), expectation)
+
+        # Everywhere we do newlines, they should be replaced with opts.eol
+        self.options.eol = '\r\\n';
+        expectation = expectation.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+        input = input.replace('\n', '\r\n')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), expectation)
+        self.options.eol = '\n'
 
 if __name__ == '__main__':
     unittest.main()

@@ -227,6 +227,7 @@ exports.test_data = {
             }
         ],
         tests: [
+            { fragment: true, unchanged: '{{page-title}}' },
             { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' },
@@ -393,6 +394,38 @@ exports.test_data = {
         tests: [
             { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
             { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+        ]
+    }, {
+        name: "Php formatting",
+        description: "Php (<?php ... ?>) treated as comments.",
+        options: [],
+        tests: [
+            { fragment: true, unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>' },
+            { fragment: true, unchanged:
+                [
+                    '<?php',
+                    'for($i = 1; $i <= 100; $i++;) {',
+                    '    #count to 100!',
+                    '    echo($i . "</br>");',
+                    '}',
+                    '?>'
+                ]
+            },
+        ]
+    }, {
+        name: "underscore.js  formatting",
+        description: "underscore.js templates (<% ... %>) treated as comments.",
+        options: [],
+        tests: [
+            { fragment: true, unchanged:
+                [
+                    '<div class="col-sm-9">',
+                    '    <textarea id="notes" class="form-control" rows="3">',
+                    '        <%= notes %>',
+                    '    </textarea>',
+                    '</div>'
+                ]
+            },
         ]
     }, {
         name: "Indent with tabs",
