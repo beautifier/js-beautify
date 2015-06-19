@@ -869,8 +869,11 @@
                         if (_beautifier) {
 
                             // call the Beautifier if avaliable
-                            var child_options = JSON.parse(JSON.stringify(options));
-                            child_options.eol = '\n';
+                            var Child_options = function() {
+                                this.eol = '\n';
+                            };
+                            Child_options.prototype = options;
+                            var child_options = new Child_options();
                             text = _beautifier(text.replace(/^\s*/, indentation), child_options);
                         } else {
                             // simply indent the string otherwise
