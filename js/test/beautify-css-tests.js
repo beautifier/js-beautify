@@ -14,7 +14,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         break_chained_methods: false,
         selector_separator: '\n',
         end_with_newline: false,
-        newline_between_rules: true,
+        newline_between_rules: true
     };
 
     function test_css_beautifier(input)
