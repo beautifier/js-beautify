@@ -1234,7 +1234,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.test_output_raw = False
 
         if self.options.indent_size == 4 and input:
-            wrapped_input = '{\n%s\nfoo=bar;}' % self.wrap(input)
+            wrapped_input = '{\n%s\n    foo = bar;\n}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)
 
