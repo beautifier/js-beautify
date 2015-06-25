@@ -171,6 +171,17 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
 
 
+## v1.5.10
+
+### Description
+Hotfix for directives
+Version jump due to release script tweaks
+
+
+### Closed Issues
+* Preserve directive doesn't work as intended ([#723](https://github.com/beautify-web/js-beautify/issues/723))
+
+
 ## v1.5.1
 
 ### Description
