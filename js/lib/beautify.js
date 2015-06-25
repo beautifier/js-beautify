@@ -1192,7 +1192,10 @@
             if (output.raw) {
                 output.add_raw_token(current_token)
                 if (current_token.directives && current_token.directives['preserve'] === 'end') {
-                    output.raw = false;
+                    // If we're testing the raw output behavior, do not allow a directive to turn it off.
+                    if (!opt.test_output_raw) {
+                        output.raw = false;
+                    }
                 }
                 return;
             }
@@ -1540,7 +1543,8 @@
         // comment ends just before nearest linefeed or end of file
         var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
 
-        var directives_pattern = /\/\*\sbeautify\s(\w+[:]\w+)+\s\*\//g;
+        var directives_block_pattern = /\/\* beautify( \w+[:]\w+)+ \*\//g;
+        var directive_pattern = / (\w+)[:](\w+)/g;
         var directives_end_ignore_pattern = /([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)/g;
 
         var template_pattern = /((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)/g
@@ -1599,13 +1603,19 @@
         }
 
         function get_directives (text) {
-            var directives = null;
-            var directives_match = directives_pattern.exec(text);
-            if (directives_match) {
-                directives = {};
-                var directive = directives_match[1].split(':');
-                directives[directive[0]] = directive[1];
+            if (!text.match(directives_block_pattern)) {
+                return null;
             }
+
+            var directives = {};
+            directive_pattern.lastIndex = 0;
+            var directive_match = directive_pattern.exec(text);
+
+            while (directive_match) {
+                directives[directive_match[1]] = directive_match[2];
+                directive_match = directive_pattern.exec(text);
+            }
+
             return directives;
         }
 

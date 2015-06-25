@@ -350,7 +350,7 @@ class Beautifier:
 
         self.output = Output(self.indent_string, self.baseIndentString)
         # If testing the ignore directive, start with output disable set to true
-        self.output.raw =self.opts.test_output_raw;
+        self.output.raw = self.opts.test_output_raw;
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
@@ -1106,7 +1106,9 @@ class Beautifier:
         if self.output.raw:
             self.output.add_raw_token(current_token)
             if current_token.directives and current_token.directives.get('preserve') == 'end':
-                self.output.raw = False
+                # If we're testing the raw output behavior, do not allow a directive to turn it off.
+                if not self.opts.test_output_raw:
+                    self.output.raw = False
             return
 
         if current_token.directives:
@@ -1393,7 +1395,8 @@ class Tokenizer:
         # comment ends just before nearest linefeed or end of file
         self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
 
-        self.directives_pattern = re.compile('\/\*\sbeautify\s(\w+[:]\w+)+\s\*\/')
+        self.directives_block_pattern = re.compile('\/\* beautify( \w+[:]\w+)+ \*\/')
+        self.directive_pattern = re.compile(' (\w+)[:](\w+)')
         self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
         self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
@@ -1442,12 +1445,15 @@ class Tokenizer:
         return self.tokens
 
     def get_directives (self, text):
-        directives = None
-        directives_match = self.directives_pattern.match(text)
-        if directives_match:
-            directives = {}
-            directive = directives_match.group(1).split(':')
-            directives[directive[0]] = directive[1]
+        if not self.directives_block_pattern.match(text):
+            return None
+
+        directives = {}
+        directive_match = self.directive_pattern.search(text)
+        while directive_match:
+            directives[directive_match.group(1)] = directive_match.group(2)
+            directive_match = self.directive_pattern.search(text, directive_match.end())
+
         return directives
 
 
