@@ -1,4 +1,14 @@
 # Changelog
+## v1.5.8
+
+### Description
+Hotfix for directives
+
+
+### Closed Issues
+* Preserve directive doesn't work as intended ([#723](https://github.com/beautify-web/js-beautify/issues/723))
+
+
 ## v1.5.7
 
 ### Description
