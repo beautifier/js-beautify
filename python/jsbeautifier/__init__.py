@@ -1377,8 +1377,7 @@ class Tokenizer:
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
-    punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>' \
-              + ' <?= <? ?> <%= <% %>').split(' ')
+    punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' ')
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
