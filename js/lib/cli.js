@@ -66,6 +66,7 @@ var fs = require('fs'),
         "e4x": Boolean,
         "end_with_newline": Boolean,
         "comma_first": Boolean,
+        "operator_position": ["before-newline", "after-newline", "preserve-newline"],
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
@@ -108,6 +109,7 @@ var fs = require('fs'),
         "X": ["--e4x"],
         "n": ["--end_with_newline"],
         "C": ["--comma_first"],
+        "O": ["--operator_position"],
         // CSS-only
         "L": ["--selector_separator_newline"],
         "N": ["--newline_between_rules"],
@@ -259,6 +261,7 @@ function usage(err) {
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
             msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
+            msg.push('  -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]');
             break;
         case "html":
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
