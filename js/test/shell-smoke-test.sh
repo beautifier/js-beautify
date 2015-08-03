@@ -22,8 +22,8 @@ test_cli_common()
       exit 1
   }
 
-  $CLI_SCRIPT -invalidParameter 2> /dev/null && {
-      echo "[$CLI_SCRIPT_NAME -invalidParameter] Return code should be error."
+  $CLI_SCRIPT -Z 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME -Z] Return code for invalid parameter should be error."
       exit 1
   }
 
@@ -83,6 +83,25 @@ test_cli_js_beautify()
       exit 1
   }
 
+  # ensure unchanged files are not overwritten
+  cp -p /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js
+  touch -A -05 /tmp/js-beautify-mkdir/js-beautify.js
+  touch -A -01 /tmp/js-beautify-mkdir/js-beautify-old.js
+  $CLI_SCRIPT -r /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -r"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and same file name"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and different file name"
+      exit 1
+  }
+
   $CLI_SCRIPT $SCRIPT_DIR/../bin/css-beautify.js | diff -q $SCRIPT_DIR/../bin/css-beautify.js - && {
       echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected to be different."
       exit 1
@@ -121,11 +140,31 @@ test_cli_js_beautify()
 
 }
 
+test_smoke_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing js-beautify functionality...
+  node $SCRIPT_DIR/node-beautify-tests.js || exit 1
+  node $SCRIPT_DIR/amd-beautify-tests.js || exit 1
+}
+
+
+test_performance_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing js-beautify performance...
+  node $SCRIPT_DIR/node-beautify-perf-tests.js || exit 1
+  echo ----------------------------------------
+
+}
+
 test_cli_common css-beautify
 test_cli_common html-beautify
 test_cli_common js-beautify
 
 test_cli_js_beautify
+test_smoke_js_beautify
+test_performance_js_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.

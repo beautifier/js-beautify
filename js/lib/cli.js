@@ -46,6 +46,7 @@ var fs = require('fs'),
         // Beautifier
         "indent_size": Number,
         "indent_char": String,
+        "eol": String,
         "indent_level": Number,
         "indent_with_tabs": Boolean,
         "preserve_newlines": Boolean,
@@ -53,18 +54,27 @@ var fs = require('fs'),
         "space_in_paren": Boolean,
         "space_in_empty_paren": Boolean,
         "jslint_happy": Boolean,
+        "space_after_anon_function": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "expand-strict"],
+        "brace_style": ["collapse", "expand", "end-expand", "expand-strict", "none"],
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
+        "wrap_attributes": ["auto", "force"],
+        "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
+        "end_with_newline": Boolean,
+        "comma_first": Boolean,
+        // CSS-only
+        "selector_separator_newline": Boolean,
+        "newline_between_rules": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
         "indent_inner_html": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
+        "extra_liners": [String, Array],
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -81,6 +91,7 @@ var fs = require('fs'),
         // Beautifier
         "s": ["--indent_size"],
         "c": ["--indent_char"],
+        "e": ["--eol"],
         "l": ["--indent_level"],
         "t": ["--indent_with_tabs"],
         "p": ["--preserve_newlines"],
@@ -88,17 +99,26 @@ var fs = require('fs'),
         "P": ["--space_in_paren"],
         "E": ["--space_in_empty_paren"],
         "j": ["--jslint_happy"],
+        "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
         "w": ["--wrap_line_length"],
         "X": ["--e4x"],
+        "n": ["--end_with_newline"],
+        "C": ["--comma_first"],
+        // CSS-only
+        "L": ["--selector_separator_newline"],
+        "N": ["--newline_between_rules"],
         // HTML-only
+        "A": ["--wrap_attributes"],
+        "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
         "I": ["--indent_inner_html"],
         "S": ["--indent_scripts"],
+        "E": ["--extra_liners"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -200,35 +220,45 @@ function usage(err) {
         '',
         'Beautifier Options:',
         '  -s, --indent-size             Indentation size [4]',
-        '  -c, --indent-char             Indentation character [" "]'
+        '  -c, --indent-char             Indentation character [" "]',
+        '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
+        '  -e, --eol                     Character(s) to use as line terminators. (default newline - "\\n")',
+        '  -n, --end-with-newline        End output with newline'
     ];
 
     switch (scriptName.split('-').shift()) {
         case "js":
-            msg.push('  -l, --indent-level            Initial indentation level [0]');
-            msg.push('  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c');
-            msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
-            msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
-            msg.push('  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )');
-            msg.push('  -E, --space-in-empty-paren    Add a single space inside empty paren, ie. f( )');
-            msg.push('  -j, --jslint-happy            Enable jslint-stricter mode');
-            msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
-            msg.push('  -B, --break-chained-methods   Break chained method calls across subsequent lines');
-            msg.push('  -k, --keep-array-indentation  Preserve array indentation');
-            msg.push('  -x, --unescape-strings        Decode printable characters encoded in xNN notation');
-            msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
-            msg.push('  -X, --e4x                     Pass E4X xml literals through untouched');
-            msg.push('  --good-stuff                  Warm the cockles of Crockford\'s heart');
+            msg.push('  -l, --indent-level                Initial indentation level [0]');
+            msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
+            msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
+            msg.push('  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )');
+            msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
+            msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
+            msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]');
+            msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
+            msg.push('  -k, --keep-array-indentation      Preserve array indentation');
+            msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
+            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
+            msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
+            msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
             break;
         case "html":
-            msg.push('  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]');
-            msg.push('  -I, --indent-inner-html       Indent body and head sections. Default is false.');
-            msg.push('  -S, --indent-scripts          [keep|separate|normal] ["normal"]');
-            msg.push('  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]');
-            msg.push('  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)');
-            msg.push('  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]');
-            msg.push('  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
+            msg.push('  -I, --indent-inner-html           Indent body and head sections. Default is false.');
+            msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
+            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
+            msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
+            msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
+            msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
+            msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
+        case "css":
+            msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.')
+            msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.')
     }
 
     if (err) {
@@ -278,11 +308,6 @@ function makePretty(code, config, outfile, callback) {
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
-        // ensure newline at end of beautified output
-        if (pretty && pretty.charAt(pretty.length - 1) !== '\n') {
-            pretty += '\n';
-        }
-
         callback(null, pretty, outfile, config);
     } catch (ex) {
         callback(ex);
@@ -296,14 +321,27 @@ function writePretty(err, pretty, outfile, config) {
     }
 
     if (outfile) {
-        try {
-            fs.writeFileSync(outfile, pretty, 'utf8');
-            logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
-        } catch (ex) {
-            onOutputError(ex);
+        if (isFileDifferent(outfile, pretty)) {
+            try {
+                fs.writeFileSync(outfile, pretty, 'utf8');
+                logToStdout('beautified ' + path.relative(process.cwd(), outfile), config);
+            } catch (ex) {
+                onOutputError(ex);
+            }
+        } else {
+            logToStdout('beautified ' + path.relative(process.cwd(), outfile) + ' - unchanged', config);
         }
     } else {
         process.stdout.write(pretty);
+    }
+}
+
+function isFileDifferent(filePath, expected) {
+    try {
+        return fs.readFileSync(filePath, 'utf8') !== expected;
+    } catch (ex) {
+        // failing to read is the same as different
+        return true;
     }
 }
 

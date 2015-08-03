@@ -22,8 +22,8 @@ test_cli_common()
       exit 1
   }
 
-  $CLI_SCRIPT -invalidParameter 2> /dev/null && {
-      echo "[$CLI_SCRIPT_NAME -invalidParameter] Return code should be error."
+  $CLI_SCRIPT -Z 2> /dev/null && {
+      echo "[$CLI_SCRIPT_NAME -Z] Return code for invalid parameter should be error."
       exit 1
   }
 
@@ -68,33 +68,69 @@ test_cli_js_beautify()
   }
 
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/css-beautify.js > /dev/null || {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected succeed."
+      echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/css-beautify.js was expected succeed."
       exit 1
   }
 
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
       exit 1
   }
 
   rm -rf /tmp/js-beautify-mkdir
   $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js /tmp/js-beautify-mkdir/js-beautify.js || {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in /tmp/js-beautify-mkdir/js-beautify.js."
+      echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in /tmp/js-beautify-mkdir/js-beautify.js."
+      exit 1
+  }
+
+  # ensure unchanged files are not overwritten
+  cp -p /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js
+  touch -A -05 /tmp/js-beautify-mkdir/js-beautify.js
+  touch -A -01 /tmp/js-beautify-mkdir/js-beautify-old.js
+  $CLI_SCRIPT -r /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -r"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and same file name"
+      exit 1
+  }
+
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
+      echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -o and different file name"
       exit 1
   }
 
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/css-beautify.js | diff -q $SCRIPT_DIR/../../../js/bin/css-beautify.js - && {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/css-beautify.js was expected to be different."
+      echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/css-beautify.js was expected to be different."
       exit 1
   }
 
 }
 
+test_smoke_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing beautify functionality...
+	PYTHON=python $SCRIPT_DIR/../../js-beautify-test || exit 1
+}
+
+test_perf_js_beautify()
+{
+  echo ----------------------------------------
+  echo Testing beautify performance...
+	# PYTHON=python $SCRIPT_DIR/../../js-beautify-profile || exit 1
+	python $SCRIPT_DIR/test-perf-jsbeautifier.py || exit 1
+
+}
 #test_cli_common css-beautify
 #test_cli_common html-beautify
 test_cli_common js-beautify
 
 test_cli_js_beautify
+test_smoke_js_beautify
+test_perf_js_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.

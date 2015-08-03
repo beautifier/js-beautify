@@ -3,20 +3,44 @@
 
 var SanityTest = require('./sanitytest'),
     Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
-    js_beautify = require('../index').js_beautify,
-    css_beautify = require('../index').css_beautify,
-    html_beautify = require('../index').html_beautify,
-    run_beautifier_tests = require('./beautify-tests').run_beautifier_tests;
+    run_javascript_tests = require('./beautify-javascript-tests').run_javascript_tests,
+    run_css_tests = require('./beautify-css-tests').run_css_tests,
+    run_html_tests = require('./beautify-html-tests').run_html_tests;
+    
+function test_legacy_names() {    
+    var beautify = require('../index');
+    var results = new SanityTest();
+    
+    console.log('First ensure that legacy import names equal the new ones');
+    results.expect(beautify.js, beautify.js_beautify);
+    results.expect(beautify.css, beautify.css_beautify);
+    results.expect(beautify.html, beautify.html_beautify);
+    
+    console.log(results.results_raw());
+    return results;
+}
+    
+function node_beautifier_tests(name, test_runner) {
+    console.log('Testing ' + name + ' with node.js CommonJS...');
+    var beautify = require('../index');
+    
+    var results = new SanityTest();
+    test_runner(
+            results,
+            Urlencoded,
+            beautify.js,
+            beautify.html,
+            beautify.css);
 
-function node_beautifier_tests() {
-    console.log('Testing with node.js CommonJS...');
-    var results = run_beautifier_tests(new SanityTest(), Urlencoded, js_beautify, html_beautify, css_beautify);
     console.log(results.results_raw());
     return results;
 }
 
 if (require.main === module) {
-    process.exit(node_beautifier_tests().get_exitcode());
+    process.exit(
+            test_legacy_names() +
+            node_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
+            node_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
+            node_beautifier_tests('html-beautifier', run_html_tests).get_exitcode()
+        );
 }
-
-exports.node_beautifier_tests = node_beautifier_tests;

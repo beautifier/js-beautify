@@ -1,6 +1,11 @@
 # JS Beautifier
-[![Build Status](https://secure.travis-ci.org/einars/js-beautify.png?branch=master)](http://travis-ci.org/einars/js-beautify)
-[![NPM version](https://badge.fury.io/js/js-beautify.png)](http://badge.fury.io/js/js-beautify)
+[![Build Status](https://img.shields.io/travis/beautify-web/js-beautify/master.svg)](http://travis-ci.org/beautify-web/js-beautify)
+[![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+[![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+[![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
+
 
 This little beautifier will reformat and reindent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
@@ -82,21 +87,25 @@ CLI Options:
   -v, --version    Show the version
 
 Beautifier Options:
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
-  -l, --indent-level            Initial indentation level [0]
-  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c
-  -p, --preserve-newlines       Preserve line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines   Number of line-breaks to be preserved in one chunk [10]
-  -P, --space-in-paren          Add padding spaces within paren, ie. f( a, b )
-  -j, --jslint-happy            Enable jslint-stricter mode
-  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
-  -B, --break-chained-methods   Break chained method calls across subsequent lines
-  -k, --keep-array-indentation  Preserve array indentation
-  -x, --unescape-strings        Decode printable characters encoded in xNN notation
-  -w, --wrap-line-length        Wrap lines at next opportunity after N characters [0]
-  -X, --e4x                     Pass E4X xml literals through untouched
-  --good-stuff                  Warm the cockles of Crockford's heart
+  -s, --indent-size                 Indentation size [4]
+  -c, --indent-char                 Indentation character [" "]
+  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
+  -l, --indent-level                Initial indentation level [0]
+  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
+  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]
+  -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
+  -j, --jslint-happy                Enable jslint-stricter mode
+  -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
+  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]
+  -B, --break-chained-methods       Break chained method calls across subsequent lines
+  -k, --keep-array-indentation      Preserve array indentation
+  -x, --unescape-strings            Decode printable characters encoded in xNN notation
+  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
+  -X, --e4x                         Pass E4X xml literals through untouched
+  -n, --end-with-newline            End output with newline
+  -C, --comma-first                 Put commas at the beginning of new line instead of end
+  --good-stuff                      Warm the cockles of Crockford's heart
 ```
 
 These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
@@ -105,11 +114,13 @@ These largely correspond to the underscored option keys for both library interfa
 {
     "indent_size": 4,
     "indent_char": " ",
+    "eol": "\n",
     "indent_level": 0,
     "indent_with_tabs": false,
     "preserve_newlines": true,
     "max_preserve_newlines": 10,
     "jslint_happy": false,
+    "space_after_anon_function": false,
     "brace_style": "collapse",
     "keep_array_indentation": false,
     "keep_function_indentation": false,
@@ -117,7 +128,10 @@ These largely correspond to the underscored option keys for both library interfa
     "break_chained_methods": false,
     "eval_code": false,
     "unescape_strings": false,
-    "wrap_line_length": 0
+    "wrap_line_length": 0,
+    "wrap_attributes": "auto",
+    "wrap_attributes_indent_size": 4,
+    "end_with_newline": false
 }
 ```
 
@@ -130,6 +144,30 @@ In addition to CLI arguments, you may pass config to the JS executable via:
 Configuration sources provided earlier in this stack will override later ones.
 
 You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
+
+## Directives to Ignore or Preserve sections (Javascript only) 
+
+Beautifier for  supports directives in comments inside the file.
+This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.  
+The example input below will remain changed after beautification
+
+```js
+// Use preserve when the content is not javascript, but you don't want it reformatted.
+/* beautify preserve:start */
+{
+    browserName: 'internet explorer',
+    platform:    'Windows 7',
+    version:     '8'
+}
+/* beautify preserve:end */
+
+// Use ignore when the content is not parsable as javascript.  
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
 
 ### CSS & HTML
 
@@ -148,19 +186,30 @@ The CSS & HTML beautifiers are much simpler in scope, and possess far fewer opti
 
 ```text
 CSS Beautifier Options:
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -L, --selector-separator-newline   Add a newline between multiple selectors
+  -N, --newline-between-rules        Add a newline between CSS rules
 
 HTML Beautifier Options:
-  -I, --indent-inner-html       Indent <head> and <body> sections. Default is false.
-  -s, --indent-size             Indentation size [4]
-  -c, --indent-char             Indentation character [" "]
-  -b, --brace-style             [collapse|expand|end-expand] ["collapse"]
-  -S, --indent-scripts          [keep|separate|normal] ["normal"]
-  -w, --wrap-line-length        Maximum characters per line (0 disables) [250]
-  -p, --preserve-newlines       Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines   Maximum number of line-breaks to be preserved in one chunk [10]
-  -U, --unformatted             List of tags (defaults to inline) that should not be reformatted
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
+  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
+  -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
+  -S, --indent-scripts               [keep|separate|normal] ["normal"]
+  -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
+  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
+  -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
+  -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
 ```
 
 # License
@@ -179,5 +228,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.5.1
-
+js-beautify@1.5.7

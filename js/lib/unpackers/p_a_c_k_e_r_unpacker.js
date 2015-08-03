@@ -9,7 +9,7 @@
 // if (P_A_C_K_E_R.detect(some_string)) {
 //     var unpacked = P_A_C_K_E_R.unpack(some_string);
 // }
-// 
+//
 //
 
 var P_A_C_K_E_R = {

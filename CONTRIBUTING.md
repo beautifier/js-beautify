@@ -2,22 +2,22 @@
 
 
 ## Report issues
-If you find a bug, please report it, including environment andexamples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
+If you find a bug, please report it, including environment and examples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
 
 ## Fix issues
 Pull requests with fixes are totally welcome. Familiarize yourself with the folder structure and code style before you dive in.  Where possible fixes should include tests to prevent future regressions in functionality.  Also, if they apply and you have the ability, make fixes to both python and javascript implementations.
 
-We use travis-ci.org to run build and test passes.  If you run `make` from the root folder locally, tests will run and should all pass before your pull request will be accepted. 
+We use travis-ci.org to run build and test passes.  If you run `make` from the root folder locally, tests will run and should all pass before your pull request will be accepted.
 
 
-# Folders 
+# Folders
 ## js
 ## python
 ## web
 
 
 # Branches
-We use the `master` branch as the primrary development branch.  
+We use the `master` branch as the primrary development branch.
 
 ## Releases
 Each platform has a branch that tracks to the latest release of that platform.
@@ -27,10 +27,10 @@ Each platform has a branch that tracks to the latest release of that platform.
 * `gh-pages`
 
 ## Functional Parity
-Keeping the platforms in some semblance of functional parity is one of the key features of this project.  As such, there branches for the last time synchronization occured and when it stablized. 
+Keeping the platforms in some semblance of functional parity is one of the key features of this project.  As such, there branches for the last time synchronization occured and when it stablized.
 
 * `sync`
-* `sync-stable` 
+* `sync-stable`
 
 ## Attic
 This project has been around for a while.  While some parts have improved significantly over time, others fell
@@ -47,22 +47,21 @@ available on branch `attic-other`.  Take a look and feel free to resurrect them,
 dusty back there.
 
 ### Generic Eval Unpacker
-The `attic-genericeval` branch includes an unpacker that call `eval` on whatever source is passed to it. 
+The `attic-genericeval` branch includes an unpacker that call `eval` on whatever source is passed to it.
 Useful when working with source that unpacks itself when eval is called on it, but also unsafe.  We keep
-it on this separate branch to keep it from hurting the other children. 
+it on this separate branch to keep it from hurting the other children.
 
 # Publishing a Release
-Each platform has it's own release process. 
+Each platform has it's own release process.
 
 NOTE: Before you do any of these make sure the latest changes have passed the travis-ci build!
 
 ##Web
 Merge changes from `master` to `gh-pages` branch.  This is very low cost and can be done whenever is convenient.
-If doing a general release, update the `bower.json` file to the new version and commit the change.
 
 ##Python
 NOTE: For now, we'd like to keep python and node version numbers synchronized,
-so if you publish a python release, you should publish a node release as well.  
+so if you publish a python release, you should publish a node release as well.
 
 To perform these steps you will need:
 1. A pypi user account from https://pypi.python.org/pypi?%3Aaction=register_form .
@@ -84,8 +83,8 @@ git push
 
 ##Node
 NOTE: For now, we'd like to keep python and node version numbers synchronized,
-so if you plan to publish a node release, you should publish a python release *first*, 
-then perform the steps below. 
+so if you plan to publish a node release, you should publish a python release *first*,
+then perform the steps below.
 
 To perform these steps you will need:
 1. An npmjs.org user account from https://npmjs.org/signup .
