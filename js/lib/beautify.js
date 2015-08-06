@@ -429,6 +429,7 @@
             return out;
         }
 
+        var newline_restricted_tokens = ['break','contiue','return', 'throw'];
         function allow_wrap_or_preserved_newline(force_linewrap) {
             force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
 
@@ -440,6 +441,11 @@
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
             } else if (opt.wrap_line_length) {
+                if (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens)) {
+                    // These tokens should never have a newline inserted
+                    // between them and the following expression.
+                    return
+                }
                 var proposed_line_length = output.current_line.get_character_count() + current_token.text.length +
                     (output.space_before_token ? 1 : 0);
                 if (proposed_line_length >= opt.wrap_line_length) {
@@ -542,7 +548,7 @@
             if (
                     (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-                    (last_type === 'TK_RESERVED' && flags.last_text === 'return' && !current_token.wanted_newline) ||
+                    (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'else' && !(current_token.type === 'TK_RESERVED' && current_token.text === 'if')) ||
                     (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
                     (last_type === 'TK_WORD' && flags.mode === MODE.BlockStatement

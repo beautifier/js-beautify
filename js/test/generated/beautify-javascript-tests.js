@@ -2119,6 +2119,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2132,6 +2134,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         wrap_input_2=('{\n' +
                       '    foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
                       '        propertx: first_token + 12345678.99999E-6,\n' +
@@ -2149,6 +2153,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       /* expected */
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2164,6 +2170,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       /* expected */
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2180,6 +2188,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat &&\n' +
                       '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
@@ -2203,6 +2215,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
@@ -2228,6 +2244,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
                       '        .but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_.okay();\n' +
                       '    object_literal = {\n' +
@@ -2251,6 +2271,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
@@ -2268,6 +2290,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
@@ -2286,6 +2310,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat &&\n' +
                       '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
@@ -2311,6 +2339,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
@@ -2335,6 +2367,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap\n' +
                       '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_\n' +
