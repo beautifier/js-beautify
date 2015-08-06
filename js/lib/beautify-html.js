@@ -570,7 +570,7 @@
                 return comment;
             };
 
-            var roller = function (delimiter) {
+            var tokenMatcher = function (delimiter) {
               var token = '';
 
               var add = function (str) {
@@ -588,7 +588,6 @@
               };
             };
 
-
             this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
                 if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
                     return '';
@@ -597,7 +596,7 @@
                 var content = '';
                 var space = true;
 
-                var sequence = roller(delimiter);
+                var matcher = tokenMatcher(delimiter);
 
                 do {
 
@@ -626,7 +625,7 @@
                         }
                     }
                     content += input_char;
-                    sequence.add(input_char);
+                    matcher.add(input_char);
                     this.line_char_count++;
                     space = true;
 
@@ -635,7 +634,7 @@
                         content += this.get_unformatted('}}');
                         // Don't consider when stopping for delimiters.
                     }
-                } while (sequence.doesNotMatch());
+                } while (matcher.doesNotMatch());
 
                 return content;
             };
