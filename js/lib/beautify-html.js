@@ -350,6 +350,7 @@
                         continue;
                     }
 
+                  
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
@@ -577,13 +578,13 @@
                 token = newToken.substr(-delimiter.length);
               };
 
-              var get = function () {
-                return token;
+              var doesNotMatch = function () {
+                return token.indexOf(delimiter) === -1;
               };
 
               return {
                 add: add,
-                get: get
+                doesNotMatch: doesNotMatch
               };
             };
 
@@ -594,8 +595,10 @@
                 }
                 var input_char = '';
                 var content = '';
-                var min_index = 0;
                 var space = true;
+
+                var sequence = roller(delimiter);
+
                 do {
 
                     if (this.pos >= this.input.length) {
@@ -623,16 +626,17 @@
                         }
                     }
                     content += input_char;
+                    sequence.add(input_char);
                     this.line_char_count++;
                     space = true;
 
                     if (indent_handlebars && input_char === '{' && content.length && content.charAt(content.length - 2) === '{') {
                         // Handlebars expressions in strings should also be unformatted.
                         content += this.get_unformatted('}}');
-                        // These expressions are opaque.  Ignore delimiters found in them.
-                        min_index = content.length;
+                        // Don't consider when stopping for delimiters.
                     }
-                } while (content.toLowerCase().indexOf(delimiter, min_index) === -1);
+                } while (sequence.doesNotMatch());
+
                 return content;
             };
 
