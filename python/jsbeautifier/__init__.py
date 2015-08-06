@@ -454,6 +454,7 @@ class Beautifier:
         return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
 
+    _newline_restricted_tokens = re.compile("continue|break|return|throw")
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
         # never wrap the first token of a line.
         if self.output.just_added_newline():
@@ -462,6 +463,10 @@ class Beautifier:
         if (self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap:
             self.print_newline(preserve_statement_flags = True)
         elif self.opts.wrap_line_length > 0:
+            if self._newline_restricted_tokens.match(self.flags.last_text):
+                # These tokens should never have a newline inserted between
+                # them and the following expression.
+                return
             proposed_line_length = self.output.current_line.get_character_count() + len(current_token.text)
             if self.output.space_before_token:
                 proposed_line_length += 1
@@ -544,7 +549,7 @@ class Beautifier:
         if (
             (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and current_token.type == 'TK_WORD') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'return' and not current_token.wanted_newline) \
+                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw'] and not current_token.wanted_newline) \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' )) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
                 or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
