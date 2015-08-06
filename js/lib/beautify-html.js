@@ -569,8 +569,26 @@
                 return comment;
             };
 
-            this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
+            var roller = function (delimiter) {
+              var token = '';
 
+              var add = function (str) {
+                var newToken = token + str.toLowerCase();
+                token = newToken.substr(-delimiter.length);
+              };
+
+              var get = function () {
+                return token;
+              };
+
+              return {
+                add: add,
+                get: get
+              };
+            };
+
+
+            this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
                 if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
                     return '';
                 }
