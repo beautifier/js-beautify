@@ -9,25 +9,20 @@ var fs = require('fs'),
     css_beautify = require('../index').css_beautify,
     html_beautify = require('../index').html_beautify;
 
-function node_beautifier_tests() {
+function node_beautifier_html_tests() {
     console.log('Testing performance...');
-    var data = fs.readFileSync(__dirname + '/../../test/underscore.js', 'utf8');
-    var data_min = fs.readFileSync(__dirname + '/../../test/underscore-min.js', 'utf8');
+    var data_attr = fs.readFileSync(__dirname + '/../../test/base.64.still.almost.breaking.js', 'utf8');
     var options = {
         wrap_line_length: 80
     };
 
     //warm-up
-    js_beautify(data, options);
-    js_beautify(data_min, options);
+    html_beautify(data_attr, options);
     
     var suite = new Benchmark.Suite;
 
-    suite.add("js-beautify (underscore)", function() {
-        js_beautify(data, options);
-    })
-    .add("js-beautify (underscore-min)", function() {
-        js_beautify(data_min, options);
+    suite.add("html-beautify (base64 image)", function () {
+        html_beautify(data_attr, options);
     })
     // add listeners
     .on('cycle', function(event) {
@@ -46,5 +41,5 @@ function node_beautifier_tests() {
 
 
 if (require.main === module) {
-    process.exit(node_beautifier_tests());
+    process.exit(node_beautifier_html_tests());
 }
