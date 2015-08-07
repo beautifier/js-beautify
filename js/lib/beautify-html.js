@@ -349,7 +349,7 @@
                         space = true;
                         continue;
                     }
-                  
+
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
