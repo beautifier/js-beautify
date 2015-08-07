@@ -570,7 +570,7 @@
                 return comment;
             };
 
-            var tokenMatcher = function (delimiter) {
+            function tokenMatcher(delimiter) {
               var token = '';
 
               var add = function (str) {
@@ -586,7 +586,7 @@
                 add: add,
                 doesNotMatch: doesNotMatch
               };
-            };
+            }
 
             this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
                 if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
