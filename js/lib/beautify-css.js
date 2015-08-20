@@ -222,10 +222,15 @@
             output.push(ch);
             print.newLine();
         };
-        print["}"] = function(ch) {
+        print["}"] = function(ch, peekCh) {
             print.newLine();
-            output.push(ch);
-            print.newLine();
+            output.push( ch );
+
+            if ( peekCh && peekCh === ")" ) {
+                print.singleSpace();
+            } else {
+                print.newLine();
+            }
         };
 
         print._lastCharWhitespace = function() {
@@ -352,13 +357,13 @@
                 }
             } else if (ch === '}') {
                 outdent();
-                print["}"](ch);
+                print["}"](ch, peek(true));
                 insideRule = false;
                 insidePropertyValue = false;
                 if (nestedLevel) {
                     nestedLevel--;
                 }
-                if (newline_between_rules && indentLevel === 0) {
+                if (newline_between_rules && indentLevel === 0 && peek(true) !== ")") {
                     print.newLine(true);
                 }
             } else if (ch === ":") {
