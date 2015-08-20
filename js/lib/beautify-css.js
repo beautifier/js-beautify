@@ -364,7 +364,7 @@
             } else if (ch === ":") {
                 eatWhitespace();
                 if ((insideRule || enteringConditionalGroup) &&
-                    !(lookBack("&") || foundNestedPseudoClass())) {
+                    !(lookBack("&") || lookBack("(") || foundNestedPseudoClass())) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
                     insidePropertyValue = true;
