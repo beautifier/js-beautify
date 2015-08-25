@@ -264,6 +264,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '};');
 
 
+
+        // ES7 Decorators
+        bt('@foo');
+        bt('@foo(bar)');
+        bt(
+            '@foo(function(k, v) {\n' +
+            '    implementation();\n' +
+            '})');
+
+
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');

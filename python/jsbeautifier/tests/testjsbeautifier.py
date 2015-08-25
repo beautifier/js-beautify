@@ -60,6 +60,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};')
 
+        # ES7 Decorators
+        bt('@foo')
+        bt('@foo(bar)')
+        bt(
+            '@foo(function(k, v) {\n' +
+            '    implementation();\n' +
+            '})')
+
         # End With Newline - (eof = "\n")
         self.options.end_with_newline = true
         test_fragment('', '\n')

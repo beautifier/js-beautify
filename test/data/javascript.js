@@ -22,6 +22,18 @@ exports.test_data = {
             }
         ],
     }, {
+        name: "ES7 Decorators",
+        description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
+        tests: [
+          { unchanged: '@foo' },
+          { unchanged: '@foo(bar)' },
+          { unchanged: [
+            '@foo(function(k, v) {',
+            '    implementation();',
+            '})'
+          ]}
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [
