@@ -633,7 +633,7 @@ class Beautifier:
             # function() vs function (), typeof() vs typeof ()
             if self.opts.space_after_anon_function:
                 self.output.space_before_token = True
-        elif (self.last_type == 'TK_RESERVED' and self.flags.last_word in ['do', 'for', 'if', 'while', 'catch']):
+        elif (self.last_type == 'TK_RESERVED' and self.flags.last_word in ['for', 'if', 'while', 'catch']):
             if self.opts.space_before_conditional:
                 self.output.space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
