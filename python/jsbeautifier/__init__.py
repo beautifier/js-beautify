@@ -637,7 +637,6 @@ class Beautifier:
             if self.opts.space_before_conditional:
                 self.output.space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
-            # TODO: option space_before_conditional
             self.output.space_before_token = True
 
         elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'await':
