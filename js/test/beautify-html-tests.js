@@ -212,6 +212,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{field}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{else}}{{field}}{{/if}}\'></div>');
+        test_fragment(
+            '{{#if condition}}<div></div>{{else}}<div></div>{{/if}}',
+            '{{#if condition}}\n    <div></div>\n{{else}}\n    <div></div>\n{{/if}}');
+        test_fragment('{{#if condition}}<span></span>{{else}}<span></span>{{/if}}');
     
         // Handlebars Indenting On - (content = "{{! comment}}")
         opts.indent_handlebars = true;
