@@ -1229,6 +1229,8 @@ exports.test_data = {
             { input: 'a<=.5', output: 'a <= .5' },
             { unchanged: 'a = 0xff;' },
             { input: 'a=0xff+4', output: 'a = 0xff + 4' },
+            { unchanged: 'a = 0o77;' },
+            { input: 'a=0o77+4', output: 'a = 0o77 + 4' },
             { unchanged: 'a = [1, 2, 3, 4]' },
             { input: 'F*(g/=f)*g+b', output: 'F * (g /= f) * g + b' },
             { input: 'a.b({c:d})', output: 'a.b({\n    c: d\n})' },
