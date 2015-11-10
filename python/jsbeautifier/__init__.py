@@ -192,13 +192,13 @@ class Acorn:
     # Test whether a given character code starts an identifier.
     def isIdentifierStart(self, code):
         if code < 65:
-            return code == 36
+            return code in [36, 64] # permit $ (36) and @ (64). @ is used in ES7 decorators.
         if code < 91:
-            return True
+            return True # 65 through 91 are uppercase letters
         if code < 97:
-            return code == 95
+            return code == 95 # permit _ (95)
         if code < 123:
-            return True
+            return True # 97 through 123 are lowercase letters
         return code >= 0xaa and self.nonASCIIidentifierStart.match(self.six.unichr(code)) != None
 
     # Test whether a given character is part of an identifier.
@@ -1376,6 +1376,7 @@ class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
+    digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' ')
 
@@ -1497,13 +1498,16 @@ class Tokenizer:
             allow_e = True
             local_digit = self.digit
 
-            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xx]', self.input[self.parser_pos]):
-                # switch to hex number, no decimal or e, just hex digits
+            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xxo]', self.input[self.parser_pos]):
+                # switch to hex/oct number, no decimal or e, just hex/oct digits
                 allow_decimal = False
                 allow_e = False
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
-                local_digit = self.digit_hex
+                if re.match('[o]', self.input[self.parser_pos]):
+                    local_digit = self.digit_oct
+                else:
+                    local_digit = self.digit_hex
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''

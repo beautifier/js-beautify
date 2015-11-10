@@ -264,6 +264,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '};');
 
 
+
+        // ES7 Decorators
+        bt('@foo');
+        bt('@foo(bar)');
+        bt(
+            '@foo(function(k, v) {\n' +
+            '    implementation();\n' +
+            '})');
+
+
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -1304,6 +1314,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a<=.5', 'a <= .5');
         bt('a = 0xff;');
         bt('a=0xff+4', 'a = 0xff + 4');
+        bt('a = 0o77;');
+        bt('a=0o77+4', 'a = 0o77 + 4');
         bt('a = [1, 2, 3, 4]');
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
         bt('a.b({c:d})', 'a.b({\n    c: d\n})');
