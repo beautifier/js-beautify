@@ -192,13 +192,13 @@ class Acorn:
     # Test whether a given character code starts an identifier.
     def isIdentifierStart(self, code):
         if code < 65:
-            return code == 36
+            return code in [36, 64] # permit $ (36) and @ (64). @ is used in ES7 decorators.
         if code < 91:
-            return True
+            return True # 65 through 91 are uppercase letters
         if code < 97:
-            return code == 95
+            return code == 95 # permit _ (95)
         if code < 123:
-            return True
+            return True # 97 through 123 are lowercase letters
         return code >= 0xaa and self.nonASCIIidentifierStart.match(self.six.unichr(code)) != None
 
     # Test whether a given character is part of an identifier.
