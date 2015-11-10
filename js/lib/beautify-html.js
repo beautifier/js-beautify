@@ -524,7 +524,7 @@
                     matched = false;
 
                 this.pos = start_pos;
-                input_char = this.input.charAt(this.pos);
+                var input_char = this.input.charAt(this.pos);
                 this.pos++;
 
                 while (this.pos <= this.input.length) {
