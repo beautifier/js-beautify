@@ -181,6 +181,8 @@
             Expression: 'Expression' //'(EXPRESSION)'
         };
 
+    var newline_restricted_tokens = /^(continue|break|return|throw)/;
+
     function Beautifier(js_source_text, options) {
         "use strict";
         var output
@@ -415,7 +417,6 @@
             return out;
         }
 
-        var _newline_restricted_tokens = /^(continue|break|return|throw)/;
         function allow_wrap_or_preserved_newline(force_linewrap) {
             force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
 
@@ -427,7 +428,7 @@
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
             } else if (opt.wrap_line_length) {
-                if (_newline_restricted_tokens.test(flags.last_text)) {
+                if (last_type == 'TK_RESERVED' && newline_restricted_tokens.test(flags.last_text)) {
                     // These tokens should never have a newline inserted
                     // between them and the following expression.
                     return
