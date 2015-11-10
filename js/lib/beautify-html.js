@@ -171,7 +171,7 @@
 
             // Return true if the given text is composed entirely of whitespace.
             this.is_whitespace = function(text) {
-                for (var n = 0; n < text.length; text++) {
+                for (var n = 0; n < text.length; n++) {
                     if (!this.Utils.in_array(text.charAt(n), this.Utils.whitespace)) {
                         return false;
                     }
@@ -524,7 +524,7 @@
                     matched = false;
 
                 this.pos = start_pos;
-                input_char = this.input.charAt(this.pos);
+                var input_char = this.input.charAt(this.pos);
                 this.pos++;
 
                 while (this.pos <= this.input.length) {
