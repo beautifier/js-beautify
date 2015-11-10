@@ -1532,6 +1532,7 @@
 
         var whitespace = "\n\r\t ".split('');
         var digit = /[0-9]/;
+        var digit_oct = /[01234567]/;
         var digit_hex = /[0123456789abcdefABCDEF]/;
 
         var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' '); 
@@ -1672,17 +1673,17 @@
                 var allow_e = true;
                 var local_digit = digit;
 
-                if (c === '0' && parser_pos < input_length && /[Xx]/.test(input.charAt(parser_pos))) {
-                    // switch to hex number, no decimal or e, just hex digits
+                if (c === '0' && parser_pos < input_length && /[Xxo]/.test(input.charAt(parser_pos))) {
+                    // switch to hex/oct number, no decimal or e, just hex/oct digits
                     allow_decimal = false;
                     allow_e = false;
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
-                    local_digit = digit_hex
+                    local_digit = /[o]/.test(input.charAt(parser_pos)) ? digit_oct : digit_hex;
                 } else {
                     // we know this first loop will run.  It keeps the logic simpler.
                     c = '';
-                    parser_pos -= 1
+                    parser_pos -= 1;
                 }
 
                 // Add the digits

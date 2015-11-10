@@ -1088,6 +1088,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a<=.5', 'a <= .5')
         bt('a = 0xff;')
         bt('a=0xff+4', 'a = 0xff + 4')
+        bt('a = 0o77;')
+        bt('a=0o77+4', 'a = 0o77 + 4')
         bt('a = [1, 2, 3, 4]')
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b')
         bt('a.b({c:d})', 'a.b({\n    c: d\n})')
