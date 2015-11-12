@@ -377,6 +377,27 @@ exports.test_data = {
                 unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>' }
         ],
     }, {
+        name: "Handlebars Else tag indenting",
+        description: "Handlebar Else tags should be newlined after formatted tags",
+	template: "^^^ $$$",
+        options: [ 
+            {name: "indent_handlebars", value: "true"} 
+	],
+        tests: [
+            { fragment: true,
+              input_:
+	      '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
+              output:
+              '{{#if test}}\n' +
+              '    <div></div>\n' +
+              '{{else}}\n' +
+              '    <div></div>\n' +
+              '{{/if}}' },
+            { fragment: true,
+              unchanged:
+	      '{{#if test}}<span></span>{{else}}<span></span>{{/if}}' }
+	]
+    }, {
         name: "Unclosed html elements",
         description: "Unclosed elements should not indent",
         options: [],
