@@ -1507,11 +1507,10 @@ class Tokenizer:
                 self.parser_pos += 1
                 if re.match('[b]', self.input[self.parser_pos]):
                     local_digit = self.digit_bin
+                elif re.match('[o]', self.input[self.parser_pos]):
+                    local_digit = self.digit_oct
                 else:
-                    if re.match('[o]', self.input[self.parser_pos]):
-                        local_digit = self.digit_oct
-                    else:
-                        local_digit = self.digit_hex
+                    local_digit = self.digit_hex
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''

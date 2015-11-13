@@ -1682,12 +1682,10 @@
                     parser_pos += 1;
                     if ( /[b]/.test(input.charAt(parser_pos)) ) {
                         local_digit = digit_bin;
-                    }
-                    else {
+                    } else {
                         if ( /[o]/.test(input.charAt(parser_pos)) ) {
                             local_digit = digit_oct;
-                        }
-                        else {
+                        } else {
                             local_digit = digit_hex;
                         }
                     }
