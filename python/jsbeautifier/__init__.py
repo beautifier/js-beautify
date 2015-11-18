@@ -646,6 +646,15 @@ class Beautifier:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(current_token)
 
+
+        # Support preserving wrapped arrow function expressions
+        # a.b('c',
+        #     () => d.e
+        # )
+        if current_token.text == '(' and current_token.type == 'TK_START_EXPR' and self.last_type not in ['TK_WORD', 'TK_RESERVED']:
+            self.allow_wrap_or_preserved_newline(current_token)
+
+
         self.set_mode(next_mode)
         self.print_token(current_token)
 
