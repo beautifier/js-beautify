@@ -682,7 +682,7 @@
             // a.b('c',
             //     () => d.e
             // )
-            if (current_token.text === '(' && current_token.type === 'TK_START_EXPR' && ['TK_WORD', 'TK_RESERVED'].indexOf(last_type) === -1) {
+            if (current_token.text === '(' && ['TK_WORD', 'TK_RESERVED'].indexOf(last_type) === -1) {
                 allow_wrap_or_preserved_newline();
             }
 

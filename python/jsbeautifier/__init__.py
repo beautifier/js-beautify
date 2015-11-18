@@ -651,7 +651,7 @@ class Beautifier:
         # a.b('c',
         #     () => d.e
         # )
-        if current_token.text == '(' and current_token.type == 'TK_START_EXPR' and self.last_type not in ['TK_WORD', 'TK_RESERVED']:
+        if current_token.text == '(' and self.last_type not in ['TK_WORD', 'TK_RESERVED']:
             self.allow_wrap_or_preserved_newline(current_token)
 
 
