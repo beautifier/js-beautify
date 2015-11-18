@@ -1047,6 +1047,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    phantom.onError = function() {};\n' +
             '}\n' +
             '// Comment')
+        
+        # Issue 806 - newline arrow functions
+        bt(
+            'a.b("c",\n' +
+            '    () => d.e\n' +
+            ')')
 
         # Old tests
         bt('')

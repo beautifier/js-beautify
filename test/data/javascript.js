@@ -1188,7 +1188,14 @@ exports.test_data = {
                     '}',
                     '// Comment' ]
             },
-
+            {
+                comment: "Issue 806 - newline arrow functions",
+                unchanged: [
+                    'a.b("c",',
+                    '    () => d.e',
+                    ')'
+                ]
+            },
         ]
     },
 

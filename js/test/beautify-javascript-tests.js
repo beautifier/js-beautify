@@ -1271,6 +1271,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    phantom.onError = function() {};\n' +
             '}\n' +
             '// Comment');
+        
+        // Issue 806 - newline arrow functions
+        bt(
+            'a.b("c",\n' +
+            '    () => d.e\n' +
+            ')');
 
 
 
