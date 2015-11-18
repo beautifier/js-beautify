@@ -678,6 +678,14 @@
                 }
             }
 
+            // Support preserving wrapped arrow function expressions
+            // a.b('c',
+            //     () => d.e
+            // )
+            if (current_token.text === '(' && ['TK_WORD', 'TK_RESERVED'].indexOf(last_type) === -1) {
+                allow_wrap_or_preserved_newline();
+            }
+
             set_mode(next_mode);
             print_token();
             if (opt.space_in_paren) {
