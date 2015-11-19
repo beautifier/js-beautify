@@ -703,7 +703,7 @@ class Beautifier:
         next_token = self.get_token(1)
         second_token = self.get_token(2)
         if second_token != None and \
-            ((second_token.text == ':' and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
+            ((second_token.text in [':', ','] and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
                 or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.

@@ -1277,6 +1277,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'a.b("c",\n' +
             '    () => d.e\n' +
             ')');
+        
+        // Issue 810 - es6 object literal detection
+        bt(
+            'function badFormatting() {\n' +
+            '    return {\n' +
+            '        a,\n' +
+            '        b: c,\n' +
+            '        d: e,\n' +
+            '        f: g,\n' +
+            '        h,\n' +
+            '        i,\n' +
+            '        j: k\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            'function goodFormatting() {\n' +
+            '    return {\n' +
+            '        a: b,\n' +
+            '        c,\n' +
+            '        d: e,\n' +
+            '        f: g,\n' +
+            '        h,\n' +
+            '        i,\n' +
+            '        j: k\n' +
+            '    }\n' +
+            '}');
 
 
 
