@@ -124,9 +124,13 @@
       // Test whether a given character code starts an identifier.
 
       var isIdentifierStart = exports.isIdentifierStart = function(code) {
-        if (code < 65) return code === 36;
+        // permit $ (36) and @ (64). @ is used in ES7 decorators.
+        if (code < 65) return code === 36 || code === 64;
+        // 65 through 91 are uppercase letters.
         if (code < 91) return true;
+        // permit _ (95).
         if (code < 97) return code === 95;
+        // 97 through 123 are lowercase letters.
         if (code < 123)return true;
         return code >= 0xaa && nonASCIIidentifierStart.test(String.fromCharCode(code));
       };
@@ -674,6 +678,14 @@
                 }
             }
 
+            // Support preserving wrapped arrow function expressions
+            // a.b('c',
+            //     () => d.e
+            // )
+            if (current_token.text === '(' && ['TK_WORD', 'TK_RESERVED'].indexOf(last_type) === -1) {
+                allow_wrap_or_preserved_newline();
+            }
+
             set_mode(next_mode);
             print_token();
             if (opt.space_in_paren) {
@@ -727,7 +739,7 @@
             var next_token = get_token(1)
             var second_token = get_token(2)
             if (second_token && (
-                    (second_token.text === ':' && in_array(next_token.type, ['TK_STRING', 'TK_WORD', 'TK_RESERVED']))
+                    (in_array(second_token.text, [':', ',']) && in_array(next_token.type, ['TK_STRING', 'TK_WORD', 'TK_RESERVED']))
                     || (in_array(next_token.text, ['get', 'set']) && in_array(second_token.type, ['TK_WORD', 'TK_RESERVED']))
                 )) {
                 // We don't support TypeScript,but we didn't break it for a very long time.
@@ -1528,6 +1540,8 @@
 
         var whitespace = "\n\r\t ".split('');
         var digit = /[0-9]/;
+        var digit_bin = /[01]/;
+        var digit_oct = /[01234567]/;
         var digit_hex = /[0123456789abcdefABCDEF]/;
 
         var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' '); 
@@ -1668,17 +1682,23 @@
                 var allow_e = true;
                 var local_digit = digit;
 
-                if (c === '0' && parser_pos < input_length && /[Xx]/.test(input.charAt(parser_pos))) {
-                    // switch to hex number, no decimal or e, just hex digits
+                if (c === '0' && parser_pos < input_length && /[Xxob]/.test(input.charAt(parser_pos))) {
+                    // switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
                     allow_decimal = false;
                     allow_e = false;
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
-                    local_digit = digit_hex
+                    if ( /[b]/.test(input.charAt(parser_pos)) ) {
+                        local_digit = digit_bin;
+                    } else if ( /[o]/.test(input.charAt(parser_pos)) ) {
+                        local_digit = digit_oct;
+                    } else {
+                        local_digit = digit_hex;
+                    }
                 } else {
                     // we know this first loop will run.  It keeps the logic simpler.
                     c = '';
-                    parser_pos -= 1
+                    parser_pos -= 1;
                 }
 
                 // Add the digits

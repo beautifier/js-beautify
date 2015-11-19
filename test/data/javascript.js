@@ -22,6 +22,18 @@ exports.test_data = {
             }
         ],
     }, {
+        name: "ES7 Decorators",
+        description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
+        tests: [
+          { unchanged: '@foo' },
+          { unchanged: '@foo(bar)' },
+          { unchanged: [
+            '@foo(function(k, v) {',
+            '    implementation();',
+            '})'
+          ]}
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [
@@ -1176,7 +1188,42 @@ exports.test_data = {
                     '}',
                     '// Comment' ]
             },
-
+            {
+                comment: "Issue 806 - newline arrow functions",
+                unchanged: [
+                    'a.b("c",',
+                    '    () => d.e',
+                    ')'
+                ]
+            },
+            {
+                comment: "Issue 810 - es6 object literal detection",
+                unchanged: [
+                    'function badFormatting() {',
+                    '    return {',
+                    '        a,',
+                    '        b: c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}',
+                    '',
+                    'function goodFormatting() {',
+                    '    return {',
+                    '        a: b,',
+                    '        c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}'
+                ]
+            }
         ]
     },
 
@@ -1229,6 +1276,10 @@ exports.test_data = {
             { input: 'a<=.5', output: 'a <= .5' },
             { unchanged: 'a = 0xff;' },
             { input: 'a=0xff+4', output: 'a = 0xff + 4' },
+            { unchanged: 'a = 0o77;' },
+            { input: 'a=0o77+4', output: 'a = 0o77 + 4' },
+            { unchanged: 'a = 0b1010;' },
+            { input: 'a=0b1010+4', output: 'a = 0b1010 + 4' },
             { unchanged: 'a = [1, 2, 3, 4]' },
             { input: 'F*(g/=f)*g+b', output: 'F * (g /= f) * g + b' },
             { input: 'a.b({c:d})', output: 'a.b({\n    c: d\n})' },

@@ -23,7 +23,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = /\s+/')
         #bt('a = /\\x41/','a = /A/')
         bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);')
-        bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"')
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"')
 
         self.options.unescape_strings = True
 
@@ -31,7 +31,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('"\\u2022"', '"\\u2022"')
         bt('a = /\s+/')
         bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"ABC\\x01".match(/\\x41/);')
-        bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"')
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"')
 
         self.options.unescape_strings = False
 
@@ -59,6 +59,14 @@ class TestJSBeautifier(unittest.TestCase):
             'var ' + unicode_char(228) + 'x = {\n' +
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};')
+
+        # ES7 Decorators
+        bt('@foo')
+        bt('@foo(bar)')
+        bt(
+            '@foo(function(k, v) {\n' +
+            '    implementation();\n' +
+            '})')
 
         # End With Newline - (eof = "\n")
         self.options.end_with_newline = true
@@ -1039,6 +1047,38 @@ class TestJSBeautifier(unittest.TestCase):
             '    phantom.onError = function() {};\n' +
             '}\n' +
             '// Comment')
+        
+        # Issue 806 - newline arrow functions
+        bt(
+            'a.b("c",\n' +
+            '    () => d.e\n' +
+            ')')
+        
+        # Issue 810 - es6 object literal detection
+        bt(
+            'function badFormatting() {\n' +
+            '    return {\n' +
+            '        a,\n' +
+            '        b: c,\n' +
+            '        d: e,\n' +
+            '        f: g,\n' +
+            '        h,\n' +
+            '        i,\n' +
+            '        j: k\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            'function goodFormatting() {\n' +
+            '    return {\n' +
+            '        a: b,\n' +
+            '        c,\n' +
+            '        d: e,\n' +
+            '        f: g,\n' +
+            '        h,\n' +
+            '        i,\n' +
+            '        j: k\n' +
+            '    }\n' +
+            '}')
 
         # Old tests
         bt('')
@@ -1080,6 +1120,10 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a<=.5', 'a <= .5')
         bt('a = 0xff;')
         bt('a=0xff+4', 'a = 0xff + 4')
+        bt('a = 0o77;')
+        bt('a=0o77+4', 'a = 0o77 + 4')
+        bt('a = 0b1010;')
+        bt('a=0b1010+4', 'a = 0b1010 + 4')
         bt('a = [1, 2, 3, 4]')
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b')
         bt('a.b({c:d})', 'a.b({\n    c: d\n})')

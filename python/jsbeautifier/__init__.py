@@ -192,13 +192,13 @@ class Acorn:
     # Test whether a given character code starts an identifier.
     def isIdentifierStart(self, code):
         if code < 65:
-            return code == 36
+            return code in [36, 64] # permit $ (36) and @ (64). @ is used in ES7 decorators.
         if code < 91:
-            return True
+            return True # 65 through 91 are uppercase letters
         if code < 97:
-            return code == 95
+            return code == 95 # permit _ (95)
         if code < 123:
-            return True
+            return True # 97 through 123 are lowercase letters
         return code >= 0xaa and self.nonASCIIidentifierStart.match(self.six.unichr(code)) != None
 
     # Test whether a given character is part of an identifier.
@@ -646,6 +646,15 @@ class Beautifier:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(current_token)
 
+
+        # Support preserving wrapped arrow function expressions
+        # a.b('c',
+        #     () => d.e
+        # )
+        if current_token.text == '(' and self.last_type not in ['TK_WORD', 'TK_RESERVED']:
+            self.allow_wrap_or_preserved_newline(current_token)
+
+
         self.set_mode(next_mode)
         self.print_token(current_token)
 
@@ -694,7 +703,7 @@ class Beautifier:
         next_token = self.get_token(1)
         second_token = self.get_token(2)
         if second_token != None and \
-            ((second_token.text == ':' and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
+            ((second_token.text in [':', ','] and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
                 or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
@@ -1376,6 +1385,8 @@ class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
+    digit_bin = re.compile('[01]')
+    digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' ')
 
@@ -1497,13 +1508,18 @@ class Tokenizer:
             allow_e = True
             local_digit = self.digit
 
-            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xx]', self.input[self.parser_pos]):
-                # switch to hex number, no decimal or e, just hex digits
+            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xxob]', self.input[self.parser_pos]):
+                # switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
                 allow_decimal = False
                 allow_e = False
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
-                local_digit = self.digit_hex
+                if re.match('[b]', self.input[self.parser_pos]):
+                    local_digit = self.digit_bin
+                elif re.match('[o]', self.input[self.parser_pos]):
+                    local_digit = self.digit_oct
+                else:
+                    local_digit = self.digit_hex
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''
