@@ -1385,6 +1385,7 @@ class Tokenizer:
 
     whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
+    digit_bin = re.compile('[01]')
     digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
     punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' ')
@@ -1507,13 +1508,15 @@ class Tokenizer:
             allow_e = True
             local_digit = self.digit
 
-            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xxo]', self.input[self.parser_pos]):
-                # switch to hex/oct number, no decimal or e, just hex/oct digits
+            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xxob]', self.input[self.parser_pos]):
+                # switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
                 allow_decimal = False
                 allow_e = False
                 c += self.input[self.parser_pos]
                 self.parser_pos += 1
-                if re.match('[o]', self.input[self.parser_pos]):
+                if re.match('[b]', self.input[self.parser_pos]):
+                    local_digit = self.digit_bin
+                elif re.match('[o]', self.input[self.parser_pos]):
                     local_digit = self.digit_oct
                 else:
                     local_digit = self.digit_hex
