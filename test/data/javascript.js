@@ -1196,6 +1196,34 @@ exports.test_data = {
                     ')'
                 ]
             },
+            {
+                comment: "Issue 810 - es6 object literal detection",
+                unchanged: [
+                    'function badFormatting() {',
+                    '    return {',
+                    '        a,',
+                    '        b: c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}',
+                    '',
+                    'function goodFormatting() {',
+                    '    return {',
+                    '        a: b,',
+                    '        c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}'
+                ]
+            }
         ]
     },
 
