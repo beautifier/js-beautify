@@ -711,6 +711,11 @@ class Beautifier:
                 self.set_mode(MODE.ObjectLiteral);
             else:
                 self.set_mode(MODE.BlockStatement)
+        elif self.last_type in ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA'] or \
+            (self.flags.last_text == ':') or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'return'):
+            # Detecting shorthand function syntax is difficult by scanning forward, so check the surrounding context.
+            # If the block is being returned, passed as arg, assigned with = or assigned in a nested object, treat as an ObjectLiteral.
+            self.set_mode(MODE.ObjectLiteral);
         else:
             self.set_mode(MODE.BlockStatement)
 
