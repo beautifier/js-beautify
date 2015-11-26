@@ -749,9 +749,16 @@
                 } else {
                     set_mode(MODE.BlockStatement);
                 }
+            } else if (in_array(last_type, ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA']) ||
+                (flags.last_text === ':') || (last_type === 'TK_RESERVED' && flags.last_text === 'return')
+                ) {
+                // Detecting shorthand function syntax is difficult by scanning forward, so check the surrounding context.
+                // If the block is being returned, passed as arg, assigned with = or assigned in a nested object, treat as an ObjectLiteral.
+                set_mode(MODE.ObjectLiteral);
             } else {
                 set_mode(MODE.BlockStatement);
             }
+
 
             var empty_braces = !next_token.comments_before.length &&  next_token.text === '}';
             var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
@@ -1544,7 +1551,7 @@
         var digit_oct = /[01234567]/;
         var digit_hex = /[0123456789abcdefABCDEF]/;
 
-        var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' '); 
+        var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: =>').split(' ');
         // words which should always start on new line.
         this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
         var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await']);

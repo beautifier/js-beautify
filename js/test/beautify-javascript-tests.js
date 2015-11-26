@@ -1303,6 +1303,56 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        j: k\n' +
             '    }\n' +
             '}');
+        
+        // Issue 602 - ES6 object literal shorthand functions
+        bt(
+            'return {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}\n' +
+            '\n' +
+            'foo({\n' +
+            '    fn1(a) {}\n' +
+            '    fn2(a) {}\n' +
+            '})\n' +
+            '\n' +
+            'foo("text", {\n' +
+            '    fn1(a) {}\n' +
+            '    fn2(a) {}\n' +
+            '})\n' +
+            '\n' +
+            'oneArg = {\n' +
+            '    fn1(a) {\n' +
+            '        do();\n' +
+            '    },\n' +
+            '    fn2() {}\n' +
+            '}\n' +
+            '\n' +
+            'multiArg = {\n' +
+            '    fn1(a, b, c) {\n' +
+            '        do();\n' +
+            '    },\n' +
+            '    fn2() {}\n' +
+            '}\n' +
+            '\n' +
+            'noArgs = {\n' +
+            '    fn1() {\n' +
+            '        do();\n' +
+            '    },\n' +
+            '    fn2() {}\n' +
+            '}\n' +
+            '\n' +
+            'emptyFn = {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}\n' +
+            '\n' +
+            'nested = {\n' +
+            '    fns: {\n' +
+            '        fn1() {},\n' +
+            '        fn2() {}\n' +
+            '    }\n' +
+            '}');
 
 
 
