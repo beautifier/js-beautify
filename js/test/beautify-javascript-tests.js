@@ -1309,44 +1309,44 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'return {\n' +
             '    fn1() {},\n' +
             '    fn2() {}\n' +
-            '}\n' +
-            '\n' +
+            '}');
+        bt(
             'foo({\n' +
             '    fn1(a) {}\n' +
             '    fn2(a) {}\n' +
-            '})\n' +
-            '\n' +
+            '})');
+        bt(
             'foo("text", {\n' +
             '    fn1(a) {}\n' +
             '    fn2(a) {}\n' +
-            '})\n' +
-            '\n' +
+            '})');
+        bt(
             'oneArg = {\n' +
             '    fn1(a) {\n' +
             '        do();\n' +
             '    },\n' +
             '    fn2() {}\n' +
-            '}\n' +
-            '\n' +
+            '}');
+        bt(
             'multiArg = {\n' +
             '    fn1(a, b, c) {\n' +
             '        do();\n' +
             '    },\n' +
             '    fn2() {}\n' +
-            '}\n' +
-            '\n' +
+            '}');
+        bt(
             'noArgs = {\n' +
             '    fn1() {\n' +
             '        do();\n' +
             '    },\n' +
             '    fn2() {}\n' +
-            '}\n' +
-            '\n' +
+            '}');
+        bt(
             'emptyFn = {\n' +
             '    fn1() {},\n' +
             '    fn2() {}\n' +
-            '}\n' +
-            '\n' +
+            '}');
+        bt(
             'nested = {\n' +
             '    fns: {\n' +
             '        fn1() {},\n' +

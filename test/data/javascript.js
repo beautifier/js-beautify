@@ -1230,44 +1230,58 @@ exports.test_data = {
                     'return {',
                     '    fn1() {},',
                     '    fn2() {}',
-                    '}',
-                    '',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'foo({',
                     '    fn1(a) {}',
                     '    fn2(a) {}',
-                    '})',
-                    '',
+                    '})'
+                ]
+            }, {
+                unchanged: [
                     'foo("text", {',
                     '    fn1(a) {}',
                     '    fn2(a) {}',
-                    '})',
-                    '',
+                    '})'
+                ]
+            }, {
+                unchanged: [
                     'oneArg = {',
                     '    fn1(a) {',
                     '        do();',
                     '    },',
                     '    fn2() {}',
-                    '}',
-                    '',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'multiArg = {',
                     '    fn1(a, b, c) {',
                     '        do();',
                     '    },',
                     '    fn2() {}',
-                    '}',
-                    '',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'noArgs = {',
                     '    fn1() {',
                     '        do();',
                     '    },',
                     '    fn2() {}',
-                    '}',
-                    '',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'emptyFn = {',
                     '    fn1() {},',
                     '    fn2() {}',
-                    '}',
-                    '',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'nested = {',
                     '    fns: {',
                     '        fn1() {},',
