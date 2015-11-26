@@ -1087,6 +1087,11 @@ class TestJSBeautifier(unittest.TestCase):
             '    fn2() {}\n' +
             '}')
         bt(
+            'throw {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}')
+        bt(
             'foo({\n' +
             '    fn1(a) {}\n' +
             '    fn2(a) {}\n' +
@@ -1129,6 +1134,24 @@ class TestJSBeautifier(unittest.TestCase):
             '        fn2() {}\n' +
             '    }\n' +
             '}')
+        bt(
+            'array = [{\n' +
+            '    fn1() {},\n' +
+            '    prop: val,\n' +
+            '    fn2() {}\n' +
+            '}]')
+        bt(
+            'expr = expr ? expr : {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}')
+        bt(
+            'strange = valid + {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {\n' +
+            '        return 1;\n' +
+            '    }\n' +
+            '}.fn2()')
 
         # Old tests
         bt('')

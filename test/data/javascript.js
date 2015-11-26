@@ -1234,6 +1234,13 @@ exports.test_data = {
                 ]
             }, {
                 unchanged: [
+                    'throw {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
                     'foo({',
                     '    fn1(a) {}',
                     '    fn2(a) {}',
@@ -1288,6 +1295,31 @@ exports.test_data = {
                     '        fn2() {}',
                     '    }',
                     '}'
+                ]
+            }, {
+                unchanged: [
+                    'array = [{',
+                    '    fn1() {},',
+                    '    prop: val,',
+                    '    fn2() {}',
+                    '}]'
+                ]
+            }, {
+                unchanged: [
+                    'expr = expr ? expr : {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }
+            , {
+                unchanged: [
+                    'strange = valid + {',
+                    '    fn1() {},',
+                    '    fn2() {',
+                    '        return 1;',
+                    '    }',
+                    '}.fn2()'
                 ]
             }
         ]

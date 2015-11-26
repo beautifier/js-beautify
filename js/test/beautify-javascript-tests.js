@@ -1311,6 +1311,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    fn2() {}\n' +
             '}');
         bt(
+            'throw {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}');
+        bt(
             'foo({\n' +
             '    fn1(a) {}\n' +
             '    fn2(a) {}\n' +
@@ -1353,6 +1358,24 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        fn2() {}\n' +
             '    }\n' +
             '}');
+        bt(
+            'array = [{\n' +
+            '    fn1() {},\n' +
+            '    prop: val,\n' +
+            '    fn2() {}\n' +
+            '}]');
+        bt(
+            'expr = expr ? expr : {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {}\n' +
+            '}');
+        bt(
+            'strange = valid + {\n' +
+            '    fn1() {},\n' +
+            '    fn2() {\n' +
+            '        return 1;\n' +
+            '    }\n' +
+            '}.fn2()');
 
 
 

@@ -749,8 +749,8 @@
                 } else {
                     set_mode(MODE.BlockStatement);
                 }
-            } else if (in_array(last_type, ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA']) ||
-                (flags.last_text === ':') || (last_type === 'TK_RESERVED' && flags.last_text === 'return')
+            } else if (in_array(last_type, ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR']) ||
+                (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']))
                 ) {
                 // Detecting shorthand function syntax is difficult by scanning forward, so check the surrounding context.
                 // If the block is being returned, passed as arg, assigned with = or assigned in a nested object, treat as an ObjectLiteral.
