@@ -1508,23 +1508,26 @@ class Tokenizer:
         if len(whitespace_on_this_line) != 0:
             self.whitespace_before_token = ''.join(whitespace_on_this_line)
 
-        if self.digit.match(c):
+        if self.digit.match(c) or (c == '.' and self.digit.match(self.input[self.parser_pos])):
             allow_decimal = True
             allow_e = True
             local_digit = self.digit
 
-            if c == '0' and self.parser_pos < len(self.input) and re.match('[Xxob]', self.input[self.parser_pos]):
+            if c == '0' and self.parser_pos < len(self.input) and re.match('[XxOoBb]', self.input[self.parser_pos]):
                 # switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
                 allow_decimal = False
                 allow_e = False
-                c += self.input[self.parser_pos]
-                self.parser_pos += 1
-                if re.match('[b]', self.input[self.parser_pos]):
+                if re.match('[Bb]', self.input[self.parser_pos]):
                     local_digit = self.digit_bin
-                elif re.match('[o]', self.input[self.parser_pos]):
+                elif re.match('[Oo]', self.input[self.parser_pos]):
                     local_digit = self.digit_oct
                 else:
                     local_digit = self.digit_hex
+                c += self.input[self.parser_pos]
+                self.parser_pos += 1
+            elif c == '.':
+                # Already have a decimal for this literal, don't allow another
+                allow_decimal = False
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''
@@ -1539,8 +1542,7 @@ class Tokenizer:
                     c += self.input[self.parser_pos]
                     self.parser_pos += 1
                     allow_decimal = False
-
-                if allow_e and self.parser_pos < len(self.input) and re.match('[Ee]', self.input[self.parser_pos]):
+                elif allow_e and self.parser_pos < len(self.input) and re.match('[Ee]', self.input[self.parser_pos]):
                     c += self.input[self.parser_pos]
                     self.parser_pos += 1
 

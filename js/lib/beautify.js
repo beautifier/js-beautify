@@ -1684,24 +1684,27 @@
                 whitespace_before_token = whitespace_on_this_line.join('');
             }
 
-            if (digit.test(c)) {
+            if (digit.test(c) || (c === '.' && digit.test(input.charAt(parser_pos)))) {
                 var allow_decimal = true;
                 var allow_e = true;
                 var local_digit = digit;
 
-                if (c === '0' && parser_pos < input_length && /[Xxob]/.test(input.charAt(parser_pos))) {
+                if (c === '0' && parser_pos < input_length && /[XxOoBb]/.test(input.charAt(parser_pos))) {
                     // switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
                     allow_decimal = false;
                     allow_e = false;
-                    c += input.charAt(parser_pos);
-                    parser_pos += 1;
-                    if ( /[b]/.test(input.charAt(parser_pos)) ) {
+                    if ( /[Bb]/.test(input.charAt(parser_pos)) ) {
                         local_digit = digit_bin;
-                    } else if ( /[o]/.test(input.charAt(parser_pos)) ) {
+                    } else if ( /[Oo]/.test(input.charAt(parser_pos)) ) {
                         local_digit = digit_oct;
                     } else {
                         local_digit = digit_hex;
                     }
+                    c += input.charAt(parser_pos);
+                    parser_pos += 1;
+                } else if (c === '.') {
+                    // Already have a decimal for this literal, don't allow another
+                    allow_decimal = false;
                 } else {
                     // we know this first loop will run.  It keeps the logic simpler.
                     c = '';
@@ -1717,9 +1720,7 @@
                         c += input.charAt(parser_pos);
                         parser_pos += 1;
                         allow_decimal = false;
-                    }
-
-                    if (allow_e && parser_pos < input_length && /[Ee]/.test(input.charAt(parser_pos))) {
+                    } else if (allow_e && parser_pos < input_length && /[Ee]/.test(input.charAt(parser_pos))) {
                         c += input.charAt(parser_pos);
                         parser_pos += 1;
 
