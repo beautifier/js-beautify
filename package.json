@@ -3,7 +3,6 @@
   "version": "1.5.10",
   "description": "jsbeautifier.org for node",
   "main": "js/index.js",
-  "preferGlobal": true,
   "bin": {
     "css-beautify": "./js/bin/css-beautify.js",
     "html-beautify": "./js/bin/html-beautify.js",
