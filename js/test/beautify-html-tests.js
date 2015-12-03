@@ -603,13 +603,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<script type="application/json">\n' +
             '    {\n' +
             '        "foo": "bar"\n' +
-            '    }\n'+
+            '    }\n' +
             '</script>');
         bth('<script type="application/ld+json">{"foo":"bar"}</script>',
             '<script type="application/ld+json">\n' +
             '    {\n' +
             '        "foo": "bar"\n' +
-            '    }\n'+
+            '    }\n' +
             '</script>');
 
         bth('<style type="text/unknown"><tag></tag></style>',
