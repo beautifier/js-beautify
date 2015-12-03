@@ -22,6 +22,18 @@ exports.test_data = {
             }
         ],
     }, {
+        name: "ES7 Decorators",
+        description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
+        tests: [
+          { unchanged: '@foo' },
+          { unchanged: '@foo(bar)' },
+          { unchanged: [
+            '@foo(function(k, v) {',
+            '    implementation();',
+            '})'
+          ]}
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [
@@ -1176,7 +1188,140 @@ exports.test_data = {
                     '}',
                     '// Comment' ]
             },
-
+            {
+                comment: "Issue 806 - newline arrow functions",
+                unchanged: [
+                    'a.b("c",',
+                    '    () => d.e',
+                    ')'
+                ]
+            },
+            {
+                comment: "Issue 810 - es6 object literal detection",
+                unchanged: [
+                    'function badFormatting() {',
+                    '    return {',
+                    '        a,',
+                    '        b: c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}',
+                    '',
+                    'function goodFormatting() {',
+                    '    return {',
+                    '        a: b,',
+                    '        c,',
+                    '        d: e,',
+                    '        f: g,',
+                    '        h,',
+                    '        i,',
+                    '        j: k',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue 602 - ES6 object literal shorthand functions",
+                unchanged: [
+                    'return {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'throw {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'foo({',
+                    '    fn1(a) {}',
+                    '    fn2(a) {}',
+                    '})'
+                ]
+            }, {
+                unchanged: [
+                    'foo("text", {',
+                    '    fn1(a) {}',
+                    '    fn2(a) {}',
+                    '})'
+                ]
+            }, {
+                unchanged: [
+                    'oneArg = {',
+                    '    fn1(a) {',
+                    '        do();',
+                    '    },',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'multiArg = {',
+                    '    fn1(a, b, c) {',
+                    '        do();',
+                    '    },',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'noArgs = {',
+                    '    fn1() {',
+                    '        do();',
+                    '    },',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'emptyFn = {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'nested = {',
+                    '    fns: {',
+                    '        fn1() {},',
+                    '        fn2() {}',
+                    '    }',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'array = [{',
+                    '    fn1() {},',
+                    '    prop: val,',
+                    '    fn2() {}',
+                    '}]'
+                ]
+            }, {
+                unchanged: [
+                    'expr = expr ? expr : {',
+                    '    fn1() {},',
+                    '    fn2() {}',
+                    '}'
+                ]
+            }
+            , {
+                unchanged: [
+                    'strange = valid + {',
+                    '    fn1() {},',
+                    '    fn2() {',
+                    '        return 1;',
+                    '    }',
+                    '}.fn2()'
+                ]
+            }
         ]
     },
 
@@ -1227,8 +1372,95 @@ exports.test_data = {
             { unchanged: 'a <= .5' },
             { input: 'a<.5', output: 'a < .5' },
             { input: 'a<=.5', output: 'a <= .5' },
-            { unchanged: 'a = 0xff;' },
-            { input: 'a=0xff+4', output: 'a = 0xff + 4' },
+
+            { comment: 'exponent literals',
+              unchanged: 'a = 1e10' },
+            { unchanged: 'a = 1.3e10' },
+            { unchanged: 'a = 1.3e-10' },
+            { unchanged: 'a = -12345.3e-10' },
+            { unchanged: 'a = .12345e-10' },
+            { unchanged: 'a = 06789e-10' },
+            { unchanged: 'a = e - 10' },
+            { unchanged: 'a = 1.3e+10' },
+            { unchanged: 'a = -12345.3e+10' },
+            { unchanged: 'a = .12345e+10' },
+            { unchanged: 'a = 06789e+10' },
+            { unchanged: 'a = e + 10' },
+            { input: 'a=0e-12345.3e-10', output: 'a = 0e-12345 .3e-10' },
+            { input: 'a=0.e-12345.3e-10', output: 'a = 0. e - 12345.3e-10' },
+            { input: 'a=0x.e-12345.3e-10', output: 'a = 0x.e - 12345.3e-10' },
+            { input: 'a=0x0.e-12345.3e-10', output: 'a = 0x0.e - 12345.3e-10' },
+            { input: 'a=0x0.0e-12345.3e-10', output: 'a = 0x0 .0e-12345 .3e-10' },
+            { input: 'a=0g-12345.3e-10', output: 'a = 0 g - 12345.3e-10' },
+            { input: 'a=0.g-12345.3e-10', output: 'a = 0. g - 12345.3e-10' },
+            { input: 'a=0x.g-12345.3e-10', output: 'a = 0x.g - 12345.3e-10' },
+            { input: 'a=0x0.g-12345.3e-10', output: 'a = 0x0.g - 12345.3e-10' },
+            { input: 'a=0x0.0g-12345.3e-10', output: 'a = 0x0 .0 g - 12345.3e-10' },
+
+            { comment: 'Decimal literals',
+              unchanged: 'a = 0123456789;' },
+            { unchanged: 'a = 9876543210;' },
+            { unchanged: 'a = 5647308291;' },
+            { input: 'a=030e-5', output: 'a = 030e-5' },
+            { input: 'a=00+4', output: 'a = 00 + 4' },
+            { input: 'a=32+4', output: 'a = 32 + 4' },
+            { input: 'a=0.6g+4', output: 'a = 0.6 g + 4' },
+            { input: 'a=01.10', output: 'a = 01.10' },
+            { input: 'a=a.10', output: 'a = a .10' },
+            { input: 'a=00B0x0', output: 'a = 00 B0x0' },
+            { input: 'a=00B0xb0', output: 'a = 00 B0xb0' },
+            { input: 'a=00B0x0b0', output: 'a = 00 B0x0b0' },
+            { input: 'a=0090x0', output: 'a = 0090 x0' },
+            { input: 'a=0g0b0o0', output: 'a = 0 g0b0o0' },
+
+            { comment: 'Hexadecimal literals',
+              unchanged: 'a = 0x0123456789abcdef;' },
+            { unchanged: 'a = 0X0123456789ABCDEF;' },
+            { unchanged: 'a = 0xFeDcBa9876543210;' },
+            { input: 'a=0x30e-5', output: 'a = 0x30e - 5' },
+            { input: 'a=0xF0+4', output: 'a = 0xF0 + 4' },
+            { input: 'a=0Xff+4', output: 'a = 0Xff + 4' },
+            { input: 'a=0Xffg+4', output: 'a = 0Xff g + 4' },
+            { input: 'a=0x01.10', output: 'a = 0x01 .10' },
+            { unchanged: 'a = 0xb0ce;' },
+            { unchanged: 'a = 0x0b0;' },
+            { input: 'a=0x0B0x0', output: 'a = 0x0B0 x0' },
+            { input: 'a=0x0B0xb0', output: 'a = 0x0B0 xb0' },
+            { input: 'a=0x0B0x0b0', output: 'a = 0x0B0 x0b0' },
+            { input: 'a=0X090x0', output: 'a = 0X090 x0' },
+            { input: 'a=0Xg0b0o0', output: 'a = 0X g0b0o0' },
+
+            { comment: 'Octal literals',
+              unchanged: 'a = 0o01234567;' },
+            { unchanged: 'a = 0O01234567;' },
+            { unchanged: 'a = 0o34120675;' },
+            { input: 'a=0o30e-5', output: 'a = 0o30 e - 5' },
+            { input: 'a=0o70+4', output: 'a = 0o70 + 4' },
+            { input: 'a=0O77+4', output: 'a = 0O77 + 4' },
+            { input: 'a=0O778+4', output: 'a = 0O77 8 + 4' },
+            { input: 'a=0O77a+4', output: 'a = 0O77 a + 4' },
+            { input: 'a=0o01.10', output: 'a = 0o01 .10' },
+            { input: 'a=0o0B0x0', output: 'a = 0o0 B0x0' },
+            { input: 'a=0o0B0xb0', output: 'a = 0o0 B0xb0' },
+            { input: 'a=0o0B0x0b0', output: 'a = 0o0 B0x0b0' },
+            { input: 'a=0O090x0', output: 'a = 0O0 90 x0' },
+            { input: 'a=0Og0b0o0', output: 'a = 0O g0b0o0' },
+
+            { comment: 'Binary literals',
+              unchanged: 'a = 0b010011;' },
+            { unchanged: 'a = 0B010011;' },
+            { unchanged: 'a = 0b01001100001111;' },
+            { input: 'a=0b10e-5', output: 'a = 0b10 e - 5' },
+            { input: 'a=0b10+4', output: 'a = 0b10 + 4' },
+            { input: 'a=0B11+4', output: 'a = 0B11 + 4' },
+            { input: 'a=0B112+4', output: 'a = 0B11 2 + 4' },
+            { input: 'a=0B11a+4', output: 'a = 0B11 a + 4' },
+            { input: 'a=0b01.10', output: 'a = 0b01 .10' },
+            { input: 'a=0b0B0x0', output: 'a = 0b0 B0x0' },
+            { input: 'a=0b0B0xb0', output: 'a = 0b0 B0xb0' },
+            { input: 'a=0b0B0x0b0', output: 'a = 0b0 B0x0b0' },
+            { input: 'a=0B090x0', output: 'a = 0B0 90 x0' },
+            { input: 'a=0Bg0b0o0', output: 'a = 0B g0b0o0' },
             { unchanged: 'a = [1, 2, 3, 4]' },
             { input: 'F*(g/=f)*g+b', output: 'F * (g /= f) * g + b' },
             { input: 'a.b({c:d})', output: 'a.b({\n    c: d\n})' },
@@ -1288,13 +1520,6 @@ exports.test_data = {
             { unchanged: 'return this.prevObject ||\n\n    this.constructor(null);' },
             { unchanged: 'If[1]' },
             { unchanged: 'Then[1]' },
-            { unchanged: 'a = 1e10' },
-            { unchanged: 'a = 1.3e10' },
-            { unchanged: 'a = 1.3e-10' },
-            { unchanged: 'a = -1.3e-10' },
-            { unchanged: 'a = 1e-10' },
-            { unchanged: 'a = e - 10' },
-            { input: 'a = 11-10', output: "a = 11 - 10" },
             { input: "a = 1;// comment", output: "a = 1; // comment" },
             { unchanged: "a = 1; // comment" },
             { input: "a = 1;\n // comment", output: "a = 1;\n// comment" },
@@ -1388,8 +1613,6 @@ exports.test_data = {
 
             { input: '{a:#1=[],b:#1#,c:#999999#}', output: '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}' },
 
-            { unchanged: "a = 1e+2" },
-            { unchanged: "a = 1e-2" },
             { input: "do{x()}while(a>1)", output: "do {\n    x()\n} while (a > 1)" },
 
             { input: "x(); /reg/exp.match(something)", output: "x();\n/reg/exp.match(something)" },

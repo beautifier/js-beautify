@@ -380,6 +380,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     
 
 
+        // Handlebars Else tag indenting
+        opts.indent_handlebars = true;
+        test_fragment(
+            '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
+            '{{#if test}}\n    <div></div>\n{{else}}\n    <div></div>\n{{/if}}');
+        test_fragment('{{#if test}}<span></span>{{else}}<span></span>{{/if}}');
+
+
+
         // Unclosed html elements
         test_fragment('<source>\n<source>');
         test_fragment('<br>\n<br>');
