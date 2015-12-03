@@ -574,7 +574,7 @@
 
               var add = function (str) {
                 var newToken = token + str.toLowerCase();
-                token = newToken.substr(newToken.length - delimiter.length, delimiter.length);
+                token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length, delimiter.length);
               };
 
               var doesNotMatch = function () {
