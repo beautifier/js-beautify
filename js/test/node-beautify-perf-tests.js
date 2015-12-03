@@ -20,7 +20,7 @@ function node_beautifier_tests() {
     //warm-up
     js_beautify(data, options);
     js_beautify(data_min, options);
-    
+
     var suite = new Benchmark.Suite;
 
     suite.add("js-beautify (underscore)", function() {

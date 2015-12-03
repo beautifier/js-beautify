@@ -171,7 +171,7 @@
 
             // Return true if the given text is composed entirely of whitespace.
             this.is_whitespace = function(text) {
-                for (var n = 0; n < text.length; text++) {
+                for (var n = 0; n < text.length; n++) {
                     if (!this.Utils.in_array(text.charAt(n), this.Utils.whitespace)) {
                         return false;
                     }
@@ -574,7 +574,7 @@
 
               var add = function (str) {
                 var newToken = token + str.toLowerCase();
-                token = newToken.substr(-delimiter.length);
+                token = newToken.substr(newToken.length - delimiter.length, delimiter.length);
               };
 
               var doesNotMatch = function () {
@@ -595,7 +595,7 @@
                 var content = '';
                 var space = true;
 
-                var matcher = tokenMatcher(delimiter);
+                var delimiterMatcher = tokenMatcher(delimiter);
 
                 do {
 
@@ -624,7 +624,7 @@
                         }
                     }
                     content += input_char;
-                    matcher.add(input_char);
+                    delimiterMatcher.add(input_char);
                     this.line_char_count++;
                     space = true;
 
@@ -633,7 +633,7 @@
                         content += this.get_unformatted('}}');
                         // Don't consider when stopping for delimiters.
                     }
-                } while (matcher.doesNotMatch());
+                } while (delimiterMatcher.doesNotMatch());
 
                 return content;
             };
