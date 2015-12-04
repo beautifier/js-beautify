@@ -11,17 +11,22 @@ var fs = require('fs'),
 
 function node_beautifier_html_tests() {
     console.log('Testing performance...');
+    var index_html = fs.readFileSync(__dirname + '/../../index.html', 'utf8');
     var data_attr = fs.readFileSync(__dirname + '/../../test/html-with-base64image.html', 'utf8');
     var options = {
         wrap_line_length: 80
     };
 
     //warm-up
+    html_beautify(index_html, options);
     html_beautify(data_attr, options);
-    
+
     var suite = new Benchmark.Suite;
 
-    suite.add("html-beautify (base64 image)", function () {
+    suite.add("html-beautify (index.html)", function () {
+        html_beautify(index_html, options);
+    })
+    .add("html-beautify (base64 image)", function () {
         html_beautify(data_attr, options);
     })
     // add listeners
