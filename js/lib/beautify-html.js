@@ -569,15 +569,34 @@
                 return comment;
             };
 
-            this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
+            function tokenMatcher(delimiter) {
+              var token = '';
 
+              var add = function (str) {
+                var newToken = token + str.toLowerCase();
+                token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length, delimiter.length);
+              };
+
+              var doesNotMatch = function () {
+                return token.indexOf(delimiter) === -1;
+              };
+
+              return {
+                add: add,
+                doesNotMatch: doesNotMatch
+              };
+            }
+
+            this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
                 if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
                     return '';
                 }
                 var input_char = '';
                 var content = '';
-                var min_index = 0;
                 var space = true;
+
+                var delimiterMatcher = tokenMatcher(delimiter);
+
                 do {
 
                     if (this.pos >= this.input.length) {
@@ -605,16 +624,17 @@
                         }
                     }
                     content += input_char;
+                    delimiterMatcher.add(input_char);
                     this.line_char_count++;
                     space = true;
 
                     if (indent_handlebars && input_char === '{' && content.length && content.charAt(content.length - 2) === '{') {
                         // Handlebars expressions in strings should also be unformatted.
                         content += this.get_unformatted('}}');
-                        // These expressions are opaque.  Ignore delimiters found in them.
-                        min_index = content.length;
+                        // Don't consider when stopping for delimiters.
                     }
-                } while (content.toLowerCase().indexOf(delimiter, min_index) === -1);
+                } while (delimiterMatcher.doesNotMatch());
+
                 return content;
             };
 

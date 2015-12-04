@@ -155,7 +155,14 @@ test_performance_js_beautify()
   echo Testing js-beautify performance...
   node $SCRIPT_DIR/node-beautify-perf-tests.js || exit 1
   echo ----------------------------------------
+}
 
+test_performance_html_beautify()
+{
+  echo ----------------------------------------
+  echo Testing html-beautify performance...
+  node $SCRIPT_DIR/node-beautify-html-perf-tests.js || exit 1
+  echo ----------------------------------------
 }
 
 test_cli_common css-beautify
@@ -165,6 +172,7 @@ test_cli_common js-beautify
 test_cli_js_beautify
 test_smoke_js_beautify
 test_performance_js_beautify
+test_performance_html_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.
