@@ -105,6 +105,156 @@ exports.test_data = {
             }
         ],
     }, {
+        name: "Tests for script and style types (issue 453, 821",
+        description: "Only format recognized script types",
+        tests: [
+            {
+                input: '<script type="text/unknown"><div></div></script>',
+                output: [
+                    '<script type="text/unknown">',
+                    '    <div></div>',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="text/javascript"><div></div></script>',
+                output: [
+                    '<script type="text/javascript">',
+                    '    < div > < /div>',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script><div></div></script>',
+                output: [
+                    '<script>',
+                    '    < div > < /div>',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script>var foo = "bar";</script>',
+                output: [
+                    '<script>',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="text/javascript">var foo = "bar";</script>',
+                output: [
+                    '<script type="text/javascript">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/javascript">var foo = "bar";</script>',
+                output: [
+                    '<script type="application/javascript">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/javascript;version=1.8">var foo = "bar";</script>',
+                output: [
+                    '<script type="application/javascript;version=1.8">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/x-javascript">var foo = "bar";</script>',
+                output: [
+                    '<script type="application/x-javascript">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/ecmascript">var foo = "bar";</script>',
+                output: [
+                    '<script type="application/ecmascript">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="text/javascript1.5">var foo = "bar";</script>',
+                output: [
+                    '<script type="text/javascript1.5">',
+                    '    var foo = "bar";',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/json">{"foo":"bar"}</script>',
+                output: [
+                    '<script type="application/json">',
+                    '    {',
+                    '        "foo": "bar"',
+                    '    }',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<script type="application/ld+json">{"foo":"bar"}</script>',
+                output: [
+                    '<script type="application/ld+json">',
+                    '    {',
+                    '        "foo": "bar"',
+                    '    }',
+                    '</script>'
+                ]
+            },
+            {
+                input: '<style type="text/unknown"><tag></tag></style>',
+                output: [
+                    '<style type="text/unknown">',
+                    '    <tag></tag>',
+                    '</style>'
+                ]
+            },
+            {
+                input: '<style type="text/css"><tag></tag></style>',
+                output: [
+                    '<style type="text/css">',
+                    '    <tag></tag>',
+                    '</style>'
+                ]
+            },
+            {
+                input: '<style><tag></tag></style>',
+                output: [
+                    '<style>',
+                    '    <tag></tag>',
+                    '</style>'
+                ]
+            },
+            {
+                input: '<style>.selector {font-size:12px;}</style>',
+                output: [
+                    '<style>',
+                    '    .selector {',
+                    '        font-size: 12px;',
+                    '    }',
+                    '</style>'
+                ]
+            },
+            {
+                input: '<style type="text/css">.selector {font-size:12px;}</style>',
+                output: [
+                    '<style type="text/css">',
+                    '    .selector {',
+                    '        font-size: 12px;',
+                    '    }',
+                    '</style>'
+                ]
+            },
+
+        ],
+    }, {
         name: "Attribute Wrap",
         description: "Wraps attributes inside of html tags",
         matrix: [
@@ -380,8 +530,8 @@ exports.test_data = {
         name: "Handlebars Else tag indenting",
         description: "Handlebar Else tags should be newlined after formatted tags",
 	template: "^^^ $$$",
-        options: [ 
-            {name: "indent_handlebars", value: "true"} 
+        options: [
+            {name: "indent_handlebars", value: "true"}
 	],
         tests: [
             { fragment: true,
