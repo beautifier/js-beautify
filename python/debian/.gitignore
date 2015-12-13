@@ -1,0 +1,5 @@
+/files
+/*.log
+/*.debhelper
+/*.substvars
+/python3-jsbeautifier

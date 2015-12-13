@@ -1,0 +1,13 @@
+Source: jsbeautifier
+Maintainer: Matthias Urlichs <matthias@urlichs.de>
+Section: python
+Priority: optional
+Build-Depends: python3-all, debhelper (>= 9)
+Standards-Version: 3.9.1
+
+Package: python3-jsbeautifier
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: JavaScript unobfuscator and beautifier.
+ Beautify, unpack or deobfuscate JavaScript. Handles popular online obfuscators.
+
