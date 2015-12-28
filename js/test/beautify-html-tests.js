@@ -112,6 +112,103 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<html><head><meta></head><body><div><p>x</p></div></body></html>', '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>');
     
 
+
+        // Tests for script and style types (issue 453, 821
+        bth(
+            '<script type="text/unknown"><div></div></script>',
+            '<script type="text/unknown">\n' +
+            '    <div></div>\n' +
+            '</script>');
+        bth(
+            '<script type="text/javascript"><div></div></script>',
+            '<script type="text/javascript">\n' +
+            '    < div > < /div>\n' +
+            '</script>');
+        bth(
+            '<script><div></div></script>',
+            '<script>\n' +
+            '    < div > < /div>\n' +
+            '</script>');
+        bth(
+            '<script>var foo = "bar";</script>',
+            '<script>\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="text/javascript">var foo = "bar";</script>',
+            '<script type="text/javascript">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="application/javascript">var foo = "bar";</script>',
+            '<script type="application/javascript">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="application/javascript;version=1.8">var foo = "bar";</script>',
+            '<script type="application/javascript;version=1.8">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="application/x-javascript">var foo = "bar";</script>',
+            '<script type="application/x-javascript">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="application/ecmascript">var foo = "bar";</script>',
+            '<script type="application/ecmascript">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="text/javascript1.5">var foo = "bar";</script>',
+            '<script type="text/javascript1.5">\n' +
+            '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="application/json">{"foo":"bar"}</script>',
+            '<script type="application/json">\n' +
+            '    {\n' +
+            '        "foo": "bar"\n' +
+            '    }\n' +
+            '</script>');
+        bth(
+            '<script type="application/ld+json">{"foo":"bar"}</script>',
+            '<script type="application/ld+json">\n' +
+            '    {\n' +
+            '        "foo": "bar"\n' +
+            '    }\n' +
+            '</script>');
+        bth(
+            '<style type="text/unknown"><tag></tag></style>',
+            '<style type="text/unknown">\n' +
+            '    <tag></tag>\n' +
+            '</style>');
+        bth(
+            '<style type="text/css"><tag></tag></style>',
+            '<style type="text/css">\n' +
+            '    <tag></tag>\n' +
+            '</style>');
+        bth(
+            '<style><tag></tag></style>',
+            '<style>\n' +
+            '    <tag></tag>\n' +
+            '</style>');
+        bth(
+            '<style>.selector {font-size:12px;}</style>',
+            '<style>\n' +
+            '    .selector {\n' +
+            '        font-size: 12px;\n' +
+            '    }\n' +
+            '</style>');
+        bth(
+            '<style type="text/css">.selector {font-size:12px;}</style>',
+            '<style type="text/css">\n' +
+            '    .selector {\n' +
+            '        font-size: 12px;\n' +
+            '    }\n' +
+            '</style>');
+
+
         // Attribute Wrap - (eof = "\n", indent_attr = "    ", over80 = "\n")
         opts.wrap_attributes = 'force';
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
@@ -556,75 +653,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div>    content <img>    content </div>',
             '<div> content <img> content </div>');
         bth('Text <a href="#">Link</a> Text');
-
-
-        // START tests for issue 453
-        bth('<script type="text/unknown"><div></div></script>',
-            '<script type="text/unknown">\n' +
-            '    <div></div>\n' +
-            '</script>');
-        bth('<script type="text/javascript"><div></div></script>',
-            '<script type="text/javascript">\n' +
-            '    < div > < /div>\n' +
-            '</script>');
-        bth('<script><div></div></script>',
-            '<script>\n' +
-            '    < div > < /div>\n' +
-            '</script>');
-        bth('<script type="text/javascript">var foo = "bar";</script>',
-            '<script type="text/javascript">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script type="application/javascript">var foo = "bar";</script>',
-            '<script type="application/javascript">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script type="application/javascript;version=1.8">var foo = "bar";</script>',
-            '<script type="application/javascript;version=1.8">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script type="application/x-javascript">var foo = "bar";</script>',
-            '<script type="application/x-javascript">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script type="application/ecmascript">var foo = "bar";</script>',
-            '<script type="application/ecmascript">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script type="text/javascript1.5">var foo = "bar";</script>',
-            '<script type="text/javascript1.5">\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-        bth('<script>var foo = "bar";</script>',
-            '<script>\n' +
-            '    var foo = "bar";\n' +
-            '</script>');
-
-        bth('<style type="text/unknown"><tag></tag></style>',
-            '<style type="text/unknown">\n' +
-            '    <tag></tag>\n' +
-            '</style>');
-        bth('<style type="text/css"><tag></tag></style>',
-            '<style type="text/css">\n' +
-            '    <tag></tag>\n' +
-            '</style>');
-        bth('<style><tag></tag></style>',
-            '<style>\n' +
-            '    <tag></tag>\n' +
-            '</style>');
-        bth('<style type="text/css">.selector {font-size:12px;}</style>',
-            '<style type="text/css">\n' +
-            '    .selector {\n' +
-            '        font-size: 12px;\n' +
-            '    }\n'+
-            '</style>');
-        bth('<style>.selector {font-size:12px;}</style>',
-            '<style>\n' +
-            '    .selector {\n' +
-            '        font-size: 12px;\n' +
-            '    }\n'+
-            '</style>');
-        // END tests for issue 453
 
         var unformatted = opts.unformatted;
         opts.unformatted = ['script', 'style'];
