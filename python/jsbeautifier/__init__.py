@@ -81,6 +81,8 @@ class BeautifierOptions:
         self.break_chained_methods = False
         self.end_with_newline = False
         self.comma_first = False
+        self.space_before_conditional = True
+        self.no_newline_empty_braces = False
 
         # For testing of beautify ignore:start directive
         self.test_output_raw = False
@@ -631,6 +633,9 @@ class Beautifier:
             # function() vs function (), typeof() vs typeof ()
             if self.opts.space_after_anon_function:
                 self.output.space_before_token = True
+        elif (self.last_type == 'TK_RESERVED' and self.flags.last_word in ['do', 'for', 'if', 'while', 'catch']):
+            if self.opts.space_before_conditional:
+                self.output.space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
             # TODO: option space_before_conditional
             self.output.space_before_token = True
@@ -730,7 +735,7 @@ class Beautifier:
                     self.last_type == 'TK_EQUALS' or
                     (self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text) and self.flags.last_text != 'else')):
                 self.output.space_before_token = True
-            else:
+            elif empty_braces==False or self.opts.no_newline_empty_braces==False:
                 self.print_newline(preserve_statement_flags = True)
         else: # collapse
             if self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
