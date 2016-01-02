@@ -185,6 +185,8 @@
             Expression: 'Expression' //'(EXPRESSION)'
         };
 
+    var newline_restricted_tokens = /^(continue|break|return|throw)/;
+
     function Beautifier(js_source_text, options) {
         "use strict";
         var output
@@ -430,6 +432,11 @@
             if ((opt.preserve_newlines && current_token.wanted_newline) || force_linewrap) {
                 print_newline(false, true);
             } else if (opt.wrap_line_length) {
+                if (last_type == 'TK_RESERVED' && newline_restricted_tokens.test(flags.last_text)) {
+                    // These tokens should never have a newline inserted
+                    // between them and the following expression.
+                    return
+                }
                 var proposed_line_length = output.current_line.get_character_count() + current_token.text.length +
                     (output.space_before_token ? 1 : 0);
                 if (proposed_line_length >= opt.wrap_line_length) {
@@ -532,7 +539,7 @@
             if (
                     (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-                    (last_type === 'TK_RESERVED' && flags.last_text === 'return' && !current_token.wanted_newline) ||
+                    (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'else' && !(current_token.type === 'TK_RESERVED' && current_token.text === 'if')) ||
                     (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
                     (last_type === 'TK_WORD' && flags.mode === MODE.BlockStatement
