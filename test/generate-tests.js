@@ -1,37 +1,44 @@
 #!/usr/bin/env node
 var fs = require('fs');
 var mustache = require('mustache');
+var path = require('path');
+var relative_script_path = path.relative(process.cwd(), __filename);
 
 function generate_tests() {
     var test_data, template;
 
     // javascript
-    test_data = require(__dirname + '/data/javascript.js').test_data;
-    set_formatters(test_data, 'bt', '// ')
-    template = fs.readFileSync(__dirname + '/template/node-javascript.mustache', {encoding: 'utf-8'});
-    fs.writeFileSync(__dirname + '/../js/test/beautify-javascript-tests.js', mustache.render(template, test_data), {encoding: 'utf-8'});
-
-    set_formatters(test_data, 'bt', '# ')
-    template = fs.readFileSync(__dirname + '/template/python-javascript.mustache', {encoding: 'utf-8'});
-    fs.writeFileSync(__dirname + '/../python/jsbeautifier/tests/testjsbeautifier.py', mustache.render(template, test_data), {encoding: 'utf-8'});
+    generate_test_files('javascript', 'bt', 'js/test/beautify-javascript-tests.js', 'python/jsbeautifier/tests/testjsbeautifier.py' );
 
     // css
-    test_data = require(__dirname + '/data/css.js').test_data;
-    set_formatters(test_data, 't', '// ')
-    template = fs.readFileSync(__dirname + '/template/node-css.mustache', {encoding: 'utf-8'});
-    fs.writeFileSync(__dirname + '/../js/test/beautify-css-tests.js', mustache.render(template, test_data), {encoding: 'utf-8'});
-
-    set_formatters(test_data, 't', '# ')
-    template = fs.readFileSync(__dirname + '/template/python-css.mustache', {encoding: 'utf-8'});
-    fs.writeFileSync(__dirname + '/../python/cssbeautifier/tests/test.py', mustache.render(template, test_data), {encoding: 'utf-8'});
+    generate_test_files('css', 't', 'js/test/beautify-css-tests.js', 'python/cssbeautifier/tests/test.py' );
 
     // html
-    test_data = require(__dirname + '/data/html.js').test_data;
-    set_formatters(test_data, 'bth', '// ')
-    template = fs.readFileSync(__dirname + '/template/node-html.mustache', {encoding: 'utf-8'});
-    fs.writeFileSync(__dirname + '/../js/test/beautify-html-tests.js', mustache.render(template, test_data), {encoding: 'utf-8'});
-
     // no python html beautifier, so no tests
+    generate_test_files('html', 'bth', 'js/test/beautify-html-tests.js');
+}
+
+function generate_test_files(data_folder, test_method, node_output, python_output) {
+    var data_file_path, input_path, template_file_path;
+    var test_data, template;
+
+    input_path = path.resolve(__dirname, 'data', data_folder);
+    data_file_path = path.resolve(input_path, 'tests.js');
+    test_data = require(data_file_path).test_data;
+
+    template_file_path = path.resolve(input_path, 'node.mustache');
+    template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
+    set_formatters(test_data, test_method, '// ')
+    fs.writeFileSync(path.resolve(__dirname, '..', node_output),
+        mustache.render(template, test_data), {encoding: 'utf-8'});
+
+    if (python_output) {
+        template_file_path = path.resolve(input_path, 'python.mustache');
+        template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
+        set_formatters(test_data, test_method, '# ')
+        fs.writeFileSync(path.resolve(__dirname, '..', python_output),
+            mustache.render(template, test_data), {encoding: 'utf-8'});
+    }
 }
 
 function isStringOrArray(val) {
