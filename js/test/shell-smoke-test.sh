@@ -85,8 +85,9 @@ test_cli_js_beautify()
 
   # ensure unchanged files are not overwritten
   cp -p /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js
-  touch -A -05 /tmp/js-beautify-mkdir/js-beautify.js
-  touch -A -01 /tmp/js-beautify-mkdir/js-beautify-old.js
+  touch /tmp/js-beautify-mkdir/js-beautify.js
+  sleep 2
+  touch /tmp/js-beautify-mkdir/js-beautify-old.js
   $CLI_SCRIPT -r /tmp/js-beautify-mkdir/js-beautify.js && test /tmp/js-beautify-mkdir/js-beautify.js -nt /tmp/js-beautify-mkdir/js-beautify-old.js && {
       echo "js-beautify should not replace unchanged file /tmp/js-beautify-mkdir/js-beautify.js when using -r"
       exit 1
@@ -111,6 +112,11 @@ test_cli_js_beautify()
   export USERPROFILE=
   $CLI_SCRIPT -o /tmp/js-beautify-mkdir/example1-default.js $SCRIPT_DIR/resources/example1.js
 
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be identical after no change in settings."
+      exit 1
+  }
+
   cd $SCRIPT_DIR/resources/indent11chars
   $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
       echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on CWD settings."
@@ -123,20 +129,25 @@ test_cli_js_beautify()
   }
   cd $SCRIPT_DIR
 
-
   export HOME=$SCRIPT_DIR/resources/indent11chars
   $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
       echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on HOME settings."
       exit 1
   }
 
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/example1-indent11chars.js /tmp/js-beautify-mkdir/example1-default.js
+
   export HOME=
   export USERPROFILE=$SCRIPT_DIR/resources/indent11chars
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-indent11chars.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be identical for same HOME and USERPROFILE settings."
+      exit 1
+  }
+
   $CLI_SCRIPT /tmp/js-beautify-mkdir/example1-default.js | diff -q /tmp/js-beautify-mkdir/example1-default.js - && {
       echo "js-beautify output for /tmp/js-beautify-mkdir/example1-default.js was expected to be different based on USERPROFILE settings."
       exit 1
   }
-
 
 }
 

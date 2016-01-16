@@ -1,0 +1,37 @@
+version: 1.6.0+{build}
+
+nuget:
+  disable_publish_on_pr: true
+
+deploy: off
+
+# Test against this version of Node.js
+environment:
+  nodejs_version: "0.12"
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install
+  - python -m pip install -e ./python
+  - echo "Generating tests"
+  - node test/generate-tests.js
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  - python --version
+  # run tests
+  - echo "Testing javascript implementation"
+  - npm test
+  - echo "Testing python implementation"
+  - bash -c "cd python && ./jsbeautifier/tests/shell-smoke-test.sh"
+  - echo "Verifying git status clean"
+  - bash -c "./test/git-status-clear.sh"
+
+# Don't actually build.
+build: off

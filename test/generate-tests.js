@@ -2,7 +2,6 @@
 var fs = require('fs');
 var mustache = require('mustache');
 var path = require('path');
-var relative_script_path = path.relative(process.cwd(), __filename);
 
 function generate_tests() {
     var test_data, template;
@@ -44,8 +43,9 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
 }
 
 function set_generated_header (data, data_file_path, template_file_path) {
-    var relative_data_file_path = path.relative(process.cwd(), data_file_path);
-    var relative_template_file_path = path.relative(process.cwd(), template_file_path);
+    var relative_script_path = path.relative(process.cwd(), __filename).split(path.sep).join('/');
+    var relative_data_file_path = path.relative(process.cwd(), data_file_path).split(path.sep).join('/');
+    var relative_template_file_path = path.relative(process.cwd(), template_file_path).split(path.sep).join('/');
 
     data.header_text =
         '    AUTO-GENERATED. DO NOT MODIFY.\n' +

@@ -1895,10 +1895,18 @@ def main():
             pretty = beautify_file(file, js_options)
 
             if outfile == 'stdout':
+                # python automatically converts newlines in text to windows format
+                # uncomment this to make it not convert.
+                # if sys.platform == "win32":
+                #     import msvcrt
+                #     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+
                 sys.stdout.write(pretty)
             else:
                 if isFileDifferent(outfile, pretty):
                     mkdir_p(os.path.dirname(outfile))
+                    # python automatically converts newlines in text to windows format
+                    # Change 'w' to 'wb' to make it not convert.
                     with open(outfile, 'w') as f:
                         f.write(pretty)
 
