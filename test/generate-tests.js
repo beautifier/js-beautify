@@ -8,14 +8,14 @@ function generate_tests() {
     var test_data, template;
 
     // javascript
-    generate_test_files('javascript', 'bt', 'js/test/beautify-javascript-tests.js', 'python/jsbeautifier/tests/testjsbeautifier.py' );
+    generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js', 'python/jsbeautifier/tests/generated/tests.py' );
 
     // css
-    generate_test_files('css', 't', 'js/test/beautify-css-tests.js', 'python/cssbeautifier/tests/test.py' );
+    generate_test_files('css', 't', 'js/test/generated/beautify-css-tests.js', 'python/cssbeautifier/tests/generated/tests.py' );
 
     // html
     // no python html beautifier, so no tests
-    generate_test_files('html', 'bth', 'js/test/beautify-html-tests.js');
+    generate_test_files('html', 'bth', 'js/test/generated/beautify-html-tests.js');
 }
 
 function generate_test_files(data_folder, test_method, node_output, python_output) {
