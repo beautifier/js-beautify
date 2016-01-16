@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+    AUTO-GENERATED. DO NOT MODIFY.
+    Script: test/generate-tests.js
+    Template: test/data/css/python.mustache
+    Data: test/data/css/tests.js
+'''
+
 import unittest
 import cssbeautifier
 

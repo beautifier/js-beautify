@@ -1,4 +1,9 @@
-/*global js_beautify: true */
+/*
+    AUTO-GENERATED. DO NOT MODIFY.
+    Script: test/generate-tests.js
+    Template: test/data/css/node.mustache
+    Data: test/data/css/tests.js
+*/
 
 function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {

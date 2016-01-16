@@ -29,6 +29,7 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
     template_file_path = path.resolve(input_path, 'node.mustache');
     template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
     set_formatters(test_data, test_method, '// ')
+    set_generated_header(test_data, data_file_path, template_file_path);
     fs.writeFileSync(path.resolve(__dirname, '..', node_output),
         mustache.render(template, test_data), {encoding: 'utf-8'});
 
@@ -36,9 +37,22 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
         template_file_path = path.resolve(input_path, 'python.mustache');
         template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
         set_formatters(test_data, test_method, '# ')
+        set_generated_header(test_data, data_file_path, template_file_path);
         fs.writeFileSync(path.resolve(__dirname, '..', python_output),
             mustache.render(template, test_data), {encoding: 'utf-8'});
     }
+}
+
+function set_generated_header (data, data_file_path, template_file_path) {
+    var relative_data_file_path = path.relative(process.cwd(), data_file_path);
+    var relative_template_file_path = path.relative(process.cwd(), template_file_path);
+
+    data.header_text =
+        '    AUTO-GENERATED. DO NOT MODIFY.\n' +
+        '    Script: ' + relative_script_path + '\n' +
+        '    Template: ' + relative_template_file_path + '\n' +
+        '    Data: ' + relative_data_file_path;
+
 }
 
 function isStringOrArray(val) {
