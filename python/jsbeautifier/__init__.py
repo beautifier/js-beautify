@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 import os
+import io
 import getopt
 import re
 import string
@@ -64,7 +65,7 @@ class BeautifierOptions:
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
-        self.eol = '\n'
+        self.eol = 'auto'
         self.preserve_newlines = True
         self.max_preserve_newlines = 10
         self.space_in_paren = False
@@ -186,7 +187,10 @@ class Acorn:
         # Matches a whole line break (where CRLF is considered a single
         # line break). Used to count lines.
 
+        # in javascript, these two differ
+        # in python they are the same, different methods are called on them
         self.lineBreak = re.compile(self.six.u("\r\n|[\n\r\u2028\u2029]"))
+        self.allLineBreaks = self.lineBreak
 
 
     # Test whether a given character code starts an identifier.
@@ -241,7 +245,7 @@ def beautify_file(file_name, opts = default_options() ):
     if file_name == '-': # stdin
         stream = sys.stdin
     else:
-        stream = open(file_name)
+        stream = io.open(file_name, 'rt', newline='')
 
     return beautify(''.join(stream.readlines()), opts)
 
@@ -259,23 +263,24 @@ Usage: jsbeautifier.py [options] <infile>
 
 Input options:
 
- -i,  --stdin                      read input from stdin
+ -i,  --stdin                      Read input from stdin
 
 Output options:
 
- -s,  --indent-size=NUMBER         indentation size. (default 4).
- -c,  --indent-char=CHAR           character to indent with. (default space).
- -e,  --eol=STRING                 character(s) to use as line terminators. (default newline - "\\n")
+ -s,  --indent-size=NUMBER         Indentation size. (default 4).
+ -c,  --indent-char=CHAR           Character to indent with. (default space).
+ -e,  --eol=STRING                 Character(s) to use as line terminators.
+                                   (default first newline in file, otherwise "\\n")
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
- -d,  --disable-preserve-newlines  do not preserve existing line breaks.
- -P,  --space-in-paren             add padding spaces within paren, ie. f( a, b )
+ -d,  --disable-preserve-newlines  Do not preserve existing line breaks.
+ -P,  --space-in-paren             Add padding spaces within paren, ie. f( a, b )
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
- -j,  --jslint-happy               more jslint-compatible output
- -a,  --space_after_anon_function  add a space before an anonymous function's parens, ie. function ()
- -b,  --brace-style=collapse       brace style (collapse, expand, end-expand)
- -k,  --keep-array-indentation     keep array indentation.
- -r,  --replace                    write output in-place, replacing input
- -o,  --outfile=FILE               specify a file to output to (default stdout)
+ -j,  --jslint-happy               More jslint-compatible output
+ -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
+ -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand)
+ -k,  --keep-array-indentation     Keep array indentation.
+ -r,  --replace                    Write output in-place, replacing input
+ -o,  --outfile=FILE               Specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
@@ -289,9 +294,9 @@ Rarely needed options:
                                    installed. May be useful with some obfuscated
                                    script but poses a potential security issue.
 
- -l,  --indent-level=NUMBER        initial indentation level. (default 0).
+ -l,  --indent-level=NUMBER        Initial indentation level. (default 0).
 
- -h,  --help, --usage              prints this help statement.
+ -h,  --help, --usage              Prints this help statement.
  -v, --version                     Show the version
 
 """, file=stream)
@@ -311,8 +316,8 @@ class Beautifier:
     def __init__(self, opts = default_options() ):
 
         self.opts = copy.copy(opts)
-        self.blank_state()
         self.acorn = Acorn()
+        self.blank_state()
 
     def blank_state(self, js_source_text = None):
 
@@ -331,6 +336,11 @@ class Beautifier:
         if self.opts.indent_with_tabs:
             self.opts.indent_char = "\t"
             self.opts.indent_size = 1
+
+        if self.opts.eol == 'auto':
+            self.opts.eol = '\n'
+            if self.acorn.lineBreak.search(js_source_text or ''):
+                self.opts.eol = self.acorn.lineBreak.search(js_source_text).group()
 
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
@@ -1141,7 +1151,7 @@ class Beautifier:
             self.output.space_before_token = True
             return
 
-        lines = self.acorn.lineBreak.split(current_token.text)
+        lines = self.acorn.allLineBreaks.split(current_token.text)
         javadoc = False
         starless = False
         last_indent = current_token.whitespace_before
@@ -1601,7 +1611,7 @@ class Tokenizer:
                     comment_match = self.directives_end_ignore_pattern.match(self.input, self.parser_pos)
                     comment += comment_match.group(0)
                     self.parser_pos += len(comment_match.group(0))
-                comment = re.sub(self.acorn.lineBreak, '\n', comment)
+                comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
                 return comment, 'TK_BLOCK_COMMENT', directives
 
             if self.input[self.parser_pos] == '/': # peek // comment
@@ -1674,7 +1684,7 @@ class Tokenizer:
                         xmlLength = len(xmlStr)
 
                     self.parser_pos += xmlLength - 1
-                    xmlStr = re.sub(self.acorn.lineBreak, '\n', xmlStr[:xmlLength])
+                    xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr[:xmlLength])
                     return xmlStr, 'TK_STRING'
 
             else:
@@ -1726,7 +1736,7 @@ class Tokenizer:
                     while self.parser_pos < len(self.input) and self.acorn.isIdentifierStart(ord(self.input[self.parser_pos])):
                         resulting_string += self.input[self.parser_pos]
                         self.parser_pos += 1
-            resulting_string = re.sub(self.acorn.lineBreak, '\n', resulting_string)
+            resulting_string = re.sub(self.acorn.allLineBreaks, '\n', resulting_string)
 
             return resulting_string, 'TK_STRING'
 
@@ -1768,7 +1778,7 @@ class Tokenizer:
             if template_match:
                 c = template_match.group(0)
                 self.parser_pos += len(c) - 1
-                c = re.sub(self.acorn.lineBreak, '\n', c)
+                c = re.sub(self.acorn.allLineBreaks, '\n', c)
                 return c, 'TK_STRING'
 
 
@@ -1807,7 +1817,7 @@ class Tokenizer:
 
 def isFileDifferent(filepath, expected):
     try:
-        return (''.join(open(filepath).readlines()) != expected)
+        return (''.join(io.open(filepath, 'rt', newline='').readlines()) != expected)
     except:
         return True
 
@@ -1895,19 +1905,19 @@ def main():
             pretty = beautify_file(file, js_options)
 
             if outfile == 'stdout':
-                # python automatically converts newlines in text to windows format
-                # uncomment this to make it not convert.
-                # if sys.platform == "win32":
-                #     import msvcrt
-                #     msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+                # python automatically converts newlines in text to "\r\n" when on windows
+                # switch to binary to prevent this
+                if sys.platform == "win32":
+                    import msvcrt
+                    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
                 sys.stdout.write(pretty)
             else:
                 if isFileDifferent(outfile, pretty):
                     mkdir_p(os.path.dirname(outfile))
-                    # python automatically converts newlines in text to windows format
-                    # Change 'w' to 'wb' to make it not convert.
-                    with open(outfile, 'w') as f:
+                    # python automatically converts newlines in text to "\r\n" when on windows
+                    # switch to binary to prevent this
+                    with io.open(outfile, 'wt', newline='') as f:
                         f.write(pretty)
 
         except Exception as ex:

@@ -119,7 +119,11 @@
       // Matches a whole line break (where CRLF is considered a single
       // line break). Used to count lines.
 
-      var lineBreak = exports.lineBreak = /\r\n|[\n\r\u2028\u2029]/g;
+      // in javascript, these two differ
+      // in python they are the same, different methods are called on them
+      var lineBreak = exports.lineBreak = /\r\n|[\n\r\u2028\u2029]/;
+      var allLineBreaks = exports.allLineBreaks = new RegExp(lineBreak.source, 'g');
+
 
       // Test whether a given character code starts an identifier.
 
@@ -265,10 +269,9 @@
             opt.brace_style = "expand";
         }
 
-
         opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         opt.indent_char = options.indent_char ? options.indent_char : ' ';
-        opt.eol = options.eol ? options.eol : '\n';
+        opt.eol = options.eol ? options.eol : 'auto';
         opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
@@ -295,6 +298,13 @@
         if(options.indent_with_tabs){
             opt.indent_char = '\t';
             opt.indent_size = 1;
+        }
+
+        if (opt.eol === 'auto') {
+            opt.eol = '\n';
+            if (js_source_text && acorn.lineBreak.test(js_source_text || '')) {
+                opt.eol = js_source_text.match(acorn.lineBreak)[0];
+            }
         }
 
         opt.eol = opt.eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
@@ -402,10 +412,10 @@
 
         // we could use just string.split, but
         // IE doesn't like returning empty strings
-        function split_newlines(s) {
+        function split_linebreaks(s) {
             //return s.split(/\x0d\x0a|\x0a/);
 
-            s = s.replace(/\x0d/g, '');
+            s = s.replace(acorn.allLineBreaks, '\n');
             var out = [],
                 idx = s.indexOf("\n");
             while (idx !== -1) {
@@ -1237,7 +1247,7 @@
                 return;
             }
 
-            var lines = split_newlines(current_token.text);
+            var lines = split_linebreaks(current_token.text);
             var j; // iterator for this case
             var javadoc = false;
             var starless = false;
@@ -1796,7 +1806,7 @@
                         comment += comment_match[0];
                         parser_pos += comment_match[0].length;
                     }
-                    comment = comment.replace(acorn.lineBreak, '\n');
+                    comment = comment.replace(acorn.allLineBreaks, '\n');
                     return [comment, 'TK_BLOCK_COMMENT', directives];
                 }
                 // peek for comment // ...
@@ -1880,7 +1890,7 @@
                         var xmlLength = match ? match.index + match[0].length : xmlStr.length;
                         xmlStr = xmlStr.slice(0, xmlLength);
                         parser_pos += xmlLength - 1;
-                        xmlStr = xmlStr.replace(acorn.lineBreak, '\n');
+                        xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
                         return [xmlStr, "TK_STRING"];
                     }
                 } else {
@@ -1978,7 +1988,7 @@
                 if(template_match) {
                     c = template_match[0];
                     parser_pos += c.length - 1;
-                    c = c.replace(acorn.lineBreak, '\n');
+                    c = c.replace(acorn.allLineBreaks, '\n');
                     return [c, 'TK_STRING'];
                 }
             }

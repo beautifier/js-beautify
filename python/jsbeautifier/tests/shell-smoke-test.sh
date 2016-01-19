@@ -63,7 +63,7 @@ test_cli_js_beautify()
   CLI_SCRIPT=$SCRIPT_DIR/../../js-beautify
 
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js > /dev/null || {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected succeed."
+      echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected succeed."
       exit 1
   }
 
@@ -75,7 +75,6 @@ test_cli_js_beautify()
   # On windows python automatically converts newlines to windows format
   # This occurs on both pipes and files.
   # As a short-term workaround, disabling these two tests on windows.
-  if [[ "$OSTYPE" != "msys" ]]; then
   $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
       $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
       echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
@@ -88,7 +87,26 @@ test_cli_js_beautify()
       echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in /tmp/js-beautify-mkdir/js-beautify.js."
       exit 1
   }
-  fi
+
+  # ensure new line settings work
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify-n.js -e '\n' $SCRIPT_DIR/../../../js/bin/js-beautify.js
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify-rn.js -e '\r\n' /tmp/js-beautify-mkdir/js-beautify-n.js
+
+  diff -q /tmp/js-beautify-mkdir/js-beautify-n.js /tmp/js-beautify-mkdir/js-beautify-rn.js && {
+      diff /tmp/js-beautify-mkdir/js-beautify-n.js /tmp/js-beautify-mkdir/js-beautify-rn.js | cat -t -e
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-n.js and /tmp/js-beautify-mkdir/js-beautify-rn.js was expected to be different."
+      exit 1
+  }
+
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/js-beautify-n.js | diff -q /tmp/js-beautify-mkdir/js-beautify-n.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-n.js was expected to be unchanged."
+      exit 1
+  }
+
+  $CLI_SCRIPT --eol 'auto' /tmp/js-beautify-mkdir/js-beautify-rn.js | diff -q /tmp/js-beautify-mkdir/js-beautify-rn.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-rn.js was expected to be unchanged."
+      exit 1
+  }
 
   # ensure unchanged files are not overwritten
   $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js
