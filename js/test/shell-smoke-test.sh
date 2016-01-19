@@ -83,7 +83,28 @@ test_cli_js_beautify()
       exit 1
   }
 
+  # ensure new line settings work
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify-n.js --eol '\n' $SCRIPT_DIR/../bin/js-beautify.js
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify-rn.js --eol '\r\n' /tmp/js-beautify-mkdir/js-beautify-n.js
+
+  diff -q /tmp/js-beautify-mkdir/js-beautify-n.js /tmp/js-beautify-mkdir/js-beautify-rn.js && {
+      diff /tmp/js-beautify-mkdir/js-beautify-n.js /tmp/js-beautify-mkdir/js-beautify-rn.js | cat -t -e
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-n.js and /tmp/js-beautify-mkdir/js-beautify-rn.js was expected to be different."
+      exit 1
+  }
+
+  $CLI_SCRIPT /tmp/js-beautify-mkdir/js-beautify-n.js | diff -q /tmp/js-beautify-mkdir/js-beautify-n.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-n.js was expected to be unchanged."
+      exit 1
+  }
+
+  $CLI_SCRIPT --eol 'auto' /tmp/js-beautify-mkdir/js-beautify-rn.js | diff -q /tmp/js-beautify-mkdir/js-beautify-rn.js - || {
+      echo "js-beautify output for /tmp/js-beautify-mkdir/js-beautify-rn.js was expected to be unchanged."
+      exit 1
+  }
+
   # ensure unchanged files are not overwritten
+  $CLI_SCRIPT -o /tmp/js-beautify-mkdir/js-beautify.js $SCRIPT_DIR/../bin/js-beautify.js
   cp -p /tmp/js-beautify-mkdir/js-beautify.js /tmp/js-beautify-mkdir/js-beautify-old.js
   touch /tmp/js-beautify-mkdir/js-beautify.js
   sleep 2
