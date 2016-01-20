@@ -4,10 +4,13 @@
 ## Report issues
 If you find a bug, please report it, including environment and examples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
 
+## Build and test
+If you run `./build full` from the root folder locally, build and tests will run and should all pass.
+
 ## Fix issues
 Pull requests with fixes are totally welcome. Familiarize yourself with the folder structure and code style before you dive in.  Where possible fixes should include tests to prevent future regressions in functionality.  Also, if they apply and you have the ability, make fixes to both python and javascript implementations.
 
-We use travis-ci.org to run build and test passes.  If you run `make` from the root folder locally, tests will run and should all pass before your pull request will be accepted.
+We use travis-ci.org to run build and test passes.  If you run `./build full` from the root folder locally, tests will run and must all pass.  The build may generate updated test files - commit any changes reported by `git status` after the build completes. Then create pull request.   
 
 
 # Folders
@@ -37,7 +40,7 @@ This project has been around for a while.  While some parts have improved signif
 into disrepair and were mothballed.
 
 ### PHP
-There is a out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
+There is an out-of-date version of the beautifier available on branch `attic-php`.  If you're interested
 in using it feel free. If you plan to enhance it, please consider joining this project, and updating this
 version to match current functionality.
 
