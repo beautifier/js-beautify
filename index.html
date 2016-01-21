@@ -143,6 +143,7 @@
     <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
     <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
     <script src="js/lib/unpackers/myobfuscate_unpacker.js"></script>
+    <script src="js/lib/unpackers/javascript2img_unpacker.js"></script>
 
     <script>
         var the = {
@@ -160,6 +161,7 @@
             P_A_C_K_E_R.run_tests(st);
             Urlencoded.run_tests(st);
             MyObfuscate.run_tests(st);
+            javascript2img.run_tests(st);
             var results = st.results_raw()
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -238,7 +240,7 @@
                 }
             } while (found);
 
-            var unpackers = [P_A_C_K_E_R, Urlencoded, /*JavascriptObfuscator,*/ MyObfuscate];
+            var unpackers = [P_A_C_K_E_R, Urlencoded, /*JavascriptObfuscator,*/ MyObfuscate, javascript2img];
             for (var i = 0; i < unpackers.length; i++) {
                 if (unpackers[i].detect(source)) {
                     unpacked = unpackers[i].unpack(source);
