@@ -242,12 +242,23 @@ def beautify(string, opts = default_options() ):
     return b.beautify(string, opts)
 
 def beautify_file(file_name, opts = default_options() ):
+    input_string = ''
     if file_name == '-': # stdin
-        stream = sys.stdin
+        try:
+            if sys.stdin.isatty():
+                raise
+
+            stream = sys.stdin
+            input_string = ''.join(stream.readlines())
+        except Exception as ex:
+            print("Must pipe input or define at least one file.", file=sys.stderr)
+            usage(sys.stderr)
+            raise
     else:
         stream = io.open(file_name, 'rt', newline='')
+        input_string = ''.join(stream.readlines())
 
-    return beautify(''.join(stream.readlines()), opts)
+    return beautify(input_string, opts)
 
 
 def usage(stream=sys.stdout):
@@ -1895,34 +1906,33 @@ def main():
 
 
     if not file:
-        print("Must define at least one file.", file=sys.stderr)
-        return usage(sys.stderr)
-    else:
-        try:
-            if outfile == 'stdout' and replace and not file == '-':
-                outfile = file
+        file = '-'
 
-            pretty = beautify_file(file, js_options)
+    try:
+        if outfile == 'stdout' and replace and not file == '-':
+            outfile = file
 
-            if outfile == 'stdout':
+        pretty = beautify_file(file, js_options)
+
+        if outfile == 'stdout':
+            # python automatically converts newlines in text to "\r\n" when on windows
+            # switch to binary to prevent this
+            if sys.platform == "win32":
+                import msvcrt
+                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+
+            sys.stdout.write(pretty)
+        else:
+            if isFileDifferent(outfile, pretty):
+                mkdir_p(os.path.dirname(outfile))
                 # python automatically converts newlines in text to "\r\n" when on windows
-                # switch to binary to prevent this
-                if sys.platform == "win32":
-                    import msvcrt
-                    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+                # set newline to empty to prevent this
+                with io.open(outfile, 'wt', newline='') as f:
+                    f.write(pretty)
 
-                sys.stdout.write(pretty)
-            else:
-                if isFileDifferent(outfile, pretty):
-                    mkdir_p(os.path.dirname(outfile))
-                    # python automatically converts newlines in text to "\r\n" when on windows
-                    # switch to binary to prevent this
-                    with io.open(outfile, 'wt', newline='') as f:
-                        f.write(pretty)
-
-        except Exception as ex:
-            print(ex, file=sys.stderr)
-            return 1
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        return 1
 
     # Success
     return 0
