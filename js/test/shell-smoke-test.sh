@@ -12,7 +12,8 @@ test_cli_common()
   echo Script: $CLI_SCRIPT
 
   # should find the minimal help output
-  $CLI_SCRIPT 2>&1 | grep -q "Must define at least one file\." || {
+  $CLI_SCRIPT 2>&1 | grep -q "Must pipe input or define at least one file\." || {
+      $CLI_SCRIPT 2>&1
       echo "[$CLI_SCRIPT_NAME] Output should be help message."
       exit 1
   }
@@ -73,6 +74,16 @@ test_cli_js_beautify()
   }
 
   $CLI_SCRIPT $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      exit 1
+  }
+
+  cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      exit 1
+  }
+
+  cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT - | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
       exit 1
   }

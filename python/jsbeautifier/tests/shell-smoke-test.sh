@@ -12,7 +12,8 @@ test_cli_common()
     echo Script: $CLI_SCRIPT
 
     # should find the minimal help output
-    $CLI_SCRIPT 2>&1 | grep -q "Must define at least one file\." || {
+    $CLI_SCRIPT 2>&1 | grep -q "Must pipe input or define at least one file\." || {
+        $CLI_SCRIPT 2>&1
         echo "[$CLI_SCRIPT_NAME] Output should be help message."
         exit 1
     }
@@ -71,10 +72,19 @@ test_cli_js_beautify()
         exit 1
     }
 
-    # On windows python automatically converts newlines to windows format
-    # This occurs on both pipes and files.
-    # As a short-term workaround, disabling these two tests on windows.
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
+        $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        exit 1
+    }
+
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
+        $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        exit 1
+    }
+
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT - | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
         exit 1
