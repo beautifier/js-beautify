@@ -515,6 +515,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    echo($i . "</br>");\n' +
             '}\n' +
             '?>');
+        test_fragment(
+            '<?php ?>\n' +
+            '<!DOCTYPE html>\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
 
 
 

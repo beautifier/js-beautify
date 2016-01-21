@@ -581,7 +581,19 @@ exports.test_data = {
                     '}',
                     '?>'
                 ]
-            },
+            }, { fragment: true, unchanged:
+                [
+                    '<?php ?>',
+                    '<!DOCTYPE html>',
+                    '<html>',
+                    '',
+                    '<head></head>',
+                    '',
+                    '<body></body>',
+                    '',
+                    '</html>'
+                ]
+            }
         ]
     }, {
         name: "underscore.js  formatting",
