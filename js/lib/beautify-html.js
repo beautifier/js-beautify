@@ -157,7 +157,7 @@
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
-                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,embed'.split(','), //all the single tags for HTML
+                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,embed,?php'.split(','), //all the single tags for HTML
                 extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
@@ -852,7 +852,7 @@
                     break;
                 case 'TK_TAG_HANDLEBARS_ELSE':
                     // Don't add a newline if opening {{#if}} tag is on the current line
-                    var foundIfOnCurrentLine = false;		
+                    var foundIfOnCurrentLine = false;
                     for (var lastCheckedOutput=multi_parser.output.length-1; lastCheckedOutput>=0; lastCheckedOutput--) {
 		        if (multi_parser.output[lastCheckedOutput] === '\n') {
 		            break;
