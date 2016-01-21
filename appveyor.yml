@@ -7,17 +7,20 @@ deploy: off
 
 # Test against this version of Node.js
 environment:
-  nodejs_version: "0.12"
+  global:
+    nodejs_version: "0.12"
+
+  matrix:
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
 
 # Install scripts. (runs after repo cloning)
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
-  # install modules
-  - npm install
-  - python -m pip install -e ./python
-  - echo "Generating tests"
-  - node test/generate-tests.js
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - pip --version
 
 # Post-install test scripts.
 test_script:
@@ -26,12 +29,7 @@ test_script:
   - npm --version
   - python --version
   # run tests
-  - echo "Testing javascript implementation"
-  - npm test
-  - echo "Testing python implementation"
-  - bash -c "cd python && ./jsbeautifier/tests/shell-smoke-test.sh"
-  - echo "Verifying git status clean"
-  - bash -c "./test/git-status-clear.sh"
+  - bash -c "./build ci"
 
 # Don't actually build.
 build: off
