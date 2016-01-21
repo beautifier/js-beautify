@@ -287,6 +287,11 @@ function processInputSync(filepath) {
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
+
+        if (input.isRaw === false) {
+          throw 'No input detected';
+        }
+
         input.setEncoding('utf8');
 
         input.on('data', function(chunk) {
@@ -444,7 +449,8 @@ function checkFiles(parsed) {
     }
 
     if (!parsed.files.length) {
-        throw 'Must define at least one file.';
+        // read stdin by default
+        parsed.files.push('-');
     }
     debug('files.length ' + parsed.files.length);
 
