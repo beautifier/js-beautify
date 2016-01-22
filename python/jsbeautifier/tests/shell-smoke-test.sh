@@ -163,7 +163,7 @@ test_smoke_js_beautify()
 {
     echo ----------------------------------------
     echo Testing beautify functionality...
-    $PYTHON $SCRIPT_DIR/../../js-beautify-test.py || exit 1
+    $SCRIPT_DIR/../../js-beautify-test.py || exit 1
 }
 
 test_perf_js_beautify()
@@ -171,11 +171,10 @@ test_perf_js_beautify()
     echo ----------------------------------------
     echo Testing beautify performance...
   	# PYTHON=python $SCRIPT_DIR/../../js-beautify-profile || exit 1
-  	$PYTHON $SCRIPT_DIR/test-perf-jsbeautifier.py || exit 1
+  	$SCRIPT_DIR/test-perf-jsbeautifier.py || exit 1
 }
 
 main() {
-    PYTHON=${PYTHON:-python}
     #test_cli_common css-beautify
     #test_cli_common html-beautify
     test_cli_common js-beautify
