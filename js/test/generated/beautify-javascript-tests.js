@@ -279,6 +279,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '})');
 
 
+
+        // ES7 exponential
+        bt('x ** 2');
+        bt('x ** -2');
+
+
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');

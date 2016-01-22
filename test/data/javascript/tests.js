@@ -34,6 +34,13 @@ exports.test_data = {
           ]}
         ]
     }, {
+        name: "ES7 exponential",
+        description: "ES7 exponential",
+        tests: [
+          { unchanged: 'x ** 2' },
+          { unchanged: 'x ** -2' }
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [
