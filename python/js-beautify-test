@@ -4,7 +4,7 @@
 #
 
 if [ -z $PYTHON ]; then
-    env python -m unittest discover "$@"
+    env python js-beautify-test.py
 else
-    env $PYTHON -m unittest discover "$@"
+    env $PYTHON js-beautify-test.py
 fi
