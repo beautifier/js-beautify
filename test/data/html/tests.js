@@ -314,6 +314,11 @@ exports.test_data = {
                 fragment: true,
                 input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
                 output: '<img attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here" />'
+            },
+            {
+                fragment: true,
+                input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+                output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{eof}}{{indent_attr}}attr2="bar" />'
             }
         ]
     }, {
@@ -581,7 +586,19 @@ exports.test_data = {
                     '}',
                     '?>'
                 ]
-            },
+            }, { fragment: true, unchanged:
+                [
+                    '<?php ?>',
+                    '<!DOCTYPE html>',
+                    '<html>',
+                    '',
+                    '<head></head>',
+                    '',
+                    '<body></body>',
+                    '',
+                    '</html>'
+                ]
+            }
         ]
     }, {
         name: "underscore.js  formatting",

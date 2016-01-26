@@ -155,7 +155,7 @@ function findRecursive(dir, fileName) {
 }
 
 function getUserHome() {
-    return process.env.HOME || process.env.USERPROFILE;
+    return process.env.USERPROFILE || process.env.HOME;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -222,7 +222,8 @@ function usage(err) {
         '  -s, --indent-size             Indentation size [4]',
         '  -c, --indent-char             Indentation character [" "]',
         '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
-        '  -e, --eol                     Character(s) to use as line terminators. (default newline - "\\n")',
+        '  -e, --eol                     Character(s) to use as line terminators.',
+        '                                [first newline in file, otherwise "\\n]',
         '  -n, --end-with-newline        End output with newline'
     ];
 
@@ -286,6 +287,7 @@ function processInputSync(filepath) {
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
+
         input.setEncoding('utf8');
 
         input.on('data', function(chunk) {
@@ -413,6 +415,13 @@ function checkType(parsed) {
 
 function checkFiles(parsed) {
     var argv = parsed.argv;
+    var isTTY = true;
+
+    try {
+        isTTY = process.stdin.isTTY;
+    } catch (ex) {
+        debug("error querying for isTTY:", ex);
+    }
 
     if (!parsed.files) {
         parsed.files = [];
@@ -426,7 +435,9 @@ function checkFiles(parsed) {
     if (argv.remain.length) {
         // assume any remaining args are files
         argv.remain.forEach(function(f) {
-            parsed.files.push(path.resolve(f));
+            if (f !== '-') {
+                parsed.files.push(path.resolve(f));
+            }
         });
     }
 
@@ -437,15 +448,15 @@ function checkFiles(parsed) {
         parsed.replace = true;
     }
 
-    if (argv.original.indexOf('-') > -1) {
-        // ensure '-' without '-f' still consumes stdin
+    if (!parsed.files.length) {
+        // read stdin by default
         parsed.files.push('-');
     }
-
-    if (!parsed.files.length) {
-        throw 'Must define at least one file.';
-    }
     debug('files.length ' + parsed.files.length);
+
+    if (parsed.files.indexOf('-') > -1 && isTTY) {
+        throw 'Must pipe input or define at least one file.';
+    }
 
     parsed.files.forEach(testFilePath);
 

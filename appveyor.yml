@@ -1,0 +1,35 @@
+version: 1.6.0+{build}
+
+nuget:
+  disable_publish_on_pr: true
+
+deploy: off
+
+# Test against this version of Node.js
+environment:
+  global:
+    nodejs_version: "0.12"
+
+  matrix:
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - pip --version
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  - python --version
+  # run tests
+  - bash -c "./build ci"
+
+# Don't actually build.
+build: off

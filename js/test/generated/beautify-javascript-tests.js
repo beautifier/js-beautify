@@ -1,4 +1,9 @@
-/*global js_beautify: true */
+/*
+    AUTO-GENERATED. DO NOT MODIFY.
+    Script: test/generate-tests.js
+    Template: test/data/javascript/node.mustache
+    Data: test/data/javascript/tests.js
+*/
 
 function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -274,6 +279,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '})');
 
 
+
+        // ES7 exponential
+        bt('x ** 2');
+        bt('x ** -2');
+
+
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -287,6 +298,35 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment('   return .5');
         test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5');
         test_fragment('\n', '');
+    
+
+        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
+        opts.brace_style = 'collapse-preserve-inline';
+        bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = { a: 2 };\nvar a = { a: 2 };');
+        bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
+        bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }');
+        bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }');
+    
+        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        opts.brace_style = 'collapse-preserve-inline';
+        bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};');
+        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
+        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}');
+        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}');
+    
+        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        opts.brace_style = 'collapse';
+        bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};');
+        bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
+        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}');
+        bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}');
+    
+        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        opts.brace_style = 'collapse';
+        bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};');
+        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
+        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}');
+        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}');
     
 
         // Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ")
@@ -1379,7 +1419,50 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
 
+        // Destructured and related
+        opts.brace_style = 'collapse-preserve-inline';
+        
+        // Issue 382 - import destructured 
+        bt(
+            'module "Even" {\n' +
+            '    import { odd, oddly } from "Odd";\n' +
+            '}');
+        
+        // Issue 511 - destrutured 
+        bt(
+            'var { b, c } = require("../stores");\n' +
+            'var { ProjectStore } = require("../stores");\n' +
+            '\n' +
+            'function takeThing({ prop }) {\n' +
+            '    console.log("inner prop", prop)\n' +
+            '}');
+        
+        // Issue 315 - Short objects 
+        bt(
+            'var a = { b: { c: { d: e } } };');
+        bt(
+            'var a = {\n' +
+            '    b: {\n' +
+            '        c: { d: e }\n' +
+            '        c3: { d: e }\n' +
+            '    },\n' +
+            '    b2: { c: { d: e } }\n' +
+            '};');
+        
+        // Issue 370 - Short objects in array
+        bt(
+            'var methods = [\n' +
+            '    { name: "to" },\n' +
+            '    { name: "step" },\n' +
+            '    { name: "move" },\n' +
+            '    { name: "min" },\n' +
+            '    { name: "max" }\n' +
+            '];');
+
+
+
         // Old tests
+        opts.brace_style = 'collapse';
         bt('');
         test_fragment('   return .5');
         test_fragment('   return .5;\n   a();');
@@ -2114,6 +2197,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2127,6 +2212,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         wrap_input_2=('{\n' +
                       '    foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
                       '    object_literal = {\n' +
                       '        propertx: first_token + 12345678.99999E-6,\n' +
@@ -2144,6 +2231,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       /* expected */
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2159,6 +2248,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       /* expected */
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
                       'object_literal = {\n' +
                       '    propertx: first_token + 12345678.99999E-6,\n' +
@@ -2175,6 +2266,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat &&\n' +
                       '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
@@ -2198,6 +2293,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_.okay();\n' +
@@ -2223,6 +2322,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
                       '        .but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_.okay();\n' +
                       '    object_literal = {\n' +
@@ -2246,6 +2349,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
@@ -2263,6 +2368,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
                       'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
                       'object_literal = {\n' +
@@ -2281,6 +2388,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       'foo.bar().baz().cucumber((fat &&\n' +
                       '    "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
@@ -2306,6 +2417,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
+                      'return between_return_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
+                      'throw between_throw_and_expression_should_never_wrap\n' +
+                      '    .but_this_can\n' +
                       'if (wraps_can_occur &&\n' +
                       '    inside_an_if_block) that_is_\n' +
                       '    .okay();\n' +
@@ -2330,6 +2445,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                       '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    return between_return_and_expression_should_never_wrap\n' +
+                      '        .but_this_can\n' +
+                      '    throw between_throw_and_expression_should_never_wrap\n' +
                       '        .but_this_can\n' +
                       '    if (wraps_can_occur &&\n' +
                       '        inside_an_if_block) that_is_\n' +

@@ -34,6 +34,13 @@ exports.test_data = {
           ]}
         ]
     }, {
+        name: "ES7 exponential",
+        description: "ES7 exponential",
+        tests: [
+          { unchanged: 'x ** 2' },
+          { unchanged: 'x ** -2' }
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [
@@ -55,6 +62,98 @@ exports.test_data = {
             { fragment: true, input: '   return .5', output: '   return .5{{eof}}' },
             { fragment: true, input: '   \n\nreturn .5\n\n\n\n', output: '   return .5{{eof}}' },
             { fragment: true, input: '\n', output: '{{eof}}' }
+        ],
+    }, {
+        name: "Brace style permutations",
+        description: "",
+        template: "< >",
+        matrix: [
+            // collapse-preserve-inline variations
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                ],
+                ibo: '',
+                iao: '',
+                ibc: '',
+                iac: '',
+                obo: ' ',
+                oao: ' ',
+                obc: ' ',
+                oac: ' '
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                ],
+                ibo: '\\n',
+                iao: '\\n',
+                ibc: '\\n',
+                iac: '\\n',
+                obo: ' ',
+                oao: '\\n    ',
+                obc: '\\n',
+                oac: ' '
+            },
+
+            // collapse variations
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse'" }
+                ],
+                ibo: '',
+                iao: '',
+                ibc: '',
+                iac: '',
+                obo: ' ',
+                oao: '\\n    ',
+                obc: '\\n',
+                oac: ' '
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse'" }
+                ],
+                ibo: '\\n',
+                iao: '\\n',
+                ibc: '\\n',
+                iac: '\\n',
+                obo: ' ',
+                oao: '\\n    ',
+                obc: '\\n',
+                oac: ' '
+            },
+        ],
+        tests: [
+            {
+                input: 'var a =<ibo>{<iao>a: 2<ibc>}<iac>;\nvar a =<ibo>{<iao>a: 2<ibc>}<iac>;',
+                output: 'var a =<obo>{<oao>a: 2<obc>};\nvar a =<obo>{<oao>a: 2<obc>};'
+            },
+            // {
+            //     input: 'var a =<ibo>{<iao>a:<ibo>{<iao>a:<ibo>{<iao>a:2<ibc>}<iac><ibc>}<iac>}<iac>;\nvar a =<ibo>{<iao>a:<ibo>{<iao>a:<ibo>{<iao>a:2<ibc>}<iac><ibc>}<iac>}<iac>;',
+            //     output: 'var a =<obo>{<oao>a:<obo>{<oao>a:<obo>{<oao>a: 2<obc>}<oac><obc>}<oac><obc>};\nvar a =<obo>{<oao>a:<obo>{<oao>a:<obo>{<oao>a: 2<obc>}<oac><obc>}<oac><obc>};'
+            // },
+            {
+                input: '//case 1\nif (a == 1)<ibo>{}\n//case 2\nelse if (a == 2)<ibo>{}',
+                output: '//case 1\nif (a == 1)<obo>{}\n//case 2\nelse if (a == 2)<obo>{}'
+            },
+            {
+                input: 'if(1)<ibo>{<iao>2<ibc>}<iac>else<ibo>{<iao>3<ibc>}',
+                output: 'if (1)<obo>{<oao>2<obc>}<oac>else<obo>{<oao>3<obc>}'
+            },
+            {
+                input:
+                    'try<ibo>{<iao>a();<ibc>}<iac>' +
+                    'catch(b)<ibo>{<iao>c();<ibc>}<iac>' +
+                    'catch(d)<ibo>{}<iac>' +
+                    'finally<ibo>{<iao>e();<ibc>}',
+                output:
+                    // expected
+                    'try<obo>{<oao>a();<obc>}<oac>' +
+                    'catch (b)<obo>{<oao>c();<obc>}<oac>' +
+                    'catch (d)<obo>{}<oac>'+
+                    'finally<obo>{<oao>e();<obc>}'
+            }
         ],
     }, {
         name: "Comma-first option",
@@ -1323,6 +1422,72 @@ exports.test_data = {
                 ]
             }
         ]
+    }, {
+        name: "Destructured and related",
+        description: "Ensure specific bugs do not recur",
+        options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],
+        tests: [
+            {
+                comment: "Issue 382 - import destructured ",
+                unchanged: [
+                    'module "Even" {',
+                    '    import { odd, oddly } from "Odd";',
+                    '}' ]
+            },
+            {
+                comment: "Issue 511 - destrutured ",
+                unchanged: [
+                    'var { b, c } = require("../stores");',
+                    'var { ProjectStore } = require("../stores");',
+                    '',
+                    'function takeThing({ prop }) {',
+                    '    console.log("inner prop", prop)',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue 315 - Short objects ",
+                unchanged: [
+                    'var a = { b: { c: { d: e } } };'
+                ]
+            },
+            {
+                unchanged: [
+                    'var a = {',
+                    '    b: {',
+                    '        c: { d: e }',
+                    '        c3: { d: e }',
+                    '    },',
+                    '    b2: { c: { d: e } }',
+                    '};'
+                ]
+            },
+            {
+                comment: "Issue 370 - Short objects in array",
+                unchanged: [
+                    'var methods = [',
+                    '    { name: "to" },',
+                    '    { name: "step" },',
+                    '    { name: "move" },',
+                    '    { name: "min" },',
+                    '    { name: "max" }',
+                    '];'
+                ]
+            },
+            // {
+            //     comment: "Issue #338 - Short expressions ",
+            //     unchanged: [
+            //         'if(someCondition) { return something; }',
+            //         'if(someCondition) {',
+            //         '    return something;',
+            //         '}',
+            //         'if(someCondition) { return something; }',
+            //         'if(someCondition) {',
+            //         '    return something;',
+            //         '}'
+            //     ]
+            // },
+        ]
     },
 
         // =======================================================
@@ -1333,7 +1498,7 @@ exports.test_data = {
     {
         name: "Old tests",
         description: "Largely unorganized pile of tests",
-        options: [],
+        options: [{ name: "brace_style", value: "'collapse'" }],
         tests: [
             { unchanged: '' },
             { fragment: true, unchanged: '   return .5'},
