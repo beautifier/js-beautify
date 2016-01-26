@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.5.10",
+  "version": "1.6.0-0",
   "description": "jsbeautifier.org for node",
   "main": "js/index.js",
   "bin": {
@@ -12,8 +12,7 @@
     "lib": "js/lib",
     "test": "js/test"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
   "homepage": "http://jsbeautifier.org/",
   "repository": {
