@@ -98,7 +98,7 @@ Beautifier Options:
   -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
-  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]
+  -b, --brace-style                 [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
@@ -204,7 +204,7 @@ HTML Beautifier Options:
   -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
   -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
-  -b, --brace-style                  [collapse|expand|end-expand|none] ["collapse"]
+  -b, --brace-style                  [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force] ["auto"]
@@ -220,7 +220,7 @@ useful or working for you but you must keep the copyright notice and license. (M
 
 # Credits
 
-* Written by Einar Lielmanis, <einar@jsbeautifier.org>
+* Created by Einar Lielmanis, <einar@jsbeautifier.org>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
 * General maintenance and expansion by Liam Newman <bitwiseman@gmail.com>
 * Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
@@ -229,4 +229,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.5.7
+js-beautify@1.6.0-0
