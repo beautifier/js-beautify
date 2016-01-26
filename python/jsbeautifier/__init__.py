@@ -128,6 +128,7 @@ class BeautifierFlags:
         self.declaration_statement = False
         self.declaration_assignment = False
         self.multiline_frame = False
+        self.inline_frame = False
         self.if_block = False
         self.else_block = False
         self.do_block = False
@@ -230,6 +231,7 @@ class Token:
         self.wanted_newline = newlines > 0
         self.whitespace_before = whitespace_before
         self.parent = None
+        self.opened = None
         self.directives = None
 
 
@@ -288,7 +290,7 @@ Output options:
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
- -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand)
+ -b,  --brace-style=collapse       Brace style (collapse-preserve-inline, collapse, expand, end-expand)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
@@ -381,8 +383,8 @@ class Beautifier:
         if opts != None:
             self.opts = copy.copy(opts)
 
-        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
-            raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
+        if self.opts.brace_style not in ['expand', 'collapse', 'collapse-preserve-inline', 'end-expand', 'none']:
+            raise(Exception('opts.brace_style must be "expand", "collapse", "collapse-preserve-inline", "end-expand", or "none".'))
 
         s = self.blank_state(s)
 
@@ -738,9 +740,11 @@ class Beautifier:
             else:
                 self.set_mode(MODE.BlockStatement)
         elif self.last_type in ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR'] or \
-            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw']):
-            # Detecting shorthand function syntax is difficult by scanning forward, so check the surrounding context.
-            # If the block is being returned, passed as arg, assigned with = or assigned in a nested object, treat as an ObjectLiteral.
+            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw', 'import']):
+            # Detecting shorthand function syntax is difficult by scanning forward,
+            #     so check the surrounding context.
+            # If the block is being returned, imported, passed as arg,
+            #     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
             self.set_mode(MODE.ObjectLiteral);
         else:
             self.set_mode(MODE.BlockStatement)
@@ -759,18 +763,40 @@ class Beautifier:
             else:
                 self.print_newline(preserve_statement_flags = True)
         else: # collapse
-            if self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
+            if self.opts.brace_style == 'collapse-preserve-inline':
+                # search forward for newline wanted inside this block
+                index = 0
+                check_token = None
+                self.flags.inline_frame = True
+                do_loop = True
+                while (do_loop):
+                    index += 1
+                    check_token = self.get_token(index)
+                    if check_token.wanted_newline:
+                        self.flags.inline_frame = False
+
+                    do_loop = (check_token.type != 'TK_EOF' and
+                          not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
+
+
+
+            if self.is_array(self.previous_flags.mode) and (self.last_type == 'TK_START_EXPR' or self.last_type == 'TK_COMMA'):
+                # if we're preserving inline,
+                # allow newline between comma and next brace.
+                if self.flags.inline_frame:
+                    self.allow_wrap_or_preserved_newline(current_token)
+                    self.flags.inline_frame = True
+                    self.previous_flags.multiline_frame = self.previous_flags.multiline_frame or self.flags.multiline_frame
+                    self.flags.multiline_frame = False
+                else:
+                    self.output.space_before_token = self.last_type == 'TK_COMMA'
+
+
+            elif self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
                 if self.last_type == 'TK_START_BLOCK':
                     self.print_newline()
                 else:
                     self.output.space_before_token = True
-            else:
-                # if TK_OPERATOR or TK_START_EXPR
-                if self.is_array(self.previous_flags.mode) and self.flags.last_text == ',':
-                    if self.last_last_text == '}':
-                        self.output.space_before_token = True
-                    else:
-                        self.print_newline()
 
         self.print_token(current_token)
         self.indent()
@@ -788,7 +814,9 @@ class Beautifier:
         else:
             # skip {}
             if not empty_braces:
-                if self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
+                if self.flags.inline_frame:
+                    self.output.space_before_token = True
+                elif self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
                     self.opts.keep_array_indentation = False
                     self.print_newline()
                     self.opts.keep_array_indentation = True
@@ -891,7 +919,7 @@ class Beautifier:
         prefix = 'NONE'
 
         if self.last_type == 'TK_END_BLOCK':
-            if not (current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']):
+            if not (current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally', 'from']):
                 prefix = 'NEWLINE'
             else:
                 if self.opts.brace_style in ['expand', 'end-expand'] or \
@@ -911,7 +939,10 @@ class Beautifier:
             (self.flags.last_text == '*' and self.last_last_text == 'function'):
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
-            prefix = 'NEWLINE'
+            if self.flags.inline_frame:
+                prefix = 'SPACE'
+            else:
+                prefix = 'NEWLINE'
         elif self.last_type == 'TK_END_EXPR':
             self.output.space_before_token = True
             prefix = 'NEWLINE'
@@ -983,7 +1014,7 @@ class Beautifier:
             # The conditional starts the statement if appropriate.
             # One difference - strings want at least a space before
             self.output.space_before_token = True
-        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
+        elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD' or self.flags.inline_frame:
             self.output.space_before_token = True
         elif self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
             if not self.start_of_object_property():
@@ -1028,17 +1059,17 @@ class Beautifier:
             return
 
         self.print_token(current_token)
+        self.output.space_before_token = True
 
         if self.flags.mode == MODE.ObjectLiteral \
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
 
-            self.print_newline()
+            if not self.flags.inline_frame:
+                self.print_newline()
         else:
             # EXPR or DO_BLOCK
-            self.output.space_before_token = True
-
             # for comma-first, we want to allow a newline before the comma
             # to turn into a newline after the comma, which we will fixup later
             if self.opts.comma_first:
@@ -1115,7 +1146,8 @@ class Beautifier:
                 if current_token.text in ['-', '+'] and self.flags.last_text in ['--', '++']:
                     space_after = True
 
-            if self.flags.mode == MODE.BlockStatement and self.flags.last_text in ['{', ';']:
+            if (((self.flags.mode == MODE.BlockStatement and not self.flags.inline_frame) or self.flags.mode == MODE.Statement)
+                    and self.flags.last_text in ['{', ';']):
                 # { foo: --i }
                 # foo(): --bar
                 self.print_newline()
@@ -1423,7 +1455,7 @@ class Tokenizer:
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
-    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await']
+    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from']
 
     def __init__ (self, input, opts, indent_string):
         self.input = input
@@ -1479,6 +1511,7 @@ class Tokenizer:
                     (next.text == ')' and open.text == '(') or \
                     (next.text == '}' and open.text == '{'))):
                 next.parent = open.parent
+                next.opened = open
                 open = open_stack.pop()
 
             self.tokens.append(next)
