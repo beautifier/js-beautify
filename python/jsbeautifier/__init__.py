@@ -736,16 +736,19 @@ class Beautifier:
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
             if not self.last_last_text in ['class','interface']:
-                self.set_mode(MODE.ObjectLiteral);
+                self.set_mode(MODE.ObjectLiteral)
             else:
                 self.set_mode(MODE.BlockStatement)
+        elif self.last_type == 'TK_OPERATOR' and self.flags.last_text == '=>':
+            # arrow function: (param1, paramN) => { statements }
+            self.set_mode(MODE.BlockStatement)
         elif self.last_type in ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR'] or \
             (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw', 'import']):
             # Detecting shorthand function syntax is difficult by scanning forward,
             #     so check the surrounding context.
             # If the block is being returned, imported, passed as arg,
             #     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
-            self.set_mode(MODE.ObjectLiteral);
+            self.set_mode(MODE.ObjectLiteral)
         else:
             self.set_mode(MODE.BlockStatement)
 

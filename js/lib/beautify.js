@@ -766,6 +766,9 @@
                 } else {
                     set_mode(MODE.BlockStatement);
                 }
+            } else if (last_type === 'TK_OPERATOR' && flags.last_text === '=>') {
+                // arrow function: (param1, paramN) => { statements }
+                set_mode(MODE.BlockStatement);
             } else if (in_array(last_type, ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR']) ||
                 (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw', 'import']))
                 ) {

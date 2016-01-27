@@ -1420,6 +1420,20 @@ exports.test_data = {
                     '    }',
                     '}.fn2()'
                 ]
+            },
+            {
+                comment: "Issue 854 - Arrow function with statement block",
+                unchanged: [
+                    'test(() => {',
+                    '    var a = {}',
+                    '',
+                    '    a.what = () => true ? 1 : 2',
+                    '',
+                    '    a.thing = () => {',
+                    '        b();',
+                    '    }',
+                    '})'
+                ]
             }
         ]
     }, {

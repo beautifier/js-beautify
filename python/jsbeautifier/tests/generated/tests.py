@@ -1191,6 +1191,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        return 1;\n' +
             '    }\n' +
             '}.fn2()')
+        
+        # Issue 854 - Arrow function with statement block
+        bt(
+            'test(() => {\n' +
+            '    var a = {}\n' +
+            '\n' +
+            '    a.what = () => true ? 1 : 2\n' +
+            '\n' +
+            '    a.thing = () => {\n' +
+            '        b();\n' +
+            '    }\n' +
+            '})')
 
         # Destructured and related
         self.options.brace_style = 'collapse-preserve-inline'
