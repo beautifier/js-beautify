@@ -1416,6 +1416,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        return 1;\n' +
             '    }\n' +
             '}.fn2()');
+        
+        // Issue 854 - Arrow function with statement block
+        bt(
+            'test(() => {\n' +
+            '    var a = {}\n' +
+            '\n' +
+            '    a.what = () => true ? 1 : 2\n' +
+            '\n' +
+            '    a.thing = () => {\n' +
+            '        b();\n' +
+            '    }\n' +
+            '})');
 
 
 
