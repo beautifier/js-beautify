@@ -164,11 +164,18 @@ test_cli_js_beautify()
       cleanup 1
   }
 
+  cd $SCRIPT_DIR/resources/configerror
+  $CLI_SCRIPT $TEST_TEMP/example1-default.js 2>&1 |  grep -q "Error while loading beautifier configuration file\." || {
+      echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configration load error message."
+      cleanup 1
+  }
+
   cd $SCRIPT_DIR/resources/indent11chars
   $CLI_SCRIPT $TEST_TEMP/example1-default.js | diff -q $TEST_TEMP/example1-default.js - && {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be different based on CWD settings."
       cleanup 1
   }
+
   cd $SCRIPT_DIR/resources/indent11chars/subDir1/subDir2
   $CLI_SCRIPT $TEST_TEMP/example1-default.js | diff -q $TEST_TEMP/example1-default.js - && {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be different based on CWD parent folder settings."
