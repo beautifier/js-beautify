@@ -191,6 +191,9 @@ class TestJSBeautifier(unittest.TestCase):
         # xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar
         bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;')
         
+        # xml literals with attributes without equal sign
+        bt('xml = <elem someAttr/>;')
+        
         # Handles CDATA
         bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;')
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;')
@@ -245,7 +248,7 @@ class TestJSBeautifier(unittest.TestCase):
             '\n' +
             'var HelloMessage = React.createClass({\n' +
             '    render: function() {\n' +
-            '        return <div>Hello {this.props.name}</div>;\n' +
+            '        return <div {someAttr}>Hello {this.props.name}</div>;\n' +
             '    }\n' +
             '});\n' +
             'React.render(<HelloMessage name="John" />, mountNode);')

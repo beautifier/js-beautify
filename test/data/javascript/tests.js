@@ -251,6 +251,10 @@ exports.test_data = {
                 comment: 'xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar',
                 unchanged: 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;'
             },
+            {
+                comment: 'xml literals with attributes without equal sign',
+                unchanged: 'xml = <elem someAttr/>;'
+            },
 
             {
                 comment: 'Handles CDATA',
@@ -322,7 +326,7 @@ exports.test_data = {
                     '',
                     'var HelloMessage = React.createClass({',
                     '    render: function() {',
-                    '        return <div>Hello {this.props.name}</div>;',
+                    '        return <div {someAttr}>Hello {this.props.name}</div>;',
                     '    }',
                     '});',
                     'React.render(<HelloMessage name="John" />, mountNode);',
