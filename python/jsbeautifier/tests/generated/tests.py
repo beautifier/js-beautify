@@ -311,7 +311,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    render: function() {\n' +
             '        return (\n' +
             '            <div>\n' +
-            '                <h3>TODO</h3>\n' +
+            '                <h3 {someAttr}>TODO</h3>\n' +
             '                <TodoList items={this.state.items} />\n' +
             '                <form onSubmit={this.handleSubmit}>\n' +
             '                    <input onChange={this.onChange} value={this.state.text} />\n' +

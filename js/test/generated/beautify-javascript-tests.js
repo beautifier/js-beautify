@@ -525,7 +525,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    render: function() {\n' +
             '        return (\n' +
             '            <div>\n' +
-            '                <h3>TODO</h3>\n' +
+            '                <h3 {someAttr}>TODO</h3>\n' +
             '                <TodoList items={this.state.items} />\n' +
             '                <form onSubmit={this.handleSubmit}>\n' +
             '                    <input onChange={this.onChange} value={this.state.text} />\n' +
