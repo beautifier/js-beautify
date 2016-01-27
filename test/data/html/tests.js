@@ -590,6 +590,7 @@ exports.test_data = {
                 [
                     '<?php ?>',
                     '<!DOCTYPE html>',
+                    '',
                     '<html>',
                     '',
                     '<head></head>',

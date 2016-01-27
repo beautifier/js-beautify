@@ -16,6 +16,33 @@ import copy
 
 class TestJSBeautifier(unittest.TestCase):
     options = None
+
+    @classmethod
+    def setUpClass(cls):
+        true = True
+        false = False
+
+        default_options = jsbeautifier.default_options()
+        default_options.indent_size = 4
+        default_options.indent_char = ' '
+        default_options.preserve_newlines = True
+        default_options.jslint_happy = False
+        default_options.keep_array_indentation = False
+        default_options.brace_style = 'collapse'
+        default_options.indent_level = 0
+        default_options.break_chained_methods = False
+        default_options.eol = '\n'
+
+        default_options.indent_size = 4
+        default_options.indent_char = ' '
+        default_options.preserve_newlines = true
+        default_options.jslint_happy = false
+        default_options.keep_array_indentation = false
+        default_options.brace_style = 'collapse'
+
+        cls.default_options = default_options
+        cls.wrapregex = re.compile('^(.+)$', re.MULTILINE)
+
     def reset_options(self):
         self.options = copy.copy(self.default_options)
 
@@ -58,12 +85,6 @@ class TestJSBeautifier(unittest.TestCase):
         def unicode_char(value):
             return six.unichr(value)
 
-        self.default_options.indent_size = 4
-        self.default_options.indent_char = ' '
-        self.default_options.preserve_newlines = true
-        self.default_options.jslint_happy = false
-        self.default_options.keep_array_indentation = false
-        self.default_options.brace_style = 'collapse'
 
         self.reset_options();
         #============================================================
@@ -2954,23 +2975,6 @@ class TestJSBeautifier(unittest.TestCase):
             if self.options.end_with_newline:
                 elf.decodesto(wrapped_input, wrapped_input)
             self.options.test_output_raw = False
-
-
-    @classmethod
-    def setUpClass(cls):
-        default_options = jsbeautifier.default_options()
-        default_options.indent_size = 4
-        default_options.indent_char = ' '
-        default_options.preserve_newlines = True
-        default_options.jslint_happy = False
-        default_options.keep_array_indentation = False
-        default_options.brace_style = 'collapse'
-        default_options.indent_level = 0
-        default_options.break_chained_methods = False
-        default_options.eol = '\n'
-
-        cls.default_options = default_options
-        cls.wrapregex = re.compile('^(.+)$', re.MULTILINE)
 
 
 if __name__ == '__main__':

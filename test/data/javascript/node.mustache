@@ -19,6 +19,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     };
     var opts;
 
+{{#default_options}}    default_opts.{{name}} = {{&value}};
+{{/default_options}}
+
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
@@ -249,8 +252,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         sanitytest = test_obj;
 
-{{#default_options}}        default_opts.{{name}} = {{&value}};
-{{/default_options}}
 {{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
         reset_options();
         //============================================================

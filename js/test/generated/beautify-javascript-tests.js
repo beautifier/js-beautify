@@ -22,6 +22,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     };
     var opts;
 
+    default_opts.indent_size = 4;
+    default_opts.indent_char = ' ';
+    default_opts.preserve_newlines = true;
+    default_opts.jslint_happy = false;
+    default_opts.keep_array_indentation = false;
+    default_opts.brace_style = 'collapse';
+
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
@@ -252,12 +259,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         sanitytest = test_obj;
 
-        default_opts.indent_size = 4;
-        default_opts.indent_char = ' ';
-        default_opts.preserve_newlines = true;
-        default_opts.jslint_happy = false;
-        default_opts.keep_array_indentation = false;
-        default_opts.brace_style = 'collapse';
 
         reset_options();
         //============================================================
