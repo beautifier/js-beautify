@@ -1256,6 +1256,15 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             '    else script.onload = callback;\n' +
             '}')
+        
+        # Issue 578 - Odd indenting after function
+        bt(
+            'function bindAuthEvent(eventName) {\n' +
+            '    self.auth.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);')
 
         # Old tests
         self.options.brace_style = 'collapse'

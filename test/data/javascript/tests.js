@@ -1504,6 +1504,17 @@ exports.test_data = {
                     '}'
                 ]
             },
+            {
+                comment: "Issue 578 - Odd indenting after function",
+                unchanged: [
+                    'function bindAuthEvent(eventName) {',
+                    '    self.auth.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+                ]
+            },
             // {
             //     comment: "Issue #338 - Short expressions ",
             //     unchanged: [

@@ -1483,6 +1483,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }\n' +
             '    else script.onload = callback;\n' +
             '}');
+        
+        // Issue 578 - Odd indenting after function
+        bt(
+            'function bindAuthEvent(eventName) {\n' +
+            '    self.auth.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);');
 
 
 
