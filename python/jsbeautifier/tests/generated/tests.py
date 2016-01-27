@@ -1246,6 +1246,16 @@ class TestJSBeautifier(unittest.TestCase):
             '    { name: "min" },\n' +
             '    { name: "max" }\n' +
             '];')
+        
+        # Issue 838 - Short objects in array
+        bt(
+            'function(url, callback) {\n' +
+            '    var script = document.createElement("script")\n' +
+            '    if (true) script.onreadystatechange = function() {\n' +
+            '        foo();\n' +
+            '    }\n' +
+            '    else script.onload = callback;\n' +
+            '}')
 
         # Old tests
         self.options.brace_style = 'collapse'

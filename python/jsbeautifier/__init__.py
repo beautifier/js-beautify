@@ -957,7 +957,7 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']:
-            if self.last_type != 'TK_END_BLOCK' \
+            if (not (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.BlockStatement)) \
                or self.opts.brace_style == 'expand' \
                or self.opts.brace_style == 'end-expand' \
                or (self.opts.brace_style == 'none' and current_token.wanted_newline):

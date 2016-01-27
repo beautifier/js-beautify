@@ -1020,7 +1020,7 @@
             }
 
             if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' ||
+                if (!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
                     opt.brace_style === "expand" ||
                     opt.brace_style === "end-expand" ||
                     (opt.brace_style === "none" && current_token.wanted_newline)) {

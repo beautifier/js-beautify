@@ -1492,6 +1492,18 @@ exports.test_data = {
                     '];'
                 ]
             },
+            {
+                comment: "Issue 838 - Short objects in array",
+                unchanged: [
+                    'function(url, callback) {',
+                    '    var script = document.createElement("script")',
+                    '    if (true) script.onreadystatechange = function() {',
+                    '        foo();',
+                    '    }',
+                    '    else script.onload = callback;',
+                    '}'
+                ]
+            },
             // {
             //     comment: "Issue #338 - Short expressions ",
             //     unchanged: [
