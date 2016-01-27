@@ -161,20 +161,20 @@ exports.test_data = {
         matrix: [
         {
             options: [
-                { name: "comma_first", value: "true" }
-            ],
-            c0: '\\n, ',
-            c1: '\\n    , ',
-            c2: '\\n        , ',
-            c3: '\\n            , '
-        }, {
-            options: [
                 { name: "comma_first", value: "false" }
             ],
             c0: ',\\n',
             c1: ',\\n    ',
             c2: ',\\n        ',
             c3: ',\\n            '
+        }, {
+            options: [
+                { name: "comma_first", value: "true" }
+            ],
+            c0: '\\n, ',
+            c1: '\\n    , ',
+            c2: '\\n        , ',
+            c3: '\\n            , '
         }
         ],
         tests: [
@@ -1539,7 +1539,7 @@ exports.test_data = {
     {
         name: "Old tests",
         description: "Largely unorganized pile of tests",
-        options: [{ name: "brace_style", value: "'collapse'" }],
+        options: [],
         tests: [
             { unchanged: '' },
             { fragment: true, unchanged: '   return .5'},
