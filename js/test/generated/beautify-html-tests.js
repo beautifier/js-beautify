@@ -539,6 +539,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<input>\n<input>');
         test_fragment('<meta>\n<meta>');
         test_fragment('<link>\n<link>');
+        test_fragment('<colgroup>\n    <col>\n    <col>\n</colgroup>');
 
 
         reset_options();

@@ -565,7 +565,8 @@ exports.test_data = {
             { fragment: true, unchanged: '<br>\n<br>' },
             { fragment: true, unchanged: '<input>\n<input>' },
             { fragment: true, unchanged: '<meta>\n<meta>' },
-            { fragment: true, unchanged: '<link>\n<link>' }
+            { fragment: true, unchanged: '<link>\n<link>' },
+            { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
         ]
     }, {
         name: "Unformatted tags",

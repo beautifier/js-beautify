@@ -166,7 +166,25 @@
 
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
-                single_token: 'br,input,link,meta,source,!doctype,basefont,base,area,hr,wbr,param,img,isindex,embed,?php,?xml'.split(','), //all the single tags for HTML
+
+                single_token: [
+                    // HTLM void elements - aka self-closing tags - aka singletons
+                    // https://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
+                    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen',
+                    'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr',
+                    // NOTE: Optional tags - are not understood.
+                    // https://www.w3.org/TR/html5/syntax.html#optional-tags
+                    // The rules for optional tags are too complex for a simple list
+                    // Also, the content of these tags should still be indented in many cases.
+                    // 'li' is a good exmple.
+
+                    // Doctype and xml elements
+                    '!doctype', '?xml',
+                    // ?php tag
+                    '?php',
+                    // other tags that were in this list, keeping just in case
+                    'basefont', 'isindex'
+                ],
                 extra_liners: extra_liners, //for tags that need a line of whitespace before them
                 in_array: function(what, arr) {
                     for (var i = 0; i < arr.length; i++) {
