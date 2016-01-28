@@ -1043,40 +1043,34 @@ class Beautifier:
 
 
     def handle_comma(self, current_token):
+        self.print_token(current_token)
+        self.output.space_before_token = True
+
         if self.flags.declaration_statement:
             if self.is_expression(self.flags.parent.mode):
                 # do not break on comma, for ( var a = 1, b = 2
                 self.flags.declaration_assignment = False
 
-            self.print_token(current_token)
-
             if self.flags.declaration_assignment:
                 self.flags.declaration_assignment = False
                 self.print_newline(preserve_statement_flags = True)
-            else:
-                self.output.space_before_token = True
+            elif self.opts.comma_first:
                 # for comma-first, we want to allow a newline before the comma
                 # to turn into a newline after the comma, which we will fixup later
-                if self.opts.comma_first:
-                    self.allow_wrap_or_preserved_newline(current_token)
-            return
+                self.allow_wrap_or_preserved_newline(current_token)
 
-        self.print_token(current_token)
-        self.output.space_before_token = True
-
-        if self.flags.mode == MODE.ObjectLiteral \
+        elif self.flags.mode == MODE.ObjectLiteral \
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
 
             if not self.flags.inline_frame:
                 self.print_newline()
-        else:
+        elif self.opts.comma_first:
             # EXPR or DO_BLOCK
             # for comma-first, we want to allow a newline before the comma
             # to turn into a newline after the comma, which we will fixup later
-            if self.opts.comma_first:
-                self.allow_wrap_or_preserved_newline(current_token)
+            self.allow_wrap_or_preserved_newline(current_token)
 
 
     def handle_operator(self, current_token):
