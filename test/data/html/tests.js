@@ -284,7 +284,8 @@ exports.test_data = {
           }, {
               options: [
                   { name: "wrap_attributes", value: "'auto'" },
-                  { name: "wrap_line_length", value: "80" }
+                  { name: "wrap_line_length", value: "80" },
+                  { name: "wrap_attributes_indent_size", value: "0" }
               ],
               eof: ' ',
               indent_attr: '',
