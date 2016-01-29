@@ -489,7 +489,17 @@
             if (opt.comma_first && last_type === 'TK_COMMA'
                 && output.just_added_newline()) {
                 if(output.previous_line.last() === ',') {
-                    output.previous_line.pop();
+                    var popped = output.previous_line.pop();
+                    // if the comma was already at the start of the line,
+                    // pull back onto that line and reprint the indentation
+                    if(output.previous_line.is_empty()) {
+                         output.previous_line.push(popped);
+                         output.trim(true);
+                         output.current_line.pop();
+                         output.trim();
+                    }
+
+                    // add the comma in front of the next token
                     print_token_line_indentation();
                     output.add_token(',');
                     output.space_before_token = true;

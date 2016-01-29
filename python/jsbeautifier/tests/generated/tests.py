@@ -164,7 +164,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ")
+        # Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
         self.options.comma_first = false
         bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}')
         bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;')
@@ -181,8 +181,17 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
+        bt(
+            'changeCollection.add({\n' +
+            '    name: "Jonathan" // New line inserted after this line on every save\n' +
+            '    , age: 25\n' +
+            '});',
+            'changeCollection.add({\n' +
+            '    name: "Jonathan" // New line inserted after this line on every save\n' +
+            '        ,\n    age: 25\n' +
+            '});')
 
-        # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ")
+        # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
         self.options.comma_first = true
         bt('{a:1, b:2}', '{\n    a: 1\n    , b: 2\n}')
         bt('var a=1, b=c[d], e=6;', 'var a = 1\n    , b = c[d]\n    , e = 6;')
@@ -199,6 +208,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
         bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"]\n        , ["3", "4"]\n    ]\n    , [\n        ["5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n    , [\n        ["1", "2", "3"]\n        , ["4", "5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n]')
+        bt(
+            'changeCollection.add({\n' +
+            '    name: "Jonathan" // New line inserted after this line on every save\n' +
+            '    , age: 25\n' +
+            '});')
 
 
         self.reset_options();

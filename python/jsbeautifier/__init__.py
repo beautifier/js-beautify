@@ -524,7 +524,16 @@ class Beautifier:
 
         if self.opts.comma_first and self.last_type == 'TK_COMMA' and self.output.just_added_newline():
             if self.output.previous_line.last() == ',':
-                self.output.previous_line.pop()
+                # if the comma was already at the start of the line,
+                # pull back onto that line and reprint the indentation
+                popped = self.output.previous_line.pop()
+                if  self.output.previous_line.is_empty():
+                     self.output.previous_line.push(popped)
+                     self.output.trim(True)
+                     self.output.current_line.pop()
+                     self.output.trim()
+
+                # add the comma in front of the next token
                 self.print_token_line_indentation(current_token)
                 self.output.add_token(',')
                 self.output.space_before_token = True

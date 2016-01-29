@@ -166,7 +166,9 @@ exports.test_data = {
             c0: ',\\n',
             c1: ',\\n    ',
             c2: ',\\n        ',
-            c3: ',\\n            '
+            c3: ',\\n            ',
+            // edge cases where engine bails
+            f1: '    ,\\n    '
         }, {
             options: [
                 { name: "comma_first", value: "true" }
@@ -174,7 +176,9 @@ exports.test_data = {
             c0: '\\n, ',
             c1: '\\n    , ',
             c2: '\\n        , ',
-            c3: '\\n            , '
+            c3: '\\n            , ',
+            // edge cases where engine bails
+            f1: ', '
         }
         ],
         tests: [
@@ -200,7 +204,20 @@ exports.test_data = {
 
             { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
             output: '[\n    [\n        ["1", "2"]{{c2}}["3", "4"]\n    ]{{c1}}[\n        ["5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]{{c1}}[\n        ["1", "2", "3"]{{c2}}["4", "5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]\n]' },
-
+            {
+                input: [
+                    'changeCollection.add({',
+                    '    name: "Jonathan" // New line inserted after this line on every save',
+                    '    , age: 25',
+                    '});'
+                ],
+                output: [
+                    'changeCollection.add({',
+                    '    name: "Jonathan" // New line inserted after this line on every save',
+                    '    {{f1}}age: 25',
+                    '});'
+                ]
+            }
         ],
     }, {
         name: "New Test Suite"
