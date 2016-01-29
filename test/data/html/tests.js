@@ -323,6 +323,11 @@ exports.test_data = {
                 fragment: true,
                 input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
                 output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}attr2="bar" />'
+            },
+            {
+                fragment: true,
+                input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+                output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}rel="stylesheet"{{indent_attr}}type="text/css">'
             }
         ]
     }, {

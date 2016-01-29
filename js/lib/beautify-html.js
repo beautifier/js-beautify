@@ -396,7 +396,7 @@
                         var indentAttrs = wrapped && input_char !== '/' && wrap_attributes !== 'force';
                         space = false;
                         if (!first_attr && wrap_attributes === 'force' &&  input_char !== '/') {
-                            this.print_newline(true, content);
+                            this.print_newline(false, content);
                             this.print_indentation(content);
                             indentAttrs = true;
                         }
