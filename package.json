@@ -43,10 +43,10 @@
     "nopt": "~3.0.1"
   },
   "devDependencies": {
-    "jshint": "~2.8.0",
+    "jshint": "~2.9.1",
     "node-static": "~0.7.1",
-    "mustache": "~1.1.0",
+    "mustache": "~2.2.1",
     "requirejs": "2.1.x",
-    "benchmark": "1.0.0"
+    "benchmark": "2.1.0"
   }
 }
