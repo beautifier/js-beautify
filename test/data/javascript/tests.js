@@ -21,6 +21,17 @@ exports.test_data = {
                     "};"]
             }
         ],
+
+    }, {
+        name: "Test template and continuation strings",
+        description: "",
+        tests: [
+          { unchanged: '`This is a ${template} string.`' },
+          { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
+          { unchanged: 'a = `This is a continuation\\\nstring.`' },
+          { unchanged: 'a = "This is a continuation\\\nstring."' },
+          { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+        ]
     }, {
         name: "ES7 Decorators",
         description: "Permit ES7 decorators, which are invoked with a leading \"@\".",

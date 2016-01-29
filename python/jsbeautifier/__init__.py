@@ -1744,42 +1744,57 @@ class Tokenizer:
 
             else:
                 # handle string
-                while self.parser_pos < len(self.input) and \
-                        (esc or (self.input[self.parser_pos] != sep and
-                            (sep == '`' or not self.acorn.newline.match(self.input[self.parser_pos])))):
-                    resulting_string += self.input[self.parser_pos]
-                    # Handle \r\n linebreaks after escapes or in template strings
-                    if self.input[self.parser_pos] == '\r' and self.parser_pos + 1 < len(self.input) and self.input[self.parser_pos + 1] == '\n':
+                def parse_string(self, resulting_string, delimiter, allow_unescaped_newlines = False, start_sub = None):
+                    esc = False
+                    esc1 = 0
+                    esc2 = 0
+                    while self.parser_pos < len(self.input) and \
+                            (esc or (self.input[self.parser_pos] != delimiter and
+                                (allow_unescaped_newlines or not self.acorn.newline.match(self.input[self.parser_pos])))):
+                        resulting_string += self.input[self.parser_pos]
+                        # Handle \r\n linebreaks after escapes or in template strings
+                        if self.input[self.parser_pos] == '\r' and self.parser_pos + 1 < len(self.input) and self.input[self.parser_pos + 1] == '\n':
+                            self.parser_pos += 1
+                            resulting_string += '\n'
+
+                        if esc1 and esc1 >= esc2:
+                            try:
+                                esc1 = int(resulting_string[-esc2:], 16)
+                            except Exception:
+                                esc1 = False
+                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
+                                esc1 = chr(esc1)
+                                resulting_string = resulting_string[:-2 - esc2]
+                                if esc1 == delimiter or esc1 == '\\':
+                                        resulting_string += '\\'
+                                resulting_string += esc1
+                            esc1 = 0
+                        if esc1:
+                            esc1 += 1
+                        elif not esc:
+                            esc = self.input[self.parser_pos] == '\\'
+                        else:
+                            esc = False
+                            if self.opts.unescape_strings:
+                                if self.input[self.parser_pos] == 'x':
+                                    esc1 += 1
+                                    esc2 = 2
+                                elif self.input[self.parser_pos] == 'u':
+                                    esc1 += 1
+                                    esc2 = 4
                         self.parser_pos += 1
-                        resulting_string += '\n'
 
-                    if esc1 and esc1 >= esc2:
-                        try:
-                            esc1 = int(resulting_string[-esc2:], 16)
-                        except Exception:
-                            esc1 = False
-                        if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
-                            esc1 = chr(esc1)
-                            resulting_string = resulting_string[:-2 - esc2]
-                            if esc1 == sep or esc1 == '\\':
-                                    resulting_string += '\\'
-                            resulting_string += esc1
-                        esc1 = 0
-                    if esc1:
-                        esc1 += 1
-                    elif not esc:
-                        esc = self.input[self.parser_pos] == '\\'
-                    else:
-                        esc = False
-                        if self.opts.unescape_strings:
-                            if self.input[self.parser_pos] == 'x':
-                                esc1 += 1
-                                esc2 = 2
-                            elif self.input[self.parser_pos] == 'u':
-                                esc1 += 1
-                                esc2 = 4
-                    self.parser_pos += 1
+                        if start_sub and resulting_string.endswith(start_sub):
+                            if delimiter == '`':
+                                resulting_string = parse_string(self, resulting_string, '}', allow_unescaped_newlines, '`')
+                            else:
+                                resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
+                    return resulting_string
 
+                if sep == '`':
+                    resulting_string = parse_string(self, resulting_string, '`', True, '${')
+                else:
+                    resulting_string = parse_string(self, resulting_string, sep)
 
             if self.parser_pos < len(self.input) and self.input[self.parser_pos] == sep:
                 resulting_string += sep

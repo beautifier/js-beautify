@@ -98,6 +98,16 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Test template and continuation strings
+        bt('`This is a ${template} string.`')
+        bt('`This\n  is\n  a\n  ${template}\n  string.`')
+        bt('a = `This is a continuation\\nstring.`')
+        bt('a = "This is a continuation\\nstring."')
+        bt('`SELECT\n  nextval(\'${this.options.schema ? `${this.options.schema}.` : \'\'}"${this.tableName}_${this.autoIncrementField}_seq"\'::regclass\n  ) nextval;`')
+
+
+        self.reset_options();
+        #============================================================
         # ES7 Decorators
         bt('@foo')
         bt('@foo(bar)')
@@ -2934,13 +2944,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a= f[b];',
             'a = f[ b ];')
 
-        self.reset_options();
-        #============================================================
-        # Test template strings
-        bt('`This is a ${template} string.`', '`This is a ${template} string.`')
-        bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`')
-        bt('a = `This is a continuation\\\nstring.`', 'a = `This is a continuation\\\nstring.`');
-        bt('a = "This is a continuation\\\nstring."', 'a = "This is a continuation\\\nstring."');
 
     def decodesto(self, input, expectation=None):
         if expectation == None:

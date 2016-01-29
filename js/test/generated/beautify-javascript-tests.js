@@ -272,6 +272,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Test template and continuation strings
+        bt('`This is a ${template} string.`');
+        bt('`This\n  is\n  a\n  ${template}\n  string.`');
+        bt('a = `This is a continuation\\nstring.`');
+        bt('a = "This is a continuation\\nstring."');
+        bt('`SELECT\n  nextval(\'${this.options.schema ? `${this.options.schema}.` : \'\'}"${this.tableName}_${this.autoIncrementField}_seq"\'::regclass\n  ) nextval;`');
+
+
+        reset_options();
+        //============================================================
         // ES7 Decorators
         bt('@foo');
         bt('@foo(bar)');
@@ -2765,14 +2775,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'a = [ b, c, d ];');
         bt('a= f[b];',
             'a = f[ b ];');
-
-        reset_options();
-        //============================================================
-        // Test template strings
-        bt('`This is a ${template} string.`', '`This is a ${template} string.`');
-        bt('`This\n  is\n  a\n  ${template}\n  string.`', '`This\n  is\n  a\n  ${template}\n  string.`');
-        bt('a = `This is a continuation\\\nstring.`', 'a = `This is a continuation\\\nstring.`');
-        bt('a = "This is a continuation\\\nstring."', 'a = "This is a continuation\\\nstring."');
 
         Urlencoded.run_tests(sanitytest);
     }
