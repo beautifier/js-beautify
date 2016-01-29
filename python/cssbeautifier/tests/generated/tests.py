@@ -10,34 +10,46 @@
 
 import unittest
 import cssbeautifier
-
+import copy
 
 class CSSBeautifierTest(unittest.TestCase):
 
-    def resetOptions(self):
+    options = None
+
+    @classmethod
+    def setUpClass(cls):
         false = False
         true = True
-        self.options = cssbeautifier.default_options()
-        self.options.indent_size = 1
-        self.options.indent_char = '\t'
-        self.options.selector_separator_newline = true
-        self.options.end_with_newline = false
-        self.options.newline_between_rules = false
+
+        default_options = cssbeautifier.default_options()
+        default_options.indent_size = 1
+        default_options.indent_char = '\t'
+        default_options.selector_separator_newline = true
+        default_options.end_with_newline = false
+        default_options.newline_between_rules = false
+
+        default_options.indent_size = 1
+        default_options.indent_char = '\t'
+        default_options.selector_separator_newline = true
+        default_options.end_with_newline = false
+        default_options.newline_between_rules = false
+
+        cls.default_options = default_options
+
+    def reset_options(self):
+        self.options = copy.copy(self.default_options)
 
     def testGenerated(self):
-        self.resetOptions()
+        self.reset_options()
         test_fragment = self.decodesto
         t = self.decodesto
 
         false = False
         true = True
 
-        self.options.indent_size = 1
-        self.options.indent_char = '\t'
-        self.options.selector_separator_newline = true
-        self.options.end_with_newline = false
-        self.options.newline_between_rules = false
 
+        self.reset_options();
+        #============================================================
         # End With Newline - (eof = "\n")
         self.options.end_with_newline = true
         test_fragment('', '\n')
@@ -52,15 +64,24 @@ class CSSBeautifierTest(unittest.TestCase):
         test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}')
         test_fragment('\n', '')
 
+
+        self.reset_options();
+        #============================================================
         # Empty braces
         t('.tabs{}', '.tabs {}')
         t('.tabs { }', '.tabs {}')
         t('.tabs    {    }', '.tabs {}')
         t('.tabs    \n{\n    \n  }', '.tabs {}')
 
+
+        self.reset_options();
+        #============================================================
         # 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
 
+
+        self.reset_options();
+        #============================================================
         # Selector Separator - (separator = " ", separator1 = " ")
         self.options.selector_separator_newline = false
         self.options.selector_separator = " "
@@ -97,6 +118,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
 
+
+        self.reset_options();
+        #============================================================
         # Newline Between Rules - (separator = "\n")
         self.options.newline_between_rules = true
         t('.div {}\n.span {}', '.div {}\n\n.span {}')
@@ -125,6 +149,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}')
         t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}')
 
+
+        self.reset_options();
+        #============================================================
         # Functions braces
         t('.tabs(){}', '.tabs() {}')
         t('.tabs (){}', '.tabs () {}')
@@ -135,6 +162,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}')
         t('.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}')
 
+
+        self.reset_options();
+        #============================================================
         # Comments
         t('/* test */')
         t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}')
@@ -154,6 +184,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('.tabs{width:10px;//end of line comment\nheight:10px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}')
         t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}')
 
+
+        self.reset_options();
+        #============================================================
         # Psuedo-classes vs Variables
         t('@page :first {}')
         
@@ -161,6 +194,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('@page:first {}', '@page: first {}')
         t('@page: first {}')
 
+
+        self.reset_options();
+        #============================================================
         # SASS/SCSS
         
         # Basic Interpolation
@@ -172,11 +208,15 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
             '}')
 
+
+        self.reset_options();
+        #============================================================
         # 
 
 
+
     def testNewline(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         self.options.end_with_newline = True
@@ -186,7 +226,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t(".tabs{}", ".tabs {}\n")
 
     def testBasics(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("", "")
@@ -216,7 +256,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
 
     def testSeperateSelectors(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
@@ -224,7 +264,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
     def testBlockNesting(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
@@ -251,7 +291,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
     def testOptions(self):
-        self.resetOptions()
+        self.reset_options()
         self.options.indent_size = 2
         self.options.indent_char = ' '
         self.options.selector_separator_newline = False
@@ -270,7 +310,7 @@ class CSSBeautifierTest(unittest.TestCase):
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
 
     def testLessCss(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}')

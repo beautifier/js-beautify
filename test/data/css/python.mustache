@@ -7,33 +7,44 @@
 
 import unittest
 import cssbeautifier
-
+import copy
 
 class CSSBeautifierTest(unittest.TestCase):
 
-    def resetOptions(self):
+    options = None
+
+    @classmethod
+    def setUpClass(cls):
         false = False
         true = True
-        self.options = cssbeautifier.default_options()
-        self.options.indent_size = 1
-        self.options.indent_char = '\t'
-        self.options.selector_separator_newline = true
-        self.options.end_with_newline = false
-        self.options.newline_between_rules = false
+
+        default_options = cssbeautifier.default_options()
+        default_options.indent_size = 1
+        default_options.indent_char = '\t'
+        default_options.selector_separator_newline = true
+        default_options.end_with_newline = false
+        default_options.newline_between_rules = false
+
+{{#default_options}}        default_options.{{name}} = {{&value}}
+{{/default_options}}
+
+        cls.default_options = default_options
+
+    def reset_options(self):
+        self.options = copy.copy(self.default_options)
 
     def testGenerated(self):
-        self.resetOptions()
+        self.reset_options()
         test_fragment = self.decodesto
         t = self.decodesto
 
         false = False
         true = True
 
-{{#default_options}}        self.options.{{name}} = {{&value}}
-{{/default_options}}
-{{#groups}}
+{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
+        self.reset_options();
+        #============================================================
     {{^matrix}}
-
         # {{&name}}
         {{#options}}
         self.options.{{name}} = {{&value}}
@@ -41,9 +52,9 @@ class CSSBeautifierTest(unittest.TestCase):
         {{#tests}}
         {{#test_line}}.{{/test_line}}
         {{/tests}}
+
     {{/matrix}}
     {{#matrix}}
-
         # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         {{#options}}
         self.options.{{name}} = {{&value}}
@@ -51,12 +62,12 @@ class CSSBeautifierTest(unittest.TestCase):
         {{#tests}}
         {{#test_line}}.{{/test_line}}
         {{/tests}}
-    {{/matrix}}
-{{/groups}}
 
+    {{/matrix}}
+{{#unset_mustache_tags}}.{{/unset_mustache_tags}}{{/groups}}
 
     def testNewline(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         self.options.end_with_newline = True
@@ -66,7 +77,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t(".tabs{}", ".tabs {}\n")
 
     def testBasics(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("", "")
@@ -96,7 +107,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
 
     def testSeperateSelectors(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
@@ -104,7 +115,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
     def testBlockNesting(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
@@ -131,7 +142,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
     def testOptions(self):
-        self.resetOptions()
+        self.reset_options()
         self.options.indent_size = 2
         self.options.indent_char = ' '
         self.options.selector_separator_newline = False
@@ -150,7 +161,7 @@ class CSSBeautifierTest(unittest.TestCase):
             "a:not(\"foobar\\\";{}omg\") {\n  content: 'example\\';{} text';\n  content: \"example\\\";{} text\";\n}")
 
     def testLessCss(self):
-        self.resetOptions()
+        self.reset_options()
         t = self.decodesto
 
         t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}')

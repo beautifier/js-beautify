@@ -5,7 +5,7 @@
 function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
 
-    var opts = {
+    var default_opts = {
         indent_size: 4,
         indent_char: ' ',
         preserve_newlines: true,
@@ -17,6 +17,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         selector_separator: '\n',
         end_with_newline: false
     };
+    var opts;
+
+{{#default_options}}    default_opts.{{name}} = {{&value}};
+{{/default_options}}
+
+    function reset_options()
+    {
+        opts = JSON.parse(JSON.stringify(default_opts));
+    }
 
     function test_html_beautifier(input)
     {
@@ -70,12 +79,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     {
         sanitytest = test_obj;
 
+        reset_options();
+        //============================================================
         bth('');
 
-{{#default_options}}        opts.{{name}} = {{&value}};
-{{/default_options}}
-{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}{{^matrix}}
-
+{{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
+        reset_options();
+        //============================================================
+    {{^matrix}}
         // {{&name}}
         {{#options}}
         opts.{{name}} = {{&value}};
@@ -83,8 +94,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         {{#tests}}
         {{#test_line}}.{{/test_line}};
         {{/tests}}
-    {{/matrix}}{{#matrix}}
 
+    {{/matrix}}
+    {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         {{#options}}
         opts.{{name}} = {{&value}};
@@ -92,9 +104,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         {{#tests}}
         {{#test_line}}.{{/test_line}};
         {{/tests}}
-    {{/matrix}}{{#unset_mustache_tags}}.{{/unset_mustache_tags}}
-{{/groups}}
 
+    {{/matrix}}
+{{#unset_mustache_tags}}.{{/unset_mustache_tags}}{{/groups}}
+    }
+
+    function beautifier_unconverted_tests()
+    {
+        sanitytest = test_obj;
+
+        reset_options();
+        //============================================================
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('<div></div>\n');
@@ -319,6 +339,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     }
 
     beautifier_tests();
+    beautifier_unconverted_tests();
 }
 
 if (typeof exports !== "undefined") {

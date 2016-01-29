@@ -262,63 +262,72 @@ exports.test_data = {
               options: [
                   { name: "wrap_attributes", value: "'force'" }
               ],
-              eof: '\\n',
-              indent_attr: '    ',
-              over80: '\\n'
+              indent_attr: '\\n    ',
+              indent_over80: '\\n    '
           }, {
               options: [
                   { name: "wrap_attributes", value: "'force'" },
                   { name: "wrap_line_length", value: "80" }
               ],
-              eof: '\\n',
-              indent_attr: '    ',
-              over80: '\\n'
+              indent_attr: '\\n    ',
+              indent_over80: '\\n    '
           }, {
               options: [
                   { name: "wrap_attributes", value: "'force'" },
                   { name: "wrap_attributes_indent_size", value: "8" },
               ],
-              eof: '\\n',
-              indent_attr: '        ',
-              over80: '\\n'
+              indent_attr: '\\n        ',
+              indent_over80: '\\n        '
           }, {
               options: [
                   { name: "wrap_attributes", value: "'auto'" },
-                  { name: "wrap_line_length", value: "80" }
+                  { name: "wrap_line_length", value: "80" },
+                  { name: "wrap_attributes_indent_size", value: "0" }
               ],
-              eof: ' ',
-              indent_attr: '',
-              over80: '\\n'
+              indent_attr: ' ',
+              indent_over80: '\\n'
+          }, {
+              options: [
+                  { name: "wrap_attributes", value: "'auto'" },
+                  { name: "wrap_line_length", value: "80" },
+                  { name: "wrap_attributes_indent_size", value: "4" }
+              ],
+              indent_attr: ' ',
+              indent_over80: '\\n    '
           }, {
               options: [
                   { name: "wrap_attributes", value: "'auto'" },
                   { name: "wrap_line_length", value: "0" }
               ],
-              eof: ' ',
-              indent_attr: '',
-              over80: ' '
+              indent_attr: ' ',
+              indent_over80: ' '
           }
         ],
         tests: [
             {
                 fragment: true,
                 input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
-                output: '<div attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
+                output: '<div attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
             },
             {
                 fragment: true,
                 input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
-                output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{eof}}{{indent_attr}}attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here"{{over80}}{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
+                output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
             },
             {
                 fragment: true,
                 input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
-                output: '<img attr0{{eof}}{{indent_attr}}attr1="123"{{eof}}{{indent_attr}}data-attr2="hello    t here" />'
+                output: '<img attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here" />'
             },
             {
                 fragment: true,
                 input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-                output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{eof}}{{indent_attr}}attr2="bar" />'
+                output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}attr2="bar" />'
+            },
+            {
+                fragment: true,
+                input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+                output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}rel="stylesheet"{{indent_attr}}type="text/css">'
             }
         ]
     }, {
@@ -561,7 +570,8 @@ exports.test_data = {
             { fragment: true, unchanged: '<br>\n<br>' },
             { fragment: true, unchanged: '<input>\n<input>' },
             { fragment: true, unchanged: '<meta>\n<meta>' },
-            { fragment: true, unchanged: '<link>\n<link>' }
+            { fragment: true, unchanged: '<link>\n<link>' },
+            { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
         ]
     }, {
         name: "Unformatted tags",
@@ -590,6 +600,7 @@ exports.test_data = {
                 [
                     '<?php ?>',
                     '<!DOCTYPE html>',
+                    '',
                     '<html>',
                     '',
                     '<head></head>',

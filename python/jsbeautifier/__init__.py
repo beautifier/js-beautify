@@ -524,7 +524,16 @@ class Beautifier:
 
         if self.opts.comma_first and self.last_type == 'TK_COMMA' and self.output.just_added_newline():
             if self.output.previous_line.last() == ',':
-                self.output.previous_line.pop()
+                # if the comma was already at the start of the line,
+                # pull back onto that line and reprint the indentation
+                popped = self.output.previous_line.pop()
+                if  self.output.previous_line.is_empty():
+                     self.output.previous_line.push(popped)
+                     self.output.trim(True)
+                     self.output.current_line.pop()
+                     self.output.trim()
+
+                # add the comma in front of the next token
                 self.print_token_line_indentation(current_token)
                 self.output.add_token(',')
                 self.output.space_before_token = True
@@ -957,7 +966,7 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']:
-            if self.last_type != 'TK_END_BLOCK' \
+            if (not (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.BlockStatement)) \
                or self.opts.brace_style == 'expand' \
                or self.opts.brace_style == 'end-expand' \
                or (self.opts.brace_style == 'none' and current_token.wanted_newline):
@@ -1043,40 +1052,34 @@ class Beautifier:
 
 
     def handle_comma(self, current_token):
+        self.print_token(current_token)
+        self.output.space_before_token = True
+
         if self.flags.declaration_statement:
             if self.is_expression(self.flags.parent.mode):
                 # do not break on comma, for ( var a = 1, b = 2
                 self.flags.declaration_assignment = False
 
-            self.print_token(current_token)
-
             if self.flags.declaration_assignment:
                 self.flags.declaration_assignment = False
                 self.print_newline(preserve_statement_flags = True)
-            else:
-                self.output.space_before_token = True
+            elif self.opts.comma_first:
                 # for comma-first, we want to allow a newline before the comma
                 # to turn into a newline after the comma, which we will fixup later
-                if self.opts.comma_first:
-                    self.allow_wrap_or_preserved_newline(current_token)
-            return
+                self.allow_wrap_or_preserved_newline(current_token)
 
-        self.print_token(current_token)
-        self.output.space_before_token = True
-
-        if self.flags.mode == MODE.ObjectLiteral \
+        elif self.flags.mode == MODE.ObjectLiteral \
             or (self.flags.mode == MODE.Statement and self.flags.parent.mode ==  MODE.ObjectLiteral):
             if self.flags.mode == MODE.Statement:
                 self.restore_mode()
 
             if not self.flags.inline_frame:
                 self.print_newline()
-        else:
+        elif self.opts.comma_first:
             # EXPR or DO_BLOCK
             # for comma-first, we want to allow a newline before the comma
             # to turn into a newline after the comma, which we will fixup later
-            if self.opts.comma_first:
-                self.allow_wrap_or_preserved_newline(current_token)
+            self.allow_wrap_or_preserved_newline(current_token)
 
 
     def handle_operator(self, current_token):
@@ -1676,7 +1679,7 @@ class Tokenizer:
         if c == '`' or c == "'" or c == '"' or \
             ( \
                 (c == '/') or \
-                (self.opts.e4x and c == "<" and re.match('^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.*?}))*\s*(/?)\s*>', self.input[self.parser_pos - 1:])) \
+                (self.opts.e4x and c == "<" and re.match('^<([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.+?}))*\s*(/?)\s*>', self.input[self.parser_pos - 1:])) \
             ) and ( \
                 (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
                 (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
@@ -1709,7 +1712,7 @@ class Tokenizer:
 
             elif self.opts.e4x and sep == '<':
                 # handle e4x xml literals
-                xmlRegExp = re.compile('<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.*?}))*\s*(/?)\s*>')
+                xmlRegExp = re.compile('<(\/?)([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.+?}))*\s*(/?)\s*>')
                 xmlStr = self.input[self.parser_pos - 1:]
                 match = xmlRegExp.match(xmlStr)
                 if match:
@@ -1741,42 +1744,57 @@ class Tokenizer:
 
             else:
                 # handle string
-                while self.parser_pos < len(self.input) and \
-                        (esc or (self.input[self.parser_pos] != sep and
-                            (sep == '`' or not self.acorn.newline.match(self.input[self.parser_pos])))):
-                    resulting_string += self.input[self.parser_pos]
-                    # Handle \r\n linebreaks after escapes or in template strings
-                    if self.input[self.parser_pos] == '\r' and self.parser_pos + 1 < len(self.input) and self.input[self.parser_pos + 1] == '\n':
+                def parse_string(self, resulting_string, delimiter, allow_unescaped_newlines = False, start_sub = None):
+                    esc = False
+                    esc1 = 0
+                    esc2 = 0
+                    while self.parser_pos < len(self.input) and \
+                            (esc or (self.input[self.parser_pos] != delimiter and
+                                (allow_unescaped_newlines or not self.acorn.newline.match(self.input[self.parser_pos])))):
+                        resulting_string += self.input[self.parser_pos]
+                        # Handle \r\n linebreaks after escapes or in template strings
+                        if self.input[self.parser_pos] == '\r' and self.parser_pos + 1 < len(self.input) and self.input[self.parser_pos + 1] == '\n':
+                            self.parser_pos += 1
+                            resulting_string += '\n'
+
+                        if esc1 and esc1 >= esc2:
+                            try:
+                                esc1 = int(resulting_string[-esc2:], 16)
+                            except Exception:
+                                esc1 = False
+                            if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
+                                esc1 = chr(esc1)
+                                resulting_string = resulting_string[:-2 - esc2]
+                                if esc1 == delimiter or esc1 == '\\':
+                                        resulting_string += '\\'
+                                resulting_string += esc1
+                            esc1 = 0
+                        if esc1:
+                            esc1 += 1
+                        elif not esc:
+                            esc = self.input[self.parser_pos] == '\\'
+                        else:
+                            esc = False
+                            if self.opts.unescape_strings:
+                                if self.input[self.parser_pos] == 'x':
+                                    esc1 += 1
+                                    esc2 = 2
+                                elif self.input[self.parser_pos] == 'u':
+                                    esc1 += 1
+                                    esc2 = 4
                         self.parser_pos += 1
-                        resulting_string += '\n'
 
-                    if esc1 and esc1 >= esc2:
-                        try:
-                            esc1 = int(resulting_string[-esc2:], 16)
-                        except Exception:
-                            esc1 = False
-                        if esc1 and esc1 >= 0x20 and esc1 <= 0x7e:
-                            esc1 = chr(esc1)
-                            resulting_string = resulting_string[:-2 - esc2]
-                            if esc1 == sep or esc1 == '\\':
-                                    resulting_string += '\\'
-                            resulting_string += esc1
-                        esc1 = 0
-                    if esc1:
-                        esc1 += 1
-                    elif not esc:
-                        esc = self.input[self.parser_pos] == '\\'
-                    else:
-                        esc = False
-                        if self.opts.unescape_strings:
-                            if self.input[self.parser_pos] == 'x':
-                                esc1 += 1
-                                esc2 = 2
-                            elif self.input[self.parser_pos] == 'u':
-                                esc1 += 1
-                                esc2 = 4
-                    self.parser_pos += 1
+                        if start_sub and resulting_string.endswith(start_sub):
+                            if delimiter == '`':
+                                resulting_string = parse_string(self, resulting_string, '}', allow_unescaped_newlines, '`')
+                            else:
+                                resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
+                    return resulting_string
 
+                if sep == '`':
+                    resulting_string = parse_string(self, resulting_string, '`', True, '${')
+                else:
+                    resulting_string = parse_string(self, resulting_string, sep)
 
             if self.parser_pos < len(self.input) and self.input[self.parser_pos] == sep:
                 resulting_string += sep

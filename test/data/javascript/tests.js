@@ -21,6 +21,17 @@ exports.test_data = {
                     "};"]
             }
         ],
+
+    }, {
+        name: "Test template and continuation strings",
+        description: "",
+        tests: [
+          { unchanged: '`This is a ${template} string.`' },
+          { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
+          { unchanged: 'a = `This is a continuation\\\nstring.`' },
+          { unchanged: 'a = "This is a continuation\\\nstring."' },
+          { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+        ]
     }, {
         name: "ES7 Decorators",
         description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
@@ -161,20 +172,24 @@ exports.test_data = {
         matrix: [
         {
             options: [
-                { name: "comma_first", value: "true" }
-            ],
-            c0: '\\n, ',
-            c1: '\\n    , ',
-            c2: '\\n        , ',
-            c3: '\\n            , '
-        }, {
-            options: [
                 { name: "comma_first", value: "false" }
             ],
             c0: ',\\n',
             c1: ',\\n    ',
             c2: ',\\n        ',
-            c3: ',\\n            '
+            c3: ',\\n            ',
+            // edge cases where engine bails
+            f1: '    ,\\n    '
+        }, {
+            options: [
+                { name: "comma_first", value: "true" }
+            ],
+            c0: '\\n, ',
+            c1: '\\n    , ',
+            c2: '\\n        , ',
+            c3: '\\n            , ',
+            // edge cases where engine bails
+            f1: ', '
         }
         ],
         tests: [
@@ -200,7 +215,20 @@ exports.test_data = {
 
             { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
             output: '[\n    [\n        ["1", "2"]{{c2}}["3", "4"]\n    ]{{c1}}[\n        ["5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]{{c1}}[\n        ["1", "2", "3"]{{c2}}["4", "5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]\n]' },
-
+            {
+                input: [
+                    'changeCollection.add({',
+                    '    name: "Jonathan" // New line inserted after this line on every save',
+                    '    , age: 25',
+                    '});'
+                ],
+                output: [
+                    'changeCollection.add({',
+                    '    name: "Jonathan" // New line inserted after this line on every save',
+                    '    {{f1}}age: 25',
+                    '});'
+                ]
+            }
         ],
     }, {
         name: "New Test Suite"
@@ -250,6 +278,10 @@ exports.test_data = {
             {
                 comment: 'xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar',
                 unchanged: 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;'
+            },
+            {
+                comment: 'xml literals with attributes without equal sign',
+                unchanged: 'xml = <elem someAttr/>;'
             },
 
             {
@@ -322,7 +354,7 @@ exports.test_data = {
                     '',
                     'var HelloMessage = React.createClass({',
                     '    render: function() {',
-                    '        return <div>Hello {this.props.name}</div>;',
+                    '        return <div {someAttr}>Hello {this.props.name}</div>;',
                     '    }',
                     '});',
                     'React.render(<HelloMessage name="John" />, mountNode);',
@@ -397,7 +429,7 @@ exports.test_data = {
                     '    render: function() {',
                     '        return (',
                     '            <div>',
-                    '                <h3>TODO</h3>',
+                    '                <h3 {someAttr}>TODO</h3>',
                     '                <TodoList items={this.state.items} />',
                     '                <form onSubmit={this.handleSubmit}>',
                     '                    <input onChange={this.onChange} value={this.state.text} />',
@@ -1488,6 +1520,29 @@ exports.test_data = {
                     '];'
                 ]
             },
+            {
+                comment: "Issue 838 - Short objects in array",
+                unchanged: [
+                    'function(url, callback) {',
+                    '    var script = document.createElement("script")',
+                    '    if (true) script.onreadystatechange = function() {',
+                    '        foo();',
+                    '    }',
+                    '    else script.onload = callback;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue 578 - Odd indenting after function",
+                unchanged: [
+                    'function bindAuthEvent(eventName) {',
+                    '    self.auth.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+                ]
+            },
             // {
             //     comment: "Issue #338 - Short expressions ",
             //     unchanged: [
@@ -1512,7 +1567,7 @@ exports.test_data = {
     {
         name: "Old tests",
         description: "Largely unorganized pile of tests",
-        options: [{ name: "brace_style", value: "'collapse'" }],
+        options: [],
         tests: [
             { unchanged: '' },
             { fragment: true, unchanged: '   return .5'},

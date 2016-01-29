@@ -489,7 +489,17 @@
             if (opt.comma_first && last_type === 'TK_COMMA'
                 && output.just_added_newline()) {
                 if(output.previous_line.last() === ',') {
-                    output.previous_line.pop();
+                    var popped = output.previous_line.pop();
+                    // if the comma was already at the start of the line,
+                    // pull back onto that line and reprint the indentation
+                    if(output.previous_line.is_empty()) {
+                         output.previous_line.push(popped);
+                         output.trim(true);
+                         output.current_line.pop();
+                         output.trim();
+                    }
+
+                    // add the comma in front of the next token
                     print_token_line_indentation();
                     output.add_token(',');
                     output.space_before_token = true;
@@ -1020,7 +1030,7 @@
             }
 
             if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' ||
+                if (!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
                     opt.brace_style === "expand" ||
                     opt.brace_style === "end-expand" ||
                     (opt.brace_style === "none" && current_token.wanted_newline)) {
@@ -1113,31 +1123,23 @@
         }
 
         function handle_comma() {
+            print_token();
+            output.space_before_token = true;
             if (flags.declaration_statement) {
                 if (is_expression(flags.parent.mode)) {
                     // do not break on comma, for(var a = 1, b = 2)
                     flags.declaration_assignment = false;
                 }
 
-                print_token();
-
                 if (flags.declaration_assignment) {
                     flags.declaration_assignment = false;
                     print_newline(false, true);
-                } else {
-                    output.space_before_token = true;
+                } else if (opt.comma_first) {
                     // for comma-first, we want to allow a newline before the comma
                     // to turn into a newline after the comma, which we will fixup later
-                    if (opt.comma_first) {
-                        allow_wrap_or_preserved_newline();
-                    }
+                    allow_wrap_or_preserved_newline();
                 }
-                return;
-            }
-
-            print_token();
-            output.space_before_token = true;
-            if (flags.mode === MODE.ObjectLiteral ||
+            } else if (flags.mode === MODE.ObjectLiteral ||
                 (flags.mode === MODE.Statement && flags.parent.mode === MODE.ObjectLiteral)) {
                 if (flags.mode === MODE.Statement) {
                     restore_mode();
@@ -1146,15 +1148,12 @@
                 if (!flags.inline_frame) {
                     print_newline();
                 }
-            } else {
+            } else if (opt.comma_first) {
                 // EXPR or DO_BLOCK
                 // for comma-first, we want to allow a newline before the comma
                 // to turn into a newline after the comma, which we will fixup later
-                if (opt.comma_first) {
-                    allow_wrap_or_preserved_newline();
-                }
+                allow_wrap_or_preserved_newline();
             }
-
         }
 
         function handle_operator() {
@@ -1865,10 +1864,12 @@
 
             }
 
+            var startXmlRegExp = /^<([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.+?}))*\s*(\/?)\s*>/
+
             if (c === '`' || c === "'" || c === '"' || // string
                 (
                     (c === '/') || // regexp
-                    (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(/^<([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.*?}))*\s*(\/?)\s*>/)) // xml
+                    (opts.e4x && c === "<" && input.slice(parser_pos - 1).match(startXmlRegExp)) // xml
                 ) && ( // regex and xml can only appear in specific locations during parsing
                     (last_token.type === 'TK_RESERVED' && in_array(last_token.text , ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
                     (last_token.type === 'TK_END_EXPR' && last_token.text === ')' &&
@@ -1909,7 +1910,8 @@
                     //
                     // handle e4x xml literals
                     //
-                    var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{[^{}]*}|!\[CDATA\[[\s\S]*?\]\])(\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.*?}))*\s*(\/?)\s*>/g;
+
+                    var xmlRegExp = /<(\/?)([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.+?}))*\s*(\/?)\s*>/g;
                     var xmlStr = input.slice(parser_pos - 1);
                     var match = xmlRegExp.exec(xmlStr);
                     if (match && match.index === 0) {
@@ -1941,31 +1943,52 @@
                     //
                     // handle string
                     //
-                    // Template strings can travers lines without escape characters.
-                    // Other strings cannot
-                    while (parser_pos < input_length &&
-                            (esc || (input.charAt(parser_pos) !== sep &&
-                            (sep === '`' || !acorn.newline.test(input.charAt(parser_pos)))))) {
-                        // Handle \r\n linebreaks after escapes or in template strings
-                        if ((esc || sep === '`') && acorn.newline.test(input.charAt(parser_pos))) {
-                            if (input.charAt(parser_pos) === '\r' && input.charAt(parser_pos + 1) === '\n') {
-                                parser_pos += 1;
+                    var parse_string = function(delimiter, allow_unescaped_newlines, start_sub) {
+                        // Template strings can travers lines without escape characters.
+                        // Other strings cannot
+                        var current_char;
+                        while (parser_pos < input_length) {
+                            current_char = input.charAt(parser_pos);
+                            if (!(esc || (current_char !== delimiter &&
+                                (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
+                                break;
                             }
-                            resulting_string += '\n';
-                        } else {
-                            resulting_string += input.charAt(parser_pos);
-                        }
-                        if (esc) {
-                            if (input.charAt(parser_pos) === 'x' || input.charAt(parser_pos) === 'u') {
-                                has_char_escapes = true;
-                            }
-                            esc = false;
-                        } else {
-                            esc = input.charAt(parser_pos) === '\\';
-                        }
-                        parser_pos += 1;
-                    }
 
+                            // Handle \r\n linebreaks after escapes or in template strings
+                            if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
+                                if (current_char === '\r' && input.charAt(parser_pos + 1) === '\n') {
+                                    parser_pos += 1;
+                                    current_char = input.charAt(parser_pos);
+                                }
+                                resulting_string += '\n';
+                            } else {
+                                resulting_string += current_char;
+                            }
+                            if (esc) {
+                                if (current_char === 'x' || current_char === 'u') {
+                                    has_char_escapes = true;
+                                }
+                                esc = false;
+                            } else {
+                                esc = current_char === '\\';
+                            }
+
+                            parser_pos += 1;
+
+                            if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
+                                if (delimiter === '`') {
+                                    parse_string('}', allow_unescaped_newlines, '`')
+                                }  else {
+                                    parse_string('`', allow_unescaped_newlines, '${')
+                                }
+                            }
+                        }
+                    }
+                    if (sep === '`') {
+                        parse_string('`', true, '${')
+                    }  else {
+                        parse_string(sep)
+                    }
                 }
 
                 if (has_char_escapes && opts.unescape_strings) {

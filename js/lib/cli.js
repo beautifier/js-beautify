@@ -170,14 +170,24 @@ var interpret = exports.interpret = function(argv, slice) {
         process.exit(0);
     }
 
-    var cfg = cc(
-        parsed,
-        cleanOptions(cc.env('jsbeautify_'), knownOpts),
-        parsed.config,
-        findRecursive(process.cwd(), '.jsbeautifyrc'),
-        verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
-        __dirname + '/../config/defaults.json'
-    ).snapshot;
+    var cfg;
+    try {
+        cfg = cc(
+            parsed,
+            cleanOptions(cc.env('jsbeautify_'), knownOpts),
+            parsed.config,
+            findRecursive(process.cwd(), '.jsbeautifyrc'),
+            verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
+            __dirname + '/../config/defaults.json'
+        ).snapshot;
+    } catch (ex) {
+        debug(cfg);
+        // usage(ex);
+        console.error(ex);
+        console.error('Error while loading beautifier configuration file.');
+        console.error('Run `' + getScriptName() + ' -h` for help.');
+        process.exit(1);
+    }
 
     try {
         // Verify arguments

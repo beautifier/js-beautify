@@ -8,7 +8,7 @@
 function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
 
-    var opts = {
+    var default_opts = {
         indent_size: 4,
         indent_char: ' ',
         preserve_newlines: true,
@@ -18,9 +18,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         space_before_conditional: true,
         break_chained_methods: false,
         selector_separator: '\n',
-        end_with_newline: false,
-        newline_between_rules: true
+        end_with_newline: false
     };
+    var opts;
+
+    default_opts.indent_size = 1;
+    default_opts.indent_char = '\t';
+    default_opts.selector_separator_newline = true;
+    default_opts.end_with_newline = false;
+    default_opts.newline_between_rules = false;
+
+    function reset_options()
+    {
+        opts = JSON.parse(JSON.stringify(default_opts));
+    }
 
     function test_css_beautifier(input)
     {
@@ -68,14 +79,13 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     {
         sanitytest = test_obj;
 
+        reset_options();
+        //============================================================
         t(".tabs {}");
 
-        opts.indent_size = 1;
-        opts.indent_char = '\t';
-        opts.selector_separator_newline = true;
-        opts.end_with_newline = false;
-        opts.newline_between_rules = false;
 
+        reset_options();
+        //============================================================
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -90,15 +100,24 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}');
         test_fragment('\n', '');
 
+
+        reset_options();
+        //============================================================
         // Empty braces
         t('.tabs{}', '.tabs {}');
         t('.tabs { }', '.tabs {}');
         t('.tabs    {    }', '.tabs {}');
         t('.tabs    \n{\n    \n  }', '.tabs {}');
 
+
+        reset_options();
+        //============================================================
         // 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}');
 
+
+        reset_options();
+        //============================================================
         // Selector Separator - (separator = " ", separator1 = " ")
         opts.selector_separator_newline = false;
         opts.selector_separator = " ";
@@ -135,6 +154,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}');
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}');
 
+
+        reset_options();
+        //============================================================
         // Newline Between Rules - (separator = "\n")
         opts.newline_between_rules = true;
         t('.div {}\n.span {}', '.div {}\n\n.span {}');
@@ -163,6 +185,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}');
         t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}');
 
+
+        reset_options();
+        //============================================================
         // Functions braces
         t('.tabs(){}', '.tabs() {}');
         t('.tabs (){}', '.tabs () {}');
@@ -173,6 +198,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}');
         t('.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}');
 
+
+        reset_options();
+        //============================================================
         // Comments
         t('/* test */');
         t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}');
@@ -192,6 +220,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs{width:10px;//end of line comment\nheight:10px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}');
         t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}');
 
+
+        reset_options();
+        //============================================================
         // Psuedo-classes vs Variables
         t('@page :first {}');
         
@@ -199,6 +230,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('@page:first {}', '@page: first {}');
         t('@page: first {}');
 
+
+        reset_options();
+        //============================================================
         // SASS/SCSS
         
         // Basic Interpolation
@@ -210,8 +244,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
             '}');
 
+
+        reset_options();
+        //============================================================
         // 
 
+
+    }
+
+    function beautifier_unconverted_tests()
+    {
+        sanitytest = test_obj;
+
+        reset_options();
+        //============================================================
         // test basic css beautifier
         t(".tabs {}");
         t(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}");
@@ -333,6 +379,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     }
 
     beautifier_tests();
+    beautifier_unconverted_tests();
 }
 
 if (typeof exports !== "undefined") {
