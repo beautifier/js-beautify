@@ -5,7 +5,7 @@ SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 
 generate_changelog()
 {
-    ./generate-changelog.sh beautify-web/js-beautify || exit 1
+    $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify || exit 1
     git commit -am "Update Changelog for $NEW_VERSION"
 }
 
