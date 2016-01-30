@@ -1,4 +1,60 @@
 # Changelog
+## v1.6.0
+
+### Description
+* Inline/short object and json preservation (all rejoice!)
+* ES6 annotations, module import/export, arrow functions, concise methods, and more
+* JSX spread attributes
+* HTML wrap attributes, inline element fixes, doctype and php fixes
+* Test framework hardening
+* Windows build fixed and covered by appveyor continuous integration
+
+
+
+### Closed Issues
+* Individual tests pollute options object ([#855](https://github.com/beautify-web/js-beautify/issues/855))
+* Object attribute assigned fat arrow function with implicit return of a ternary causes next line to indent ([#854](https://github.com/beautify-web/js-beautify/issues/854))
+* Treat php tags as single in html ([#850](https://github.com/beautify-web/js-beautify/pull/850))
+* Read piped input by default ([#849](https://github.com/beautify-web/js-beautify/pull/849))
+* Replace makefile dependency with bash script ([#848](https://github.com/beautify-web/js-beautify/pull/848))
+* list of HTML inline elements incomplete; wraps inappropriately ([#840](https://github.com/beautify-web/js-beautify/issues/840))
+* Beautifying bracket-less if/elses ([#838](https://github.com/beautify-web/js-beautify/issues/838))
+* <col> elements within a <colgroup> are getting indented incorrectly ([#836](https://github.com/beautify-web/js-beautify/issues/836))
+* single attribute breaks jsx beautification ([#834](https://github.com/beautify-web/js-beautify/issues/834))
+* Improve Python packaging ([#831](https://github.com/beautify-web/js-beautify/pull/831))
+* Erroneously changes CRLF to LF on Windows. ([#829](https://github.com/beautify-web/js-beautify/issues/829))
+* Can't deal with XHTML5 ([#828](https://github.com/beautify-web/js-beautify/issues/828))
+* HTML after PHP is indented ([#826](https://github.com/beautify-web/js-beautify/issues/826))
+* exponentiation operator ([#825](https://github.com/beautify-web/js-beautify/issues/825))
+* Add support for script type "application/ld+json" ([#821](https://github.com/beautify-web/js-beautify/issues/821))
+* package.json: Remove "preferGlobal" option ([#820](https://github.com/beautify-web/js-beautify/pull/820))
+* Don't use array.indexOf() to support legacy browsers ([#816](https://github.com/beautify-web/js-beautify/pull/816))
+* ES6 Object Shortand Indenting Weirdly Sometimes ([#810](https://github.com/beautify-web/js-beautify/issues/810))
+* Implicit Return Function on New Line not Preserved ([#806](https://github.com/beautify-web/js-beautify/issues/806))
+* Misformating "0b" Binary Strings ([#803](https://github.com/beautify-web/js-beautify/issues/803))
+* Beautifier breaks ES6 nested template strings ([#797](https://github.com/beautify-web/js-beautify/issues/797))
+* Misformating "0o" Octal Strings ([#792](https://github.com/beautify-web/js-beautify/issues/792))
+* Do not use hardcoded directory for tests ([#788](https://github.com/beautify-web/js-beautify/pull/788))
+* Handlebars {{else}} tag not given a newline ([#784](https://github.com/beautify-web/js-beautify/issues/784))
+* Wrong indentation for XML header (<?xml version="1.0"?>) ([#783](https://github.com/beautify-web/js-beautify/issues/783))
+* is_whitespace for loop incrementing wrong variable ([#777](https://github.com/beautify-web/js-beautify/pull/777))
+* Newline is inserted after comment with comma_first ([#775](https://github.com/beautify-web/js-beautify/issues/775))
+* Cannot copy more than 1000 characters out of CodeMirror buffer ([#768](https://github.com/beautify-web/js-beautify/issues/768))
+* Missing 'var' in beautify-html.js; breaks strict mode ([#763](https://github.com/beautify-web/js-beautify/issues/763))
+* Fix typo in the example javascript code of index.html ([#753](https://github.com/beautify-web/js-beautify/pull/753))
+
+
+## v1.5.10
+
+### Description
+Hotfix for directives
+Version jump due to release script tweaks
+
+
+### Closed Issues
+* Preserve directive doesn't work as intended ([#723](https://github.com/beautify-web/js-beautify/issues/723))
+
+
 ## v1.5.7
 
 ### Description
@@ -169,17 +225,6 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * Cannot declare object literal properties with unquoted reserved words ([#440](https://github.com/beautify-web/js-beautify/issues/440))
 * Do not put a space within `function*` generator functions. ([#428](https://github.com/beautify-web/js-beautify/issues/428))
 * beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
-
-
-## v1.5.10
-
-### Description
-Hotfix for directives
-Version jump due to release script tweaks
-
-
-### Closed Issues
-* Preserve directive doesn't work as intended ([#723](https://github.com/beautify-web/js-beautify/issues/723))
 
 
 ## v1.5.1
@@ -363,5 +408,24 @@ https://github.com/einars/js-beautify/compare/v1.3.1...master
 * New options proposal: spaces around arguments ([#126](https://github.com/beautify-web/js-beautify/issues/126))
 * Add option to put single-statement blocks into a new line ([#116](https://github.com/beautify-web/js-beautify/issues/116))
 * [Feature request] --disable-preserve-newlines to one line ([#74](https://github.com/beautify-web/js-beautify/issues/74))
+
+
+## 1.6.1
+
+### Description
+Fixes for regressions found in 1.6.0
+
+
+### Closed Issues
+* Inconsistent formatting for arrays of objects ([#860](https://github.com/beautify-web/js-beautify/issues/860))
+* Publish v1.6.1 ([#859](https://github.com/beautify-web/js-beautify/issues/859))
+* Space added to "from++" due to ES6 keyword  ([#858](https://github.com/beautify-web/js-beautify/issues/858))
+* Changelog generator doesn't sort versions above 9 right ([#778](https://github.com/beautify-web/js-beautify/issues/778))
+* space-after-anon-function not applied to object properties ([#761](https://github.com/beautify-web/js-beautify/issues/761))
+* Separating 'input' elements adds whitespace ([#580](https://github.com/beautify-web/js-beautify/issues/580))
+* Inline Format ([#572](https://github.com/beautify-web/js-beautify/issues/572))
+* Add "collapse-one-line" option for braces  ([#487](https://github.com/beautify-web/js-beautify/issues/487))
+* Preserve attributes line break in HTML ([#455](https://github.com/beautify-web/js-beautify/issues/455))
+* Multiline Array ([#406](https://github.com/beautify-web/js-beautify/issues/406))
 
 

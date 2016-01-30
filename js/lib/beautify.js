@@ -244,6 +244,7 @@
                 else_block: false,
                 do_block: false,
                 do_while: false,
+                import_block: false,
                 in_case_statement: false, // switch(..){ INSIDE HERE }
                 in_case: false, // we're on the exact line with "case 0:"
                 case_body: false, // the indented case-action block
@@ -831,8 +832,8 @@
                         flags.inline_frame = true;
                         previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
                         flags.multiline_frame = false;
-                    } else {
-                        output.space_before_token = last_type === 'TK_COMMA';
+                    } else if (last_type === 'TK_COMMA') {
+                        output.space_before_token = true;
                     }
                 } else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                     if (last_type === 'TK_START_BLOCK') {
@@ -878,15 +879,16 @@
         }
 
         function handle_word() {
-            if (current_token.type === 'TK_RESERVED' && flags.mode !== MODE.ObjectLiteral &&
-                in_array(current_token.text, ['set', 'get'])) {
-                current_token.type = 'TK_WORD';
-            }
-
-            if (current_token.type === 'TK_RESERVED' && flags.mode === MODE.ObjectLiteral) {
-                var next_token = get_token(1);
-                if (next_token.text == ':') {
+            if (current_token.type === 'TK_RESERVED') {
+                if (in_array(current_token.text, ['set', 'get']) && flags.mode !== MODE.ObjectLiteral) {
                     current_token.type = 'TK_WORD';
+                } else if (in_array(current_token.text, ['as', 'from']) && !flags.import_block) {
+                    current_token.type = 'TK_WORD';
+                } else if (flags.mode === MODE.ObjectLiteral) {
+                    var next_token = get_token(1);
+                    if (next_token.text == ':') {
+                        current_token.type = 'TK_WORD';
+                    }
                 }
             }
 
@@ -1070,12 +1072,16 @@
             print_token();
             flags.last_word = current_token.text;
 
-            if (current_token.type === 'TK_RESERVED' && current_token.text === 'do') {
-                flags.do_block = true;
-            }
-
-            if (current_token.type === 'TK_RESERVED' && current_token.text === 'if') {
-                flags.if_block = true;
+            if (current_token.type === 'TK_RESERVED') {
+                if (current_token.text === 'do') {
+                    flags.do_block = true;
+                } else if (current_token.text === 'if') {
+                    flags.if_block = true;
+                } else if (current_token.text === 'import') {
+                    flags.import_block = true;
+                } else if (flags.import_block && current_token.type === 'TK_RESERVED' && current_token.text === 'from') {
+                    flags.import_block = false;
+                }
             }
         }
 
@@ -1087,6 +1093,11 @@
             }
             while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
                 restore_mode();
+            }
+
+            // hacky but effective for the moment
+            if (flags.import_block) {
+                flags.import_block = false;
             }
             print_token();
         }
@@ -1605,7 +1616,7 @@
         var punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: => **').split(' ');
         // words which should always start on new line.
         this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
-        var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from']);
+        var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
 
         //  /* ... */ comment ends with nearest */ or end of file
         var block_comment_pattern = /([\s\S]*?)((?:\*\/)|$)/g;

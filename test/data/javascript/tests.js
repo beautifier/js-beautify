@@ -231,6 +231,91 @@ exports.test_data = {
             }
         ],
     }, {
+        name: "Space in parens tests",
+        description: "put space inside parens",
+        matrix: [
+        {
+            options: [
+                { name: "space_in_paren", value: "false" },
+                { name: "space_in_empty_paren", value: "false" },
+            ],
+            s: '',
+            e: '',
+        }, {
+            options: [
+                { name: "space_in_paren", value: "false" },
+                { name: "space_in_empty_paren", value: "true" },
+            ],
+            s: '',
+            e: '',
+        }, {
+            options: [
+                { name: "space_in_paren", value: "true" },
+                { name: "space_in_empty_paren", value: "false" },
+            ],
+            s: ' ',
+            e: '',
+        }, {
+            options: [
+                { name: "space_in_paren", value: "true" },
+                { name: "space_in_empty_paren", value: "true" },
+            ],
+            s: ' ',
+            e: ' ',
+        }],
+        tests: [
+            {
+                input: 'if(p) foo(a,b);',
+                output: 'if ({{s}}p{{s}}) foo({{s}}a, b{{s}});'
+            },
+            {
+                input: 'try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
+                output: 'try {\n    while ({{s}}true{{s}}) {\n        willThrow({{e}})\n    }\n} catch ({{s}}result{{s}}) switch ({{s}}result{{s}}) {\n    case 1:\n        ++result\n}'
+            },
+            {
+                input: '((e/((a+(b)*c)-d))^2)*5;',
+                output: '({{s}}({{s}}e / ({{s}}({{s}}a + ({{s}}b{{s}}) * c{{s}}) - d{{s}}){{s}}) ^ 2{{s}}) * 5;'
+            },
+            {
+                input: 'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+                output: 'function f({{s}}a, b{{s}}) {\n    if ({{s}}a{{s}}) b({{e}})\n}\n\nfunction g({{s}}a, b{{s}}) {\n    if ({{s}}!a{{s}}) b({{e}})\n}'
+            },
+            {
+                input: 'a=[];',
+                output: 'a = [{{e}}];'
+            },
+            {
+                input: 'a=[b,c,d];',
+                output: 'a = [{{s}}b, c, d{{s}}];'
+            },
+            {
+                input: 'a= f[b];',
+                output: 'a = f[{{s}}b{{s}}];'
+            },
+            {
+                input: [
+                    '{',
+                    '    files: [ {',
+                    '        expand: true,',
+                    '        cwd: "www/gui/",',
+                    '        src: [ "im/design_standards/*.*" ],',
+                    '        dest: "www/gui/build"',
+                    '    } ]',
+                    '}'
+                ],
+                output: [
+                    '{',
+                    '    files: [{{s}}{',
+                    '        expand: true,',
+                    '        cwd: "www/gui/",',
+                    '        src: [{{s}}"im/design_standards/*.*"{{s}}],',
+                    '        dest: "www/gui/build"',
+                    '    }{{s}}]',
+                    '}'
+                ],
+            },
+        ],
+    }, {
         name: "New Test Suite"
     },
     {
@@ -1010,6 +1095,8 @@ exports.test_data = {
                 output: 'a = typeof{{f}}(x)' },
             { input_: 'x();\n\nfunction(){}',
                 output: 'x();\n\nfunction{{f}}() {}' },
+            { input_: 'x();\n\nvar x = {\nx: function(){}\n}',
+                output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'},
             { input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
                 output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}' },
 
@@ -1466,7 +1553,18 @@ exports.test_data = {
                     '    }',
                     '})'
                 ]
-            }
+            },
+            {
+                comment: "Issue 406 - Multiline array",
+                unchanged: [
+                    'var tempName = [',
+                    '    "temp",',
+                    '    process.pid,',
+                    '    (Math.random() * 0x1000000000).toString(36),',
+                    '    new Date().getTime()',
+                    '].join("-");'
+                ]
+            },
         ]
     }, {
         name: "Destructured and related",
@@ -1481,7 +1579,30 @@ exports.test_data = {
                     '}' ]
             },
             {
-                comment: "Issue 511 - destrutured ",
+                unchanged: [
+                    'import defaultMember from "module-name";',
+                    'import * as name from "module-name";',
+                    'import { member } from "module-name";',
+                    'import { member as alias } from "module-name";',
+                    'import { member1, member2 } from "module-name";',
+                    'import { member1, member2 as alias2 } from "module-name";',
+                    'import defaultMember, { member, member2 } from "module-name";',
+                    'import defaultMember, * as name from "module-name";',
+                    'import "module-name";'
+                ]
+            },
+            {
+                comment: "Issue 858 - from is a keyword only after import",
+                unchanged: [
+                    'if (from < to) {',
+                    '    from++;',
+                    '} else {',
+                    '    from--;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue 511 - destrutured",
                 unchanged: [
                     'var { b, c } = require("../stores");',
                     'var { ProjectStore } = require("../stores");',
@@ -1492,7 +1613,7 @@ exports.test_data = {
                 ]
             },
             {
-                comment: "Issue 315 - Short objects ",
+                comment: "Issue 315 - Short objects",
                 unchanged: [
                     'var a = { b: { c: { d: e } } };'
                 ]
@@ -1541,6 +1662,15 @@ exports.test_data = {
                     '    });',
                     '}',
                     '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+                ]
+            },
+            {
+                comment: "Issue #487 - some short expressions examples",
+                unchanged: [
+                    'if (a == 1) { a++; }',
+                    'a = { a: a };',
+                    'UserDB.findOne({ username: "xyz" }, function(err, user) {});',
+                    'import { fs } from "fs";'
                 ]
             },
             // {

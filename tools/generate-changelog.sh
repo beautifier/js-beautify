@@ -18,7 +18,7 @@ main()
     IFS=$'\n'
     echo "# Changelog" > CHANGELOG.md
 
-    for m in $(curl -s "https://api.github.com/repos/$1/milestones?state=closed" | jq -c '.[] | [.title, .number, .description]' | sort -r); do
+    for m in $(curl -s "https://api.github.com/repos/$1/milestones?state=closed" | jq -c '.[] | [.title, .number, .description]' | gsort -r -V); do
         mid=$(echo $m | sed 's/\[".*",\(.*\),".*"\]/\1/')
         title=$(echo $m | sed 's/\["\(.*\)",.*,".*"\]/\1/')
 
