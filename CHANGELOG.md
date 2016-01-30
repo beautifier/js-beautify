@@ -1,4 +1,23 @@
 # Changelog
+## v1.6.1
+
+### Description
+Fixes for regressions found in 1.6.0
+
+
+### Closed Issues
+* Inconsistent formatting for arrays of objects ([#860](https://github.com/beautify-web/js-beautify/issues/860))
+* Publish v1.6.1 ([#859](https://github.com/beautify-web/js-beautify/issues/859))
+* Space added to "from++" due to ES6 keyword  ([#858](https://github.com/beautify-web/js-beautify/issues/858))
+* Changelog generator doesn't sort versions above 9 right ([#778](https://github.com/beautify-web/js-beautify/issues/778))
+* space-after-anon-function not applied to object properties ([#761](https://github.com/beautify-web/js-beautify/issues/761))
+* Separating 'input' elements adds whitespace ([#580](https://github.com/beautify-web/js-beautify/issues/580))
+* Inline Format ([#572](https://github.com/beautify-web/js-beautify/issues/572))
+* Add "collapse-one-line" option for braces  ([#487](https://github.com/beautify-web/js-beautify/issues/487))
+* Preserve attributes line break in HTML ([#455](https://github.com/beautify-web/js-beautify/issues/455))
+* Multiline Array ([#406](https://github.com/beautify-web/js-beautify/issues/406))
+
+
 ## v1.6.0
 
 ### Description
@@ -408,24 +427,5 @@ https://github.com/einars/js-beautify/compare/v1.3.1...master
 * New options proposal: spaces around arguments ([#126](https://github.com/beautify-web/js-beautify/issues/126))
 * Add option to put single-statement blocks into a new line ([#116](https://github.com/beautify-web/js-beautify/issues/116))
 * [Feature request] --disable-preserve-newlines to one line ([#74](https://github.com/beautify-web/js-beautify/issues/74))
-
-
-## 1.6.1
-
-### Description
-Fixes for regressions found in 1.6.0
-
-
-### Closed Issues
-* Inconsistent formatting for arrays of objects ([#860](https://github.com/beautify-web/js-beautify/issues/860))
-* Publish v1.6.1 ([#859](https://github.com/beautify-web/js-beautify/issues/859))
-* Space added to "from++" due to ES6 keyword  ([#858](https://github.com/beautify-web/js-beautify/issues/858))
-* Changelog generator doesn't sort versions above 9 right ([#778](https://github.com/beautify-web/js-beautify/issues/778))
-* space-after-anon-function not applied to object properties ([#761](https://github.com/beautify-web/js-beautify/issues/761))
-* Separating 'input' elements adds whitespace ([#580](https://github.com/beautify-web/js-beautify/issues/580))
-* Inline Format ([#572](https://github.com/beautify-web/js-beautify/issues/572))
-* Add "collapse-one-line" option for braces  ([#487](https://github.com/beautify-web/js-beautify/issues/487))
-* Preserve attributes line break in HTML ([#455](https://github.com/beautify-web/js-beautify/issues/455))
-* Multiline Array ([#406](https://github.com/beautify-web/js-beautify/issues/406))
 
 
