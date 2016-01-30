@@ -1010,6 +1010,8 @@ exports.test_data = {
                 output: 'a = typeof{{f}}(x)' },
             { input_: 'x();\n\nfunction(){}',
                 output: 'x();\n\nfunction{{f}}() {}' },
+            { input_: 'x();\n\nvar x = {\nx: function(){}\n}',
+                output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'},
             { input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
                 output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}' },
 

@@ -1008,6 +1008,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'x();\n\nfunction(){}',
             'x();\n\nfunction () {}');
         bt(
+            'x();\n\nvar x = {\nx: function(){}\n}',
+            'x();\n\nvar x = {\n    x: function () {}\n}');
+        bt(
             'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
@@ -1037,6 +1040,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n\nfunction(){}',
             'x();\n\nfunction () {}');
+        bt(
+            'x();\n\nvar x = {\nx: function(){}\n}',
+            'x();\n\nvar x = {\n    x: function () {}\n}');
         bt(
             'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
         bt(
@@ -1068,6 +1074,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'x();\n\nfunction(){}',
             'x();\n\nfunction () {}');
         bt(
+            'x();\n\nvar x = {\nx: function(){}\n}',
+            'x();\n\nvar x = {\n    x: function () {}\n}');
+        bt(
             'function () {\n    var a, b, c, d, e = [],\n        f;\n}');
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
@@ -1097,6 +1106,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n\nfunction(){}',
             'x();\n\nfunction() {}');
+        bt(
+            'x();\n\nvar x = {\nx: function(){}\n}',
+            'x();\n\nvar x = {\n    x: function() {}\n}');
         bt(
             'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
             'function() {\n    var a, b, c, d, e = [],\n        f;\n}');
