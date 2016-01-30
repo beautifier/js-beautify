@@ -1486,6 +1486,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        b();\n' +
             '    }\n' +
             '})');
+        
+        // Issue 406 - Multiline array
+        bt(
+            'var tempName = [\n' +
+            '    "temp",\n' +
+            '    process.pid,\n' +
+            '    (Math.random() * 0x1000000000).toString(36),\n' +
+            '    new Date().getTime()\n' +
+            '].join("-");');
 
 
         reset_options();

@@ -1468,6 +1468,17 @@ exports.test_data = {
                     '    }',
                     '})'
                 ]
+            },
+            {
+                comment: "Issue 406 - Multiline array",
+                unchanged: [
+                    'var tempName = [',
+                    '    "temp",',
+                    '    process.pid,',
+                    '    (Math.random() * 0x1000000000).toString(36),',
+                    '    new Date().getTime()',
+                    '].join("-");'
+                ]
             }
         ]
     }, {

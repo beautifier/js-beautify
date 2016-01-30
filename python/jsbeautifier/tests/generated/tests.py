@@ -1312,6 +1312,15 @@ class TestJSBeautifier(unittest.TestCase):
             '        b();\n' +
             '    }\n' +
             '})')
+        
+        # Issue 406 - Multiline array
+        bt(
+            'var tempName = [\n' +
+            '    "temp",\n' +
+            '    process.pid,\n' +
+            '    (Math.random() * 0x1000000000).toString(36),\n' +
+            '    new Date().getTime()\n' +
+            '].join("-");')
 
 
         self.reset_options();
