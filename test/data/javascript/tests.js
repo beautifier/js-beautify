@@ -292,6 +292,28 @@ exports.test_data = {
                 input: 'a= f[b];',
                 output: 'a = f[{{s}}b{{s}}];'
             },
+            {
+                input: [
+                    '{',
+                    '    files: [ {',
+                    '        expand: true,',
+                    '        cwd: "www/gui/",',
+                    '        src: [ "im/design_standards/*.*" ],',
+                    '        dest: "www/gui/build"',
+                    '    } ]',
+                    '}'
+                ],
+                output: [
+                    '{',
+                    '    files: [{{s}}{',
+                    '        expand: true,',
+                    '        cwd: "www/gui/",',
+                    '        src: [{{s}}"im/design_standards/*.*"{{s}}],',
+                    '        dest: "www/gui/build"',
+                    '    }{{s}}]',
+                    '}'
+                ],
+            },
         ],
     }, {
         name: "New Test Suite"

@@ -411,6 +411,23 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[];', 'a = [];');
         bt('a=[b,c,d];', 'a = [b, c, d];');
         bt('a= f[b];', 'a = f[b];');
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            '{\n' +
+            '    files: [{\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: ["im/design_standards/*.*"],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    }]\n' +
+            '}');
 
         // Space in parens tests - (s = "", e = "")
         opts.space_in_paren = false;
@@ -422,6 +439,23 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[];', 'a = [];');
         bt('a=[b,c,d];', 'a = [b, c, d];');
         bt('a= f[b];', 'a = f[b];');
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            '{\n' +
+            '    files: [{\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: ["im/design_standards/*.*"],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    }]\n' +
+            '}');
 
         // Space in parens tests - (s = " ", e = "")
         opts.space_in_paren = true;
@@ -433,6 +467,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[];', 'a = [];');
         bt('a=[b,c,d];', 'a = [ b, c, d ];');
         bt('a= f[b];', 'a = f[ b ];');
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}');
 
         // Space in parens tests - (s = " ", e = " ")
         opts.space_in_paren = true;
@@ -444,6 +487,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a=[];', 'a = [ ];');
         bt('a=[b,c,d];', 'a = [ b, c, d ];');
         bt('a= f[b];', 'a = f[ b ];');
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}');
 
 
         reset_options();

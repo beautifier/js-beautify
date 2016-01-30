@@ -237,6 +237,23 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            '{\n' +
+            '    files: [{\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: ["im/design_standards/*.*"],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    }]\n' +
+            '}')
 
         # Space in parens tests - (s = "", e = "")
         self.options.space_in_paren = false
@@ -248,6 +265,23 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            '{\n' +
+            '    files: [{\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: ["im/design_standards/*.*"],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    }]\n' +
+            '}')
 
         # Space in parens tests - (s = " ", e = "")
         self.options.space_in_paren = true
@@ -259,6 +293,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}')
 
         # Space in parens tests - (s = " ", e = " ")
         self.options.space_in_paren = true
@@ -270,6 +313,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=[];', 'a = [ ];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
+        bt(
+            '{\n' +
+            '    files: [ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}')
 
 
         self.reset_options();

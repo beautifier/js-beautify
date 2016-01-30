@@ -800,9 +800,8 @@ class Beautifier:
                     self.flags.inline_frame = True
                     self.previous_flags.multiline_frame = self.previous_flags.multiline_frame or self.flags.multiline_frame
                     self.flags.multiline_frame = False
-                else:
-                    self.output.space_before_token = self.last_type == 'TK_COMMA'
-
+                elif self.last_type == 'TK_COMMA':
+                    self.output.space_before_token = True
 
             elif self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
                 if self.last_type == 'TK_START_BLOCK':

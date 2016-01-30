@@ -831,8 +831,8 @@
                         flags.inline_frame = true;
                         previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
                         flags.multiline_frame = false;
-                    } else {
-                        output.space_before_token = last_type === 'TK_COMMA';
+                    } else if (last_type === 'TK_COMMA') {
+                        output.space_before_token = true;
                     }
                 } else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                     if (last_type === 'TK_START_BLOCK') {
