@@ -580,6 +580,7 @@ exports.test_data = {
         tests: [
             { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
             { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+            { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
             { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
             { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
         ]
