@@ -1564,7 +1564,7 @@ exports.test_data = {
                     '    new Date().getTime()',
                     '].join("-");'
                 ]
-            }
+            },
         ]
     }, {
         name: "Destructured and related",
@@ -1579,7 +1579,30 @@ exports.test_data = {
                     '}' ]
             },
             {
-                comment: "Issue 511 - destrutured ",
+                unchanged: [
+                    'import defaultMember from "module-name";',
+                    'import * as name from "module-name";',
+                    'import { member } from "module-name";',
+                    'import { member as alias } from "module-name";',
+                    'import { member1, member2 } from "module-name";',
+                    'import { member1, member2 as alias2 } from "module-name";',
+                    'import defaultMember, { member, member2 } from "module-name";',
+                    'import defaultMember, * as name from "module-name";',
+                    'import "module-name";'
+                ]
+            },
+            {
+                comment: "Issue 858 - from is a keyword only after import",
+                unchanged: [
+                    'if (from < to) {',
+                    '    from++;',
+                    '} else {',
+                    '    from--;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue 511 - destrutured",
                 unchanged: [
                     'var { b, c } = require("../stores");',
                     'var { ProjectStore } = require("../stores");',
@@ -1590,7 +1613,7 @@ exports.test_data = {
                 ]
             },
             {
-                comment: "Issue 315 - Short objects ",
+                comment: "Issue 315 - Short objects",
                 unchanged: [
                     'var a = { b: { c: { d: e } } };'
                 ]

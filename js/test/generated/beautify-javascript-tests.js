@@ -1606,8 +1606,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'module "Even" {\n' +
             '    import { odd, oddly } from "Odd";\n' +
             '}');
+        bt(
+            'import defaultMember from "module-name";\n' +
+            'import * as name from "module-name";\n' +
+            'import { member } from "module-name";\n' +
+            'import { member as alias } from "module-name";\n' +
+            'import { member1, member2 } from "module-name";\n' +
+            'import { member1, member2 as alias2 } from "module-name";\n' +
+            'import defaultMember, { member, member2 } from "module-name";\n' +
+            'import defaultMember, * as name from "module-name";\n' +
+            'import "module-name";');
         
-        // Issue 511 - destrutured 
+        // Issue 858 - from is a keyword only after import
+        bt(
+            'if (from < to) {\n' +
+            '    from++;\n' +
+            '} else {\n' +
+            '    from--;\n' +
+            '}');
+        
+        // Issue 511 - destrutured
         bt(
             'var { b, c } = require("../stores");\n' +
             'var { ProjectStore } = require("../stores");\n' +
@@ -1616,7 +1634,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    console.log("inner prop", prop)\n' +
             '}');
         
-        // Issue 315 - Short objects 
+        // Issue 315 - Short objects
         bt(
             'var a = { b: { c: { d: e } } };');
         bt(

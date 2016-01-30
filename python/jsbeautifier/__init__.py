@@ -133,6 +133,7 @@ class BeautifierFlags:
         self.else_block = False
         self.do_block = False
         self.do_while = False
+        self.import_block = False
         self.in_case = False
         self.in_case_statement = False
         self.case_body = False
@@ -839,14 +840,15 @@ class Beautifier:
 
 
     def handle_word(self, current_token):
-        if current_token.type == 'TK_RESERVED' and self.flags.mode != MODE.ObjectLiteral and \
-            current_token.text in ['set', 'get']:
-            current_token.type = 'TK_WORD'
-
-        if current_token.type == 'TK_RESERVED' and self.flags.mode == MODE.ObjectLiteral:
-            next_token = self.get_token(1)
-            if next_token.text == ':':
+        if current_token.type == 'TK_RESERVED':
+            if current_token.text in ['set', 'get'] and self.flags.mode != MODE.ObjectLiteral:
                 current_token.type = 'TK_WORD'
+            elif current_token.text in ['as', 'from'] and not self.flags.import_block:
+                current_token.type = 'TK_WORD'
+            elif self.flags.mode == MODE.ObjectLiteral:
+                next_token = self.get_token(1)
+                if next_token.text == ':':
+                    current_token.type = 'TK_WORD'
 
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1002,11 +1004,15 @@ class Beautifier:
         self.print_token(current_token)
         self.flags.last_word = current_token.text
 
-        if current_token.type == 'TK_RESERVED' and current_token.text == 'do':
-            self.flags.do_block = True
-
-        if current_token.type == 'TK_RESERVED' and current_token.text == 'if':
-            self.flags.if_block = True
+        if current_token.type == 'TK_RESERVED':
+            if current_token.text == 'do':
+                self.flags.do_block = True
+            elif current_token.text == 'if':
+                self.flags.if_block = True
+            elif current_token.text == 'import':
+                self.flags.import_block = True
+            elif current_token.text == 'from' and self.flags.import_block:
+                self.flags.import_block = False
 
 
     def handle_semicolon(self, current_token):
@@ -1016,6 +1022,9 @@ class Beautifier:
             self.output.space_before_token = False
         while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
             self.restore_mode()
+
+        if self.flags.import_block:
+            self.flags.import_block = False
 
         self.print_token(current_token)
 
@@ -1460,7 +1469,7 @@ class Tokenizer:
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
-    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from']
+    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']
 
     def __init__ (self, input, opts, indent_string):
         self.input = input
