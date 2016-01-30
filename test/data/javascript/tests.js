@@ -1545,6 +1545,15 @@ exports.test_data = {
                     '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
                 ]
             },
+            {
+                comment: "Issue #487 - some short expressions examples",
+                unchanged: [
+                    'if (a == 1) { a++; }',
+                    'a = { a: a };',
+                    'UserDB.findOne({ username: "xyz" }, function(err, user) {});',
+                    'import { fs } from "fs";'
+                ]
+            },
             // {
             //     comment: "Issue #338 - Short expressions ",
             //     unchanged: [

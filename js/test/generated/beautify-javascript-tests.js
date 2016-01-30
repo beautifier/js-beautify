@@ -1548,6 +1548,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    });\n' +
             '}\n' +
             '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);');
+        
+        // Issue #487 - some short expressions examples
+        bt(
+            'if (a == 1) { a++; }\n' +
+            'a = { a: a };\n' +
+            'UserDB.findOne({ username: "xyz" }, function(err, user) {});\n' +
+            'import { fs } from "fs";');
 
 
         reset_options();
