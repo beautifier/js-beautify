@@ -580,6 +580,8 @@ exports.test_data = {
         tests: [
             { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
             { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
+            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
         ]
     }, {
         name: "Php formatting",
