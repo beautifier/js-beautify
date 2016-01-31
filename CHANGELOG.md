@@ -1,4 +1,13 @@
 # Changelog
+## v1.6.2
+
+### Description
+
+
+### Closed Issues
+* Add missing 'collapse-preserve-inline' option to js module ([#861](https://github.com/beautify-web/js-beautify/pull/861))
+
+
 ## v1.6.1
 
 ### Description
