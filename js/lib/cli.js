@@ -155,7 +155,12 @@ function findRecursive(dir, fileName) {
 }
 
 function getUserHome() {
-    return process.env.USERPROFILE || process.env.HOME;
+    var user_home = '';
+    try {
+        user_home = process.env['USERPROFILE'] || process.env['HOME'] || '';
+    } catch (ex) {
+    }
+    return user_home;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
