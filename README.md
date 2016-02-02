@@ -149,7 +149,7 @@ You might notice that the CLI options and defaults hash aren't 100% correlated. 
 ## Directives to Ignore or Preserve sections (Javascript only)
 
 Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.  
+This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.
 The example input below will remain changed after beautification
 
 ```js
@@ -162,7 +162,7 @@ The example input below will remain changed after beautification
 }
 /* beautify preserve:end */
 
-// Use ignore when the content is not parsable as javascript.  
+// Use ignore when the content is not parsable as javascript.
 var a =  1;
 /* beautify ignore:start */
  {This is some strange{template language{using open-braces?
@@ -229,4 +229,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-js-beautify@1.6.0-0
+js-beautify@1.6.2-0
