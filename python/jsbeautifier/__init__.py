@@ -82,6 +82,7 @@ class BeautifierOptions:
         self.break_chained_methods = False
         self.end_with_newline = False
         self.comma_first = False
+        self.operator_position = 'before-newline'
 
         # For testing of beautify ignore:start directive
         self.test_output_raw = False
@@ -319,7 +320,22 @@ Rarely needed options:
     else:
         return 0
 
+OPERATOR_POSITION = {
+    'before_newline': 'before-newline',
+    'after_newline': 'after-newline',
+    'preserve_newline': 'preserve-newline'
+}
+OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION['before_newline'], OPERATOR_POSITION['preserve_newline']];
 
+def sanitizeOperatorPosition(opPosition):
+    if not opPosition:
+        return OPERATOR_POSITION['before_newline']
+    elif opPosition not in OPERATOR_POSITION.values():
+        raise ValueError("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
+            str(OPERATOR_POSITION.values()) +
+            "\nYou passed in: '" + opPosition + "'")
+
+    return opPosition
 
 class MODE:
       BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
@@ -484,7 +500,15 @@ class Beautifier:
         if self.output.just_added_newline():
             return
 
-        if (self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap:
+        shouldPreserveOrForce = (self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap
+        operatorLogicApplies = self.flags.last_text in Tokenizer.positionable_operators or current_token.text in Tokenizer.positionable_operators
+
+        if operatorLogicApplies:
+            shouldPrintOperatorNewline = (self.flags.last_text in Tokenizer.positionable_operators and self.opts.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE) \
+                or current_token.text in Tokenizer.positionable_operators
+            shouldPreserveOrForce = shouldPreserveOrForce and shouldPrintOperatorNewline
+
+        if shouldPreserveOrForce:
             self.print_newline(preserve_statement_flags = True)
         elif self.opts.wrap_line_length > 0:
             if self.last_type == 'TK_RESERVED' and self.flags.last_text in self._newline_restricted_tokens:
@@ -1106,6 +1130,15 @@ class Beautifier:
             self.print_token(current_token)
             return
 
+        if current_token.text == '::':
+            # no spaces around the exotic namespacing syntax operator
+            self.print_token(current_token)
+            return
+
+        # Allow line wrapping between operators when operator_position is
+        #   set to before or preserve
+        if self.last_type == 'TK_OPERATOR' and self.opts.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE:
+            self.allow_wrap_or_preserved_newline(current_token)
 
         if current_token.text == ':' and self.flags.in_case:
             self.flags.case_body = True
@@ -1115,23 +1148,78 @@ class Beautifier:
             self.flags.in_case = False
             return
 
-        if current_token.text == '::':
-            # no spaces around the exotic namespacing syntax operator
-            self.print_token(current_token)
-            return
-
-        # Allow line wrapping between operators in an expression
-        if self.last_type == 'TK_OPERATOR':
-            self.allow_wrap_or_preserved_newline(current_token)
-
         space_before = True
         space_after = True
+        in_ternary = False
+        isGeneratorAsterisk = current_token.text == '*' and self.last_type == 'TK_RESERVED' and self.flags.last_text == 'function'
+        isUnary = current_token.text in ['+', '-'] \
+            and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
+            or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')
 
-        if current_token.text in ['--', '++', '!', '~'] \
-                or (current_token.text in ['+', '-'] \
-                    and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
-                    or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')):
 
+        if current_token.text == ':':
+            if self.flags.ternary_depth == 0:
+                # Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
+                space_before = False
+            else:
+                self.flags.ternary_depth -= 1
+                in_ternary = True
+        elif current_token.text == '?':
+            self.flags.ternary_depth += 1
+
+        # let's handle the operator_position option prior to any conflicting logic
+        if (not isUnary) and (not isGeneratorAsterisk) and \
+            self.opts.preserve_newlines and current_token.text in Tokenizer.positionable_operators:
+
+            isColon = current_token.text == ':'
+            isTernaryColon = isColon and in_ternary
+            isOtherColon = isColon and not in_ternary
+
+            if self.opts.operator_position == OPERATOR_POSITION['before_newline']:
+                # if the current token is : and it's not a ternary statement then we set space_before to false
+                self.output.space_before_token = not isOtherColon
+
+                self.print_token(current_token)
+
+                if (not isColon) or isTernaryColon:
+                    self.allow_wrap_or_preserved_newline(current_token)
+
+                self.output.space_before_token = True
+
+                return
+
+            elif self.opts.operator_position == OPERATOR_POSITION['after_newline']:
+                # if the current token is anything but colon, or (via deduction) it's a colon and in a ternary statement,
+                #   then print a newline.
+                self.output.space_before_token = True
+
+                if (not isColon) or isTernaryColon:
+                    if self.get_token(1).wanted_newline:
+                        self.print_newline(preserve_statement_flags = True)
+                    else:
+                        self.allow_wrap_or_preserved_newline(current_token)
+                else:
+                    self.output.space_before_token = False
+
+                self.print_token(current_token)
+
+                self.output.space_before_token = True
+                return
+
+            elif self.opts.operator_position == OPERATOR_POSITION['preserve_newline']:
+                if not isOtherColon:
+                    self.allow_wrap_or_preserved_newline(current_token)
+
+                # if we just added a newline, or the current token is : and it's not a ternary statement,
+                #   then we set space_before to false
+                self.output.space_before_token = not (self.output.just_added_newline() or isOtherColon)
+
+                self.print_token(current_token)
+
+                self.output.space_before_token = True
+                return
+
+        if current_token.text in ['--', '++', '!', '~'] or isUnary:
             space_before = False
             space_after = False
 
@@ -1166,15 +1254,7 @@ class Beautifier:
                 # foo(): --bar
                 self.print_newline()
 
-        elif current_token.text == ':':
-            if self.flags.ternary_depth == 0:
-                # Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
-                space_before = False
-            else:
-                self.flags.ternary_depth -= 1
-        elif current_token.text == '?':
-            self.flags.ternary_depth += 1
-        elif current_token.text == '*' and self.last_type == 'TK_RESERVED' and self.flags.last_text == 'function':
+        elif isGeneratorAsterisk:
             space_before = False
             space_after = False
 
@@ -1193,8 +1273,7 @@ class Beautifier:
             self.output.add_raw_token(current_token)
             if current_token.directives and current_token.directives.get('preserve') == 'end':
                 # If we're testing the raw output behavior, do not allow a directive to turn it off.
-                if not self.opts.test_output_raw:
-                    self.output.raw = False
+                self.output.raw = self.opts.test_output_raw
             return
 
         if current_token.directives:
@@ -1222,10 +1301,8 @@ class Beautifier:
         # block comment starts with a new line
         self.print_newline(preserve_statement_flags = True)
         if  len(lines) > 1:
-            if not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*')):
-                javadoc = True
-            elif all(l.startswith(last_indent) or l.strip() == '' for l in lines[1:]):
-                starless = True
+            javadoc = not any(l for l in lines[1:] if ( l.strip() == '' or (l.lstrip())[0] != '*'))
+            starless = all(l.startswith(last_indent) or l.strip() == '' for l in lines[1:])
 
         # first line always indented
         self.print_token(current_token, lines[0])
@@ -1465,7 +1542,11 @@ class Tokenizer:
     digit_bin = re.compile('[01]')
     digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
-    punct = ('+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! ~ , : ? ^ ^= |= :: => **').split(' ')
+
+    positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
+    punct = (positionable_operators +
+        # non-positionable operators - these do not follow operator position settings
+        '! %= &= *= ++ += , -- /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
@@ -1905,12 +1986,12 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCw:",
+        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
             ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-            'e4x', 'end-with-newline','comma-first','wrap-line-length'])
+            'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -1962,6 +2043,8 @@ def main():
             js_options.end_with_newline = True
         elif opt in ('--comma-first', '-C'):
             js_options.comma_first = True
+        elif opt in ('--operator-position', '-O'):
+            js_options.operator_position = sanitizeOperatorPosition(arg)
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
