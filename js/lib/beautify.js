@@ -1730,7 +1730,7 @@ if (!Object.values) {
         this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
         var punct = this.positionable_operators.concat(
             // non-positionable operators - these do not follow operator position settings
-            '! %= &= *= ++ += , -- /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
+            '! %= &= *= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
 
         // words which should always start on new line.
         this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
