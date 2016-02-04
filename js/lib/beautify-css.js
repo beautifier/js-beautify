@@ -89,7 +89,6 @@
 
         // tokenizer
         var whiteRe = /^\s+$/;
-        var wordRe = /[\w$\-_]/;
 
         var pos = -1,
             ch;

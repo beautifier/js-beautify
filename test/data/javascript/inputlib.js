@@ -2,7 +2,6 @@
 // Inputs //
 //--------//
 
-var ops = ['>', '<', '+', '-', '*', '/', '%', '&', '|', '^', '?', ':'];
 var operator_position = {
     sanity: [
         'var res = a + b - c / d * e % f;',

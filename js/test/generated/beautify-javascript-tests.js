@@ -4,6 +4,7 @@
     Template: test/data/javascript/node.mustache
     Data: test/data/javascript/tests.js
 */
+/*jshint unused:false */
 
 function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {

@@ -1,5 +1,7 @@
 /*global js_beautify: true */
 /*jshint node:true */
+/*jshint unused:false */
+
 
 var fs = require('fs'),
     SanityTest = require('./sanitytest'),

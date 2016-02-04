@@ -1,5 +1,10 @@
 {
+  "bitwise": true,
   "curly": true,
   "eqeqeq": true,
-  "nocomma": true
+  "noarg": true,
+  "nocomma": true,
+  "nonbsp": true,
+  "nonew": true,
+  "unused": true
 }

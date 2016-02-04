@@ -1,4 +1,3 @@
-/*global js_beautify: true */
 /*jshint node:true */
 
 var SanityTest = require('./sanitytest'),
