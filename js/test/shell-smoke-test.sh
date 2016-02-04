@@ -194,6 +194,7 @@ test_cli_js_beautify()
 
   unset HOME
   export USERPROFILE=$SCRIPT_DIR/resources/indent11chars
+  # node -p 'process.env["USERPROFILE"] || process.env["HOME"] || "unset"'
   $CLI_SCRIPT $TEST_TEMP/example1-default.js | diff -q $TEST_TEMP/example1-indent11chars.js - || {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be identical for same HOME and USERPROFILE settings."
       cleanup 1

@@ -2,6 +2,7 @@
 
 REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
 
 build_help()
 {
@@ -43,6 +44,44 @@ build_js()
 {
     echo Building javascript...
     npm install || exit 1
+    generate_tests
+    # jshint
+    $PROJECT_DIR/node_modules/.bin/jshint 'js' 'test' || exit 1
+
+    # beautify test and data
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/amd-beautify-tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-html-perf-tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-perf-tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/sanitytest.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/css/tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/html/tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/javascript/inputlib.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/javascript/tests.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/generate-tests.js  || exit 1
+
+    # beautify product code
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/javascriptobfuscator_unpacker.js  || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/myobfuscate_unpacker.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/p_a_c_k_e_r_unpacker.js  || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/urlencode_unpacker.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify-css.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify-html.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/cli.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/index.js || exit 1
+
+
+    # html not ready yet
+    # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
+
+    # jshint again to make sure things haven't changed
+    $PROJECT_DIR/node_modules/.bin/jshint 'js' 'test' || exit 1
+}
+
+generate_tests()
+{
+  	node test/generate-tests.js || exit 1
 }
 
 build_alltest()
@@ -54,7 +93,7 @@ build_alltest()
 build_pytest()
 {
   	echo Testing python implementation...
-  	node test/generate-tests.js || exit 1
+  	generate_tests
   	cd python
   	python --version
   	./jsbeautifier/tests/shell-smoke-test.sh || exit 1
@@ -63,7 +102,7 @@ build_pytest()
 build_jstest()
 {
   	echo Testing javascript implementation...
-  	node test/generate-tests.js || exit 1
+  	generate_tests
   	node --version
   	./js/test/shell-smoke-test.sh || exit 1
 }
@@ -87,7 +126,7 @@ build_update-codemirror()
 }
 
 main() {
-  cd $SCRIPT_DIR/..
+  cd $PROJECT_DIR
   local ACTION
   ACTION=build_${1:-full}
   if [ -n "$(type -t $ACTION)" ] && [ "$(type -t $ACTION)" = "function" ]; then

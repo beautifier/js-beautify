@@ -16,15 +16,13 @@ exports.test_data = {
         tests: [
             {
               input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
-            },
-            {
+            }, {
                 input: [
                     "var ' + unicode_char(228) + 'x = {",
                     "    ' + unicode_char(228) + 'rgerlich: true",
                     "};"]
             }
-        ],
-
+        ]
     }, {
         name: "Test template and continuation strings",
         description: "",
@@ -546,9 +544,6 @@ exports.test_data = {
             }
         ]
     }, {
-        name: "New Test Suite"
-    },
-    {
         name: "Async / await tests",
         description: "ES7 async / await tests",
         tests: [
@@ -568,8 +563,7 @@ exports.test_data = {
                 input: "async.map(function(t) {})"
             }
         ]
-    },
-    {
+    }, {
         name: "e4x - Test that e4x literals passed through when e4x-option is enabled",
         description: "",
         options: [
@@ -934,8 +928,7 @@ exports.test_data = {
                 ]
             }
         ]
-    },
-    {
+    }, {
         name: "e4x disabled",
         description: "",
         options: [
@@ -947,8 +940,7 @@ exports.test_data = {
                 output: 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;'
             }
         ]
-    },
-    {
+    }, {
         name: "Multiple braces",
         description: "",
         template: "^^^ $$$",
@@ -956,8 +948,7 @@ exports.test_data = {
         tests: [
             { input: '{{}/z/}', output: '{\n    {}\n    /z/\n}' }
         ]
-    },
-    {
+    }, {
         name: "Beautify preserve formatting",
         description: "Allow beautifier to preserve sections",
         tests: [
@@ -1263,8 +1254,7 @@ exports.test_data = {
                 ]
             },
         ]
-    },
-    {
+    }, {
         name: "Template Formatting",
         description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
         options: [],
@@ -1283,8 +1273,7 @@ exports.test_data = {
             },
             { unchanged: 'a = <%= external() %>;' }
         ]
-    },
-    {
+    }, {
         name: "jslint and space after anon function",
         description: "jslint_happy and space_after_anon_function tests",
         matrix: [
@@ -1917,14 +1906,12 @@ exports.test_data = {
             //     ]
             // },
         ]
-    },
-
+    }, {
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting
         // old test to generated form.
         // =======================================================
-    {
         name: "Old tests",
         description: "Largely unorganized pile of tests",
         options: [],
@@ -2374,8 +2361,8 @@ exports.test_data = {
 
         ],
     }],
-    // Example
     examples: [{
+    // Example
         group_name: "one",
         description: "",
         options: [],

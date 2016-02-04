@@ -879,13 +879,15 @@ if (!Object.values) {
                 if (is_array(previous_flags.mode) && (last_type === 'TK_START_EXPR' || last_type === 'TK_COMMA')) {
                     // if we're preserving inline,
                     // allow newline between comma and next brace.
-                    if (flags.inline_frame) {
+                    if (last_type === 'TK_COMMA' || opt.space_in_paren ) {
+                        output.space_before_token = true;
+                    }
+
+                    if (opt.brace_style === 'collapse-preserve-inline' &&
+                        (last_type === 'TK_COMMA' || (last_type === 'TK_START_EXPR' && flags.inline_frame ))) {
                         allow_wrap_or_preserved_newline();
-                        flags.inline_frame = true;
                         previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
                         flags.multiline_frame = false;
-                    } else if (last_type === 'TK_COMMA') {
-                        output.space_before_token = true;
                     }
                 } else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                     if (last_type === 'TK_START_BLOCK') {
