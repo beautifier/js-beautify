@@ -72,7 +72,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     }
 
     function unicode_char(value) {
-        return String.fromCharCode(value)
+        return String.fromCharCode(value);
     }
 
     function beautifier_tests()

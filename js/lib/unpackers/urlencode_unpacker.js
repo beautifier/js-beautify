@@ -18,19 +18,19 @@ if (isNode) {
 }
 
 var Urlencoded = {
-    detect: function (str) {
+    detect: function(str) {
         // the fact that script doesn't contain any space, but has %20 instead
         // should be sufficient check for now.
-        if (str.indexOf(' ') == -1) {
-            if (str.indexOf('%2') != -1) return true;
+        if (str.indexOf(' ') === -1) {
+            if (str.indexOf('%2') !== -1) return true;
             if (str.replace(/[^%]+/g, '').length > 3) return true;
         }
         return false;
     },
 
-    unpack: function (str) {
+    unpack: function(str) {
         if (Urlencoded.detect(str)) {
-            if (str.indexOf('%2B') != -1 || str.indexOf('%2b') != -1) {
+            if (str.indexOf('%2B') !== -1 || str.indexOf('%2b') !== -1) {
                 // "+" escaped as "%2B"
                 return unescape(str.replace(/\+/g, '%20'));
             } else {
@@ -42,7 +42,7 @@ var Urlencoded = {
 
 
 
-    run_tests: function (sanity_test) {
+    run_tests: function(sanity_test) {
         var t = sanity_test || new SanityTest();
         t.test_function(Urlencoded.detect, "Urlencoded.detect");
         t.expect('', false);

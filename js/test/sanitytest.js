@@ -11,9 +11,9 @@
 // alert(t.results_raw());        // html unescaped
 
 
-function SanityTest (func, name_of_test) {
+function SanityTest(func, name_of_test) {
 
-    var test_func = func || function (x) {
+    var test_func = func || function(x) {
         return x;
     };
 
@@ -55,7 +55,7 @@ function SanityTest (func, name_of_test) {
                 results = 'All ' + n_succeeded + ' tests passed.';
             }
         } else {
-            for (var i = 0 ; i < failures.length; i++) {
+            for (var i = 0; i < failures.length; i++) {
                 var f = failures[i];
                 if (f[0]) {
                     f[0] = f[0] + ' ';
@@ -78,47 +78,45 @@ function SanityTest (func, name_of_test) {
 
     this.prettyprint = function(something, quote_strings) {
         var type = typeof something;
-        switch(type.toLowerCase()) {
-        case 'string':
-            if (quote_strings) {
-                return "'" + something.replace("'", "\\'") + "'";
-            } else {
-                return something;
-            }
-        case 'number':
-            return '' + something;
-        case 'boolean':
-            return something ? 'true' : 'false';
-        case 'undefined':
-            return 'undefined';
-        case 'object':
-            if (something instanceof Array) {
-                var x = [];
-                var expected_index = 0;
-                for (var k in something) {
-                    if (k === expected_index) {
-                        x.push(this.prettyprint(something[k], true));
-                        expected_index += 1;
-                    } else {
-                        x.push('\n' + k + ': ' + this.prettyprint(something[k], true));
-                    }
+        switch (type.toLowerCase()) {
+            case 'string':
+                if (quote_strings) {
+                    return "'" + something.replace("'", "\\'") + "'";
                 }
-                return '[' + x.join(', ') + ']';
-            } else {
+                return something;
+            case 'number':
+                return '' + something;
+            case 'boolean':
+                return something ? 'true' : 'false';
+            case 'undefined':
+                return 'undefined';
+            case 'object':
+                if (something instanceof Array) {
+                    var x = [];
+                    var expected_index = 0;
+                    for (var k in something) {
+                        if (k === expected_index) {
+                            x.push(this.prettyprint(something[k], true));
+                            expected_index += 1;
+                        } else {
+                            x.push('\n' + k + ': ' + this.prettyprint(something[k], true));
+                        }
+                    }
+                    return '[' + x.join(', ') + ']';
+                }
                 return 'object: ' + something;
-            }
-        default:
-            return type + ': ' + something;
+            default:
+                return type + ': ' + something;
         }
     };
 
 
-    this.lazy_escape = function (str) {
+    this.lazy_escape = function(str) {
         return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
     };
 
 
-    this.log = function () {
+    this.log = function() {
         if (window.console) {
             if (console.firebug) {
                 console.log.apply(console, Array.prototype.slice.call(arguments));

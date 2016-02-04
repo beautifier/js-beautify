@@ -28,7 +28,7 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
 
     template_file_path = path.resolve(input_path, 'node.mustache');
     template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
-    set_formatters(test_data, test_method, '// ')
+    set_formatters(test_data, test_method, '// ');
     set_generated_header(test_data, data_file_path, template_file_path);
     fs.writeFileSync(path.resolve(__dirname, '..', node_output),
         mustache.render(template, test_data), { encoding: 'utf-8' });
@@ -36,7 +36,7 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
     if (python_output) {
         template_file_path = path.resolve(input_path, 'python.mustache');
         template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
-        set_formatters(test_data, test_method, '# ')
+        set_formatters(test_data, test_method, '# ');
         set_generated_header(test_data, data_file_path, template_file_path);
         fs.writeFileSync(path.resolve(__dirname, '..', python_output),
             mustache.render(template, test_data), { encoding: 'utf-8' });
@@ -88,7 +88,7 @@ function set_formatters(data, test_method, comment_mark) {
                 }
             }
             return render(outputs.join(', '));
-        }
+        };
     };
 
     data.test_line = function() {
@@ -168,7 +168,7 @@ function set_formatters(data, test_method, comment_mark) {
                 output = '';
             }
             return comment + before_input + input + before_output + output + ')';
-        }
+        };
     };
 
     data.set_mustache_tags = function() {
@@ -177,7 +177,7 @@ function set_formatters(data, test_method, comment_mark) {
                 mustache.tags = this.template.split(' ');
             }
             return '';
-        }
+        };
     };
 
     data.unset_mustache_tags = function() {
@@ -186,7 +186,7 @@ function set_formatters(data, test_method, comment_mark) {
                 mustache.tags = ['{{', '}}'];
             }
             return '';
-        }
+        };
     };
 }
 

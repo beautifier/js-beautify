@@ -1,6 +1,3 @@
-'use strict';
-
-
 //--------//
 // Inputs //
 //--------//
@@ -85,4 +82,4 @@ var operator_position = {
 
 module.exports = {
     operator_position: operator_position
-}
+};

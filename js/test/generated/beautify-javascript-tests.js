@@ -253,7 +253,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     }
 
     function unicode_char(value) {
-        return String.fromCharCode(value)
+        return String.fromCharCode(value);
     }
 
     function beautifier_tests()
@@ -985,11 +985,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        anOcean\n' +
             '        || aRiver);\n' +
             '}');
-
-
-        reset_options();
-        //============================================================
-        // New Test Suite
 
 
         reset_options();

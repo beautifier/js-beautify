@@ -815,11 +815,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # New Test Suite
-
-
-        self.reset_options();
-        #============================================================
         # Async / await tests
         bt('async function foo() {}')
         bt('let w = async function foo() {}')
