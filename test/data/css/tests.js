@@ -153,6 +153,12 @@ exports.test_data = {
             { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' }
         ],
     }, {
+        name: "Handle LESS properties",
+        description: "",
+        tests: [
+            { unchanged: 'tag {\n\t@{prop}: none;\n}' }
+        ],
+    }, {
         name: "Psuedo-classes vs Variables",
         description: "",
         tests: [

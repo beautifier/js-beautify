@@ -224,6 +224,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
+        // Handle LESS properties
+        t('tag {\n\t@{prop}: none;\n}');
+
+
+        reset_options();
+        //============================================================
         // Psuedo-classes vs Variables
         t('@page :first {}');
         

@@ -187,6 +187,12 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Handle LESS properties
+        t('tag {\n\t@{prop}: none;\n}')
+
+
+        self.reset_options();
+        #============================================================
         # Psuedo-classes vs Variables
         t('@page :first {}')
         
