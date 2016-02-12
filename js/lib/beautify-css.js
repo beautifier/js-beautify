@@ -304,7 +304,7 @@
                 print.preserveSingleSpace();
 
                 // deal with less propery mixins @{...}
-                if (peek() == '{') {
+                if (peek() === '{') {
                     output.push(eatString('}'));
                 } else {
                     output.push(ch);
