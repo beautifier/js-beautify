@@ -187,8 +187,14 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # Handle LESS properties
+        # Handle LESS property name interpolation
         t('tag {\n\t@{prop}: none;\n}')
+
+
+        self.reset_options();
+        #============================================================
+        # Handle LESS property name interpolation, test #631
+        t('.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}')
 
 
         self.reset_options();

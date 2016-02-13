@@ -153,10 +153,16 @@ exports.test_data = {
             { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' }
         ],
     }, {
-        name: "Handle LESS properties",
+        name: "Handle LESS property name interpolation",
         description: "",
         tests: [
             { unchanged: 'tag {\n\t@{prop}: none;\n}' }
+        ],
+    }, {
+        name: "Handle LESS property name interpolation, test #631",
+        description: "",
+        tests: [
+            { unchanged: '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}' }
         ],
     }, {
         name: "Psuedo-classes vs Variables",
