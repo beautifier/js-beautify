@@ -1908,6 +1908,22 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Test non-positionable-ops
+        bt('a += 2;')
+        bt('a -= 2;')
+        bt('a *= 2;')
+        bt('a /= 2;')
+        bt('a %= 2;')
+        bt('a &= 2;')
+        bt('a ^= 2;')
+        bt('a |= 2;')
+        bt('a **= 2;')
+        bt('a <<= 2;')
+        bt('a >>= 2;')
+
+
+        self.reset_options();
+        #============================================================
         # Destructured and related
         self.options.brace_style = 'collapse-preserve-inline'
         
