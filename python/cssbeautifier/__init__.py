@@ -337,28 +337,32 @@ class Beautifier:
                 printer.newLine()
             elif self.ch == '@':
                 printer.preserveSingleSpace(isAfterSpace)
-                printer.push(self.ch)
 
-                # strip trailing space, if present, for hash property check
-                variableOrRule = self.peekString(": ,;{}()[]/='\"")
+                # deal with less propery mixins @{...}
+                if self.peek(True) == '{':
+                    printer.push(self.eatString('}'));
+                else:
+                    printer.push(self.ch)
+                    # strip trailing space, if present, for hash property check
+                    variableOrRule = self.peekString(": ,;{}()[]/='\"")
 
-                if variableOrRule[-1] in ": ":
-                    # wwe have a variable or pseudo-class, add it and insert one space before continuing
-                    self.next()
-                    variableOrRule = self.eatString(": ")
+                    if variableOrRule[-1] in ": ":
+                        # wwe have a variable or pseudo-class, add it and insert one space before continuing
+                        self.next()
+                        variableOrRule = self.eatString(": ")
+                        if variableOrRule[-1].isspace():
+                            variableOrRule = variableOrRule[:-1]
+                        printer.push(variableOrRule)
+                        printer.singleSpace();
+
                     if variableOrRule[-1].isspace():
                         variableOrRule = variableOrRule[:-1]
-                    printer.push(variableOrRule)
-                    printer.singleSpace();
 
-                if variableOrRule[-1].isspace():
-                    variableOrRule = variableOrRule[:-1]
-
-                # might be a nesting at-rule
-                if variableOrRule in self.NESTED_AT_RULE:
-                    printer.nestedLevel += 1
-                    if variableOrRule in self.CONDITIONAL_GROUP_RULE:
-                        enteringConditionalGroup = True
+                    # might be a nesting at-rule
+                    if variableOrRule in self.NESTED_AT_RULE:
+                        printer.nestedLevel += 1
+                        if variableOrRule in self.CONDITIONAL_GROUP_RULE:
+                            enteringConditionalGroup = True
             elif self.ch == '#' and self.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.eatString('}'));
