@@ -1812,6 +1812,22 @@ exports.test_data = {
             },
         ]
     }, {
+        name: "Test non-positionable-ops",
+        description: "Ensure specific bugs do not recur",
+        tests: [
+            { unchanged: 'a += 2;' },
+            { unchanged: 'a -= 2;' },
+            { unchanged: 'a *= 2;' },
+            { unchanged: 'a /= 2;' },
+            { unchanged: 'a %= 2;' },
+            { unchanged: 'a &= 2;' },
+            { unchanged: 'a ^= 2;' },
+            { unchanged: 'a |= 2;' },
+            { unchanged: 'a **= 2;' },
+            { unchanged: 'a <<= 2;' },
+            { unchanged: 'a >>= 2;' },
+        ]
+    }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
         options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],

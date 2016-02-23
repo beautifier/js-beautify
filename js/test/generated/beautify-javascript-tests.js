@@ -2083,6 +2083,22 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Test non-positionable-ops
+        bt('a += 2;');
+        bt('a -= 2;');
+        bt('a *= 2;');
+        bt('a /= 2;');
+        bt('a %= 2;');
+        bt('a &= 2;');
+        bt('a ^= 2;');
+        bt('a |= 2;');
+        bt('a **= 2;');
+        bt('a <<= 2;');
+        bt('a >>= 2;');
+
+
+        reset_options();
+        //============================================================
         // Destructured and related
         opts.brace_style = 'collapse-preserve-inline';
         

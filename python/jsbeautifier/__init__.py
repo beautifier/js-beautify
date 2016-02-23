@@ -1546,7 +1546,7 @@ class Tokenizer:
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
         # non-positionable operators - these do not follow operator position settings
-        '! %= &= *= ++ += , -- /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
+        '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
