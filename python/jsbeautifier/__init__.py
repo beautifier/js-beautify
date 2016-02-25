@@ -480,7 +480,6 @@ class Beautifier:
         try:
             return unpackers.run(source, evalcode)
         except unpackers.UnpackingError as error:
-            print('error:', error)
             return ''
 
     def is_special_word(self, s):
