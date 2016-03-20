@@ -66,7 +66,6 @@ var JavascriptObfuscator = {
         return strings;
     },
 
-
     _unescape: function(str) {
         // inefficient if used repeatedly or on small strings, but wonderful on single large chunk of text
         for (var i = 32; i < 128; i++) {
@@ -98,6 +97,5 @@ var JavascriptObfuscator = {
         t.expect('var _0x1234=["a","b"]', true);
         return t;
     }
-
 
 };

@@ -86,5 +86,4 @@ var MyObfuscate = {
         return t;
     }
 
-
 };

@@ -6,10 +6,12 @@ var path = require('path');
 
 function generate_tests() {
     // javascript
-    generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js', 'python/jsbeautifier/tests/generated/tests.py');
+    generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js',
+        'python/jsbeautifier/tests/generated/tests.py');
 
     // css
-    generate_test_files('css', 't', 'js/test/generated/beautify-css-tests.js', 'python/cssbeautifier/tests/generated/tests.py');
+    generate_test_files('css', 't', 'js/test/generated/beautify-css-tests.js',
+        'python/cssbeautifier/tests/generated/tests.py');
 
     // html
     // no python html beautifier, so no tests
@@ -22,29 +24,44 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
 
     input_path = path.resolve(__dirname, 'data', data_folder);
     data_file_path = path.resolve(input_path, 'tests.js');
-    test_data = require(data_file_path).test_data;
+    test_data = require(data_file_path)
+        .test_data;
 
     template_file_path = path.resolve(input_path, 'node.mustache');
-    template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
+    template = fs.readFileSync(template_file_path, {
+        encoding: 'utf-8'
+    });
     set_formatters(test_data, test_method, '// ');
     set_generated_header(test_data, data_file_path, template_file_path);
     fs.writeFileSync(path.resolve(__dirname, '..', node_output),
-        mustache.render(template, test_data), { encoding: 'utf-8' });
+        mustache.render(template, test_data), {
+            encoding: 'utf-8'
+        });
 
     if (python_output) {
         template_file_path = path.resolve(input_path, 'python.mustache');
-        template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
+        template = fs.readFileSync(template_file_path, {
+            encoding: 'utf-8'
+        });
         set_formatters(test_data, test_method, '# ');
         set_generated_header(test_data, data_file_path, template_file_path);
         fs.writeFileSync(path.resolve(__dirname, '..', python_output),
-            mustache.render(template, test_data), { encoding: 'utf-8' });
+            mustache.render(template, test_data), {
+                encoding: 'utf-8'
+            });
     }
 }
 
 function set_generated_header(data, data_file_path, template_file_path) {
-    var relative_script_path = path.relative(process.cwd(), __filename).split(path.sep).join('/');
-    var relative_data_file_path = path.relative(process.cwd(), data_file_path).split(path.sep).join('/');
-    var relative_template_file_path = path.relative(process.cwd(), template_file_path).split(path.sep).join('/');
+    var relative_script_path = path.relative(process.cwd(), __filename)
+        .split(path.sep)
+        .join('/');
+    var relative_data_file_path = path.relative(process.cwd(), data_file_path)
+        .split(path.sep)
+        .join('/');
+    var relative_template_file_path = path.relative(process.cwd(), template_file_path)
+        .split(path.sep)
+        .join('/');
 
     data.header_text =
         '    AUTO-GENERATED. DO NOT MODIFY.\n' +
@@ -60,9 +77,11 @@ function isStringOrArray(val) {
 
 function getTestString(val) {
     if (typeof val === 'string') {
-        return "'" + val.replace(/\n/g, '\\n').replace(/\t/g, '\\t') + "'";
+        return "'" + val.replace(/\n/g, '\\n')
+            .replace(/\t/g, '\\t') + "'";
     } else if (val instanceof Array) {
-        return "'" + val.join("\\n' +\n            '").replace(/\t/g, '\\t') + "'";
+        return "'" + val.join("\\n' +\n            '")
+            .replace(/\t/g, '\\t') + "'";
     } else {
         return null;
     }

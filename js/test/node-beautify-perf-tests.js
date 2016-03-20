@@ -6,9 +6,12 @@ var fs = require('fs'),
     SanityTest = require('./sanitytest'),
     Benchmark = require('benchmark'),
     Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
-    js_beautify = require('../index').js_beautify,
-    css_beautify = require('../index').css_beautify,
-    html_beautify = require('../index').html_beautify;
+    js_beautify = require('../index')
+    .js_beautify,
+    css_beautify = require('../index')
+    .css_beautify,
+    html_beautify = require('../index')
+    .html_beautify;
 
 function node_beautifier_tests() {
     console.log('Testing performance...');
@@ -41,9 +44,6 @@ function node_beautifier_tests() {
         .run();
     return 0;
 }
-
-
-
 
 if (require.main === module) {
     process.exit(node_beautifier_tests());

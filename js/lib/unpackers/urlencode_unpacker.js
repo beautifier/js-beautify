@@ -23,7 +23,8 @@ var Urlencoded = {
         // should be sufficient check for now.
         if (str.indexOf(' ') === -1) {
             if (str.indexOf('%2') !== -1) return true;
-            if (str.replace(/[^%]+/g, '').length > 3) return true;
+            if (str.replace(/[^%]+/g, '')
+                .length > 3) return true;
         }
         return false;
     },
@@ -40,8 +41,6 @@ var Urlencoded = {
         return str;
     },
 
-
-
     run_tests: function(sanity_test) {
         var t = sanity_test || new SanityTest();
         t.test_function(Urlencoded.detect, "Urlencoded.detect");
@@ -50,7 +49,8 @@ var Urlencoded = {
         t.expect('var%20a+=+b', true);
         t.expect('var%20a=b', true);
         t.expect('var%20%21%22', true);
-        t.expect('javascript:(function(){var%20whatever={init:function(){alert(%22a%22+%22b%22)}};whatever.init()})();', true);
+        t.expect('javascript:(function(){var%20whatever={init:function(){alert(%22a%22+%22b%22)}};whatever.init()})();',
+            true);
         t.test_function(Urlencoded.unpack, 'Urlencoded.unpack');
 
         t.expect('javascript:(function(){var%20whatever={init:function(){alert(%22a%22+%22b%22)}};whatever.init()})();',
@@ -64,7 +64,6 @@ var Urlencoded = {
         t.expect('var%20a=b%2b1', 'var a=b+1');
         return t;
     }
-
 
 };
 

@@ -1,43 +1,71 @@
 exports.test_data = {
-    default_options: [
-        { name: "indent_size", value: "4" },
-        { name: "indent_char", value: "' '" },
-        { name: "indent_with_tabs", value: "false" },
-        { name: "preserve_newlines", value: "true" },
-        { name: "jslint_happy", value: "false" },
-        { name: "keep_array_indentation", value: "false" },
-        { name: "brace_style", value: "'collapse'" },
-        { name: "extra_liners", value: "['html', 'head', '/html']" }
-    ],
+    default_options: [{
+        name: "indent_size",
+        value: "4"
+    }, {
+        name: "indent_char",
+        value: "' '"
+    }, {
+        name: "indent_with_tabs",
+        value: "false"
+    }, {
+        name: "preserve_newlines",
+        value: "true"
+    }, {
+        name: "jslint_happy",
+        value: "false"
+    }, {
+        name: "keep_array_indentation",
+        value: "false"
+    }, {
+        name: "brace_style",
+        value: "'collapse'"
+    }, {
+        name: "extra_liners",
+        value: "['html', 'head', '/html']"
+    }],
     groups: [{
         name: "End With Newline",
         description: "",
         matrix: [{
-                options: [
-                    { name: "end_with_newline", value: "true" }
-                ],
+                options: [{
+                    name: "end_with_newline",
+                    value: "true"
+                }],
                 eof: '\\n'
             }, {
-                options: [
-                    { name: "end_with_newline", value: "false" }
-                ],
+                options: [{
+                    name: "end_with_newline",
+                    value: "false"
+                }],
                 eof: ''
             }
 
         ],
-        tests: [
-            { fragment: true, input: '', output: '{{eof}}' },
-            { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
+        tests: [{
+                fragment: true,
+                input: '',
+                output: '{{eof}}'
+            }, {
+                fragment: true,
+                input: '<div></div>',
+                output: '<div></div>{{eof}}'
+            },
             // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
-            { fragment: true, input: '\n', output: '{{eof}}' }
+            {
+                fragment: true,
+                input: '\n',
+                output: '{{eof}}'
+            }
         ],
     }, {
         name: "Custom Extra Liners (empty)",
         description: "",
         matrix: [{
-                options: [
-                    { name: "extra_liners", value: "[]" }
-                ]
+                options: [{
+                    name: "extra_liners",
+                    value: "[]"
+                }]
             },
 
         ],
@@ -50,9 +78,10 @@ exports.test_data = {
         name: "Custom Extra Liners (default)",
         description: "",
         matrix: [{
-                options: [
-                    { name: "extra_liners", value: "null" }
-                ]
+                options: [{
+                    name: "extra_liners",
+                    value: "null"
+                }]
             },
 
         ],
@@ -65,9 +94,10 @@ exports.test_data = {
         name: "Custom Extra Liners (p, string)",
         description: "",
         matrix: [{
-                options: [
-                    { name: "extra_liners", value: "'p,/p'" }
-                ]
+                options: [{
+                    name: "extra_liners",
+                    value: "'p,/p'"
+                }]
             },
 
         ],
@@ -80,9 +110,10 @@ exports.test_data = {
         name: "Custom Extra Liners (p)",
         description: "",
         matrix: [{
-                options: [
-                    { name: "extra_liners", value: "['p', '/p']" }
-                ]
+                options: [{
+                    name: "extra_liners",
+                    value: "['p', '/p']"
+                }]
             },
 
         ],
@@ -228,46 +259,66 @@ exports.test_data = {
         name: "Attribute Wrap",
         description: "Wraps attributes inside of html tags",
         matrix: [{
-            options: [
-                { name: "wrap_attributes", value: "'force'" }
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'force'"
+            }],
             indent_attr: '\\n    ',
             indent_over80: '\\n    '
         }, {
-            options: [
-                { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_line_length", value: "80" }
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'force'"
+            }, {
+                name: "wrap_line_length",
+                value: "80"
+            }],
             indent_attr: '\\n    ',
             indent_over80: '\\n    '
         }, {
-            options: [
-                { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_attributes_indent_size", value: "8" },
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'force'"
+            }, {
+                name: "wrap_attributes_indent_size",
+                value: "8"
+            }, ],
             indent_attr: '\\n        ',
             indent_over80: '\\n        '
         }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "80" },
-                { name: "wrap_attributes_indent_size", value: "0" }
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'auto'"
+            }, {
+                name: "wrap_line_length",
+                value: "80"
+            }, {
+                name: "wrap_attributes_indent_size",
+                value: "0"
+            }],
             indent_attr: ' ',
             indent_over80: '\\n'
         }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "80" },
-                { name: "wrap_attributes_indent_size", value: "4" }
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'auto'"
+            }, {
+                name: "wrap_line_length",
+                value: "80"
+            }, {
+                name: "wrap_attributes_indent_size",
+                value: "4"
+            }],
             indent_attr: ' ',
             indent_over80: '\\n    '
         }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "0" }
-            ],
+            options: [{
+                name: "wrap_attributes",
+                value: "'auto'"
+            }, {
+                name: "wrap_line_length",
+                value: "0"
+            }],
             indent_attr: ' ',
             indent_over80: ' '
         }],
@@ -296,9 +347,10 @@ exports.test_data = {
         name: "Handlebars Indenting Off",
         description: "Test handlebar behavior when indenting is off",
         template: "^^^ $$$",
-        options: [
-            { name: "indent_handlebars", value: "false" }
-        ],
+        options: [{
+            name: "indent_handlebars",
+            value: "false"
+        }],
         tests: [{
                 fragment: true,
                 input_: '{{#if 0}}\n' +
@@ -327,31 +379,43 @@ exports.test_data = {
         description: "Test handlebar formatting",
         template: "^^^ $$$",
         matrix: [{
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
+            options: [{
+                name: "indent_handlebars",
+                value: "true"
+            }],
             content: '{{field}}'
         }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
+            options: [{
+                name: "indent_handlebars",
+                value: "true"
+            }],
             content: '{{! comment}}'
         }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
+            options: [{
+                name: "indent_handlebars",
+                value: "true"
+            }],
             content: '{pre{{field1}} {{field2}} {{field3}}post'
         }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
+            options: [{
+                name: "indent_handlebars",
+                value: "true"
+            }],
             content: '{{! \\n mult-line\\ncomment  \\n     with spacing\\n}}'
         }],
-        tests: [
-            { fragment: true, unchanged: '{{page-title}}' },
-            { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
+        tests: [{
+                fragment: true,
+                unchanged: '{{page-title}}'
+            }, {
+                fragment: true,
+                unchanged: '{{#if 0}}{{/if}}'
+            }, {
+                fragment: true,
+                unchanged: '{{#if 0}}^^^content$$${{/if}}'
+            }, {
+                fragment: true,
+                unchanged: '{{#if 0}}\n{{/if}}'
+            }, {
                 fragment: true,
                 input_: '{{#if     words}}{{/if}}',
                 output: '{{#if words}}{{/if}}'
@@ -513,9 +577,10 @@ exports.test_data = {
         name: "Handlebars Else tag indenting",
         description: "Handlebar Else tags should be newlined after formatted tags",
         template: "^^^ $$$",
-        options: [
-            { name: "indent_handlebars", value: "true" }
-        ],
+        options: [{
+            name: "indent_handlebars",
+            value: "true"
+        }],
         tests: [{
             fragment: true,
             input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
@@ -532,56 +597,77 @@ exports.test_data = {
         name: "Unclosed html elements",
         description: "Unclosed elements should not indent",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<source>\n<source>' },
-            { fragment: true, unchanged: '<br>\n<br>' },
-            { fragment: true, unchanged: '<input>\n<input>' },
-            { fragment: true, unchanged: '<meta>\n<meta>' },
-            { fragment: true, unchanged: '<link>\n<link>' },
-            { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
-        ]
+        tests: [{
+            fragment: true,
+            unchanged: '<source>\n<source>'
+        }, {
+            fragment: true,
+            unchanged: '<br>\n<br>'
+        }, {
+            fragment: true,
+            unchanged: '<input>\n<input>'
+        }, {
+            fragment: true,
+            unchanged: '<meta>\n<meta>'
+        }, {
+            fragment: true,
+            unchanged: '<link>\n<link>'
+        }, {
+            fragment: true,
+            unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>'
+        }]
     }, {
         name: "Unformatted tags",
         description: "Unformatted tag behavior",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
-            { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
-            { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
-            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
-            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
-        ]
+        tests: [{
+            fragment: true,
+            unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>'
+        }, {
+            fragment: true,
+            unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>'
+        }, {
+            fragment: true,
+            unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>'
+        }, {
+            fragment: true,
+            unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>'
+        }, {
+            fragment: true,
+            unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>'
+        }, ]
     }, {
         name: "Php formatting",
         description: "Php (<?php ... ?>) treated as comments.",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>' }, {
-                fragment: true,
-                unchanged: [
-                    '<?php',
-                    'for($i = 1; $i <= 100; $i++;) {',
-                    '    #count to 100!',
-                    '    echo($i . "</br>");',
-                    '}',
-                    '?>'
-                ]
-            }, {
-                fragment: true,
-                unchanged: [
-                    '<?php ?>',
-                    '<!DOCTYPE html>',
-                    '',
-                    '<html>',
-                    '',
-                    '<head></head>',
-                    '',
-                    '<body></body>',
-                    '',
-                    '</html>'
-                ]
-            }
-        ]
+        tests: [{
+            fragment: true,
+            unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>'
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php',
+                'for($i = 1; $i <= 100; $i++;) {',
+                '    #count to 100!',
+                '    echo($i . "</br>");',
+                '}',
+                '?>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php ?>',
+                '<!DOCTYPE html>',
+                '',
+                '<html>',
+                '',
+                '<head></head>',
+                '',
+                '<body></body>',
+                '',
+                '</html>'
+            ]
+        }]
     }, {
         name: "underscore.js  formatting",
         description: "underscore.js templates (<% ... %>) treated as comments.",
@@ -600,9 +686,10 @@ exports.test_data = {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
         template: "^^^ $$$",
-        options: [
-            { name: "indent_with_tabs", value: "true" }
-        ],
+        options: [{
+            name: "indent_with_tabs",
+            value: "true"
+        }],
         tests: [{
             fragment: true,
             input_: '<div>\n' +
@@ -618,9 +705,10 @@ exports.test_data = {
         name: "Indent without tabs",
         description: "Use several spaces for indentation",
         template: "^^^ $$$",
-        options: [
-            { name: "indent_with_tabs", value: "false" }
-        ],
+        options: [{
+            name: "indent_with_tabs",
+            value: "false"
+        }],
         tests: [{
             fragment: true,
             input_: '<div>\n' +

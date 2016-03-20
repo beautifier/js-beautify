@@ -115,7 +115,8 @@
         indent_size = (options.indent_size === undefined) ? 4 : parseInt(options.indent_size, 10);
         indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
         brace_style = (options.brace_style === undefined) ? 'collapse' : options.brace_style;
-        wrap_line_length = parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
+        wrap_line_length = parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250,
+            10);
         unformatted = options.unformatted || [
             // https://www.w3.org/TR/html5/dom.html#phrasing-content
             'a', 'abbr', 'area', 'audio', 'b', 'bdi', 'bdo', 'br', 'button', 'canvas', 'cite',
@@ -135,7 +136,8 @@
             0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
-        wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
+        wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(
+            options.wrap_attributes_indent_size, 10);
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -147,7 +149,8 @@
             indent_size = 1;
         }
 
-        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
+        eol = eol.replace(/\\r/, '\r')
+            .replace(/\\n/, '\n');
 
         function Parser() {
 
@@ -457,7 +460,8 @@
                         break;
                     }
 
-                    if (indent_handlebars && tag_start_char === '{' && content.length > 2 && content[content.length - 2] === '}' && content[content.length - 1] === '}') {
+                    if (indent_handlebars && tag_start_char === '{' && content.length > 2 && content[content.length - 2] === '}' &&
+                        content[content.length - 1] === '}') {
                         break;
                     }
                 } while (input_char !== '>');
@@ -478,7 +482,8 @@
                 } else {
                     tag_offset = tag_complete.charAt(2) === '#' ? 3 : 2;
                 }
-                var tag_check = tag_complete.substring(tag_offset, tag_index).toLowerCase();
+                var tag_check = tag_complete.substring(tag_offset, tag_index)
+                    .toLowerCase();
                 if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
                     this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
                     if (!peek) {
@@ -499,7 +504,8 @@
                 } else if (tag_check === 'script' &&
                     (tag_complete.search('type') === -1 ||
                         (tag_complete.search('type') > -1 &&
-                            tag_complete.search(/\b(text|application)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json)/) > -1))) {
+                            tag_complete.search(/\b(text|application)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json)/) > -1)
+                    )) {
                     if (!peek) {
                         this.record_tag(tag_check);
                         this.tag_type = 'SCRIPT';
@@ -607,7 +613,8 @@
 
                 var add = function(str) {
                     var newToken = token + str.toLowerCase();
-                    token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length, delimiter.length);
+                    token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length,
+                        delimiter.length);
                 };
 
                 var doesNotMatch = function() {
@@ -621,7 +628,8 @@
             }
 
             this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
-                if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
+                if (orig_tag && orig_tag.toLowerCase()
+                    .indexOf(delimiter) !== -1) {
                     return '';
                 }
                 var input_char = '';
@@ -708,7 +716,8 @@
                     return '';
                 }
 
-                return Array(level + 1).join(this.indent_string);
+                return Array(level + 1)
+                    .join(this.indent_string);
             };
 
             this.is_unformatted = function(tag_check, unformatted) {
@@ -726,7 +735,8 @@
                 var next_tag = this.get_tag(true /* peek. */ );
 
                 // test next_tag to see if it is just html tag (no external content)
-                var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
+                var tag = (next_tag || "")
+                    .match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
 
                 // if next_tag comes back but is not an isolated tag, then
                 // let's treat the 'a' tag as having content
@@ -867,7 +877,8 @@
                             tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length - 1].match(/(?:<|{{#)\s*(\w+)/);
                         }
                         if (tag_extracted_from_last_output === null ||
-                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted))) {
+                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[
+                                1], unformatted))) {
                             multi_parser.print_newline(false, multi_parser.output);
                         }
                     }
@@ -946,7 +957,8 @@
                         } else {
                             // simply indent the string otherwise
                             var white = text.match(/^\s*/)[0];
-                            var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
+                            var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string)
+                                .length - 1;
                             var reindent = multi_parser.get_full_indent(script_indent_level - _level);
                             text = text.replace(/^\s*/, indentation)
                                 .replace(/\r\n|\r|\n/g, '\n' + reindent)
@@ -970,7 +982,8 @@
             multi_parser.last_token = multi_parser.token_type;
             multi_parser.last_text = multi_parser.token_text;
         }
-        var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
+        var sweet_code = multi_parser.output.join('')
+            .replace(/[\r\n\t ]+$/, '');
 
         // establish end_with_newline
         if (end_with_newline) {

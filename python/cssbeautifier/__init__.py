@@ -37,6 +37,7 @@ class BeautifierOptions:
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
+        self.space_around_selector_separator = False
         self.eol = '\n'
 
 
@@ -48,8 +49,9 @@ indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
+space_around_selector_separator = [%s]
 """ % (self.indent_size, self.indent_char, self.indent_with_tabs,
-       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
+       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules, self.space_around_selector_separator)
 
 
 def default_options():
@@ -445,6 +447,13 @@ class Beautifier:
                     printer.newLine()
                 else:
                     printer.singleSpace()
+            elif self.ch == '>' or self.ch == '+' or self.ch == '~':
+                if not insidePropertyValue and self.opts.space_around_selector_separator and parenLevel < 1:
+                    printer.singleSpace()
+                    printer.push(self.ch)
+                    printer.singleSpace()
+                else:
+                    printer.push(self.ch)
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[':

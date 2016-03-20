@@ -39,21 +39,23 @@
         css_beautify(source_text, options);
 
     The options are (default in brackets):
-        indent_size (4)                   — indentation size,
-        indent_char (space)               — character to indent with,
-        selector_separator_newline (true) - separate selectors with newline or
-                                            not (e.g. "a,\nbr" or "a, br")
-        end_with_newline (false)          - end with a newline
-        newline_between_rules (true)      - add a new line after every css rule
-
+        indent_size (4)                         — indentation size,
+        indent_char (space)                     — character to indent with,
+        selector_separator_newline (true)       - separate selectors with newline or
+                                                  not (e.g. "a,\nbr" or "a, br")
+        end_with_newline (false)                - end with a newline
+        newline_between_rules (true)            - add a new line after every css rule
+        space_around_selector_separator (false) - ensure space around selector separators:
+                                                  '>', '+', '~' (e.g. "a>b" -> "a > b")
     e.g
 
     css_beautify(css_source_text, {
       'indent_size': 1,
       'indent_char': '\t',
-      'selector_separator': ' ',
+      'selector_separator_newline': true,
       'end_with_newline': false,
       'newline_between_rules': true
+      'space_around_selector_separator': true
     });
 */
 
@@ -72,6 +74,7 @@
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
+        var spaceAroundSelectorSeparator = (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
         var eol = options.eol ? options.eol : '\n';
 
         // compatibility
@@ -84,8 +87,8 @@
             indentSize = 1;
         }
 
-        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
-
+        eol = eol.replace(/\\r/, '\r')
+            .replace(/\\n/, '\n');
 
         // tokenizer
         var whiteRe = /^\s+$/;
@@ -169,9 +172,9 @@
             return source_text.substring(start, pos) + ch;
         }
 
-
         function lookBack(str) {
-            return source_text.substring(pos - str.length, pos).toLowerCase() ===
+            return source_text.substring(pos - str.length, pos)
+                .toLowerCase() ===
                 str;
         }
 
@@ -201,7 +204,8 @@
 
         // printer
         var basebaseIndentString = source_text.match(/^[\t ]*/)[0];
-        var singleIndent = new Array(indentSize + 1).join(indentCharacter);
+        var singleIndent = new Array(indentSize + 1)
+            .join(indentCharacter);
         var indentLevel = 0;
         var nestedLevel = 0;
 
@@ -262,7 +266,6 @@
             }
         };
 
-
         var output = [];
         /*_____________________--------------------_____________________*/
 
@@ -315,7 +318,8 @@
                     if (variableOrRule.match(/[ :]$/)) {
                         // we have a variable or pseudo-class, add it and insert one space before continuing
                         next();
-                        variableOrRule = eatString(": ").replace(/\s$/, '');
+                        variableOrRule = eatString(": ")
+                            .replace(/\s$/, '');
                         output.push(variableOrRule);
                         print.singleSpace();
                     }
@@ -422,6 +426,15 @@
                 } else {
                     print.singleSpace();
                 }
+            } else if (ch === '>' || ch === '+' || ch === '~') {
+                //handl selector separator spacing
+                if (spaceAroundSelectorSeparator && !insidePropertyValue && parenLevel < 1) {
+                    print.singleSpace();
+                    output.push(ch);
+                    print.singleSpace();
+                } else {
+                    output.push(ch);
+                }
             } else if (ch === ']') {
                 output.push(ch);
             } else if (ch === '[') {
@@ -437,13 +450,13 @@
             }
         }
 
-
         var sweetCode = '';
         if (basebaseIndentString) {
             sweetCode += basebaseIndentString;
         }
 
-        sweetCode += output.join('').replace(/[\r\n\t ]+$/, '');
+        sweetCode += output.join('')
+            .replace(/[\r\n\t ]+$/, '');
 
         // establish end_with_newline
         if (end_with_newline) {

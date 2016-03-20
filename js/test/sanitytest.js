@@ -10,7 +10,6 @@
 // output_somewhere(t.results()); // good for <pre>, html safe-ish
 // alert(t.results_raw());        // html unescaped
 
-
 function SanityTest(func, name_of_test) {
 
     var test_func = func || function(x) {
@@ -37,14 +36,14 @@ function SanityTest(func, name_of_test) {
         // multi-parameter calls not supported (I don't need them now).
         var result = test_func(parameters);
         // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
-        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') === expected_value.join(', '))) {
+        if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') === expected_value.join(
+                ', '))) {
             n_succeeded += 1;
         } else {
             n_failed += 1;
             failures.push([test_name, parameters, expected_value, result]);
         }
     };
-
 
     this.results_raw = function() {
         var results = '';
@@ -70,11 +69,9 @@ function SanityTest(func, name_of_test) {
         return results;
     };
 
-
     this.results = function() {
         return this.lazy_escape(this.results_raw());
     };
-
 
     this.prettyprint = function(something, quote_strings) {
         var type = typeof something;
@@ -110,11 +107,11 @@ function SanityTest(func, name_of_test) {
         }
     };
 
-
     this.lazy_escape = function(str) {
-        return str.replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\n/g, '<br />');
+        return str.replace(/</g, '&lt;')
+            .replace(/\>/g, '&gt;')
+            .replace(/\n/g, '<br />');
     };
-
 
     this.log = function() {
         if (window.console) {

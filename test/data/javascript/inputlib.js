@@ -74,7 +74,6 @@ var operator_position = {
     ]
 };
 
-
 //---------//
 // Exports //
 //---------//
