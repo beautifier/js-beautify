@@ -285,6 +285,7 @@ function usage(err) {
             );
             break;
         case "css":
+            msg.push('  --space-around-selector-separator       Add spaces around CSS selector separators (>+~)');
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
             msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
     }
