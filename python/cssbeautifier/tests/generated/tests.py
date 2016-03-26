@@ -33,6 +33,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.selector_separator_newline = true
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
+        default_options.space_around_selector_separator = false
 
         cls.default_options = default_options
 
@@ -78,6 +79,23 @@ class CSSBeautifierTest(unittest.TestCase):
         #============================================================
         # 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
+
+
+        self.reset_options();
+        #============================================================
+        # Space Around Selector Separator - (space = " ")
+        self.options.space_around_selector_separator = true
+        t('a>b{}', 'a > b {}')
+        t('a~b{}', 'a ~ b {}')
+        t('a+b{}', 'a + b {}')
+        t('a+b>c{}', 'a + b > c {}')
+
+        # Space Around Selector Separator - (space = "")
+        self.options.space_around_selector_separator = false
+        t('a>b{}', 'a>b {}')
+        t('a~b{}', 'a~b {}')
+        t('a+b{}', 'a+b {}')
+        t('a+b>c{}', 'a+b>c {}')
 
 
         self.reset_options();
