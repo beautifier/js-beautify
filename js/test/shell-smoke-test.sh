@@ -155,11 +155,12 @@ test_cli_js_beautify()
       cleanup 1
   }
 
-  export HOME=
-  export USERPROFILE=
-  $CLI_SCRIPT -o $TEST_TEMP/example1-default.js $SCRIPT_DIR/resources/example1.js
+  unset HOME
+  unset USERPROFILE
+  $CLI_SCRIPT -o $TEST_TEMP/example1-default.js $SCRIPT_DIR/resources/example1.js || exit 1
 
-  $CLI_SCRIPT $TEST_TEMP/example1-default.js | diff -q $TEST_TEMP/example1-default.js - || {
+  $CLI_SCRIPT -o $TEST_TEMP/example1-sanity.js $TEST_TEMP/example1-default.js || exit 1
+  diff -q $TEST_TEMP/example1-default.js $TEST_TEMP/example1-sanity.js || {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be identical after no change in settings."
       cleanup 1
   }
@@ -191,8 +192,9 @@ test_cli_js_beautify()
 
   $CLI_SCRIPT -o $TEST_TEMP/example1-indent11chars.js $TEST_TEMP/example1-default.js
 
-  export HOME=
+  unset HOME
   export USERPROFILE=$SCRIPT_DIR/resources/indent11chars
+  # node -p 'process.env["USERPROFILE"] || process.env["HOME"] || "unset"'
   $CLI_SCRIPT $TEST_TEMP/example1-default.js | diff -q $TEST_TEMP/example1-indent11chars.js - || {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be identical for same HOME and USERPROFILE settings."
       cleanup 1

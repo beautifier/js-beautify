@@ -1,16 +1,15 @@
 #!/usr/bin/env node
+
 var fs = require('fs');
 var mustache = require('mustache');
 var path = require('path');
 
 function generate_tests() {
-    var test_data, template;
-
     // javascript
-    generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js', 'python/jsbeautifier/tests/generated/tests.py' );
+    generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js', 'python/jsbeautifier/tests/generated/tests.py');
 
     // css
-    generate_test_files('css', 't', 'js/test/generated/beautify-css-tests.js', 'python/cssbeautifier/tests/generated/tests.py' );
+    generate_test_files('css', 't', 'js/test/generated/beautify-css-tests.js', 'python/cssbeautifier/tests/generated/tests.py');
 
     // html
     // no python html beautifier, so no tests
@@ -26,23 +25,23 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
     test_data = require(data_file_path).test_data;
 
     template_file_path = path.resolve(input_path, 'node.mustache');
-    template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
-    set_formatters(test_data, test_method, '// ')
+    template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
+    set_formatters(test_data, test_method, '// ');
     set_generated_header(test_data, data_file_path, template_file_path);
     fs.writeFileSync(path.resolve(__dirname, '..', node_output),
-        mustache.render(template, test_data), {encoding: 'utf-8'});
+        mustache.render(template, test_data), { encoding: 'utf-8' });
 
     if (python_output) {
         template_file_path = path.resolve(input_path, 'python.mustache');
-        template = fs.readFileSync(template_file_path, {encoding: 'utf-8'});
-        set_formatters(test_data, test_method, '# ')
+        template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
+        set_formatters(test_data, test_method, '# ');
         set_generated_header(test_data, data_file_path, template_file_path);
         fs.writeFileSync(path.resolve(__dirname, '..', python_output),
-            mustache.render(template, test_data), {encoding: 'utf-8'});
+            mustache.render(template, test_data), { encoding: 'utf-8' });
     }
 }
 
-function set_generated_header (data, data_file_path, template_file_path) {
+function set_generated_header(data, data_file_path, template_file_path) {
     var relative_script_path = path.relative(process.cwd(), __filename).split(path.sep).join('/');
     var relative_data_file_path = path.relative(process.cwd(), data_file_path).split(path.sep).join('/');
     var relative_template_file_path = path.relative(process.cwd(), template_file_path).split(path.sep).join('/');
@@ -61,15 +60,15 @@ function isStringOrArray(val) {
 
 function getTestString(val) {
     if (typeof val === 'string') {
-        return "'" + val.replace(/\n/g,'\\n').replace(/\t/g,'\\t') + "'";
+        return "'" + val.replace(/\n/g, '\\n').replace(/\t/g, '\\t') + "'";
     } else if (val instanceof Array) {
-        return  "'" + val.join("\\n' +\n            '").replace(/\t/g,'\\t') + "'";
+        return "'" + val.join("\\n' +\n            '").replace(/\t/g, '\\t') + "'";
     } else {
         return null;
     }
 }
 
-function set_formatters (data, test_method, comment_mark) {
+function set_formatters(data, test_method, comment_mark) {
 
     // utility mustache functions
     data.matrix_context_string = function() {
@@ -87,7 +86,7 @@ function set_formatters (data, test_method, comment_mark) {
                 }
             }
             return render(outputs.join(', '));
-        }
+        };
     };
 
     data.test_line = function() {
@@ -130,7 +129,7 @@ function set_formatters (data, test_method, comment_mark) {
 
             // use "unchanged" instead of "input" if there is no output
             set_input(this.unchanged);
-            if(isStringOrArray(this.unchanged) && isStringOrArray(this.output)) {
+            if (isStringOrArray(this.unchanged) && isStringOrArray(this.output)) {
                 throw "Cannot specify 'output' with 'unchanged' test input: " + input;
             }
 
@@ -153,12 +152,12 @@ function set_formatters (data, test_method, comment_mark) {
                 throw "Test strings are identical.  Omit 'output' and use 'unchanged': " + input;
             }
 
-            if(output && output.indexOf('<%') !== -1) {
+            if (output && output.indexOf('<%') !== -1) {
                 mustache.tags = ['<%', '%>'];
             }
             input = render(input);
             output = render(output);
-            if(output && output.indexOf('<%') !== -1) {
+            if (output && output.indexOf('<%') !== -1) {
                 mustache.tags = ['{{', '}}'];
             }
 
@@ -166,26 +165,26 @@ function set_formatters (data, test_method, comment_mark) {
                 before_output = '';
                 output = '';
             }
-            return  comment  + before_input + input + before_output + output + ')';
-        }
+            return comment + before_input + input + before_output + output + ')';
+        };
     };
 
     data.set_mustache_tags = function() {
-        return function(text, render) {
-            if(this.template) {
+        return function( /* text, render */ ) {
+            if (this.template) {
                 mustache.tags = this.template.split(' ');
             }
             return '';
-        }
+        };
     };
 
     data.unset_mustache_tags = function() {
-        return function(text, render) {
-            if(this.template) {
+        return function( /* text , render */ ) {
+            if (this.template) {
                 mustache.tags = ['{{', '}}'];
             }
             return '';
-        }
+        };
     };
 }
 

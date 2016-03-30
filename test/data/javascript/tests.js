@@ -1,3 +1,5 @@
+var inputlib = require('./inputlib');
+
 exports.test_data = {
     default_options: [
         { name: "indent_size", value: "4" },
@@ -5,57 +7,56 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
-        { name: "brace_style", value: "'collapse'" }
+        { name: "brace_style", value: "'collapse'" },
+        { name: "operator_position", value: "'before-newline'" }
     ],
     groups: [{
         name: "Unicode Support",
         description: "",
-        tests: [
-            {
-              input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
-            },
-            {
-                input: [
-                    "var ' + unicode_char(228) + 'x = {",
-                    "    ' + unicode_char(228) + 'rgerlich: true",
-                    "};"]
-            }
-        ],
-
+        tests: [{
+            input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+        }, {
+            input: [
+                "var ' + unicode_char(228) + 'x = {",
+                "    ' + unicode_char(228) + 'rgerlich: true",
+                "};"
+            ]
+        }]
     }, {
         name: "Test template and continuation strings",
         description: "",
         tests: [
-          { unchanged: '`This is a ${template} string.`' },
-          { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
-          { unchanged: 'a = `This is a continuation\\\nstring.`' },
-          { unchanged: 'a = "This is a continuation\\\nstring."' },
-          { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+            { unchanged: '`This is a ${template} string.`' },
+            { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
+            { unchanged: 'a = `This is a continuation\\\nstring.`' },
+            { unchanged: 'a = "This is a continuation\\\nstring."' },
+            { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
         ]
     }, {
         name: "ES7 Decorators",
         description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
         tests: [
-          { unchanged: '@foo' },
-          { unchanged: '@foo(bar)' },
-          { unchanged: [
-            '@foo(function(k, v) {',
-            '    implementation();',
-            '})'
-          ]}
+            { unchanged: '@foo' },
+            { unchanged: '@foo(bar)' },
+            {
+                unchanged: [
+                    '@foo(function(k, v) {',
+                    '    implementation();',
+                    '})'
+                ]
+            }
         ]
     }, {
         name: "ES7 exponential",
         description: "ES7 exponential",
         tests: [
-          { unchanged: 'x ** 2' },
-          { unchanged: 'x ** -2' }
+            { unchanged: 'x ** 2' },
+            { unchanged: 'x ** -2' }
         ]
     }, {
         name: "End With Newline",
         description: "",
-        matrix: [
-            {
+        matrix: [{
                 options: [
                     { name: "end_with_newline", value: "true" }
                 ],
@@ -135,8 +136,7 @@ exports.test_data = {
                 oac: ' '
             },
         ],
-        tests: [
-            {
+        tests: [{
                 input: 'var a =<ibo>{<iao>a: 2<ibc>}<iac>;\nvar a =<ibo>{<iao>a: 2<ibc>}<iac>;',
                 output: 'var a =<obo>{<oao>a: 2<obc>};\nvar a =<obo>{<oao>a: 2<obc>};'
             },
@@ -153,24 +153,22 @@ exports.test_data = {
                 output: 'if (1)<obo>{<oao>2<obc>}<oac>else<obo>{<oao>3<obc>}'
             },
             {
-                input:
-                    'try<ibo>{<iao>a();<ibc>}<iac>' +
+                input: 'try<ibo>{<iao>a();<ibc>}<iac>' +
                     'catch(b)<ibo>{<iao>c();<ibc>}<iac>' +
                     'catch(d)<ibo>{}<iac>' +
                     'finally<ibo>{<iao>e();<ibc>}',
                 output:
-                    // expected
+                // expected
                     'try<obo>{<oao>a();<obc>}<oac>' +
                     'catch (b)<obo>{<oao>c();<obc>}<oac>' +
-                    'catch (d)<obo>{}<oac>'+
+                    'catch (d)<obo>{}<oac>' +
                     'finally<obo>{<oao>e();<obc>}'
             }
         ],
     }, {
         name: "Comma-first option",
         description: "Put commas at the start of lines instead of the end",
-        matrix: [
-        {
+        matrix: [{
             options: [
                 { name: "comma_first", value: "false" }
             ],
@@ -190,8 +188,7 @@ exports.test_data = {
             c3: '\\n            , ',
             // edge cases where engine bails
             f1: ', '
-        }
-        ],
+        }],
         tests: [
             { input: '{a:1, b:2}', output: "{\n    a: 1{{c1}}b: 2\n}" },
             { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1{{c1}}b = c[d]{{c1}}e = 6;' },
@@ -200,21 +197,33 @@ exports.test_data = {
             { input: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]\n]" },
             { input: 'a=[[1,2],[4,5],[7,8],]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]{{c0}}]" },
-            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
-            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]" },
-            { input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
-            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}function() {}{{c1}}[7, 8]\n]" },
-            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
-            output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]" },
-            { input: 'a=[b,c,function(){},function(){},d]',
-            output: "a = [b, c, function() {}, function() {}, d]" },
-            { input: 'a=[b,c,\nfunction(){},function(){},d]',
-            output: "a = [b, c{{c1}}function() {}{{c1}}function() {}{{c1}}d\n]" },
+            {
+                input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]"
+            },
+            {
+                input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+                output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}function() {}{{c1}}[7, 8]\n]"
+            },
+            {
+                input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}function() {}{{c1}}[7, 8]\n]"
+            },
+            {
+                input: 'a=[b,c,function(){},function(){},d]',
+                output: "a = [b, c, function() {}, function() {}, d]"
+            },
+            {
+                input: 'a=[b,c,\nfunction(){},function(){},d]',
+                output: "a = [b, c{{c1}}function() {}{{c1}}function() {}{{c1}}d\n]"
+            },
             { input: 'a=[a[1],b[4],c[d[7]]]', output: "a = [a[1], b[4], c[d[7]]]" },
             { input: '[1,2,[3,4,[5,6],7],8]', output: "[1, 2, [3, 4, [5, 6], 7], 8]" },
 
-            { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
-            output: '[\n    [\n        ["1", "2"]{{c2}}["3", "4"]\n    ]{{c1}}[\n        ["5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]{{c1}}[\n        ["1", "2", "3"]{{c2}}["4", "5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]\n]' },
+            {
+                input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+                output: '[\n    [\n        ["1", "2"]{{c2}}["3", "4"]\n    ]{{c1}}[\n        ["5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]{{c1}}[\n        ["1", "2", "3"]{{c2}}["4", "5", "6", "7"]{{c2}}["8", "9", "0"]\n    ]\n]'
+            },
             {
                 input: [
                     'changeCollection.add({',
@@ -233,8 +242,7 @@ exports.test_data = {
     }, {
         name: "Space in parens tests",
         description: "put space inside parens",
-        matrix: [
-        {
+        matrix: [{
             options: [
                 { name: "space_in_paren", value: "false" },
                 { name: "space_in_empty_paren", value: "false" },
@@ -263,8 +271,7 @@ exports.test_data = {
             s: ' ',
             e: ' ',
         }],
-        tests: [
-            {
+        tests: [{
                 input: 'if(p) foo(a,b);',
                 output: 'if ({{s}}p{{s}}) foo({{s}}a, b{{s}});'
             },
@@ -316,18 +323,235 @@ exports.test_data = {
             },
         ],
     }, {
-        name: "New Test Suite"
-    },
-    {
+        name: "operator_position option - ensure no neswlines if preserve_newlines is false",
+        matrix: [{
+            options: [
+                { name: "operator_position", value: "'before-newline'" },
+                { name: "preserve_newlines", value: "false" }
+            ]
+        }, {
+            options: [
+                { name: "operator_position", value: "'after-newline'" },
+                { name: "preserve_newlines", value: "false" }
+            ]
+        }, {
+            options: [
+                { name: "operator_position", value: "'preserve-newline'" },
+                { name: "preserve_newlines", value: "false" }
+            ]
+        }],
+        tests: [{
+            unchanged: inputlib.operator_position.sanity
+        }, {
+            input: inputlib.operator_position.comprehensive,
+            output: inputlib.operator_position.sanity,
+        }]
+    }, {
+        name: "operator_position option - set to 'before-newline' (default value)",
+        tests: [{
+            comment: 'comprehensive, various newlines',
+            input: inputlib.operator_position.comprehensive,
+            output: [
+                'var res = a + b -',
+                '    c /',
+                '    d * e %',
+                '    f;',
+                'var res = g & h |',
+                '    i ^',
+                '    j;',
+                'var res = (k &&',
+                '        l ||',
+                '        m) ?',
+                '    n :',
+                '    o;',
+                'var res = p >>',
+                '    q <<',
+                '    r >>>',
+                '    s;',
+                'var res = t',
+                '',
+                '    ===',
+                '    u !== v !=',
+                '    w ==',
+                '    x >=',
+                '    y <= z > aa <',
+                '    ab;',
+                'ac +',
+                '    -ad'
+            ]
+        }, {
+            comment: 'colon special case',
+            input: inputlib.operator_position.colon_special_case,
+            output: [
+                'var a = {',
+                '    b: bval,',
+                '    c: cval,',
+                '    d: dval',
+                '};',
+                'var e = f ? g :',
+                '    h;',
+                'var i = j ? k :',
+                '    l;'
+            ]
+        }, {
+            comment: 'catch-all, includes brackets and other various code',
+            input: inputlib.operator_position.catch_all,
+            output: [
+                'var d = 1;',
+                'if (a === b &&',
+                '    c) {',
+                '    d = (c * everything /',
+                '            something_else) %',
+                '        b;',
+                '    e',
+                '        += d;',
+                '',
+                '} else if (!(complex && simple) ||',
+                '    (emotion && emotion.name === "happy")) {',
+                '    cryTearsOfJoy(many ||',
+                '        anOcean ||',
+                '        aRiver);',
+                '}'
+            ]
+        }]
+    }, {
+        name: "operator_position option - set to 'after_newline'",
+        options: [{
+            name: "operator_position",
+            value: "'after-newline'"
+        }],
+        tests: [{
+            comment: 'comprehensive, various newlines',
+            input: inputlib.operator_position.comprehensive,
+            output: [
+                'var res = a + b',
+                '    - c',
+                '    / d * e',
+                '    % f;',
+                'var res = g & h',
+                '    | i',
+                '    ^ j;',
+                'var res = (k',
+                '        && l',
+                '        || m)',
+                '    ? n',
+                '    : o;',
+                'var res = p',
+                '    >> q',
+                '    << r',
+                '    >>> s;',
+                'var res = t',
+                '',
+                '    === u !== v',
+                '    != w',
+                '    == x',
+                '    >= y <= z > aa',
+                '    < ab;',
+                'ac',
+                '    + -ad'
+            ]
+        }, {
+            comment: 'colon special case',
+            input: inputlib.operator_position.colon_special_case,
+            output: [
+                'var a = {',
+                '    b: bval,',
+                '    c: cval,',
+                '    d: dval',
+                '};',
+                'var e = f ? g',
+                '    : h;',
+                'var i = j ? k',
+                '    : l;'
+            ]
+        }, {
+            comment: 'catch-all, includes brackets and other various code',
+            input: inputlib.operator_position.catch_all,
+            output: [
+                'var d = 1;',
+                'if (a === b',
+                '    && c) {',
+                '    d = (c * everything',
+                '            / something_else)',
+                '        % b;',
+                '    e',
+                '        += d;',
+                '',
+                '} else if (!(complex && simple)',
+                '    || (emotion && emotion.name === "happy")) {',
+                '    cryTearsOfJoy(many',
+                '        || anOcean',
+                '        || aRiver);',
+                '}'
+            ]
+        }]
+    }, {
+        name: "operator_position option - set to 'preserve-newline'",
+        options: [{
+            name: "operator_position",
+            value: "'preserve-newline'"
+        }],
+        tests: [{
+            comment: 'comprehensive, various newlines',
+            input: inputlib.operator_position.comprehensive,
+            output: [
+                'var res = a + b',
+                '    - c /',
+                '    d * e',
+                '    %',
+                '    f;',
+                'var res = g & h',
+                '    | i ^',
+                '    j;',
+                'var res = (k &&',
+                '        l',
+                '        || m) ?',
+                '    n',
+                '    : o;',
+                'var res = p',
+                '    >> q <<',
+                '    r',
+                '    >>> s;',
+                'var res = t',
+                '',
+                '    === u !== v',
+                '    !=',
+                '    w',
+                '    == x >=',
+                '    y <= z > aa <',
+                '    ab;',
+                'ac +',
+                '    -ad'
+            ]
+        }, {
+            comment: 'colon special case',
+            input: inputlib.operator_position.colon_special_case,
+            output: [
+                'var a = {',
+                '    b: bval,',
+                '    c: cval,',
+                '    d: dval',
+                '};',
+                'var e = f ? g',
+                '    : h;',
+                'var i = j ? k :',
+                '    l;'
+            ]
+        }, {
+            comment: 'catch-all, includes brackets and other various code',
+            unchanged: inputlib.operator_position.catch_all
+        }]
+    }, {
         name: "Async / await tests",
         description: "ES7 async / await tests",
         tests: [
             { input: "async function foo() {}" },
             { input: "let w = async function foo() {}" },
-            { input: "async function foo() {}\nvar x = await foo();"},
+            { input: "async function foo() {}\nvar x = await foo();" },
             {
                 comment: "async function as an input to another function",
-                input: "wrapper(async function foo() {})"},
+                input: "wrapper(async function foo() {})"
+            },
             {
                 comment: "await on inline anonymous function. should have a space after await",
                 input_: "async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}",
@@ -338,8 +562,7 @@ exports.test_data = {
                 input: "async.map(function(t) {})"
             }
         ]
-    },
-    {
+    }, {
         name: "e4x - Test that e4x literals passed through when e4x-option is enabled",
         description: "",
         options: [
@@ -356,10 +579,12 @@ exports.test_data = {
             {
                 comment: 'Handles inline expressions',
                 input: 'xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;',
-                output: 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;' },
+                output: 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;'
+            },
             {
                 input: 'xml=<{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;',
-                output: 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;' },
+                output: 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;'
+            },
             {
                 comment: 'xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar',
                 unchanged: 'xml = <_:.valid.xml- _:.valid.xml-="123"/>;'
@@ -372,14 +597,14 @@ exports.test_data = {
             {
                 comment: 'Handles CDATA',
                 input: 'xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;',
-                output: 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;' },
+                output: 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;'
+            },
             { input: 'xml=<![CDATA[]]>;', output: 'xml = <![CDATA[]]>;' },
             { input: 'xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', output: 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;' },
 
             {
                 comment: 'JSX - working jsx from http://prettydiff.com/unit_tests/beautification_javascript_jsx.txt',
-                unchanged:
-                [
+                unchanged: [
                     'var ListItem = React.createClass({',
                     '    render: function() {',
                     '        return (',
@@ -394,8 +619,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     'var List = React.createClass({',
                     '    renderList: function() {',
                     '        return this.props.items.map(function(item) {',
@@ -412,8 +636,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     'var Mist = React.createClass({',
                     '    renderList: function() {',
                     '        return this.props.items.map(function(item) {',
@@ -424,8 +647,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     '// JSX',
                     'var box = <Box>',
                     '    {shouldShowAnswer(user) ?',
@@ -446,8 +668,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     'var Timer = React.createClass({',
                     '    getInitialState: function() {',
                     '        return {',
@@ -475,8 +696,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     'var TodoList = React.createClass({',
                     '    render: function() {',
                     '        var createItem = function(itemText) {',
@@ -488,8 +708,7 @@ exports.test_data = {
                 ]
             },
             {
-                unchanged:
-                [
+                unchanged: [
                     'var TodoApp = React.createClass({',
                     '    getInitialState: function() {',
                     '        return {',
@@ -528,8 +747,7 @@ exports.test_data = {
                 ]
             },
             {
-                input:
-                [
+                input: [
                     'var converter = new Showdown.converter();',
                     'var MarkdownEditor = React.createClass({',
                     '    getInitialState: function() {',
@@ -560,8 +778,7 @@ exports.test_data = {
                     'React.render(<MarkdownEditor />, mountNode);'
 
                 ],
-                output:
-                [
+                output: [
                     'var converter = new Showdown.converter();',
                     'var MarkdownEditor = React.createClass({',
                     '    getInitialState: function() {',
@@ -598,8 +815,7 @@ exports.test_data = {
             },
             {
                 comment: 'JSX - Not quite correct jsx formatting that still works',
-                input:
-                [
+                input: [
                     'var content = (',
                     '        <Nav>',
                     '            {/* child comment, put {} around */}',
@@ -615,8 +831,7 @@ exports.test_data = {
                     'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;',
                     'render(dropdown);',
                 ],
-                output:
-                [
+                output: [
                     'var content = (',
                     '    <Nav>',
                     '            {/* child comment, put {} around */}',
@@ -640,7 +855,8 @@ exports.test_data = {
                     "as long as nesting matches."
                 ],
                 input_: 'xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
-                output: 'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;' },
+                output: 'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;'
+            },
 
             {
                 comment: [
@@ -649,7 +865,8 @@ exports.test_data = {
                 ],
                 fragment: true,
                 input_: 'xml=<a></b>\nc<b;',
-                output: 'xml = <a></b>\nc<b;' },
+                output: 'xml = <a></b>\nc<b;'
+            },
             {
                 comment: 'Issue #646 = whitespace is allowed in attribute declarations',
                 unchanged: [
@@ -704,21 +921,17 @@ exports.test_data = {
                 ]
             }
         ]
-    },
-    {
+    }, {
         name: "e4x disabled",
         description: "",
         options: [
             { name: 'e4x', value: false }
         ],
-        tests: [
-            {
-                input_: 'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
-                output: 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;'
-            }
-        ]
-    },
-    {
+        tests: [{
+            input_: 'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
+            output: 'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;'
+        }]
+    }, {
         name: "Multiple braces",
         description: "",
         template: "^^^ $$$",
@@ -726,8 +939,7 @@ exports.test_data = {
         tests: [
             { input: '{{}/z/}', output: '{\n    {}\n    /z/\n}' }
         ]
-    },
-    {
+    }, {
         name: "Beautify preserve formatting",
         description: "Allow beautifier to preserve sections",
         tests: [
@@ -736,12 +948,12 @@ exports.test_data = {
             { unchanged: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */" },
             { unchanged: "/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */" },
             {
-              input_: "var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
-              output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+                input_: "var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+                output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
             },
             {
-              input_: "var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
-              output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+                input_: "var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+                output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
             },
             {
                 unchanged: [
@@ -839,18 +1051,20 @@ exports.test_data = {
                 ]
             },
 
-            { comment: 'Directive: ignore',
-              unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */" },
+            {
+                comment: 'Directive: ignore',
+                unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */"
+            },
             { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */" },
             { unchanged: "var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */" },
             { unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */" },
             {
-              input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
-              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+                input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+                output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
             },
             {
-              input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
-              output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+                input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
+                output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
             },
             {
                 unchanged: [
@@ -1033,16 +1247,15 @@ exports.test_data = {
                 ]
             },
         ]
-    },
-    {
+    }, {
         name: "Template Formatting",
         description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
         options: [],
         tests: [
             { unchanged: '<?=$view["name"]; ?>' },
             { unchanged: 'a = <?= external() ?>;' },
-            { unchanged:
-                [
+            {
+                unchanged: [
                     '<?php',
                     'for($i = 1; $i <= 100; $i++;) {',
                     '    #count to 100!',
@@ -1053,12 +1266,10 @@ exports.test_data = {
             },
             { unchanged: 'a = <%= external() %>;' }
         ]
-    },
-    {
+    }, {
         name: "jslint and space after anon function",
         description: "jslint_happy and space_after_anon_function tests",
-        matrix: [
-            {
+        matrix: [{
                 options: [
                     { name: "jslint_happy", value: "true" },
                     { name: "space_after_anon_function", value: "true" }
@@ -1090,21 +1301,33 @@ exports.test_data = {
 
 
         ],
-        tests: [
-            { input_: 'a=typeof(x)',
-                output: 'a = typeof{{f}}(x)' },
-            { input_: 'x();\n\nfunction(){}',
-                output: 'x();\n\nfunction{{f}}() {}' },
-            { input_: 'x();\n\nvar x = {\nx: function(){}\n}',
-                output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'},
-            { input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
-                output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}' },
+        tests: [{
+                input_: 'a=typeof(x)',
+                output: 'a = typeof{{f}}(x)'
+            },
+            {
+                input_: 'x();\n\nfunction(){}',
+                output: 'x();\n\nfunction{{f}}() {}'
+            },
+            {
+                input_: 'x();\n\nvar x = {\nx: function(){}\n}',
+                output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'
+            },
+            {
+                input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
+                output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}'
+            },
 
-            { input_: 'switch(x) {case 0: case 1: a(); break; default: break}',
-                output: 'switch (x) {\n{{c}}case 0:\n{{c}}case 1:\n{{c}}    a();\n{{c}}    break;\n{{c}}default:\n{{c}}    break\n}' },
-            { input: 'switch(x){case -1:break;case !y:break;}',
-                output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y:\n{{c}}    break;\n}' },
-            { comment: 'typical greasemonkey start',
+            {
+                input_: 'switch(x) {case 0: case 1: a(); break; default: break}',
+                output: 'switch (x) {\n{{c}}case 0:\n{{c}}case 1:\n{{c}}    a();\n{{c}}    break;\n{{c}}default:\n{{c}}    break\n}'
+            },
+            {
+                input: 'switch(x){case -1:break;case !y:break;}',
+                output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y:\n{{c}}    break;\n}'
+            },
+            {
+                comment: 'typical greasemonkey start',
                 fragment: true,
                 unchanged: '// comment 2\n(function{{f}}()'
             },
@@ -1121,15 +1344,14 @@ exports.test_data = {
                 input_: 'var o2=$.extend(a);function(){alert(x);}',
                 output: 'var o2 = $.extend(a);\n\nfunction{{f}}() {\n    alert(x);\n}'
             },
-            { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}'},
+            { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}' },
             { unchanged: 'function* x() {\n    yield 1;\n}' },
         ]
     }, {
         name: "Regression tests",
         description: "Ensure specific bugs do not recur",
         options: [],
-        tests: [
-            {
+        tests: [{
                 comment: "Issue 241",
                 unchanged: [
                     'obj',
@@ -1137,7 +1359,8 @@ exports.test_data = {
                     '        foo: 1,',
                     '        bar: 2',
                     '    });',
-                    'var test = 1;' ]
+                    'var test = 1;'
+                ]
             },
             {
                 unchanged: [
@@ -1145,7 +1368,8 @@ exports.test_data = {
                     '    .last(a, function() {',
                     '        var test;',
                     '    });',
-                    'var test = 1;' ]
+                    'var test = 1;'
+                ]
             },
             {
                 unchanged: [
@@ -1153,7 +1377,8 @@ exports.test_data = {
                     '    .second()',
                     '    .last(function(err, response) {',
                     '        console.log(err);',
-                    '    });' ]
+                    '    });'
+                ]
             },
             {
                 comment: "Issue 268 and 275",
@@ -1161,7 +1386,8 @@ exports.test_data = {
                     'obj.last(a, function() {',
                     '    var test;',
                     '});',
-                    'var test = 1;' ]
+                    'var test = 1;'
+                ]
             },
             {
                 unchanged: [
@@ -1169,7 +1395,8 @@ exports.test_data = {
                     '    function() {',
                     '        var test;',
                     '    });',
-                    'var test = 1;' ]
+                    'var test = 1;'
+                ]
             },
             {
                 input: '(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
@@ -1180,7 +1407,8 @@ exports.test_data = {
                     '            bar: "zort"',
                     '        };',
                     '    });',
-                    '})();' ]
+                    '})();'
+                ]
             },
             {
                 comment: "Issue 281",
@@ -1199,7 +1427,8 @@ exports.test_data = {
                     '            });',
                     '        }',
                     '    });',
-                    '});' ]
+                    '});'
+                ]
             },
             {
                 unchanged: [
@@ -1218,7 +1447,8 @@ exports.test_data = {
                     '                });',
                     '            }',
                     '        });',
-                    '    });' ]
+                    '    });'
+                ]
             },
             {
                 comment: "Issue 459",
@@ -1230,18 +1460,21 @@ exports.test_data = {
                     '        },',
                     '        bar: ["bar"]',
                     '    };',
-                    '}());' ]
+                    '}());'
+                ]
             },
             {
                 comment: "Issue 505 - strings should end at newline unless continued by backslash",
                 unchanged: [
                     'var name = "a;',
-                    'name = "b";' ]
+                    'name = "b";'
+                ]
             },
             {
                 unchanged: [
                     'var name = "a;\\\\',
-                    '    name = b";' ]
+                    '    name = b";'
+                ]
             },
             {
                 comment: "Issue 514 - some operators require spaces to distinguish them",
@@ -1271,7 +1504,8 @@ exports.test_data = {
                     '    else: {},',
                     '    "else": {},',
                     '    yay: {}',
-                    '};' ]
+                    '};'
+                ]
             },
             {
                 comment: "Issue 331 - if-else with braces edge case",
@@ -1284,7 +1518,8 @@ exports.test_data = {
                     '}',
                     'if (y) {',
                     '    c();',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 comment: "Issue 485 - ensure function declarations behave the same in arrays as elsewhere",
@@ -1295,7 +1530,8 @@ exports.test_data = {
                     '    }, {',
                     '        id: 1',
                     '    }',
-                    '];' ]
+                    '];'
+                ]
             },
             {
                 unchanged: [
@@ -1303,7 +1539,8 @@ exports.test_data = {
                     '    return;',
                     '}, {',
                     '    id: 1',
-                    '}];' ]
+                    '}];'
+                ]
             },
             {
                 comment: "Issue 382 - initial totally cursory support for es6 module export",
@@ -1315,13 +1552,15 @@ exports.test_data = {
                     '    }',
                     '    export var pi = 3.141593;',
                     '    export default moduleName;',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 unchanged: [
                     'module "Even" {',
                     '    export default function div(x, y) {}',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 comment: "Issue 508",
@@ -1337,7 +1576,8 @@ exports.test_data = {
                     '    set b(x) {},',
                     '    c: 1,',
                     '    d: function() {}',
-                    '};' ]
+                    '};'
+                ]
             },
             {
                 fragmeent: true,
@@ -1348,7 +1588,8 @@ exports.test_data = {
                     '    },',
                     '    c: 1,',
                     '    d: function() {}',
-                    '};' ]
+                    '};'
+                ]
             },
             {
                 comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
@@ -1358,7 +1599,8 @@ exports.test_data = {
                     '        return false;',
                     '    })) {',
                     '    console.log("hello");',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 comment: "Issue 298 - do not under indent if/while/for condtionals experesions",
@@ -1368,7 +1610,8 @@ exports.test_data = {
                     '        return false;',
                     '    })) {',
                     '    console.log("hello");',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 comment: "Issue 552 - Typescript?  Okay... we didn't break it before, so try not to break it now.",
@@ -1381,7 +1624,8 @@ exports.test_data = {
                     '    bar(): number {',
                     '        return 0;',
                     '    }',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 unchanged: [
@@ -1393,7 +1637,8 @@ exports.test_data = {
                     '    bar(): number {',
                     '        return 0;',
                     '    }',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 comment: "Issue 583 - Functions with comments after them should still indent correctly.",
@@ -1404,7 +1649,8 @@ exports.test_data = {
                     '    }, 0);',
                     '    phantom.onError = function() {};',
                     '}',
-                    '// Comment' ]
+                    '// Comment'
+                ]
             },
             {
                 comment: "Issue 806 - newline arrow functions",
@@ -1529,8 +1775,7 @@ exports.test_data = {
                     '    fn2() {}',
                     '}'
                 ]
-            }
-            , {
+            }, {
                 unchanged: [
                     'strange = valid + {',
                     '    fn1() {},',
@@ -1567,16 +1812,32 @@ exports.test_data = {
             },
         ]
     }, {
+        name: "Test non-positionable-ops",
+        description: "Ensure specific bugs do not recur",
+        tests: [
+            { unchanged: 'a += 2;' },
+            { unchanged: 'a -= 2;' },
+            { unchanged: 'a *= 2;' },
+            { unchanged: 'a /= 2;' },
+            { unchanged: 'a %= 2;' },
+            { unchanged: 'a &= 2;' },
+            { unchanged: 'a ^= 2;' },
+            { unchanged: 'a |= 2;' },
+            { unchanged: 'a **= 2;' },
+            { unchanged: 'a <<= 2;' },
+            { unchanged: 'a >>= 2;' },
+        ]
+    }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
         options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],
-        tests: [
-            {
+        tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [
                     'module "Even" {',
                     '    import { odd, oddly } from "Odd";',
-                    '}' ]
+                    '}'
+                ]
             },
             {
                 unchanged: [
@@ -1687,24 +1948,22 @@ exports.test_data = {
             //     ]
             // },
         ]
-    },
-
+    }, {
         // =======================================================
         // New tests groups should be added above this line.
         // Everything below is a work in progress - converting
         // old test to generated form.
         // =======================================================
-    {
         name: "Old tests",
         description: "Largely unorganized pile of tests",
         options: [],
         tests: [
             { unchanged: '' },
-            { fragment: true, unchanged: '   return .5'},
+            { fragment: true, unchanged: '   return .5' },
             { fragment: true, unchanged: '   return .5;\n   a();' },
             { fragment: true, unchanged: '    return .5;\n    a();' },
             { fragment: true, unchanged: '     return .5;\n     a();' },
-            { fragment: true, unchanged: '   < div'},
+            { fragment: true, unchanged: '   < div' },
             { input: 'a        =          1', output: 'a = 1' },
             { input: 'a=1', output: 'a = 1' },
             { unchanged: '(3) / 2' },
@@ -1737,8 +1996,10 @@ exports.test_data = {
             { input: 'a<.5', output: 'a < .5' },
             { input: 'a<=.5', output: 'a <= .5' },
 
-            { comment: 'exponent literals',
-              unchanged: 'a = 1e10' },
+            {
+                comment: 'exponent literals',
+                unchanged: 'a = 1e10'
+            },
             { unchanged: 'a = 1.3e10' },
             { unchanged: 'a = 1.3e-10' },
             { unchanged: 'a = -12345.3e-10' },
@@ -1761,8 +2022,10 @@ exports.test_data = {
             { input: 'a=0x0.g-12345.3e-10', output: 'a = 0x0.g - 12345.3e-10' },
             { input: 'a=0x0.0g-12345.3e-10', output: 'a = 0x0 .0 g - 12345.3e-10' },
 
-            { comment: 'Decimal literals',
-              unchanged: 'a = 0123456789;' },
+            {
+                comment: 'Decimal literals',
+                unchanged: 'a = 0123456789;'
+            },
             { unchanged: 'a = 9876543210;' },
             { unchanged: 'a = 5647308291;' },
             { input: 'a=030e-5', output: 'a = 030e-5' },
@@ -1777,8 +2040,10 @@ exports.test_data = {
             { input: 'a=0090x0', output: 'a = 0090 x0' },
             { input: 'a=0g0b0o0', output: 'a = 0 g0b0o0' },
 
-            { comment: 'Hexadecimal literals',
-              unchanged: 'a = 0x0123456789abcdef;' },
+            {
+                comment: 'Hexadecimal literals',
+                unchanged: 'a = 0x0123456789abcdef;'
+            },
             { unchanged: 'a = 0X0123456789ABCDEF;' },
             { unchanged: 'a = 0xFeDcBa9876543210;' },
             { input: 'a=0x30e-5', output: 'a = 0x30e - 5' },
@@ -1794,8 +2059,10 @@ exports.test_data = {
             { input: 'a=0X090x0', output: 'a = 0X090 x0' },
             { input: 'a=0Xg0b0o0', output: 'a = 0X g0b0o0' },
 
-            { comment: 'Octal literals',
-              unchanged: 'a = 0o01234567;' },
+            {
+                comment: 'Octal literals',
+                unchanged: 'a = 0o01234567;'
+            },
             { unchanged: 'a = 0O01234567;' },
             { unchanged: 'a = 0o34120675;' },
             { input: 'a=0o30e-5', output: 'a = 0o30 e - 5' },
@@ -1810,8 +2077,10 @@ exports.test_data = {
             { input: 'a=0O090x0', output: 'a = 0O0 90 x0' },
             { input: 'a=0Og0b0o0', output: 'a = 0O g0b0o0' },
 
-            { comment: 'Binary literals',
-              unchanged: 'a = 0b010011;' },
+            {
+                comment: 'Binary literals',
+                unchanged: 'a = 0b010011;'
+            },
             { unchanged: 'a = 0B010011;' },
             { unchanged: 'a = 0b01001100001111;' },
             { input: 'a=0b10e-5', output: 'a = 0b10 e - 5' },
@@ -1844,7 +2113,7 @@ exports.test_data = {
             { input: 'a=~a', output: 'a = ~a' },
             { input: 'a;/*comment*/b;', output: "a; /*comment*/\nb;" },
             { input: 'a;/* comment */b;', output: "a; /* comment */\nb;" },
-            { fragment: true, input: 'a;/*\ncomment\n*/b;', output: "a;\n/*\ncomment\n*/\nb;", comment: "simple comments don't get touched at all"  },
+            { fragment: true, input: 'a;/*\ncomment\n*/b;', output: "a;\n/*\ncomment\n*/\nb;", comment: "simple comments don't get touched at all" },
             { input: 'a;/**\n* javadoc\n*/b;', output: "a;\n/**\n * javadoc\n */\nb;" },
             { fragment: true, input: 'a;/**\n\nno javadoc\n*/b;', output: "a;\n/**\n\nno javadoc\n*/\nb;" },
             { input: 'a;/*\n* javadoc\n*/b;', output: "a;\n/*\n * javadoc\n */\nb;", comment: 'comment blocks detected and reindented even w/o javadoc starter' },
@@ -1859,8 +2128,8 @@ exports.test_data = {
             { input: 'for(;;++i)a', output: 'for (;; ++i) a' },
             { input: 'return(1)', output: 'return (1)' },
             { input: 'try{a();}catch(b){c();}finally{d();}', output: "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}" },
-            { input: '(xx)()', comment: ' magic function call'},
-            { input: 'a[1]()', comment: 'another magic function call'},
+            { input: '(xx)()', comment: ' magic function call' },
+            { input: 'a[1]()', comment: 'another magic function call' },
             { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
             { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
             { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
@@ -1869,8 +2138,10 @@ exports.test_data = {
             { input: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
             { input: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
             { input: 'if (a in b) foo();' },
-            { input: 'if(X)if(Y)a();else b();else c();',
-                output: "if (X)\n    if (Y) a();\n    else b();\nelse c();" },
+            {
+                input: 'if(X)if(Y)a();else b();else c();',
+                output: "if (X)\n    if (Y) a();\n    else b();\nelse c();"
+            },
             { input: 'if (foo) bar();\nelse break' },
             { unchanged: 'var a, b;' },
             { unchanged: 'var a = new function();' },
@@ -1890,19 +2161,26 @@ exports.test_data = {
             { unchanged: 'a = [-1, -1, -1]' },
 
 
-            { comment: 'The exact formatting these should have is open for discussion, but they are at least reasonable',
-                unchanged: 'a = [ // comment\n    -1, -1, -1\n]' },
+            {
+                comment: 'The exact formatting these should have is open for discussion, but they are at least reasonable',
+                unchanged: 'a = [ // comment\n    -1, -1, -1\n]'
+            },
             { unchanged: 'var a = [ // comment\n    -1, -1, -1\n]' },
             { unchanged: 'a = [ // comment\n    -1, // comment\n    -1, -1\n]' },
             { unchanged: 'var a = [ // comment\n    -1, // comment\n    -1, -1\n]' },
 
             { input: 'o = [{a:b},{c:d}]', output: 'o = [{\n    a: b\n}, {\n    c: d\n}]' },
 
-            { comment: 'was: extra space appended',
-                input: "if (a) {\n    do();\n}" },
+            {
+                comment: 'was: extra space appended',
+                input: "if (a) {\n    do();\n}"
+            },
 
-            { comment: 'if/else statement with empty body',
-                input: "if (a) {\n// comment\n}else{\n// comment\n}", output: "if (a) {\n    // comment\n} else {\n    // comment\n}" },
+            {
+                comment: 'if/else statement with empty body',
+                input: "if (a) {\n// comment\n}else{\n// comment\n}",
+                output: "if (a) {\n    // comment\n} else {\n    // comment\n}"
+            },
             { comment: 'multiple comments indentation', input: "if (a) {\n// comment\n// comment\n}", output: "if (a) {\n    // comment\n    // comment\n}" },
             { input: "if (a) b() else c();", output: "if (a) b()\nelse c();" },
             { input: "if (a) b() else if c() d();", output: "if (a) b()\nelse if c() d();" },
@@ -1927,9 +2205,11 @@ exports.test_data = {
             { input: "x => { x }", output: "x => {\n    x\n}" },
             { input: "(x) => { x }", output: "(x) => {\n    x\n}" },
 
-            { comment: 'a common snippet in jQuery plugins',
+            {
+                comment: 'a common snippet in jQuery plugins',
                 input_: "settings = $.extend({},defaults,settings);",
-                output: "settings = $.extend({}, defaults, settings);" },
+                output: "settings = $.extend({}, defaults, settings);"
+            },
 
             // reserved words used as property names
             { unchanged: "$http().then().finally().default()" },
@@ -2011,20 +2291,32 @@ exports.test_data = {
             { unchanged: 'elem-- - +elem[array]++;' },
 
 
-            { comment: 'Handling of newlines around unary ++ and -- operators',
-                input: '{foo\n++bar;}', output: '{\n    foo\n    ++bar;\n}' },
+            {
+                comment: 'Handling of newlines around unary ++ and -- operators',
+                input: '{foo\n++bar;}',
+                output: '{\n    foo\n    ++bar;\n}'
+            },
             { input: '{foo++\nbar;}', output: '{\n    foo++\n    bar;\n}' },
 
-            { comment: 'This is invalid, but harder to guard against. Issue #203.',
-                input: '{foo\n++\nbar;}', output: '{\n    foo\n    ++\n    bar;\n}' },
+            {
+                comment: 'This is invalid, but harder to guard against. Issue #203.',
+                input: '{foo\n++\nbar;}',
+                output: '{\n    foo\n    ++\n    bar;\n}'
+            },
 
-            { comment: 'regexps',
-                input: 'a(/abc\\\\/\\\\/def/);b()', output: "a(/abc\\\\/\\\\/def/);\nb()" },
+            {
+                comment: 'regexps',
+                input: 'a(/abc\\\\/\\\\/def/);b()',
+                output: "a(/abc\\\\/\\\\/def/);\nb()"
+            },
             { input: 'a(/a[b\\\\[\\\\]c]d/);b()', output: "a(/a[b\\\\[\\\\]c]d/);\nb()" },
             { comment: 'incomplete char class', fragment: true, unchanged: 'a(/a[b\\\\[' },
 
-            { comment: 'allow unescaped / in char classes',
-                input: 'a(/[a/b]/);b()', output: "a(/[a/b]/);\nb()" },
+            {
+                comment: 'allow unescaped / in char classes',
+                input: 'a(/[a/b]/);b()',
+                output: "a(/[a/b]/);\nb()"
+            },
             { unchanged: 'typeof /foo\\\\//;' },
             { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'throw /foo\\\\//;' },
@@ -2034,30 +2326,42 @@ exports.test_data = {
             { unchanged: 'if (a) /foo\\\\//\nelse /foo\\\\//;' },
 
             { unchanged: 'if (foo) /regex/.test();' },
-            { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)"},
+            { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)" },
             { unchanged: 'result = yield pgClient.query_(queryString);' },
 
             { unchanged: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
-            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
-                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]" },
-            { input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
-                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]" },
-            { input: 'a=[[1,2],[4,5],function(){},[7,8]]',
-                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]" },
-            { input: 'a=[b,c,function(){},function(){},d]',
-                output: "a = [b, c, function() {}, function() {}, d]" },
-            { input: 'a=[b,c,\nfunction(){},function(){},d]',
-                output: "a = [b, c,\n    function() {},\n    function() {},\n    d\n]" },
+            {
+                input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]"
+            },
+            {
+                input: 'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]"
+            },
+            {
+                input: 'a=[[1,2],[4,5],function(){},[7,8]]',
+                output: "a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]"
+            },
+            {
+                input: 'a=[b,c,function(){},function(){},d]',
+                output: "a = [b, c, function() {}, function() {}, d]"
+            },
+            {
+                input: 'a=[b,c,\nfunction(){},function(){},d]',
+                output: "a = [b, c,\n    function() {},\n    function() {},\n    d\n]"
+            },
             { input: 'a=[a[1],b[4],c[d[7]]]', output: "a = [a[1], b[4], c[d[7]]]" },
             { input: '[1,2,[3,4,[5,6],7],8]', output: "[1, 2, [3, 4, [5, 6], 7], 8]" },
 
-            { input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
-              output: '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]' },
+            {
+                input: '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+                output: '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]'
+            },
 
             { input: '{[x()[0]];indent;}', output: '{\n    [x()[0]];\n    indent;\n}' },
-            { unchanged: '/*\n foo trailing space    \n * bar trailing space   \n**/'},
-            { unchanged: '{\n    /*\n    foo    \n    * bar    \n    */\n}'},
+            { unchanged: '/*\n foo trailing space    \n * bar trailing space   \n**/' },
+            { unchanged: '{\n    /*\n    foo    \n    * bar    \n    */\n}' },
 
             { unchanged: 'return ++i' },
             { unchanged: 'return !!x' },
@@ -2068,10 +2372,14 @@ exports.test_data = {
             { input: 'catch(e)', output: 'catch (e)' },
             { unchanged: 'yield [1, 2]' },
 
-            { input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
-                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;' },
-            { input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
-                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;' },
+            {
+                input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
+                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;'
+            },
+            {
+                input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;',
+                output: 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;'
+            },
 
             {
                 comment: 'inline comment',
@@ -2079,12 +2387,17 @@ exports.test_data = {
                 output: 'function x( /*int*/ start, /*string*/ foo)'
             },
 
-            { comment: 'javadoc comment',
-                input: '/**\n* foo\n*/', output: '/**\n * foo\n */' },
+            {
+                comment: 'javadoc comment',
+                input: '/**\n* foo\n*/',
+                output: '/**\n * foo\n */'
+            },
             { input: '{\n/**\n* foo\n*/\n}', output: '{\n    /**\n     * foo\n     */\n}' },
 
-            { comment: 'starless block comment',
-                unchanged: '/**\nfoo\n*/' },
+            {
+                comment: 'starless block comment',
+                unchanged: '/**\nfoo\n*/'
+            },
             { unchanged: '/**\nfoo\n**/' },
             { unchanged: '/**\nfoo\nbar\n**/' },
             { unchanged: '/**\nfoo\n\nbar\n**/' },
@@ -2106,8 +2419,10 @@ exports.test_data = {
             { unchanged: 'var a = a,\n    /* c */\n    b;' },
             { unchanged: 'var a = a,\n    // c\n    b;' },
 
-            { comment: 'weird element referencing',
-                unchanged: 'foo.("bar");' },
+            {
+                comment: 'weird element referencing',
+                unchanged: 'foo.("bar");'
+            },
 
 
             { unchanged: 'if (a) a()\nelse b()\nnewline()' },
@@ -2119,11 +2434,15 @@ exports.test_data = {
             { unchanged: 'var a = function() {\n    func1()\n}' },
             { unchanged: 'var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}' },
 
-            { comment: 'code with and without semicolons',
+            {
+                comment: 'code with and without semicolons',
                 input_: 'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
-                output: 'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}' },
-            { input: 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
-                 output: 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}' },
+                output: 'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}'
+            },
+            {
+                input: 'var whatever = require("whatever")\nfunction() {\n    a = 6\n}',
+                output: 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}'
+            },
 
             { input: '{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', output: '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}' },
             { input: '{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', output: '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}' },
@@ -2144,16 +2463,14 @@ exports.test_data = {
 
         ],
     }],
-    // Example
     examples: [{
+        // Example
         group_name: "one",
         description: "",
         options: [],
-        values: [
-            {
-                source: "", //string or array of lines
-                output: ""  //string or array of lines
-            }
-        ]
+        values: [{
+            source: "", //string or array of lines
+            output: "" //string or array of lines
+        }]
     }]
-}
+};

@@ -187,6 +187,26 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Handle LESS property name interpolation
+        t('tag {\n\t@{prop}: none;\n}')
+        t('tag{@{prop}:none;}', 'tag {\n\t@{prop}: none;\n}')
+        t('tag{ @{prop}: none;}', 'tag {\n\t@{prop}: none;\n}')
+        
+        # can also be part of property name
+        t('tag {\n\tdynamic-@{prop}: none;\n}')
+        t('tag{dynamic-@{prop}:none;}', 'tag {\n\tdynamic-@{prop}: none;\n}')
+        t('tag{ dynamic-@{prop}: none;}', 'tag {\n\tdynamic-@{prop}: none;\n}')
+
+
+        self.reset_options();
+        #============================================================
+        # Handle LESS property name interpolation, test #631
+        t('.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}')
+        t('.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}', '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}')
+
+
+        self.reset_options();
+        #============================================================
         # Psuedo-classes vs Variables
         t('@page :first {}')
         

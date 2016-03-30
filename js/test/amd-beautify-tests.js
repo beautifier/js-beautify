@@ -1,4 +1,3 @@
-/*global js_beautify: true */
 /*jshint node:true */
 
 var requirejs = require('requirejs'),
@@ -9,10 +8,10 @@ var requirejs = require('requirejs'),
     run_html_tests = require('./generated/beautify-html-tests').run_html_tests;
 
 requirejs.config({
-	paths: {
-	    'beautify': "..",
-	    'beautify-lib': "../lib"
-	}
+    paths: {
+        'beautify': "..",
+        'beautify-lib': "../lib"
+    }
 });
 
 function amd_beautifier_index_tests(name, test_runner) {
@@ -21,11 +20,11 @@ function amd_beautifier_index_tests(name, test_runner) {
     var beautify = requirejs('beautify/index');
 
     test_runner(
-            results,
-            Urlencoded,
-            beautify.js,
-            beautify.html,
-            beautify.css);
+        results,
+        Urlencoded,
+        beautify.js,
+        beautify.html,
+        beautify.css);
 
     console.log(results.results_raw());
     return results;
@@ -39,11 +38,11 @@ function amd_beautifier_tests(name, test_runner) {
         html_beautify = requirejs('beautify-lib/beautify-html');
 
     test_runner(
-            results,
-            Urlencoded,
-            js_beautify.js_beautify,
-            html_beautify.html_beautify,
-            css_beautify.css_beautify);
+        results,
+        Urlencoded,
+        js_beautify.js_beautify,
+        html_beautify.html_beautify,
+        css_beautify.css_beautify);
 
     console.log(results.results_raw());
     return results;
@@ -53,11 +52,11 @@ function amd_beautifier_tests(name, test_runner) {
 
 if (require.main === module) {
     process.exit(
-            amd_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-            amd_beautifier_index_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-            amd_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
-            amd_beautifier_index_tests('css-beautifier', run_css_tests).get_exitcode() +
-            amd_beautifier_tests('html-beautifier', run_html_tests).get_exitcode() +
-            amd_beautifier_index_tests('html-beautifier', run_html_tests).get_exitcode()
-        );
+        amd_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
+        amd_beautifier_index_tests('js-beautifier', run_javascript_tests).get_exitcode() +
+        amd_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
+        amd_beautifier_index_tests('css-beautifier', run_css_tests).get_exitcode() +
+        amd_beautifier_tests('html-beautifier', run_html_tests).get_exitcode() +
+        amd_beautifier_index_tests('html-beautifier', run_html_tests).get_exitcode()
+    );
 }

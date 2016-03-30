@@ -4,6 +4,7 @@
     Template: test/data/css/node.mustache
     Data: test/data/css/tests.js
 */
+/*jshint unused:false */
 
 function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -72,7 +73,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     }
 
     function unicode_char(value) {
-        return String.fromCharCode(value)
+        return String.fromCharCode(value);
     }
 
     function beautifier_tests()
@@ -219,6 +220,26 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs{width:10px;//end of line comment\n}', '.tabs {\n\twidth: 10px; //end of line comment\n}');
         t('.tabs{width:10px;//end of line comment\nheight:10px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}');
         t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}');
+
+
+        reset_options();
+        //============================================================
+        // Handle LESS property name interpolation
+        t('tag {\n\t@{prop}: none;\n}');
+        t('tag{@{prop}:none;}', 'tag {\n\t@{prop}: none;\n}');
+        t('tag{ @{prop}: none;}', 'tag {\n\t@{prop}: none;\n}');
+        
+        // can also be part of property name
+        t('tag {\n\tdynamic-@{prop}: none;\n}');
+        t('tag{dynamic-@{prop}:none;}', 'tag {\n\tdynamic-@{prop}: none;\n}');
+        t('tag{ dynamic-@{prop}: none;}', 'tag {\n\tdynamic-@{prop}: none;\n}');
+
+
+        reset_options();
+        //============================================================
+        // Handle LESS property name interpolation, test #631
+        t('.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}');
+        t('.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}', '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}');
 
 
         reset_options();

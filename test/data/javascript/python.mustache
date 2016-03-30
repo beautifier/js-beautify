@@ -772,7 +772,7 @@ class TestJSBeautifier(unittest.TestCase):
         # Line wrap test intputs
         #..............---------1---------2---------3---------4---------5---------6---------7
         #..............1234567890123456789012345678901234567890123456789012345678901234567890
-        wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+        wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -787,7 +787,7 @@ class TestJSBeautifier(unittest.TestCase):
         #..............---------1---------2---------3---------4---------5---------6---------7
         #..............1234567890123456789012345678901234567890123456789012345678901234567890
         wrap_input_2=('{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans\n&& mean));\n' +
+                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -1207,8 +1207,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";')
         bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;')
         bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}')
-        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c || d &&\n    e) e = f')
-        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n        c || d) &&\n    e) e = f')
+        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c ||\n    d &&\n    e) e = f')
+        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n        c ||\n        d) &&\n    e) e = f')
         test_fragment('\n\n"x"', '"x"')
         # this beavior differs between js and python, defaults to unlimited in js, 10 in python
         bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',

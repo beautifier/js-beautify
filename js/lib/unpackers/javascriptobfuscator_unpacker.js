@@ -11,11 +11,11 @@
 //
 
 var JavascriptObfuscator = {
-    detect: function (str) {
+    detect: function(str) {
         return /^var _0x[a-f0-9]+ ?\= ?\[/.test(str);
     },
 
-    unpack: function (str) {
+    unpack: function(str) {
         if (JavascriptObfuscator.detect(str)) {
             var matches = /var (_0x[a-f\d]+) ?\= ?\[(.*?)\];/.exec(str);
             if (matches) {
@@ -44,15 +44,15 @@ var JavascriptObfuscator = {
         var strings = [];
         var pos = 0;
         while (pos < str.length) {
-            if (str.charAt(pos) == '"') {
+            if (str.charAt(pos) === '"') {
                 // new word
                 var word = '';
                 pos += 1;
                 while (pos < str.length) {
-                    if (str.charAt(pos) == '"') {
+                    if (str.charAt(pos) === '"') {
                         break;
                     }
-                    if (str.charAt(pos) == '\\') {
+                    if (str.charAt(pos) === '\\') {
                         word += '\\';
                         pos++;
                     }
@@ -67,7 +67,7 @@ var JavascriptObfuscator = {
     },
 
 
-    _unescape: function (str) {
+    _unescape: function(str) {
         // inefficient if used repeatedly or on small strings, but wonderful on single large chunk of text
         for (var i = 32; i < 128; i++) {
             str = str.replace(new RegExp('\\\\x' + i.toString(16), 'ig'), String.fromCharCode(i));
@@ -76,7 +76,7 @@ var JavascriptObfuscator = {
         return str;
     },
 
-    run_tests: function (sanity_test) {
+    run_tests: function(sanity_test) {
         var t = sanity_test || new SanityTest();
 
         t.test_function(JavascriptObfuscator._smart_split, "JavascriptObfuscator._smart_split");

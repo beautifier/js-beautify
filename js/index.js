@@ -16,18 +16,18 @@ All methods returned accept two arguments, the source string and an options obje
 
 function get_beautify(js_beautify, css_beautify, html_beautify) {
     // the default is js
-    var beautify = function (src, config) {
+    var beautify = function(src, config) {
         return js_beautify.js_beautify(src, config);
     };
 
     // short aliases
-    beautify.js   = js_beautify.js_beautify;
-    beautify.css  = css_beautify.css_beautify;
+    beautify.js = js_beautify.js_beautify;
+    beautify.css = css_beautify.css_beautify;
     beautify.html = html_beautify.html_beautify;
 
     // legacy aliases
-    beautify.js_beautify   = js_beautify.js_beautify;
-    beautify.css_beautify  = css_beautify.css_beautify;
+    beautify.js_beautify = js_beautify.js_beautify;
+    beautify.css_beautify = css_beautify.css_beautify;
     beautify.html_beautify = html_beautify.html_beautify;
 
     return beautify;
@@ -52,4 +52,3 @@ if (typeof define === "function" && define.amd) {
 
     })(module);
 }
-

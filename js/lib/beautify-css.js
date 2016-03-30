@@ -65,7 +65,7 @@
         options = options || {};
         source_text = source_text || '';
         // HACK: newline parsing inconsistent. This brute force normalizes the input.
-        source_text = source_text.replace(/\r\n|[\r\u2028\u2029]/g, '\n')
+        source_text = source_text.replace(/\r\n|[\r\u2028\u2029]/g, '\n');
 
         var indentSize = options.indent_size || 4;
         var indentCharacter = options.indent_char || ' ';
@@ -79,17 +79,16 @@
             indentSize = parseInt(indentSize, 10);
         }
 
-        if(options.indent_with_tabs){
+        if (options.indent_with_tabs) {
             indentCharacter = '\t';
             indentSize = 1;
         }
 
-        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n')
+        eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
 
 
         // tokenizer
         var whiteRe = /^\s+$/;
-        var wordRe = /[\w$\-_]/;
 
         var pos = -1,
             ch;
@@ -189,7 +188,7 @@
                     // pseudoclasses can contain ()
                     openParen += 1;
                 } else if (ch === ')') {
-                    if (openParen == 0) {
+                    if (openParen === 0) {
                         return false;
                     }
                     openParen -= 1;
@@ -295,7 +294,7 @@
                     print.newLine(true);
                 }
             } else if (ch === '/' && peek() === '/') { // single line comment
-                if (!isAfterNewline && last_top_ch !== '{' ) {
+                if (!isAfterNewline && last_top_ch !== '{') {
                     print.trim();
                 }
                 print.singleSpace();
@@ -303,31 +302,37 @@
                 print.newLine();
             } else if (ch === '@') {
                 print.preserveSingleSpace();
-                output.push(ch);
 
-                // strip trailing space, if present, for hash property checks
-                var variableOrRule = peekString(": ,;{}()[]/='\"");
+                // deal with less propery mixins @{...}
+                if (peek() === '{') {
+                    output.push(eatString('}'));
+                } else {
+                    output.push(ch);
 
-                if (variableOrRule.match(/[ :]$/)) {
-                    // we have a variable or pseudo-class, add it and insert one space before continuing
-                    next();
-                    variableOrRule = eatString(": ").replace(/\s$/, '');
-                    output.push(variableOrRule);
-                    print.singleSpace();
-                }
+                    // strip trailing space, if present, for hash property checks
+                    var variableOrRule = peekString(": ,;{}()[]/='\"");
 
-                variableOrRule = variableOrRule.replace(/\s$/, '')
+                    if (variableOrRule.match(/[ :]$/)) {
+                        // we have a variable or pseudo-class, add it and insert one space before continuing
+                        next();
+                        variableOrRule = eatString(": ").replace(/\s$/, '');
+                        output.push(variableOrRule);
+                        print.singleSpace();
+                    }
 
-                // might be a nesting at-rule
-                if (variableOrRule in css_beautify.NESTED_AT_RULE) {
-                    nestedLevel += 1;
-                    if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
-                        enteringConditionalGroup = true;
+                    variableOrRule = variableOrRule.replace(/\s$/, '');
+
+                    // might be a nesting at-rule
+                    if (variableOrRule in css_beautify.NESTED_AT_RULE) {
+                        nestedLevel += 1;
+                        if (variableOrRule in css_beautify.CONDITIONAL_GROUP_RULE) {
+                            enteringConditionalGroup = true;
+                        }
                     }
                 }
             } else if (ch === '#' && peek() === '{') {
-              print.preserveSingleSpace();
-              output.push(eatString('}'));
+                print.preserveSingleSpace();
+                output.push(eatString('}'));
             } else if (ch === '{') {
                 if (peek(true) === '}') {
                     eatWhitespace();
@@ -423,7 +428,7 @@
                 print.preserveSingleSpace();
                 output.push(ch);
             } else if (ch === '=') { // no whitespace before or after
-                eatWhitespace()
+                eatWhitespace();
                 ch = '=';
                 output.push(ch);
             } else {
@@ -445,7 +450,7 @@
             sweetCode += '\n';
         }
 
-        if (eol != '\n') {
+        if (eol !== '\n') {
             sweetCode = sweetCode.replace(/[\n]/g, eol);
         }
 

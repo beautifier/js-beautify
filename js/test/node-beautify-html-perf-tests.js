@@ -1,5 +1,7 @@
 /*global js_beautify: true */
 /*jshint node:true */
+/*jshint unused:false */
+
 
 var fs = require('fs'),
     SanityTest = require('./sanitytest'),
@@ -21,24 +23,23 @@ function node_beautifier_html_tests() {
     html_beautify(index_html, options);
     html_beautify(data_attr, options);
 
-    var suite = new Benchmark.Suite;
+    var suite = new Benchmark.Suite();
 
-    suite.add("html-beautify (index.html)", function () {
-        html_beautify(index_html, options);
-    })
-    .add("html-beautify (base64 image)", function () {
-        html_beautify(data_attr, options);
-    })
-    // add listeners
-    .on('cycle', function(event) {
-      console.log(String(event.target));
-    })
-    .on('error', function(event) {
-      return 1;
-    })
-    .on('complete', function(event) {
-    })
-    .run()
+    suite.add("html-beautify (index.html)", function() {
+            html_beautify(index_html, options);
+        })
+        .add("html-beautify (base64 image)", function() {
+            html_beautify(data_attr, options);
+        })
+        // add listeners
+        .on('cycle', function(event) {
+            console.log(String(event.target));
+        })
+        .on('error', function(event) {
+            return 1;
+        })
+        .on('complete', function(event) {})
+        .run();
     return 0;
 }
 

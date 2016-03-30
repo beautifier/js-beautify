@@ -1,5 +1,6 @@
 /*global js_beautify: true */
 /*jshint node:true */
+/*jshint unused:false */
 
 var fs = require('fs'),
     SanityTest = require('./sanitytest'),
@@ -21,24 +22,23 @@ function node_beautifier_tests() {
     js_beautify(data, options);
     js_beautify(data_min, options);
 
-    var suite = new Benchmark.Suite;
+    var suite = new Benchmark.Suite();
 
     suite.add("js-beautify (underscore)", function() {
-        js_beautify(data, options);
-    })
-    .add("js-beautify (underscore-min)", function() {
-        js_beautify(data_min, options);
-    })
-    // add listeners
-    .on('cycle', function(event) {
-      console.log(String(event.target));
-    })
-    .on('error', function(event) {
-      return 1;
-    })
-    .on('complete', function(event) {
-    })
-    .run()
+            js_beautify(data, options);
+        })
+        .add("js-beautify (underscore-min)", function() {
+            js_beautify(data_min, options);
+        })
+        // add listeners
+        .on('cycle', function(event) {
+            console.log(String(event.target));
+        })
+        .on('error', function(event) {
+            return 1;
+        })
+        .on('complete', function(event) {})
+        .run();
     return 0;
 }
 

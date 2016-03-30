@@ -1,0 +1,9 @@
+js/bin/**
+js/test/resources/**
+node_modules/**
+python/**
+target/**
+tools/**
+test/underscore-min.js
+test/underscore.js
+web/third-party/**

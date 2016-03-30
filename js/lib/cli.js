@@ -33,8 +33,8 @@
 */
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
-        console.error.apply(console, arguments);
-    } : function() {};
+    console.error.apply(console, arguments);
+} : function() {};
 
 var fs = require('fs'),
     cc = require('config-chain'),
@@ -66,6 +66,7 @@ var fs = require('fs'),
         "e4x": Boolean,
         "end_with_newline": Boolean,
         "comma_first": Boolean,
+        "operator_position": ["before-newline", "after-newline", "preserve-newline"],
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
@@ -97,7 +98,7 @@ var fs = require('fs'),
         "p": ["--preserve_newlines"],
         "m": ["--max_preserve_newlines"],
         "P": ["--space_in_paren"],
-        "E": ["--space_in_empty_paren"],
+        "Q": ["--space_in_empty_paren"],
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
@@ -108,6 +109,7 @@ var fs = require('fs'),
         "X": ["--e4x"],
         "n": ["--end_with_newline"],
         "C": ["--comma_first"],
+        "O": ["--operator_position"],
         // CSS-only
         "L": ["--selector_separator_newline"],
         "N": ["--newline_between_rules"],
@@ -135,7 +137,7 @@ var fs = require('fs'),
         "o": ["--outfile"],
         "r": ["--replace"],
         "q": ["--quiet"]
-        // no shorthand for "config"
+            // no shorthand for "config"
     });
 
 function verifyExists(fullPath) {
@@ -148,14 +150,18 @@ function findRecursive(dir, fileName) {
     var result = verifyExists(fullPath);
 
     if (!result && (nextDir !== dir)) {
-       result = findRecursive(nextDir, fileName);
+        result = findRecursive(nextDir, fileName);
     }
 
     return result;
 }
 
 function getUserHome() {
-    return process.env.USERPROFILE || process.env.HOME;
+    var user_home = '';
+    try {
+        user_home = process.env.USERPROFILE || process.env.HOME || '';
+    } catch (ex) {}
+    return user_home;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -254,6 +260,7 @@ function usage(err) {
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
             msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
+            msg.push('  -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]');
             break;
         case "html":
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
@@ -268,8 +275,8 @@ function usage(err) {
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
-            msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.')
-            msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.')
+            msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
+            msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
     }
 
     if (err) {

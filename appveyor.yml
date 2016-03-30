@@ -1,4 +1,4 @@
-version: 1.6.0+{build}
+version: 1.6+{build}
 
 nuget:
   disable_publish_on_pr: true

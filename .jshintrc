@@ -1,0 +1,10 @@
+{
+  "bitwise": true,
+  "curly": true,
+  "eqeqeq": true,
+  "noarg": true,
+  "nocomma": true,
+  "nonbsp": true,
+  "nonew": true,
+  "unused": true
+}
