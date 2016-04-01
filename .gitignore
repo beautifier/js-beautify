@@ -1,6 +1,7 @@
 *.orig
 node_modules
 gh-pages
+gh
 
 *.pyc
 python/MANIFEST
