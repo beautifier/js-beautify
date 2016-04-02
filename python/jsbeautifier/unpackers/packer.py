@@ -25,6 +25,11 @@ def detect(source):
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
     payload, symtab, radix, count = _filterargs(source)
+    """base52 replace numbers"""
+    if radix == 52:
+        for num in range(1, 10):
+            if payload.find(str(num)):
+                payload = payload.replace(str(num), symtab[num])
 
     if count != len(symtab):
         raise UnpackingError('Malformed p.a.c.k.e.r. symtab.')
@@ -60,7 +65,6 @@ def _filterargs(source):
     raise UnpackingError('Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
 
 
-
 def _replacestrings(source):
     """Strip string lookup table (list) and replace values in source."""
     match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source, re.DOTALL)
@@ -75,19 +79,26 @@ def _replacestrings(source):
         return source[startpoint:]
     return source
 
-
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
     ALPHABET  = {
+        36 : '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        52 : 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         62 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         95 : (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
     }
 
+    """
+    56 : '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz',
+    58 : '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz',
+    94 : ('!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'),
+    """
+
     def __init__(self, base):
         self.base = base
-
         # If base can be handled by int() builtin, let it do it for us
         if 2 <= base <= 36:
             self.unbase = lambda string: int(string, base)
@@ -108,5 +119,12 @@ class Unbaser(object):
         """Decodes a  value to an integer."""
         ret = 0
         for index, cipher in enumerate(string[::-1]):
-            ret += (self.base ** index) * self.dictionary[cipher]
+            if self.base == 52:
+                if cipher in self.dictionary:
+                    ret += (self.base ** index) * self.dictionary[cipher] +10
+                    if ret >52:
+                        ret = 0
+            else:
+                ret += (self.base ** index) * self.dictionary[cipher]
+
         return ret
