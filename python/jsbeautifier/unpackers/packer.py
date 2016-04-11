@@ -80,6 +80,8 @@ class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
     ALPHABET  = {
+        53 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ',
+        59 : '0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVWXYZ',
         62 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         95 : (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
