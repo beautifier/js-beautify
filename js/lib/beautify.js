@@ -748,6 +748,9 @@ if (!Object.values) {
                 if (opt.space_after_anon_function) {
                     output.space_before_token = true;
                 }
+            } else if (flags.last_text === '*' && last_last_text === 'yield') {
+                // yield* () vs yield * ()
+                output.space_before_token = true;
             } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, Tokenizer.line_starters) || flags.last_text === 'catch')) {
                 if (opt.space_before_conditional) {
                     output.space_before_token = true;
@@ -1077,6 +1080,9 @@ if (!Object.values) {
             } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' ||
                 (flags.last_text === '*' && last_last_text === 'function')) {
                 prefix = 'SPACE';
+            } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' ||
+                (flags.last_text === '*' && last_last_text === 'yield')) {
+                prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {
                 if (flags.inline_frame) {
                     prefix = 'SPACE';
@@ -1276,6 +1282,7 @@ if (!Object.values) {
             var space_after = true;
             var in_ternary = false;
             var isGeneratorAsterisk = current_token.text === '*' && last_type === 'TK_RESERVED' && flags.last_text === 'function';
+            var isYieldAsterisk = current_token.text === '*' && last_type === 'TK_RESERVED' && flags.last_text === 'yield';
             var isUnary = in_array(current_token.text, ['-', '+']) && (
                 in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) ||
                 in_array(flags.last_text, Tokenizer.line_starters) ||
@@ -1295,7 +1302,7 @@ if (!Object.values) {
             }
 
             // let's handle the operator_position option prior to any conflicting logic
-            if (!isUnary && !isGeneratorAsterisk && opt.preserve_newlines && in_array(current_token.text, Tokenizer.positionable_operators)) {
+            if (!isUnary && !isGeneratorAsterisk && !isYieldAsterisk && opt.preserve_newlines && in_array(current_token.text, Tokenizer.positionable_operators)) {
                 var isColon = current_token.text === ':';
                 var isTernaryColon = (isColon && in_ternary);
                 var isOtherColon = (isColon && !in_ternary);
@@ -1393,7 +1400,7 @@ if (!Object.values) {
                     // foo(); --bar;
                     print_newline();
                 }
-            } else if (isGeneratorAsterisk) {
+            } else if (isGeneratorAsterisk || isYieldAsterisk) {
                 space_before = false;
                 space_after = false;
             }
