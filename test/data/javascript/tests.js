@@ -542,6 +542,25 @@ exports.test_data = {
             unchanged: inputlib.operator_position.catch_all
         }]
     }, {
+        name: "Yield tests",
+        description: "ES6 yield tests",
+        tests: [
+            { unchanged: 'yield /foo\\\\//;' },
+            { unchanged: 'result = yield pgClient.query_(queryString);' },
+            { unchanged: 'yield [1, 2]' },
+            { unchanged: "yield* bar();" },
+            {
+                comment: "yield should have no space between yield and star",
+                input: "yield * bar();",
+                output: "yield* bar();"
+            },
+            {
+                comment: "yield should have space between star and generator",
+                input: "yield *bar();",
+                output: "yield* bar();"
+            }
+        ]
+    }, {
         name: "Async / await tests",
         description: "ES7 async / await tests",
         tests: [
@@ -2421,7 +2440,6 @@ exports.test_data = {
                 output: "a(/[a/b]/);\nb()"
             },
             { unchanged: 'typeof /foo\\\\//;' },
-            { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'throw /foo\\\\//;' },
             { unchanged: 'do /foo\\\\//;' },
             { unchanged: 'return /foo\\\\//;' },
@@ -2430,7 +2448,6 @@ exports.test_data = {
 
             { unchanged: 'if (foo) /regex/.test();' },
             { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)" },
-            { unchanged: 'result = yield pgClient.query_(queryString);' },
 
             { unchanged: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
@@ -2473,7 +2490,6 @@ exports.test_data = {
             { unchanged: 'return;' },
             { unchanged: 'return\nfunc' },
             { input: 'catch(e)', output: 'catch (e)' },
-            { unchanged: 'yield [1, 2]' },
 
             {
                 input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',

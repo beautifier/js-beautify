@@ -732,8 +732,9 @@ class Beautifier:
         elif not (self.last_type == 'TK_RESERVED' and current_token.text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output.space_before_token = True
         elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
-            (self.flags.last_text == '*' and self.last_last_text =='function'):
+            (self.flags.last_text == '*' and (self.last_last_text =='function' or self.last_last_text =='yield')):
             # function() vs function (), typeof() vs typeof ()
+            # function*() vs function* (), yield*() vs yield* ()
             if self.opts.space_after_anon_function:
                 self.output.space_before_token = True
         elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
@@ -1016,7 +1017,7 @@ class Beautifier:
         elif self.last_type == 'TK_STRING':
             prefix = 'NEWLINE'
         elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD' or \
-            (self.flags.last_text == '*' and self.last_last_text == 'function'):
+            (self.flags.last_text == '*' and (self.last_last_text == 'function' or self.last_last_text == 'yield')):
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
             if self.flags.inline_frame:
@@ -1194,7 +1195,8 @@ class Beautifier:
         space_before = True
         space_after = True
         in_ternary = False
-        isGeneratorAsterisk = current_token.text == '*' and self.last_type == 'TK_RESERVED' and self.flags.last_text == 'function'
+        isGeneratorAsterisk = current_token.text == '*' and self.last_type == 'TK_RESERVED' and \
+            (self.flags.last_text == 'function' or self.flags.last_text == 'yield')
         isUnary = current_token.text in ['+', '-'] \
             and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
             or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')

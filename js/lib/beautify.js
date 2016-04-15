@@ -739,8 +739,10 @@ if (!Object.values) {
                 } else if (!(last_type === 'TK_RESERVED' && current_token.text === '(') && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                     output.space_before_token = true;
                 } else if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
-                    (flags.last_text === '*' && last_last_text === 'function')) {
+                    (flags.last_text === '*' && (last_last_text === 'function' || last_last_text === 'yield'))) {
                     // function() vs function ()
+                    // yield*() vs yield* ()
+                    // function*() vs function* ()
                     if (opt.space_after_anon_function) {
                         output.space_before_token = true;
                     }
@@ -1071,7 +1073,7 @@ if (!Object.values) {
                 } else if (last_type === 'TK_STRING') {
                     prefix = 'NEWLINE';
                 } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' ||
-                    (flags.last_text === '*' && last_last_text === 'function')) {
+                    (flags.last_text === '*' && (last_last_text === 'function' || last_last_text === 'yield'))) {
                     prefix = 'SPACE';
                 } else if (last_type === 'TK_START_BLOCK') {
                     if (flags.inline_frame) {
@@ -1271,7 +1273,8 @@ if (!Object.values) {
                 var space_before = true;
                 var space_after = true;
                 var in_ternary = false;
-                var isGeneratorAsterisk = current_token.text === '*' && last_type === 'TK_RESERVED' && flags.last_text === 'function';
+                var isGeneratorAsterisk = current_token.text === '*' && last_type === 'TK_RESERVED' &&
+                    (flags.last_text === 'function' || flags.last_text === 'yield');
                 var isUnary = in_array(current_token.text, ['-', '+']) && (
                     in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) ||
                     in_array(flags.last_text, Tokenizer.line_starters) ||

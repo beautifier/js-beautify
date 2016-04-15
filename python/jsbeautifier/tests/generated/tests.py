@@ -825,6 +825,21 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Yield tests
+        bt('yield /foo\\//;')
+        bt('result = yield pgClient.query_(queryString);')
+        bt('yield [1, 2]')
+        bt('yield* bar();')
+        
+        # yield should have no space between yield and star
+        bt('yield * bar();', 'yield* bar();')
+        
+        # yield should have space between star and generator
+        bt('yield *bar();', 'yield* bar();')
+
+
+        self.reset_options();
+        #============================================================
         # Async / await tests
         bt('async function foo() {}')
         bt('let w = async function foo() {}')
@@ -2443,7 +2458,6 @@ class TestJSBeautifier(unittest.TestCase):
         # allow unescaped / in char classes
         bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()')
         bt('typeof /foo\\//;')
-        bt('yield /foo\\//;')
         bt('throw /foo\\//;')
         bt('do /foo\\//;')
         bt('return /foo\\//;')
@@ -2451,7 +2465,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (a) /foo\\//\nelse /foo\\//;')
         bt('if (foo) /regex/.test();')
         bt('for (index in [1, 2, 3]) /^test$/i.test(s)')
-        bt('result = yield pgClient.query_(queryString);')
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
         bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')
         bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
@@ -2472,7 +2485,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('return;')
         bt('return\nfunc')
         bt('catch(e)', 'catch (e)')
-        bt('yield [1, 2]')
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;')
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;')
         
