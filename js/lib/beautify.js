@@ -318,6 +318,7 @@ if (!Object.values) {
         opt.indent_char = options.indent_char ? options.indent_char : ' ';
         opt.eol = options.eol ? options.eol : 'auto';
         opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
+        opt.unindent_chained_methods = (options.unindent_chained_methods === undefined) ? false : options.unindent_chained_methods;
         opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
         opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
         opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
@@ -1479,6 +1480,8 @@ if (!Object.values) {
         function handle_dot() {
             if (start_of_statement()) {
                 // The conditional starts the statement if appropriate.
+            } else if (opt.unindent_chained_methods) {
+                deindent();
             }
 
             if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {

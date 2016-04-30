@@ -79,6 +79,7 @@ class BeautifierOptions:
         self.eval_code = False
         self.unescape_strings = False
         self.wrap_line_length = 0
+        self.unindent_chained_methods = False
         self.break_chained_methods = False
         self.end_with_newline = False
         self.comma_first = False
@@ -1335,6 +1336,9 @@ class Beautifier:
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             pass
+        elif self.opts.unindent_chained_methods:
+            self.deindent()
+            
 
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
             self.output.space_before_token = True

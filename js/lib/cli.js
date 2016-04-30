@@ -57,6 +57,7 @@ var fs = require('fs'),
         "space_after_anon_function": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         "brace_style": ["collapse", "expand", "end-expand", "collapse-preserve-inline", "expand-strict", "none"],
+        "unindent_chained_methods": Boolean,
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -102,6 +103,7 @@ var fs = require('fs'),
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
+        "u": ["--unindent_chained_methods"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
@@ -253,6 +255,7 @@ function usage(err) {
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
             msg.push('  -b, --brace-style                 [collapse|expand|collapse-preserve-inline|end-expand|none] ["collapse"]');
+            msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
