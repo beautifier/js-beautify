@@ -595,9 +595,14 @@
                         } else if (comment.indexOf('<!--') === 0) { // <!-- comment ...
                             delimiter = '-->';
                             matched = true;
-                        } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
-                            delimiter = '}}';
+                        } else if (comment.indexOf('{{!--') === 0) { // {{!-- handlebars comment
+                            delimiter = '--}}';
                             matched = true;
+                        } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
+                            if (comment.length === 5 && comment.indexOf('{{!--') === -1) {
+                                delimiter = '}}';
+                                matched = true;
+                            }
                         } else if (comment.indexOf('<?') === 0) { // {{! handlebars comment
                             delimiter = '?>';
                             matched = true;

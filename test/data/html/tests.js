@@ -393,12 +393,27 @@ exports.test_data = {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
+            content: '{{!-- comment--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
             content: '{pre{{field1}} {{field2}} {{field3}}post'
         }, {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
             content: '{{! \\n mult-line\\ncomment  \\n     with spacing\\n}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
+            content: '{{!-- \\n mult-line\\ncomment  \\n     with spacing\\n--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
+            content: '{{!-- \\n mult-line\\ncomment {{#> component}} \\n mult-line\\ncontent {{/ component}} --}}'
         }],
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
