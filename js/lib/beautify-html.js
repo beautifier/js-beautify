@@ -135,7 +135,7 @@
             0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
-        wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
+        wrap_attributes_indent_size = options.wrap_attributes_indent_size ? options.wrap_attributes_indent_size : indent_size;
         reformat_unformatted_tags = options.reformat_unformatted_tags ? options.reformat_unformatted_tags : false;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
