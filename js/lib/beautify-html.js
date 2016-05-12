@@ -348,6 +348,16 @@
                     this.indent_level = this.tags[tag + this.tags[tag + 'count']];
                 }
             };
+            
+            this.get_indent_to_align_with_tag = function(arr) {
+                var indention = 0;
+                for (var i = 0; i < arr.length; i++) {
+                    indention++;
+                    if (arr[i] === ' ') {
+                        return indention;
+                    }
+                }
+            }
 
             this.get_tag = function(peek) { //function to get a full tag and parse its type
                 var input_char = '',
