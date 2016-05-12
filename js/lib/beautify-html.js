@@ -410,8 +410,12 @@
                             indentAttrs = true;
                         }
                         if (indentAttrs) {
+                            var indent_attr_size = wrap_attributes_indent_size;
+                            if (wrap_attributes_indent_size === 'align') {
+                                indent_attr_size = this.get_indent_to_align_with_tag(content);
+                            }
                             //indent attributes an auto or forced line-wrap
-                            for (var count = 0; count < wrap_attributes_indent_size; count++) {
+                            for (var count = 0; count < indent_attr_size; count++) {
                                 content.push(indent_character);
                             }
                         }
