@@ -357,7 +357,7 @@
                         return indention;
                     }
                 }
-            }
+            };
 
             this.get_tag = function(peek) { //function to get a full tag and parse its type
                 var input_char = '',
