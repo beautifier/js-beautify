@@ -136,6 +136,7 @@
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
+        reformat_unformatted_tags = options.reformat_unformatted_tags ? options.reformat_unformatted_tags : false;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -491,7 +492,7 @@
                         this.indent_content = true;
                         this.traverse_whitespace();
                     }
-                } else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
+                } else if (this.is_unformatted(tag_check, unformatted) && !reformat_unformatted_tags) { // do not reformat the "unformatted" tags
                     comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
                     content.push(comment);
                     tag_end = this.pos - 1;
