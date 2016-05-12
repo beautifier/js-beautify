@@ -76,6 +76,7 @@ var fs = require('fs'),
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
         "indent_inner_html": [Boolean],
+        "indent_handlebars": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
         "extra_liners": [String, Array],
         // CLI
@@ -122,6 +123,7 @@ var fs = require('fs'),
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
         "I": ["--indent_inner_html"],
+        "H": ["--indent_handlebars"],
         "S": ["--indent_scripts"],
         "E": ["--extra_liners"],
         // non-dasherized hybrid shortcuts
@@ -312,6 +314,7 @@ function usage(err) {
         case "html":
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
             msg.push('  -I, --indent-inner-html           Indent body and head sections. Default is false.');
+            msg.push('  -H, --indent-handlebars           Indent handlebars. Default is false.');
             msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
