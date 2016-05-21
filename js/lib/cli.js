@@ -315,8 +315,9 @@ function processInputSync(filepath) {
             makePretty(data, config, outfile, writePretty);
         });
     } else {
-        var dir = path.dirname(outfile);
-        mkdirp.sync(dir);
+        if (outfile) {
+            mkdirp.sync(path.dirname(outfile));
+        }
         data = fs.readFileSync(filepath, 'utf8');
         makePretty(data, config, outfile, writePretty);
     }
