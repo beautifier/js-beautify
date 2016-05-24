@@ -302,6 +302,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Object literal shorthand functions
+        bt('return {\n    foo() {\n        return 42;\n    }\n}');
+        bt('var foo = {\n    * bar() {\n        yield 42;\n    }\n};');
+        bt('var foo = {bar(){return 42;},*barGen(){yield 42;}};', 'var foo = {\n    bar() {\n        return 42;\n    },\n    * barGen() {\n        yield 42;\n    }\n};');
+
+
+        reset_options();
+        //============================================================
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');

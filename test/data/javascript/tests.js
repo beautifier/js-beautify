@@ -54,6 +54,17 @@ exports.test_data = {
             { unchanged: 'x ** -2' }
         ]
     }, {
+        name: "Object literal shorthand functions",
+        description: "Object literal shorthand functions",
+        tests: [
+            { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
+            { unchanged: 'var foo = {\n    * bar() {\n        yield 42;\n    }\n};' },
+            {
+                input: 'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+                output: "var foo = {\n    bar() {\n        return 42;\n    },\n    * barGen() {\n        yield 42;\n    }\n};"
+            }
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [{
