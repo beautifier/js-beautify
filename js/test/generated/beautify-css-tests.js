@@ -28,6 +28,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.selector_separator_newline = true;
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
+    default_opts.space_around_selector_separator = false;
 
     function reset_options()
     {
@@ -115,6 +116,23 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         //============================================================
         // 
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}');
+
+
+        reset_options();
+        //============================================================
+        // Space Around Selector Separator - (space = " ")
+        opts.space_around_selector_separator = true;
+        t('a>b{}', 'a > b {}');
+        t('a~b{}', 'a ~ b {}');
+        t('a+b{}', 'a + b {}');
+        t('a+b>c{}', 'a + b > c {}');
+
+        // Space Around Selector Separator - (space = "")
+        opts.space_around_selector_separator = false;
+        t('a>b{}', 'a>b {}');
+        t('a~b{}', 'a~b {}');
+        t('a+b{}', 'a+b {}');
+        t('a+b>c{}', 'a+b>c {}');
 
 
         reset_options();
