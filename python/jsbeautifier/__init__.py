@@ -250,14 +250,14 @@ def beautify_file(file_name, opts = default_options() ):
     if file_name == '-': # stdin
         try:
             if sys.stdin.isatty():
-                raise
+                raise Exception()
 
             stream = sys.stdin
             input_string = ''.join(stream.readlines())
         except Exception as ex:
             print("Must pipe input or define at least one file.", file=sys.stderr)
             usage(sys.stderr)
-            raise
+            raise Exception()
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
@@ -1364,7 +1364,8 @@ def mkdir_p(path):
     except OSError as exc: # Python >2.5
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        else: raise
+        else:
+            raise Exception()
 
 # Using object instead of string to allow for later expansion of info about each line
 class OutputLine:
