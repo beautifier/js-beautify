@@ -39,13 +39,14 @@
         css_beautify(source_text, options);
 
     The options are (default in brackets):
-        indent_size (4)                   — indentation size,
-        indent_char (space)               — character to indent with,
-        selector_separator_newline (true) - separate selectors with newline or
-                                            not (e.g. "a,\nbr" or "a, br")
-        end_with_newline (false)          - end with a newline
-        newline_between_rules (true)      - add a new line after every css rule
-
+        indent_size (4)                         — indentation size,
+        indent_char (space)                     — character to indent with,
+        selector_separator_newline (true)       - separate selectors with newline or
+                                                  not (e.g. "a,\nbr" or "a, br")
+        end_with_newline (false)                - end with a newline
+        newline_between_rules (true)            - add a new line after every css rule
+        space_around_selector_separator (false) - ensure space around selector separators:
+                                                  '>', '+', '~' (e.g. "a>b" -> "a > b")
     e.g
 
     css_beautify(css_source_text, {
@@ -53,7 +54,8 @@
       'indent_char': '\t',
       'selector_separator': ' ',
       'end_with_newline': false,
-      'newline_between_rules': true
+      'newline_between_rules': true,
+      'space_around_selector_separator': true
     });
 */
 
@@ -72,6 +74,7 @@
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
+        var spaceAroundSelectorSeparator = (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
         var eol = options.eol ? options.eol : '\n';
 
         // compatibility
@@ -421,6 +424,15 @@
                     print.newLine();
                 } else {
                     print.singleSpace();
+                }
+            } else if (ch === '>' || ch === '+' || ch === '~') {
+                //handl selector separator spacing
+                if (spaceAroundSelectorSeparator && !insidePropertyValue && parenLevel < 1) {
+                    print.singleSpace();
+                    output.push(ch);
+                    print.singleSpace();
+                } else {
+                    output.push(ch);
                 }
             } else if (ch === ']') {
                 output.push(ch);

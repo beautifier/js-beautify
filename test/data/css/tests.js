@@ -5,6 +5,7 @@ exports.test_data = {
         { name: "selector_separator_newline", value: "true" },
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
+        { name: "space_around_selector_separator", value: "false" }
     ],
     groups: [{
         name: "End With Newline",
@@ -43,6 +44,22 @@ exports.test_data = {
             input: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
             output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
         }, ],
+    }, {
+        name: "Space Around Selector Separator",
+        description: "",
+        matrix: [{
+            options: [{ name: "space_around_selector_separator", value: "true" }],
+            space: ' '
+        }, {
+            options: [{ name: "space_around_selector_separator", value: "false" }],
+            space: ''
+        }],
+        tests: [
+            { input: 'a>b{}', output: 'a{{space}}>{{space}}b {}' },
+            { input: 'a~b{}', output: 'a{{space}}~{{space}}b {}' },
+            { input: 'a+b{}', output: 'a{{space}}+{{space}}b {}' },
+            { input: 'a+b>c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' }
+        ]
     }, {
         name: 'Selector Separator',
         description: '',

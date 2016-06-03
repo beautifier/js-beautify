@@ -1,4 +1,23 @@
 # Changelog
+## v1.6.3
+
+### Description
+Bug fixes
+
+### Closed Issues
+* CLI broken when output path is not set ([#933](https://github.com/beautify-web/js-beautify/issues/933))
+* huge memory leak ([#909](https://github.com/beautify-web/js-beautify/issues/909))
+* don't print unpacking errors on stdout (python) ([#884](https://github.com/beautify-web/js-beautify/pull/884))
+* Fix incomplete list of non-positionable operators (python lib) ([#878](https://github.com/beautify-web/js-beautify/pull/878))
+* Fix Issue #844 ([#873](https://github.com/beautify-web/js-beautify/pull/873))
+* assignment exponentiation operator ([#864](https://github.com/beautify-web/js-beautify/issues/864))
+* Bug in Less mixins ([#844](https://github.com/beautify-web/js-beautify/issues/844))
+* Can't Nest Conditionals ([#680](https://github.com/beautify-web/js-beautify/issues/680))
+* ternary operations ([#670](https://github.com/beautify-web/js-beautify/issues/670))
+* Support newline before logical or ternary operator ([#605](https://github.com/beautify-web/js-beautify/issues/605))
+* Provide config files for format and linting ([#336](https://github.com/beautify-web/js-beautify/issues/336))
+
+
 ## v1.6.2
 
 ### Description
@@ -22,7 +41,6 @@ Fixes for regressions found in 1.6.0
 * space-after-anon-function not applied to object properties ([#761](https://github.com/beautify-web/js-beautify/issues/761))
 * Separating 'input' elements adds whitespace ([#580](https://github.com/beautify-web/js-beautify/issues/580))
 * Inline Format ([#572](https://github.com/beautify-web/js-beautify/issues/572))
-* Add "collapse-one-line" option for braces  ([#487](https://github.com/beautify-web/js-beautify/issues/487))
 * Preserve attributes line break in HTML ([#455](https://github.com/beautify-web/js-beautify/issues/455))
 * Multiline Array ([#406](https://github.com/beautify-web/js-beautify/issues/406))
 

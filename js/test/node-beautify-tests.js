@@ -39,7 +39,7 @@ if (require.main === module) {
     process.exit(
         test_legacy_names() +
         node_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-        node_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
+        node_beautifier_tests('css-beautifier', run_css_tests).get_exitcode() +
         node_beautifier_tests('html-beautifier', run_html_tests).get_exitcode()
     );
 }
