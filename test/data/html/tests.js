@@ -633,6 +633,42 @@ exports.test_data = {
                 '</div>'
         }]
     }, {
+        name: "Indent body inner html by default",
+        description: "",
+        tests: [{
+            fragment: true,
+            input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+            output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+        }]
+    }, {
+        name: "indent_body_inner_html set to false prevents indent of body inner html",
+        description: "",
+        options: [
+            { name: 'indent_body_inner_html', value: "false" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<html>\n<body>\n<div></div>\n</body>\n\n</html>'
+        }]
+    }, {
+        name: "Indent head inner html by default",
+        description: "",
+        tests: [{
+            fragment: true,
+            input: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>',
+            output: '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>'
+        }]
+    }, {
+        name: "indent_head_inner_html set to false prevents indent of head inner html",
+        description: "",
+        options: [
+            { name: 'indent_head_inner_html', value: "false" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
+        }]
+    }, {
         name: "New Test Suite"
     }],
 };
