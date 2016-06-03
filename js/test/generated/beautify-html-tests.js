@@ -614,6 +614,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
+        // Indent body inner html by default
+        test_fragment('<html>\n<body>\n<div></div>\n</body>\n\n</html>', '<html>\n<body>\n    <div></div>\n</body>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // indent_body_inner_html set to false prevents indent of body inner html
+        opts.indent_body_inner_html = false;
+        test_fragment('<html>\n<body>\n<div></div>\n</body>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // Indent head inner html by default
+        test_fragment('<html>\n\n<head>\n<meta>\n</head>\n\n</html>', '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // indent_head_inner_html set to false prevents indent of head inner html
+        opts.indent_head_inner_html = false;
+        test_fragment('<html>\n\n<head>\n<meta>\n</head>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
         // New Test Suite
 
 
