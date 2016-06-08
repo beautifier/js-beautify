@@ -872,7 +872,7 @@
                 case 'TK_TAG_END':
                     //Print new line only if the tag has no content and has child
                     if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
-                        var tag_name = multi_parser.token_text.match(/\w+/)[0];
+                        var tag_name = (multi_parser.token_text.match(/\w+/) || [])[0];
                         var tag_extracted_from_last_output = null;
                         if (multi_parser.output.length) {
                             tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length - 1].match(/(?:<|{{#)\s*(\w+)/);
