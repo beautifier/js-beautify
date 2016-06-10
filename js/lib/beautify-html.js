@@ -354,6 +354,8 @@
                 }
             };
 
+            var bracesUnmatched = 0;
+
             this.get_tag = function(peek) { //function to get a full tag and parse its type
                 var input_char = '',
                     content = [],
@@ -379,6 +381,9 @@
                     input_char = this.input.charAt(this.pos);
                     this.pos++;
 
+                    if (input_char === '{') bracesUnmatched++;
+                    if (input_char === '}') bracesUnmatched--;
+
                     if (this.Utils.in_array(input_char, this.Utils.whitespace)) { //don't want to insert unnecessary space
                         space = true;
                         continue;
@@ -399,7 +404,7 @@
                         var wrapped = this.space_or_wrap(content);
                         var indentAttrs = wrapped && input_char !== '/' && wrap_attributes !== 'force';
                         space = false;
-                        if (!first_attr && wrap_attributes === 'force' && input_char !== '/') {
+                        if (!first_attr && wrap_attributes === 'force' && input_char !== '/' && (bracesUnmatched === 0 || input_char === '{')) {
                             this.print_newline(false, content);
                             this.print_indentation(content);
                             indentAttrs = true;
