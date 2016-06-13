@@ -488,11 +488,9 @@
                         }
                     }
 
-                    if (skip_jinja && !tag_start_char) {
-                        if (input_char.charAt(0) === '{') {
-                            content.push(input_char);
-                            break;
-                        }
+                    if (skip_jinja && !tag_start_char && input_char.charAt(0) === '{') {
+                        content.push(input_char);
+                        break;
                     }
 
                     this.line_char_count++;
