@@ -52,6 +52,7 @@
                                         Only works before elements, not inside tags or for text.
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
     indent_handlebars (default false) - format and indent {{#foo}} and {{/foo}}
+    skip_jinja (default false) - skip {%foo%}, {{foo}} and {#foo#}.
     end_with_newline (false)          - end with a newline
     extra_liners (default [head,body,/html]) -List of tags that should have an extra newline before them.
 
@@ -66,6 +67,7 @@
       'preserve_newlines': true,
       'max_preserve_newlines': 5,
       'indent_handlebars': false,
+      'skip_jinja': false,
       'extra_liners': ['/html']
     });
 */
@@ -99,6 +101,7 @@
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
+            skip_jinja,
             wrap_attributes,
             wrap_attributes_indent_size,
             end_with_newline,
@@ -138,6 +141,7 @@
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10)) :
             0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
+        skip_jinja = (options.skip_jinja === undefined) ? false : options.skip_jinja;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
@@ -277,6 +281,16 @@
                             }
                         }
                     }
+
+                    if (skip_jinja) {
+                        // Jinja parsing is a bit tricky too.
+                        // So we gonna parse all jinja tags as single ones.
+                        var peek2 = this.input.substr(this.pos, 2);
+                        if (peek2 === '{%' || peek2 === '{{' || peek2 === '{#') {
+                            return [this.get_tag(), 'TK_TAG_SINGLE'];
+                        }
+                    }
+
 
                     input_char = this.input.charAt(this.pos);
                     this.pos++;
@@ -430,6 +444,33 @@
                         }
                     }
 
+                    if (skip_jinja) {
+                        // When inside an angle-bracket tag, put spaces around
+                        // jinja not inside of strings.
+                        if ((input_char + this.input.charAt(this.pos)) === '{%') {
+                            input_char += this.get_unformatted('%}');
+                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
+                                input_char = ' ' + input_char;
+                            }
+                            space = true;
+                        }
+                        if ((input_char + this.input.charAt(this.pos)) === '{{') {
+                            input_char += this.get_unformatted('}}');
+                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
+                                input_char = ' ' + input_char;
+                            }
+                            space = true;
+                        }
+                        if ((input_char + this.input.charAt(this.pos)) === '{#') {
+                            input_char += this.get_unformatted('#}');
+                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
+                                input_char = ' ' + input_char;
+                            }
+                            space = true;
+                        }
+                    }
+
+
                     if (input_char === '<' && !tag_start_char) {
                         tag_start = this.pos - 1;
                         tag_start_char = '<';
@@ -443,6 +484,13 @@
                                 tag_start = this.pos - 2;
                             }
                             tag_start_char = '{';
+                        }
+                    }
+
+                    if (skip_jinja && !tag_start_char) {
+                        if (input_char.charAt(0) === '{') {
+                            content.push(input_char);
+                            break;
                         }
                     }
 
