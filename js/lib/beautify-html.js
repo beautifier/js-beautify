@@ -446,30 +446,31 @@
 
                     if (skip_jinja) {
                         // When inside an angle-bracket tag, put spaces around
-                        // jinja not inside of strings.
-                        if ((input_char + this.input.charAt(this.pos)) === '{%') {
-                            input_char += this.get_unformatted('%}');
-                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
-                                input_char = ' ' + input_char;
+                        // jinja not inside of strings.A
+                        var jinja_tokens = [
+                            {
+                                'start': '{{',
+                                'end': '}}',
+                            },
+                            {
+                                'start': '{%',
+                                'end': '%}',
+                            },
+                            {
+                                'start': '{#',
+                                'end': '#}',
+                            },
+                        ];
+                        for (i in jinja_tokens) {
+                            if ((input_char + this.input.charAt(this.pos)) === jinja_tokens[i].start) {
+                                input_char += this.get_unformatted(jinja_tokens[i].end);
+                                if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
+                                    input_char = ' ' + input_char;
+                                }
+                                space = true;
                             }
-                            space = true;
-                        }
-                        if ((input_char + this.input.charAt(this.pos)) === '{{') {
-                            input_char += this.get_unformatted('}}');
-                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
-                                input_char = ' ' + input_char;
-                            }
-                            space = true;
-                        }
-                        if ((input_char + this.input.charAt(this.pos)) === '{#') {
-                            input_char += this.get_unformatted('#}');
-                            if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
-                                input_char = ' ' + input_char;
-                            }
-                            space = true;
                         }
                     }
-
 
                     if (input_char === '<' && !tag_start_char) {
                         tag_start = this.pos - 1;
