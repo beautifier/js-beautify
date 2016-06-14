@@ -287,7 +287,11 @@
                         // So we gonna parse all jinja tags as single ones.
                         var peek2 = this.input.substr(this.pos, 2);
                         if (peek2 === '{%' || peek2 === '{{' || peek2 === '{#') {
-                            return [this.get_tag(), 'TK_TAG_SINGLE'];
+                            var jinja_tag = this.get_tag();
+                            if (content.length) {
+                                jinja_tag = content.join('') + jinja_tag;
+                            }
+                            return [jinja_tag, 'TK_TAG_SINGLE'];
                         }
                     }
 
