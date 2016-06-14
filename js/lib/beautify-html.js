@@ -452,14 +452,14 @@
                         // When inside an angle-bracket tag, put spaces around
                         // jinja not inside of strings.A
                         var jinja_tokens = [{
-                          'start' : '{{',
-                          'end' : '}}',
+                            'start': '{{',
+                            'end': '}}',
                         }, {
-                          'start' : '{%',
-                          'end' : '%}',
+                            'start': '{%',
+                            'end': '%}',
                         }, {
-                          'start' : '{#',
-                          'end' : '#}',
+                            'start': '{#',
+                            'end': '#}',
                         }];
                         for (var jinja_token_index in jinja_tokens) {
                             var jinja_token = jinja_tokens[jinja_token_index];
