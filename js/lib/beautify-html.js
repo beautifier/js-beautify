@@ -465,10 +465,6 @@
                             var jinja_token = jinja_tokens[jinja_token_index];
                             if ((input_char + this.input.charAt(this.pos)) === jinja_token.start) {
                                 input_char += this.get_unformatted(jinja_token.end);
-                                if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
-                                    input_char = ' ' + input_char;
-                                }
-                                space = true;
                             }
                         }
                     }
