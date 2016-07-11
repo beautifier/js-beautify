@@ -4,7 +4,7 @@
   The MIT License (MIT)
 
   Copyright (c) 2007-2013 Einar Lielmanis and contributors.
-
+ 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
   (the "Software"), to deal in the Software without restriction,
@@ -42,6 +42,7 @@ var fs = require('fs'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     path = require('path'),
+    editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
         "indent_size": Number,
@@ -85,7 +86,8 @@ var fs = require('fs'),
         "replace": Boolean,
         "quiet": Boolean,
         "type": ["js", "css", "html"],
-        "config": path
+        "config": path,
+        "editorconfig": Boolean
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
     // translation, allowing more convenient dashes in CLI arguments
@@ -139,6 +141,7 @@ var fs = require('fs'),
         "r": ["--replace"],
         "q": ["--quiet"]
             // no shorthand for "config"
+            // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {
@@ -163,6 +166,24 @@ function getUserHome() {
         user_home = process.env.USERPROFILE || process.env.HOME || '';
     } catch (ex) {}
     return user_home;
+}
+
+function configEditorConfig(file) {
+    var eConfigs = editorconfig.parse(file);
+    var _translation = {
+        "indent-size": "indent-size",
+        "max-line-length": "wrap-line-length"
+    };
+    Object.keys(eConfigs).forEach(function(key) {
+        if (key in _translation) {
+            eConfigs[key] = _translation[key];
+            delete eConfigs[_translation[key]];
+        }
+    });
+    if (eConfigs.indent_style === "tab") {
+        eConfigs.indent_with_tabs = true;
+    }
+    return eConfigs;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -241,7 +262,8 @@ function usage(err) {
         '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
         '  -e, --eol                     Character(s) to use as line terminators.',
         '                                [first newline in file, otherwise "\\n]',
-        '  -n, --end-with-newline        End output with newline'
+        '  -n, --end-with-newline        End output with newline',
+        '  --editorconfig                Use EditorConfig to set up the options'
     ];
 
     switch (scriptName.split('-').shift()) {
@@ -297,6 +319,7 @@ function processInputSync(filepath) {
         outfile = config.outfile,
         input;
 
+
     // -o passed with no value overwrites
     if (outfile === true || config.replace) {
         outfile = filepath;
@@ -313,7 +336,7 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty);
+            makePretty(data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
         if (outfile) {
@@ -326,6 +349,12 @@ function processInputSync(filepath) {
 
 function makePretty(code, config, outfile, callback) {
     try {
+        if (config.editorConfig) {
+            var editorConfig = configEditorConfig(code);
+            Object.keys(editorConfig).forEach(function(k) {
+                config[k] = editorConfig[k];
+            });
+        }
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 

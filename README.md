@@ -107,6 +107,7 @@ Beautifier Options:
   -n, --end-with-newline            End output with newline
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   --good-stuff                      Warm the cockles of Crockford's heart
+  --editorconfig                    Use EditorConfig to set up the options
 ```
 
 These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
@@ -211,6 +212,7 @@ HTML Beautifier Options:
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size]
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
+  --editorconfig                     Use EditorConfig to set up the options
 ```
 
 # License
