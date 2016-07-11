@@ -103,6 +103,23 @@ test_cli_js_beautify()
       exit 1
   }
 
+
+  # EditorConfig related tests
+  export EDITORCONFIG_RESOURCE=js/test/resources/editorconfig
+  cd js/test/resources/editorconfig
+  $CLI_SCRIPT --editorconfig $SCRIPT_DIR/../bin/js-beautify.js \
+  > /dev/null || {
+      echo "Invalid editorconfig file will not report error (consistent with the EditorConfig)."
+      exit 1
+  }
+  $CLI_SCRIPT --editorconfig example.js \
+  | diff -q example.js - && {
+      echo "EditorConfig settings overides indent_size (to 2), hence causing diff."
+      exit 1
+  }
+  cd -
+  # End EditorConfig
+
   setup_temp
   $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../bin/js-beautify.js && diff $SCRIPT_DIR/../bin/js-beautify.js $TEST_TEMP/js-beautify.js || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify.js."

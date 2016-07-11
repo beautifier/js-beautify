@@ -42,6 +42,7 @@ var fs = require('fs'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     path = require('path'),
+    editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
         "indent_size": Number,
@@ -85,7 +86,8 @@ var fs = require('fs'),
         "replace": Boolean,
         "quiet": Boolean,
         "type": ["js", "css", "html"],
-        "config": path
+        "config": path,
+        "editorconfig": Boolean
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
     // translation, allowing more convenient dashes in CLI arguments
@@ -139,6 +141,7 @@ var fs = require('fs'),
         "r": ["--replace"],
         "q": ["--quiet"]
             // no shorthand for "config"
+            // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {
@@ -163,6 +166,25 @@ function getUserHome() {
         user_home = process.env.USERPROFILE || process.env.HOME || '';
     } catch (ex) {}
     return user_home;
+}
+
+function configEditorConfig(file) {
+    var eConfigs = editorconfig.parseSync(file);
+    var _translation = {
+        "indent-size": "indent-size",
+        "max-line-length": "wrap-line-length",
+        "end-of-line": "eol"
+    };
+    Object.keys(eConfigs).forEach(function(key) {
+        if (key in _translation) {
+            eConfigs[key] = _translation[key];
+            delete eConfigs[_translation[key]];
+        }
+    });
+    if (eConfigs.indent_style === "tab") {
+        eConfigs.indent_with_tabs = true;
+    }
+    return eConfigs;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -241,7 +263,8 @@ function usage(err) {
         '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
         '  -e, --eol                     Character(s) to use as line terminators.',
         '                                [first newline in file, otherwise "\\n]',
-        '  -n, --end-with-newline        End output with newline'
+        '  -n, --end-with-newline        End output with newline',
+        '  --editorconfig                Use EditorConfig to set up the options'
     ];
 
     switch (scriptName.split('-').shift()) {
@@ -313,9 +336,19 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty);
+            makePretty(data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
+        // Only enable editorconfig with files (stdin not suppored).
+        if (config.editorconfig) {
+            debug("EditorConfig is enabled for ", filepath);
+            var editorConfig = configEditorConfig(filepath);
+            debug("EditorConfig settings: ", editorConfig);
+            config = cc(editorConfig,
+                config).snapshot;
+            debug(config);
+        }
+
         if (outfile) {
             mkdirp.sync(path.dirname(outfile));
         }
