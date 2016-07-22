@@ -755,6 +755,11 @@ if (!Object.values) {
                     output.space_before_token = true;
                 }
 
+                // Should be a space between async and arrow function
+                if (current_token.text === '(' && last_type === 'TK_RESERVED' && flags.last_word === 'async') {
+                    output.space_before_token = true;
+                }
+
                 // Support of this kind of newline preservation.
                 // a = (b &&
                 //     (c || d));
