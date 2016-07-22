@@ -476,7 +476,7 @@ if (!Object.values) {
                 return out;
             }
 
-            var newline_restricted_tokens = ['break', 'contiue', 'return', 'throw'];
+            var newline_restricted_tokens = ['break', 'continue', 'return', 'throw'];
 
             function allow_wrap_or_preserved_newline(force_linewrap) {
                 force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
