@@ -249,6 +249,17 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Proper handling of colon in selectors
+        self.options.selector_separator_newline = false
+        t('a :b {}')
+        t('a ::b {}')
+        t('a:b {}')
+        t('a::b {}')
+        t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}')
+
+
+        self.reset_options();
+        #============================================================
         # 
 
 
