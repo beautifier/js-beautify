@@ -261,6 +261,8 @@ def set_file_editorconfig_opts(filename, js_options):
                 setattr(js_options, 'indent_size', int(value))
             elif key == 'max-line-length':
                 setattr(js_options, 'wrap-line-length', value)
+            elif key == 'end-of-line':
+                setattr(js_options, 'eol', value)
 
 def beautify_file(file_name, opts = default_options() ):
     input_string = ''

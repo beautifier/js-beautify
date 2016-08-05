@@ -1,3 +1,4 @@
+root = true
 
 [*.js]
 indent_style = space

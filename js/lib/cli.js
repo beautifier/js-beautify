@@ -169,10 +169,11 @@ function getUserHome() {
 }
 
 function configEditorConfig(file) {
-    var eConfigs = editorconfig.parse(file);
+    var eConfigs = editorconfig.parseSync(file);
     var _translation = {
         "indent-size": "indent-size",
-        "max-line-length": "wrap-line-length"
+        "max-line-length": "wrap-line-length",
+        "end-of-line": "eol"
     };
     Object.keys(eConfigs).forEach(function(key) {
         if (key in _translation) {
@@ -319,7 +320,6 @@ function processInputSync(filepath) {
         outfile = config.outfile,
         input;
 
-
     // -o passed with no value overwrites
     if (outfile === true || config.replace) {
         outfile = filepath;
@@ -339,6 +339,16 @@ function processInputSync(filepath) {
             makePretty(data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
+        // Only enable editorconfig with files (stdin not suppored).
+        if (config.editorconfig) {
+            debug("EditorConfig is enabled for ", filepath);
+            var editorConfig = configEditorConfig(filepath);
+            debug("EditorConfig settings: ", editorConfig);
+            config = cc(editorConfig,
+                config).snapshot;
+            debug(config);
+        }
+
         if (outfile) {
             mkdirp.sync(path.dirname(outfile));
         }
@@ -349,12 +359,6 @@ function processInputSync(filepath) {
 
 function makePretty(code, config, outfile, callback) {
     try {
-        if (config.editorConfig) {
-            var editorConfig = configEditorConfig(code);
-            Object.keys(editorConfig).forEach(function(k) {
-                config[k] = editorConfig[k];
-            });
-        }
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 

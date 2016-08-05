@@ -114,7 +114,7 @@ test_cli_js_beautify()
   }
   $CLI_SCRIPT --editorconfig example.js \
   | diff -q example.js - && {
-      echo "EditorConfig settings overides indent_size, hence causing diff."
+      echo "EditorConfig settings overides indent_size (to 2), hence causing diff."
       exit 1
   }
   cd -
