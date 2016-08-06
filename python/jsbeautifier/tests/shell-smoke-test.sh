@@ -55,31 +55,6 @@ test_cli_common()
         exit 1
     fi
 
-    # EditorConfig related tests
-    pushd ../js/test/resources/editorconfigerror
-    $CLI_SCRIPT --editorconfig ../../../bin/js-beautify.js \
-    > /dev/null || {
-        echo "Invalid editorconfig file will not report error (consistent with the EditorConfig)."
-        exit 1
-    }
-
-    $CLI_SCRIPT --editorconfig example.js \
-    > /dev/null || {
-        echo "Invalid editorconfig file will not report error (consistent with the EditorConfig)."
-        exit 1
-    }
-    popd
-
-    pushd ../js/test/resources/editorconfig
-    $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig example.js \
-    | diff -q example-2.js - || {
-        echo "EditorConfig settings overides indent_size (to 2)"
-        $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig example.js \
-        | diff example-2.js - | cat -t -e
-        exit 1
-    }
-    popd
-    # End EditorConfig
 }
 
 setup_temp()
@@ -151,11 +126,65 @@ test_cli_js_beautify()
         cleanup 1
     }
 
-    $CLI_SCRIPT --eol 'auto' $TEST_TEMP/js-beautify-rn.js | diff -q $TEST_TEMP/js-beautify-rn.js - || {
+    $CLI_SCRIPT -e 'auto' $TEST_TEMP/js-beautify-rn.js | diff -q $TEST_TEMP/js-beautify-rn.js - || {
         echo "js-beautify output for $TEST_TEMP/js-beautify-rn.js was expected to be unchanged."
         cleanup 1
     }
 
+    # EditorConfig related tests
+    cp -r ../js/test/resources/editorconfig $TEST_TEMP/
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/example-ec.js --indent-size 2 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/cr/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/cr/example-ec.js --indent-size 2 -e '\r' $TEST_TEMP/editorconfig/example-base.js
+
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/crlf/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/crlf/example-ec.js --indent-size 2 -e '\r\n' $TEST_TEMP/editorconfig/example-base.js
+
+    $CLI_SCRIPT -o $TEST_TEMP/editorconfig/error/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+
+    pushd $TEST_TEMP/editorconfig
+
+    cd $TEST_TEMP/editorconfig/error
+    $CLI_SCRIPT --editorconfig $TEST_TEMP/js-beautify-n.js \
+    > /dev/null || {
+        echo "Invalid editorconfig file should not report error (consistent with the EditorConfig)."
+        cleanup 1
+    }
+
+    $CLI_SCRIPT --editorconfig example.js \
+    > /dev/null || {
+        echo "Invalid editorconfig file should not report error (consistent with the EditorConfig)."
+        cleanup 1
+    }
+
+    cd $TEST_TEMP/editorconfig || exit 1
+    $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
+    && diff -q example.js example-ec.js || {
+        echo "EditorConfig should settings overide setting."
+        diff example.js example-ec.js | cat -t -e
+        cleanup 1
+    }
+
+    cd $TEST_TEMP/editorconfig/crlf || exit 1
+    $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
+    && diff -q example.js example-ec.js || {
+        echo "EditorConfig should settings overide setting."
+        diff example.js example-ec.js | cat -t -e
+        cleanup 1
+    }
+
+    cd $TEST_TEMP/editorconfig/cr || exit 1
+    $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
+    && diff -q example.js example-ec.js || {
+        echo "EditorConfig should settings overide setting."
+        diff example.js example-ec.js | cat -t -e
+        cleanup 1
+    }
+
+    popd
+    # End EditorConfig
 
     # ensure unchanged files are not overwritten
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js
