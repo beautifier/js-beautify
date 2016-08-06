@@ -248,21 +248,40 @@ def beautify(string, opts = default_options() ):
 
 def set_file_editorconfig_opts(filename, js_options):
     from editorconfig import get_properties, EditorConfigError
-    import os
     try:
         _ecoptions = get_properties(os.path.abspath(filename))
-    except EditorConfigError:
-        raise EditorConfigError('Error in EditorConfig')
-    else:
-        for key, value in _ecoptions.items():
-            if (key == "indent_style") and (value == "tab"):
-                js_options.indent_with_tabs = True
-            elif key == 'indent_size':
-                setattr(js_options, 'indent_size', int(value))
-            elif key == 'max-line-length':
-                setattr(js_options, 'wrap-line-length', value)
-            elif key == 'end-of-line':
-                setattr(js_options, 'eol', value)
+
+        if _ecoptions.get("indent_style") == "tab":
+            js_options.indent_with_tabs = True
+        elif _ecoptions.get("indent_style") == "space":
+            js_options.indent_with_tabs = False
+
+        if _ecoptions.get("indent_size"):
+            js_options.indent_size = int(_ecoptions["indent_size"])
+
+        if _ecoptions.get("max_line_length"):
+            if _ecoptions.get("max_line_length") == "off":
+                js_options.wrap_line_length = 0
+            else:
+                js_options.wrap_line_length = int(_ecoptions["max_line_length"])
+
+        if _ecoptions.get("insert_final_newline") == 'true':
+            js_options.end_with_newline = True
+        elif _ecoptions.get("insert_final_newline") == 'false':
+            js_options.end_with_newline = False
+
+        if _ecoptions.get("end_of_line"):
+            if _ecoptions["end_of_line"] == "cr":
+                js_options.eol = '\r'
+            elif _ecoptions["end_of_line"] == "lf":
+                js_options.eol = '\n'
+            elif _ecoptions["end_of_line"] == "crlf":
+                js_options.eol = '\r\n'
+
+    except EditorConfigError as ex:
+        # do not error on bad editor config
+        print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
+
 
 def beautify_file(file_name, opts = default_options() ):
     input_string = ''
@@ -280,8 +299,12 @@ def beautify_file(file_name, opts = default_options() ):
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
-    if getattr(opts, 'editorconfig'):
-        set_file_editorconfig_opts(file_name, opts)
+
+        # Editorconfig used only on files, not stdin
+        if getattr(opts, 'editorconfig'):
+            opts = copy.copy(opts)
+            set_file_editorconfig_opts(file_name, opts)
+
     return beautify(input_string, opts)
 
 

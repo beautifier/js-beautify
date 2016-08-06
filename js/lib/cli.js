@@ -168,23 +168,46 @@ function getUserHome() {
     return user_home;
 }
 
-function configEditorConfig(file) {
-    var eConfigs = editorconfig.parseSync(file);
-    var _translation = {
-        "indent-size": "indent-size",
-        "max-line-length": "wrap-line-length",
-        "end-of-line": "eol"
-    };
-    Object.keys(eConfigs).forEach(function(key) {
-        if (key in _translation) {
-            eConfigs[key] = _translation[key];
-            delete eConfigs[_translation[key]];
+function set_file_editorconfig_opts(file, config) {
+    try {
+        var eConfigs = editorconfig.parseSync(file);
+
+        if (eConfigs.indent_style === "tab") {
+            config.indent_with_tabs = true;
+        } else if (eConfigs.indent_style === "space") {
+            config.indent_with_tabs = false;
         }
-    });
-    if (eConfigs.indent_style === "tab") {
-        eConfigs.indent_with_tabs = true;
+
+        if (eConfigs.indent_size) {
+            config.indent_size = eConfigs.indent_size;
+        }
+
+        if (eConfigs.max_line_length) {
+            if (eConfigs.max_line_length === "off") {
+                config.wrap_line_length = 0;
+            } else {
+                config.wrap_line_length = parseInt(eConfigs.max_line_length);
+            }
+        }
+
+        if (eConfigs.insert_final_newline === true) {
+            config.end_with_newline = true;
+        } else if (eConfigs.insert_final_newline === false) {
+            config.end_with_newline = false;
+        }
+
+        if (eConfigs.end_of_line) {
+            if (eConfigs.end_of_line === 'cr') {
+                config.eol = '\r';
+            } else if (eConfigs.end_of_line === 'lf') {
+                config.eol = '\n';
+            } else if (eConfigs.end_of_line === 'crlf') {
+                config.eol = '\r\n';
+            }
+        }
+    } catch (e) {
+        debug(e);
     }
-    return eConfigs;
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -342,10 +365,8 @@ function processInputSync(filepath) {
         // Only enable editorconfig with files (stdin not suppored).
         if (config.editorconfig) {
             debug("EditorConfig is enabled for ", filepath);
-            var editorConfig = configEditorConfig(filepath);
-            debug("EditorConfig settings: ", editorConfig);
-            config = cc(editorConfig,
-                config).snapshot;
+            config = cc(config).snapshot;
+            set_file_editorconfig_opts(filepath, config);
             debug(config);
         }
 
