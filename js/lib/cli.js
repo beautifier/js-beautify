@@ -42,6 +42,7 @@ var fs = require('fs'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     path = require('path'),
+    editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
         "indent_size": Number,
@@ -85,7 +86,8 @@ var fs = require('fs'),
         "replace": Boolean,
         "quiet": Boolean,
         "type": ["js", "css", "html"],
-        "config": path
+        "config": path,
+        "editorconfig": Boolean
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
     // translation, allowing more convenient dashes in CLI arguments
@@ -139,6 +141,7 @@ var fs = require('fs'),
         "r": ["--replace"],
         "q": ["--quiet"]
             // no shorthand for "config"
+            // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {
@@ -163,6 +166,48 @@ function getUserHome() {
         user_home = process.env.USERPROFILE || process.env.HOME || '';
     } catch (ex) {}
     return user_home;
+}
+
+function set_file_editorconfig_opts(file, config) {
+    try {
+        var eConfigs = editorconfig.parseSync(file);
+
+        if (eConfigs.indent_style === "tab") {
+            config.indent_with_tabs = true;
+        } else if (eConfigs.indent_style === "space") {
+            config.indent_with_tabs = false;
+        }
+
+        if (eConfigs.indent_size) {
+            config.indent_size = eConfigs.indent_size;
+        }
+
+        if (eConfigs.max_line_length) {
+            if (eConfigs.max_line_length === "off") {
+                config.wrap_line_length = 0;
+            } else {
+                config.wrap_line_length = parseInt(eConfigs.max_line_length);
+            }
+        }
+
+        if (eConfigs.insert_final_newline === true) {
+            config.end_with_newline = true;
+        } else if (eConfigs.insert_final_newline === false) {
+            config.end_with_newline = false;
+        }
+
+        if (eConfigs.end_of_line) {
+            if (eConfigs.end_of_line === 'cr') {
+                config.eol = '\r';
+            } else if (eConfigs.end_of_line === 'lf') {
+                config.eol = '\n';
+            } else if (eConfigs.end_of_line === 'crlf') {
+                config.eol = '\r\n';
+            }
+        }
+    } catch (e) {
+        debug(e);
+    }
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
@@ -241,7 +286,8 @@ function usage(err) {
         '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
         '  -e, --eol                     Character(s) to use as line terminators.',
         '                                [first newline in file, otherwise "\\n]',
-        '  -n, --end-with-newline        End output with newline'
+        '  -n, --end-with-newline        End output with newline',
+        '  --editorconfig                Use EditorConfig to set up the options'
     ];
 
     switch (scriptName.split('-').shift()) {
@@ -313,9 +359,17 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty);
+            makePretty(data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
+        // Only enable editorconfig with files (stdin not suppored).
+        if (config.editorconfig) {
+            debug("EditorConfig is enabled for ", filepath);
+            config = cc(config).snapshot;
+            set_file_editorconfig_opts(filepath, config);
+            debug(config);
+        }
+
         if (outfile) {
             mkdirp.sync(path.dirname(outfile));
         }
