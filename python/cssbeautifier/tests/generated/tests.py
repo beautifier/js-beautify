@@ -245,6 +245,15 @@ class CSSBeautifierTest(unittest.TestCase):
             '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});\n' +
             '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
             '}')
+        
+        # Multiple filed issues in LESS due to not(:blah)
+        t('&:first-of-type:not(:last-child) {}')
+        t(
+            'div {\n' +
+            '\t&:not(:first-of-type) {\n' +
+            '\t\tbackground: red;\n' +
+            '\t}\n' +
+            '}')
 
 
         self.reset_options();

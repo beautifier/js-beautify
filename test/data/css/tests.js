@@ -218,7 +218,21 @@ exports.test_data = {
                     '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;',
                     '}'
                 ]
+            },
+            {
+                comment: "Multiple filed issues in LESS due to not(:blah)",
+                unchanged: '&:first-of-type:not(:last-child) {}'
+            },
+            {
+                unchanged: [
+                    'div {',
+                    '\t&:not(:first-of-type) {',
+                    '\t\tbackground: red;',
+                    '\t}',
+                    '}',
+                ]
             }
+
         ],
     }, {
 
