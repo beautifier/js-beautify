@@ -237,7 +237,7 @@ exports.test_data = {
                     '    {{f1}}age: 25',
                     '});'
                 ]
-            }
+            },
         ],
     }, {
         name: "Space in parens tests",
@@ -1934,19 +1934,30 @@ exports.test_data = {
                     'import { fs } from "fs";'
                 ]
             },
-            // {
-            //     comment: "Issue #338 - Short expressions ",
-            //     unchanged: [
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}',
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}'
-            //     ]
-            // },
+            {
+                comment: "Issue #982 - Fixed return expression collapse-preserve-inline",
+                unchanged: [
+                    'function foo(arg) {',
+                    '    if (!arg) { a(); }',
+                    '    if (!arg) { return false; }',
+                    '    if (!arg) { throw "inline"; }',
+                    '    return true;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #338 - Short expressions ",
+                unchanged: [
+                    'if (someCondition) { return something; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}',
+                    'if (someCondition) { break; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}'
+                ]
+            }
         ]
     }, {
         // =======================================================

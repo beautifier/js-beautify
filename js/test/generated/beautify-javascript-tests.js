@@ -2182,6 +2182,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'a = { a: a };\n' +
             'UserDB.findOne({ username: "xyz" }, function(err, user) {});\n' +
             'import { fs } from "fs";');
+        
+        // Issue #982 - Fixed return expression collapse-preserve-inline
+        bt(
+            'function foo(arg) {\n' +
+            '    if (!arg) { a(); }\n' +
+            '    if (!arg) { return false; }\n' +
+            '    if (!arg) { throw "inline"; }\n' +
+            '    return true;\n' +
+            '}');
+        
+        // Issue #338 - Short expressions 
+        bt(
+            'if (someCondition) { return something; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}\n' +
+            'if (someCondition) { break; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}');
 
 
         reset_options();

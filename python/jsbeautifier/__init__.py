@@ -1028,7 +1028,7 @@ class Beautifier:
             prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
-            if self.flags.last_text == 'else ' or self.flags.last_text == 'export':
+            if self.flags.inline_frame or self.flags.last_text == 'else ' or self.flags.last_text == 'export':
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
