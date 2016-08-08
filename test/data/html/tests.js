@@ -10,6 +10,22 @@ exports.test_data = {
         { name: "extra_liners", value: "['html', 'head', '/html']" }
     ],
     groups: [{
+        name: "Handle inline and block elements differently",
+        description: "",
+        matrix: [{}],
+        tests: [{
+            fragment: true,
+            input: '<body><h1>Block</h1></body>',
+            output: [
+                '<body>',
+                '    <h1>Block</h1>',
+                '</body>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<body><i>Inline</i></body>'
+        }]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [{
@@ -555,33 +571,35 @@ exports.test_data = {
         name: "Php formatting",
         description: "Php (<?php ... ?>) treated as comments.",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>' }, {
-                fragment: true,
-                unchanged: [
-                    '<?php',
-                    'for($i = 1; $i <= 100; $i++;) {',
-                    '    #count to 100!',
-                    '    echo($i . "</br>");',
-                    '}',
-                    '?>'
-                ]
-            }, {
-                fragment: true,
-                unchanged: [
-                    '<?php ?>',
-                    '<!DOCTYPE html>',
-                    '',
-                    '<html>',
-                    '',
-                    '<head></head>',
-                    '',
-                    '<body></body>',
-                    '',
-                    '</html>'
-                ]
-            }
-        ]
+        tests: [{
+            fragment: true,
+            input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
+            output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>',
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php',
+                'for($i = 1; $i <= 100; $i++;) {',
+                '    #count to 100!',
+                '    echo($i . "</br>");',
+                '}',
+                '?>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php ?>',
+                '<!DOCTYPE html>',
+                '',
+                '<html>',
+                '',
+                '<head></head>',
+                '',
+                '<body></body>',
+                '',
+                '</html>'
+            ]
+        }]
     }, {
         name: "underscore.js  formatting",
         description: "underscore.js templates (<% ... %>) treated as comments.",

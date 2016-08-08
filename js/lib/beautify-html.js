@@ -131,7 +131,6 @@
             // prexisting - not sure of full effect of removing, leaving in
             'acronym', 'address', 'big', 'dt', 'ins', 'small', 'strike', 'tt',
             'pre',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
         ];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         max_preserve_newlines = preserve_newlines ?
