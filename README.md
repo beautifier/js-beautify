@@ -16,6 +16,14 @@ as well as deobfuscate scripts processed by
 # Usage
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
+To use in web browser include the script tag below in your document
+```html
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.3/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.3/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.3/js/lib/beautify-html.js"></script>
+```
+Disclaimer: It's a free service, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
+
 ## Web Browser
 Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
 
@@ -150,7 +158,7 @@ You might notice that the CLI options and defaults hash aren't 100% correlated. 
 ## Directives to Ignore or Preserve sections (Javascript only)
 
 Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.  
+This allows you to tell the beautifier to preserve the formtatting of or completely ignore part of a file.
 The example input below will remain changed after beautification
 
 ```js
@@ -163,7 +171,7 @@ The example input below will remain changed after beautification
 }
 /* beautify preserve:end */
 
-// Use ignore when the content is not parsable as javascript.  
+// Use ignore when the content is not parsable as javascript.
 var a =  1;
 /* beautify ignore:start */
  {This is some strange{template language{using open-braces?

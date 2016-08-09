@@ -3,6 +3,13 @@
 REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 
+case "$OSTYPE" in
+    darwin*) PLATFORM="OSX" ;;
+    linux*)  PLATFORM="LINUX" ;;
+    bsd*)    PLATFORM="BSD" ;;
+    *)       PLATFORM="UNKNOWN" ;;
+esac
+
 generate_changelog()
 {
     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify || exit 1
@@ -40,6 +47,24 @@ release_web()
       git checkout $ORIGINAL_BRANCH
 }
 
+sedi() {
+    if [[ "$PLATFORM" == "OSX" || "$PLATFORM" == "BSD" ]]; then
+        sed -i "" $@
+    elif [ "$PLATFORM" == "LINUX" ]; then
+        sed -i $@
+    else
+        exit 1
+    fi
+}
+
+update_cdn_urls_in_readme()
+{
+    git clean -xfd || exit 1
+    sedi -E 's@(cdn.rawgit.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
+    git add README.md
+    git commit -m "Bump version in cdn urls"
+}
+
 main()
 {
     cd $SCRIPT_DIR/..
@@ -50,6 +75,7 @@ main()
     git checkout master
 
     generate_changelog
+    update_cdn_urls_in_readme
     (release_python)
     release_node
     release_web
