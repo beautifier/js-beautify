@@ -306,6 +306,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.card-blue ::-webkit-input-placeholder {\n' +
             '\tcolor: #87D1FF;\n' +
             '}');
+        t(
+            'div [attr] :not(.class) {\n' +
+            '\tcolor: red;\n' +
+            '}');
 
 
         reset_options();

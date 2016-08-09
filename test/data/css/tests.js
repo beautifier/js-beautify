@@ -253,6 +253,13 @@ exports.test_data = {
                     '\tcolor: #87D1FF;',
                     '}'
                 ]
+            },
+            {
+                unchanged: [
+                    'div [attr] :not(.class) {',
+                    '\tcolor: red;',
+                    '}'
+                ]
             }
         ]
     }, {

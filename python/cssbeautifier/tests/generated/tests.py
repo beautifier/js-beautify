@@ -269,6 +269,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '.card-blue ::-webkit-input-placeholder {\n' +
             '\tcolor: #87D1FF;\n' +
             '}')
+        t(
+            'div [attr] :not(.class) {\n' +
+            '\tcolor: red;\n' +
+            '}')
 
 
         self.reset_options();
