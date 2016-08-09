@@ -86,6 +86,7 @@ class BeautifierOptions:
 
         # For testing of beautify ignore:start directive
         self.test_output_raw = False
+        self.editorconfig = False
 
 
 
@@ -245,6 +246,43 @@ def beautify(string, opts = default_options() ):
     b = Beautifier()
     return b.beautify(string, opts)
 
+def set_file_editorconfig_opts(filename, js_options):
+    from editorconfig import get_properties, EditorConfigError
+    try:
+        _ecoptions = get_properties(os.path.abspath(filename))
+
+        if _ecoptions.get("indent_style") == "tab":
+            js_options.indent_with_tabs = True
+        elif _ecoptions.get("indent_style") == "space":
+            js_options.indent_with_tabs = False
+
+        if _ecoptions.get("indent_size"):
+            js_options.indent_size = int(_ecoptions["indent_size"])
+
+        if _ecoptions.get("max_line_length"):
+            if _ecoptions.get("max_line_length") == "off":
+                js_options.wrap_line_length = 0
+            else:
+                js_options.wrap_line_length = int(_ecoptions["max_line_length"])
+
+        if _ecoptions.get("insert_final_newline") == 'true':
+            js_options.end_with_newline = True
+        elif _ecoptions.get("insert_final_newline") == 'false':
+            js_options.end_with_newline = False
+
+        if _ecoptions.get("end_of_line"):
+            if _ecoptions["end_of_line"] == "cr":
+                js_options.eol = '\r'
+            elif _ecoptions["end_of_line"] == "lf":
+                js_options.eol = '\n'
+            elif _ecoptions["end_of_line"] == "crlf":
+                js_options.eol = '\r\n'
+
+    except EditorConfigError as ex:
+        # do not error on bad editor config
+        print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
+
+
 def beautify_file(file_name, opts = default_options() ):
     input_string = ''
     if file_name == '-': # stdin
@@ -261,6 +299,11 @@ def beautify_file(file_name, opts = default_options() ):
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
+
+        # Editorconfig used only on files, not stdin
+        if getattr(opts, 'editorconfig'):
+            opts = copy.copy(opts)
+            set_file_editorconfig_opts(file_name, opts)
 
     return beautify(input_string, opts)
 
@@ -302,6 +345,7 @@ Output options:
  -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
  -n, --end_with_newline            End output with newline
+ --editorconfig                    Enable setting configuration from EditorConfig
 
 Rarely needed options:
 
@@ -493,7 +537,7 @@ class Beautifier:
         return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
 
-    _newline_restricted_tokens = ['break','contiue','return', 'throw']
+    _newline_restricted_tokens = ['break','continue','return', 'throw']
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
         # never wrap the first token of a line.
         if self.output.just_added_newline():
@@ -984,7 +1028,7 @@ class Beautifier:
             prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
-            if self.flags.last_text == 'else ' or self.flags.last_text == 'export':
+            if self.flags.inline_frame or self.flags.last_text == 'else ' or self.flags.last_text == 'export':
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
@@ -1991,7 +2035,7 @@ def main():
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
             'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-            'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length'])
+            'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length','editorconfig'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -2049,6 +2093,8 @@ def main():
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
             file = '-'
+        elif opt in ('--editorconfig'):
+            js_options.editorconfig = True
         elif opt in ('--version', '-v'):
             return print(__version__)
         elif opt in ('--help', '--usage', '-h'):

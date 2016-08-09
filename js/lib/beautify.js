@@ -476,7 +476,7 @@ if (!Object.values) {
                 return out;
             }
 
-            var newline_restricted_tokens = ['break', 'contiue', 'return', 'throw'];
+            var newline_restricted_tokens = ['break', 'continue', 'return', 'throw'];
 
             function allow_wrap_or_preserved_newline(force_linewrap) {
                 force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
@@ -1085,7 +1085,7 @@ if (!Object.values) {
                 }
 
                 if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, Tokenizer.line_starters) && flags.last_text !== ')') {
-                    if (flags.last_text === 'else' || flags.last_text === 'export') {
+                    if (flags.inline_frame || flags.last_text === 'else' || flags.last_text === 'export') {
                         prefix = 'SPACE';
                     } else {
                         prefix = 'NEWLINE';

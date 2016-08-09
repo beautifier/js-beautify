@@ -51,7 +51,7 @@ end_with_newline = [%s]
 newline_between_rules = [%s]
 space_around_selector_separator = [%s]
 """ % (self.indent_size, self.indent_char, self.indent_with_tabs,
-       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules, 
+       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
        self.space_around_selector_separator)
 
 
@@ -400,7 +400,8 @@ class Beautifier:
             elif self.ch == ":":
                 self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
-                        not (self.lookBack('&') or self.foundNestedPseudoClass()):
+                        not (self.lookBack('&') or self.foundNestedPseudoClass()) and \
+                        not self.lookBack('('):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     insidePropertyValue = True

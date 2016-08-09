@@ -96,6 +96,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
+        // Handle inline and block elements differently - ()
+        test_fragment(
+            '<body><h1>Block</h1></body>',
+            '<body>\n' +
+            '    <h1>Block</h1>\n' +
+            '</body>');
+        test_fragment('<body><i>Inline</i></body>');
+
+
+        reset_options();
+        //============================================================
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -562,7 +573,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         //============================================================
         // Php formatting
-        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>');
         test_fragment(
             '<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
