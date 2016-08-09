@@ -265,6 +265,10 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:b {}')
         t('a::b {}')
         t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}')
+        t(
+            '.card-blue ::-webkit-input-placeholder {\n' +
+            '\tcolor: #87D1FF;\n' +
+            '}')
 
 
         self.reset_options();

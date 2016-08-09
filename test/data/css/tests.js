@@ -246,6 +246,13 @@ exports.test_data = {
             {
                 input: 'a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}',
                 output: 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}'
+            },
+            {
+                unchanged: [
+                    '.card-blue ::-webkit-input-placeholder {',
+                    '\tcolor: #87D1FF;',
+                    '}'
+                ]
             }
         ]
     }, {
