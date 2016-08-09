@@ -295,6 +295,17 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
+        // Proper handling of colon in selectors
+        opts.selector_separator_newline = false;
+        t('a :b {}');
+        t('a ::b {}');
+        t('a:b {}');
+        t('a::b {}');
+        t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}');
+
+
+        reset_options();
+        //============================================================
         // 
 
 

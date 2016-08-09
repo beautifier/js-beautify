@@ -235,6 +235,20 @@ exports.test_data = {
 
         ],
     }, {
+        name: "Proper handling of colon in selectors",
+        description: "Space before a colon in a selector must be preserved, as it means pseudoclass/pseudoelement on any child",
+        options: [{ name: "selector_separator_newline", value: "false" }],
+        tests: [
+            { unchanged: 'a :b {}' },
+            { unchanged: 'a ::b {}' },
+            { unchanged: 'a:b {}' },
+            { unchanged: 'a::b {}' },
+            {
+                input: 'a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}',
+                output: 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}'
+            }
+        ]
+    }, {
 
     }]
 };

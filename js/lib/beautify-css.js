@@ -382,6 +382,11 @@
                 } else {
                     // sass/less parent reference don't use a space
                     // sass nested pseudo-class don't use a space
+
+                    // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+                    if (lookBack(" ") && output[output.length - 1] !== " ") {
+                        output.push(" ");
+                    }
                     if (peek() === ":") {
                         // pseudo-element
                         next();
