@@ -411,7 +411,7 @@ class Beautifier:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space
 
-					# preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+                    # preserve space before pseudoclasses/pseudoelements, as it means "in any child"
                     if (self.lookBack(' ')) and (printer.output[-1] != ' '):
                         printer.push(" ")
                     if self.peek() == ":":
