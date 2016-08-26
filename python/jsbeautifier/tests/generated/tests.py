@@ -2027,6 +2027,11 @@ class TestJSBeautifier(unittest.TestCase):
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}')
+        
+        # Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/')
 
 
         self.reset_options();

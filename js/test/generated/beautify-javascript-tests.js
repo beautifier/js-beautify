@@ -2202,6 +2202,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}');
+        
+        // Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/');
 
 
         reset_options();
