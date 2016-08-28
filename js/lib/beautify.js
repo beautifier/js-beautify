@@ -841,11 +841,11 @@ if (!Object.values) {
                     // arrow function: (param1, paramN) => { statements }
                     set_mode(MODE.BlockStatement);
                 } else if (in_array(last_type, ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR']) ||
-                    (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw', 'import']))
+                    (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw', 'import', 'default']))
                 ) {
                     // Detecting shorthand function syntax is difficult by scanning forward,
                     //     so check the surrounding context.
-                    // If the block is being returned, imported, passed as arg,
+                    // If the block is being returned, imported, export default, passed as arg,
                     //     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
                     set_mode(MODE.ObjectLiteral);
                 } else {

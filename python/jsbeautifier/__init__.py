@@ -820,10 +820,10 @@ class Beautifier:
             # arrow function: (param1, paramN) => { statements }
             self.set_mode(MODE.BlockStatement)
         elif self.last_type in ['TK_EQUALS', 'TK_START_EXPR', 'TK_COMMA', 'TK_OPERATOR'] or \
-            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw', 'import']):
+            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw', 'import', 'default']):
             # Detecting shorthand function syntax is difficult by scanning forward,
             #     so check the surrounding context.
-            # If the block is being returned, imported, passed as arg,
+            # If the block is being returned, imported, export default, passed as arg,
             #     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
             self.set_mode(MODE.ObjectLiteral)
         else:

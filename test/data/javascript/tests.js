@@ -1563,6 +1563,31 @@ exports.test_data = {
                 ]
             },
             {
+                comment: 'Issue 889 - export default { ... }',
+                unchanged: [
+                    'export default {',
+                    '    func1() {},',
+                    '    func2() {}',
+                    '    func3() {}',
+                    '}'
+                ]
+            },
+            {
+                unchanged: [
+                    'export default {',
+                    '    a() {',
+                    '        return 1;',
+                    '    },',
+                    '    b() {',
+                    '        return 2;',
+                    '    },',
+                    '    c() {',
+                    '        return 3;',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
                 comment: "Issue 508",
                 unchanged: 'set["name"]'
             },

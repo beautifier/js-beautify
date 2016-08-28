@@ -1886,6 +1886,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    export default function div(x, y) {}\n' +
             '}');
         
+        // Issue 889 - export default { ... }
+        bt(
+            'export default {\n' +
+            '    func1() {},\n' +
+            '    func2() {}\n' +
+            '    func3() {}\n' +
+            '}');
+        bt(
+            'export default {\n' +
+            '    a() {\n' +
+            '        return 1;\n' +
+            '    },\n' +
+            '    b() {\n' +
+            '        return 2;\n' +
+            '    },\n' +
+            '    c() {\n' +
+            '        return 3;\n' +
+            '    }\n' +
+            '}');
+        
         // Issue 508
         bt('set["name"]');
         bt('get["name"]');
