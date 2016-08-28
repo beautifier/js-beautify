@@ -1957,6 +1957,14 @@ exports.test_data = {
                     '    return something;',
                     '}'
                 ]
+            },
+            {
+                comment: "Issue #996 - Input ends with backslash throws exception",
+                fragment: true,
+                unchanged: [
+                    'sd = 1;',
+                    '/'
+                ]
             }
         ]
     }, {

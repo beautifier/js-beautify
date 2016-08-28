@@ -45,6 +45,9 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options()
         bt = self.bt
 
+        def unicode_char(value):
+            return six.unichr(value)
+
         bt('"\\\\s"') # == "\\s" in the js source
         bt("'\\\\s'") # == '\\s' in the js source
         bt("'\\\\\\s'") # == '\\\s' in the js source
@@ -61,10 +64,17 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.unescape_strings = True
 
         bt('"\\x41\\x42\\x43\\x01"', '"ABC\\x01"')
-        bt('"\\u2022"', '"\\u2022"')
+        test_fragment('"\\x20\\x40\\x4a"', '" @J"');
+        test_fragment('"\\xff\\x40\\x4a"');
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', six.u('"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"'));
+
         bt('a = /\s+/')
-        bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"ABC\\x01".match(/\\x41/);')
-        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"')
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
+           '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
+
+        # For error case, return the string unchanged
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         self.options.unescape_strings = False
 
