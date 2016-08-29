@@ -919,6 +919,65 @@ exports.test_data = {
                     '    }',
                     '});'
                 ]
+            },
+            {
+                comment: 'Issue #914 - Multiline attribute in root tag',
+                unchanged: [
+                    'return (',
+                    '    <a href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </a>',
+                    ');'
+                ]
+            },
+            {
+                unchanged: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{',
+                    '        a + b',
+                    '    }>',
+                    ');'
+                ]
+            },
+            {
+                input: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    '    );'
+                ],
+                output: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    ');'
+                ]
             }
         ]
     }, {

@@ -1134,6 +1134,55 @@ class TestJSBeautifier(unittest.TestCase):
             '        );\n' +
             '    }\n' +
             '});')
+        
+        # Issue #914 - Multiline attribute in root tag
+        bt(
+            'return (\n' +
+            '    <a href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </a>\n' +
+            ');')
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{\n' +
+            '        a + b\n' +
+            '    }>\n' +
+            ');')
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            '    );',
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            ');')
 
 
         self.reset_options();

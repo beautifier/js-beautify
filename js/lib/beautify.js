@@ -2050,7 +2050,7 @@ if (!Object.values) {
 
                 }
 
-                var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.+?}))*\s*(\/?)\s*>/g;
+                var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
 
                 if (c === '`' || c === "'" || c === '"' || // string
                     (
@@ -2097,18 +2097,21 @@ if (!Object.values) {
                         // handle e4x xml literals
                         //
 
-                        var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{.+?}))*\s*(\/?)\s*>/g;
+                        var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
                         input.back();
                         var xmlStr = '';
                         var match = input.match(startXmlRegExp);
                         if (match) {
-                            var rootTag = match[2];
+                            // Trim root tag to attempt to
+                            var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
+                            var isCurlyRoot = rootTag.indexOf('{') === 0;
                             var depth = 0;
                             while (match) {
                                 var isEndTag = !!match[1];
                                 var tagName = match[2];
                                 var isSingletonTag = (!!match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
-                                if (tagName === rootTag && !isSingletonTag) {
+                                if (!isSingletonTag &&
+                                    (tagName === rootTag || (isCurlyRoot && tagName.replace(/^{\s+/, '{').replace(/\s+}$/, '}')))) {
                                     if (isEndTag) {
                                         --depth;
                                     } else {
