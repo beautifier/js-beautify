@@ -137,6 +137,14 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Object literal shorthand functions
+        bt('return {\n    foo() {\n        return 42;\n    }\n}')
+        bt('var foo = {\n    * bar() {\n        yield 42;\n    }\n};')
+        bt('var foo = {bar(){return 42;},*barGen(){yield 42;}};', 'var foo = {\n    bar() {\n        return 42;\n    },\n    * barGen() {\n        yield 42;\n    }\n};')
+
+
+        self.reset_options();
+        #============================================================
         # End With Newline - (eof = "\n")
         self.options.end_with_newline = true
         test_fragment('', '\n')
