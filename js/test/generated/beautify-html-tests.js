@@ -197,6 +197,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    var foo = "bar";\n' +
             '</script>');
         bth(
+            '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
+            '<script type="dojo/aspect">\n' +
+            '    this.domNode.style.display = "none";\n' +
+            '</script>');
+        bth(
+            '<script type="dojo/method">this.domNode.style.display="none";</script>',
+            '<script type="dojo/method">\n' +
+            '    this.domNode.style.display = "none";\n' +
+            '</script>');
+        bth(
             '<script type="text/javascript1.5">var foo = "bar";</script>',
             '<script type="text/javascript1.5">\n' +
             '    var foo = "bar";\n' +

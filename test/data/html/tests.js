@@ -174,6 +174,20 @@ exports.test_data = {
                     '</script>'
                 ]
             }, {
+                input: '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
+                output: [
+                    '<script type="dojo/aspect">',
+                    '    this.domNode.style.display = "none";',
+                    '</script>'
+                ]
+            }, {
+                input: '<script type="dojo/method">this.domNode.style.display="none";</script>',
+                output: [
+                    '<script type="dojo/method">',
+                    '    this.domNode.style.display = "none";',
+                    '</script>'
+                ]
+            }, {
                 input: '<script type="text/javascript1.5">var foo = "bar";</script>',
                 output: [
                     '<script type="text/javascript1.5">',
