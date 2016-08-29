@@ -57,12 +57,13 @@ sedi() {
     fi
 }
 
-update_cdn_urls_in_readme()
+update_readme_versions()
 {
     git clean -xfd || exit 1
     sedi -E 's@(cdn.rawgit.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
+    sedi -E 's/\((README.md: js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
     git add README.md
-    git commit -m "Bump version in cdn urls"
+    git commit -m "Bump version numbers in README.md"
 }
 
 main()
@@ -75,7 +76,7 @@ main()
     git checkout master
 
     generate_changelog
-    update_cdn_urls_in_readme
+    update_readme_versions
     (release_python)
     release_node
     release_web
