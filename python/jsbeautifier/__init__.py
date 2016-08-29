@@ -1852,7 +1852,7 @@ class Tokenizer:
                 comment = '//' + comment_match.group(0)
                 return comment, 'TK_COMMENT'
 
-        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.+?}))*\s*(/?)\s*>')
+        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
         self.has_char_escapes = False
 
@@ -1892,18 +1892,21 @@ class Tokenizer:
 
             elif self.opts.e4x and sep == '<':
                 # handle e4x xml literals
-                xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{.+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{.+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{.+?}))*\s*(/?)\s*>')
+                xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
                 self.input.back()
                 xmlStr = ""
                 match = self.input.match(xmlRegExp)
                 if match:
                     rootTag = match.group(2)
+                    rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
+                    isCurlyRoot = rootTag.startswith('{')
                     depth = 0
                     while (match):
                         isEndTag = match.group(1)
                         tagName = match.group(2)
                         isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
-                        if tagName == rootTag and not isSingletonTag:
+                        if not isSingletonTag and (
+                            tagName == rootTag or (isCurlyRoot and re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', tagName)))):
                             if isEndTag:
                                 depth -= 1
                             else:
