@@ -37,8 +37,10 @@ class BeautifierOptions:
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
-        self.space_around_selector_separator = False
+        self.space_around_combinator = False
         self.eol = '\n'
+        # deprecated
+        self.space_around_selector_separator = False
 
 
     def __repr__(self):
@@ -49,10 +51,10 @@ indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
-space_around_selector_separator = [%s]
+space_around_combinator = [%s]
 """ % (self.indent_size, self.indent_char, self.indent_with_tabs,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
-       self.space_around_selector_separator)
+       self.space_around_combinator)
 
 
 def default_options():
@@ -171,6 +173,9 @@ class Beautifier:
 
         if not source_text:
             source_text = ''
+
+        # Continue to accept deprecated option
+        opts.space_around_combinator = opts.space_around_selector_separator or opts.space_around_selector_separator
 
         # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
         lineBreak = re.compile(self.six.u("\r\n|[\r\u2028\u2029]"))
@@ -453,13 +458,19 @@ class Beautifier:
                     printer.newLine()
                 else:
                     printer.singleSpace()
-            elif self.ch == '>' or self.ch == '+' or self.ch == '~':
-                if not insidePropertyValue and self.opts.space_around_selector_separator and parenLevel < 1:
+            elif (self.ch == '>' or self.ch == '+' or self.ch == '~') and \
+                not insidePropertyValue and parenLevel < 1:
+                # handle combinator spacing
+                if self.opts.space_around_combinator:
                     printer.singleSpace()
                     printer.push(self.ch)
                     printer.singleSpace()
                 else:
                     printer.push(self.ch)
+                    self.eatWhitespace()
+                    # squash extra whitespace
+                    if self.ch and WHITE_RE.search(self.ch):
+                        self.ch = ''
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[':

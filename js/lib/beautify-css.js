@@ -74,7 +74,8 @@
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
-        var spaceAroundSelectorSeparator = (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
+        var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
+        space_around_combinator = space_around_combinator || (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
         var eol = options.eol ? options.eol : '\n';
 
         // compatibility
@@ -431,14 +432,20 @@
                 } else {
                     print.singleSpace();
                 }
-            } else if (ch === '>' || ch === '+' || ch === '~') {
-                //handl selector separator spacing
-                if (spaceAroundSelectorSeparator && !insidePropertyValue && parenLevel < 1) {
+            } else if ((ch === '>' || ch === '+' || ch === '~') &&
+                !insidePropertyValue && parenLevel < 1) {
+                //handle combinator spacing
+                if (space_around_combinator) {
                     print.singleSpace();
                     output.push(ch);
                     print.singleSpace();
                 } else {
                     output.push(ch);
+                    eatWhitespace();
+                    // squash extra whitespace
+                    if (ch && whiteRe.test(ch)) {
+                        ch = '';
+                    }
                 }
             } else if (ch === ']') {
                 output.push(ch);

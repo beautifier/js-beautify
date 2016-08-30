@@ -89,6 +89,30 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a~b{}', 'a ~ b {}')
         t('a+b{}', 'a + b {}')
         t('a+b>c{}', 'a + b > c {}')
+        t('a > b{}', 'a > b {}')
+        t('a ~ b{}', 'a ~ b {}')
+        t('a + b{}', 'a + b {}')
+        t('a + b > c{}', 'a + b > c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
 
         # Space Around Selector Separator - (space = "")
         self.options.space_around_selector_separator = false
@@ -96,6 +120,30 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a~b{}', 'a~b {}')
         t('a+b{}', 'a+b {}')
         t('a+b>c{}', 'a+b>c {}')
+        t('a > b{}', 'a>b {}')
+        t('a ~ b{}', 'a~b {}')
+        t('a + b{}', 'a+b {}')
+        t('a + b > c{}', 'a+b>c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a>b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a~b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a+b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
 
 
         self.reset_options();

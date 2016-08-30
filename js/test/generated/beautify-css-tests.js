@@ -126,6 +126,30 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a~b{}', 'a ~ b {}');
         t('a+b{}', 'a + b {}');
         t('a+b>c{}', 'a + b > c {}');
+        t('a > b{}', 'a > b {}');
+        t('a ~ b{}', 'a ~ b {}');
+        t('a + b{}', 'a + b {}');
+        t('a + b > c{}', 'a + b > c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
 
         // Space Around Selector Separator - (space = "")
         opts.space_around_selector_separator = false;
@@ -133,6 +157,30 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a~b{}', 'a~b {}');
         t('a+b{}', 'a+b {}');
         t('a+b>c{}', 'a+b>c {}');
+        t('a > b{}', 'a>b {}');
+        t('a ~ b{}', 'a~b {}');
+        t('a + b{}', 'a+b {}');
+        t('a + b > c{}', 'a+b>c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a>b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a~b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a+b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
 
 
         reset_options();

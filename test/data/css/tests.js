@@ -58,7 +58,43 @@ exports.test_data = {
             { input: 'a>b{}', output: 'a{{space}}>{{space}}b {}' },
             { input: 'a~b{}', output: 'a{{space}}~{{space}}b {}' },
             { input: 'a+b{}', output: 'a{{space}}+{{space}}b {}' },
-            { input: 'a+b>c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' }
+            { input: 'a+b>c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' },
+            { input: 'a > b{}', output: 'a{{space}}>{{space}}b {}' },
+            { input: 'a ~ b{}', output: 'a{{space}}~{{space}}b {}' },
+            { input: 'a + b{}', output: 'a{{space}}+{{space}}b {}' },
+            { input: 'a + b > c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' },
+            {
+                input: 'a > b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}>{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a ~ b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}~{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a + b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}+{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a + b > c{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}+{{space}}b{{space}}>{{space}}c {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            }
         ]
     }, {
         name: 'Selector Separator',

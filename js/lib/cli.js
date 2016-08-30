@@ -71,6 +71,8 @@ var fs = require('fs'),
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
+        "space_around_combinator": Boolean,
+        //deprecated - replaced with space_around_combinator, remove in future version
         "space_around_selector_separator": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
