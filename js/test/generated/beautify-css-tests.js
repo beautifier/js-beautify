@@ -28,6 +28,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.selector_separator_newline = true;
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
+    default_opts.space_around_combinator = false;
     default_opts.space_around_selector_separator = false;
 
     function reset_options()
@@ -120,8 +121,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
-        // Space Around Selector Separator - (space = " ")
-        opts.space_around_selector_separator = true;
+        // Space Around Combinator - (space = " ")
+        opts.space_around_combinator = true;
         t('a>b{}', 'a > b {}');
         t('a~b{}', 'a ~ b {}');
         t('a+b{}', 'a + b {}');
@@ -151,8 +152,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\twidth: calc(100% + 45px);\n' +
             '}');
 
-        // Space Around Selector Separator - (space = "")
-        opts.space_around_selector_separator = false;
+        // Space Around Combinator - (space = "")
+        opts.space_around_combinator = false;
         t('a>b{}', 'a>b {}');
         t('a~b{}', 'a~b {}');
         t('a+b{}', 'a+b {}');
@@ -179,6 +180,37 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t(
             'a + b > c{width: calc(100% + 45px);}',
             'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+
+        // Space Around Combinator - (space = " ")
+        opts.space_around_selector_separator = true;
+        t('a>b{}', 'a > b {}');
+        t('a~b{}', 'a ~ b {}');
+        t('a+b{}', 'a + b {}');
+        t('a+b>c{}', 'a + b > c {}');
+        t('a > b{}', 'a > b {}');
+        t('a ~ b{}', 'a ~ b {}');
+        t('a + b{}', 'a + b {}');
+        t('a + b > c{}', 'a + b > c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
 

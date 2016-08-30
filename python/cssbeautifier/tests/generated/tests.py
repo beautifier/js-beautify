@@ -33,6 +33,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.selector_separator_newline = true
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
+        default_options.space_around_combinator = false
         default_options.space_around_selector_separator = false
 
         cls.default_options = default_options
@@ -83,8 +84,8 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # Space Around Selector Separator - (space = " ")
-        self.options.space_around_selector_separator = true
+        # Space Around Combinator - (space = " ")
+        self.options.space_around_combinator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
         t('a+b{}', 'a + b {}')
@@ -114,8 +115,8 @@ class CSSBeautifierTest(unittest.TestCase):
             '\twidth: calc(100% + 45px);\n' +
             '}')
 
-        # Space Around Selector Separator - (space = "")
-        self.options.space_around_selector_separator = false
+        # Space Around Combinator - (space = "")
+        self.options.space_around_combinator = false
         t('a>b{}', 'a>b {}')
         t('a~b{}', 'a~b {}')
         t('a+b{}', 'a+b {}')
@@ -142,6 +143,37 @@ class CSSBeautifierTest(unittest.TestCase):
         t(
             'a + b > c{width: calc(100% + 45px);}',
             'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+
+        # Space Around Combinator - (space = " ")
+        self.options.space_around_selector_separator = true
+        t('a>b{}', 'a > b {}')
+        t('a~b{}', 'a ~ b {}')
+        t('a+b{}', 'a + b {}')
+        t('a+b>c{}', 'a + b > c {}')
+        t('a > b{}', 'a > b {}')
+        t('a ~ b{}', 'a ~ b {}')
+        t('a + b{}', 'a + b {}')
+        t('a + b > c{}', 'a + b > c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}')
 

@@ -75,7 +75,7 @@
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
         var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
-        space_around_combinator = space_around_combinator || (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
+        space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
         var eol = options.eol ? options.eol : '\n';
 
         // compatibility

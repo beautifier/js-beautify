@@ -5,6 +5,8 @@ exports.test_data = {
         { name: "selector_separator_newline", value: "true" },
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
+        { name: "space_around_combinator", value: "false" },
+        // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
     groups: [{
@@ -45,14 +47,18 @@ exports.test_data = {
             output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
         }, ],
     }, {
-        name: "Space Around Selector Separator",
+        name: "Space Around Combinator",
         description: "",
         matrix: [{
-            options: [{ name: "space_around_selector_separator", value: "true" }],
+            options: [{ name: "space_around_combinator", value: "true" }],
             space: ' '
         }, {
-            options: [{ name: "space_around_selector_separator", value: "false" }],
+            options: [{ name: "space_around_combinator", value: "false" }],
             space: ''
+        }, {
+            // space_around_selector_separator is deprecated, but needs to keep working for now.
+            options: [{ name: "space_around_selector_separator", value: "true" }],
+            space: ' '
         }],
         tests: [
             { input: 'a>b{}', output: 'a{{space}}>{{space}}b {}' },

@@ -175,7 +175,7 @@ class Beautifier:
             source_text = ''
 
         # Continue to accept deprecated option
-        opts.space_around_combinator = opts.space_around_selector_separator or opts.space_around_selector_separator
+        opts.space_around_combinator = opts.space_around_combinator or opts.space_around_selector_separator
 
         # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
         lineBreak = re.compile(self.six.u("\r\n|[\r\u2028\u2029]"))
