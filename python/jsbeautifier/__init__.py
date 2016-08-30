@@ -732,7 +732,9 @@ class Beautifier:
         elif not (self.last_type == 'TK_RESERVED' and current_token.text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
             self.output.space_before_token = True
         elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
-            (self.flags.last_text == '*' and (self.last_last_text =='function' or self.last_last_text =='yield')):
+            (self.flags.last_text == '*' and (
+                self.last_last_text in ['function', 'yield'] or
+                (self.flags.mode == MODE.ObjectLiteral and self.last_last_text in ['{', ',']))):
             # function() vs function (), typeof() vs typeof ()
             # function*() vs function* (), yield*() vs yield* ()
             if self.opts.space_after_anon_function:
@@ -1017,7 +1019,9 @@ class Beautifier:
         elif self.last_type == 'TK_STRING':
             prefix = 'NEWLINE'
         elif self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD' or \
-            (self.flags.last_text == '*' and (self.last_last_text == 'function' or self.last_last_text == 'yield')):
+            (self.flags.last_text == '*' and (
+                self.last_last_text in ['function', 'yield'] or
+                (self.flags.mode == MODE.ObjectLiteral and self.last_last_text in ['{', ',']))):
             prefix = 'SPACE'
         elif self.last_type == 'TK_START_BLOCK':
             if self.flags.inline_frame:
@@ -1195,8 +1199,9 @@ class Beautifier:
         space_before = True
         space_after = True
         in_ternary = False
-        isGeneratorAsterisk = current_token.text == '*' and self.last_type == 'TK_RESERVED' and \
-            (self.flags.last_text == 'function' or self.flags.last_text == 'yield')
+        isGeneratorAsterisk = current_token.text == '*' and \
+            ((self.last_type == 'TK_RESERVED' and self.flags.last_text in ['function', 'yield']) or
+                (self.flags.mode == MODE.ObjectLiteral and self.last_type in ['TK_START_BLOCK', 'TK_COMMA']))
         isUnary = current_token.text in ['+', '-'] \
             and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
             or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')
@@ -1300,6 +1305,7 @@ class Beautifier:
                 self.print_newline()
 
         elif isGeneratorAsterisk:
+            self.allow_wrap_or_preserved_newline(current_token)
             space_before = False
             space_after = False
 
