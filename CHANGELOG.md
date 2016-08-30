@@ -1,4 +1,44 @@
 # Changelog
+## v1.6.4
+
+### Description
+* Fixed JSX multi-line root element handling 
+* Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
+* Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
+* Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
+* Added EditorConfig support (Thanks @ethanluoyc!)
+* Added indent_body_inner_html and indent_head_inner_html (Thanks @spontaliku-softaria!)
+* Added js-beautify to https://cdn.rawgit.com (Thanks @zxqfox)
+
+
+
+
+
+### Closed Issues
+* css-beautify sibling combinator space issue ([#1001](https://github.com/beautify-web/js-beautify/issues/1001))
+* Bug: Breaks when the source code it found an unclosed multiline comment. ([#996](https://github.com/beautify-web/js-beautify/issues/996))
+* CSS: Preserve white space before pseudo-class and pseudo-element selectors ([#985](https://github.com/beautify-web/js-beautify/pull/985))
+* Spelling error in token definition ([#984](https://github.com/beautify-web/js-beautify/issues/984))
+* collapse-preserve-inline does not preserve simple, single line ("return") statements ([#982](https://github.com/beautify-web/js-beautify/issues/982))
+* Publish the library via cdn ([#971](https://github.com/beautify-web/js-beautify/issues/971))
+* Bug with css calc() function ([#957](https://github.com/beautify-web/js-beautify/issues/957))
+* &:first-of-type:not(:last-child) when prettified insert erroneous white character ([#952](https://github.com/beautify-web/js-beautify/issues/952))
+* Shorthand generator functions are formatting strangely ([#941](https://github.com/beautify-web/js-beautify/issues/941))
+* Add handlebars support on cli for html ([#935](https://github.com/beautify-web/js-beautify/pull/935))
+* Do not put a space within `yield*` generator functions. ([#920](https://github.com/beautify-web/js-beautify/issues/920))
+* Possible to add an indent_inner_inner_html option? (Prevent indenting second-level tags) ([#917](https://github.com/beautify-web/js-beautify/issues/917))
+* Messing up jsx formatting ([#914](https://github.com/beautify-web/js-beautify/issues/914))
+* Bug report: Closing 'body' tag isn't formatted correctly ([#900](https://github.com/beautify-web/js-beautify/issues/900))
+* { throw … } not working with collapse-preserve-inline ([#898](https://github.com/beautify-web/js-beautify/issues/898))
+* ES6 concise method not propely indented ([#889](https://github.com/beautify-web/js-beautify/issues/889))
+* CSS beautify changing symantics ([#883](https://github.com/beautify-web/js-beautify/issues/883))
+* Dojo unsupported script types. ([#874](https://github.com/beautify-web/js-beautify/issues/874))
+* Readme version comment  ([#868](https://github.com/beautify-web/js-beautify/issues/868))
+* space in media queries after colon &: selectors ([#565](https://github.com/beautify-web/js-beautify/issues/565))
+* Integrating editor config ([#551](https://github.com/beautify-web/js-beautify/issues/551))
+* Preserve short expressions/statements on single line ([#338](https://github.com/beautify-web/js-beautify/issues/338))
+
+
 ## v1.6.3
 
 ### Description
