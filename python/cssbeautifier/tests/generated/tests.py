@@ -277,6 +277,21 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Regresssion Tests
+        self.options.selector_separator_newline = false
+        t(
+            '@media(min-width:768px) {\n' +
+            '\t.selector::after {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '\t.other-selector {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '}')
+
+
+        self.reset_options();
+        #============================================================
         # 
 
 

@@ -314,6 +314,21 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
+        // Regresssion Tests
+        opts.selector_separator_newline = false;
+        t(
+            '@media(min-width:768px) {\n' +
+            '\t.selector::after {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '\t.other-selector {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '}');
+
+
+        reset_options();
+        //============================================================
         // 
 
 

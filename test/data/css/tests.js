@@ -263,6 +263,22 @@ exports.test_data = {
             }
         ]
     }, {
+        name: "Regresssion Tests",
+        description: "General Regression tests for known issues",
+        options: [{ name: "selector_separator_newline", value: "false" }],
+        tests: [{
+            unchanged: [
+                '@media(min-width:768px) {',
+                '\t.selector::after {',
+                '\t\t/* property: value */',
+                '\t}',
+                '\t.other-selector {',
+                '\t\t/* property: value */',
+                '\t}',
+                '}'
+            ]
+        }]
+    }, {
 
     }]
 };
