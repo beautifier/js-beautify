@@ -239,4 +239,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.6.3)
+(README.md: js-beautify@1.6.4)
