@@ -74,7 +74,8 @@
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
-        var spaceAroundSelectorSeparator = (options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator;
+        var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
+        space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
         var eol = options.eol ? options.eol : '\n';
 
         // compatibility
@@ -372,7 +373,8 @@
             } else if (ch === ":") {
                 eatWhitespace();
                 if ((insideRule || enteringConditionalGroup) &&
-                    !(lookBack("&") || foundNestedPseudoClass())) {
+                    !(lookBack("&") || foundNestedPseudoClass()) &&
+                    !lookBack("(")) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
                     insidePropertyValue = true;
@@ -381,6 +383,11 @@
                 } else {
                     // sass/less parent reference don't use a space
                     // sass nested pseudo-class don't use a space
+
+                    // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+                    if (lookBack(" ") && output[output.length - 1] !== " ") {
+                        output.push(" ");
+                    }
                     if (peek() === ":") {
                         // pseudo-element
                         next();
@@ -425,14 +432,20 @@
                 } else {
                     print.singleSpace();
                 }
-            } else if (ch === '>' || ch === '+' || ch === '~') {
-                //handl selector separator spacing
-                if (spaceAroundSelectorSeparator && !insidePropertyValue && parenLevel < 1) {
+            } else if ((ch === '>' || ch === '+' || ch === '~') &&
+                !insidePropertyValue && parenLevel < 1) {
+                //handle combinator spacing
+                if (space_around_combinator) {
                     print.singleSpace();
                     output.push(ch);
                     print.singleSpace();
                 } else {
                     output.push(ch);
+                    eatWhitespace();
+                    // squash extra whitespace
+                    if (ch && whiteRe.test(ch)) {
+                        ch = '';
+                    }
                 }
             } else if (ch === ']') {
                 output.push(ch);

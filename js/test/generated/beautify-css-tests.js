@@ -28,6 +28,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.selector_separator_newline = true;
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
+    default_opts.space_around_combinator = false;
     default_opts.space_around_selector_separator = false;
 
     function reset_options()
@@ -120,19 +121,98 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
-        // Space Around Selector Separator - (space = " ")
+        // Space Around Combinator - (space = " ")
+        opts.space_around_combinator = true;
+        t('a>b{}', 'a > b {}');
+        t('a~b{}', 'a ~ b {}');
+        t('a+b{}', 'a + b {}');
+        t('a+b>c{}', 'a + b > c {}');
+        t('a > b{}', 'a > b {}');
+        t('a ~ b{}', 'a ~ b {}');
+        t('a + b{}', 'a + b {}');
+        t('a + b > c{}', 'a + b > c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+
+        // Space Around Combinator - (space = "")
+        opts.space_around_combinator = false;
+        t('a>b{}', 'a>b {}');
+        t('a~b{}', 'a~b {}');
+        t('a+b{}', 'a+b {}');
+        t('a+b>c{}', 'a+b>c {}');
+        t('a > b{}', 'a>b {}');
+        t('a ~ b{}', 'a~b {}');
+        t('a + b{}', 'a+b {}');
+        t('a + b > c{}', 'a+b>c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a>b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a~b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a+b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+
+        // Space Around Combinator - (space = " ")
         opts.space_around_selector_separator = true;
         t('a>b{}', 'a > b {}');
         t('a~b{}', 'a ~ b {}');
         t('a+b{}', 'a + b {}');
         t('a+b>c{}', 'a + b > c {}');
-
-        // Space Around Selector Separator - (space = "")
-        opts.space_around_selector_separator = false;
-        t('a>b{}', 'a>b {}');
-        t('a~b{}', 'a~b {}');
-        t('a+b{}', 'a+b {}');
-        t('a+b>c{}', 'a+b>c {}');
+        t('a > b{}', 'a > b {}');
+        t('a ~ b{}', 'a ~ b {}');
+        t('a + b{}', 'a + b {}');
+        t('a + b > c{}', 'a + b > c {}');
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}');
 
 
         reset_options();
@@ -281,6 +361,49 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@mixin itemPropertiesCoverItem($items, $margin) {\n' +
             '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});\n' +
             '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
+            '}');
+        
+        // Multiple filed issues in LESS due to not(:blah)
+        t('&:first-of-type:not(:last-child) {}');
+        t(
+            'div {\n' +
+            '\t&:not(:first-of-type) {\n' +
+            '\t\tbackground: red;\n' +
+            '\t}\n' +
+            '}');
+
+
+        reset_options();
+        //============================================================
+        // Proper handling of colon in selectors
+        opts.selector_separator_newline = false;
+        t('a :b {}');
+        t('a ::b {}');
+        t('a:b {}');
+        t('a::b {}');
+        t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}');
+        t(
+            '.card-blue ::-webkit-input-placeholder {\n' +
+            '\tcolor: #87D1FF;\n' +
+            '}');
+        t(
+            'div [attr] :not(.class) {\n' +
+            '\tcolor: red;\n' +
+            '}');
+
+
+        reset_options();
+        //============================================================
+        // Regresssion Tests
+        opts.selector_separator_newline = false;
+        t(
+            '@media(min-width:768px) {\n' +
+            '\t.selector::after {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '\t.other-selector {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
             '}');
 
 

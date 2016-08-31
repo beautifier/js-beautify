@@ -302,6 +302,28 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Object literal shorthand functions
+        bt('return {\n    foo() {\n        return 42;\n    }\n}');
+        bt(
+            'var foo = {\n' +
+            '    * bar() {\n' +
+            '        yield 42;\n' +
+            '    }\n' +
+            '};');
+        bt(
+            'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+            'var foo = {\n' +
+            '    bar() {\n' +
+            '        return 42;\n' +
+            '    },\n' +
+            '    * barGen() {\n' +
+            '        yield 42;\n' +
+            '    }\n' +
+            '};');
+
+
+        reset_options();
+        //============================================================
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -990,6 +1012,21 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Yield tests
+        bt('yield /foo\\//;');
+        bt('result = yield pgClient.query_(queryString);');
+        bt('yield [1, 2]');
+        bt('yield* bar();');
+        
+        // yield should have no space between yield and star
+        bt('yield * bar();', 'yield* bar();');
+        
+        // yield should have space between star and generator
+        bt('yield *bar();', 'yield* bar();');
+
+
+        reset_options();
+        //============================================================
         // Async / await tests
         bt('async function foo() {}');
         bt('let w = async function foo() {}');
@@ -1299,6 +1336,55 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        );\n' +
             '    }\n' +
             '});');
+        
+        // Issue #914 - Multiline attribute in root tag
+        bt(
+            'return (\n' +
+            '    <a href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </a>\n' +
+            ');');
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{\n' +
+            '        a + b\n' +
+            '    }>\n' +
+            ');');
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            '    );',
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            ');');
 
 
         reset_options();
@@ -1886,6 +1972,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    export default function div(x, y) {}\n' +
             '}');
         
+        // Issue 889 - export default { ... }
+        bt(
+            'export default {\n' +
+            '    func1() {},\n' +
+            '    func2() {}\n' +
+            '    func3() {}\n' +
+            '}');
+        bt(
+            'export default {\n' +
+            '    a() {\n' +
+            '        return 1;\n' +
+            '    },\n' +
+            '    b() {\n' +
+            '        return 2;\n' +
+            '    },\n' +
+            '    c() {\n' +
+            '        return 3;\n' +
+            '    }\n' +
+            '}');
+        
         // Issue 508
         bt('set["name"]');
         bt('get["name"]');
@@ -2182,6 +2288,31 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'a = { a: a };\n' +
             'UserDB.findOne({ username: "xyz" }, function(err, user) {});\n' +
             'import { fs } from "fs";');
+        
+        // Issue #982 - Fixed return expression collapse-preserve-inline
+        bt(
+            'function foo(arg) {\n' +
+            '    if (!arg) { a(); }\n' +
+            '    if (!arg) { return false; }\n' +
+            '    if (!arg) { throw "inline"; }\n' +
+            '    return true;\n' +
+            '}');
+        
+        // Issue #338 - Short expressions 
+        bt(
+            'if (someCondition) { return something; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}\n' +
+            'if (someCondition) { break; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}');
+        
+        // Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/');
 
 
         reset_options();
@@ -2514,7 +2645,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // allow unescaped / in char classes
         bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()');
         bt('typeof /foo\\//;');
-        bt('yield /foo\\//;');
         bt('throw /foo\\//;');
         bt('do /foo\\//;');
         bt('return /foo\\//;');
@@ -2522,7 +2652,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if (a) /foo\\//\nelse /foo\\//;');
         bt('if (foo) /regex/.test();');
         bt('for (index in [1, 2, 3]) /^test$/i.test(s)');
-        bt('result = yield pgClient.query_(queryString);');
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
         bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]');
         bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]');
@@ -2543,7 +2672,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return;');
         bt('return\nfunc');
         bt('catch(e)', 'catch (e)');
-        bt('yield [1, 2]');
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;');
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;');
         
@@ -2867,16 +2995,30 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         opts.unescape_strings = false;
-        test_fragment('"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+        bt('"\\\\s"'); // == "\\s" in the js source
+        bt("'\\\\s'"); // == '\\s' in the js source
+        bt("'\\\\\\s'"); // == '\\\s' in the js source
+        bt("'\\s'"); // == '\s' in the js source
+        bt('"•"');
+        bt('"—"');
+        bt('"\\x41\\x42\\x43\\x01"', '"\\x41\\x42\\x43\\x01"');
+        bt('"\\u2022"', '"\\u2022"');
+        bt('a = /\s+/');
+        // bt('a = /\\x41/','a = /A/');
+        bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);');
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+
         opts.unescape_strings = true;
         test_fragment('"\\x20\\x40\\x4a"', '" @J"');
         test_fragment('"\\xff\\x40\\x4a"');
-        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"rūķītis"');
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"');
         test_fragment('"Google Chrome est\\u00E1 actualizado."', '"Google Chrome está actualizado."');
-        /*
-        bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
-           '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"');
-        */
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
+           '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
+
+        // For error case, return the string unchanged
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         reset_options();
         //============================================================

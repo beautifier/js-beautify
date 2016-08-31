@@ -96,6 +96,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
+        // Handle inline and block elements differently - ()
+        test_fragment(
+            '<body><h1>Block</h1></body>',
+            '<body>\n' +
+            '    <h1>Block</h1>\n' +
+            '</body>');
+        test_fragment('<body><i>Inline</i></body>');
+
+
+        reset_options();
+        //============================================================
         // End With Newline - (eof = "\n")
         opts.end_with_newline = true;
         test_fragment('', '\n');
@@ -184,6 +195,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<script type="application/ecmascript">var foo = "bar";</script>',
             '<script type="application/ecmascript">\n' +
             '    var foo = "bar";\n' +
+            '</script>');
+        bth(
+            '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
+            '<script type="dojo/aspect">\n' +
+            '    this.domNode.style.display = "none";\n' +
+            '</script>');
+        bth(
+            '<script type="dojo/method">this.domNode.style.display="none";</script>',
+            '<script type="dojo/method">\n' +
+            '    this.domNode.style.display = "none";\n' +
             '</script>');
         bth(
             '<script type="text/javascript1.5">var foo = "bar";</script>',
@@ -562,7 +583,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         //============================================================
         // Php formatting
-        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>');
         test_fragment(
             '<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
@@ -610,6 +631,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment(
             '<div>\n<div>\n</div>\n</div>',
             '<div>\n    <div>\n    </div>\n</div>');
+
+
+        reset_options();
+        //============================================================
+        // Indent body inner html by default
+        test_fragment('<html>\n<body>\n<div></div>\n</body>\n\n</html>', '<html>\n<body>\n    <div></div>\n</body>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // indent_body_inner_html set to false prevents indent of body inner html
+        opts.indent_body_inner_html = false;
+        test_fragment('<html>\n<body>\n<div></div>\n</body>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // Indent head inner html by default
+        test_fragment('<html>\n\n<head>\n<meta>\n</head>\n\n</html>', '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>');
+
+
+        reset_options();
+        //============================================================
+        // indent_head_inner_html set to false prevents indent of head inner html
+        opts.indent_head_inner_html = false;
+        test_fragment('<html>\n\n<head>\n<meta>\n</head>\n\n</html>');
 
 
         reset_options();

@@ -54,6 +54,32 @@ exports.test_data = {
             { unchanged: 'x ** -2' }
         ]
     }, {
+        name: "Object literal shorthand functions",
+        description: "Object literal shorthand functions",
+        tests: [
+            { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
+            {
+                unchanged: ['var foo = {',
+                    '    * bar() {',
+                    '        yield 42;',
+                    '    }',
+                    '};'
+                ]
+            },
+            {
+                input: 'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+                output: ['var foo = {',
+                    '    bar() {',
+                    '        return 42;',
+                    '    },',
+                    '    * barGen() {',
+                    '        yield 42;',
+                    '    }',
+                    '};'
+                ]
+            }
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [{
@@ -237,7 +263,7 @@ exports.test_data = {
                     '    {{f1}}age: 25',
                     '});'
                 ]
-            }
+            },
         ],
     }, {
         name: "Space in parens tests",
@@ -541,6 +567,25 @@ exports.test_data = {
             comment: 'catch-all, includes brackets and other various code',
             unchanged: inputlib.operator_position.catch_all
         }]
+    }, {
+        name: "Yield tests",
+        description: "ES6 yield tests",
+        tests: [
+            { unchanged: 'yield /foo\\\\//;' },
+            { unchanged: 'result = yield pgClient.query_(queryString);' },
+            { unchanged: 'yield [1, 2]' },
+            { unchanged: "yield* bar();" },
+            {
+                comment: "yield should have no space between yield and star",
+                input: "yield * bar();",
+                output: "yield* bar();"
+            },
+            {
+                comment: "yield should have space between star and generator",
+                input: "yield *bar();",
+                output: "yield* bar();"
+            }
+        ]
     }, {
         name: "Async / await tests",
         description: "ES7 async / await tests",
@@ -918,6 +963,65 @@ exports.test_data = {
                     '        );',
                     '    }',
                     '});'
+                ]
+            },
+            {
+                comment: 'Issue #914 - Multiline attribute in root tag',
+                unchanged: [
+                    'return (',
+                    '    <a href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </a>',
+                    ');'
+                ]
+            },
+            {
+                unchanged: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{',
+                    '        a + b',
+                    '    }>',
+                    ');'
+                ]
+            },
+            {
+                input: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    '    );'
+                ],
+                output: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    ');'
                 ]
             }
         ]
@@ -1563,6 +1667,31 @@ exports.test_data = {
                 ]
             },
             {
+                comment: 'Issue 889 - export default { ... }',
+                unchanged: [
+                    'export default {',
+                    '    func1() {},',
+                    '    func2() {}',
+                    '    func3() {}',
+                    '}'
+                ]
+            },
+            {
+                unchanged: [
+                    'export default {',
+                    '    a() {',
+                    '        return 1;',
+                    '    },',
+                    '    b() {',
+                    '        return 2;',
+                    '    },',
+                    '    c() {',
+                    '        return 3;',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
                 comment: "Issue 508",
                 unchanged: 'set["name"]'
             },
@@ -1934,19 +2063,38 @@ exports.test_data = {
                     'import { fs } from "fs";'
                 ]
             },
-            // {
-            //     comment: "Issue #338 - Short expressions ",
-            //     unchanged: [
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}',
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}'
-            //     ]
-            // },
+            {
+                comment: "Issue #982 - Fixed return expression collapse-preserve-inline",
+                unchanged: [
+                    'function foo(arg) {',
+                    '    if (!arg) { a(); }',
+                    '    if (!arg) { return false; }',
+                    '    if (!arg) { throw "inline"; }',
+                    '    return true;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #338 - Short expressions ",
+                unchanged: [
+                    'if (someCondition) { return something; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}',
+                    'if (someCondition) { break; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #996 - Input ends with backslash throws exception",
+                fragment: true,
+                unchanged: [
+                    'sd = 1;',
+                    '/'
+                ]
+            }
         ]
     }, {
         // =======================================================
@@ -2318,7 +2466,6 @@ exports.test_data = {
                 output: "a(/[a/b]/);\nb()"
             },
             { unchanged: 'typeof /foo\\\\//;' },
-            { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'throw /foo\\\\//;' },
             { unchanged: 'do /foo\\\\//;' },
             { unchanged: 'return /foo\\\\//;' },
@@ -2327,7 +2474,6 @@ exports.test_data = {
 
             { unchanged: 'if (foo) /regex/.test();' },
             { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)" },
-            { unchanged: 'result = yield pgClient.query_(queryString);' },
 
             { unchanged: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
@@ -2370,7 +2516,6 @@ exports.test_data = {
             { unchanged: 'return;' },
             { unchanged: 'return\nfunc' },
             { input: 'catch(e)', output: 'catch (e)' },
-            { unchanged: 'yield [1, 2]' },
 
             {
                 input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',

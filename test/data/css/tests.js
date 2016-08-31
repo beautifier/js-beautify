@@ -5,6 +5,8 @@ exports.test_data = {
         { name: "selector_separator_newline", value: "true" },
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
+        { name: "space_around_combinator", value: "false" },
+        // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
     groups: [{
@@ -45,20 +47,60 @@ exports.test_data = {
             output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
         }, ],
     }, {
-        name: "Space Around Selector Separator",
+        name: "Space Around Combinator",
         description: "",
         matrix: [{
-            options: [{ name: "space_around_selector_separator", value: "true" }],
+            options: [{ name: "space_around_combinator", value: "true" }],
             space: ' '
         }, {
-            options: [{ name: "space_around_selector_separator", value: "false" }],
+            options: [{ name: "space_around_combinator", value: "false" }],
             space: ''
+        }, {
+            // space_around_selector_separator is deprecated, but needs to keep working for now.
+            options: [{ name: "space_around_selector_separator", value: "true" }],
+            space: ' '
         }],
         tests: [
             { input: 'a>b{}', output: 'a{{space}}>{{space}}b {}' },
             { input: 'a~b{}', output: 'a{{space}}~{{space}}b {}' },
             { input: 'a+b{}', output: 'a{{space}}+{{space}}b {}' },
-            { input: 'a+b>c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' }
+            { input: 'a+b>c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' },
+            { input: 'a > b{}', output: 'a{{space}}>{{space}}b {}' },
+            { input: 'a ~ b{}', output: 'a{{space}}~{{space}}b {}' },
+            { input: 'a + b{}', output: 'a{{space}}+{{space}}b {}' },
+            { input: 'a + b > c{}', output: 'a{{space}}+{{space}}b{{space}}>{{space}}c {}' },
+            {
+                input: 'a > b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}>{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a ~ b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}~{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a + b{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}+{{space}}b {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            },
+            {
+                input: 'a + b > c{width: calc(100% + 45px);}',
+                output: [
+                    'a{{space}}+{{space}}b{{space}}>{{space}}c {',
+                    '\twidth: calc(100% + 45px);',
+                    '}'
+                ]
+            }
         ]
     }, {
         name: 'Selector Separator',
@@ -218,8 +260,66 @@ exports.test_data = {
                     '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;',
                     '}'
                 ]
+            },
+            {
+                comment: "Multiple filed issues in LESS due to not(:blah)",
+                unchanged: '&:first-of-type:not(:last-child) {}'
+            },
+            {
+                unchanged: [
+                    'div {',
+                    '\t&:not(:first-of-type) {',
+                    '\t\tbackground: red;',
+                    '\t}',
+                    '}',
+                ]
             }
+
         ],
+    }, {
+        name: "Proper handling of colon in selectors",
+        description: "Space before a colon in a selector must be preserved, as it means pseudoclass/pseudoelement on any child",
+        options: [{ name: "selector_separator_newline", value: "false" }],
+        tests: [
+            { unchanged: 'a :b {}' },
+            { unchanged: 'a ::b {}' },
+            { unchanged: 'a:b {}' },
+            { unchanged: 'a::b {}' },
+            {
+                input: 'a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}',
+                output: 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}'
+            },
+            {
+                unchanged: [
+                    '.card-blue ::-webkit-input-placeholder {',
+                    '\tcolor: #87D1FF;',
+                    '}'
+                ]
+            },
+            {
+                unchanged: [
+                    'div [attr] :not(.class) {',
+                    '\tcolor: red;',
+                    '}'
+                ]
+            }
+        ]
+    }, {
+        name: "Regresssion Tests",
+        description: "General Regression tests for known issues",
+        options: [{ name: "selector_separator_newline", value: "false" }],
+        tests: [{
+            unchanged: [
+                '@media(min-width:768px) {',
+                '\t.selector::after {',
+                '\t\t/* property: value */',
+                '\t}',
+                '\t.other-selector {',
+                '\t\t/* property: value */',
+                '\t}',
+                '}'
+            ]
+        }]
     }, {
 
     }]

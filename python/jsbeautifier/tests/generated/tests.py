@@ -53,6 +53,9 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options()
         bt = self.bt
 
+        def unicode_char(value):
+            return six.unichr(value)
+
         bt('"\\\\s"') # == "\\s" in the js source
         bt("'\\\\s'") # == '\\s' in the js source
         bt("'\\\\\\s'") # == '\\\s' in the js source
@@ -69,10 +72,17 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.unescape_strings = True
 
         bt('"\\x41\\x42\\x43\\x01"', '"ABC\\x01"')
-        bt('"\\u2022"', '"\\u2022"')
+        test_fragment('"\\x20\\x40\\x4a"', '" @J"');
+        test_fragment('"\\xff\\x40\\x4a"');
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', six.u('"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"'));
+
         bt('a = /\s+/')
-        bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"ABC\\x01".match(/\\x41/);')
-        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"')
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
+           '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
+
+        # For error case, return the string unchanged
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         self.options.unescape_strings = False
 
@@ -123,6 +133,28 @@ class TestJSBeautifier(unittest.TestCase):
         # ES7 exponential
         bt('x ** 2')
         bt('x ** -2')
+
+
+        self.reset_options();
+        #============================================================
+        # Object literal shorthand functions
+        bt('return {\n    foo() {\n        return 42;\n    }\n}')
+        bt(
+            'var foo = {\n' +
+            '    * bar() {\n' +
+            '        yield 42;\n' +
+            '    }\n' +
+            '};')
+        bt(
+            'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+            'var foo = {\n' +
+            '    bar() {\n' +
+            '        return 42;\n' +
+            '    },\n' +
+            '    * barGen() {\n' +
+            '        yield 42;\n' +
+            '    }\n' +
+            '};')
 
 
         self.reset_options();
@@ -815,6 +847,21 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        # Yield tests
+        bt('yield /foo\\//;')
+        bt('result = yield pgClient.query_(queryString);')
+        bt('yield [1, 2]')
+        bt('yield* bar();')
+        
+        # yield should have no space between yield and star
+        bt('yield * bar();', 'yield* bar();')
+        
+        # yield should have space between star and generator
+        bt('yield *bar();', 'yield* bar();')
+
+
+        self.reset_options();
+        #============================================================
         # Async / await tests
         bt('async function foo() {}')
         bt('let w = async function foo() {}')
@@ -1124,6 +1171,55 @@ class TestJSBeautifier(unittest.TestCase):
             '        );\n' +
             '    }\n' +
             '});')
+        
+        # Issue #914 - Multiline attribute in root tag
+        bt(
+            'return (\n' +
+            '    <a href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </a>\n' +
+            ');')
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{\n' +
+            '        a + b\n' +
+            '    }>\n' +
+            ');')
+        bt(
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            '    );',
+            'return (\n' +
+            '    <{\n' +
+            '        a + b\n' +
+            '    } href="#"\n' +
+            '        onClick={e => {\n' +
+            '            e.preventDefault()\n' +
+            '            onClick()\n' +
+            '       }}>\n' +
+            '       {children}\n' +
+            '    </{a + b}>\n' +
+            ');')
 
 
         self.reset_options();
@@ -1711,6 +1807,26 @@ class TestJSBeautifier(unittest.TestCase):
             '    export default function div(x, y) {}\n' +
             '}')
         
+        # Issue 889 - export default { ... }
+        bt(
+            'export default {\n' +
+            '    func1() {},\n' +
+            '    func2() {}\n' +
+            '    func3() {}\n' +
+            '}')
+        bt(
+            'export default {\n' +
+            '    a() {\n' +
+            '        return 1;\n' +
+            '    },\n' +
+            '    b() {\n' +
+            '        return 2;\n' +
+            '    },\n' +
+            '    c() {\n' +
+            '        return 3;\n' +
+            '    }\n' +
+            '}')
+        
         # Issue 508
         bt('set["name"]')
         bt('get["name"]')
@@ -2007,6 +2123,31 @@ class TestJSBeautifier(unittest.TestCase):
             'a = { a: a };\n' +
             'UserDB.findOne({ username: "xyz" }, function(err, user) {});\n' +
             'import { fs } from "fs";')
+        
+        # Issue #982 - Fixed return expression collapse-preserve-inline
+        bt(
+            'function foo(arg) {\n' +
+            '    if (!arg) { a(); }\n' +
+            '    if (!arg) { return false; }\n' +
+            '    if (!arg) { throw "inline"; }\n' +
+            '    return true;\n' +
+            '}')
+        
+        # Issue #338 - Short expressions 
+        bt(
+            'if (someCondition) { return something; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}\n' +
+            'if (someCondition) { break; }\n' +
+            'if (someCondition) {\n' +
+            '    return something;\n' +
+            '}')
+        
+        # Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/')
 
 
         self.reset_options();
@@ -2339,7 +2480,6 @@ class TestJSBeautifier(unittest.TestCase):
         # allow unescaped / in char classes
         bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()')
         bt('typeof /foo\\//;')
-        bt('yield /foo\\//;')
         bt('throw /foo\\//;')
         bt('do /foo\\//;')
         bt('return /foo\\//;')
@@ -2347,7 +2487,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if (a) /foo\\//\nelse /foo\\//;')
         bt('if (foo) /regex/.test();')
         bt('for (index in [1, 2, 3]) /^test$/i.test(s)')
-        bt('result = yield pgClient.query_(queryString);')
         bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
         bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')
         bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
@@ -2368,7 +2507,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt('return;')
         bt('return\nfunc')
         bt('catch(e)', 'catch (e)')
-        bt('yield [1, 2]')
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;')
         bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;')
         

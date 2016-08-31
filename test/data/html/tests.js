@@ -10,6 +10,22 @@ exports.test_data = {
         { name: "extra_liners", value: "['html', 'head', '/html']" }
     ],
     groups: [{
+        name: "Handle inline and block elements differently",
+        description: "",
+        matrix: [{}],
+        tests: [{
+            fragment: true,
+            input: '<body><h1>Block</h1></body>',
+            output: [
+                '<body>',
+                '    <h1>Block</h1>',
+                '</body>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<body><i>Inline</i></body>'
+        }]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [{
@@ -155,6 +171,20 @@ exports.test_data = {
                 output: [
                     '<script type="application/ecmascript">',
                     '    var foo = "bar";',
+                    '</script>'
+                ]
+            }, {
+                input: '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
+                output: [
+                    '<script type="dojo/aspect">',
+                    '    this.domNode.style.display = "none";',
+                    '</script>'
+                ]
+            }, {
+                input: '<script type="dojo/method">this.domNode.style.display="none";</script>',
+                output: [
+                    '<script type="dojo/method">',
+                    '    this.domNode.style.display = "none";',
                     '</script>'
                 ]
             }, {
@@ -555,33 +585,35 @@ exports.test_data = {
         name: "Php formatting",
         description: "Php (<?php ... ?>) treated as comments.",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>' }, {
-                fragment: true,
-                unchanged: [
-                    '<?php',
-                    'for($i = 1; $i <= 100; $i++;) {',
-                    '    #count to 100!',
-                    '    echo($i . "</br>");',
-                    '}',
-                    '?>'
-                ]
-            }, {
-                fragment: true,
-                unchanged: [
-                    '<?php ?>',
-                    '<!DOCTYPE html>',
-                    '',
-                    '<html>',
-                    '',
-                    '<head></head>',
-                    '',
-                    '<body></body>',
-                    '',
-                    '</html>'
-                ]
-            }
-        ]
+        tests: [{
+            fragment: true,
+            input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
+            output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>',
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php',
+                'for($i = 1; $i <= 100; $i++;) {',
+                '    #count to 100!',
+                '    echo($i . "</br>");',
+                '}',
+                '?>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php ?>',
+                '<!DOCTYPE html>',
+                '',
+                '<html>',
+                '',
+                '<head></head>',
+                '',
+                '<body></body>',
+                '',
+                '</html>'
+            ]
+        }]
     }, {
         name: "underscore.js  formatting",
         description: "underscore.js templates (<% ... %>) treated as comments.",
@@ -631,6 +663,42 @@ exports.test_data = {
                 '    <div>\n' +
                 '    </div>\n' +
                 '</div>'
+        }]
+    }, {
+        name: "Indent body inner html by default",
+        description: "",
+        tests: [{
+            fragment: true,
+            input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+            output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+        }]
+    }, {
+        name: "indent_body_inner_html set to false prevents indent of body inner html",
+        description: "",
+        options: [
+            { name: 'indent_body_inner_html', value: "false" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<html>\n<body>\n<div></div>\n</body>\n\n</html>'
+        }]
+    }, {
+        name: "Indent head inner html by default",
+        description: "",
+        tests: [{
+            fragment: true,
+            input: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>',
+            output: '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>'
+        }]
+    }, {
+        name: "indent_head_inner_html set to false prevents indent of head inner html",
+        description: "",
+        options: [
+            { name: 'indent_head_inner_html', value: "false" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
         }]
     }, {
         name: "New Test Suite"

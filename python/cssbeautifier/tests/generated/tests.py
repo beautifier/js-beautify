@@ -33,6 +33,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.selector_separator_newline = true
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
+        default_options.space_around_combinator = false
         default_options.space_around_selector_separator = false
 
         cls.default_options = default_options
@@ -83,19 +84,98 @@ class CSSBeautifierTest(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # Space Around Selector Separator - (space = " ")
+        # Space Around Combinator - (space = " ")
+        self.options.space_around_combinator = true
+        t('a>b{}', 'a > b {}')
+        t('a~b{}', 'a ~ b {}')
+        t('a+b{}', 'a + b {}')
+        t('a+b>c{}', 'a + b > c {}')
+        t('a > b{}', 'a > b {}')
+        t('a ~ b{}', 'a ~ b {}')
+        t('a + b{}', 'a + b {}')
+        t('a + b > c{}', 'a + b > c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+
+        # Space Around Combinator - (space = "")
+        self.options.space_around_combinator = false
+        t('a>b{}', 'a>b {}')
+        t('a~b{}', 'a~b {}')
+        t('a+b{}', 'a+b {}')
+        t('a+b>c{}', 'a+b>c {}')
+        t('a > b{}', 'a>b {}')
+        t('a ~ b{}', 'a~b {}')
+        t('a + b{}', 'a+b {}')
+        t('a + b > c{}', 'a+b>c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a>b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a~b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a+b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a+b>c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+
+        # Space Around Combinator - (space = " ")
         self.options.space_around_selector_separator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
         t('a+b{}', 'a + b {}')
         t('a+b>c{}', 'a + b > c {}')
-
-        # Space Around Selector Separator - (space = "")
-        self.options.space_around_selector_separator = false
-        t('a>b{}', 'a>b {}')
-        t('a~b{}', 'a~b {}')
-        t('a+b{}', 'a+b {}')
-        t('a+b>c{}', 'a+b>c {}')
+        t('a > b{}', 'a > b {}')
+        t('a ~ b{}', 'a ~ b {}')
+        t('a + b{}', 'a + b {}')
+        t('a + b > c{}', 'a + b > c {}')
+        t(
+            'a > b{width: calc(100% + 45px);}',
+            'a > b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a ~ b{width: calc(100% + 45px);}',
+            'a ~ b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b{width: calc(100% + 45px);}',
+            'a + b {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
+        t(
+            'a + b > c{width: calc(100% + 45px);}',
+            'a + b > c {\n' +
+            '\twidth: calc(100% + 45px);\n' +
+            '}')
 
 
         self.reset_options();
@@ -244,6 +324,49 @@ class CSSBeautifierTest(unittest.TestCase):
             '@mixin itemPropertiesCoverItem($items, $margin) {\n' +
             '\twidth: calc((100% - ((#{$items} - 1) * #{$margin}rem)) / #{$items});\n' +
             '\tmargin: 1.6rem #{$margin}rem 1.6rem 0;\n' +
+            '}')
+        
+        # Multiple filed issues in LESS due to not(:blah)
+        t('&:first-of-type:not(:last-child) {}')
+        t(
+            'div {\n' +
+            '\t&:not(:first-of-type) {\n' +
+            '\t\tbackground: red;\n' +
+            '\t}\n' +
+            '}')
+
+
+        self.reset_options();
+        #============================================================
+        # Proper handling of colon in selectors
+        self.options.selector_separator_newline = false
+        t('a :b {}')
+        t('a ::b {}')
+        t('a:b {}')
+        t('a::b {}')
+        t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}')
+        t(
+            '.card-blue ::-webkit-input-placeholder {\n' +
+            '\tcolor: #87D1FF;\n' +
+            '}')
+        t(
+            'div [attr] :not(.class) {\n' +
+            '\tcolor: red;\n' +
+            '}')
+
+
+        self.reset_options();
+        #============================================================
+        # Regresssion Tests
+        self.options.selector_separator_newline = false
+        t(
+            '@media(min-width:768px) {\n' +
+            '\t.selector::after {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
+            '\t.other-selector {\n' +
+            '\t\t/* property: value */\n' +
+            '\t}\n' +
             '}')
 
 
