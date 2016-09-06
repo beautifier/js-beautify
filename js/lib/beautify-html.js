@@ -101,6 +101,7 @@
             indent_handlebars,
             wrap_attributes,
             wrap_attributes_indent_size,
+            is_wrap_attributes_force,
             end_with_newline,
             extra_liners,
             eol;
@@ -139,6 +140,7 @@
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
+        is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -396,16 +398,21 @@
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
                         //no space after = or before >
                         var wrapped = this.space_or_wrap(content);
-                        var indentAttrs = wrapped && input_char !== '/' && wrap_attributes !== 'force';
+                        var indentAttrs = wrapped && input_char !== '/' && !is_wrap_attributes_force;
                         space = false;
-                        if (!first_attr && wrap_attributes === 'force' && input_char !== '/') {
+                        if (!first_attr && is_wrap_attributes_force && input_char !== '/') {
                             this.print_newline(false, content);
                             this.print_indentation(content);
                             indentAttrs = true;
                         }
                         if (indentAttrs) {
-                            //indent attributes an auto or forced line-wrap
-                            for (var count = 0; count < wrap_attributes_indent_size; count++) {
+                            //indent attributes an auto, forced, or forced-align line-wrap
+                            var alignment_size = wrap_attributes_indent_size;
+                            if (wrap_attributes === 'force-aligned') {
+                                alignment_size = content.indexOf(' ') + 1;
+                            }
+
+                            for (var count = 0; count < alignment_size; count++) {
                                 content.push(indent_character);
                             }
                         }
