@@ -138,7 +138,8 @@
             0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
-        wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
+        wrap_attributes_indent_size = options.wrap_attributes_indent_size ? options.wrap_attributes_indent_size : indent_size;
+        reformat_unformatted_tags = options.reformat_unformatted_tags ? options.reformat_unformatted_tags : false;
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -352,6 +353,16 @@
                     this.indent_level = this.tags[tag + this.tags[tag + 'count']];
                 }
             };
+            
+            this.get_indent_to_align_with_tag = function(arr) {
+                var indention = 0;
+                for (var i = 0; i < arr.length; i++) {
+                    indention++;
+                    if (arr[i] === ' ') {
+                        return indention;
+                    }
+                }
+            };
 
             this.get_tag = function(peek) { //function to get a full tag and parse its type
                 var input_char = '',
@@ -404,8 +415,12 @@
                             indentAttrs = true;
                         }
                         if (indentAttrs) {
+                            var indent_attr_size = wrap_attributes_indent_size;
+                            if (wrap_attributes_indent_size === 'align') {
+                                indent_attr_size = this.get_indent_to_align_with_tag(content);
+                            }
                             //indent attributes an auto or forced line-wrap
-                            for (var count = 0; count < wrap_attributes_indent_size; count++) {
+                            for (var count = 0; count < indent_attr_size; count++) {
                                 content.push(indent_character);
                             }
                         }
@@ -496,7 +511,7 @@
                         this.indent_content = true;
                         this.traverse_whitespace();
                     }
-                } else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
+                } else if (this.is_unformatted(tag_check, unformatted) && !reformat_unformatted_tags) { // do not reformat the "unformatted" tags
                     comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
                     content.push(comment);
                     tag_end = this.pos - 1;
