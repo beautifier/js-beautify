@@ -84,7 +84,7 @@
         return s.replace(/\s+$/g, '');
     }
 
-    function style_html(html_source, options, js_beautify, css_beautify) {
+    function style_html(html_source, options, js_beautify_raw, css_beautify_raw) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
         var multi_parser,
@@ -115,7 +115,7 @@
         }
         var js_beautify = function(js_source_text, options) {
             options = options || options.js;
-            js_beautify(js_source_text, options);
+            js_beautify_raw(js_source_text, options);
         };
 
         if (!options.css) {
@@ -123,7 +123,7 @@
         }
         var css_beautify = function(source_text, options) {
             options = options || options.css;
-            css_beautify(source_text, options);
+            css_beautify_raw(source_text, options);
         };
 
         // backwards compatibility to 1.3.4
