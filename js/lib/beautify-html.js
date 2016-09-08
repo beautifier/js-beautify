@@ -110,6 +110,20 @@
 
         options = options || {};
 
+        // Allow the inclusion of css and js options for <style> and <script> blocks
+        // inside html files (this is useful for plugins like Sublime's HTML prettify)
+        var js_beautify_old = js_beautify;
+        js_beautify = function(js_source_text, opt) {
+            opt = options.js || opt;
+            return js_beautify_old(js_source_text, opt);
+        };
+
+        var css_beautify_old = css_beautify;
+        css_beautify = function(source_text, opt) {
+            opt = options.css || opt;
+            return css_beautify_old(source_text, opt);
+        };
+
         // backwards compatibility to 1.3.4
         if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
             (options.max_char !== undefined && parseInt(options.max_char, 10) !== 0)) {
