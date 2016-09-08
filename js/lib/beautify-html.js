@@ -110,13 +110,17 @@
 
         // Allow the inclusion of css and js options for <style> and <script> blocks
         // inside html files (this is useful for plugins like Sublime's HTML prettify)
-        if (!options.js) options.js = {};
+        if (!options.js) {
+          options.js = {};
+        }
         var js_beautify = function(js_source_text, options) {
             options = options || options.js;
             js_beautify(js_source_text, options);
         };
 
-        if (!options.css) options.css = {};
+        if (!options.css) {
+          options.css = {};
+        }
         var css_beautify = function(source_text, options) {
             options = options || options.css;
             css_beautify(source_text, options);
