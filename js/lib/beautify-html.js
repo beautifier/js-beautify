@@ -110,18 +110,16 @@
 
         // Allow the inclusion of css and js options for <style> and <script> blocks
         // inside html files (this is useful for plugins like Sublime's HTML prettify)
-        options.js = options.js || {};
         var js_beautify_old = js_beautify;
         js_beautify = function(js_source_text, opt) {
-            opt = opt || options.js;
-            js_beautify_old(js_source_text, opt);
+            opt = options.js || opt;
+            return js_beautify_old(js_source_text, opt);
         };
 
-        options.css = options.css || {};
-        var css_beautify_old = js_beautify;
+        var css_beautify_old = css_beautify;
         css_beautify = function(source_text, opt) {
-            opt = opt || options.css;
-            css_beautify_old(source_text, opt);
+            opt = options.css || opt;
+            return css_beautify_old(source_text, opt);
         };
 
         // backwards compatibility to 1.3.4
