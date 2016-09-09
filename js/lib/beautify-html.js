@@ -84,7 +84,7 @@
         return s.replace(/\s+$/g, '');
     }
 
-    function style_html(html_source, options, js_beautify_raw, css_beautify_raw) {
+    function style_html(html_source, options, js_beautify, css_beautify) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
         var multi_parser,
@@ -110,20 +110,18 @@
 
         // Allow the inclusion of css and js options for <style> and <script> blocks
         // inside html files (this is useful for plugins like Sublime's HTML prettify)
-        if (!options.js) {
-          options.js = {};
-        }
-        var js_beautify = function(js_source_text, options) {
-            options = options || options.js;
-            js_beautify_raw(js_source_text, options);
+        options.js = options.js || {};
+        var js_beautify_old = js_beautify;
+        js_beautify = function(js_source_text, opt) {
+            opt = opt || options.js;
+            js_beautify_old(js_source_text, opt);
         };
 
-        if (!options.css) {
-          options.css = {};
-        }
-        var css_beautify = function(source_text, options) {
-            options = options || options.css;
-            css_beautify_raw(source_text, options);
+        options.css = options.css || {};
+        var css_beautify_old = js_beautify;
+        css_beautify = function(source_text, opt) {
+            opt = opt || options.css;
+            css_beautify_old(source_text, opt);
         };
 
         // backwards compatibility to 1.3.4
