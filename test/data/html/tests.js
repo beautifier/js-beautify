@@ -386,6 +386,11 @@ exports.test_data = {
                 { name: "indent_handlebars", value: "true" }
             ],
             content: '{{!-- \\n mult-line\\ncomment  \\n     with spacing\\n--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
+            content: '{{!-- \\n mult-line\\ncomment \\n{{#> component}}\\n mult-line\\ncomment  \\n     with spacing\\n {{/ component}}--}}'
         }],
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
