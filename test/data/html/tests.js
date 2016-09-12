@@ -273,7 +273,7 @@ exports.test_data = {
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_attributes_indent_size", value: "8" }
+                { name: "wrap_attributes_indent_size", value: "8" },
             ],
             indent_attr: '\\n        ',
             indent_over80: '\\n        '
@@ -300,29 +300,6 @@ exports.test_data = {
             ],
             indent_attr: ' ',
             indent_over80: ' '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" }
-            ],
-            indent_attr: '\\n     ',
-            indent_attr_faligned: ' ',
-            indent_over80: '\\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            indent_attr: '\\n     ',
-            indent_attr_faligned: ' ',
-            indent_over80: '\\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "wrap_attributes_indent_size", value: "8" }
-            ],
-            indent_attr: '\\n     ',
-            indent_attr_faligned: ' ',
-            indent_over80: '\\n     '
         }],
         tests: [{
             fragment: true,
@@ -339,11 +316,11 @@ exports.test_data = {
         }, {
             fragment: true,
             input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar" />'
+            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}attr2="bar" />'
         }, {
             fragment: true,
             input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css">'
+            output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}rel="stylesheet"{{indent_attr}}type="text/css">'
         }]
     }, {
         name: "Handlebars Indenting Off",
