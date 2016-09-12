@@ -403,19 +403,19 @@ exports.test_data = {
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
             { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
+            { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
                 fragment: true,
                 input_: '{{#if     words}}{{/if}}',
                 output: '{{#if words}}{{/if}}'
             }, {
                 fragment: true,
-                input_: '{{#if     words}}^^^content$$${{/if}}',
-                output: '{{#if words}}^^^content$$${{/if}}'
+                input_: '{{#if     words}}^^^&content$$${{/if}}',
+                output: '{{#if words}}^^^&content$$${{/if}}'
             }, {
                 fragment: true,
-                input_: '{{#if     words}}^^^content$$${{/if}}',
-                output: '{{#if words}}^^^content$$${{/if}}'
+                input_: '{{#if     words}}^^^&content$$${{/if}}',
+                output: '{{#if words}}^^^&content$$${{/if}}'
             }, {
                 fragment: true,
                 unchanged: '{{#if 1}}\n' +
@@ -453,20 +453,20 @@ exports.test_data = {
                 input_: '{{#if}}\n' +
                     '{{#each}}\n' +
                     '{{#if}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}\n' +
                     '{{#if}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}\n' +
                     '{{/each}}\n' +
                     '{{/if}}',
                 output: '{{#if}}\n' +
                     '    {{#each}}\n' +
                     '        {{#if}}\n' +
-                    '            ^^^content$$$\n' +
+                    '            ^^^&content$$$\n' +
                     '        {{/if}}\n' +
                     '        {{#if}}\n' +
-                    '            ^^^content$$$\n' +
+                    '            ^^^&content$$$\n' +
                     '        {{/if}}\n' +
                     '    {{/each}}\n' +
                     '{{/if}}'
@@ -482,14 +482,14 @@ exports.test_data = {
             {
                 fragment: true,
                 input_: '{{#if 1}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}',
                 output: '{{#if 1}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}'
             }, {
                 fragment: true,
@@ -503,21 +503,21 @@ exports.test_data = {
                 fragment: true,
                 input_: '{{#if thing}}\n' +
                     '{{#if otherthing}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '    {{/if}}\n' +
                     '       {{else}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}',
                 output: '{{#if thing}}\n' +
                     '    {{#if otherthing}}\n' +
-                    '        ^^^content$$$\n' +
+                    '        ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '        ^^^content$$$\n' +
+                    '        ^^^&content$$$\n' +
                     '    {{/if}}\n' +
                     '{{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}'
             },
             // Test {{}} inside of <> tags, which should be separated by spaces
@@ -528,38 +528,38 @@ exports.test_data = {
                 output: '<div {{somestyle}}></div>'
             }, {
                 fragment: true,
-                input_: '<div{{#if test}}class="foo"{{/if}}>^^^content$$$</div>',
-                output: '<div {{#if test}} class="foo" {{/if}}>^^^content$$$</div>'
+                input_: '<div{{#if test}}class="foo"{{/if}}>^^^&content$$$</div>',
+                output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
-                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^content$$$</div>',
-                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^content$$$</div>'
+                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
+                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
-                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^content$$$</span>',
-                output: '<span {{#if condition}} class="foo" {{/if}}>^^^content$$$</span>'
+                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
+                output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
             }, {
                 fragment: true,
-                unchanged: '<div unformatted="{{#if}}^^^content$$${{/if}}">^^^content$$$</div>'
+                unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
             }, {
                 fragment: true,
-                unchanged: '<div unformatted="{{#if  }}    ^^^content$$${{/if}}">^^^content$$$</div>'
+                unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
             },
 
             // Quotes found inside of Handlebars expressions inside of quoted
             // strings themselves should not be considered string delimiters.
             {
                 fragment: true,
-                unchanged: '<div class="{{#if thingIs "value"}}^^^content$$${{/if}}"></div>'
+                unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}"></div>'
+                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^content$$${{/if}}\\\'></div>'
+                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>'
+                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
             }
         ],
     }, {
