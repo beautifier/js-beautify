@@ -273,7 +273,7 @@ exports.test_data = {
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_attributes_indent_size", value: "8" },
+                { name: "wrap_attributes_indent_size", value: "8" }
             ],
             indent_attr: '\\n        ',
             indent_over80: '\\n        '
@@ -300,6 +300,29 @@ exports.test_data = {
             ],
             indent_attr: ' ',
             indent_over80: ' '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" }
+            ],
+            indent_attr: '\\n     ',
+            indent_attr_faligned: ' ',
+            indent_over80: '\\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            indent_attr: '\\n     ',
+            indent_attr_faligned: ' ',
+            indent_over80: '\\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "wrap_attributes_indent_size", value: "8" }
+            ],
+            indent_attr: '\\n     ',
+            indent_attr_faligned: ' ',
+            indent_over80: '\\n     '
         }],
         tests: [{
             fragment: true,
@@ -316,11 +339,11 @@ exports.test_data = {
         }, {
             fragment: true,
             input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}attr2="bar" />'
+            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar" />'
         }, {
             fragment: true,
             input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}rel="stylesheet"{{indent_attr}}type="text/css">'
+            output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css">'
         }]
     }, {
         name: "Handlebars Indenting Off",
@@ -370,29 +393,44 @@ exports.test_data = {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
+            content: '{{!-- comment--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
             content: '{pre{{field1}} {{field2}} {{field3}}post'
         }, {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
             content: '{{! \\n mult-line\\ncomment  \\n     with spacing\\n}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
+            content: '{{!-- \\n mult-line\\ncomment  \\n     with spacing\\n--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" }
+            ],
+            content: '{{!-- \\n mult-line\\ncomment \\n{{#> component}}\\n mult-line\\ncomment  \\n     with spacing\\n {{/ component}}--}}'
         }],
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
             { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}^^^content$$${{/if}}' },
+            { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
             { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
                 fragment: true,
                 input_: '{{#if     words}}{{/if}}',
                 output: '{{#if words}}{{/if}}'
             }, {
                 fragment: true,
-                input_: '{{#if     words}}^^^content$$${{/if}}',
-                output: '{{#if words}}^^^content$$${{/if}}'
+                input_: '{{#if     words}}^^^&content$$${{/if}}',
+                output: '{{#if words}}^^^&content$$${{/if}}'
             }, {
                 fragment: true,
-                input_: '{{#if     words}}^^^content$$${{/if}}',
-                output: '{{#if words}}^^^content$$${{/if}}'
+                input_: '{{#if     words}}^^^&content$$${{/if}}',
+                output: '{{#if words}}^^^&content$$${{/if}}'
             }, {
                 fragment: true,
                 unchanged: '{{#if 1}}\n' +
@@ -430,20 +468,20 @@ exports.test_data = {
                 input_: '{{#if}}\n' +
                     '{{#each}}\n' +
                     '{{#if}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}\n' +
                     '{{#if}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}\n' +
                     '{{/each}}\n' +
                     '{{/if}}',
                 output: '{{#if}}\n' +
                     '    {{#each}}\n' +
                     '        {{#if}}\n' +
-                    '            ^^^content$$$\n' +
+                    '            ^^^&content$$$\n' +
                     '        {{/if}}\n' +
                     '        {{#if}}\n' +
-                    '            ^^^content$$$\n' +
+                    '            ^^^&content$$$\n' +
                     '        {{/if}}\n' +
                     '    {{/each}}\n' +
                     '{{/if}}'
@@ -459,14 +497,14 @@ exports.test_data = {
             {
                 fragment: true,
                 input_: '{{#if 1}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}',
                 output: '{{#if 1}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}'
             }, {
                 fragment: true,
@@ -480,21 +518,21 @@ exports.test_data = {
                 fragment: true,
                 input_: '{{#if thing}}\n' +
                     '{{#if otherthing}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '    {{/if}}\n' +
                     '       {{else}}\n' +
-                    '^^^content$$$\n' +
+                    '^^^&content$$$\n' +
                     '{{/if}}',
                 output: '{{#if thing}}\n' +
                     '    {{#if otherthing}}\n' +
-                    '        ^^^content$$$\n' +
+                    '        ^^^&content$$$\n' +
                     '    {{else}}\n' +
-                    '        ^^^content$$$\n' +
+                    '        ^^^&content$$$\n' +
                     '    {{/if}}\n' +
                     '{{else}}\n' +
-                    '    ^^^content$$$\n' +
+                    '    ^^^&content$$$\n' +
                     '{{/if}}'
             },
             // Test {{}} inside of <> tags, which should be separated by spaces
@@ -505,38 +543,38 @@ exports.test_data = {
                 output: '<div {{somestyle}}></div>'
             }, {
                 fragment: true,
-                input_: '<div{{#if test}}class="foo"{{/if}}>^^^content$$$</div>',
-                output: '<div {{#if test}} class="foo" {{/if}}>^^^content$$$</div>'
+                input_: '<div{{#if test}}class="foo"{{/if}}>^^^&content$$$</div>',
+                output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
-                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^content$$$</div>',
-                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^content$$$</div>'
+                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
+                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
-                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^content$$$</span>',
-                output: '<span {{#if condition}} class="foo" {{/if}}>^^^content$$$</span>'
+                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
+                output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
             }, {
                 fragment: true,
-                unchanged: '<div unformatted="{{#if}}^^^content$$${{/if}}">^^^content$$$</div>'
+                unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
             }, {
                 fragment: true,
-                unchanged: '<div unformatted="{{#if  }}    ^^^content$$${{/if}}">^^^content$$$</div>'
+                unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
             },
 
             // Quotes found inside of Handlebars expressions inside of quoted
             // strings themselves should not be considered string delimiters.
             {
                 fragment: true,
-                unchanged: '<div class="{{#if thingIs "value"}}^^^content$$${{/if}}"></div>'
+                unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}"></div>'
+                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^content$$${{/if}}\\\'></div>'
+                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
             }, {
                 fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^content$$${{/if}}\\\'></div>'
+                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
             }
         ],
     }, {
