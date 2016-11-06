@@ -1796,7 +1796,9 @@ class Tokenizer:
                 if allow_decimal and self.input.peek() == '.':
                     c += self.input.next()
                     allow_decimal = False
-                elif allow_e and self.input.testChar(re.compile('[Ee]')):
+
+                # a = 1.e-7 is valid, so we test for . then e in one loop
+                if allow_e and self.input.testChar(re.compile('[Ee]')):
                     c += self.input.next()
 
                     if self.input.testChar(re.compile('[+-]')):

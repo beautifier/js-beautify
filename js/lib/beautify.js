@@ -1976,7 +1976,10 @@ if (!Object.values) {
                         if (allow_decimal && input.peek() === '.') {
                             c += input.next();
                             allow_decimal = false;
-                        } else if (allow_e && input.testChar(/[Ee]/)) {
+                        }
+
+                        // a = 1.e-7 is valid, so we test for . then e in one loop
+                        if (allow_e && input.testChar(/[Ee]/)) {
                             c += input.next();
 
                             if (input.testChar(/[+-]/)) {
