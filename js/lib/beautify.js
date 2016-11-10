@@ -884,11 +884,19 @@ if (!Object.values) {
                         !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
                 }
                 
-                if(flags.inline_frame) // format as inline_frame
-                {
+                if ((opt.brace_style === "expand" ||
+                    (opt.brace_style === "none" && current_token.wanted_newline))
+                    && !flags.inline_frame) {
+                    if (last_type !== 'TK_OPERATOR' &&
+                        (empty_anonymous_function ||
+                            last_type === 'TK_EQUALS' ||
+                            (last_type === 'TK_RESERVED' && is_special_word(flags.last_text) && flags.last_text !== 'else'))) {
+                        output.space_before_token = true;
+                    } else {
+                        print_newline(false, true);
+                    }
+                } else { // collapse || inline_frame
                     if (is_array(previous_flags.mode) && (last_type === 'TK_START_EXPR' || last_type === 'TK_COMMA')) {
-                        // if we're preserving inline,
-                        // allow newline between comma and next brace.
                         if (last_type === 'TK_COMMA' || opt.space_in_paren) {
                             output.space_before_token = true;
                         }
@@ -899,21 +907,8 @@ if (!Object.values) {
                             flags.multiline_frame = false;
                         }
                     }
-                }
-                //Otherwise, format as normal frame
-                else if (opt.brace_style === "expand" ||
-                    (opt.brace_style === "none" && current_token.wanted_newline)) {
-                    if (last_type !== 'TK_OPERATOR' &&
-                        (empty_anonymous_function ||
-                            last_type === 'TK_EQUALS' ||
-                            (last_type === 'TK_RESERVED' && is_special_word(flags.last_text) && flags.last_text !== 'else'))) {
-                        output.space_before_token = true;
-                    } else {
-                        print_newline(false, true);
-                    }
-                } else { // collapse
                     if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
-                        if (last_type === 'TK_START_BLOCK') {
+                        if (last_type === 'TK_START_BLOCK' && !flags.inline_frame) {
                             print_newline();
                         } else {
                             output.space_before_token = true;
@@ -931,8 +926,7 @@ if (!Object.values) {
                 }
                 var empty_braces = last_type === 'TK_START_BLOCK';
 
-                if(flags.inline_frame) // try inline_frame (braces-preserve-inline) first
-                {
+                if(flags.inline_frame && !empty_braces) { // try inline_frame (only set if opt.braces-preserve-inline) first
                     output.space_before_token = true;
                 } else if (opt.brace_style === "expand") {
                     if (!empty_braces) {
@@ -1067,13 +1061,15 @@ if (!Object.values) {
 
                 if (last_type === 'TK_END_BLOCK') {
 
-                    if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
+                    if(previous_flags.inline_frame) {
+                        prefix = 'SPACE';
+                    }
+                    else if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
                         prefix = 'NEWLINE';
                     } else {
                         if (opt.brace_style === "expand" ||
                             opt.brace_style === "end-expand" ||
-                            (opt.brace_style === "none" && current_token.wanted_newline)
-                            && !flags.inline_frame) {
+                            (opt.brace_style === "none" && current_token.wanted_newline)) {
                             prefix = 'NEWLINE';
                         } else {
                             prefix = 'SPACE';
@@ -1113,10 +1109,10 @@ if (!Object.values) {
                 }
 
                 if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally'])) {
-                    if (!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
+                    if ((!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
                         opt.brace_style === "expand" ||
                         opt.brace_style === "end-expand" ||
-                        (opt.brace_style === "none" && current_token.wanted_newline)
+                        (opt.brace_style === "none" && current_token.wanted_newline))
                         && !flags.inline_frame) {
                         print_newline();
                     } else {

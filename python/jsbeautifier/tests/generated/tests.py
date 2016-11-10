@@ -39,6 +39,7 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.jslint_happy = false
         default_options.keep_array_indentation = false
         default_options.brace_style = 'collapse'
+        default_options.brace_preserve_inline = false
         default_options.operator_position = 'before-newline'
 
         cls.default_options = default_options
@@ -177,28 +178,28 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         #============================================================
         # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
-        self.options.brace_style = 'collapse-preserve-inline'
+        self.options.brace_preserve_inline = true
         bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = { a: 2 };\nvar a = { a: 2 };')
         bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }')
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }')
 
         # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
-        self.options.brace_style = 'collapse-preserve-inline'
+        self.options.brace_preserve_inline = true
         bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
         bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
         bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
         bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
 
         # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
-        self.options.brace_style = 'collapse'
+        self.options.brace_preserve_inline = false
         bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
         bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
         bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}')
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
 
         # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
-        self.options.brace_style = 'collapse'
+        self.options.brace_preserve_inline = false
         bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
         bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
         bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
@@ -2041,7 +2042,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         #============================================================
         # Destructured and related
-        self.options.brace_style = 'collapse-preserve-inline'
+        self.options.brace_preserve_inline = true
         
         # Issue 382 - import destructured 
         bt(

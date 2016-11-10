@@ -1939,13 +1939,6 @@ exports.test_data = {
                     '    new Date().getTime()',
                     '].join("-");'
                 ]
-            },
-            {
-                comment: "Issue 1052 - collapse-preserve-inline removed to add brace-preserve-inline",
-                unchanged: [
-                    'function whoArtThou(){ console.log("does it matter?"); }',
-                    'console.log("unfortunately it does");'
-                ]
             }
         ]
     }, {
@@ -1967,7 +1960,15 @@ exports.test_data = {
     }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
-        options: [{ name: "brace_preserve_inline", value: "" }],
+        options: [{ name: "brace_preserve_inline", value: "true" }], //Issue 1052, now brace_preserve_inline instead of brace_style
+        /*matrix: [
+            //test for all options of brace_style
+            { options: [ { name: "brace_style", value: "'collapse'" } ] },
+            { options: [ { name: "brace_style", value: "'expand'" } ] },
+            { options: [ { name: "brace_style", value: "'collapse'" } ] },
+            { options: [ { name: "brace_style", value: "'collapse'" } ] },
+            { options: [ { name: "brace_style", value: "'collapse'" } ] },
+        ],*/
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [
