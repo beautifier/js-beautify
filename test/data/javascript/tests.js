@@ -8,6 +8,7 @@ exports.test_data = {
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
         { name: "brace_style", value: "'collapse'" },
+        { name: "brace_preserve_inline", value: "false" }, 
         { name: "operator_position", value: "'before-newline'" }
     ],
     groups: [{
@@ -106,10 +107,10 @@ exports.test_data = {
         description: "",
         template: "< >",
         matrix: [
-            // collapse-preserve-inline variations
+            // brace_preserve_inline true - Should preserve if no newlines
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_preserve_inline", value: "true" }
                 ],
                 ibo: '',
                 iao: '',
@@ -122,7 +123,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_preserve_inline", value: "true" }
                 ],
                 ibo: '\\n',
                 iao: '\\n',
@@ -134,10 +135,10 @@ exports.test_data = {
                 oac: ' '
             },
 
-            // collapse variations
+            // brace_preserve_inline false - Shouldn't preserve if no newlines (uses collapse styling)
             {
                 options: [
-                    { name: "brace_style", value: "'collapse'" }
+                    { name: "brace_preserve_inline", value: "false" }
                 ],
                 ibo: '',
                 iao: '',
@@ -150,7 +151,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'collapse'" }
+                    { name: "brace_preserve_inline", value: "false" }
                 ],
                 ibo: '\\n',
                 iao: '\\n',
@@ -1939,6 +1940,11 @@ exports.test_data = {
                     '].join("-");'
                 ]
             },
+                comment: "Issue 1052 - collapse-preserve-inline removed to add brace-preserve-inline",
+                unchanged: [
+                    'function whoArtThou(){ console.log("does it matter?"); }',
+                    'console.log("unfortunately it does");'
+                ]
         ]
     }, {
         name: "Test non-positionable-ops",
@@ -1959,7 +1965,7 @@ exports.test_data = {
     }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
-        options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],
+        options: [{ name: "brace_preserve_inline", value: "" }],
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [

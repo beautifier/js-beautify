@@ -61,8 +61,10 @@
     space_after_anon_function (default false) - should the space before an anonymous function's parens be added, "function()" vs "function ()",
           NOTE: This option is overriden by jslint_happy (i.e. if jslint_happy is true, space_after_anon_function is true by design)
 
-    brace_style (default "collapse") - "collapse-preserve-inline" | "collapse" | "expand" | "end-expand" | "none"
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
+            
+    brace_preserve_inline (default false) - if open and closed braces appear on the same line, then don't touch them
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
 
@@ -309,7 +311,12 @@ if (!Object.values) {
             if (opt.brace_style === "expand-strict") {
                 opt.brace_style = "expand";
             }
+            if (opt.brace_style === "collapse-preserve-inline") {
+                opt.brace_style = "collapse";
+                opt.brace_preserve_inline = true;
+            }
 
+            opt.brace_preserve_inline = (options.brace_preserve_inline === undefined) ? false : options.brace_preserve_inline;
             opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
             opt.indent_char = options.indent_char ? options.indent_char : ' ';
             opt.eol = options.eol ? options.eol : 'auto';
@@ -860,8 +867,41 @@ if (!Object.values) {
                 var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
                     last_type === 'TK_END_EXPR';
 
+                if (opt.brace_preserve_inline) // check for inline, set inline_frame if so
+                {
+                    // search forward for a newline wanted inside this block
+                    var index = 0;
+                    var check_token = null;
+                    flags.inline_frame = true;
+                    do {
+                        index += 1;
+                        check_token = get_token(index);
+                        if (check_token.wanted_newline) {
+                            flags.inline_frame = false;
+                            break;
+                        }
+                    } while (check_token.type !== 'TK_EOF' &&
+                        !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
+                }
+                
+                if(flags.inline_frame) // format as inline_frame
+                {
+                    if (is_array(previous_flags.mode) && (last_type === 'TK_START_EXPR' || last_type === 'TK_COMMA')) {
+                        // if we're preserving inline,
+                        // allow newline between comma and next brace.
+                        if (last_type === 'TK_COMMA' || opt.space_in_paren) {
+                            output.space_before_token = true;
+                        }
 
-                if (opt.brace_style === "expand" ||
+                        if (last_type === 'TK_COMMA' || (last_type === 'TK_START_EXPR' && flags.inline_frame)) {
+                            allow_wrap_or_preserved_newline();
+                            previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
+                            flags.multiline_frame = false;
+                        }
+                    }
+                }
+                //Otherwise, format as normal frame
+                else if (opt.brace_style === "expand" ||
                     (opt.brace_style === "none" && current_token.wanted_newline)) {
                     if (last_type !== 'TK_OPERATOR' &&
                         (empty_anonymous_function ||
@@ -872,36 +912,8 @@ if (!Object.values) {
                         print_newline(false, true);
                     }
                 } else { // collapse
-                    if (opt.brace_style === 'collapse-preserve-inline') {
-                        // search forward for a newline wanted inside this block
-                        var index = 0;
-                        var check_token = null;
-                        flags.inline_frame = true;
-                        do {
-                            index += 1;
-                            check_token = get_token(index);
-                            if (check_token.wanted_newline) {
-                                flags.inline_frame = false;
-                                break;
-                            }
-                        } while (check_token.type !== 'TK_EOF' &&
-                            !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
-                    }
 
-                    if (is_array(previous_flags.mode) && (last_type === 'TK_START_EXPR' || last_type === 'TK_COMMA')) {
-                        // if we're preserving inline,
-                        // allow newline between comma and next brace.
-                        if (last_type === 'TK_COMMA' || opt.space_in_paren) {
-                            output.space_before_token = true;
-                        }
-
-                        if (opt.brace_style === 'collapse-preserve-inline' &&
-                            (last_type === 'TK_COMMA' || (last_type === 'TK_START_EXPR' && flags.inline_frame))) {
-                            allow_wrap_or_preserved_newline();
-                            previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
-                            flags.multiline_frame = false;
-                        }
-                    } else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
+                     else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                         if (last_type === 'TK_START_BLOCK') {
                             print_newline();
                         } else {
@@ -920,16 +932,17 @@ if (!Object.values) {
                 }
                 var empty_braces = last_type === 'TK_START_BLOCK';
 
-                if (opt.brace_style === "expand") {
+                if(flags.inline_frame) // try inline_frame (braces-preserve-inline) first
+                {
+                    output.space_before_token = true;
+                } else if (opt.brace_style === "expand") {
                     if (!empty_braces) {
                         print_newline();
                     }
                 } else {
                     // skip {}
                     if (!empty_braces) {
-                        if (flags.inline_frame) {
-                            output.space_before_token = true;
-                        } else if (is_array(flags.mode) && opt.keep_array_indentation) {
+                        if (is_array(flags.mode) && opt.keep_array_indentation) {
                             // we REALLY need a newline here, but newliner would skip that
                             opt.keep_array_indentation = false;
                             print_newline();
@@ -1060,7 +1073,8 @@ if (!Object.values) {
                     } else {
                         if (opt.brace_style === "expand" ||
                             opt.brace_style === "end-expand" ||
-                            (opt.brace_style === "none" && current_token.wanted_newline)) {
+                            (opt.brace_style === "none" && current_token.wanted_newline)
+                            && !flags.inline_frame) {
                             prefix = 'NEWLINE';
                         } else {
                             prefix = 'SPACE';
@@ -1103,7 +1117,8 @@ if (!Object.values) {
                     if (!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
                         opt.brace_style === "expand" ||
                         opt.brace_style === "end-expand" ||
-                        (opt.brace_style === "none" && current_token.wanted_newline)) {
+                        (opt.brace_style === "none" && current_token.wanted_newline)
+                        && !flags.inline_frame) {
                         print_newline();
                     } else {
                         output.trim(true);

@@ -57,7 +57,9 @@ var fs = require('fs'),
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "collapse-preserve-inline", "expand-strict", "none"],
+        // TODO: collapse-preserve-inline is obselete, now identical to collapse + brace_preserve_inline = true. Remove in future version
+        "brace_style": ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"],
+        "brace_preserve_inline": Boolean,
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -108,6 +110,7 @@ var fs = require('fs'),
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
+        "i": ["--brace_preserve_inline"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
@@ -303,7 +306,8 @@ function usage(err) {
             msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
-            msg.push('  -b, --brace-style                 [collapse|expand|collapse-preserve-inline|end-expand|none] ["collapse"]');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]');
+            msg.push('  -i, --brace_preserve_inline       Preserve braces that appear on the same line [false]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
