@@ -1940,11 +1940,13 @@ exports.test_data = {
                     '].join("-");'
                 ]
             },
+            {
                 comment: "Issue 1052 - collapse-preserve-inline removed to add brace-preserve-inline",
                 unchanged: [
                     'function whoArtThou(){ console.log("does it matter?"); }',
                     'console.log("unfortunately it does");'
                 ]
+            }
         ]
     }, {
         name: "Test non-positionable-ops",
