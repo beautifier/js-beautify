@@ -912,8 +912,7 @@ if (!Object.values) {
                         print_newline(false, true);
                     }
                 } else { // collapse
-
-                     else if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
+                    if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
                         if (last_type === 'TK_START_BLOCK') {
                             print_newline();
                         } else {

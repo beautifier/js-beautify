@@ -107,6 +107,7 @@ Beautifier Options:
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
   -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]
+  -i, --brace-preserve-inline       Preserve line-breaks of braces that appear on the same line [false]
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
@@ -132,7 +133,7 @@ These largely correspond to the underscored option keys for both library interfa
     "jslint_happy": false,
     "space_after_anon_function": false,
     "brace_style": "collapse",
-	"brace_preserve_inline": false,
+    "brace_preserve_inline": false,
     "keep_array_indentation": false,
     "keep_function_indentation": false,
     "space_before_conditional": true,

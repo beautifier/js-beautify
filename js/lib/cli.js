@@ -110,7 +110,7 @@ var fs = require('fs'),
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
-        "i": ["--brace_preserve_inline"],
+        "V": ["--brace_preserve_inline"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
@@ -307,7 +307,7 @@ function usage(err) {
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none] ["collapse"]');
-            msg.push('  -i, --brace_preserve_inline       Preserve braces that appear on the same line [false]');
+            msg.push('  -V, --brace_preserve_inline       Preserve line-breaks of braces that appear on the same line [false]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
