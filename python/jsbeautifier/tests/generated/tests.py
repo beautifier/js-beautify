@@ -2041,33 +2041,89 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
-        # brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        # brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         self.options.brace_style = 'collapse'
         self.options.brace_preserve_inline = true
         bt('import { asdf } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}')
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}')
 
-        # brace_preserve_inline tests - (ebc = "\n", eac = "\n", eebc = "\n", eeac = "")
+        # brace_preserve_inline tests - (ebc = "\n", eac = "", eebc = "\n", eeac = "")
         self.options.brace_style = 'expand'
         self.options.brace_preserve_inline = true
         bt('import { asdf } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex()\n{\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}')
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex()\n{\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}')
 
-        # brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        # brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         self.options.brace_style = 'end-expand'
         self.options.brace_preserve_inline = true
         bt('import { asdf } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}')
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}')
 
-        # brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        # brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         self.options.brace_style = 'none'
         self.options.brace_preserve_inline = true
         bt('import { asdf } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}')
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}')
 
 
         self.reset_options();

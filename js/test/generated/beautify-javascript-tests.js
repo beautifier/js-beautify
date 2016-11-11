@@ -2206,33 +2206,89 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
-        // brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        // brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         opts.brace_style = 'collapse';
         opts.brace_preserve_inline = true;
         bt('import { asdf } from "asdf";');
         bt('function inLine() { console.log("oh em gee"); }');
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}');
 
-        // brace_preserve_inline tests - (ebc = "\n", eac = "\n", eebc = "\n", eeac = "")
+        // brace_preserve_inline tests - (ebc = "\n", eac = "", eebc = "\n", eeac = "")
         opts.brace_style = 'expand';
         opts.brace_preserve_inline = true;
         bt('import { asdf } from "asdf";');
         bt('function inLine() { console.log("oh em gee"); }');
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex()\n{\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex()\n{\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}');
 
-        // brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        // brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         opts.brace_style = 'end-expand';
         opts.brace_preserve_inline = true;
         bt('import { asdf } from "asdf";');
         bt('function inLine() { console.log("oh em gee"); }');
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}');
 
-        // brace_preserve_inline tests - (ebc = " ", eac = "\n", eebc = "\n", eeac = "")
+        // brace_preserve_inline tests - (ebc = " ", eac = "", eebc = "\n", eeac = "")
         opts.brace_style = 'none';
         opts.brace_preserve_inline = true;
         bt('import { asdf } from "asdf";');
         bt('function inLine() { console.log("oh em gee"); }');
-        bt('function complex() {    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };}', 'function complex() {\n    console.log("wowe");\n    (function() { var a = 2; })();\n    $.each(arr, function(el, idx) { return el; });\n    var obj = {\n        a: function() { console.log("test"); }\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };}',
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); }\n' +
+            '    };\n}');
 
 
         reset_options();

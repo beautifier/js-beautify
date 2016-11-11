@@ -1970,7 +1970,7 @@ exports.test_data = {
                     { name: "brace_preserve_inline", value: "true" }
                 ],
                 ebc : ' ',
-                eac : '\\n',
+                eac : '',
                 eebc : '\\n',
                 eeac : ''
             },
@@ -1980,7 +1980,7 @@ exports.test_data = {
                     { name: "brace_preserve_inline", value: "true" }
                 ],
                 ebc : '\\n',
-                eac : '\\n',
+                eac : '',
                 eebc : '\\n',
                 eeac : ''
             },
@@ -1990,7 +1990,7 @@ exports.test_data = {
                     { name: "brace_preserve_inline", value: "true" }
                 ],
                 ebc : ' ',
-                eac : '\\n',
+                eac : '',
                 eebc : '\\n',
                 eeac : ''
             },
@@ -2000,7 +2000,7 @@ exports.test_data = {
                     { name: "brace_preserve_inline", value: "true" }
                 ],
                 ebc : ' ',
-                eac : '\\n',
+                eac : '',
                 eebc : '\\n',
                 eeac : ''
             }
@@ -2013,20 +2013,25 @@ exports.test_data = {
             },
             {
                 //Should reformat the outer function but keep all inner ones on own lines
-                input: ('function complex() {'
-                    + '    console.log("wowe");\\n'
-                    + '    (function() { var a = 2; })();\\n'
-                    + '    $.each(arr, function(el, idx) { return el; });\\n'
-                    + '    var obj = {\\n'
-                    + '        a: function() { console.log("test"); }\\n'
-                    + '    };}'),
-                output: ('function complex()<ebc>{<eac>'
-                    + '    console.log("wowe");\\n'
-                    + '    (function() { var a = 2; })();\\n'
-                    + '    $.each(arr, function(el, idx) { return el; });\\n'
-                    + '    var obj = {\\n'
-                    + '        a: function() { console.log("test"); }\\n'
-                    + '    };<eebc>}<eeac>')
+                input: [
+                    'function complex() {',
+                    '    console.log("wowe");',
+                    '    (function() { var a = 2; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {',
+                    '        a: function() { console.log("test"); }',
+                    '    };}'
+                    
+                ],
+                output: [
+                    'function complex()<ebc>{<eac>',
+                    '    console.log("wowe");',
+                    '    (function() { var a = 2; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {',
+                    '        a: function() { console.log("test"); }',
+                    '    };<eebc>}<eeac>'
+                ]
             }
         ]
     }, {
