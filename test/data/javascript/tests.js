@@ -1958,17 +1958,84 @@ exports.test_data = {
             { unchanged: 'a >>= 2;' },
         ]
     }, {
+        name: "brace_preserve_inline tests",
+        description: "brace_preserve_inline with different brace_styles",
+        options: [{ name: "brace_preserve_inline", value: "true" }],
+        template: "< >",
+        matrix: [
+            //test for all options of brace_style
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse'" },
+                    { name: "brace_preserve_inline", value: "true" }
+                ],
+                ebc : ' ',
+                eac : '\\n',
+                eebc : '\\n',
+                eeac : ''
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'expand'" },
+                    { name: "brace_preserve_inline", value: "true" }
+                ],
+                ebc : '\\n',
+                eac : '\\n',
+                eebc : '\\n',
+                eeac : ''
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'end-expand'" },
+                    { name: "brace_preserve_inline", value: "true" }
+                ],
+                ebc : ' ',
+                eac : '\\n',
+                eebc : '\\n',
+                eeac : ''
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'none'" },
+                    { name: "brace_preserve_inline", value: "true" }
+                ],
+                ebc : ' ',
+                eac : '\\n',
+                eebc : '\\n',
+                eeac : ''
+            }
+        ],
+        tests: [{
+                unchanged: 'import { asdf } from "asdf";'
+            },
+            {
+                unchanged: 'function inLine() { console.log("oh em gee"); }'
+            },
+            {
+                //Should reformat the outer function but keep all inner ones on own lines
+                input: ('function complex() {'
+                    + '    console.log("wowe");\\n'
+                    + '    (function() { var a = 2; })();\\n'
+                    + '    $.each(arr, function(el, idx) { return el; });\\n'
+                    + '    var obj = {\\n'
+                    + '        a: function() { console.log("test"); }\\n'
+                    + '    };}'),
+                output: ('function complex()<ebc>{<eac>'
+                    + '    console.log("wowe");\\n'
+                    + '    (function() { var a = 2; })();\\n'
+                    + '    $.each(arr, function(el, idx) { return el; });\\n'
+                    + '    var obj = {\\n'
+                    + '        a: function() { console.log("test"); }\\n'
+                    + '    };<eebc>}<eeac>')
+            }
+        ]
+    }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
-        options: [{ name: "brace_preserve_inline", value: "true" }], //Issue 1052, now brace_preserve_inline instead of brace_style
-        /*matrix: [
-            //test for all options of brace_style
-            { options: [ { name: "brace_style", value: "'collapse'" } ] },
-            { options: [ { name: "brace_style", value: "'expand'" } ] },
-            { options: [ { name: "brace_style", value: "'collapse'" } ] },
-            { options: [ { name: "brace_style", value: "'collapse'" } ] },
-            { options: [ { name: "brace_style", value: "'collapse'" } ] },
-        ],*/
+        options: [
+            { name: "brace_style", value: "'collapse'" },
+            { name: "brace_preserve_inline", value: "true" }
+        ], //Issue 1052, now brace_preserve_inline instead of brace_style
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [
