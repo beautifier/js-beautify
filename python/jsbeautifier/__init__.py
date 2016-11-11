@@ -883,7 +883,7 @@ class Beautifier:
                     self.output.space_before_token = True
 
             elif self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
-                if self.last_type == 'TK_START_BLOCK' and not flags.inline_frame:
+                if self.last_type == 'TK_START_BLOCK' and not self.flags.inline_frame:
                     self.print_newline()
                 else:
                     self.output.space_before_token = True
