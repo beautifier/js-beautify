@@ -8,7 +8,7 @@
     "jslint_happy": false,
     "space_after_anon_function": false,
     "brace_style": "collapse",
-    "brace_preserve_inline": false,
+    "brace_preserve_inline": true,
     "keep_array_indentation": false,
     "keep_function_indentation": false,
     "space_before_conditional": true,
