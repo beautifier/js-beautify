@@ -2016,7 +2016,7 @@ exports.test_data = {
                 input: [
                     'function complex() {',
                     '    console.log("wowe");',
-                    '    (function() { var a = 2; })();',
+                    '    (function() { var a = 2; var b = 3; })();',
                     '    $.each(arr, function(el, idx) { return el; });',
                     '    var obj = {',
                     '        a: function() { console.log("test"); }',
@@ -2026,7 +2026,7 @@ exports.test_data = {
                 output: [
                     'function complex()<ebc>{<eac>',
                     '    console.log("wowe");',
-                    '    (function() { var a = 2; })();',
+                    '    (function() { var a = 2; var b = 3; })();',
                     '    $.each(arr, function(el, idx) { return el; });',
                     '    var obj = {',
                     '        a: function() { console.log("test"); }',

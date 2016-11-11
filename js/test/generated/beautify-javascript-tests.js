@@ -2214,14 +2214,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2235,14 +2235,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex()\n{\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2256,14 +2256,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2277,14 +2277,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +

@@ -40,7 +40,7 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.jslint_happy = false
         default_options.keep_array_indentation = false
         default_options.brace_style = 'collapse'
-        default_options.brace_preserve_inline = False
+        default_options.brace_preserve_inline = false
         default_options.operator_position = 'before-newline'
 
         cls.default_options = default_options
@@ -2050,14 +2050,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2071,14 +2071,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex()\n{\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2092,14 +2092,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
@@ -2113,14 +2113,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
             '    };}',
             'function complex() {\n' +
             '    console.log("wowe");\n' +
-            '    (function() { var a = 2; })();\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
             '    var obj = {\n' +
             '        a: function() { console.log("test"); }\n' +
