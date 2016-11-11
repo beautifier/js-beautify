@@ -29,6 +29,7 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.jslint_happy = False
         default_options.keep_array_indentation = False
         default_options.brace_style = 'collapse'
+        default_options.brace_preserve_inline = False
         default_options.indent_level = 0
         default_options.break_chained_methods = False
         default_options.eol = '\n'
@@ -39,7 +40,7 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.jslint_happy = false
         default_options.keep_array_indentation = false
         default_options.brace_style = 'collapse'
-        default_options.brace_preserve_inline = false
+        default_options.brace_preserve_inline = False
         default_options.operator_position = 'before-newline'
 
         cls.default_options = default_options

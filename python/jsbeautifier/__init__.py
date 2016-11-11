@@ -339,7 +339,7 @@ Output options:
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand)
- -V,  --brace-preserve-inline      Preserve line-breaks of braces that appear on the same line [false]
+ -V,  --brace-preserve-inline      Preserve line-breaks of braces that appear on the same line
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
@@ -845,24 +845,24 @@ class Beautifier:
         empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
             self.last_type == 'TK_END_EXPR'
 
-        if self.opts.brace_style == 'collapse-preserve-inline': # check for inline, set inline_frame if so
-                # search forward for newline wanted inside this block
-                index = 0
-                check_token = None
-                self.flags.inline_frame = True
-                do_loop = True
-                while (do_loop):
-                    index += 1
-                    check_token = self.get_token(index)
-                    if check_token.wanted_newline:
-                        self.flags.inline_frame = False
+        if self.opts.brace_preserve_inline: # check for inline, set inline_frame if so
+            # search forward for newline wanted inside this block
+            index = 0
+            check_token = None
+            self.flags.inline_frame = True
+            do_loop = True
+            while (do_loop):
+                index += 1
+                check_token = self.get_token(index)
+                if check_token.wanted_newline:
+                    self.flags.inline_frame = False
 
-                    do_loop = (check_token.type != 'TK_EOF' and
-                          not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
+                do_loop = (check_token.type != 'TK_EOF' and
+                      not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
             
         if (self.opts.brace_style == 'expand' or \
             (self.opts.brace_style == 'none' and current_token.wanted_newline)) and \
-            not flags.inline_frame:
+            not self.flags.inline_frame:
             if self.last_type != 'TK_OPERATOR' and \
                 (empty_anonymous_function or
                     self.last_type == 'TK_EQUALS' or
@@ -2151,11 +2151,11 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
+        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabVkil:xhtfvXnCO:w:",
             ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
-            'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
+            'brace-style=', 'brace_preserve_inline', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+            'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
             'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length','editorconfig'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
@@ -2200,6 +2200,8 @@ def main():
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
+        elif opt in ('--brace-preserve-inline', '-V'):
+            js_options.brace_preserve_inline = True
         elif opt in ('--unescape-strings', '-x'):
             js_options.unescape_strings = True
         elif opt in ('--e4x', '-X'):
