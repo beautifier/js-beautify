@@ -1063,8 +1063,7 @@ if (!Object.values) {
 
                     if(previous_flags.inline_frame) {
                         prefix = 'SPACE';
-                    }
-                    else if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
+                    } else if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
                         prefix = 'NEWLINE';
                     } else {
                         if (opt.brace_style === "expand" ||
