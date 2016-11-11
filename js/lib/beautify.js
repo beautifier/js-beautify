@@ -883,10 +883,10 @@ if (!Object.values) {
                     } while (check_token.type !== 'TK_EOF' &&
                         !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
                 }
-                
+
                 if ((opt.brace_style === "expand" ||
-                    (opt.brace_style === "none" && current_token.wanted_newline))
-                    && !flags.inline_frame) {
+                        (opt.brace_style === "none" && current_token.wanted_newline)) &&
+                    !flags.inline_frame) {
                     if (last_type !== 'TK_OPERATOR' &&
                         (empty_anonymous_function ||
                             last_type === 'TK_EQUALS' ||
@@ -926,7 +926,7 @@ if (!Object.values) {
                 }
                 var empty_braces = last_type === 'TK_START_BLOCK';
 
-                if(flags.inline_frame && !empty_braces) { // try inline_frame (only set if opt.braces-preserve-inline) first
+                if (flags.inline_frame && !empty_braces) { // try inline_frame (only set if opt.braces-preserve-inline) first
                     output.space_before_token = true;
                 } else if (opt.brace_style === "expand") {
                     if (!empty_braces) {
@@ -1061,7 +1061,7 @@ if (!Object.values) {
 
                 if (last_type === 'TK_END_BLOCK') {
 
-                    if(previous_flags.inline_frame) {
+                    if (previous_flags.inline_frame) {
                         prefix = 'SPACE';
                     } else if (!(current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
                         prefix = 'NEWLINE';
@@ -1109,10 +1109,10 @@ if (!Object.values) {
 
                 if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['else', 'catch', 'finally'])) {
                     if ((!(last_type === 'TK_END_BLOCK' && previous_flags.mode === MODE.BlockStatement) ||
-                        opt.brace_style === "expand" ||
-                        opt.brace_style === "end-expand" ||
-                        (opt.brace_style === "none" && current_token.wanted_newline))
-                        && !flags.inline_frame) {
+                            opt.brace_style === "expand" ||
+                            opt.brace_style === "end-expand" ||
+                            (opt.brace_style === "none" && current_token.wanted_newline)) &&
+                        !flags.inline_frame) {
                         print_newline();
                     } else {
                         output.trim(true);
@@ -2384,7 +2384,9 @@ if (!Object.values) {
     if (typeof define === "function" && define.amd) {
         // Add support for AMD ( https://github.com/amdjs/amdjs-api/wiki/AMD#defineamd-property- )
         define([], function() {
-            return { js_beautify: js_beautify };
+            return {
+                js_beautify: js_beautify
+            };
         });
     } else if (typeof exports !== "undefined") {
         // Add support for CommonJS. Just put this file somewhere on your require.paths
