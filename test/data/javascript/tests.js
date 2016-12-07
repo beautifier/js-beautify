@@ -2003,6 +2003,17 @@ exports.test_data = {
                 eac: '',
                 eebc: '\\n',
                 eeac: ''
+            },
+            //Test for backward compatibility
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                ],
+                //Equivalent to the output of the first test
+                ebc: ' ',
+                eac: '',
+                eebc: '\\n',
+                eeac: ''
             }
         ],
         tests: [{
