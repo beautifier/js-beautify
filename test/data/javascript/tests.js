@@ -1958,6 +1958,7 @@ exports.test_data = {
             { unchanged: 'a >>= 2;' },
         ]
     }, {
+        //Relies on the tab being four spaces as default for the tests
         name: "brace_preserve_inline tests",
         description: "brace_preserve_inline with different brace_styles",
         options: [{ name: "brace_preserve_inline", value: "true" }],
@@ -1969,40 +1970,42 @@ exports.test_data = {
                     { name: "brace_style", value: "'collapse'" },
                     { name: "brace_preserve_inline", value: "true" }
                 ],
-                ebc: ' ',
-                eac: '',
-                eebc: '\\n',
-                eeac: ''
+                obo: ' ', obot: '',//Output Before Open curlybrace & Tab character
+                oao: '\\n', oaot: '    ', //Output After Open curlybrace & corresponding Tab
+                obc: '\\n', //Output Before Close curlybrace
+                oac: ' ', oact: '' //Output After Close curlybrace & corresponding Tab character
             },
             {
                 options: [
                     { name: "brace_style", value: "'expand'" },
                     { name: "brace_preserve_inline", value: "true" }
                 ],
-                ebc: '\\n',
-                eac: '',
-                eebc: '\\n',
-                eeac: ''
+                obo: '\\n', obot: '    ',
+                oao: '\\n', oaot: '    ',
+                obc: '\\n',
+                oac: '\\n', oact: '    '
             },
             {
                 options: [
                     { name: "brace_style", value: "'end-expand'" },
                     { name: "brace_preserve_inline", value: "true" }
                 ],
-                ebc: ' ',
-                eac: '',
-                eebc: '\\n',
-                eeac: ''
+                obo: ' ', obot: '',
+                oao: '\\n', oaot: '    ',
+                obc: '\\n',
+                oac: '\\n', oact: '    '
             },
             {
+                //None tries not to touch brace style so all the tests in this
+                //matrix were formatted as if they were collapse
                 options: [
                     { name: "brace_style", value: "'none'" },
                     { name: "brace_preserve_inline", value: "true" }
                 ],
-                ebc: ' ',
-                eac: '',
-                eebc: '\\n',
-                eeac: ''
+                obo: ' ', obot: '',
+                oao: '\\n', oaot: '    ',
+                obc: '\\n',
+                oac: ' ', oact: ''
             },
             //Test for backward compatibility
             {
@@ -2010,38 +2013,87 @@ exports.test_data = {
                     { name: "brace_style", value: "'collapse-preserve-inline'" }
                 ],
                 //Equivalent to the output of the first test
-                ebc: ' ',
-                eac: '',
-                eebc: '\\n',
-                eeac: ''
+                obo: ' ', obot: '',
+                oao: '\\n', oaot: '    ',
+                obc: '\\n',
+                oac: ' ', oact: ''
             }
         ],
-        tests: [{
+        tests: [
+            //Test single inline blocks
+            {
                 unchanged: 'import { asdf } from "asdf";'
             },
             {
                 unchanged: 'function inLine() { console.log("oh em gee"); }'
             },
             {
-                //Should reformat the outer function but keep all inner ones on own lines
+                unchanged: 'if (cancer) { console.log("Im sorry but you only have so long to live..."); }'
+            },
+            //Test more complex inliners
+            {
+                input: 'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+                output: 'if (ding) { console.log("dong"); }<oac>else { console.log("dang"); }'
+            },
+            //Test complex mixes of the two
+            {
+                //The outer function and the third object (obj3) should not
+                //be preserved. All other objects should be
+                input: [
+                    'function kindaComplex() {',
+                    '    var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {',
+                    '        c: "c",',
+                    '        d: "d",',
+                    '        e: "e"',
+                    '    };',
+                    '}'
+                ],
+                output: [
+                    'function kindaComplex()<obo>{<oao>' + //NL in templates
+                    '<oaot>var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {<oao>' + //NL in templates, Expand doesnt affect js objects
+                    '<oaot><oaot>c: "c",',
+                    '        d: "d",',
+                    '        e: "e"' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
+                ]
+            },
+            {
+                //All inlines should be preserved, all non-inlines (specifically
+                //complex(), obj, and obj.b should not be preserved (and hence
+                //have the template spacing defined in output)
                 input: [
                     'function complex() {',
                     '    console.log("wowe");',
                     '    (function() { var a = 2; var b = 3; })();',
                     '    $.each(arr, function(el, idx) { return el; });',
                     '    var obj = {',
-                    '        a: function() { console.log("test"); }',
-                    '    };}'
+                    '        a: function() { console.log("test"); },',
+                    '        b() {',
+                    '             console.log("test2");',
+                    '        }',
+                    '    };',
+                    '}'
 
                 ],
                 output: [
-                    'function complex()<ebc>{<eac>',
-                    '    console.log("wowe");',
+                    'function complex()<obo>{<oao>' + //NL in templates
+                    '<oaot>console.log("wowe");',
                     '    (function() { var a = 2; var b = 3; })();',
                     '    $.each(arr, function(el, idx) { return el; });',
-                    '    var obj = {',
-                    '        a: function() { console.log("test"); }',
-                    '    };<eebc>}<eeac>'
+                    '    var obj = {<oao>' + //NL in templates
+                    '<oaot><oaot>a: function() { console.log("test"); },',
+                    '        b()<obo><obot><obot>{<oao>' + //NL in templates
+                    '<oaot><oaot><oaot>console.log("test2");' +
+                    '<obc>        }' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
                 ]
             }
         ]
