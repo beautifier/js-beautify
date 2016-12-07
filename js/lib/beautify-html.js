@@ -436,7 +436,7 @@
                                 content.push(indent_character);
                             }
                         }
-                        if (!first_attr) {
+                        if (first_attr) {
                             for (var i = 0; i < content.length; i++) {
                                 if (content[i] === ' ') {
                                     first_attr = false;
