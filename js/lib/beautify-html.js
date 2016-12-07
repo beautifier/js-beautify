@@ -361,10 +361,14 @@
                     comment = '',
                     space = false,
                     first_attr = true,
+                    has_wrapped_attrs = false,
                     tag_start, tag_end,
                     tag_start_char,
                     orig_pos = this.pos,
-                    orig_line_char_count = this.line_char_count;
+                    orig_line_char_count = this.line_char_count,
+                    is_tag_closed = false,
+                    is_wrap_attributes_force_all = 'force-all',
+                    tail;
 
                 peek = peek !== undefined ? peek : false;
 
@@ -388,24 +392,40 @@
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
-
                     }
 
                     if (input_char === '=') { //no space before =
                         space = false;
                     }
-
+                    tail = this.input.substr(this.pos - 1);
+                    if (is_wrap_attributes_force_all && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {
+                        if (tail.match(/^\/?\s*>/)) {
+                            space = false;
+                            is_tag_closed = true;
+                            this.print_newline(false, content);
+                            this.print_indentation(content);
+                        }
+                    }
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
                         //no space after = or before >
                         var wrapped = this.space_or_wrap(content);
                         var indentAttrs = wrapped && input_char !== '/' && !is_wrap_attributes_force;
                         space = false;
-                        if (!first_attr && is_wrap_attributes_force && input_char !== '/') {
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
-                            indentAttrs = true;
+
+                        if (is_wrap_attributes_force && input_char !== '/') {
+                            if (is_wrap_attributes_force_all && first_attr) {
+                                var is_only_attribute = !!tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/);
+                                first_attr = is_only_attribute;
+                            }
+                            if (!first_attr) {
+                                this.print_newline(false, content);
+                                this.print_indentation(content);
+                                indentAttrs = true;
+                            }
                         }
                         if (indentAttrs) {
+                            has_wrapped_attrs = true;
+
                             //indent attributes an auto, forced, or forced-align line-wrap
                             var alignment_size = wrap_attributes_indent_size;
                             if (wrap_attributes === 'force-aligned') {
@@ -416,10 +436,12 @@
                                 content.push(indent_character);
                             }
                         }
-                        for (var i = 0; i < content.length; i++) {
-                            if (content[i] === ' ') {
-                                first_attr = false;
-                                break;
+                        if (!first_attr) {
+                            for (var i = 0; i < content.length; i++) {
+                                if (content[i] === ' ') {
+                                    first_attr = false;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -478,7 +500,9 @@
                 var tag_index;
                 var tag_offset;
 
-                if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
+                if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
+                    tag_index = tag_complete.indexOf('\n');
+                } else if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
                 } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');
