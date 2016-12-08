@@ -41,24 +41,22 @@ var fs = require('fs'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
-    nopt.typeDefs["brace_style"] = {
-        type : "brace_style",
-        validate : function(data, key, val) {
-            data[key] = val;
-            // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-            // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
-            var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
-            var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
-            for(var i=0; i<validVals.length; i++)
-            {
-                if(validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline")
-                {
-                    return true;
-                }
+nopt.typeDefs["brace_style"] = {
+    type: "brace_style",
+    validate: function(data, key, val) {
+        data[key] = val;
+        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
+        // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
+        for (var i = 0; i < validVals.length; i++) {
+            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
+                return true;
             }
-            return false;
         }
-    };
+        return false;
+    }
+};
 var path = require('path'),
     editorconfig = require('editorconfig'),
     knownOpts = {

@@ -303,19 +303,16 @@ if (!Object.values) {
             // compatibility, re
             if (options.brace_style === "expand-strict") { //graceful handling of deprecated option
                 options.brace_style = "expand";
-            }
-            else if (options.brace_style === "collapse-preserve-inline") { //graceful handling of deprecated option
+            } else if (options.brace_style === "collapse-preserve-inline") { //graceful handling of deprecated option
                 options.brace_style = "collapse,preserve-inline";
-            }
-            else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
+            } else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
                 options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
-            }
-            else if(!options.brace_style) //Nothing exists to set it
+            } else if (!options.brace_style) //Nothing exists to set it
             {
                 options.brace_style = "collapse";
             }
-            
-            
+
+
             var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
             opt.brace_style = brace_style_split[0];
             opt.brace_preserve_inline = brace_style_split[1] ? brace_style_split[1] : false;

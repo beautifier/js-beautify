@@ -1967,28 +1967,37 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
-                obo: ' ', obot: '',//Output Before Open curlybrace & Tab character
-                oao: '\\n', oaot: '    ', //Output After Open curlybrace & corresponding Tab
+                obo: ' ',
+                obot: '', //Output Before Open curlybrace & Tab character
+                oao: '\\n',
+                oaot: '    ', //Output After Open curlybrace & corresponding Tab
                 obc: '\\n', //Output Before Close curlybrace
-                oac: ' ', oact: '' //Output After Close curlybrace & corresponding Tab character
+                oac: ' ',
+                oact: '' //Output After Close curlybrace & corresponding Tab character
             },
             {
                 options: [
                     { name: "brace_style", value: "'expand,preserve-inline'" }
                 ],
-                obo: '\\n', obot: '    ',
-                oao: '\\n', oaot: '    ',
+                obo: '\\n',
+                obot: '    ',
+                oao: '\\n',
+                oaot: '    ',
                 obc: '\\n',
-                oac: '\\n', oact: '    '
+                oac: '\\n',
+                oact: '    '
             },
             {
                 options: [
                     { name: "brace_style", value: "'end-expand,preserve-inline'" }
                 ],
-                obo: ' ', obot: '',
-                oao: '\\n', oaot: '    ',
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
                 obc: '\\n',
-                oac: '\\n', oact: '    '
+                oac: '\\n',
+                oact: '    '
             },
             {
                 //None tries not to touch brace style so all the tests in this
@@ -1996,10 +2005,13 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'none,preserve-inline'" }
                 ],
-                obo: ' ', obot: '',
-                oao: '\\n', oaot: '    ',
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
                 obc: '\\n',
-                oac: ' ', oact: ''
+                oac: ' ',
+                oact: ''
             },
             //Test for backward compatibility
             {
@@ -2007,10 +2019,13 @@ exports.test_data = {
                     { name: "brace_style", value: "'collapse-preserve-inline'" }
                 ],
                 //Equivalent to the output of the first test
-                obo: ' ', obot: '',
-                oao: '\\n', oaot: '    ',
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
                 obc: '\\n',
-                oac: ' ', oact: ''
+                oac: ' ',
+                oact: ''
             }
         ],
         tests: [
