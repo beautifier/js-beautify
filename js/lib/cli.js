@@ -41,7 +41,7 @@ var fs = require('fs'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
-nopt.typeDefs["brace_style"] = {
+nopt.typeDefs.brace_style = {
     type: "brace_style",
     validate: function(data, key, val) {
         data[key] = val;
