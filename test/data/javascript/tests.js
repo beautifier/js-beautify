@@ -8,7 +8,6 @@ exports.test_data = {
         { name: "jslint_happy", value: "false" },
         { name: "keep_array_indentation", value: "false" },
         { name: "brace_style", value: "'collapse'" },
-        { name: "brace_preserve_inline", value: "false" },
         { name: "operator_position", value: "'before-newline'" }
     ],
     groups: [{
@@ -107,10 +106,10 @@ exports.test_data = {
         description: "",
         template: "< >",
         matrix: [
-            // brace_preserve_inline true - Should preserve if no newlines
+            // brace_style collapse,preserve-inline - Should preserve if no newlines
             {
                 options: [
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 ibo: '',
                 iao: '',
@@ -123,7 +122,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 ibo: '\\n',
                 iao: '\\n',
@@ -135,10 +134,10 @@ exports.test_data = {
                 oac: ' '
             },
 
-            // brace_preserve_inline false - Shouldn't preserve if no newlines (uses collapse styling)
+            // brace_style collapse - Shouldn't preserve if no newlines (uses collapse styling)
             {
                 options: [
-                    { name: "brace_preserve_inline", value: "false" }
+                    { name: "brace_style", value: "'collapse'" }
                 ],
                 ibo: '',
                 iao: '',
@@ -151,7 +150,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_preserve_inline", value: "false" }
+                    { name: "brace_style", value: "'collapse'" }
                 ],
                 ibo: '\\n',
                 iao: '\\n',
@@ -1959,16 +1958,14 @@ exports.test_data = {
         ]
     }, {
         //Relies on the tab being four spaces as default for the tests
-        name: "brace_preserve_inline tests",
-        description: "brace_preserve_inline with different brace_styles",
-        options: [{ name: "brace_preserve_inline", value: "true" }],
+        name: "brace_style ,preserve-inline tests",
+        description: "brace_style *,preserve-inline varying different brace_styles",
         template: "< >",
         matrix: [
             //test for all options of brace_style
             {
                 options: [
-                    { name: "brace_style", value: "'collapse'" },
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 obo: ' ', obot: '',//Output Before Open curlybrace & Tab character
                 oao: '\\n', oaot: '    ', //Output After Open curlybrace & corresponding Tab
@@ -1977,8 +1974,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'expand'" },
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'expand,preserve-inline'" }
                 ],
                 obo: '\\n', obot: '    ',
                 oao: '\\n', oaot: '    ',
@@ -1987,8 +1983,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'end-expand'" },
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'end-expand,preserve-inline'" }
                 ],
                 obo: ' ', obot: '',
                 oao: '\\n', oaot: '    ',
@@ -1999,8 +1994,7 @@ exports.test_data = {
                 //None tries not to touch brace style so all the tests in this
                 //matrix were formatted as if they were collapse
                 options: [
-                    { name: "brace_style", value: "'none'" },
-                    { name: "brace_preserve_inline", value: "true" }
+                    { name: "brace_style", value: "'none,preserve-inline'" }
                 ],
                 obo: ' ', obot: '',
                 oao: '\\n', oaot: '    ',
@@ -2101,9 +2095,8 @@ exports.test_data = {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
         options: [
-            { name: "brace_style", value: "'collapse'" },
-            { name: "brace_preserve_inline", value: "true" }
-        ], //Issue 1052, now brace_preserve_inline instead of brace_style
+            { name: "brace_style", value: "'collapse,preserve-inline'" }
+        ], //Issue 1052, now collapse,preserve-inline instead of collapse-preserve-inline
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [

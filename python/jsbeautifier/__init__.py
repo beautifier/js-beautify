@@ -74,7 +74,6 @@ class BeautifierOptions:
         self.jslint_happy = False
         self.space_after_anon_function = False
         self.brace_style = 'collapse'
-        self.brace_preserve_inline = False
         self.keep_array_indentation = False
         self.keep_function_indentation = False
         self.eval_code = False
@@ -102,7 +101,6 @@ jslint_happy = %s
 space_after_anon_function = %s
 indent_with_tabs = %s
 brace_style = %s
-brace_preserve_inline = %s
 keep_array_indentation = %s
 eval_code = %s
 wrap_line_length = %s
@@ -116,7 +114,6 @@ unescape_strings = %s
         self.space_after_anon_function,
         self.indent_with_tabs,
         self.brace_style,
-        self.brace_preserve_inline,
         self.keep_array_indentation,
         self.eval_code,
         self.wrap_line_length,
@@ -338,8 +335,7 @@ Output options:
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
- -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand)
- -V,  --brace-preserve-inline      Preserve line-breaks of braces that appear on the same line
+ -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
@@ -450,11 +446,17 @@ class Beautifier:
 
         #Compat with old form
         if self.opts.brace_style == 'collapse-preserve-inline':
-            self.opts.brace_style = 'collapse'
-            self.opts.brace_preserve_inline = True
-			
+            self.opts.brace_style = 'collapse,preserve-inline'
+		
+        split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
+        self.opts.brace_style = split[0]
+        self.opts.brace_preserve_inline = (True if bool(split[1] == 'preserve-inline') else None) if len(split) > 1 else False
+        
         if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
             raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
+
+        if self.opts.brace_preserve_inline == None:
+            raise(Exception('opts.brace_style second item must be "preserve-inline"'))
 
         s = self.blank_state(s)
 
@@ -2154,7 +2156,7 @@ def main():
         opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabVkil:xhtfvXnCO:w:",
             ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-            'brace-style=', 'brace_preserve_inline', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
             'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
             'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length','editorconfig'])
     except getopt.GetoptError as ex:
@@ -2200,8 +2202,6 @@ def main():
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
-        elif opt in ('--brace-preserve-inline', '-V'):
-            js_options.brace_preserve_inline = True
         elif opt in ('--unescape-strings', '-x'):
             js_options.unescape_strings = True
         elif opt in ('--e4x', '-X'):

@@ -61,10 +61,9 @@
     space_after_anon_function (default false) - should the space before an anonymous function's parens be added, "function()" vs "function ()",
           NOTE: This option is overriden by jslint_happy (i.e. if jslint_happy is true, space_after_anon_function is true by design)
 
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none" | any of the former + ",preserve-inline"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
-            
-    brace_preserve_inline (default false) - if open and closed braces appear on the same line, then don't touch them
+            preserve-inline will try to preserve inline blocks of curly braces
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
 
@@ -301,22 +300,26 @@ if (!Object.values) {
             options = options ? options : {};
             opt = {};
 
-            // compatibility
-            if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
-                opt.brace_style = options.braces_on_own_line ? "expand" : "collapse";
+            // compatibility, re
+            if (options.brace_style === "expand-strict") { //graceful handling of deprecated option
+                options.brace_style = "expand";
             }
-            opt.brace_style = options.brace_style ? options.brace_style : (opt.brace_style ? opt.brace_style : "collapse");
+            else if (options.brace_style === "collapse-preserve-inline") { //graceful handling of deprecated option
+                options.brace_style = "collapse,preserve-inline";
+            }
+            else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
+                options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
+            }
+            else if(!options.brace_style) //Nothing exists to set it
+            {
+                options.brace_style = "collapse";
+            }
+            
+            
+            var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
+            opt.brace_style = brace_style_split[0];
+            opt.brace_preserve_inline = brace_style_split[1] ? brace_style_split[1] : false;
 
-            // graceful handling of deprecated option
-            if (opt.brace_style === "expand-strict") {
-                opt.brace_style = "expand";
-            }
-            if (opt.brace_style === "collapse-preserve-inline") {
-                opt.brace_style = "collapse";
-                opt.brace_preserve_inline = true;
-            }
-
-            opt.brace_preserve_inline = (options.brace_preserve_inline === undefined) ? false : options.brace_preserve_inline;
             opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
             opt.indent_char = options.indent_char ? options.indent_char : ' ';
             opt.eol = options.eol ? options.eol : 'auto';
