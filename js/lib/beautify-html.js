@@ -102,6 +102,8 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             is_wrap_attributes_force,
+            is_wrap_attributes_force_all,
+            is_wrap_attributes_force_aligned,
             end_with_newline,
             extra_liners,
             eol;
@@ -141,6 +143,8 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
+        is_wrap_attributes_force_all = (wrap_attributes === 'force-all');
+        is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -367,7 +371,6 @@
                     orig_pos = this.pos,
                     orig_line_char_count = this.line_char_count,
                     is_tag_closed = false,
-                    is_wrap_attributes_force_all = 'force-all',
                     tail;
 
                 peek = peek !== undefined ? peek : false;
@@ -413,11 +416,12 @@
                         space = false;
 
                         if (is_wrap_attributes_force && input_char !== '/') {
+                            var force_first_attr_wrap = false;
                             if (is_wrap_attributes_force_all && first_attr) {
-                                var is_only_attribute = !!tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/);
-                                first_attr = is_only_attribute;
+                                var is_only_attribute = tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/) !== null;
+                                force_first_attr_wrap = !is_only_attribute;
                             }
-                            if (!first_attr) {
+                            if (!first_attr || force_first_attr_wrap) {
                                 this.print_newline(false, content);
                                 this.print_indentation(content);
                                 indentAttrs = true;
@@ -428,7 +432,7 @@
 
                             //indent attributes an auto, forced, or forced-align line-wrap
                             var alignment_size = wrap_attributes_indent_size;
-                            if (wrap_attributes === 'force-aligned') {
+                            if (is_wrap_attributes_force_aligned) {
                                 alignment_size = content.indexOf(' ') + 1;
                             }
 
