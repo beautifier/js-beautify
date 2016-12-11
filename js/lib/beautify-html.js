@@ -102,7 +102,7 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             is_wrap_attributes_force,
-            is_wrap_attributes_force_all,
+            is_wrap_attributes_force_expand_multiline,
             is_wrap_attributes_force_aligned,
             end_with_newline,
             extra_liners,
@@ -143,7 +143,7 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
-        is_wrap_attributes_force_all = (wrap_attributes === 'force-all');
+        is_wrap_attributes_force_expand_multiline = (wrap_attributes === 'force-expand-multiline');
         is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
@@ -401,7 +401,7 @@
                         space = false;
                     }
                     tail = this.input.substr(this.pos - 1);
-                    if (is_wrap_attributes_force_all && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {
+                    if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {
                         if (tail.match(/^\/?\s*>/)) {
                             space = false;
                             is_tag_closed = true;
@@ -417,7 +417,7 @@
 
                         if (is_wrap_attributes_force && input_char !== '/') {
                             var force_first_attr_wrap = false;
-                            if (is_wrap_attributes_force_all && first_attr) {
+                            if (is_wrap_attributes_force_expand_multiline && first_attr) {
                                 var is_only_attribute = tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/) !== null;
                                 force_first_attr_wrap = !is_only_attribute;
                             }

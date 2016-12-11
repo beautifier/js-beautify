@@ -352,7 +352,7 @@ exports.test_data = {
             indent_over80: '\\n     '
         }, {
             options: [
-                { name: "wrap_attributes", value: "'force-all'" },
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "4" }
             ],
             indent_attr: '\\n    ',
@@ -362,7 +362,7 @@ exports.test_data = {
             indent_over80: '\\n    '
         }, {
             options: [
-                { name: "wrap_attributes", value: "'force-all'" },
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "4" },
                 { name: "wrap_line_length", value: "80" }
             ],
@@ -373,7 +373,7 @@ exports.test_data = {
             indent_over80: '\\n    '
         }, {
             options: [
-                { name: "wrap_attributes", value: "'force-all'" },
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
             indent_attr: '\\n        ',
