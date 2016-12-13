@@ -342,14 +342,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
-        opts.brace_style = 'collapse-preserve-inline';
+        opts.brace_style = 'collapse,preserve-inline';
         bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = { a: 2 };\nvar a = { a: 2 };');
         bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }');
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }');
 
         // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
-        opts.brace_style = 'collapse-preserve-inline';
+        opts.brace_style = 'collapse,preserve-inline';
         bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};');
         bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}');
         bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}');
@@ -2205,8 +2205,216 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
-        // Destructured and related
+        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        opts.brace_style = 'collapse,preserve-inline';
+        bt('import { asdf } from "asdf";');
+        bt('function inLine() { console.log("oh em gee"); }');
+        bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }');
+        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }');
+        bt(
+            'function kindaComplex() {\n' +
+            '    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n' +
+            '    };\n' +
+            '}',
+            'function kindaComplex() {\n    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '             console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}',
+            'function complex() {\n    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n        a: function() { console.log("test"); },\n' +
+            '        b() {\n            console.log("test2");\n        }\n    };\n}');
+
+        // brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        opts.brace_style = 'expand,preserve-inline';
+        bt('import { asdf } from "asdf";');
+        bt('function inLine() { console.log("oh em gee"); }');
+        bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }');
+        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }');
+        bt(
+            'function kindaComplex() {\n' +
+            '    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n' +
+            '    };\n' +
+            '}',
+            'function kindaComplex()\n{\n    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '             console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}',
+            'function complex()\n{\n    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n        a: function() { console.log("test"); },\n' +
+            '        b()\n        {\n            console.log("test2");\n        }\n    };\n}');
+
+        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        opts.brace_style = 'end-expand,preserve-inline';
+        bt('import { asdf } from "asdf";');
+        bt('function inLine() { console.log("oh em gee"); }');
+        bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }');
+        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }');
+        bt(
+            'function kindaComplex() {\n' +
+            '    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n' +
+            '    };\n' +
+            '}',
+            'function kindaComplex() {\n    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '             console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}',
+            'function complex() {\n    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n        a: function() { console.log("test"); },\n' +
+            '        b() {\n            console.log("test2");\n        }\n    };\n}');
+
+        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        opts.brace_style = 'none,preserve-inline';
+        bt('import { asdf } from "asdf";');
+        bt('function inLine() { console.log("oh em gee"); }');
+        bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }');
+        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }');
+        bt(
+            'function kindaComplex() {\n' +
+            '    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n' +
+            '    };\n' +
+            '}',
+            'function kindaComplex() {\n    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '             console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}',
+            'function complex() {\n    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n        a: function() { console.log("test"); },\n' +
+            '        b() {\n            console.log("test2");\n        }\n    };\n}');
+
+        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         opts.brace_style = 'collapse-preserve-inline';
+        bt('import { asdf } from "asdf";');
+        bt('function inLine() { console.log("oh em gee"); }');
+        bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }');
+        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }');
+        bt(
+            'function kindaComplex() {\n' +
+            '    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n' +
+            '    };\n' +
+            '}',
+            'function kindaComplex() {\n    var a = 2;\n' +
+            '    var obj = {};\n' +
+            '    var obj2 = { a: "a", b: "b" };\n' +
+            '    var obj3 = {\n        c: "c",\n' +
+            '        d: "d",\n' +
+            '        e: "e"\n    };\n}');
+        bt(
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '             console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}',
+            'function complex() {\n    console.log("wowe");\n' +
+            '    (function() { var a = 2; var b = 3; })();\n' +
+            '    $.each(arr, function(el, idx) { return el; });\n' +
+            '    var obj = {\n        a: function() { console.log("test"); },\n' +
+            '        b() {\n            console.log("test2");\n        }\n    };\n}');
+
+
+        reset_options();
+        //============================================================
+        // Destructured and related
+        opts.brace_style = 'collapse,preserve-inline';
         
         // Issue 382 - import destructured 
         bt(

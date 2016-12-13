@@ -40,8 +40,24 @@ var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
-    nopt = require('nopt'),
-    path = require('path'),
+    nopt = require('nopt');
+nopt.typeDefs.brace_style = {
+    type: "brace_style",
+    validate: function(data, key, val) {
+        data[key] = val;
+        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
+        // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
+        for (var i = 0; i < validVals.length; i++) {
+            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+var path = require('path'),
     editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
@@ -56,8 +72,7 @@ var fs = require('fs'),
         "space_in_empty_paren": Boolean,
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
-        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "collapse-preserve-inline", "expand-strict", "none"],
+        "brace_style": "brace_style", //See above for validation
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -303,7 +318,7 @@ function usage(err) {
             msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
-            msg.push('  -b, --brace-style                 [collapse|expand|collapse-preserve-inline|end-expand|none] ["collapse"]');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');

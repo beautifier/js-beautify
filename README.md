@@ -106,7 +106,7 @@ Beautifier Options:
   -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
-  -b, --brace-style                 [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
+  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] ["collapse"]
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
