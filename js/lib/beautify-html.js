@@ -102,6 +102,8 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             is_wrap_attributes_force,
+            is_wrap_attributes_force_expand_multiline,
+            is_wrap_attributes_force_aligned,
             end_with_newline,
             extra_liners,
             eol;
@@ -141,6 +143,8 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
+        is_wrap_attributes_force_expand_multiline = (wrap_attributes === 'force-expand-multiline');
+        is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -361,10 +365,13 @@
                     comment = '',
                     space = false,
                     first_attr = true,
+                    has_wrapped_attrs = false,
                     tag_start, tag_end,
                     tag_start_char,
                     orig_pos = this.pos,
-                    orig_line_char_count = this.line_char_count;
+                    orig_line_char_count = this.line_char_count,
+                    is_tag_closed = false,
+                    tail;
 
                 peek = peek !== undefined ? peek : false;
 
@@ -388,27 +395,44 @@
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
-
                     }
 
                     if (input_char === '=') { //no space before =
                         space = false;
                     }
-
+                    tail = this.input.substr(this.pos - 1);
+                    if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {
+                        if (tail.match(/^\/?\s*>/)) {
+                            space = false;
+                            is_tag_closed = true;
+                            this.print_newline(false, content);
+                            this.print_indentation(content);
+                        }
+                    }
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
                         //no space after = or before >
                         var wrapped = this.space_or_wrap(content);
                         var indentAttrs = wrapped && input_char !== '/' && !is_wrap_attributes_force;
                         space = false;
-                        if (!first_attr && is_wrap_attributes_force && input_char !== '/') {
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
-                            indentAttrs = true;
+
+                        if (is_wrap_attributes_force && input_char !== '/') {
+                            var force_first_attr_wrap = false;
+                            if (is_wrap_attributes_force_expand_multiline && first_attr) {
+                                var is_only_attribute = tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/) !== null;
+                                force_first_attr_wrap = !is_only_attribute;
+                            }
+                            if (!first_attr || force_first_attr_wrap) {
+                                this.print_newline(false, content);
+                                this.print_indentation(content);
+                                indentAttrs = true;
+                            }
                         }
                         if (indentAttrs) {
+                            has_wrapped_attrs = true;
+
                             //indent attributes an auto, forced, or forced-align line-wrap
                             var alignment_size = wrap_attributes_indent_size;
-                            if (wrap_attributes === 'force-aligned') {
+                            if (is_wrap_attributes_force_aligned) {
                                 alignment_size = content.indexOf(' ') + 1;
                             }
 
@@ -416,10 +440,12 @@
                                 content.push(indent_character);
                             }
                         }
-                        for (var i = 0; i < content.length; i++) {
-                            if (content[i] === ' ') {
-                                first_attr = false;
-                                break;
+                        if (first_attr) {
+                            for (var i = 0; i < content.length; i++) {
+                                if (content[i] === ' ') {
+                                    first_attr = false;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -478,7 +504,9 @@
                 var tag_index;
                 var tag_offset;
 
-                if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
+                if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
+                    tag_index = tag_complete.indexOf('\n');
+                } else if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
                 } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');

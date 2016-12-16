@@ -262,6 +262,9 @@ exports.test_data = {
                 { name: "wrap_attributes", value: "'force'" }
             ],
             indent_attr: '\\n    ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n    '
         }, {
             options: [
@@ -269,6 +272,9 @@ exports.test_data = {
                 { name: "wrap_line_length", value: "80" }
             ],
             indent_attr: '\\n    ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n    '
         }, {
             options: [
@@ -276,6 +282,9 @@ exports.test_data = {
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
             indent_attr: '\\n        ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n        '
         }, {
             options: [
@@ -284,6 +293,9 @@ exports.test_data = {
                 { name: "wrap_attributes_indent_size", value: "0" }
             ],
             indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n'
         }, {
             options: [
@@ -292,6 +304,9 @@ exports.test_data = {
                 { name: "wrap_attributes_indent_size", value: "4" }
             ],
             indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n    '
         }, {
             options: [
@@ -299,6 +314,9 @@ exports.test_data = {
                 { name: "wrap_line_length", value: "0" }
             ],
             indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: ' '
         }, {
             options: [
@@ -306,6 +324,9 @@ exports.test_data = {
             ],
             indent_attr: '\\n     ',
             indent_attr_faligned: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n     '
         }, {
             options: [
@@ -314,6 +335,9 @@ exports.test_data = {
             ],
             indent_attr: '\\n     ',
             indent_attr_faligned: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n     '
         }, {
             options: [
@@ -322,28 +346,70 @@ exports.test_data = {
             ],
             indent_attr: '\\n     ',
             indent_attr_faligned: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
             indent_over80: '\\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
+                { name: "wrap_attributes_indent_size", value: "4" }
+            ],
+            indent_attr: '\\n    ',
+            indent_attr_first: '\\n    ',
+            indent_end: '\\n',
+            indent_end_selfclosing: '\\n',
+            indent_over80: '\\n    '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
+                { name: "wrap_attributes_indent_size", value: "4" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            indent_attr: '\\n    ',
+            indent_attr_first: '\\n    ',
+            indent_end: '\\n',
+            indent_end_selfclosing: '\\n',
+            indent_over80: '\\n    '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'force-expand-multiline'" },
+                { name: "wrap_attributes_indent_size", value: "8" }
+            ],
+            indent_attr: '\\n        ',
+            indent_attr_first: '\\n        ',
+            indent_end: '\\n',
+            indent_end_selfclosing: '\\n',
+            indent_over80: '\\n        '
         }],
         tests: [{
             fragment: true,
+            input: '<div  >This is some text</div>',
+            output: '<div>This is some text</div>'
+        }, {
+            fragment: true,
+            input: '<div attr="123"  >This is some text</div>',
+            output: '<div attr="123">This is some text</div>'
+        }, {
+            fragment: true,
             input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
-            output: '<div attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here">This is some text</div>'
+            output: '<div{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end}}>This is some text</div>'
         }, {
             fragment: true,
             input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
-            output: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>'
+            output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
         }, {
             fragment: true,
             input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
-            output: '<img attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here" />'
+            output: '<img{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end_selfclosing}}/>'
         }, {
             fragment: true,
             input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar" />'
+            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
         }, {
             fragment: true,
             input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css">'
+            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
         }]
     }, {
         name: "Handlebars Indenting Off",
