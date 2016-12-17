@@ -16,13 +16,23 @@ as well as deobfuscate scripts processed by
 # Usage
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
-To use in web browser include the script tag below in your document
+JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries/js-beautify) and rawgit.
+
+To pull from one of these services include one set of the script tags below in your document:
 ```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-html.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-html.min.js"></script>
+
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify.js"></script>
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify-css.js"></script>
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify-html.js"></script>
 ```
-Disclaimer: It's a free service, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
+Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
 
 ## Web Browser
 Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
