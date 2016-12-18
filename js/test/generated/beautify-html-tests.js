@@ -460,6 +460,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{field}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{{! comment}}")
         opts.indent_handlebars = true;
@@ -515,6 +516,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{! comment}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{! comment}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! comment}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- comment--}}")
         opts.indent_handlebars = true;
@@ -570,6 +572,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- comment--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{pre{{field1}} {{field2}} {{field3}}post")
         opts.indent_handlebars = true;
@@ -625,6 +628,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
         opts.indent_handlebars = true;
@@ -680,6 +684,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- \n mult-line\ncomment  \n     with spacing\n--}}")
         opts.indent_handlebars = true;
@@ -735,6 +740,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}")
         opts.indent_handlebars = true;
@@ -790,6 +796,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}"></div>');
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
 
 
         reset_options();

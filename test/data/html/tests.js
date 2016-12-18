@@ -641,6 +641,9 @@ exports.test_data = {
             }, {
                 fragment: true,
                 unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
+            }, {
+                fragment: true,
+                unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
             }
         ],
     }, {
