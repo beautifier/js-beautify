@@ -712,6 +712,23 @@ exports.test_data = {
             { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
         ]
     }, {
+        name: "File starting with comment",
+        description: "Unformatted tag behavior",
+        options: [],
+        tests: [{
+            fragment: true,
+            unchanged: [
+                '<!--sample comment -->',
+                '',
+                '<html>',
+                '<body>',
+                '    <span>a span</span>',
+                '</body>',
+                '',
+                '</html>'
+            ]
+        }, ]
+    }, {
         name: "Php formatting",
         description: "Php (<?php ... ?>) treated as comments.",
         options: [],
