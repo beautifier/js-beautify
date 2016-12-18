@@ -52,6 +52,7 @@
                                         Only works before elements, not inside tags or for text.
     max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk
     indent_handlebars (default false) - format and indent {{#foo}} and {{/foo}}
+    skip_jinja (default false) - skip {%foo%}, {{foo}} and {#foo#}.
     end_with_newline (false)          - end with a newline
     extra_liners (default [head,body,/html]) -List of tags that should have an extra newline before them.
 
@@ -66,6 +67,7 @@
       'preserve_newlines': true,
       'max_preserve_newlines': 5,
       'indent_handlebars': false,
+      'skip_jinja': false,
       'extra_liners': ['/html']
     });
 */
@@ -118,6 +120,7 @@
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
+            skip_jinja,
             wrap_attributes,
             wrap_attributes_indent_size,
             is_wrap_attributes_force,
@@ -163,6 +166,7 @@
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10)) :
             0;
         indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
+        skip_jinja = (options.skip_jinja === undefined) ? false : options.skip_jinja;
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
@@ -305,6 +309,20 @@
                             }
                         }
                     }
+
+                    if (skip_jinja) {
+                        // Jinja parsing is a bit tricky too.
+                        // So we gonna parse all jinja tags as single ones.
+                        var peek2 = this.input.substr(this.pos, 2);
+                        if (peek2 === '{%' || peek2 === '{{' || peek2 === '{#') {
+                            var jinja_tag = this.get_tag();
+                            if (content.length) {
+                                jinja_tag = content.join('') + jinja_tag;
+                            }
+                            return [jinja_tag, 'TK_TAG_SINGLE'];
+                        }
+                    }
+
 
                     input_char = this.input.charAt(this.pos);
                     this.pos++;
@@ -485,6 +503,27 @@
                         }
                     }
 
+                    if (skip_jinja) {
+                        // When inside an angle-bracket tag, put spaces around
+                        // jinja not inside of strings.A
+                        var jinja_tokens = [{
+                            'start': '{{',
+                            'end': '}}',
+                        }, {
+                            'start': '{%',
+                            'end': '%}',
+                        }, {
+                            'start': '{#',
+                            'end': '#}',
+                        }];
+                        for (var jinja_token_index in jinja_tokens) {
+                            var jinja_token = jinja_tokens[jinja_token_index];
+                            if ((input_char + this.input.charAt(this.pos)) === jinja_token.start) {
+                                input_char += this.get_unformatted(jinja_token.end);
+                            }
+                        }
+                    }
+
                     if (input_char === '<' && !tag_start_char) {
                         tag_start = this.pos - 1;
                         tag_start_char = '<';
@@ -499,6 +538,11 @@
                             }
                             tag_start_char = '{';
                         }
+                    }
+
+                    if (skip_jinja && !tag_start_char && input_char.charAt(0) === '{') {
+                        content.push(input_char);
+                        break;
                     }
 
                     this.line_char_count++;
