@@ -866,6 +866,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // File starting with comment
+        reset_options();
+        test_fragment(
+            '<!--sample comment -->\n' +
+            '\n' +
+            '<html>\n' +
+            '<body>\n' +
+            '    <span>a span</span>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
         // Php formatting
         reset_options();
         test_fragment('<h1 class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>');
