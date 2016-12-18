@@ -105,6 +105,25 @@ if (!Object.values) {
 
 (function() {
 
+    function mergeOpts(allOptions, targetType) {
+        var finalOpts = {};
+        var name;
+
+        for (name in allOptions) {
+            if (name !== targetType) {
+                finalOpts[name] = allOptions[name];
+            }
+        }
+
+        //merge in the per type settings for the targetType
+        if (targetType in allOptions) {
+            for (name in allOptions[targetType]) {
+                finalOpts[name] = allOptions[targetType][name];
+            }
+        }
+        return finalOpts;
+    }
+
     function js_beautify(js_source_text, options) {
 
         var acorn = {};
@@ -298,6 +317,11 @@ if (!Object.values) {
 
             // Some interpreters have unexpected results with foo = baz || bar;
             options = options ? options : {};
+
+            // Allow the setting of language/file-type specific options
+            // with inheritance of overall settings
+            options = mergeOpts(options, 'js');
+
             opt = {};
 
             // compatibility, re

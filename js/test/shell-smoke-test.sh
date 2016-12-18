@@ -166,10 +166,13 @@ test_cli_js_beautify()
       cleanup 1
   }
 
+  # TODO: EditorConfig setting should NOT overide cli setting, but that is
+  # the current by-design behavior, due to code limitations.
+
   cd $TEST_TEMP/editorconfig || exit 1
   $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
   && diff -q example.js example-ec.js || {
-      echo "EditorConfig should settings overide setting."
+      echo "EditorConfig setting should overide cli setting."
       diff example.js example-ec.js | cat -t -e
       cleanup 1
   }
@@ -177,7 +180,7 @@ test_cli_js_beautify()
   cd $TEST_TEMP/editorconfig/crlf || exit 1
   $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
   && diff -q example.js example-ec.js || {
-      echo "EditorConfig should settings overide setting."
+      echo "EditorConfig setting should overide cli setting."
       diff example.js example-ec.js | cat -t -e
       cleanup 1
   }
@@ -185,7 +188,7 @@ test_cli_js_beautify()
   cd $TEST_TEMP/editorconfig/cr || exit 1
   $CLI_SCRIPT -r --end-with-newline --indent-size 6 --editorconfig example.js  \
   && diff -q example.js example-ec.js || {
-      echo "EditorConfig should settings overide setting."
+      echo "EditorConfig setting should overide cli setting."
       diff example.js example-ec.js | cat -t -e
       cleanup 1
   }
