@@ -253,9 +253,10 @@
 
             this.get_content = function() { //function to capture regular content between tags
                 var input_char = '',
-                    content = [];
+                    content = [],
+                    handlebarsStarted = 0;
 
-                while (this.input.charAt(this.pos) !== '<') {
+                while (this.input.charAt(this.pos) !== '<' || handlebarsStarted === 2) {
                     if (this.pos >= this.input.length) {
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
@@ -265,7 +266,20 @@
                         continue;
                     }
 
+                    input_char = this.input.charAt(this.pos);
+
                     if (indent_handlebars) {
+                        if (input_char === '{') {
+                            handlebarsStarted += 1;
+                        } else if (handlebarsStarted < 2) {
+                            handlebarsStarted = 0;
+                        }
+
+                        if (input_char === '}' && handlebarsStarted > 0) {
+                            if (handlebarsStarted-- === 0) {
+                                break;
+                            }
+                        }
                         // Handlebars parsing is complicated.
                         // {{#foo}} and {{/foo}} are formatted tags.
                         // {{something}} should get treated as content, except:
@@ -283,7 +297,6 @@
                         }
                     }
 
-                    input_char = this.input.charAt(this.pos);
                     this.pos++;
                     this.line_char_count++;
                     content.push(input_char); //letter at-a-time (or string) inserted to an array
