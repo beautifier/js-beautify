@@ -1,12 +1,13 @@
 from __future__ import print_function
 import sys
 import re
+import copy
 from cssbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
 
-# Copyright (c) 2013 Einar Lielmanis and contributors.
+# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -39,8 +40,24 @@ class BeautifierOptions:
         self.newline_between_rules = True
         self.space_around_combinator = False
         self.eol = '\n'
+
+        self.css = None
+        self.js = None
+        self.html = None
+
         # deprecated
         self.space_around_selector_separator = False
+
+    def mergeOpts(self, targetType):
+        finalOpts = copy.copy(self)
+
+        local = getattr(finalOpts, targetType)
+        if (local):
+            delattr(finalOpts, targetType)
+            for key in local:
+                setattr(finalOpts, key, local[key])
+
+        return finalOpts
 
 
     def __repr__(self):
@@ -173,6 +190,8 @@ class Beautifier:
 
         if not source_text:
             source_text = ''
+
+        opts = opts.mergeOpts('css')
 
         # Continue to accept deprecated option
         opts.space_around_combinator = opts.space_around_combinator or opts.space_around_selector_separator

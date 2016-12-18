@@ -16,13 +16,23 @@ as well as deobfuscate scripts processed by
 # Usage
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
-To use in web browser include the script tag below in your document
+JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries/js-beautify) and rawgit.
+
+To pull from one of these services include one set of the script tags below in your document:
 ```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-html.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.4/beautify-html.min.js"></script>
+
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify.js"></script>
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify-css.js"></script>
 <script src="https://cdn.rawgit.com/beautify-web/js-beautify/1.6.4/js/lib/beautify-html.js"></script>
 ```
-Disclaimer: It's a free service, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
+Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
 
 ## Web Browser
 Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
@@ -145,6 +155,15 @@ These largely correspond to the underscored option keys for both library interfa
 }
 ```
 
+You might notice that the CLI options and defaults hash aren't 100% correlated.
+Historically, the Python and JS APIs have not been 100% identical. For example,
+`space_before_conditional` is currently JS-only, and not addressable from the
+CLI script. There are still a few other additional cases keeping us from
+100% API-compatibility.
+
+
+### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
+
 In addition to CLI arguments, you may pass config to the JS executable via:
 
  * any `jsbeautify_`-prefixed environment variables
@@ -153,35 +172,57 @@ In addition to CLI arguments, you may pass config to the JS executable via:
 
 Configuration sources provided earlier in this stack will override later ones.
 
-You might notice that the CLI options and defaults hash aren't 100% correlated. Historically, the Python and JS APIs have not been 100% identical. For example, `space_before_conditional` is currently JS-only, and not addressable from the CLI script. There are a few other additional cases keeping us from 100% API-compatibility. Patches welcome!
+### Setting inheritance and Lanuguage-specific overrides
 
-## Directives to Ignore or Preserve sections (Javascript only)
+The settings are a shallow tree whose values are inherited for all languages, but
+can be overridden.  This works for settings passed directly to the API in either implementation.
+In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc,
+can also use inheritance/overriding.  
 
-Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
-The example input below will remain changed after beautification
+Below is an example configuration tree showing all the the supported locations
+for language override nodes.  We'll use `indent_size` to discuss how this configuration
+would behave, but any number of settings can be inherited or overridden:
 
-```js
-// Use preserve when the content is not javascript, but you don't want it reformatted.
-/* beautify preserve:start */
+```json
 {
-    browserName: 'internet explorer',
-    platform:    'Windows 7',
-    version:     '8'
+    "indent_size": 4,
+    "html": {
+        "end_with_newline": true,
+        "js": {
+            "indent_size": 2
+        },
+        "css": {
+            "indent_size": 2
+        }
+    },
+    "css": {
+        "indent_size": 1
+    },
+    "js": {
+       "preserve-newlines": true
+    }
 }
-/* beautify preserve:end */
-
-// Use ignore when the content is not parsable as javascript.
-var a =  1;
-/* beautify ignore:start */
- {This is some strange{template language{using open-braces?
-/* beautify ignore:end */
 ```
 
+Using the above example would have the following result:
+
+* HTML files
+  * Inherit `indent_size` of 4 spaces from the top-level setting.  
+  * The files would also end with a newline.
+  * JavaScript and CSS inside HTML
+    * Inherit the HTML `end_with_newline` setting
+    * Override their indentation to 2 spaces
+* CSS files
+  * Override the top-level setting to an `indent_size` of 1 space.
+* JavaScript files
+  * Inherit `indent_size` of 4 spaces from the top-level setting
+  * Set `preserve-newlines` to `true`
 
 ### CSS & HTML
 
-In addition to the `js-beautify` executable, `css-beautify` and `html-beautify` are also provided as an easy interface into those scripts. Alternatively, `js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
+In addition to the `js-beautify` executable, `css-beautify` and `html-beautify`
+are also provided as an easy interface into those scripts. Alternatively,
+`js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
 
 ```js
 // Programmatic access
@@ -223,6 +264,29 @@ HTML Beautifier Options:
   --editorconfig                     Use EditorConfig to set up the options
 ```
 
+## Directives to Ignore or Preserve sections (Javascript only)
+
+Beautifier for  supports directives in comments inside the file.
+This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
+The example input below will remain changed after beautification
+
+```js
+// Use preserve when the content is not javascript, but you don't want it reformatted.
+/* beautify preserve:start */
+{
+    browserName: 'internet explorer',
+    platform:    'Windows 7',
+    version:     '8'
+}
+/* beautify preserve:end */
+
+// Use ignore when the content is not parsable as javascript.
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
 # License
 
 You are free to use this in any way you want, in case you find this
@@ -232,8 +296,8 @@ useful or working for you but you must keep the copyright notice and license. (M
 
 * Created by Einar Lielmanis, <einar@jsbeautifier.org>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
-* General maintenance and expansion by Liam Newman <bitwiseman@gmail.com>
 * Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
+* Maintained and expanded by Liam Newman <bitwiseman@gmail.com>
 
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
