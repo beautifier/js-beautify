@@ -84,11 +84,26 @@ class BeautifierOptions:
         self.comma_first = False
         self.operator_position = 'before-newline'
 
+        self.css = None
+        self.js = None
+        self.html = None
+
         # For testing of beautify ignore:start directive
         self.test_output_raw = False
         self.editorconfig = False
 
 
+
+    def mergeOpts(self, targetType):
+        finalOpts = copy.copy(self)
+
+        local = getattr(finalOpts, targetType)
+        if (local):
+            delattr(finalOpts, targetType)
+            for key in local:
+                setattr(finalOpts, key, local[key])
+
+        return finalOpts
 
     def __repr__(self):
         return \
@@ -442,16 +457,18 @@ class Beautifier:
     def beautify(self, s, opts = None ):
 
         if opts != None:
+            opts = opts.mergeOpts('js')
             self.opts = copy.copy(opts)
+
 
         #Compat with old form
         if self.opts.brace_style == 'collapse-preserve-inline':
             self.opts.brace_style = 'collapse,preserve-inline'
-		
+
         split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
         self.opts.brace_style = split[0]
         self.opts.brace_preserve_inline = (True if bool(split[1] == 'preserve-inline') else None) if len(split) > 1 else False
-        
+
         if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
             raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
 
@@ -861,7 +878,7 @@ class Beautifier:
 
                 do_loop = (check_token.type != 'TK_EOF' and
                       not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
-            
+
         if (self.opts.brace_style == 'expand' or \
             (self.opts.brace_style == 'none' and current_token.wanted_newline)) and \
             not self.flags.inline_frame:
@@ -900,7 +917,7 @@ class Beautifier:
             self.restore_mode()
 
         empty_braces = self.last_type == 'TK_START_BLOCK'
-        
+
         if self.flags.inline_frame and not empty_braces: # try inline_frame (only set if opt.braces-preserve-inline) first
             self.output.space_before_token = True;
         elif self.opts.brace_style == 'expand':

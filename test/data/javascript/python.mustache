@@ -89,10 +89,10 @@ class TestJSBeautifier(unittest.TestCase):
             return six.unichr(value)
 
 {{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
-        self.reset_options();
         #============================================================
     {{^matrix}}
         # {{&name}}
+        self.reset_options();
         {{#options}}
         self.options.{{name}} = {{&value}}
         {{/options}}
@@ -103,6 +103,7 @@ class TestJSBeautifier(unittest.TestCase):
     {{/matrix}}
     {{#matrix}}
         # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        self.reset_options();
         {{#options}}
         self.options.{{name}} = {{&value}}
         {{/options}}
@@ -1268,7 +1269,14 @@ class TestJSBeautifier(unittest.TestCase):
             elf.decodesto(input, input)
         self.options.test_output_raw = False
 
-        if self.options.indent_size == 4 and input:
+        current_indent_size = None
+        if self.options.js and self.options.js['indent_size']:
+            current_indent_size = self.options.js['indent_size']
+
+        if not current_indent_size:
+            current_indent_size = self.options.indent_size
+
+        if current_indent_size == 4 and input:
             wrapped_input = '{\n%s\n    foo = bar;\n}' % self.wrap(input)
             wrapped_expect = '{\n%s\n    foo = bar;\n}' % self.wrap(expectation)
             self.decodesto(wrapped_input, wrapped_expect)

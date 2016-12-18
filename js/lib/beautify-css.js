@@ -63,13 +63,39 @@
 // http://www.w3.org/TR/css3-syntax/
 
 (function() {
+
+    function mergeOpts(allOptions, targetType) {
+        var finalOpts = {};
+        var name;
+
+        for (name in allOptions) {
+            if (name !== targetType) {
+                finalOpts[name] = allOptions[name];
+            }
+        }
+
+
+        //merge in the per type settings for the targetType
+        if (targetType in allOptions) {
+            for (name in allOptions[targetType]) {
+                finalOpts[name] = allOptions[targetType][name];
+            }
+        }
+        return finalOpts;
+    }
+
     function css_beautify(source_text, options) {
         options = options || {};
+
+        // Allow the setting of language/file-type specific options
+        // with inheritance of overall settings
+        options = mergeOpts(options, 'css');
+
         source_text = source_text || '';
         // HACK: newline parsing inconsistent. This brute force normalizes the input.
         source_text = source_text.replace(/\r\n|[\r\u2028\u2029]/g, '\n');
 
-        var indentSize = options.indent_size || 4;
+        var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         var indentCharacter = options.indent_char || ' ';
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
@@ -77,11 +103,6 @@
         var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
         space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
         var eol = options.eol ? options.eol : '\n';
-
-        // compatibility
-        if (typeof indentSize === "string") {
-            indentSize = parseInt(indentSize, 10);
-        }
 
         if (options.indent_with_tabs) {
             indentCharacter = '\t';

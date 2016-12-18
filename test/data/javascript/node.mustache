@@ -83,7 +83,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //     indent;
         // }
 
-        if (opts.indent_size === 4 && input) {
+        var current_indent_size = opts.js ? opts.js.indent_size : null;
+        current_indent_size = current_indent_size ? current_indent_size : opts.indent_size;
+        if (current_indent_size === 4 && input) {
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
@@ -254,10 +256,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         sanitytest = test_obj;
 
 {{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
-        reset_options();
         //============================================================
     {{^matrix}}
         // {{&name}}
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -268,6 +270,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {{/matrix}}
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}

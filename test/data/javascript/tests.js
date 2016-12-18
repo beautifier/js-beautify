@@ -102,6 +102,39 @@ exports.test_data = {
             { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                j: '   '
+            },
+            {
+                options: [
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                j: '    '
+            },
+            {
+                options: [
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 4 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                j: '    '
+            }
+        ],
+        tests: [{
+            unchanged: [
+                'if (a == b) {',
+                '{{j}}test();',
+                '}'
+            ]
+        }, ]
+    }, {
         name: "Brace style permutations",
         description: "",
         template: "< >",

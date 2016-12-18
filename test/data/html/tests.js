@@ -108,7 +108,7 @@ exports.test_data = {
             output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
         }],
     }, {
-        name: "Tests for script and style types (issue 453, 821",
+        name: "Tests for script and style types (issue 453, 821)",
         description: "Only format recognized script types",
         tests: [{
                 input: '<script type="text/unknown"><div></div></script>',
@@ -718,6 +718,55 @@ exports.test_data = {
                 '</html>'
             ]
         }]
+    }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                h: '    ',
+                c: '     ',
+                j: '   '
+            },
+            {
+                options: [
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                h: '    ',
+                c: '     ',
+                j: '   '
+            },
+            {
+                options: [
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 5 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                h: '  ',
+                c: '     ',
+                j: '   '
+            }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: [
+                '<head>',
+                '{{h}}<script>',
+                '{{h}}{{h}}if (a == b) {',
+                '{{h}}{{h}}{{j}}test();',
+                '{{h}}{{h}}}',
+                '{{h}}</script>',
+                '{{h}}<style>',
+                '{{h}}{{h}}.selector {',
+                '{{h}}{{h}}{{c}}font-size: 12px;',
+                '{{h}}{{h}}}',
+                '{{h}}</style>',
+                '</head>',
+            ]
+        }, ]
     }, {
         name: "underscore.js  formatting",
         description: "underscore.js templates (<% ... %>) treated as comments.",

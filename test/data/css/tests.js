@@ -47,6 +47,44 @@ exports.test_data = {
             output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
         }, ],
     }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "4" },
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                c: '     ',
+            },
+            {
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "4" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                c: '    '
+            },
+            {
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 8 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 5 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                c: '   '
+            }
+        ],
+        tests: [{
+            unchanged: [
+                '.selector {',
+                '{{c}}font-size: 12px;',
+                '}'
+            ]
+        }]
+    }, {
         name: "Space Around Combinator",
         description: "",
         matrix: [{

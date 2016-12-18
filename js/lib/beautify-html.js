@@ -84,6 +84,25 @@
         return s.replace(/\s+$/g, '');
     }
 
+    function mergeOpts(allOptions, targetType) {
+        var finalOpts = {};
+        var name;
+
+        for (name in allOptions) {
+            if (name !== targetType) {
+                finalOpts[name] = allOptions[name];
+            }
+        }
+
+        //merge in the per type settings for the targetType
+        if (targetType in allOptions) {
+            for (name in allOptions[targetType]) {
+                finalOpts[name] = allOptions[targetType][name];
+            }
+        }
+        return finalOpts;
+    }
+
     function style_html(html_source, options, js_beautify, css_beautify) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -110,19 +129,9 @@
 
         options = options || {};
 
-        // Allow the inclusion of css and js options for <style> and <script> blocks
-        // inside html files (this is useful for plugins like Sublime's HTML prettify)
-        var js_beautify_old = js_beautify;
-        js_beautify = function(js_source_text, opt) {
-            opt = options.js || opt;
-            return js_beautify_old(js_source_text, opt);
-        };
-
-        var css_beautify_old = css_beautify;
-        css_beautify = function(source_text, opt) {
-            opt = options.css || opt;
-            return css_beautify_old(source_text, opt);
-        };
+        // Allow the setting of language/file-type specific options
+        // with inheritance of overall settings
+        options = mergeOpts(options, 'html');
 
         // backwards compatibility to 1.3.4
         if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
