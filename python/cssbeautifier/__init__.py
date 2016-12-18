@@ -7,7 +7,7 @@ from cssbeautifier.__version__ import __version__
 #
 # The MIT License (MIT)
 
-# Copyright (c) 2013 Einar Lielmanis and contributors.
+# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -40,7 +40,7 @@ class BeautifierOptions:
         self.newline_between_rules = True
         self.space_around_combinator = False
         self.eol = '\n'
-        
+
         self.css = None
         self.js = None
         self.html = None
