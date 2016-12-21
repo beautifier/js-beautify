@@ -242,20 +242,35 @@ var interpret = exports.interpret = function(argv, slice) {
     }
 
     var cfg;
+    var configRecursive = findRecursive(process.cwd(), '.jsbeautifyrc');
+    var configHome = verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc"));
+    var configDefault = __dirname + '/../config/defaults.json';
+
     try {
         cfg = cc(
             parsed,
             cleanOptions(cc.env('jsbeautify_'), knownOpts),
             parsed.config,
-            findRecursive(process.cwd(), '.jsbeautifyrc'),
-            verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
-            __dirname + '/../config/defaults.json'
+            configRecursive,
+            configHome,
+            configDefault
         ).snapshot;
     } catch (ex) {
         debug(cfg);
         // usage(ex);
         console.error(ex);
-        console.error('Error while loading beautifier configuration file.');
+        console.error('Error while loading beautifier configuration.');
+        console.error('Configuration file chain included:');
+        if (parsed.config) {
+            console.error(parsed.config);
+        }
+        if (configRecursive) {
+            console.error(configRecursive);
+        }
+        if (configHome) {
+            console.error(configHome);
+        }
+        console.error(configDefault);
         console.error('Run `' + getScriptName() + ' -h` for help.');
         process.exit(1);
     }
