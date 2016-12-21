@@ -256,9 +256,14 @@ class CSSBeautifierTest(unittest.TestCase):
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
-        input = input.replace('\n', '\r\n')
-        self.assertMultiLineEqual(
-            cssbeautifier.beautify(input, self.options), expectation)
+        if input.find('\n') != -1:
+            input = input.replace('\n', '\r\n')
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
+            # Ensure support for auto eol detection
+            self.options.eol = 'auto'
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
         self.options.eol = '\n'
 
 if __name__ == '__main__':

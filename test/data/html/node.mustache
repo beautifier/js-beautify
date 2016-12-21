@@ -75,8 +75,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.eol = '\r\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         sanitytest.expect(input, expected);
-        input = input.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
+        if (input.indexOf('\n') !== -1) {
+            input = input.replace(/[\n]/g, '\r\n');
+            sanitytest.expect(input, expected);
+            // Ensure support for auto eol detection
+            opts.eol = 'auto';
+            sanitytest.expect(input, expected);
+        }
         opts.eol = '\n';
     }
 

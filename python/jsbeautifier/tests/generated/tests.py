@@ -3985,9 +3985,14 @@ class TestJSBeautifier(unittest.TestCase):
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             jsbeautifier.beautify(input, self.options), expectation)
-        input = input.replace('\n', '\r\n')
-        self.assertMultiLineEqual(
-            jsbeautifier.beautify(input, self.options), expectation)
+        if input.find('\n') != -1:
+            input = input.replace('\n', '\r\n')
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify(input, self.options), expectation)
+            # Ensure support for auto eol detection
+            self.options.eol = 'auto'
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify(input, self.options), expectation)
         self.options.eol = '\n'
 
     def wrap(self, text):

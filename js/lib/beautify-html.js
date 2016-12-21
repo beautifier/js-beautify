@@ -103,6 +103,9 @@
         return finalOpts;
     }
 
+    var lineBreak = /\r\n|[\n\r\u2028\u2029]/;
+    var allLineBreaks = new RegExp(lineBreak.source, 'g');
+
     function style_html(html_source, options, js_beautify, css_beautify) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -155,7 +158,7 @@
             'span', 'strong', 'sub', 'sup', 'svg', 'template', 'textarea', 'time', 'u', 'var',
             'video', 'wbr', 'text',
             // prexisting - not sure of full effect of removing, leaving in
-            'acronym', 'address', 'big', 'dt', 'ins', 'small', 'strike', 'tt',
+            'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt',
             'pre',
         ];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
@@ -172,14 +175,24 @@
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
-        eol = options.eol ? options.eol : '\n';
+        eol = options.eol ? options.eol : 'auto';
 
         if (options.indent_with_tabs) {
             indent_character = '\t';
             indent_size = 1;
         }
 
+        if (eol === 'auto') {
+            eol = '\n';
+            if (html_source && lineBreak.test(html_source || '')) {
+                eol = html_source.match(lineBreak)[0];
+            }
+        }
+
         eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
+
+        // HACK: newline parsing inconsistent. This brute force normalizes the input.
+        source_text = html_source.replace(allLineBreaks, '\n');
 
         function Parser() {
 

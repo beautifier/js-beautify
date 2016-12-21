@@ -84,6 +84,9 @@
         return finalOpts;
     }
 
+    var lineBreak = /\r\n|[\n\r\u2028\u2029]/;
+    var allLineBreaks = new RegExp(lineBreak.source, 'g');
+
     function css_beautify(source_text, options) {
         options = options || {};
 
@@ -92,8 +95,6 @@
         options = mergeOpts(options, 'css');
 
         source_text = source_text || '';
-        // HACK: newline parsing inconsistent. This brute force normalizes the input.
-        source_text = source_text.replace(/\r\n|[\r\u2028\u2029]/g, '\n');
 
         var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         var indentCharacter = options.indent_char || ' ';
@@ -102,15 +103,24 @@
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
         var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
         space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
-        var eol = options.eol ? options.eol : '\n';
+        var eol = options.eol ? options.eol : 'auto';
 
         if (options.indent_with_tabs) {
             indentCharacter = '\t';
             indentSize = 1;
         }
 
+        if (eol === 'auto') {
+            eol = '\n';
+            if (source_text && lineBreak.test(source_text || '')) {
+                eol = source_text.match(lineBreak)[0];
+            }
+        }
+
         eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
 
+        // HACK: newline parsing inconsistent. This brute force normalizes the input.
+        source_text = source_text.replace(allLineBreaks, '\n');
 
         // tokenizer
         var whiteRe = /^\s+$/;

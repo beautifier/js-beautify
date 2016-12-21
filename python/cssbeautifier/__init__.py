@@ -39,7 +39,7 @@ class BeautifierOptions:
         self.end_with_newline = False
         self.newline_between_rules = True
         self.space_around_combinator = False
-        self.eol = '\n'
+        self.eol = 'auto'
 
         self.css = None
         self.js = None
@@ -188,6 +188,11 @@ class Beautifier:
         # it is the only way to do this without having setup.py fail on a missing six dependency.
         self.six = __import__("six")
 
+        # in javascript, these two differ
+        # in python they are the same, different methods are called on them
+        self.lineBreak = re.compile(self.six.u("\r\n|[\n\r\u2028\u2029]"))
+        self.allLineBreaks = self.lineBreak
+
         if not source_text:
             source_text = ''
 
@@ -196,11 +201,6 @@ class Beautifier:
         # Continue to accept deprecated option
         opts.space_around_combinator = opts.space_around_combinator or opts.space_around_selector_separator
 
-        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
-        lineBreak = re.compile(self.six.u("\r\n|[\r\u2028\u2029]"))
-        source_text = re.sub(lineBreak, '\n', source_text)
-
-        self.source_text = source_text
         self.opts = opts
         self.indentSize = opts.indent_size
         self.indentChar = opts.indent_char
@@ -211,7 +211,15 @@ class Beautifier:
             self.indentChar = "\t"
             self.indentSize = 1
 
+        if self.opts.eol == 'auto':
+            self.opts.eol = '\n'
+            if self.lineBreak.search(source_text or ''):
+                self.opts.eol = self.lineBreak.search(source_text).group()
+
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
+
+        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
+        self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
