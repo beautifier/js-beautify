@@ -1687,7 +1687,7 @@ class Tokenizer:
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
-    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']
+    reserved_words = line_starters + ['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']
 
     def __init__ (self, input_string, opts, indent_string):
         self.input = InputScanner(input_string)
@@ -1850,7 +1850,7 @@ class Tokenizer:
             if not (last_token.type == 'TK_DOT' \
                         or (last_token.type == 'TK_RESERVED' and last_token.text in ['set', 'get'])) \
                     and c in self.reserved_words:
-                if c == 'in': # in is an operator, need to hack
+                if c == 'in' or c == 'of': # in and of are operators, need to hack
                     return c, 'TK_OPERATOR'
 
                 return c, 'TK_RESERVED'

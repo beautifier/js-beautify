@@ -1849,7 +1849,7 @@ if (!Object.values) {
 
             // words which should always start on new line.
             this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
-            var reserved_words = this.line_starters.concat(['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
+            var reserved_words = this.line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
 
             //  /* ... */ comment ends with nearest */ or end of file
             var block_comment_pattern = /([\s\S]*?)((?:\*\/)|$)/g;
@@ -2040,7 +2040,7 @@ if (!Object.values) {
                     if (!(last_token.type === 'TK_DOT' ||
                             (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['set', 'get']))) &&
                         in_array(c, reserved_words)) {
-                        if (c === 'in') { // hack for 'in' operator
+                        if (c === 'in' || c === 'of') { // hack for 'in' and 'of' operators
                             return [c, 'TK_OPERATOR'];
                         }
                         return [c, 'TK_RESERVED'];

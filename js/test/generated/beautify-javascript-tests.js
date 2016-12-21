@@ -2782,6 +2782,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // duplicating newlines
         bt('{\n\n    x();\n\n}');
         bt('if (a in b) foo();');
+        bt('if (a of b) foo();');
+        bt('if (a of [1, 2, 3]) foo();');
         bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();');
         bt('if (foo) bar();\nelse break');
         bt('var a, b;');

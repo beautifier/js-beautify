@@ -22,12 +22,6 @@
   ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-
-  Js-Beautify Command-line for node.js
-  -------------------------------------
-
-  Written by Daniel Stockman (daniel.stockman@gmail.com)
-
 */
 
 var inputlib = require('./inputlib');
@@ -2503,7 +2497,9 @@ exports.test_data = {
             { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
             { input: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
             { input: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
-            { input: 'if (a in b) foo();' },
+            { unchanged: 'if (a in b) foo();' },
+            { unchanged: 'if (a of b) foo();' },
+            { unchanged: 'if (a of [1, 2, 3]) foo();' },
             {
                 input: 'if(X)if(Y)a();else b();else c();',
                 output: "if (X)\n    if (Y) a();\n    else b();\nelse c();"
