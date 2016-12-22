@@ -311,6 +311,23 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a = `This is a continuation\\nstring.`');
         bt('a = "This is a continuation\\nstring."');
         bt('`SELECT\n  nextval(\'${this.options.schema ? `${this.options.schema}.` : \'\'}"${this.tableName}_${this.autoIncrementField}_seq"\'::regclass\n  ) nextval;`');
+        
+        // Tests for #1030
+        bt(
+            'const composeUrl = (host) => {\n' +
+            '    return `${host `test`}`;\n' +
+            '};');
+        bt(
+            'const composeUrl = (host, api, key, data) => {\n' +
+            '    switch (api) {\n' +
+            '        case "Init":\n' +
+            '            return `${host}/vwapi/Init?VWID=${key}&DATA=${encodeURIComponent(\n' +
+            '                Object.keys(data).map((k) => `${k}=${ data[k]}` ).join(";")\n' +
+            '            )}`;\n' +
+            '        case "Pay":\n' +
+            '            return `${host}/vwapi/Pay?SessionId=${par}`;\n' +
+            '    };\n' +
+            '};');
 
 
         //============================================================

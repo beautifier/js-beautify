@@ -2224,6 +2224,10 @@ if (!Object.values) {
                                     } else {
                                         parse_string('`', allow_unescaped_newlines, '${');
                                     }
+
+                                    if (input.hasNext()) {
+                                        resulting_string += input.next();
+                                    }
                                 }
                             }
                         };

@@ -2007,6 +2007,8 @@ class Tokenizer:
                             else:
                                 resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
 
+                            if self.input.hasNext():
+                                resulting_string += self.input.next()
 
                     return resulting_string
 

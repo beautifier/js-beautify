@@ -57,6 +57,27 @@ exports.test_data = {
             { unchanged: 'a = `This is a continuation\\\nstring.`' },
             { unchanged: 'a = "This is a continuation\\\nstring."' },
             { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+            {
+                comment: 'Tests for #1030',
+                unchanged: [
+                    'const composeUrl = (host) => {',
+                    '    return `${host `test`}`;',
+                    '};'
+                ]
+            }, {
+                unchanged: [
+                    'const composeUrl = (host, api, key, data) => {',
+                    '    switch (api) {',
+                    '        case "Init":',
+                    '            return `${host}/vwapi/Init?VWID=${key}&DATA=${encodeURIComponent(',
+                    '                Object.keys(data).map((k) => `${k}=${ data[k]}` ).join(";")',
+                    '            )}`;',
+                    '        case "Pay":',
+                    '            return `${host}/vwapi/Pay?SessionId=${par}`;',
+                    '    };',
+                    '};'
+                ]
+            }
         ]
     }, {
         name: "ES7 Decorators",
