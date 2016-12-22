@@ -900,6 +900,42 @@ exports.test_data = {
             unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
         }]
     }, {
+        name: "Unformatted script/style with extra script, style and body liners",
+        options: [
+            { name: 'unformatted_tag_content', value: "[ 'script', 'style', 'p', 'span', 'br' ]" }
+        ],
+        tests: [{
+            fragment: true,
+            input: "<body><h1>Heading</h1><script>var formatMe = function() { return false; };</script><style>.format-disabled { display: none; } </style></body>",
+            output: "<body>\n" +
+                "    <h1>Heading</h1>\n" +
+                "    <script>var formatMe = function() { return false; };</script>\n" +
+                "    <style>.format-disabled { display: none; } </style>\n" +
+                "</body>"
+        }, {
+            fragment: true,
+            input: "<div><p>Beautify me</p></div><p><p>But not me</p></p>",
+            output: "<div>\n" +
+                "    <p>Beautify me</p>\n" +
+                "</div>\n" +
+                "<p><p>But not me</p></p>"
+        }, {
+            fragment: true,
+            input: "<div><p\n  class=\"beauty-me\"\n>Beautify me</p></div><p><p\n  class=\"iamalreadybeauty\"\n>But not me</p></p>",
+            output: "<div>\n" +
+                "    <p class=\"beauty-me\">Beautify me</p>\n" +
+                "</div>\n" +
+                "<p><p\n" +
+                "  class=\"iamalreadybeauty\"\n" +
+                ">But not me</p></p>"
+        }, {
+            fragment: true,
+            unchanged: "<div><span>blabla<div>something here</div></span></div>",
+        }, {
+            fragment: true,
+            unchanged: "<div><br /></div>"
+        }]
+    }, {
         name: "New Test Suite"
     }],
 };

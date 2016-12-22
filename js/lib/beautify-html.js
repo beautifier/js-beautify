@@ -118,6 +118,7 @@
             wrap_line_length,
             brace_style,
             unformatted,
+            unformatted_tag_content,
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
@@ -161,6 +162,7 @@
             'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt',
             'pre',
         ];
+        unformatted_tag_content = options.unformatted_tag_content || [];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         max_preserve_newlines = preserve_newlines ?
             (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10)) :
@@ -286,6 +288,27 @@
                     return false;
                 }
             };
+
+            this.get_unformatted_content = function () {
+                var target = this.last_text.match(/<([^>\s]+)/)[1],
+                    end_tag = '</' + target + '>',
+
+                    m_start = new RegExp('<\s*' + target + '[^>]*>', "gi"),
+                    m_end   = new RegExp('</\s*' + target + '[^>]*>', "gi");
+
+                var res = '';
+
+                // can be subtags inside unformatted flow
+                while ((res.match(m_start) || []).length + 1 !== (res.match(m_end) || []).length) {
+                    res += this.get_unformatted(end_tag, this.last_text);
+                }
+
+                //remove closing target tag.
+                res = res.replace(new RegExp(end_tag + '$'), '');
+                this.pos -= end_tag.length;
+
+                return res;
+            }
 
             this.get_content = function() { //function to capture regular content between tags
                 var input_char = '',
@@ -582,9 +605,33 @@
                     }
                 } else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
                     comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
+
                     content.push(comment);
                     tag_end = this.pos - 1;
                     this.tag_type = 'SINGLE';
+                } else if (this.is_unformatted_tag_content(tag_check, unformatted_tag_content)) {
+                    if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
+                        this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
+                        this.tag_type = 'END';
+                    } else { //otherwise it's a start-tag
+                        this.record_tag(tag_check); //push it on the tag stack
+                        if (tag_check.toLowerCase() !== 'html') {
+                            this.indent_content = true;
+                        }
+                        this.tag_type = 'UNFORMATTED';
+                    }
+
+                    // Allow preserving of newlines after a start or end tag
+                    if (this.traverse_whitespace()) {
+                        this.space_or_wrap(content);
+                    }
+
+                    if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
+                        this.print_newline(false, this.output);
+                        if (this.output.length && this.output[this.output.length - 2] !== '\n') {
+                            this.print_newline(true, this.output);
+                        }
+                    }
                 } else if (tag_check === 'script' &&
                     (tag_complete.search('type') === -1 ||
                         (tag_complete.search('type') > -1 &&
@@ -776,6 +823,17 @@
                     }
                     return [token, 'TK_' + type];
                 }
+
+                if (this.last_token === 'TK_TAG_UNFORMATTED') {
+                    // get_contents_to ?
+                    var token = this.get_unformatted_content();
+
+                    if (typeof token !== 'string') {
+                        return token;
+                    }
+                    return [token, 'TK_CONTENT'];
+                }
+
                 if (this.current_mode === 'CONTENT') {
                     token = this.get_content();
                     if (typeof token !== 'string') {
@@ -830,6 +888,10 @@
                 } else {
                     return false;
                 }
+            };
+
+            this.is_unformatted_tag_content = function(tag_check, unformatted_content_tags) {
+                return this.is_unformatted(tag_check, unformatted_content_tags);
             };
 
             this.printer = function(js_source, indent_character, indent_size, wrap_line_length, brace_style) { //handles input/output and some other printing functions
@@ -937,6 +999,7 @@
             }
 
             switch (multi_parser.token_type) {
+                case 'TK_TAG_UNFORMATTED':
                 case 'TK_TAG_START':
                     multi_parser.print_newline(false, multi_parser.output);
                     multi_parser.print_token(multi_parser.token_text);
@@ -966,7 +1029,9 @@
                             tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length - 1].match(/(?:<|{{#)\s*(\w+)/);
                         }
                         if (tag_extracted_from_last_output === null ||
-                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted))) {
+                            (tag_extracted_from_last_output[1] !== tag_name && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted)
+                                && !multi_parser.Utils.in_array(tag_extracted_from_last_output[1], unformatted_tag_content))
+                            ) {
                             multi_parser.print_newline(false, multi_parser.output);
                         }
                     }
@@ -1100,6 +1165,7 @@
         // and you will be able to `var html_beautify = require("beautify").html_beautify`.
         var js_beautify = require('./beautify.js');
         var css_beautify = require('./beautify-css.js');
+
 
         exports.html_beautify = function(html_source, options) {
             return style_html(html_source, options, js_beautify.js_beautify, css_beautify.css_beautify);
