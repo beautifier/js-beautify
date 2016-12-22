@@ -1042,6 +1042,12 @@ if (!Object.values) {
                     return;
                 }
 
+                if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                    if (!start_of_object_property()) {
+                        allow_wrap_or_preserved_newline();
+                    }
+                }
+
                 if (current_token.type === 'TK_RESERVED' && current_token.text === 'function') {
                     if (in_array(flags.last_text, ['}', ';']) || (output.just_added_newline() && !in_array(flags.last_text, ['[', '{', ':', '=', ',']))) {
                         // make sure there is a nice clean space of at least one blank line
@@ -1067,15 +1073,7 @@ if (!Object.values) {
                     } else {
                         print_newline();
                     }
-                }
 
-                if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                    if (!start_of_object_property()) {
-                        allow_wrap_or_preserved_newline();
-                    }
-                }
-
-                if (current_token.type === 'TK_RESERVED' && in_array(current_token.text, ['function', 'get', 'set'])) {
                     print_token();
                     flags.last_word = current_token.text;
                     return;

@@ -2160,6 +2160,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'collapse,preserve-inline'
         bt('import { asdf } from "asdf";')
+        bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
         bt('if (ding) { console.log("dong"); } else { console.log("dang"); }')
@@ -2202,6 +2203,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'expand,preserve-inline'
         bt('import { asdf } from "asdf";')
+        bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
         bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
@@ -2244,6 +2246,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'end-expand,preserve-inline'
         bt('import { asdf } from "asdf";')
+        bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
         bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
@@ -2286,6 +2289,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'none,preserve-inline'
         bt('import { asdf } from "asdf";')
+        bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
         bt('if (ding) { console.log("dong"); } else { console.log("dang"); }')
@@ -2328,6 +2332,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'collapse-preserve-inline'
         bt('import { asdf } from "asdf";')
+        bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
         bt('if (ding) { console.log("dong"); } else { console.log("dang"); }')

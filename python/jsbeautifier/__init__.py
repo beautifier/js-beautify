@@ -994,6 +994,10 @@ class Beautifier:
             self.flags.in_case_statement = True
             return
 
+        if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
+            if not self.start_of_object_property():
+                self.allow_wrap_or_preserved_newline(current_token)
+
         if current_token.type == 'TK_RESERVED' and current_token.text == 'function':
             if self.flags.last_text in ['}', ';'] or (self.output.just_added_newline() and not self.flags.last_text in ['[', '{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
@@ -1018,11 +1022,6 @@ class Beautifier:
             else:
                 self.print_newline()
 
-        if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
-            if not self.start_of_object_property():
-                self.allow_wrap_or_preserved_newline(current_token)
-
-        if current_token.type == 'TK_RESERVED' and current_token.text in ['function', 'get', 'set']:
             self.print_token(current_token)
             self.flags.last_word = current_token.text
             return

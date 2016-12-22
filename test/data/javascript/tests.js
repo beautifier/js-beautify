@@ -2153,6 +2153,9 @@ exports.test_data = {
                 unchanged: 'import { asdf } from "asdf";'
             },
             {
+                unchanged: 'import { get } from "asdf";'
+            },
+            {
                 unchanged: 'function inLine() { console.log("oh em gee"); }'
             },
             {
