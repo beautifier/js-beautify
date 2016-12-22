@@ -1232,7 +1232,9 @@ class Beautifier:
         in_ternary = False
         isGeneratorAsterisk = current_token.text == '*' and \
             ((self.last_type == 'TK_RESERVED' and self.flags.last_text in ['function', 'yield']) or
-                (self.flags.mode == MODE.ObjectLiteral and self.last_type in ['TK_START_BLOCK', 'TK_COMMA']))
+                (self.flags.mode == MODE.ObjectLiteral and self.last_type in ['TK_START_BLOCK', 'TK_COMMA']) or
+                (self.flags.mode == MODE.BlockStatement and self.last_type in ['TK_START_BLOCK', 'TK_COMMA', 'TK_END_BLOCK', 'TK_SEMICOLON'])
+                )
         isUnary = current_token.text in ['+', '-'] \
             and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
             or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')
@@ -1303,7 +1305,8 @@ class Beautifier:
         if isGeneratorAsterisk:
             self.allow_wrap_or_preserved_newline(current_token)
             space_before = False
-            space_after = False
+            next_token = self.get_token(1)
+            space_after = next_token and next_token.type in ['TK_WORD','TK_RESERVED']
         elif current_token.text == '...':
             self.allow_wrap_or_preserved_newline(current_token)
             space_before = self.last_type == 'TK_START_BLOCK'

@@ -207,6 +207,28 @@ class TestJSBeautifier(unittest.TestCase):
             '        yield 42;\n' +
             '    }\n' +
             '};')
+        
+        # also handle generator shorthand in class - #1013
+        bt(
+            'class A {\n' +
+            '    fn() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            '\n' +
+            '    * gen() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'class A {\n' +
+            '    * gen() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            '\n' +
+            '    fn() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            '}')
 
 
         #============================================================

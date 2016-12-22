@@ -1312,7 +1312,9 @@ if (!Object.values) {
                 var in_ternary = false;
                 var isGeneratorAsterisk = current_token.text === '*' &&
                     ((last_type === 'TK_RESERVED' && in_array(flags.last_text, ['function', 'yield'])) ||
-                        (flags.mode === MODE.ObjectLiteral && in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA'])));
+                        (flags.mode === MODE.ObjectLiteral && in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA'])) ||
+                        (flags.mode === MODE.BlockStatement && in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA', 'TK_END_BLOCK', 'TK_SEMICOLON']))
+                    );
                 var isUnary = in_array(current_token.text, ['-', '+']) && (
                     in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) ||
                     in_array(flags.last_text, Tokenizer.line_starters) ||
@@ -1391,7 +1393,8 @@ if (!Object.values) {
                 if (isGeneratorAsterisk) {
                     allow_wrap_or_preserved_newline();
                     space_before = false;
-                    space_after = false;
+                    var next_token = get_token(1);
+                    space_after = next_token && in_array(next_token.type, ['TK_WORD', 'TK_RESERVED']);
                 } else if (current_token.text === '...') {
                     allow_wrap_or_preserved_newline();
                     space_before = last_type === 'TK_START_BLOCK';

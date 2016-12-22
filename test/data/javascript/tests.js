@@ -119,7 +119,8 @@ exports.test_data = {
         tests: [
             { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
             {
-                unchanged: ['var foo = {',
+                unchanged: [
+                    'var foo = {',
                     '    * bar() {',
                     '        yield 42;',
                     '    }',
@@ -136,6 +137,31 @@ exports.test_data = {
                     '        yield 42;',
                     '    }',
                     '};'
+                ]
+            }, {
+                comment: 'also handle generator shorthand in class - #1013',
+                unchanged: [
+                    'class A {',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'class A {',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '}'
                 ]
             }
         ]
