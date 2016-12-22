@@ -436,9 +436,10 @@ class Beautifier:
                         not self.lookBack('('):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
-                    insidePropertyValue = True
                     printer.push(":")
-                    printer.singleSpace()
+                    if not insidePropertyValue:
+                        insidePropertyValue = True
+                        printer.singleSpace()
                 else:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space

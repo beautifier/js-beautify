@@ -383,6 +383,12 @@ exports.test_data = {
                 '\t}',
                 '}'
             ]
+        }, {
+            unchanged: [
+                '.fa-rotate-270 {',
+                '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
+                '}'
+            ]
         }]
     }, {
 

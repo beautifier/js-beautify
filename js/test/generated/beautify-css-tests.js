@@ -476,6 +476,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\t/* property: value */\n' +
             '\t}\n' +
             '}');
+        t(
+            '.fa-rotate-270 {\n' +
+            '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}');
 
 
         //============================================================

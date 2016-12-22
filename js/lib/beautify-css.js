@@ -408,9 +408,11 @@
                     !lookBack("(")) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
-                    insidePropertyValue = true;
                     output.push(':');
-                    print.singleSpace();
+                    if (!insidePropertyValue) {
+                        insidePropertyValue = true;
+                        print.singleSpace();
+                    }
                 } else {
                     // sass/less parent reference don't use a space
                     // sass nested pseudo-class don't use a space

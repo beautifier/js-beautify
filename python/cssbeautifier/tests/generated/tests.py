@@ -434,6 +434,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t\t/* property: value */\n' +
             '\t}\n' +
             '}')
+        t(
+            '.fa-rotate-270 {\n' +
+            '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}')
 
 
         #============================================================
