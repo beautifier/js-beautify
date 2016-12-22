@@ -840,7 +840,7 @@ class Beautifier:
         second_token = self.get_token(2)
         if second_token != None and \
             ((second_token.text in [':', ','] and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
-                or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
+                or (next_token.text in ['get', 'set', '...'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
             if not self.last_last_text in ['class','interface']:
@@ -1300,7 +1300,15 @@ class Beautifier:
                 self.output.space_before_token = True
                 return
 
-        if current_token.text in ['--', '++', '!', '~'] or isUnary:
+        if isGeneratorAsterisk:
+            self.allow_wrap_or_preserved_newline(current_token)
+            space_before = False
+            space_after = False
+        elif current_token.text == '...':
+            self.allow_wrap_or_preserved_newline(current_token)
+            space_before = self.last_type == 'TK_START_BLOCK'
+            space_after = False
+        elif current_token.text in ['--', '++', '!', '~'] or isUnary:
             space_before = False
             space_after = False
 
@@ -1334,11 +1342,6 @@ class Beautifier:
                 # { foo: --i }
                 # foo(): --bar
                 self.print_newline()
-
-        elif isGeneratorAsterisk:
-            self.allow_wrap_or_preserved_newline(current_token)
-            space_before = False
-            space_after = False
 
         if space_before:
             self.output.space_before_token = True
@@ -1683,7 +1686,7 @@ class Tokenizer:
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
         # non-positionable operators - these do not follow operator position settings
-        '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
+        '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '))
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
@@ -2084,6 +2087,10 @@ class Tokenizer:
             return '-->', 'TK_COMMENT'
 
         if c == '.':
+            if self.input.peek() == '.' and self.input.peek(1) == '.':
+                c += self.input.next() + self.input.next()
+                return c, 'TK_OPERATOR'
+
             return c, 'TK_DOT'
 
         if c in self.punct:

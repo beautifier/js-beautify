@@ -332,6 +332,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // Spread operator
+        reset_options();
+        opts.brace_style = "collapse,preserve-inline";
+        bt('const m = { ...item, c: 3 };');
+        bt('const m = {\n    ...item,\n    c: 3\n};');
+        bt('const m = { c: 3, ...item };');
+        bt('const m = [...item, 3];');
+        bt('const m = [3, ...item];');
+
+
+        //============================================================
         // Object literal shorthand functions
         reset_options();
         bt('return {\n    foo() {\n        return 42;\n    }\n}');

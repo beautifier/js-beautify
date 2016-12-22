@@ -160,6 +160,17 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Spread operator
+        self.reset_options();
+        self.options.brace_style = "collapse,preserve-inline"
+        bt('const m = { ...item, c: 3 };')
+        bt('const m = {\n    ...item,\n    c: 3\n};')
+        bt('const m = { c: 3, ...item };')
+        bt('const m = [...item, 3];')
+        bt('const m = [3, ...item];')
+
+
+        #============================================================
         # Object literal shorthand functions
         self.reset_options();
         bt('return {\n    foo() {\n        return 42;\n    }\n}')

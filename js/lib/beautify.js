@@ -863,7 +863,7 @@ if (!Object.values) {
                 var second_token = get_token(2);
                 if (second_token && (
                         (in_array(second_token.text, [':', ',']) && in_array(next_token.type, ['TK_STRING', 'TK_WORD', 'TK_RESERVED'])) ||
-                        (in_array(next_token.text, ['get', 'set']) && in_array(second_token.type, ['TK_WORD', 'TK_RESERVED']))
+                        (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, ['TK_WORD', 'TK_RESERVED']))
                     )) {
                     // We don't support TypeScript,but we didn't break it for a very long time.
                     // We'll try to keep not breaking it.
@@ -1388,7 +1388,15 @@ if (!Object.values) {
                     }
                 }
 
-                if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
+                if (isGeneratorAsterisk) {
+                    allow_wrap_or_preserved_newline();
+                    space_before = false;
+                    space_after = false;
+                } else if (current_token.text === '...') {
+                    allow_wrap_or_preserved_newline();
+                    space_before = last_type === 'TK_START_BLOCK';
+                    space_after = false;
+                } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
                     // unary operators (and binary +/- pretending to be unary) special cases
 
                     space_before = false;
@@ -1430,11 +1438,8 @@ if (!Object.values) {
                         // foo(); --bar;
                         print_newline();
                     }
-                } else if (isGeneratorAsterisk) {
-                    allow_wrap_or_preserved_newline();
-                    space_before = false;
-                    space_after = false;
                 }
+
                 output.space_before_token = output.space_before_token || space_before;
                 print_token();
                 output.space_before_token = space_after;
@@ -1845,7 +1850,7 @@ if (!Object.values) {
             this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
             var punct = this.positionable_operators.concat(
                 // non-positionable operators - these do not follow operator position settings
-                '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~'.split(' '));
+                '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '));
 
             // words which should always start on new line.
             this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -2312,6 +2317,10 @@ if (!Object.values) {
                 }
 
                 if (c === '.') {
+                    if (input.peek() === '.' && input.peek(1) === '.') {
+                        c += input.next() + input.next();
+                        return [c, 'TK_OPERATOR'];
+                    }
                     return [c, 'TK_DOT'];
                 }
 

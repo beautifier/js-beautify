@@ -80,6 +80,19 @@ exports.test_data = {
             { unchanged: 'x ** -2' }
         ]
     }, {
+        name: "Spread operator",
+        description: "Spread operator",
+        options: [
+            { name: 'brace_style', value: '"collapse,preserve-inline"' }
+        ],
+        tests: [
+            { unchanged: 'const m = { ...item, c: 3 };' },
+            { unchanged: 'const m = {\n    ...item,\n    c: 3\n};' },
+            { unchanged: 'const m = { c: 3, ...item };' },
+            { unchanged: 'const m = [...item, 3];' },
+            { unchanged: 'const m = [3, ...item];' }
+        ]
+    }, {
         name: "Object literal shorthand functions",
         description: "Object literal shorthand functions",
         tests: [
