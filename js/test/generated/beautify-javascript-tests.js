@@ -2654,6 +2654,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment(
             'sd = 1;\n' +
             '/');
+        
+        // Issue #1079 - unbraced if with comments should still look right
+        bt(
+            'if (console.log)\n' +
+            '    for (var i = 0; i < 20; ++i)\n' +
+            '        if (i % 3)\n' +
+            '            console.log(i);\n' +
+            '// all done\n' +
+            'console.log("done");');
 
 
         //============================================================

@@ -2368,6 +2368,17 @@ exports.test_data = {
                     'sd = 1;',
                     '/'
                 ]
+            },
+            {
+                comment: "Issue #1079 - unbraced if with comments should still look right",
+                unchanged: [
+                    'if (console.log)',
+                    '    for (var i = 0; i < 20; ++i)',
+                    '        if (i % 3)',
+                    '            console.log(i);',
+                    '// all done',
+                    'console.log("done");'
+                ]
             }
         ]
     }, {

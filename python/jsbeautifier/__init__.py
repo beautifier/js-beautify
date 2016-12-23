@@ -597,7 +597,10 @@ class Beautifier:
     def print_newline(self, force_newline = False, preserve_statement_flags = False):
         if not preserve_statement_flags:
             if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and self.last_type != 'TK_OPERATOR':
-                while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
+                next_token = self.get_token(1)
+                while (self.flags.mode == MODE.Statement and
+                        not (self.flags.if_block and next_token and next_token.type == 'TK_RESERVED' and next_token.text == 'else') and
+                        not self.flags.do_block):
                     self.restore_mode()
 
         if self.output.add_new_line(force_newline):
@@ -1122,7 +1125,10 @@ class Beautifier:
             # The conditional starts the statement if appropriate.
             # Semicolon can be the start (and end) of a statement
             self.output.space_before_token = False
-        while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
+        next_token = self.get_token(1)
+        while (self.flags.mode == MODE.Statement and
+                not (self.flags.if_block and next_token and next_token.type == 'TK_RESERVED' and next_token.text == 'else') and
+                not self.flags.do_block):
             self.restore_mode()
 
         if self.flags.import_block:

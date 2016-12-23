@@ -548,7 +548,10 @@ if (!Object.values) {
             function print_newline(force_newline, preserve_statement_flags) {
                 if (!preserve_statement_flags) {
                     if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && last_type !== 'TK_OPERATOR') {
-                        while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
+                        var next_token = get_token(1);
+                        while (flags.mode === MODE.Statement &&
+                            !(flags.if_block && next_token && next_token.type === 'TK_RESERVED' && next_token.text === 'else') &&
+                            !flags.do_block) {
                             restore_mode();
                         }
                     }
@@ -1190,7 +1193,10 @@ if (!Object.values) {
                     // Semicolon can be the start (and end) of a statement
                     output.space_before_token = false;
                 }
-                while (flags.mode === MODE.Statement && !flags.if_block && !flags.do_block) {
+                var next_token = get_token(1);
+                while (flags.mode === MODE.Statement &&
+                    !(flags.if_block && next_token && next_token.type === 'TK_RESERVED' && next_token.text === 'else') &&
+                    !flags.do_block) {
                     restore_mode();
                 }
 
@@ -1831,7 +1837,15 @@ if (!Object.values) {
         var Token = function(type, text, newlines, whitespace_before, parent) {
             this.type = type;
             this.text = text;
-            this.comments_before = [];
+
+            // comments_before are
+            // comments that have a new line before them
+            // and may or may not have a newline after
+            // this is a set of comments before
+            this.comments_before = /* inline comment*/ [];
+
+
+            this.comments_after = []; // no new line before and newline after
             this.newlines = newlines || 0;
             this.wanted_newline = newlines > 0;
             this.whitespace_before = whitespace_before || '';
