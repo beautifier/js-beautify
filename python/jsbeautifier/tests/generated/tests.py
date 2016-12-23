@@ -3960,6 +3960,8 @@ class TestJSBeautifier(unittest.TestCase):
             'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();')
         bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
             'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();')
+        bt('if (foo)\nbar();\nelse\ncar();',
+            'if (foo)\n    bar();\nelse\n    car();')
         bt('if (foo) bar();\nelse\ncar();',
             'if (foo) bar();\nelse\n    car();')
 
