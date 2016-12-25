@@ -308,7 +308,7 @@
                 this.pos -= end_tag.length;
 
                 return res;
-            }
+            };
 
             this.get_content = function() { //function to capture regular content between tags
                 var input_char = '',
@@ -825,8 +825,7 @@
                 }
 
                 if (this.last_token === 'TK_TAG_UNFORMATTED') {
-                    // get_contents_to ?
-                    var token = this.get_unformatted_content();
+                    token = this.get_unformatted_content();
 
                     if (typeof token !== 'string') {
                         return token;
