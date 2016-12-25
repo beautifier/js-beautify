@@ -416,7 +416,7 @@ function processInputSync(filepath) {
 function makePretty(code, config, outfile, callback) {
     try {
         var fileType = getOutputType(outfile, config.type);
-        var pretty = beautify[fileType](code, config);
+        var pretty = beautify[fileType](code, config[fileType]);
 
         callback(null, pretty, outfile, config);
     } catch (ex) {
