@@ -1028,6 +1028,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Unformatted script/style with extra script, style and body liners
+        reset_options();
+        opts.unformatted_tag_content = [ 'script', 'style', 'p', 'span', 'br' ];
+        test_fragment('<body><h1>Heading</h1><script>var formatMe = function() { return false; };</script><style>.format-disabled { display: none; } </style></body>', '<body>\n    <h1>Heading</h1>\n    <script>var formatMe = function() { return false; };</script>\n    <style>.format-disabled { display: none; } </style>\n</body>');
+        test_fragment('<div><p>Beautify me</p></div><p><p>But not me</p></p>', '<div>\n    <p>Beautify me</p>\n</div>\n<p><p>But not me</p></p>');
+        test_fragment('<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>', '<div>\n    <p class="beauty-me">Beautify me</p>\n</div>\n<p><p\n  class="iamalreadybeauty"\n>But not me</p></p>');
+        test_fragment('<div><span>blabla<div>something here</div></span></div>');
+        test_fragment('<div><br /></div>');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
 

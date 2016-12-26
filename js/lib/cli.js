@@ -91,6 +91,7 @@ var path = require('path'),
         "space_around_selector_separator": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
+        "unformatted_tag_content": [String, Array],
         "unformatted": [String, Array],
         "indent_inner_html": [Boolean],
         "indent_handlebars": [Boolean],
@@ -143,6 +144,7 @@ var path = require('path'),
         "H": ["--indent_handlebars"],
         "S": ["--indent_scripts"],
         "E": ["--extra_liners"],
+        "utc": ["--unformatted_tag_content"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -158,9 +160,9 @@ var path = require('path'),
         "f": ["--files"],
         "o": ["--outfile"],
         "r": ["--replace"],
-        "q": ["--quiet"]
-            // no shorthand for "config"
-            // no shorthand for "editorconfig"
+        "q": ["--quiet"],
+        // no shorthand for "config"
+        // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {
@@ -414,6 +416,7 @@ function processInputSync(filepath) {
 }
 
 function makePretty(code, config, outfile, callback) {
+
     try {
         var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
