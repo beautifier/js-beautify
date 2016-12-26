@@ -383,6 +383,25 @@ function processInputSync(filepath) {
         outfile = filepath;
     }
 
+    var fileType = getOutputType(outfile, config.type);
+
+    if (config.editorconfig) {
+        var editorconfig_filepath = filepath;
+
+        if (editorconfig_filepath === '-') {
+            if (outfile) {
+                editorconfig_filepath = outfile;
+            } else {
+                editorconfig_filepath = 'stdin.' + fileType;
+            }
+        }
+
+        debug("EditorConfig is enabled for ", editorconfig_filepath);
+        config = cc(config).snapshot;
+        set_file_editorconfig_opts(editorconfig_filepath, config);
+        debug(config);
+    }
+
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
@@ -394,28 +413,16 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty); // Where things get beautified
+            makePretty(fileType, data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
-        // Only enable editorconfig with files (stdin not suppored).
-        if (config.editorconfig) {
-            debug("EditorConfig is enabled for ", filepath);
-            config = cc(config).snapshot;
-            set_file_editorconfig_opts(filepath, config);
-            debug(config);
-        }
-
-        if (outfile) {
-            mkdirp.sync(path.dirname(outfile));
-        }
         data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, outfile, writePretty);
+        makePretty(fileType, data, config, outfile, writePretty);
     }
 }
 
-function makePretty(code, config, outfile, callback) {
+function makePretty(fileType, code, config, outfile, callback) {
     try {
-        var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
         callback(null, pretty, outfile, config);
@@ -425,12 +432,15 @@ function makePretty(code, config, outfile, callback) {
 }
 
 function writePretty(err, pretty, outfile, config) {
+    debug('writing ' + outfile);
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     if (outfile) {
+        mkdirp.sync(path.dirname(outfile));
+
         if (isFileDifferent(outfile, pretty)) {
             try {
                 fs.writeFileSync(outfile, pretty, 'utf8');
@@ -531,6 +541,8 @@ function checkFiles(parsed) {
         debug("error querying for isTTY:", ex);
     }
 
+    debug('isTTY: ' + isTTY);
+
     if (!parsed.files) {
         parsed.files = [];
     } else {
@@ -549,7 +561,7 @@ function checkFiles(parsed) {
         });
     }
 
-    if ('string' === typeof parsed.outfile && !parsed.files.length) {
+    if ('string' === typeof parsed.outfile && isTTY && !parsed.files.length) {
         // use outfile as input when no other files passed in args
         parsed.files.push(parsed.outfile);
         // operation is now an implicit overwrite

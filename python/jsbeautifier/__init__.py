@@ -315,11 +315,6 @@ def beautify_file(file_name, opts = default_options() ):
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
 
-        # Editorconfig used only on files, not stdin
-        if getattr(opts, 'editorconfig'):
-            opts = copy.copy(opts)
-            set_file_editorconfig_opts(file_name, opts)
-
     return beautify(input_string, opts)
 
 
@@ -2265,6 +2260,21 @@ def main():
         if outfile == 'stdout' and replace and not file == '-':
             outfile = file
 
+        # Editorconfig used only on files, not stdin
+        if getattr(js_options, 'editorconfig'):
+            editorconfig_filepath = file
+
+            if editorconfig_filepath == '-':
+                if outfile != 'stdout':
+                    editorconfig_filepath = outfile
+                else:
+                    fileType = 'js'
+                    editorconfig_filepath = 'stdin.' + fileType
+
+            # debug("EditorConfig is enabled for ", editorconfig_filepath);
+            js_options = copy.copy(js_options)
+            set_file_editorconfig_opts(editorconfig_filepath, js_options)
+
         pretty = beautify_file(file, js_options)
 
         if outfile == 'stdout':
@@ -2278,10 +2288,19 @@ def main():
         else:
             if isFileDifferent(outfile, pretty):
                 mkdir_p(os.path.dirname(outfile))
+
                 # python automatically converts newlines in text to "\r\n" when on windows
                 # set newline to empty to prevent this
                 with io.open(outfile, 'wt', newline='') as f:
-                    f.write(pretty)
+                    print('writing ' + outfile, file=sys.stderr)
+                    try:
+                        f.write(pretty)
+                    except TypeError:
+                        # This is not pretty, but given how we did the version import
+                        # it is the only way to do this without having setup.py fail on a missing six dependency.
+                        six = __import__("six")
+                        f.write(six.u(pretty))
+
 
     except Exception as ex:
         print(ex, file=sys.stderr)
