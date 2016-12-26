@@ -12,7 +12,7 @@ from jsbeautifier.__version__ import __version__
 #
 # The MIT License (MIT)
 
-# Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -84,11 +84,26 @@ class BeautifierOptions:
         self.comma_first = False
         self.operator_position = 'before-newline'
 
+        self.css = None
+        self.js = None
+        self.html = None
+
         # For testing of beautify ignore:start directive
         self.test_output_raw = False
         self.editorconfig = False
 
 
+
+    def mergeOpts(self, targetType):
+        finalOpts = copy.copy(self)
+
+        local = getattr(finalOpts, targetType)
+        if (local):
+            delattr(finalOpts, targetType)
+            for key in local:
+                setattr(finalOpts, key, local[key])
+
+        return finalOpts
 
     def __repr__(self):
         return \
@@ -300,11 +315,6 @@ def beautify_file(file_name, opts = default_options() ):
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
 
-        # Editorconfig used only on files, not stdin
-        if getattr(opts, 'editorconfig'):
-            opts = copy.copy(opts)
-            set_file_editorconfig_opts(file_name, opts)
-
     return beautify(input_string, opts)
 
 
@@ -335,7 +345,7 @@ Output options:
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
- -b,  --brace-style=collapse       Brace style (collapse-preserve-inline, collapse, expand, end-expand)
+ -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
@@ -442,10 +452,23 @@ class Beautifier:
     def beautify(self, s, opts = None ):
 
         if opts != None:
+            opts = opts.mergeOpts('js')
             self.opts = copy.copy(opts)
 
-        if self.opts.brace_style not in ['expand', 'collapse', 'collapse-preserve-inline', 'end-expand', 'none']:
-            raise(Exception('opts.brace_style must be "expand", "collapse", "collapse-preserve-inline", "end-expand", or "none".'))
+
+        #Compat with old form
+        if self.opts.brace_style == 'collapse-preserve-inline':
+            self.opts.brace_style = 'collapse,preserve-inline'
+
+        split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
+        self.opts.brace_style = split[0]
+        self.opts.brace_preserve_inline = (True if bool(split[1] == 'preserve-inline') else None) if len(split) > 1 else False
+
+        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
+            raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
+
+        if self.opts.brace_preserve_inline == None:
+            raise(Exception('opts.brace_style second item must be "preserve-inline"'))
 
         s = self.blank_state(s)
 
@@ -569,7 +592,10 @@ class Beautifier:
     def print_newline(self, force_newline = False, preserve_statement_flags = False):
         if not preserve_statement_flags:
             if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and self.last_type != 'TK_OPERATOR':
-                while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
+                next_token = self.get_token(1)
+                while (self.flags.mode == MODE.Statement and
+                        not (self.flags.if_block and next_token and next_token.type == 'TK_RESERVED' and next_token.text == 'else') and
+                        not self.flags.do_block):
                     self.restore_mode()
 
         if self.output.add_new_line(force_newline):
@@ -812,7 +838,7 @@ class Beautifier:
         second_token = self.get_token(2)
         if second_token != None and \
             ((second_token.text in [':', ','] and next_token.type in ['TK_STRING', 'TK_WORD', 'TK_RESERVED']) \
-                or (next_token.text in ['get', 'set'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
+                or (next_token.text in ['get', 'set', '...'] and second_token.type in ['TK_WORD', 'TK_RESERVED'])):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
             if not self.last_last_text in ['class','interface']:
@@ -836,8 +862,24 @@ class Beautifier:
         empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
             self.last_type == 'TK_END_EXPR'
 
-        if self.opts.brace_style == 'expand' or \
-            (self.opts.brace_style == 'none' and current_token.wanted_newline):
+        if self.opts.brace_preserve_inline: # check for inline, set inline_frame if so
+            # search forward for newline wanted inside this block
+            index = 0
+            check_token = None
+            self.flags.inline_frame = True
+            do_loop = True
+            while (do_loop):
+                index += 1
+                check_token = self.get_token(index)
+                if check_token.wanted_newline:
+                    self.flags.inline_frame = False
+
+                do_loop = (check_token.type != 'TK_EOF' and
+                      not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
+
+        if (self.opts.brace_style == 'expand' or \
+            (self.opts.brace_style == 'none' and current_token.wanted_newline)) and \
+            not self.flags.inline_frame:
             if self.last_type != 'TK_OPERATOR' and \
                 (empty_anonymous_function or
                     self.last_type == 'TK_EQUALS' or
@@ -845,24 +887,7 @@ class Beautifier:
                 self.output.space_before_token = True
             else:
                 self.print_newline(preserve_statement_flags = True)
-        else: # collapse
-            if self.opts.brace_style == 'collapse-preserve-inline':
-                # search forward for newline wanted inside this block
-                index = 0
-                check_token = None
-                self.flags.inline_frame = True
-                do_loop = True
-                while (do_loop):
-                    index += 1
-                    check_token = self.get_token(index)
-                    if check_token.wanted_newline:
-                        self.flags.inline_frame = False
-
-                    do_loop = (check_token.type != 'TK_EOF' and
-                          not (check_token.type == 'TK_END_BLOCK' and check_token.opened == current_token))
-
-
-
+        else: # collapse || inline_frame
             if self.is_array(self.previous_flags.mode) and (self.last_type == 'TK_START_EXPR' or self.last_type == 'TK_COMMA'):
                 # if we're preserving inline,
                 # allow newline between comma and next brace.
@@ -875,7 +900,7 @@ class Beautifier:
                     self.output.space_before_token = True
 
             elif self.last_type not in ['TK_OPERATOR', 'TK_START_EXPR']:
-                if self.last_type == 'TK_START_BLOCK':
+                if self.last_type == 'TK_START_BLOCK' and not self.flags.inline_frame:
                     self.print_newline()
                 else:
                     self.output.space_before_token = True
@@ -890,15 +915,16 @@ class Beautifier:
             self.restore_mode()
 
         empty_braces = self.last_type == 'TK_START_BLOCK'
-        if self.opts.brace_style == 'expand':
+
+        if self.flags.inline_frame and not empty_braces: # try inline_frame (only set if opt.braces-preserve-inline) first
+            self.output.space_before_token = True;
+        elif self.opts.brace_style == 'expand':
             if not empty_braces:
                 self.print_newline()
         else:
             # skip {}
             if not empty_braces:
-                if self.flags.inline_frame:
-                    self.output.space_before_token = True
-                elif self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
+                if self.is_array(self.flags.mode) and self.opts.keep_array_indentation:
                     self.opts.keep_array_indentation = False
                     self.print_newline()
                     self.opts.keep_array_indentation = True
@@ -966,6 +992,10 @@ class Beautifier:
             self.flags.in_case_statement = True
             return
 
+        if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
+            if not self.start_of_object_property():
+                self.allow_wrap_or_preserved_newline(current_token)
+
         if current_token.type == 'TK_RESERVED' and current_token.text == 'function':
             if self.flags.last_text in ['}', ';'] or (self.output.just_added_newline() and not self.flags.last_text in ['[', '{', ':', '=', ',']):
                 # make sure there is a nice clean space of at least one blank line
@@ -990,11 +1020,6 @@ class Beautifier:
             else:
                 self.print_newline()
 
-        if self.last_type in ['TK_COMMA', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']:
-            if not self.start_of_object_property():
-                self.allow_wrap_or_preserved_newline(current_token)
-
-        if current_token.type == 'TK_RESERVED' and current_token.text in ['function', 'get', 'set']:
             self.print_token(current_token)
             self.flags.last_word = current_token.text
             return
@@ -1002,7 +1027,9 @@ class Beautifier:
         prefix = 'NONE'
 
         if self.last_type == 'TK_END_BLOCK':
-            if not (current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally', 'from']):
+            if self.previous_flags.inline_frame:
+                prefix = 'SPACE'
+            elif not (current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally', 'from']):
                 prefix = 'NEWLINE'
             else:
                 if self.opts.brace_style in ['expand', 'end-expand'] or \
@@ -1039,10 +1066,11 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if current_token.type == 'TK_RESERVED' and current_token.text in ['else', 'catch', 'finally']:
-            if (not (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.BlockStatement)) \
+            if ((not (self.last_type == 'TK_END_BLOCK' and self.previous_flags.mode == MODE.BlockStatement)) \
                or self.opts.brace_style == 'expand' \
                or self.opts.brace_style == 'end-expand' \
-               or (self.opts.brace_style == 'none' and current_token.wanted_newline):
+               or (self.opts.brace_style == 'none' and current_token.wanted_newline)) \
+               and not self.flags.inline_frame:
                 self.print_newline()
             else:
                 self.output.trim(True)
@@ -1092,7 +1120,10 @@ class Beautifier:
             # The conditional starts the statement if appropriate.
             # Semicolon can be the start (and end) of a statement
             self.output.space_before_token = False
-        while self.flags.mode == MODE.Statement and not self.flags.if_block and not self.flags.do_block:
+        next_token = self.get_token(1)
+        while (self.flags.mode == MODE.Statement and
+                not (self.flags.if_block and next_token and next_token.type == 'TK_RESERVED' and next_token.text == 'else') and
+                not self.flags.do_block):
             self.restore_mode()
 
         if self.flags.import_block:
@@ -1201,7 +1232,9 @@ class Beautifier:
         in_ternary = False
         isGeneratorAsterisk = current_token.text == '*' and \
             ((self.last_type == 'TK_RESERVED' and self.flags.last_text in ['function', 'yield']) or
-                (self.flags.mode == MODE.ObjectLiteral and self.last_type in ['TK_START_BLOCK', 'TK_COMMA']))
+                (self.flags.mode == MODE.ObjectLiteral and self.last_type in ['TK_START_BLOCK', 'TK_COMMA']) or
+                (self.flags.mode == MODE.BlockStatement and self.last_type in ['TK_START_BLOCK', 'TK_COMMA', 'TK_END_BLOCK', 'TK_SEMICOLON'])
+                )
         isUnary = current_token.text in ['+', '-'] \
             and (self.last_type in ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR'] \
             or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')
@@ -1269,7 +1302,16 @@ class Beautifier:
                 self.output.space_before_token = True
                 return
 
-        if current_token.text in ['--', '++', '!', '~'] or isUnary:
+        if isGeneratorAsterisk:
+            self.allow_wrap_or_preserved_newline(current_token)
+            space_before = False
+            next_token = self.get_token(1)
+            space_after = next_token and next_token.type in ['TK_WORD','TK_RESERVED']
+        elif current_token.text == '...':
+            self.allow_wrap_or_preserved_newline(current_token)
+            space_before = self.last_type == 'TK_START_BLOCK'
+            space_after = False
+        elif current_token.text in ['--', '++', '!', '~'] or isUnary:
             space_before = False
             space_after = False
 
@@ -1303,11 +1345,6 @@ class Beautifier:
                 # { foo: --i }
                 # foo(): --bar
                 self.print_newline()
-
-        elif isGeneratorAsterisk:
-            self.allow_wrap_or_preserved_newline(current_token)
-            space_before = False
-            space_after = False
 
         if space_before:
             self.output.space_before_token = True
@@ -1652,11 +1689,11 @@ class Tokenizer:
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
         # non-positionable operators - these do not follow operator position settings
-        '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~'.split(' '))
+        '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '))
 
     # Words which always should start on a new line
     line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',')
-    reserved_words = line_starters + ['do', 'in', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']
+    reserved_words = line_starters + ['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']
 
     def __init__ (self, input_string, opts, indent_string):
         self.input = InputScanner(input_string)
@@ -1796,7 +1833,9 @@ class Tokenizer:
                 if allow_decimal and self.input.peek() == '.':
                     c += self.input.next()
                     allow_decimal = False
-                elif allow_e and self.input.testChar(re.compile('[Ee]')):
+
+                # a = 1.e-7 is valid, so we test for . then e in one loop
+                if allow_e and self.input.testChar(re.compile('[Ee]')):
                     c += self.input.next()
 
                     if self.input.testChar(re.compile('[+-]')):
@@ -1817,7 +1856,7 @@ class Tokenizer:
             if not (last_token.type == 'TK_DOT' \
                         or (last_token.type == 'TK_RESERVED' and last_token.text in ['set', 'get'])) \
                     and c in self.reserved_words:
-                if c == 'in': # in is an operator, need to hack
+                if c == 'in' or c == 'of': # in and of are operators, need to hack
                     return c, 'TK_OPERATOR'
 
                 return c, 'TK_RESERVED'
@@ -1971,6 +2010,8 @@ class Tokenizer:
                             else:
                                 resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
 
+                            if self.input.hasNext():
+                                resulting_string += self.input.next()
 
                     return resulting_string
 
@@ -2051,6 +2092,10 @@ class Tokenizer:
             return '-->', 'TK_COMMENT'
 
         if c == '.':
+            if self.input.peek() == '.' and self.input.peek(1) == '.':
+                c += self.input.next() + self.input.next()
+                return c, 'TK_OPERATOR'
+
             return c, 'TK_DOT'
 
         if c in self.punct:
@@ -2140,8 +2185,8 @@ def main():
         opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
             ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings', 'help',
-            'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
+            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+            'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
             'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length','editorconfig'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
@@ -2215,6 +2260,21 @@ def main():
         if outfile == 'stdout' and replace and not file == '-':
             outfile = file
 
+        # Editorconfig used only on files, not stdin
+        if getattr(js_options, 'editorconfig'):
+            editorconfig_filepath = file
+
+            if editorconfig_filepath == '-':
+                if outfile != 'stdout':
+                    editorconfig_filepath = outfile
+                else:
+                    fileType = 'js'
+                    editorconfig_filepath = 'stdin.' + fileType
+
+            # debug("EditorConfig is enabled for ", editorconfig_filepath);
+            js_options = copy.copy(js_options)
+            set_file_editorconfig_opts(editorconfig_filepath, js_options)
+
         pretty = beautify_file(file, js_options)
 
         if outfile == 'stdout':
@@ -2228,10 +2288,19 @@ def main():
         else:
             if isFileDifferent(outfile, pretty):
                 mkdir_p(os.path.dirname(outfile))
+
                 # python automatically converts newlines in text to "\r\n" when on windows
                 # set newline to empty to prevent this
                 with io.open(outfile, 'wt', newline='') as f:
-                    f.write(pretty)
+                    print('writing ' + outfile, file=sys.stderr)
+                    try:
+                        f.write(pretty)
+                    except TypeError:
+                        # This is not pretty, but given how we did the version import
+                        # it is the only way to do this without having setup.py fail on a missing six dependency.
+                        six = __import__("six")
+                        f.write(six.u(pretty))
+
 
     except Exception as ex:
         print(ex, file=sys.stderr)

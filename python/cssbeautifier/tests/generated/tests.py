@@ -6,6 +6,30 @@
     Script: test/generate-tests.js
     Template: test/data/css/python.mustache
     Data: test/data/css/tests.js
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 '''
 
 import unittest
@@ -50,9 +74,9 @@ class CSSBeautifierTest(unittest.TestCase):
         true = True
 
 
-        self.reset_options();
         #============================================================
         # End With Newline - (eof = "\n")
+        self.reset_options();
         self.options.end_with_newline = true
         test_fragment('', '\n')
         test_fragment('   .tabs{}', '   .tabs {}\n')
@@ -60,6 +84,7 @@ class CSSBeautifierTest(unittest.TestCase):
         test_fragment('\n')
 
         # End With Newline - (eof = "")
+        self.reset_options();
         self.options.end_with_newline = false
         test_fragment('')
         test_fragment('   .tabs{}', '   .tabs {}')
@@ -67,24 +92,59 @@ class CSSBeautifierTest(unittest.TestCase):
         test_fragment('\n', '')
 
 
-        self.reset_options();
         #============================================================
         # Empty braces
+        self.reset_options();
         t('.tabs{}', '.tabs {}')
         t('.tabs { }', '.tabs {}')
         t('.tabs    {    }', '.tabs {}')
         t('.tabs    \n{\n    \n  }', '.tabs {}')
 
 
-        self.reset_options();
         #============================================================
         # 
+        self.reset_options();
         t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}')
 
 
+        #============================================================
+        # Support simple language specific option inheritance/overriding - (c = "     ")
         self.reset_options();
+        self.options.indent_char = ' '
+        self.options.indent_size = 4
+        self.options.js = { 'indent_size': 3 }
+        self.options.css = { 'indent_size': 5 }
+        t(
+            '.selector {\n' +
+            '     font-size: 12px;\n' +
+            '}')
+
+        # Support simple language specific option inheritance/overriding - (c = "    ")
+        self.reset_options();
+        self.options.indent_char = ' '
+        self.options.indent_size = 4
+        self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }
+        t(
+            '.selector {\n' +
+            '    font-size: 12px;\n' +
+            '}')
+
+        # Support simple language specific option inheritance/overriding - (c = "   ")
+        self.reset_options();
+        self.options.indent_char = ' '
+        self.options.indent_size = 9
+        self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 8 }, 'indent_size': 2}
+        self.options.js = { 'indent_size': 5 }
+        self.options.css = { 'indent_size': 3 }
+        t(
+            '.selector {\n' +
+            '   font-size: 12px;\n' +
+            '}')
+
+
         #============================================================
         # Space Around Combinator - (space = " ")
+        self.reset_options();
         self.options.space_around_combinator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
@@ -116,6 +176,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Space Around Combinator - (space = "")
+        self.reset_options();
         self.options.space_around_combinator = false
         t('a>b{}', 'a>b {}')
         t('a~b{}', 'a~b {}')
@@ -147,6 +208,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Space Around Combinator - (space = " ")
+        self.reset_options();
         self.options.space_around_selector_separator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
@@ -178,9 +240,9 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
 
-        self.reset_options();
         #============================================================
         # Selector Separator - (separator = " ", separator1 = " ")
+        self.reset_options();
         self.options.selector_separator_newline = false
         self.options.selector_separator = " "
         t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
@@ -190,6 +252,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
 
         # Selector Separator - (separator = " ", separator1 = " ")
+        self.reset_options();
         self.options.selector_separator_newline = false
         self.options.selector_separator = "  "
         t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}')
@@ -199,6 +262,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}')
 
         # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.reset_options();
         self.options.selector_separator_newline = true
         self.options.selector_separator = " "
         t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
@@ -208,6 +272,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
 
         # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        self.reset_options();
         self.options.selector_separator_newline = true
         self.options.selector_separator = "  "
         t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}')
@@ -217,9 +282,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
 
 
-        self.reset_options();
         #============================================================
         # Newline Between Rules - (separator = "\n")
+        self.reset_options();
         self.options.newline_between_rules = true
         t('.div {}\n.span {}', '.div {}\n\n.span {}')
         t('.div{}\n   \n.span{}', '.div {}\n\n.span {}')
@@ -234,6 +299,7 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n\n.div {\n\theight: 15px;\n}')
 
         # Newline Between Rules - (separator = "")
+        self.reset_options();
         self.options.newline_between_rules = false
         t('.div {}\n.span {}')
         t('.div{}\n   \n.span{}', '.div {}\n.span {}')
@@ -248,9 +314,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}')
 
 
-        self.reset_options();
         #============================================================
         # Functions braces
+        self.reset_options();
         t('.tabs(){}', '.tabs() {}')
         t('.tabs (){}', '.tabs () {}')
         t('.tabs (pa, pa(1,2)), .cols { }', '.tabs (pa, pa(1, 2)),\n.cols {}')
@@ -261,9 +327,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}')
 
 
-        self.reset_options();
         #============================================================
         # Comments
+        self.reset_options();
         t('/* test */')
         t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}')
         t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}')
@@ -283,9 +349,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}')
 
 
-        self.reset_options();
         #============================================================
         # Handle LESS property name interpolation
+        self.reset_options();
         t('tag {\n\t@{prop}: none;\n}')
         t('tag{@{prop}:none;}', 'tag {\n\t@{prop}: none;\n}')
         t('tag{ @{prop}: none;}', 'tag {\n\t@{prop}: none;\n}')
@@ -296,16 +362,16 @@ class CSSBeautifierTest(unittest.TestCase):
         t('tag{ dynamic-@{prop}: none;}', 'tag {\n\tdynamic-@{prop}: none;\n}')
 
 
-        self.reset_options();
         #============================================================
         # Handle LESS property name interpolation, test #631
+        self.reset_options();
         t('.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}')
         t('.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}', '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}')
 
 
-        self.reset_options();
         #============================================================
         # Psuedo-classes vs Variables
+        self.reset_options();
         t('@page :first {}')
         
         # Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.
@@ -313,9 +379,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('@page: first {}')
 
 
-        self.reset_options();
         #============================================================
         # SASS/SCSS
+        self.reset_options();
         
         # Basic Interpolation
         t('p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}')
@@ -336,9 +402,9 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
 
-        self.reset_options();
         #============================================================
         # Proper handling of colon in selectors
+        self.reset_options();
         self.options.selector_separator_newline = false
         t('a :b {}')
         t('a ::b {}')
@@ -355,9 +421,9 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
 
-        self.reset_options();
         #============================================================
         # Regresssion Tests
+        self.reset_options();
         self.options.selector_separator_newline = false
         t(
             '@media(min-width:768px) {\n' +
@@ -368,11 +434,15 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t\t/* property: value */\n' +
             '\t}\n' +
             '}')
+        t(
+            '.fa-rotate-270 {\n' +
+            '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}')
 
 
-        self.reset_options();
         #============================================================
         # 
+        self.reset_options();
 
 
 
@@ -541,9 +611,14 @@ class CSSBeautifierTest(unittest.TestCase):
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
-        input = input.replace('\n', '\r\n')
-        self.assertMultiLineEqual(
-            cssbeautifier.beautify(input, self.options), expectation)
+        if input.find('\n') != -1:
+            input = input.replace('\n', '\r\n')
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
+            # Ensure support for auto eol detection
+            self.options.eol = 'auto'
+            self.assertMultiLineEqual(
+                cssbeautifier.beautify(input, self.options), expectation)
         self.options.eol = '\n'
 
 if __name__ == '__main__':

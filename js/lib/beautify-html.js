@@ -3,7 +3,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -84,6 +84,28 @@
         return s.replace(/\s+$/g, '');
     }
 
+    function mergeOpts(allOptions, targetType) {
+        var finalOpts = {};
+        var name;
+
+        for (name in allOptions) {
+            if (name !== targetType) {
+                finalOpts[name] = allOptions[name];
+            }
+        }
+
+        //merge in the per type settings for the targetType
+        if (targetType in allOptions) {
+            for (name in allOptions[targetType]) {
+                finalOpts[name] = allOptions[targetType][name];
+            }
+        }
+        return finalOpts;
+    }
+
+    var lineBreak = /\r\n|[\n\r\u2028\u2029]/;
+    var allLineBreaks = new RegExp(lineBreak.source, 'g');
+
     function style_html(html_source, options, js_beautify, css_beautify) {
         //Wrapper function to invoke all the necessary constructors and deal with the output.
 
@@ -102,11 +124,17 @@
             wrap_attributes,
             wrap_attributes_indent_size,
             is_wrap_attributes_force,
+            is_wrap_attributes_force_expand_multiline,
+            is_wrap_attributes_force_aligned,
             end_with_newline,
             extra_liners,
             eol;
 
         options = options || {};
+
+        // Allow the setting of language/file-type specific options
+        // with inheritance of overall settings
+        options = mergeOpts(options, 'html');
 
         // backwards compatibility to 1.3.4
         if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
@@ -130,7 +158,7 @@
             'span', 'strong', 'sub', 'sup', 'svg', 'template', 'textarea', 'time', 'u', 'var',
             'video', 'wbr', 'text',
             // prexisting - not sure of full effect of removing, leaving in
-            'acronym', 'address', 'big', 'dt', 'ins', 'small', 'strike', 'tt',
+            'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt',
             'pre',
         ];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
@@ -141,18 +169,30 @@
         wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
         wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? indent_size : parseInt(options.wrap_attributes_indent_size, 10);
         is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
+        is_wrap_attributes_force_expand_multiline = (wrap_attributes === 'force-expand-multiline');
+        is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
         end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
             options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
             options.extra_liners.split(',') : 'head,body,/html'.split(',');
-        eol = options.eol ? options.eol : '\n';
+        eol = options.eol ? options.eol : 'auto';
 
         if (options.indent_with_tabs) {
             indent_character = '\t';
             indent_size = 1;
         }
 
+        if (eol === 'auto') {
+            eol = '\n';
+            if (html_source && lineBreak.test(html_source || '')) {
+                eol = html_source.match(lineBreak)[0];
+            }
+        }
+
         eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
+
+        // HACK: newline parsing inconsistent. This brute force normalizes the input.
+        source_text = html_source.replace(allLineBreaks, '\n');
 
         function Parser() {
 
@@ -249,9 +289,10 @@
 
             this.get_content = function() { //function to capture regular content between tags
                 var input_char = '',
-                    content = [];
+                    content = [],
+                    handlebarsStarted = 0;
 
-                while (this.input.charAt(this.pos) !== '<') {
+                while (this.input.charAt(this.pos) !== '<' || handlebarsStarted === 2) {
                     if (this.pos >= this.input.length) {
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
@@ -261,7 +302,20 @@
                         continue;
                     }
 
+                    input_char = this.input.charAt(this.pos);
+
                     if (indent_handlebars) {
+                        if (input_char === '{') {
+                            handlebarsStarted += 1;
+                        } else if (handlebarsStarted < 2) {
+                            handlebarsStarted = 0;
+                        }
+
+                        if (input_char === '}' && handlebarsStarted > 0) {
+                            if (handlebarsStarted-- === 0) {
+                                break;
+                            }
+                        }
                         // Handlebars parsing is complicated.
                         // {{#foo}} and {{/foo}} are formatted tags.
                         // {{something}} should get treated as content, except:
@@ -279,7 +333,6 @@
                         }
                     }
 
-                    input_char = this.input.charAt(this.pos);
                     this.pos++;
                     this.line_char_count++;
                     content.push(input_char); //letter at-a-time (or string) inserted to an array
@@ -361,10 +414,13 @@
                     comment = '',
                     space = false,
                     first_attr = true,
+                    has_wrapped_attrs = false,
                     tag_start, tag_end,
                     tag_start_char,
                     orig_pos = this.pos,
-                    orig_line_char_count = this.line_char_count;
+                    orig_line_char_count = this.line_char_count,
+                    is_tag_closed = false,
+                    tail;
 
                 peek = peek !== undefined ? peek : false;
 
@@ -388,27 +444,44 @@
                     if (input_char === "'" || input_char === '"') {
                         input_char += this.get_unformatted(input_char);
                         space = true;
-
                     }
 
                     if (input_char === '=') { //no space before =
                         space = false;
                     }
-
+                    tail = this.input.substr(this.pos - 1);
+                    if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {
+                        if (tail.match(/^\/?\s*>/)) {
+                            space = false;
+                            is_tag_closed = true;
+                            this.print_newline(false, content);
+                            this.print_indentation(content);
+                        }
+                    }
                     if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
                         //no space after = or before >
                         var wrapped = this.space_or_wrap(content);
                         var indentAttrs = wrapped && input_char !== '/' && !is_wrap_attributes_force;
                         space = false;
-                        if (!first_attr && is_wrap_attributes_force && input_char !== '/') {
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
-                            indentAttrs = true;
+
+                        if (is_wrap_attributes_force && input_char !== '/') {
+                            var force_first_attr_wrap = false;
+                            if (is_wrap_attributes_force_expand_multiline && first_attr) {
+                                var is_only_attribute = tail.match(/^\S*(="([^"]|\\")*")?\s*\/?\s*>/) !== null;
+                                force_first_attr_wrap = !is_only_attribute;
+                            }
+                            if (!first_attr || force_first_attr_wrap) {
+                                this.print_newline(false, content);
+                                this.print_indentation(content);
+                                indentAttrs = true;
+                            }
                         }
                         if (indentAttrs) {
+                            has_wrapped_attrs = true;
+
                             //indent attributes an auto, forced, or forced-align line-wrap
                             var alignment_size = wrap_attributes_indent_size;
-                            if (wrap_attributes === 'force-aligned') {
+                            if (is_wrap_attributes_force_aligned) {
                                 alignment_size = content.indexOf(' ') + 1;
                             }
 
@@ -416,10 +489,12 @@
                                 content.push(indent_character);
                             }
                         }
-                        for (var i = 0; i < content.length; i++) {
-                            if (content[i] === ' ') {
-                                first_attr = false;
-                                break;
+                        if (first_attr) {
+                            for (var i = 0; i < content.length; i++) {
+                                if (content[i] === ' ') {
+                                    first_attr = false;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -478,7 +553,9 @@
                 var tag_index;
                 var tag_offset;
 
-                if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
+                if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
+                    tag_index = tag_complete.indexOf('\n');
+                } else if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
                 } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');

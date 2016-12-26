@@ -2,7 +2,7 @@
 <!--
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -271,7 +271,7 @@
             opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
             opts.break_chained_methods = $('#break-chained-methods').prop('checked');
             opts.indent_scripts = $('#indent-scripts').val();
-            opts.brace_style = $('#brace-style').val();
+            opts.brace_style = $('#brace-style').val() + ($('#brace-preserve-inline').prop('checked') ? ",preserve-inline" : "");
             opts.space_before_conditional = $('#space-before-conditional').prop('checked');
             opts.unescape_strings = $('#unescape-strings').prop('checked');
             opts.jslint_happy = $('#jslint-happy').prop('checked');
@@ -300,11 +300,8 @@
 
         function looks_like_html(source) {
             // <foo> - looks like html
-            // <!--\nalert('foo!');\n--> - doesn't look like html
-
             var trimmed = source.replace(/^[ \t\n\r]+/, '');
-            var comment_mark = '<' + '!-' + '-';
-            return (trimmed && (trimmed.substring(0, 1) === '<' && trimmed.substring(0, 4) !== comment_mark));
+            return trimmed && (trimmed.substring(0, 1) === '<');
         }
     </script>
 </head>
@@ -357,7 +354,6 @@
 
                 <select id="brace-style">
                     <option value="collapse">Braces with control statement</option>
-                    <option value="collapse-preserve-inline">Braces inline or with control statement</option>
                     <option value="expand">Braces on own line</option>
                     <option value="end-expand">End braces on own line</option>
                     <option value="none">Attempt to keep braces where they are</option>
@@ -383,6 +379,9 @@
                 <br>
                 <input class="checkbox" type="checkbox" id="detect-packers">
                 <label for="detect-packers">Detect packers and obfuscators?</label>
+                <br>
+                <input class="checkbox" type="checkbox" id="brace-preserve-inline">
+                <label for="keep-array-indentation">Preserve inline braces/code blocks?</label>
                 <br>
                 <input class="checkbox" type="checkbox" id="keep-array-indentation">
                 <label for="keep-array-indentation">Keep array indentation?</label>

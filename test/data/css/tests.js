@@ -1,3 +1,29 @@
+/*
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
 exports.test_data = {
     default_options: [
         { name: "indent_size", value: "1" },
@@ -46,6 +72,44 @@ exports.test_data = {
             input: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
             output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
         }, ],
+    }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "4" },
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                c: '     ',
+            },
+            {
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "4" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                c: '    '
+            },
+            {
+                options: [
+                    { name: "indent_char", value: "' '" },
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 8 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 5 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                c: '   '
+            }
+        ],
+        tests: [{
+            unchanged: [
+                '.selector {',
+                '{{c}}font-size: 12px;',
+                '}'
+            ]
+        }]
     }, {
         name: "Space Around Combinator",
         description: "",
@@ -317,6 +381,12 @@ exports.test_data = {
                 '\t.other-selector {',
                 '\t\t/* property: value */',
                 '\t}',
+                '}'
+            ]
+        }, {
+            unchanged: [
+                '.fa-rotate-270 {',
+                '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
                 '}'
             ]
         }]

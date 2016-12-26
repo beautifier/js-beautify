@@ -3,7 +3,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -40,8 +40,24 @@ var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
-    nopt = require('nopt'),
-    path = require('path'),
+    nopt = require('nopt');
+nopt.typeDefs.brace_style = {
+    type: "brace_style",
+    validate: function(data, key, val) {
+        data[key] = val;
+        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
+        // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
+        for (var i = 0; i < validVals.length; i++) {
+            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+var path = require('path'),
     editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
@@ -56,8 +72,7 @@ var fs = require('fs'),
         "space_in_empty_paren": Boolean,
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
-        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "collapse-preserve-inline", "expand-strict", "none"],
+        "brace_style": "brace_style", //See above for validation
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -227,20 +242,35 @@ var interpret = exports.interpret = function(argv, slice) {
     }
 
     var cfg;
+    var configRecursive = findRecursive(process.cwd(), '.jsbeautifyrc');
+    var configHome = verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc"));
+    var configDefault = __dirname + '/../config/defaults.json';
+
     try {
         cfg = cc(
             parsed,
             cleanOptions(cc.env('jsbeautify_'), knownOpts),
             parsed.config,
-            findRecursive(process.cwd(), '.jsbeautifyrc'),
-            verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
-            __dirname + '/../config/defaults.json'
+            configRecursive,
+            configHome,
+            configDefault
         ).snapshot;
     } catch (ex) {
         debug(cfg);
         // usage(ex);
         console.error(ex);
-        console.error('Error while loading beautifier configuration file.');
+        console.error('Error while loading beautifier configuration.');
+        console.error('Configuration file chain included:');
+        if (parsed.config) {
+            console.error(parsed.config);
+        }
+        if (configRecursive) {
+            console.error(configRecursive);
+        }
+        if (configHome) {
+            console.error(configHome);
+        }
+        console.error(configDefault);
         console.error('Run `' + getScriptName() + ' -h` for help.');
         process.exit(1);
     }
@@ -303,7 +333,7 @@ function usage(err) {
             msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
-            msg.push('  -b, --brace-style                 [collapse|expand|collapse-preserve-inline|end-expand|none] ["collapse"]');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
@@ -353,6 +383,25 @@ function processInputSync(filepath) {
         outfile = filepath;
     }
 
+    var fileType = getOutputType(outfile, config.type);
+
+    if (config.editorconfig) {
+        var editorconfig_filepath = filepath;
+
+        if (editorconfig_filepath === '-') {
+            if (outfile) {
+                editorconfig_filepath = outfile;
+            } else {
+                editorconfig_filepath = 'stdin.' + fileType;
+            }
+        }
+
+        debug("EditorConfig is enabled for ", editorconfig_filepath);
+        config = cc(config).snapshot;
+        set_file_editorconfig_opts(editorconfig_filepath, config);
+        debug(config);
+    }
+
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
@@ -364,28 +413,16 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty); // Where things get beautified
+            makePretty(fileType, data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
-        // Only enable editorconfig with files (stdin not suppored).
-        if (config.editorconfig) {
-            debug("EditorConfig is enabled for ", filepath);
-            config = cc(config).snapshot;
-            set_file_editorconfig_opts(filepath, config);
-            debug(config);
-        }
-
-        if (outfile) {
-            mkdirp.sync(path.dirname(outfile));
-        }
         data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, outfile, writePretty);
+        makePretty(fileType, data, config, outfile, writePretty);
     }
 }
 
-function makePretty(code, config, outfile, callback) {
+function makePretty(fileType, code, config, outfile, callback) {
     try {
-        var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
         callback(null, pretty, outfile, config);
@@ -395,12 +432,15 @@ function makePretty(code, config, outfile, callback) {
 }
 
 function writePretty(err, pretty, outfile, config) {
+    debug('writing ' + outfile);
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     if (outfile) {
+        mkdirp.sync(path.dirname(outfile));
+
         if (isFileDifferent(outfile, pretty)) {
             try {
                 fs.writeFileSync(outfile, pretty, 'utf8');
@@ -501,6 +541,8 @@ function checkFiles(parsed) {
         debug("error querying for isTTY:", ex);
     }
 
+    debug('isTTY: ' + isTTY);
+
     if (!parsed.files) {
         parsed.files = [];
     } else {
@@ -519,7 +561,7 @@ function checkFiles(parsed) {
         });
     }
 
-    if ('string' === typeof parsed.outfile && !parsed.files.length) {
+    if ('string' === typeof parsed.outfile && isTTY && !parsed.files.length) {
         // use outfile as input when no other files passed in args
         parsed.files.push(parsed.outfile);
         // operation is now an implicit overwrite

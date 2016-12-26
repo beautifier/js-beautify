@@ -1,22 +1,56 @@
 # Contributing
 
 
-## Report issues
-If you find a bug, please report it, including environment and examples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.
+## Report Issues and Request Changes
+If you find a bug, please report it, including environment and examples of current behavior and what you believe to be the correct behavior.  The clearer your description and information, the more likely it is someone will be able to make progress on it.  The default issue template will help guide you through this. 
 
-## Build and test
-If you run `./build full` from the root folder locally, build and tests will run and should all pass.
+## How to Make Changes (Implement Fixes and New Features) 
+Fixes and enhancements are totally welcome.  We prefer if you file an issue before filing a PR, as this gives us chance to discuss design details, but fee free to dive right in.
 
-## Fix issues
-Pull requests with fixes are totally welcome. Familiarize yourself with the folder structure and code style before you dive in.  Where possible fixes should include tests to prevent future regressions in functionality.  Also, if they apply and you have the ability, make fixes to both python and javascript implementations.
+### 1. Build and Test Locally
+While developing, you may build and test locally in JavaScript or Python implementation.  The HTML beautifier is only implemented in JavaScript.  
 
-We use travis-ci.org to run build and test passes.  If you run `./build full` from the root folder locally, tests will run and must all pass.  The build may generate updated test files - commit any changes reported by `git status` after the build completes. Then create pull request.   
+* Familiarize yourself with the folder structure and code style before you dive in.  
+* Make changes to the implemnation of your choice
+* Add tests to `/test/data/*/test.js`. 
+* Run `./build jstest` or `./build pytest` to run style checks, and to generate and run tests. 
+* Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
 
+### 2. Ensure Feature Parity
+You must port changes to the other implementation.  **This is required**.  Every time we make an exception to this requirement the project becomes harder to maintain.  If you find yourself making changes and find you cannot port them to the other implementation due to implmentations being out of sync, you will begin to understand why this is required. We made this a requirement several years ago and there are still a open issues for changes that people at the time promised to port "in the next week or two".  The entire HTML beautifier is an example of this. :(
+
+The implementations are already very similar and neither Python nor JavaScript are that hard to understand.  Take the plunge, it is easier than you think.  If you get stuck, move on to filing a Pull Request and we can discuss how to move forward.
+
+* Run `./build` (with no parameters) to run style checks, and to generate and run tests on both implementations. 
+* Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
+
+### 3. Update Documentation and Tools
+Update documentation as needed.  This such as the README.md, internal command-line help, and file comments.
+Also, check your change needs any tooling updates.  For example, the CDN urls required added scripting to update automatically for new releases. 
+
+### 4. Submit a Pull Request 
+
+* Run `./build full` locally after commit but before creation of Pull Request.  You may start a Pull Request if this does not succeed, but the PR will not be accepted without additional changes.
+* Include description of changea. Include examples of input and expected output if possible. 
+* Pull requests must pass build checks on all platforms before being accepted. We use travis-ci and appveyor to run tests on Linux and Windows, across multiple versions of Node.js and Python.
 
 # Folders
+
+## Root
+Some files related to specific implementations or platforms are found in the root folder, but most are cross-project tools and configuration.  
+
 ## js
+Files related to the JavaScript implmentations of the beautifiers. 
+
 ## python
+Files related to the JavaScript implmentations of the beautifiers. 
+
+
 ## web
+Files related to http://jsbeautifier.org/.  
+
+## test
+Test data files and support files used to generate implmentation-specific test files from them.
 
 
 # Branches

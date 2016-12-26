@@ -1,3 +1,29 @@
+/*
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
 var inputlib = require('./inputlib');
 
 exports.test_data = {
@@ -31,6 +57,27 @@ exports.test_data = {
             { unchanged: 'a = `This is a continuation\\\nstring.`' },
             { unchanged: 'a = "This is a continuation\\\nstring."' },
             { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+            {
+                comment: 'Tests for #1030',
+                unchanged: [
+                    'const composeUrl = (host) => {',
+                    '    return `${host `test`}`;',
+                    '};'
+                ]
+            }, {
+                unchanged: [
+                    'const composeUrl = (host, api, key, data) => {',
+                    '    switch (api) {',
+                    '        case "Init":',
+                    '            return `${host}/vwapi/Init?VWID=${key}&DATA=${encodeURIComponent(',
+                    '                Object.keys(data).map((k) => `${k}=${ data[k]}` ).join(";")',
+                    '            )}`;',
+                    '        case "Pay":',
+                    '            return `${host}/vwapi/Pay?SessionId=${par}`;',
+                    '    };',
+                    '};'
+                ]
+            }
         ]
     }, {
         name: "ES7 Decorators",
@@ -54,12 +101,26 @@ exports.test_data = {
             { unchanged: 'x ** -2' }
         ]
     }, {
+        name: "Spread operator",
+        description: "Spread operator",
+        options: [
+            { name: 'brace_style', value: '"collapse,preserve-inline"' }
+        ],
+        tests: [
+            { unchanged: 'const m = { ...item, c: 3 };' },
+            { unchanged: 'const m = {\n    ...item,\n    c: 3\n};' },
+            { unchanged: 'const m = { c: 3, ...item };' },
+            { unchanged: 'const m = [...item, 3];' },
+            { unchanged: 'const m = [3, ...item];' }
+        ]
+    }, {
         name: "Object literal shorthand functions",
         description: "Object literal shorthand functions",
         tests: [
             { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
             {
-                unchanged: ['var foo = {',
+                unchanged: [
+                    'var foo = {',
                     '    * bar() {',
                     '        yield 42;',
                     '    }',
@@ -76,6 +137,31 @@ exports.test_data = {
                     '        yield 42;',
                     '    }',
                     '};'
+                ]
+            }, {
+                comment: 'also handle generator shorthand in class - #1013',
+                unchanged: [
+                    'class A {',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'class A {',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '}'
                 ]
             }
         ]
@@ -102,14 +188,47 @@ exports.test_data = {
             { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                j: '   '
+            },
+            {
+                options: [
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                j: '    '
+            },
+            {
+                options: [
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 4 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                j: '    '
+            }
+        ],
+        tests: [{
+            unchanged: [
+                'if (a == b) {',
+                '{{j}}test();',
+                '}'
+            ]
+        }, ]
+    }, {
         name: "Brace style permutations",
         description: "",
         template: "< >",
         matrix: [
-            // collapse-preserve-inline variations
+            // brace_style collapse,preserve-inline - Should preserve if no newlines
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 ibo: '',
                 iao: '',
@@ -122,7 +241,7 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 ibo: '\\n',
                 iao: '\\n',
@@ -134,7 +253,7 @@ exports.test_data = {
                 oac: ' '
             },
 
-            // collapse variations
+            // brace_style collapse - Shouldn't preserve if no newlines (uses collapse styling)
             {
                 options: [
                     { name: "brace_style", value: "'collapse'" }
@@ -1938,7 +2057,7 @@ exports.test_data = {
                     '    new Date().getTime()',
                     '].join("-");'
                 ]
-            },
+            }
         ]
     }, {
         name: "Test non-positionable-ops",
@@ -1957,9 +2076,164 @@ exports.test_data = {
             { unchanged: 'a >>= 2;' },
         ]
     }, {
+        //Relies on the tab being four spaces as default for the tests
+        name: "brace_style ,preserve-inline tests",
+        description: "brace_style *,preserve-inline varying different brace_styles",
+        template: "< >",
+        matrix: [
+            //test for all options of brace_style
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '', //Output Before Open curlybrace & Tab character
+                oao: '\\n',
+                oaot: '    ', //Output After Open curlybrace & corresponding Tab
+                obc: '\\n', //Output Before Close curlybrace
+                oac: ' ',
+                oact: '' //Output After Close curlybrace & corresponding Tab character
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'expand,preserve-inline'" }
+                ],
+                obo: '\\n',
+                obot: '    ',
+                oao: '\\n',
+                oaot: '    ',
+                obc: '\\n',
+                oac: '\\n',
+                oact: '    '
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'end-expand,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
+                obc: '\\n',
+                oac: '\\n',
+                oact: '    '
+            },
+            {
+                //None tries not to touch brace style so all the tests in this
+                //matrix were formatted as if they were collapse
+                options: [
+                    { name: "brace_style", value: "'none,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
+                obc: '\\n',
+                oac: ' ',
+                oact: ''
+            },
+            //Test for backward compatibility
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                ],
+                //Equivalent to the output of the first test
+                obo: ' ',
+                obot: '',
+                oao: '\\n',
+                oaot: '    ',
+                obc: '\\n',
+                oac: ' ',
+                oact: ''
+            }
+        ],
+        tests: [
+            //Test single inline blocks
+            {
+                unchanged: 'import { asdf } from "asdf";'
+            },
+            {
+                unchanged: 'import { get } from "asdf";'
+            },
+            {
+                unchanged: 'function inLine() { console.log("oh em gee"); }'
+            },
+            {
+                unchanged: 'if (cancer) { console.log("Im sorry but you only have so long to live..."); }'
+            },
+            //Test more complex inliners
+            {
+                input: 'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+                output: 'if (ding) { console.log("dong"); }<oac>else { console.log("dang"); }'
+            },
+            //Test complex mixes of the two
+            {
+                //The outer function and the third object (obj3) should not
+                //be preserved. All other objects should be
+                input: [
+                    'function kindaComplex() {',
+                    '    var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {',
+                    '        c: "c",',
+                    '        d: "d",',
+                    '        e: "e"',
+                    '    };',
+                    '}'
+                ],
+                output: [
+                    'function kindaComplex()<obo>{<oao>' + //NL in templates
+                    '<oaot>var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {<oao>' + //NL in templates, Expand doesnt affect js objects
+                    '<oaot><oaot>c: "c",',
+                    '        d: "d",',
+                    '        e: "e"' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
+                ]
+            },
+            {
+                //All inlines should be preserved, all non-inlines (specifically
+                //complex(), obj, and obj.b should not be preserved (and hence
+                //have the template spacing defined in output)
+                input: [
+                    'function complex() {',
+                    '    console.log("wowe");',
+                    '    (function() { var a = 2; var b = 3; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {',
+                    '        a: function() { console.log("test"); },',
+                    '        b() {',
+                    '             console.log("test2");',
+                    '        }',
+                    '    };',
+                    '}'
+
+                ],
+                output: [
+                    'function complex()<obo>{<oao>' + //NL in templates
+                    '<oaot>console.log("wowe");',
+                    '    (function() { var a = 2; var b = 3; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {<oao>' + //NL in templates
+                    '<oaot><oaot>a: function() { console.log("test"); },',
+                    '        b()<obo><obot><obot>{<oao>' + //NL in templates
+                    '<oaot><oaot><oaot>console.log("test2");' +
+                    '<obc>        }' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
+                ]
+            }
+        ]
+    }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
-        options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],
+        options: [
+            { name: "brace_style", value: "'collapse,preserve-inline'" }
+        ], //Issue 1052, now collapse,preserve-inline instead of collapse-preserve-inline
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [
@@ -2094,6 +2368,17 @@ exports.test_data = {
                     'sd = 1;',
                     '/'
                 ]
+            },
+            {
+                comment: "Issue #1079 - unbraced if with comments should still look right",
+                unchanged: [
+                    'if (console.log)',
+                    '    for (var i = 0; i < 20; ++i)',
+                    '        if (i % 3)',
+                    '            console.log(i);',
+                    '// all done',
+                    'console.log("done");'
+                ]
             }
         ]
     }, {
@@ -2155,12 +2440,13 @@ exports.test_data = {
             { unchanged: 'a = 06789e-10' },
             { unchanged: 'a = e - 10' },
             { unchanged: 'a = 1.3e+10' },
+            { unchanged: 'a = 1.e-7' },
             { unchanged: 'a = -12345.3e+10' },
             { unchanged: 'a = .12345e+10' },
             { unchanged: 'a = 06789e+10' },
             { unchanged: 'a = e + 10' },
             { input: 'a=0e-12345.3e-10', output: 'a = 0e-12345 .3e-10' },
-            { input: 'a=0.e-12345.3e-10', output: 'a = 0. e - 12345.3e-10' },
+            { input: 'a=0.e-12345.3e-10', output: 'a = 0.e-12345 .3e-10' },
             { input: 'a=0x.e-12345.3e-10', output: 'a = 0x.e - 12345.3e-10' },
             { input: 'a=0x0.e-12345.3e-10', output: 'a = 0x0.e - 12345.3e-10' },
             { input: 'a=0x0.0e-12345.3e-10', output: 'a = 0x0 .0e-12345 .3e-10' },
@@ -2285,7 +2571,9 @@ exports.test_data = {
             { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
             { input: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
             { input: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
-            { input: 'if (a in b) foo();' },
+            { unchanged: 'if (a in b) foo();' },
+            { unchanged: 'if (a of b) foo();' },
+            { unchanged: 'if (a of [1, 2, 3]) foo();' },
             {
                 input: 'if(X)if(Y)a();else b();else c();',
                 output: "if (X)\n    if (Y) a();\n    else b();\nelse c();"
