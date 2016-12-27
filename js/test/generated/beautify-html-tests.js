@@ -870,7 +870,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         //============================================================
         // Unformatted tags
         reset_options();
-        test_fragment('<ol>\n    <li>b<pre>c</pre></li>\n</ol>');
+        test_fragment(
+            '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
+            '<ol>\n' +
+            '    <li>b\n' +
+            '        <pre>c</pre>\n' +
+            '    </li>\n' +
+            '</ol>');
         test_fragment('<ol>\n    <li>b<code>c</code></li>\n</ol>');
         test_fragment('<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>');
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
@@ -1025,6 +1031,105 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         opts.indent_head_inner_html = false;
         test_fragment('<html>\n\n<head>\n<meta>\n</head>\n\n</html>');
+
+
+        //============================================================
+        // content_unformatted to prevent formatting content
+        reset_options();
+        opts.content_unformatted = ['script', 'style', 'p', 'span', 'br'];
+        test_fragment(
+            '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+            '<html>\n' +
+            '<body>\n' +
+            '    <h1>A</h1>\n' +
+            '    <script>if(1){f();}</script>\n' +
+            '    <style>.a{display:none;}</style>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+        test_fragment(
+            '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            '<div>\n' +
+            '    <p>Beautify me</p>\n' +
+            '</div>\n' +
+            '<p><p>But not me</p></p>');
+        test_fragment(
+            '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            '<div>\n' +
+            '    <p class="beauty-me">Beautify me</p>\n' +
+            '</div>\n' +
+            '<p><p\n' +
+            '  class="iamalreadybeauty"\n' +
+            '>But not me</p></p>');
+        test_fragment('<div><span>blabla<div>something here</div></span></div>');
+        test_fragment('<div><br /></div>');
+        test_fragment(
+            '<div><pre>var a=1;\nvar b=a;</pre></div>',
+            '<div>\n' +
+            '    <pre>var a=1; var b=a;</pre>\n' +
+            '</div>');
+        test_fragment(
+            '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+            '<div>\n' +
+            '    <pre>\n' +
+            '        var a=1; var b=a;\n' +
+            '    </pre>\n' +
+            '</div>');
+
+
+        //============================================================
+        // default content_unformatted
+        reset_options();
+        test_fragment(
+            '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+            '<html>\n' +
+            '<body>\n' +
+            '    <h1>A</h1>\n' +
+            '    <script>\n' +
+            '        if (1) {\n' +
+            '            f();\n' +
+            '        }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '        .a {\n' +
+            '            display: none;\n' +
+            '        }\n' +
+            '    </style>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+        test_fragment(
+            '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            '<div>\n' +
+            '    <p>Beautify me</p>\n' +
+            '</div>\n' +
+            '<p>\n' +
+            '    <p>But not me</p>\n' +
+            '</p>');
+        test_fragment(
+            '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            '<div>\n' +
+            '    <p class="beauty-me">Beautify me</p>\n' +
+            '</div>\n' +
+            '<p>\n' +
+            '    <p class="iamalreadybeauty">But not me</p>\n' +
+            '</p>');
+        test_fragment('<div><span>blabla<div>something here</div></span></div>');
+        test_fragment('<div><br /></div>');
+        test_fragment(
+            '<div><pre>var a=1;\nvar b=a;</pre></div>',
+            '<div>\n' +
+            '    <pre>var a=1;\n' +
+            'var b=a;</pre>\n' +
+            '</div>');
+        test_fragment(
+            '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+            '<div>\n' +
+            '    <pre>\n' +
+            'var a=1;\n' +
+            'var b=a;\n' +
+            '</pre>\n' +
+            '</div>');
 
 
         //============================================================
