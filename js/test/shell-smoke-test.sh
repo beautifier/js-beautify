@@ -93,6 +93,11 @@ test_cli_js_beautify()
       exit 1
   }
 
+  node $SCRIPT_DIR/../lib/cli.js $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      exit 1
+  }
+
   cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
       exit 1

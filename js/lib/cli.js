@@ -386,7 +386,7 @@ function processInputSync(filepath) {
         outfile = filepath;
     }
 
-    var fileType = getOutputType(outfile, config.type);
+    var fileType = getOutputType(outfile, filepath, config.type);
 
     if (config.editorconfig) {
         var editorconfig_filepath = filepath;
@@ -510,11 +510,16 @@ function dasherizeShorthands(hash) {
     return hash;
 }
 
-function getOutputType(outfile, configType) {
+function getOutputType(outfile, filepath, configType) {
     if (outfile && /\.(js|css|html)$/.test(outfile)) {
         return outfile.split('.').pop();
+    } else if (filepath !== '-' && /\.(js|css|html)$/.test(filepath)) {
+        return filepath.split('.').pop();
+    } else if (configType) {
+        return configType;
+    } else {
+        throw 'Could not determine appropriate beautifier from file paths: ' + filepath;
     }
-    return configType;
 }
 
 function getScriptName() {
@@ -523,6 +528,10 @@ function getScriptName() {
 
 function checkType(parsed) {
     var scriptType = getScriptName().split('-').shift();
+    if (!/^(js|css|html)$/.test(scriptType)) {
+        scriptType = null;
+    }
+
     debug("executable type:", scriptType);
 
     var parsedType = parsed.type;
