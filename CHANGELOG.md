@@ -1,4 +1,14 @@
 # Changelog
+## v1.6.7
+
+### Description
+Added `content_unformatted` option (Thanks @arai-a)
+
+### Closed Issues
+* HTML pre code indentation ([#928](https://github.com/beautify-web/js-beautify/issues/928))
+* Beautify script/style tags but ignore their inner JS/CSS content ([#906](https://github.com/beautify-web/js-beautify/issues/906))
+
+
 ## v1.6.6
 
 ### Description
@@ -40,7 +50,7 @@
 ## v1.6.4
 
 ### Description
-* Fixed JSX multi-line root element handling
+* Fixed JSX multi-line root element handling 
 * Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
 * Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
 * Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
@@ -207,7 +217,7 @@ Version jump due to release script tweaks
 ### Description
 * JSX support!
 * Alternative Newline Characters
-* CSS and JS comment formatting fixes
+* CSS and JS comment formatting fixes 
 * General bug fixing
 
 
@@ -310,12 +320,12 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 * Do not break "x++ + y"
 * function declaration inside array behaves the same as in expression
 * Close String literals at newline
-* Support handlebar syntax
+* Support handlebar syntax 
 * Check `<script>` "type"-attribute
 * Allow `<style>` and `<script>` tags to be unformatted
 * Port css nesting fix to python
 * Fix python six dependency
-* Initial very cursory support for ES6 module, export, and import
+* Initial very cursory support for ES6 module, export, and import 
 
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
@@ -423,7 +433,7 @@ Additional minor fixes and enhancements
 ## v1.4.1
 
 ### Description
-Incremental fixes and improvements
+Incremental fixes and improvements 
 
 
 ### Closed Issues
@@ -487,7 +497,7 @@ https://github.com/einars/js-beautify/compare/v1.3.4...v1.4.0
 ## v1.3.3
 
 ### Description
-Another good set of fixes.
+Another good set of fixes. 
 
 ### Closed Issues
 * Nested arrays indentation with --good-stuff ([#273](https://github.com/beautify-web/js-beautify/issues/273))
@@ -533,3 +543,5 @@ https://github.com/einars/js-beautify/compare/v1.3.1...master
 * New options proposal: spaces around arguments ([#126](https://github.com/beautify-web/js-beautify/issues/126))
 * Add option to put single-statement blocks into a new line ([#116](https://github.com/beautify-web/js-beautify/issues/116))
 * [Feature request] --disable-preserve-newlines to one line ([#74](https://github.com/beautify-web/js-beautify/issues/74))
+
+

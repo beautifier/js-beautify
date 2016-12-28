@@ -47,6 +47,7 @@
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
     unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
+    content_unformatted (defaults to pre tag) - list of tags, that its content shouldn't be reformatted
     indent_scripts (default normal)  - "keep"|"separate"|"normal"
     preserve_newlines (default true) - whether existing line breaks before elements should be preserved
                                         Only works before elements, not inside tags or for text.
@@ -118,6 +119,7 @@
             wrap_line_length,
             brace_style,
             unformatted,
+            content_unformatted,
             preserve_newlines,
             max_preserve_newlines,
             indent_handlebars,
@@ -159,6 +161,8 @@
             'video', 'wbr', 'text',
             // prexisting - not sure of full effect of removing, leaving in
             'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt',
+        ];
+        content_unformatted = options.content_unformatted || [
             'pre',
         ];
         preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
@@ -580,7 +584,9 @@
                         this.indent_content = true;
                         this.traverse_whitespace();
                     }
-                } else if (this.is_unformatted(tag_check, unformatted)) { // do not reformat the "unformatted" tags
+                } else if (this.is_unformatted(tag_check, unformatted) ||
+                    this.is_unformatted(tag_check, content_unformatted)) {
+                    // do not reformat the "unformatted" or "content_unformatted" tags
                     comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
                     content.push(comment);
                     tag_end = this.pos - 1;

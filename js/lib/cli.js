@@ -92,6 +92,7 @@ var path = require('path'),
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
+        "content_unformatted": [String, Array],
         "indent_inner_html": [Boolean],
         "indent_handlebars": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
@@ -139,6 +140,7 @@ var path = require('path'),
         "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
+        "T": ["--content_unformatted"],
         "I": ["--indent_inner_html"],
         "H": ["--indent_handlebars"],
         "S": ["--indent_scripts"],
@@ -354,6 +356,7 @@ function usage(err) {
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -T, --content_unformatted         List of tags (defaults to pre) that its content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
@@ -383,7 +386,7 @@ function processInputSync(filepath) {
         outfile = filepath;
     }
 
-    var fileType = getOutputType(outfile, config.type);
+    var fileType = getOutputType(outfile, filepath, config.type);
 
     if (config.editorconfig) {
         var editorconfig_filepath = filepath;
@@ -507,11 +510,16 @@ function dasherizeShorthands(hash) {
     return hash;
 }
 
-function getOutputType(outfile, configType) {
+function getOutputType(outfile, filepath, configType) {
     if (outfile && /\.(js|css|html)$/.test(outfile)) {
         return outfile.split('.').pop();
+    } else if (filepath !== '-' && /\.(js|css|html)$/.test(filepath)) {
+        return filepath.split('.').pop();
+    } else if (configType) {
+        return configType;
+    } else {
+        throw 'Could not determine appropriate beautifier from file paths: ' + filepath;
     }
-    return configType;
 }
 
 function getScriptName() {
@@ -520,6 +528,10 @@ function getScriptName() {
 
 function checkType(parsed) {
     var scriptType = getScriptName().split('-').shift();
+    if (!/^(js|css|html)$/.test(scriptType)) {
+        scriptType = null;
+    }
+
     debug("executable type:", scriptType);
 
     var parsedType = parsed.type;
