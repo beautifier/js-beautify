@@ -707,8 +707,17 @@ exports.test_data = {
         name: "Unformatted tags",
         description: "Unformatted tag behavior",
         options: [],
-        tests: [
-            { fragment: true, unchanged: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>' },
+        tests: [{
+                fragment: true,
+                input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
+                output: [
+                    '<ol>',
+                    '    <li>b',
+                    '        <pre>c</pre>',
+                    '    </li>',
+                    '</ol>'
+                ]
+            },
             { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
             { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
             { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
@@ -898,6 +907,144 @@ exports.test_data = {
         tests: [{
             fragment: true,
             unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
+        }]
+    }, {
+        name: "content_unformatted to prevent formatting content",
+        description: "",
+        options: [
+            { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
+        ],
+        tests: [{
+            fragment: true,
+            input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+            output: [
+                '<html>',
+                '<body>',
+                '    <h1>A</h1>',
+                '    <script>if(1){f();}</script>',
+                '    <style>.a{display:none;}</style>',
+                '</body>',
+                '',
+                '</html>'
+            ]
+        }, {
+            fragment: true,
+            input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            output: [
+                '<div>',
+                '    <p>Beautify me</p>',
+                '</div>',
+                '<p><p>But not me</p></p>'
+            ]
+        }, {
+            fragment: true,
+            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            output: [
+                '<div>',
+                '    <p class="beauty-me">Beautify me</p>',
+                '</div>',
+                '<p><p',
+                '  class="iamalreadybeauty"',
+                '>But not me</p></p>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<div><span>blabla<div>something here</div></span></div>'
+        }, {
+            fragment: true,
+            unchanged: '<div><br /></div>'
+        }, {
+            fragment: true,
+            input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+            output: [
+                '<div>',
+                '    <pre>var a=1; var b=a;</pre>',
+                '</div>'
+            ]
+        }, {
+            fragment: true,
+            input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+            output: [
+                '<div>',
+                '    <pre>',
+                '        var a=1; var b=a;',
+                '    </pre>',
+                '</div>'
+            ]
+        }]
+    }, {
+        name: "default content_unformatted",
+        description: "",
+        options: [],
+        tests: [{
+            fragment: true,
+            input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+            output: [
+                '<html>',
+                '<body>',
+                '    <h1>A</h1>',
+                '    <script>',
+                '        if (1) {',
+                '            f();',
+                '        }',
+                '    </script>',
+                '    <style>',
+                '        .a {',
+                '            display: none;',
+                '        }',
+                '    </style>',
+                '</body>',
+                '',
+                '</html>'
+            ]
+        }, {
+            fragment: true,
+            input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            output: [
+                '<div>',
+                '    <p>Beautify me</p>',
+                '</div>',
+                '<p>',
+                '    <p>But not me</p>',
+                '</p>',
+            ]
+        }, {
+            fragment: true,
+            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            output: [
+                '<div>',
+                '    <p class="beauty-me">Beautify me</p>',
+                '</div>',
+                '<p>',
+                '    <p class="iamalreadybeauty">But not me</p>',
+                '</p>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<div><span>blabla<div>something here</div></span></div>'
+        }, {
+            fragment: true,
+            unchanged: '<div><br /></div>'
+        }, {
+            fragment: true,
+            input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+            output: [
+                '<div>',
+                '    <pre>var a=1;',
+                'var b=a;</pre>',
+                '</div>'
+            ]
+        }, {
+            fragment: true,
+            input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+            output: [
+                '<div>',
+                '    <pre>',
+                'var a=1;',
+                'var b=a;',
+                '</pre>',
+                '</div>'
+            ]
         }]
     }, {
         name: "New Test Suite"

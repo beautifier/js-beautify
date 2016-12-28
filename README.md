@@ -261,6 +261,7 @@ HTML Beautifier Options:
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline] ["auto"]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "force-aligned")
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
+  -T, --content_unformatted          List of tags (defaults to pre) that its content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
   --editorconfig                     Use EditorConfig to set up the options
 ```
