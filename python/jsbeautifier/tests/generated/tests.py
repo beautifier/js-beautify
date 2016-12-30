@@ -2523,6 +2523,15 @@ class TestJSBeautifier(unittest.TestCase):
             '            console.log(i);\n' +
             '// all done\n' +
             'console.log("done");')
+        
+        # Issue #1085 - function should not have blank line in a number of cases
+        bt(
+            'var transformer =\n' +
+            '    options.transformer ||\n' +
+            '    globalSettings.transformer ||\n' +
+            '    function(x) {\n' +
+            '        return x;\n' +
+            '    };')
 
 
         #============================================================

@@ -2695,6 +2695,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '            console.log(i);\n' +
             '// all done\n' +
             'console.log("done");');
+        
+        // Issue #1085 - function should not have blank line in a number of cases
+        bt(
+            'var transformer =\n' +
+            '    options.transformer ||\n' +
+            '    globalSettings.transformer ||\n' +
+            '    function(x) {\n' +
+            '        return x;\n' +
+            '    };');
 
 
         //============================================================

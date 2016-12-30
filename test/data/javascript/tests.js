@@ -2400,6 +2400,17 @@ exports.test_data = {
                     '// all done',
                     'console.log("done");'
                 ]
+            },
+            {
+                comment: "Issue #1085 - function should not have blank line in a number of cases",
+                unchanged: [
+                    'var transformer =',
+                    '    options.transformer ||',
+                    '    globalSettings.transformer ||',
+                    '    function(x) {',
+                    '        return x;',
+                    '    };'
+                ]
             }
         ]
     }, {

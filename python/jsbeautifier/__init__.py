@@ -997,7 +997,8 @@ class Beautifier:
                 self.allow_wrap_or_preserved_newline(current_token)
 
         if current_token.type == 'TK_RESERVED' and current_token.text == 'function':
-            if self.flags.last_text in ['}', ';'] or (self.output.just_added_newline() and not self.flags.last_text in ['(', '[', '{', ':', '=', ',']):
+            if (self.flags.last_text in ['}', ';'] or
+                (self.output.just_added_newline() and not (self.flags.last_text in ['(', '[', '{', ':', '=', ','] or self.last_type == 'TK_OPERATOR'))):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
                 if not self.output.just_added_blankline() and len(current_token.comments_before) == 0:
