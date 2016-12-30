@@ -341,6 +341,22 @@ class TestJSBeautifier(unittest.TestCase):
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
             '        ,\n    age: 25\n' +
             '});')
+        bt(
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');',
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');')
 
         # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
         self.reset_options();
@@ -365,6 +381,22 @@ class TestJSBeautifier(unittest.TestCase):
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
             '    , age: 25\n' +
             '});')
+        bt(
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');',
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n    , function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');')
 
 
         #============================================================

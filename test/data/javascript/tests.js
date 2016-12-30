@@ -383,6 +383,27 @@ exports.test_data = {
                     '});'
                 ]
             },
+            {
+                input: [
+                    'changeCollection.add(',
+                    '    function() {',
+                    '        return true;',
+                    '    },',
+                    '    function() {',
+                    '        return true;',
+                    '    }',
+                    ');'
+                ],
+                output: [
+                    'changeCollection.add(',
+                    '    function() {',
+                    '        return true;',
+                    '    }{{c1}}function() {',
+                    '        return true;',
+                    '    }',
+                    ');'
+                ]
+            },
         ],
     }, {
         name: "Space in parens tests",

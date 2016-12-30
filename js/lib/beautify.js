@@ -1052,7 +1052,7 @@ if (!Object.values) {
                 }
 
                 if (current_token.type === 'TK_RESERVED' && current_token.text === 'function') {
-                    if (in_array(flags.last_text, ['}', ';']) || (output.just_added_newline() && !in_array(flags.last_text, ['[', '{', ':', '=', ',']))) {
+                    if (in_array(flags.last_text, ['}', ';']) || (output.just_added_newline() && !in_array(flags.last_text, ['(', '[', '{', ':', '=', ',']))) {
                         // make sure there is a nice clean space of at least one blank line
                         // before a new function definition
                         if (!output.just_added_blankline() && !current_token.comments_before.length) {
