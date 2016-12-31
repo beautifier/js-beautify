@@ -1633,6 +1633,89 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Comments and  tests
+        self.reset_options();
+        
+        # #913
+        bt(
+            'class test {\n' +
+            '    method1() {\n' +
+            '        let resp = null;\n' +
+            '    }\n' +
+            '    /**\n' +
+            '     * @param {String} id\n' +
+            '     */\n' +
+            '    method2(id) {\n' +
+            '        let resp2 = null;\n' +
+            '    }\n' +
+            '}')
+        
+        # #1090
+        bt(
+            'for (var i = 0; i < 20; ++i) // loop\n' +
+            '    if (i % 3) {\n' +
+            '        console.log(i);\n' +
+            '    }\n' +
+            'console.log("done");')
+        
+        # #1043
+        bt(
+            'var o = {\n' +
+            '    k: 0\n' +
+            '}\n' +
+            '// ...\n' +
+            'foo(o)')
+        
+        # #713 and #964
+        bt(
+            'Meteor.call("foo", bar, function(err, result) {\n' +
+            '    Session.set("baz", result.lorem)\n' +
+            '})\n' +
+            '//blah blah')
+        
+        # #815
+        bt(
+            'foo()\n' +
+            '// this is a comment\n' +
+            'bar()\n' +
+            '\n' +
+            'const foo = 5\n' +
+            '// comment\n' +
+            'bar()')
+        
+        # This shows current behavior.  Note #1069 is not addressed yet.
+        bt(
+            'if (modulus === 2) {\n' +
+            '    // i might be odd here\n' +
+            '    i += (i & 1);\n' +
+            '    // now i is guaranteed to be even\n' +
+            '    // this block is obviously about the statement above\n' +
+            '\n' +
+            '    // #1069 This should attach to the block below\n' +
+            '    // this comment is about the block after it.\n' +
+            '} else {\n' +
+            '    // rounding up using integer arithmetic only\n' +
+            '    if (i % modulus)\n' +
+            '        i += modulus - (i % modulus);\n' +
+            '    // now i is divisible by modulus\n' +
+            '    // behavior of comments should be different for single statements vs block statements/expressions\n' +
+            '}\n' +
+            '\n' +
+            'if (modulus === 2)\n' +
+            '    // i might be odd here\n' +
+            '    i += (i & 1);\n' +
+            '// now i is guaranteed to be even\n' +
+            '// non-braced comments unindent immediately\n' +
+            '\n' +
+            '// this comment is about the block after it.\n' +
+            'else\n' +
+            '    // rounding up using integer arithmetic only\n' +
+            '    if (i % modulus)\n' +
+            '        i += modulus - (i % modulus);\n' +
+            '// behavior of comments should be different for single statements vs block statements/expressions')
+
+
+        #============================================================
         # Template Formatting
         self.reset_options();
         bt('<?=$view["name"]; ?>')
@@ -2740,6 +2823,20 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 1; // comment')
         bt('a = 1;\n // comment', 'a = 1;\n// comment')
         bt('a = [-1, -1, -1]')
+        bt(
+            '// a\n' +
+            '// b\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '// c\n' +
+            '// d')
+        bt(
+            '// func-comment\n' +
+            '\n' +
+            'function foo() {}\n' +
+            '\n' +
+            '// end-func-comment')
         
         # The exact formatting these should have is open for discussion, but they are at least reasonable
         bt('a = [ // comment\n    -1, -1, -1\n]')
@@ -3002,7 +3099,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.preserve_newlines = True;
         bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;')
-        bt('// a\n// b\n\n// c\n// d')
         bt('if (foo) //  comment\n{\n    bar();\n}')
 
 

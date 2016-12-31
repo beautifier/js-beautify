@@ -362,7 +362,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         opts.preserve_newlines = true;
         bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;');
-        bt('// a\n// b\n\n// c\n// d');
         bt('if (foo) //  comment\n{\n    bar();\n}');
 
 
@@ -520,8 +519,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         beautify_brace_tests('collapse');
         beautify_brace_tests('end-expand');
         beautify_brace_tests('none');
-
-        bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment');
 
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 

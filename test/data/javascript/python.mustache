@@ -186,7 +186,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.preserve_newlines = True;
         bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;')
-        bt('// a\n// b\n\n// c\n// d')
         bt('if (foo) //  comment\n{\n    bar();\n}')
 
 

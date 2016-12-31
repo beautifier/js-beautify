@@ -303,7 +303,7 @@ exports.test_data = {
                     'catch(d)<ibo>{}<iac>' +
                     'finally<ibo>{<iao>e();<ibc>}',
                 output:
-                // expected
+                    // expected
                     'try<obo>{<oao>a();<obc>}<oac>' +
                     'catch (b)<obo>{<oao>c();<obc>}<oac>' +
                     'catch (d)<obo>{}<oac>' +
@@ -1492,6 +1492,103 @@ exports.test_data = {
             },
         ]
     }, {
+        name: "Comments and  tests",
+        description: "Comments should be in the right indent and not side-ffect.",
+        options: [],
+        tests: [{
+                comment: '#913',
+
+                unchanged: [
+                    'class test {',
+                    '    method1() {',
+                    '        let resp = null;',
+                    '    }',
+                    '    /**',
+                    '     * @param {String} id',
+                    '     */',
+                    '    method2(id) {',
+                    '        let resp2 = null;',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
+                comment: '#1090',
+                unchanged: [
+                    'for (var i = 0; i < 20; ++i) // loop',
+                    '    if (i % 3) {',
+                    '        console.log(i);',
+                    '    }',
+                    'console.log("done");',
+                ]
+            },
+            {
+                comment: '#1043',
+                unchanged: [
+                    'var o = {',
+                    '    k: 0',
+                    '}',
+                    '// ...',
+                    'foo(o)',
+                ]
+            },
+            {
+                comment: '#713 and #964',
+                unchanged: [
+                    'Meteor.call("foo", bar, function(err, result) {',
+                    '    Session.set("baz", result.lorem)',
+                    '})',
+                    '//blah blah',
+                ]
+            },
+            {
+                comment: '#815',
+                unchanged: [
+                    'foo()',
+                    '// this is a comment',
+                    'bar()',
+                    '',
+                    'const foo = 5',
+                    '// comment',
+                    'bar()',
+                ]
+            },
+            {
+                comment: 'This shows current behavior.  Note #1069 is not addressed yet.',
+                unchanged: [
+                    'if (modulus === 2) {',
+                    '    // i might be odd here',
+                    '    i += (i & 1);',
+                    '    // now i is guaranteed to be even',
+                    '    // this block is obviously about the statement above',
+                    '',
+                    '    // #1069 This should attach to the block below',
+                    '    // this comment is about the block after it.',
+                    '} else {',
+                    '    // rounding up using integer arithmetic only',
+                    '    if (i % modulus)',
+                    '        i += modulus - (i % modulus);',
+                    '    // now i is divisible by modulus',
+                    '    // behavior of comments should be different for single statements vs block statements/expressions',
+                    '}',
+                    '',
+                    'if (modulus === 2)',
+                    '    // i might be odd here',
+                    '    i += (i & 1);',
+                    '// now i is guaranteed to be even',
+                    '// non-braced comments unindent immediately',
+                    '',
+                    '// this comment is about the block after it.',
+                    'else',
+                    '    // rounding up using integer arithmetic only',
+                    '    if (i % modulus)',
+                    '        i += modulus - (i % modulus);',
+                    '// behavior of comments should be different for single statements vs block statements/expressions',
+                ]
+            },
+
+        ]
+    }, {
         name: "Template Formatting",
         description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
         options: [],
@@ -2628,6 +2725,9 @@ exports.test_data = {
             { input: "a = 1;\n // comment", output: "a = 1;\n// comment" },
             { unchanged: 'a = [-1, -1, -1]' },
 
+            // These must work as non-fragments.
+            { unchanged: ['// a', '// b', '', '', '', '// c', '// d'] },
+            { unchanged: ['// func-comment', '', 'function foo() {}', '', '// end-func-comment'] },
 
             {
                 comment: 'The exact formatting these should have is open for discussion, but they are at least reasonable',
