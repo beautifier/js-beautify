@@ -2299,6 +2299,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    });\n' +
             '}\n' +
             '["navigating"].forEach(bindBrowserEvent);')
+        
+        # Issue #892 - new line between chained methods 
+        bt(
+            'foo\n' +
+            '    .who()\n' +
+            '\n' +
+            '    .knows()\n' +
+            '    // comment\n' +
+            '    .nothing() // comment\n' +
+            '\n' +
+            '    .more()')
 
 
         #============================================================

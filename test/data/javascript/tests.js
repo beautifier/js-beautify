@@ -2234,6 +2234,19 @@ exports.test_data = {
                     '}',
                     '["navigating"].forEach(bindBrowserEvent);'
                 ]
+            },
+            {
+                comment: "Issue #892 - new line between chained methods ",
+                unchanged: [
+                    'foo',
+                    '    .who()',
+                    '',
+                    '    .knows()',
+                    '    // comment',
+                    '    .nothing() // comment',
+                    '',
+                    '    .more()'
+                ]
             }
         ]
     }, {

@@ -2471,6 +2471,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    });\n' +
             '}\n' +
             '["navigating"].forEach(bindBrowserEvent);');
+        
+        // Issue #892 - new line between chained methods 
+        bt(
+            'foo\n' +
+            '    .who()\n' +
+            '\n' +
+            '    .knows()\n' +
+            '    // comment\n' +
+            '    .nothing() // comment\n' +
+            '\n' +
+            '    .more()');
 
 
         //============================================================
