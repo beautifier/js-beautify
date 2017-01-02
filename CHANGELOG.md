@@ -1,4 +1,22 @@
 # Changelog
+## v1.6.8
+
+### Description
+* Fixed a batch of comment and semicolon-less code bugs
+
+
+### Closed Issues
+* Incorrect indentation after loop with comment ([#1090](https://github.com/beautify-web/js-beautify/issues/1090))
+* Extra newline is inserted after beautifying code with anonymous function ([#1085](https://github.com/beautify-web/js-beautify/issues/1085))
+* end brace with next comment line make bad indent ([#1043](https://github.com/beautify-web/js-beautify/issues/1043))
+* Javascript comment in last line doesn't beautify well ([#964](https://github.com/beautify-web/js-beautify/issues/964))
+* indent doesn't work with comment (jsdoc) ([#913](https://github.com/beautify-web/js-beautify/issues/913))
+* Wrong indentation, when new line between chained methods ([#892](https://github.com/beautify-web/js-beautify/issues/892))
+* Comments in a non-semicolon style have extra indent ([#815](https://github.com/beautify-web/js-beautify/issues/815))
+* [bug] Incorrect indentation due to commented line(s) following a function call with a function argument. ([#713](https://github.com/beautify-web/js-beautify/issues/713))
+* Wrong indent formatting ([#569](https://github.com/beautify-web/js-beautify/issues/569))
+
+
 ## v1.6.7
 
 ### Description
@@ -45,6 +63,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 * Weird space in {get } vs { normal } ([#888](https://github.com/beautify-web/js-beautify/issues/888))
 * Bad for-of formatting with constant Array ([#875](https://github.com/beautify-web/js-beautify/issues/875))
 * Problems with filter property in css and scss ([#755](https://github.com/beautify-web/js-beautify/issues/755))
+* Add "collapse-one-line" option for non-collapse brace styles  ([#487](https://github.com/beautify-web/js-beautify/issues/487))
 
 
 ## v1.6.4
