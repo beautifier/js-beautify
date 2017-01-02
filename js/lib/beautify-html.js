@@ -196,7 +196,7 @@
         eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
 
         // HACK: newline parsing inconsistent. This brute force normalizes the input.
-        source_text = html_source.replace(allLineBreaks, '\n');
+        html_source = html_source.replace(allLineBreaks, '\n');
 
         function Parser() {
 

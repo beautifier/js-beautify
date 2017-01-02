@@ -423,30 +423,21 @@ if (!Object.values) {
             this.beautify = function() {
 
                 /*jshint onevar:true */
-                var local_token, sweet_code;
+                var sweet_code;
                 Tokenizer = new tokenizer(js_source_text, opt, indent_string);
                 tokens = Tokenizer.tokenize();
                 token_pos = 0;
 
-                function get_local_token() {
-                    local_token = get_token();
-                    return local_token;
-                }
-
-                while (get_local_token()) {
-                    for (var i = 0; i < local_token.comments_before.length; i++) {
-                        // The cleanest handling of inline comments is to treat them as though they aren't there.
-                        // Just continue formatting and the behavior should be logical.
-                        // Also ignore unknown tokens.  Again, this should result in better behavior.
-                        handle_token(local_token.comments_before[i]);
-                    }
-                    handle_token(local_token);
+                current_token = get_token();
+                while (current_token) {
+                    handlers[current_token.type]();
 
                     last_last_text = flags.last_text;
-                    last_type = local_token.type;
-                    flags.last_text = local_token.text;
+                    last_type = current_token.type;
+                    flags.last_text = current_token.text;
 
                     token_pos += 1;
+                    current_token = get_token();
                 }
 
                 sweet_code = output.get_code();
@@ -461,13 +452,24 @@ if (!Object.values) {
                 return sweet_code;
             };
 
-            function handle_token(local_token) {
+            function handle_whitespace_and_comments(local_token, preserve_statement_flags) {
                 var newlines = local_token.newlines;
                 var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
+                var temp_token = current_token;
+
+                for (var h = 0; h < local_token.comments_before.length; h++) {
+                    // The cleanest handling of inline comments is to treat them as though they aren't there.
+                    // Just continue formatting and the behavior should be logical.
+                    // Also ignore unknown tokens.  Again, this should result in better behavior.
+                    current_token = local_token.comments_before[h];
+                    handle_whitespace_and_comments(current_token, preserve_statement_flags);
+                    handlers[current_token.type](preserve_statement_flags);
+                }
+                current_token = temp_token;
 
                 if (keep_whitespace) {
                     for (var i = 0; i < newlines; i += 1) {
-                        print_newline(i > 0);
+                        print_newline(i > 0, preserve_statement_flags);
                     }
                 } else {
                     if (opt.max_preserve_newlines && newlines > opt.max_preserve_newlines) {
@@ -476,16 +478,14 @@ if (!Object.values) {
 
                     if (opt.preserve_newlines) {
                         if (local_token.newlines > 1) {
-                            print_newline();
+                            print_newline(false, preserve_statement_flags);
                             for (var j = 1; j < newlines; j += 1) {
-                                print_newline(true);
+                                print_newline(true, preserve_statement_flags);
                             }
                         }
                     }
                 }
 
-                current_token = local_token;
-                handlers[current_token.type]();
             }
 
             // we could use just string.split, but
@@ -655,7 +655,8 @@ if (!Object.values) {
                     (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
                     (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
                     (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
-                    (last_type === 'TK_RESERVED' && flags.last_text === 'else' && !(current_token.type === 'TK_RESERVED' && current_token.text === 'if')) ||
+                    (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
+                        !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length)) ||
                     (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
                     (last_type === 'TK_WORD' && flags.mode === MODE.BlockStatement &&
                         !flags.in_case &&
@@ -669,9 +670,7 @@ if (!Object.values) {
                     set_mode(MODE.Statement);
                     indent();
 
-                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') {
-                        flags.declaration_statement = true;
-                    }
+                    handle_whitespace_and_comments(current_token, true);
 
                     // Issue #276:
                     // If starting a new statement with [if, for, while, do], push to a new line.
@@ -720,8 +719,9 @@ if (!Object.values) {
             }
 
             function handle_start_expr() {
-                if (start_of_statement()) {
-                    // The conditional starts the statement if appropriate.
+                // The conditional starts the statement if appropriate.
+                if (!start_of_statement()) {
+                    handle_whitespace_and_comments(current_token);
                 }
 
                 var next_mode = MODE.Expression;
@@ -829,6 +829,8 @@ if (!Object.values) {
                     restore_mode();
                 }
 
+                handle_whitespace_and_comments(current_token);
+
                 if (flags.multiline_frame) {
                     allow_wrap_or_preserved_newline(current_token.text === ']' && is_array(flags.mode) && !opt.keep_array_indentation);
                 }
@@ -861,6 +863,8 @@ if (!Object.values) {
             }
 
             function handle_start_block() {
+                handle_whitespace_and_comments(current_token);
+
                 // Check if this is should be treated as a ObjectLiteral
                 var next_token = get_token(1);
                 var second_token = get_token(2);
@@ -948,9 +952,12 @@ if (!Object.values) {
 
             function handle_end_block() {
                 // statements must all be closed when their container closes
+                handle_whitespace_and_comments(current_token);
+
                 while (flags.mode === MODE.Statement) {
                     restore_mode();
                 }
+
                 var empty_braces = last_type === 'TK_START_BLOCK';
 
                 if (flags.inline_frame && !empty_braces) { // try inline_frame (only set if opt.braces-preserve-inline) first
@@ -993,12 +1000,17 @@ if (!Object.values) {
 
                 if (start_of_statement()) {
                     // The conditional starts the statement if appropriate.
+                    if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') {
+                        flags.declaration_statement = true;
+                    }
                 } else if (current_token.wanted_newline && !is_expression(flags.mode) &&
                     (last_type !== 'TK_OPERATOR' || (flags.last_text === '--' || flags.last_text === '++')) &&
                     last_type !== 'TK_EQUALS' &&
                     (opt.preserve_newlines || !(last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
-
+                    handle_whitespace_and_comments(current_token);
                     print_newline();
+                } else {
+                    handle_whitespace_and_comments(current_token);
                 }
 
                 if (flags.do_block && !flags.do_while) {
@@ -1052,7 +1064,8 @@ if (!Object.values) {
                 }
 
                 if (current_token.type === 'TK_RESERVED' && current_token.text === 'function') {
-                    if (in_array(flags.last_text, ['}', ';']) || (output.just_added_newline() && !in_array(flags.last_text, ['[', '{', ':', '=', ',']))) {
+                    if (in_array(flags.last_text, ['}', ';']) ||
+                        (output.just_added_newline() && !(in_array(flags.last_text, ['(', '[', '{', ':', '=', ',']) || last_type === 'TK_OPERATOR'))) {
                         // make sure there is a nice clean space of at least one blank line
                         // before a new function definition
                         if (!output.just_added_blankline() && !current_token.comments_before.length) {
@@ -1192,7 +1205,10 @@ if (!Object.values) {
                     // The conditional starts the statement if appropriate.
                     // Semicolon can be the start (and end) of a statement
                     output.space_before_token = false;
+                } else {
+                    handle_whitespace_and_comments(current_token);
                 }
+
                 var next_token = get_token(1);
                 while (flags.mode === MODE.Statement &&
                     !(flags.if_block && next_token && next_token.type === 'TK_RESERVED' && next_token.text === 'else') &&
@@ -1212,14 +1228,17 @@ if (!Object.values) {
                     // The conditional starts the statement if appropriate.
                     // One difference - strings want at least a space before
                     output.space_before_token = true;
-                } else if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' || flags.inline_frame) {
-                    output.space_before_token = true;
-                } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                    if (!start_of_object_property()) {
-                        allow_wrap_or_preserved_newline();
-                    }
                 } else {
-                    print_newline();
+                    handle_whitespace_and_comments(current_token);
+                    if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD' || flags.inline_frame) {
+                        output.space_before_token = true;
+                    } else if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR' || last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                        if (!start_of_object_property()) {
+                            allow_wrap_or_preserved_newline();
+                        }
+                    } else {
+                        print_newline();
+                    }
                 }
                 print_token();
             }
@@ -1227,6 +1246,8 @@ if (!Object.values) {
             function handle_equals() {
                 if (start_of_statement()) {
                     // The conditional starts the statement if appropriate.
+                } else {
+                    handle_whitespace_and_comments(current_token);
                 }
 
                 if (flags.declaration_statement) {
@@ -1239,6 +1260,8 @@ if (!Object.values) {
             }
 
             function handle_comma() {
+                handle_whitespace_and_comments(current_token, true);
+
                 print_token();
                 output.space_before_token = true;
                 if (flags.declaration_statement) {
@@ -1273,8 +1296,21 @@ if (!Object.values) {
             }
 
             function handle_operator() {
+                var isGeneratorAsterisk = current_token.text === '*' &&
+                    ((last_type === 'TK_RESERVED' && in_array(flags.last_text, ['function', 'yield'])) ||
+                        (in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA', 'TK_END_BLOCK', 'TK_SEMICOLON']))
+                    );
+                var isUnary = in_array(current_token.text, ['-', '+']) && (
+                    in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) ||
+                    in_array(flags.last_text, Tokenizer.line_starters) ||
+                    flags.last_text === ','
+                );
+
                 if (start_of_statement()) {
                     // The conditional starts the statement if appropriate.
+                } else {
+                    var preserve_statement_flags = !isGeneratorAsterisk;
+                    handle_whitespace_and_comments(current_token, preserve_statement_flags);
                 }
 
                 if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {
@@ -1314,17 +1350,6 @@ if (!Object.values) {
                 var space_before = true;
                 var space_after = true;
                 var in_ternary = false;
-                var isGeneratorAsterisk = current_token.text === '*' &&
-                    ((last_type === 'TK_RESERVED' && in_array(flags.last_text, ['function', 'yield'])) ||
-                        (flags.mode === MODE.ObjectLiteral && in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA'])) ||
-                        (flags.mode === MODE.BlockStatement && in_array(last_type, ['TK_START_BLOCK', 'TK_COMMA', 'TK_END_BLOCK', 'TK_SEMICOLON']))
-                    );
-                var isUnary = in_array(current_token.text, ['-', '+']) && (
-                    in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) ||
-                    in_array(flags.last_text, Tokenizer.line_starters) ||
-                    flags.last_text === ','
-                );
-
                 if (current_token.text === ':') {
                     if (flags.ternary_depth === 0) {
                         // Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
@@ -1452,7 +1477,7 @@ if (!Object.values) {
                 output.space_before_token = space_after;
             }
 
-            function handle_block_comment() {
+            function handle_block_comment(preserve_statement_flags) {
                 if (output.raw) {
                     output.add_raw_token(current_token);
                     if (current_token.directives && current_token.directives.preserve === 'end') {
@@ -1463,7 +1488,7 @@ if (!Object.values) {
                 }
 
                 if (current_token.directives) {
-                    print_newline(false, true);
+                    print_newline(false, preserve_statement_flags);
                     print_token();
                     if (current_token.directives.preserve === 'start') {
                         output.raw = true;
@@ -1488,7 +1513,7 @@ if (!Object.values) {
                 var lastIndentLength = lastIndent.length;
 
                 // block comment starts with a new line
-                print_newline(false, true);
+                print_newline(false, preserve_statement_flags);
                 if (lines.length > 1) {
                     javadoc = all_lines_start_with(lines.slice(1), '*');
                     starless = each_line_matches_indent(lines.slice(1), lastIndent);
@@ -1511,24 +1536,26 @@ if (!Object.values) {
                 }
 
                 // for comments of more than one line, make sure there's a new line after
-                print_newline(false, true);
+                print_newline(false, preserve_statement_flags);
             }
 
-            function handle_comment() {
+            function handle_comment(preserve_statement_flags) {
                 if (current_token.wanted_newline) {
-                    print_newline(false, true);
+                    print_newline(false, preserve_statement_flags);
                 } else {
                     output.trim(true);
                 }
 
                 output.space_before_token = true;
                 print_token();
-                print_newline(false, true);
+                print_newline(false, preserve_statement_flags);
             }
 
             function handle_dot() {
                 if (start_of_statement()) {
                     // The conditional starts the statement if appropriate.
+                } else {
+                    handle_whitespace_and_comments(current_token, true);
                 }
 
                 if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {
@@ -1542,11 +1569,11 @@ if (!Object.values) {
                 print_token();
             }
 
-            function handle_unknown() {
+            function handle_unknown(preserve_statement_flags) {
                 print_token();
 
                 if (current_token.text[current_token.text.length - 1] === '\n') {
-                    print_newline();
+                    print_newline(false, preserve_statement_flags);
                 }
             }
 
@@ -1555,6 +1582,7 @@ if (!Object.values) {
                 while (flags.mode === MODE.Statement) {
                     restore_mode();
                 }
+                handle_whitespace_and_comments(current_token);
             }
         }
 

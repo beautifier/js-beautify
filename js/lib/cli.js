@@ -161,8 +161,8 @@ var path = require('path'),
         "o": ["--outfile"],
         "r": ["--replace"],
         "q": ["--quiet"]
-            // no shorthand for "config"
-            // no shorthand for "editorconfig"
+        // no shorthand for "config"
+        // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {

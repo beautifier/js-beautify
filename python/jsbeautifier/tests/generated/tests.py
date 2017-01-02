@@ -341,6 +341,22 @@ class TestJSBeautifier(unittest.TestCase):
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
             '        ,\n    age: 25\n' +
             '});')
+        bt(
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');',
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');')
 
         # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
         self.reset_options();
@@ -365,6 +381,22 @@ class TestJSBeautifier(unittest.TestCase):
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
             '    , age: 25\n' +
             '});')
+        bt(
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    },\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');',
+            'changeCollection.add(\n' +
+            '    function() {\n' +
+            '        return true;\n' +
+            '    }\n    , function() {\n' +
+            '        return true;\n' +
+            '    }\n' +
+            ');')
 
 
         #============================================================
@@ -1601,6 +1633,89 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Comments and  tests
+        self.reset_options();
+        
+        # #913
+        bt(
+            'class test {\n' +
+            '    method1() {\n' +
+            '        let resp = null;\n' +
+            '    }\n' +
+            '    /**\n' +
+            '     * @param {String} id\n' +
+            '     */\n' +
+            '    method2(id) {\n' +
+            '        let resp2 = null;\n' +
+            '    }\n' +
+            '}')
+        
+        # #1090
+        bt(
+            'for (var i = 0; i < 20; ++i) // loop\n' +
+            '    if (i % 3) {\n' +
+            '        console.log(i);\n' +
+            '    }\n' +
+            'console.log("done");')
+        
+        # #1043
+        bt(
+            'var o = {\n' +
+            '    k: 0\n' +
+            '}\n' +
+            '// ...\n' +
+            'foo(o)')
+        
+        # #713 and #964
+        bt(
+            'Meteor.call("foo", bar, function(err, result) {\n' +
+            '    Session.set("baz", result.lorem)\n' +
+            '})\n' +
+            '//blah blah')
+        
+        # #815
+        bt(
+            'foo()\n' +
+            '// this is a comment\n' +
+            'bar()\n' +
+            '\n' +
+            'const foo = 5\n' +
+            '// comment\n' +
+            'bar()')
+        
+        # This shows current behavior.  Note #1069 is not addressed yet.
+        bt(
+            'if (modulus === 2) {\n' +
+            '    // i might be odd here\n' +
+            '    i += (i & 1);\n' +
+            '    // now i is guaranteed to be even\n' +
+            '    // this block is obviously about the statement above\n' +
+            '\n' +
+            '    // #1069 This should attach to the block below\n' +
+            '    // this comment is about the block after it.\n' +
+            '} else {\n' +
+            '    // rounding up using integer arithmetic only\n' +
+            '    if (i % modulus)\n' +
+            '        i += modulus - (i % modulus);\n' +
+            '    // now i is divisible by modulus\n' +
+            '    // behavior of comments should be different for single statements vs block statements/expressions\n' +
+            '}\n' +
+            '\n' +
+            'if (modulus === 2)\n' +
+            '    // i might be odd here\n' +
+            '    i += (i & 1);\n' +
+            '// now i is guaranteed to be even\n' +
+            '// non-braced comments unindent immediately\n' +
+            '\n' +
+            '// this comment is about the block after it.\n' +
+            'else\n' +
+            '    // rounding up using integer arithmetic only\n' +
+            '    if (i % modulus)\n' +
+            '        i += modulus - (i % modulus);\n' +
+            '// behavior of comments should be different for single statements vs block statements/expressions')
+
+
+        #============================================================
         # Template Formatting
         self.reset_options();
         bt('<?=$view["name"]; ?>')
@@ -2137,6 +2252,64 @@ class TestJSBeautifier(unittest.TestCase):
             '    (Math.random() * 0x1000000000).toString(36),\n' +
             '    new Date().getTime()\n' +
             '].join("-");')
+        
+        # Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/')
+        
+        # Issue #1079 - unbraced if with comments should still look right
+        bt(
+            'if (console.log)\n' +
+            '    for (var i = 0; i < 20; ++i)\n' +
+            '        if (i % 3)\n' +
+            '            console.log(i);\n' +
+            '// all done\n' +
+            'console.log("done");')
+        
+        # Issue #1085 - function should not have blank line in a number of cases
+        bt(
+            'var transformer =\n' +
+            '    options.transformer ||\n' +
+            '    globalSettings.transformer ||\n' +
+            '    function(x) {\n' +
+            '        return x;\n' +
+            '    };')
+        
+        # Issue #569 - function should not have blank line in a number of cases
+        bt(
+            '(function(global) {\n' +
+            '    "use strict";\n' +
+            '\n' +
+            '    /* jshint ignore:start */\n' +
+            '    include "somefile.js"\n' +
+            '    /* jshint ignore:end */\n' +
+            '}(this));')
+        bt(
+            'function bindAuthEvent(eventName) {\n' +
+            '    self.auth.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);\n' +
+            '\n' +
+            'function bindBrowserEvent(eventName) {\n' +
+            '    browser.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["navigating"].forEach(bindBrowserEvent);')
+        
+        # Issue #892 - new line between chained methods 
+        bt(
+            'foo\n' +
+            '    .who()\n' +
+            '\n' +
+            '    .knows()\n' +
+            '    // comment\n' +
+            '    .nothing() // comment\n' +
+            '\n' +
+            '    .more()')
 
 
         #============================================================
@@ -2477,20 +2650,6 @@ class TestJSBeautifier(unittest.TestCase):
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}')
-        
-        # Issue #996 - Input ends with backslash throws exception
-        test_fragment(
-            'sd = 1;\n' +
-            '/')
-        
-        # Issue #1079 - unbraced if with comments should still look right
-        bt(
-            'if (console.log)\n' +
-            '    for (var i = 0; i < 20; ++i)\n' +
-            '        if (i % 3)\n' +
-            '            console.log(i);\n' +
-            '// all done\n' +
-            'console.log("done");')
 
 
         #============================================================
@@ -2699,6 +2858,20 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 1; // comment')
         bt('a = 1;\n // comment', 'a = 1;\n// comment')
         bt('a = [-1, -1, -1]')
+        bt(
+            '// a\n' +
+            '// b\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '// c\n' +
+            '// d')
+        bt(
+            '// func-comment\n' +
+            '\n' +
+            'function foo() {}\n' +
+            '\n' +
+            '// end-func-comment')
         
         # The exact formatting these should have is open for discussion, but they are at least reasonable
         bt('a = [ // comment\n    -1, -1, -1\n]')
@@ -2961,7 +3134,6 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.options.preserve_newlines = True;
         bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;')
-        bt('// a\n// b\n\n// c\n// d')
         bt('if (foo) //  comment\n{\n    bar();\n}')
 
 
