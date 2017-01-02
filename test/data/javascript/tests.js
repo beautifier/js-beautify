@@ -2175,6 +2175,65 @@ exports.test_data = {
                     '    new Date().getTime()',
                     '].join("-");'
                 ]
+            },
+            {
+                comment: "Issue #996 - Input ends with backslash throws exception",
+                fragment: true,
+                unchanged: [
+                    'sd = 1;',
+                    '/'
+                ]
+            },
+            {
+                comment: "Issue #1079 - unbraced if with comments should still look right",
+                unchanged: [
+                    'if (console.log)',
+                    '    for (var i = 0; i < 20; ++i)',
+                    '        if (i % 3)',
+                    '            console.log(i);',
+                    '// all done',
+                    'console.log("done");'
+                ]
+            },
+            {
+                comment: "Issue #1085 - function should not have blank line in a number of cases",
+                unchanged: [
+                    'var transformer =',
+                    '    options.transformer ||',
+                    '    globalSettings.transformer ||',
+                    '    function(x) {',
+                    '        return x;',
+                    '    };'
+                ]
+            },
+            {
+                comment: "Issue #569 - function should not have blank line in a number of cases",
+                unchanged: [
+                    '(function(global) {',
+                    '    "use strict";',
+                    '',
+                    '    /* jshint ignore:start */',
+                    '    include "somefile.js"',
+                    '    /* jshint ignore:end */',
+                    '}(this));'
+                ]
+            },
+            {
+                unchanged: [
+                    'function bindAuthEvent(eventName) {',
+                    '    self.auth.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+                    '',
+                    'function bindBrowserEvent(eventName) {',
+                    '    browser.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["navigating"].forEach(bindBrowserEvent);'
+                ]
             }
         ]
     }, {
@@ -2477,36 +2536,6 @@ exports.test_data = {
                     'if (someCondition) {',
                     '    return something;',
                     '}'
-                ]
-            },
-            {
-                comment: "Issue #996 - Input ends with backslash throws exception",
-                fragment: true,
-                unchanged: [
-                    'sd = 1;',
-                    '/'
-                ]
-            },
-            {
-                comment: "Issue #1079 - unbraced if with comments should still look right",
-                unchanged: [
-                    'if (console.log)',
-                    '    for (var i = 0; i < 20; ++i)',
-                    '        if (i % 3)',
-                    '            console.log(i);',
-                    '// all done',
-                    'console.log("done");'
-                ]
-            },
-            {
-                comment: "Issue #1085 - function should not have blank line in a number of cases",
-                unchanged: [
-                    'var transformer =',
-                    '    options.transformer ||',
-                    '    globalSettings.transformer ||',
-                    '    function(x) {',
-                    '        return x;',
-                    '    };'
                 ]
             }
         ]

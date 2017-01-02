@@ -2252,6 +2252,53 @@ class TestJSBeautifier(unittest.TestCase):
             '    (Math.random() * 0x1000000000).toString(36),\n' +
             '    new Date().getTime()\n' +
             '].join("-");')
+        
+        # Issue #996 - Input ends with backslash throws exception
+        test_fragment(
+            'sd = 1;\n' +
+            '/')
+        
+        # Issue #1079 - unbraced if with comments should still look right
+        bt(
+            'if (console.log)\n' +
+            '    for (var i = 0; i < 20; ++i)\n' +
+            '        if (i % 3)\n' +
+            '            console.log(i);\n' +
+            '// all done\n' +
+            'console.log("done");')
+        
+        # Issue #1085 - function should not have blank line in a number of cases
+        bt(
+            'var transformer =\n' +
+            '    options.transformer ||\n' +
+            '    globalSettings.transformer ||\n' +
+            '    function(x) {\n' +
+            '        return x;\n' +
+            '    };')
+        
+        # Issue #569 - function should not have blank line in a number of cases
+        bt(
+            '(function(global) {\n' +
+            '    "use strict";\n' +
+            '\n' +
+            '    /* jshint ignore:start */\n' +
+            '    include "somefile.js"\n' +
+            '    /* jshint ignore:end */\n' +
+            '}(this));')
+        bt(
+            'function bindAuthEvent(eventName) {\n' +
+            '    self.auth.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);\n' +
+            '\n' +
+            'function bindBrowserEvent(eventName) {\n' +
+            '    browser.on(eventName, function(event, meta) {\n' +
+            '        self.emit(eventName, event, meta);\n' +
+            '    });\n' +
+            '}\n' +
+            '["navigating"].forEach(bindBrowserEvent);')
 
 
         #============================================================
@@ -2592,29 +2639,6 @@ class TestJSBeautifier(unittest.TestCase):
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}')
-        
-        # Issue #996 - Input ends with backslash throws exception
-        test_fragment(
-            'sd = 1;\n' +
-            '/')
-        
-        # Issue #1079 - unbraced if with comments should still look right
-        bt(
-            'if (console.log)\n' +
-            '    for (var i = 0; i < 20; ++i)\n' +
-            '        if (i % 3)\n' +
-            '            console.log(i);\n' +
-            '// all done\n' +
-            'console.log("done");')
-        
-        # Issue #1085 - function should not have blank line in a number of cases
-        bt(
-            'var transformer =\n' +
-            '    options.transformer ||\n' +
-            '    globalSettings.transformer ||\n' +
-            '    function(x) {\n' +
-            '        return x;\n' +
-            '    };')
 
 
         #============================================================
