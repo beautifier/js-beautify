@@ -317,13 +317,13 @@ function usage(err) {
         '  -v, --version    Show the version',
         '',
         'Beautifier Options:',
-        '  -s, --indent-size             Indentation size [4]',
-        '  -c, --indent-char             Indentation character [" "]',
-        '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
-        '  -e, --eol                     Character(s) to use as line terminators.',
-        '                                [first newline in file, otherwise "\\n]',
-        '  -n, --end-with-newline        End output with newline',
-        '  --editorconfig                Use EditorConfig to set up the options'
+        '  -s, --indent-size                 Indentation size [4]',
+        '  -c, --indent-char                 Indentation character [" "]',
+        '  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c',
+        '  -e, --eol                         Character(s) to use as line terminators.',
+        '                                    [first newline in file, otherwise "\\n]',
+        '  -n, --end-with-newline            End output with newline',
+        '  --editorconfig                    Use EditorConfig to set up the options'
     ];
 
     switch (scriptName.split('-').shift()) {
