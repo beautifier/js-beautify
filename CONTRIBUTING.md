@@ -43,7 +43,7 @@ Some files related to specific implementations or platforms are found in the roo
 Files related to the JavaScript implmentations of the beautifiers. 
 
 ## python
-Files related to the JavaScript implmentations of the beautifiers. 
+Files related to the Python implmentations of the beautifiers. 
 
 
 ## web
