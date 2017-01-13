@@ -506,6 +506,12 @@ exports.test_data = {
                 { name: "indent_handlebars", value: "true" }
             ],
             content: '{{!-- \\n mult-line\\ncomment \\n{{#> component}}\\n mult-line\\ncomment  \\n     with spacing\\n {{/ component}}--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            content: 'content'
         }],
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
@@ -670,6 +676,9 @@ exports.test_data = {
             }, {
                 fragment: true,
                 unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
+            }, {
+                fragment: true,
+                unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
             }
         ],
     }, {

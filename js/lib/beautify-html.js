@@ -301,7 +301,7 @@
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
 
-                    if (this.traverse_whitespace()) {
+                    if (handlebarsStarted < 2 && this.traverse_whitespace()) {
                         this.space_or_wrap(content);
                         continue;
                     }
