@@ -35,6 +35,7 @@ class BeautifierOptions:
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
+        self.preserve_newlines = False
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
@@ -69,7 +70,7 @@ separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
 space_around_combinator = [%s]
-""" % (self.indent_size, self.indent_char, self.indent_with_tabs,
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
        self.space_around_combinator)
 
@@ -346,6 +347,7 @@ class Beautifier:
             whitespace = self.skipWhitespace()
             isAfterSpace = whitespace != ''
             isAfterNewline = '\n' in whitespace
+            isAfterEmptyline = '\n\n' in whitespace.replace("", "")
             last_top_ch = top_ch
             top_ch = self.ch
 
@@ -510,7 +512,11 @@ class Beautifier:
                 self.ch = '='
                 printer.push(self.ch)
             else:
-                printer.preserveSingleSpace(isAfterSpace)
+                if isAfterEmptyline and self.opts.preserve_newlines:
+                    printer.newLine(True)
+                    self.eatWhitespace()
+                else:
+                    printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())

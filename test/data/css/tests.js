@@ -32,6 +32,7 @@ exports.test_data = {
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
         { name: "space_around_combinator", value: "false" },
+        { name: "preserve_newlines", value: "false" },
         // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
@@ -208,6 +209,25 @@ exports.test_data = {
                 output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'
             }
         ]
+    }, {
+        name: "Preserve Newlines",
+        description: "",
+        matrix: [{
+            options: [
+                { name: "preserve_newlines", value: "true" }
+            ],
+            separator_input: '\\n\\n',
+            separator_output: '\\n\\n',
+        }, {
+            options: [
+                { name: "preserve_newlines", value: "false" }
+            ],
+            separator_input: '\\n\\n',
+            separator_output: '\\n',
+        }],
+        tests: [
+            { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
+        ],
     }, {
         name: "Newline Between Rules",
         description: "",

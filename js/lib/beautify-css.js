@@ -41,6 +41,7 @@
     The options are (default in brackets):
         indent_size (4)                         — indentation size,
         indent_char (space)                     — character to indent with,
+        preserve_newlines (default false)       - whether existing line breaks should be preserved,
         selector_separator_newline (true)       - separate selectors with newline or
                                                   not (e.g. "a,\nbr" or "a, br")
         end_with_newline (false)                - end with a newline
@@ -98,6 +99,7 @@
 
         var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         var indentCharacter = options.indent_char || ' ';
+        var preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
@@ -311,6 +313,7 @@
             var whitespace = skipWhitespace();
             var isAfterSpace = whitespace !== '';
             var isAfterNewline = whitespace.indexOf('\n') !== -1;
+            var isAfterEmptyline = whitespace.replace(/ /g, '').indexOf('\n\n') !== -1;
             last_top_ch = top_ch;
             top_ch = ch;
 
@@ -490,7 +493,12 @@
                 ch = '=';
                 output.push(ch);
             } else {
-                print.preserveSingleSpace();
+                if (isAfterEmptyline && preserve_newlines) {
+                    print.newLine(true);
+                    eatWhitespace();
+                } else {
+                    print.preserveSingleSpace();
+                }
                 output.push(ch);
             }
         }

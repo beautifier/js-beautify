@@ -58,6 +58,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
         default_options.space_around_combinator = false
+        default_options.preserve_newlines = false
         default_options.space_around_selector_separator = false
 
         cls.default_options = default_options
@@ -280,6 +281,18 @@ class CSSBeautifierTest(unittest.TestCase):
         t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}')
         t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}')
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}')
+
+
+        #============================================================
+        # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
+        self.reset_options();
+        self.options.preserve_newlines = true
+        t('.div {}\n\n.span {}')
+
+        # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
+        self.reset_options();
+        self.options.preserve_newlines = false
+        t('.div {}\n\n.span {}', '.div {}\n.span {}')
 
 
         #============================================================

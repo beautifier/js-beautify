@@ -53,6 +53,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
     default_opts.space_around_combinator = false;
+    default_opts.preserve_newlines = false;
     default_opts.space_around_selector_separator = false;
 
     function reset_options()
@@ -322,6 +323,18 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}');
         t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}');
         t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}');
+
+
+        //============================================================
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
+        reset_options();
+        opts.preserve_newlines = true;
+        t('.div {}\n\n.span {}');
+
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
+        reset_options();
+        opts.preserve_newlines = false;
+        t('.div {}\n\n.span {}', '.div {}\n.span {}');
 
 
         //============================================================
