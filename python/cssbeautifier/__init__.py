@@ -66,6 +66,7 @@ class BeautifierOptions:
 """indent_size = %d
 indent_char = [%s]
 indent_with_tabs = [%s]
+preserve_newlines = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
