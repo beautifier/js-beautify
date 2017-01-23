@@ -288,11 +288,19 @@ class CSSBeautifierTest(unittest.TestCase):
         self.reset_options();
         self.options.preserve_newlines = true
         t('.div {}\n\n.span {}')
+        t('.tool-tip {\n\tposition: relative;\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}')
+
+        # Preserve Newlines - (separator_input = "\n\n\n\n\n\n\n\n\n\n", separator_output = "\n\n\n\n\n\n\n\n\n\n")
+        self.reset_options();
+        self.options.preserve_newlines = true
+        t('.div {}\n\n\n\n\n\n\n\n\n\n.span {}')
+        t('.tool-tip {\n\tposition: relative;\n\n\n\n\n\n\n\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\n\n\n\n\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}')
 
         # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
         self.reset_options();
         self.options.preserve_newlines = false
         t('.div {}\n\n.span {}', '.div {}\n.span {}')
+        t('.tool-tip {\n\tposition: relative;\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}', '.tool-tip {\n\tposition: relative;\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}')
 
 
         #============================================================

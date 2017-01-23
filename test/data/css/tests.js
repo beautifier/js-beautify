@@ -220,6 +220,12 @@ exports.test_data = {
             separator_output: '\\n\\n',
         }, {
             options: [
+                { name: "preserve_newlines", value: "true" }
+            ],
+            separator_input: '\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n',
+            separator_output: '\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n',            
+        }, {
+            options: [
                 { name: "preserve_newlines", value: "false" }
             ],
             separator_input: '\\n\\n',
@@ -227,6 +233,7 @@ exports.test_data = {
         }],
         tests: [
             { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
+            { input: '.tool-tip {\n\tposition: relative;{{separator_input}}\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}{{separator_input}}\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}', output: '.tool-tip {\n\tposition: relative;{{separator_output}}\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}{{separator_output}}\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}' },
         ],
     }, {
         name: "Newline Between Rules",
