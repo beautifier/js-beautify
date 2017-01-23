@@ -60,10 +60,13 @@ function SanityTest(func, name_of_test) {
                 if (f[0]) {
                     f[0] = f[0] + ' ';
                 }
-                results += '---- ' + f[0] + 'input -------\n' + this.prettyprint(f[1]) + '\n';
-                results += '---- ' + f[0] + 'expected ----\n' + this.prettyprint(f[2]) + '\n';
-                results += '---- ' + f[0] + 'output ------\n' + this.prettyprint(f[3]) + '\n\n';
-
+                results += '==== ' + f[0] + '============================================================\n';
+                results += '---- input -------\n' + this.prettyprint(f[1]) + '\n';
+                results += '---- expected ----\n' + this.prettyprint(f[2]) + '\n';
+                results += '---- output ------\n' + this.prettyprint(f[3]) + '\n';
+                results += '---- expected-ws ------\n' + this.prettyprint_whitespace(f[2]) + '\n';
+                results += '---- output-ws ------\n' + this.prettyprint_whitespace(f[3]) + '\n';
+                results += '================================================================\n\n';
             }
             results += n_failed + ' tests failed.\n';
         }
@@ -75,6 +78,14 @@ function SanityTest(func, name_of_test) {
         return this.lazy_escape(this.results_raw());
     };
 
+    this.prettyprint_whitespace = function(something, quote_strings) {
+        return (this.prettyprint(something, quote_strings)
+            .replace(/\r\n/g, '\\r\n')
+            .replace(/\n/g, '\\n\n')
+            .replace(/\r/g, '\\r\n')
+            .replace(/ /g, '_')
+            .replace(/\t/g, '===|'));
+    };
 
     this.prettyprint = function(something, quote_strings) {
         var type = typeof something;
