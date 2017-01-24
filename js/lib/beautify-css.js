@@ -313,7 +313,7 @@
             var whitespace = skipWhitespace();
             var isAfterSpace = whitespace !== '';
             var isAfterNewline = whitespace.indexOf('\n') !== -1;
-            var newLines = whitespace.replace(/ /g, '');
+            var newLines = whitespace.replace(/ /g, '').replace(/\t/g, '');
             var isAfterEmptyline = newLines.indexOf('\n\n') !== -1;
             last_top_ch = top_ch;
             top_ch = ch;
@@ -496,10 +496,10 @@
             } else {
                 if (isAfterEmptyline && preserve_newlines) {
                     var newLineCount = newLines.split('\n').length - 2;
-                    for(var i = 0; i < newLineCount; i++){
-                        print.newLine(true);                        
+                    for (var i = 0; i < newLineCount; i++) {
+                        print.newLine(true);
                     }
-                    eatWhitespace();                   
+                    eatWhitespace();
                 } else {
                     print.preserveSingleSpace();
                 }

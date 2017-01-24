@@ -348,7 +348,7 @@ class Beautifier:
             whitespace = self.skipWhitespace()
             isAfterSpace = whitespace != ''
             isAfterNewline = '\n' in whitespace
-            newLines = whitespace.replace(" ", "")
+            newLines = whitespace.replace(" ", "").replace("\t", "")
             isAfterEmptyline = '\n\n' in newLines
             last_top_ch = top_ch
             top_ch = self.ch
@@ -515,10 +515,10 @@ class Beautifier:
                 printer.push(self.ch)
             else:
                 if isAfterEmptyline and self.opts.preserve_newlines:
-                    newLineCount = newLines.split('\n').length - 2
+                    newLineCount = range(len(newLines.split('\n')) - 2)
                     for i in newLineCount:
-                        printer.newLine(True)                       
-                    
+                        printer.newLine(True)
+
                     self.eatWhitespace()
                 else:
                     printer.preserveSingleSpace(isAfterSpace)
