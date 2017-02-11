@@ -287,6 +287,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Attribute Wrap alignment with spaces - ()
+        reset_options();
+        opts.wrap_attributes = 'force-aligned';
+        opts.indent_with_tabs = true;
+        test_fragment('<div><div a="1" b="2"><div>test</div></div></div>', '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>');
+
+
+        //============================================================
+        // Attribute Wrap de-indent - ()
+        reset_options();
+        opts.wrap_attributes = 'force-aligned';
+        opts.indent_with_tabs = false;
+        bth('<div a="1" b="2"><div>test</div></div>', '<div a="1"\n     b="2">\n    <div>test</div>\n</div>');
+
+
+        //============================================================
         // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force';
