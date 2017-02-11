@@ -21,17 +21,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.9/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.8/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.8/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.8/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.9/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.9/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.6.9/js/lib/beautify-html.js"></script>
 ```
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
 
@@ -109,58 +109,69 @@ CLI Options:
 Beautifier Options:
   -s, --indent-size                 Indentation size [4]
   -c, --indent-char                 Indentation character [" "]
-  -e, --eol                         character(s) to use as line terminators. (default newline - "\\n")');
-  -l, --indent-level                Initial indentation level [0]
   -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
+  -e, --eol                         Character(s) to use as line terminators.
+                                    [first newline in file, otherwise "\n]
+  -n, --end-with-newline            End output with newline
+  --editorconfig                    Use EditorConfig to set up the options
+  -l, --indent-level                Initial indentation level [0]
   -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)
   -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]
   -P, --space-in-paren              Add padding spaces within paren, ie. f( a, b )
+  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
-  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] ["collapse"]
+  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
   -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
   -X, --e4x                         Pass E4X xml literals through untouched
-  -n, --end-with-newline            End output with newline
-  -C, --comma-first                 Put commas at the beginning of new line instead of end
   --good-stuff                      Warm the cockles of Crockford's heart
-  --editorconfig                    Use EditorConfig to set up the options
+  -C, --comma-first                 Put commas at the beginning of new line instead of end
+  -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
 ```
 
-These largely correspond to the underscored option keys for both library interfaces, which have these defaults:
+Which correspond to the underscored option keys for both library interfaces
 
+**defaults per CLI options**
 ```json
 {
     "indent_size": 4,
     "indent_char": " ",
-    "eol": "\n",
-    "indent_level": 0,
     "indent_with_tabs": false,
+    "eol": "\n",
+    "end_with_newline": false,
+    "indent_level": 0,
     "preserve_newlines": true,
     "max_preserve_newlines": 10,
+    "space_in_paren": false,
+    "space_in_empty_paren": false,
     "jslint_happy": false,
     "space_after_anon_function": false,
     "brace_style": "collapse",
-    "keep_array_indentation": false,
-    "keep_function_indentation": false,
-    "space_before_conditional": true,
     "break_chained_methods": false,
-    "eval_code": false,
+    "keep_array_indentation": false,
     "unescape_strings": false,
     "wrap_line_length": 0,
-    "wrap_attributes": "auto",
-    "wrap_attributes_indent_size": 4,
-    "end_with_newline": false
+    "e4x": false,
+    "comma_first": false,
+    "operator_position": "before-newline"
 }
 ```
 
-You might notice that the CLI options and defaults hash aren't 100% correlated.
-Historically, the Python and JS APIs have not been 100% identical. For example,
-`space_before_conditional` is currently JS-only, and not addressable from the
-CLI script. There are still a few other additional cases keeping us from
-100% API-compatibility.
+**defaults not exposed in the cli**
+```json
+{
+  "eval_code": false,
+  "space_before_conditional": true
+}
+```
+
+Notice not all defaults are exposed via the CLI.  Historically, the Python and
+JS APIs have not been 100% identical. For example, `space_before_conditional` is
+currently JS-only, and not addressable from the CLI script. There are still a
+few other additional cases keeping us from 100% API-compatibility.
 
 
 ### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
@@ -305,4 +316,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.6.8)
+(README.md: js-beautify@1.6.9)

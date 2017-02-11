@@ -1,0 +1,10 @@
+engines:
+ eslint:
+   enabled: true
+ pep8:
+   enabled: true
+ratings:
+ paths:
+ - "**.js"
+ - "**.py"
+exclude_paths:

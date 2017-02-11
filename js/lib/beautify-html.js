@@ -301,7 +301,7 @@
                         return content.length ? content.join('') : ['', 'TK_EOF'];
                     }
 
-                    if (this.traverse_whitespace()) {
+                    if (handlebarsStarted < 2 && this.traverse_whitespace()) {
                         this.space_or_wrap(content);
                         continue;
                     }
@@ -490,7 +490,8 @@
                             }
 
                             for (var count = 0; count < alignment_size; count++) {
-                                content.push(indent_character);
+                                // only ever further indent with spaces since we're trying to align characters
+                                content.push(' ');
                             }
                         }
                         if (first_attr) {
@@ -557,10 +558,12 @@
                 var tag_index;
                 var tag_offset;
 
-                if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
-                    tag_index = tag_complete.indexOf('\n');
-                } else if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
+                // must check for space first otherwise the tag could have the first attribute included, and
+                // then not un-indent correctly
+                if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                     tag_index = tag_complete.indexOf(' ');
+                } else if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
+                    tag_index = tag_complete.indexOf('\n');
                 } else if (tag_complete.charAt(0) === '{') {
                     tag_index = tag_complete.indexOf('}');
                 } else { //otherwise go with the tag ending

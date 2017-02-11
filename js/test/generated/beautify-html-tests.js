@@ -287,6 +287,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Attribute Wrap alignment with spaces - ()
+        reset_options();
+        opts.wrap_attributes = 'force-aligned';
+        opts.indent_with_tabs = true;
+        test_fragment('<div><div a="1" b="2"><div>test</div></div></div>', '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>');
+
+
+        //============================================================
+        // Attribute Wrap de-indent - ()
+        reset_options();
+        opts.wrap_attributes = 'force-aligned';
+        opts.indent_with_tabs = false;
+        bth('<div a="1" b="2"><div>test</div></div>', '<div a="1"\n     b="2">\n    <div>test</div>\n</div>');
+
+
+        //============================================================
         // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force';
@@ -502,6 +518,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{{! comment}}")
         reset_options();
@@ -559,6 +576,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{! comment}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! comment}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- comment--}}")
         reset_options();
@@ -616,6 +634,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- comment--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{pre{{field1}} {{field2}} {{field3}}post")
         reset_options();
@@ -673,6 +692,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{{! \n mult-line\ncomment  \n     with spacing\n}}")
         reset_options();
@@ -730,6 +750,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- \n mult-line\ncomment  \n     with spacing\n--}}")
         reset_options();
@@ -787,6 +808,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (content = "{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}")
         reset_options();
@@ -844,6 +866,66 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
         test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+
+        // Handlebars Indenting On - (content = "content")
+        reset_options();
+        opts.indent_handlebars = true;
+        opts.wrap_line_length = 80;
+        test_fragment('{{page-title}}');
+        test_fragment('{{#if 0}}{{/if}}');
+        test_fragment('{{#if 0}}content{{/if}}');
+        test_fragment('{{#if 0}}\n{{/if}}');
+        test_fragment(
+            '{{#if     words}}{{/if}}',
+            '{{#if words}}{{/if}}');
+        test_fragment(
+            '{{#if     words}}content{{/if}}',
+            '{{#if words}}content{{/if}}');
+        test_fragment(
+            '{{#if     words}}content{{/if}}',
+            '{{#if words}}content{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n<div>\n</div>\n{{/if}}',
+            '{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment('<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '<div>\n{{#if 1}}\n{{/if}}\n</div>',
+            '<div>\n    {{#if 1}}\n    {{/if}}\n</div>');
+        test_fragment(
+            '{{#if}}\n{{#each}}\n{{#if}}\ncontent\n{{/if}}\n{{#if}}\ncontent\n{{/if}}\n{{/each}}\n{{/if}}',
+            '{{#if}}\n    {{#each}}\n        {{#if}}\n            content\n        {{/if}}\n        {{#if}}\n            content\n        {{/if}}\n    {{/each}}\n{{/if}}');
+        test_fragment('{{#if 1}}\n    <div>\n    </div>\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    content\n    {{else}}\n    content\n{{/if}}',
+            '{{#if 1}}\n    content\n{{else}}\n    content\n{{/if}}');
+        test_fragment(
+            '{{#if 1}}\n    {{else}}\n    {{/if}}',
+            '{{#if 1}}\n{{else}}\n{{/if}}');
+        test_fragment(
+            '{{#if thing}}\n{{#if otherthing}}\n    content\n    {{else}}\ncontent\n    {{/if}}\n       {{else}}\ncontent\n{{/if}}',
+            '{{#if thing}}\n    {{#if otherthing}}\n        content\n    {{else}}\n        content\n    {{/if}}\n{{else}}\n    content\n{{/if}}');
+        test_fragment(
+            '<div{{somestyle}}></div>',
+            '<div {{somestyle}}></div>');
+        test_fragment(
+            '<div{{#if test}}class="foo"{{/if}}>content</div>',
+            '<div {{#if test}} class="foo" {{/if}}>content</div>');
+        test_fragment(
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</div>',
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>content</div>');
+        test_fragment(
+            '<span{{#if condition}}class="foo"{{/if}}>content</span>',
+            '<span {{#if condition}} class="foo" {{/if}}>content</span>');
+        test_fragment('<div unformatted="{{#if}}content{{/if}}">content</div>');
+        test_fragment('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
+        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
 
         //============================================================

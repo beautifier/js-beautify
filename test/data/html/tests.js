@@ -281,6 +281,34 @@ exports.test_data = {
 
         ],
     }, {
+        name: "Attribute Wrap alignment with spaces",
+        description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+        matrix: [{
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "indent_with_tabs", value: "true" }
+            ]
+        }],
+        tests: [{
+            fragment: true,
+            input: '<div><div a="1" b="2"><div>test</div></div></div>',
+            output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+        }]
+    }, {
+        name: "Attribute Wrap de-indent",
+        description: "Tags de-indent when attributes are wrapped",
+        matrix: [{
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "indent_with_tabs", value: "false" }
+            ]
+        }],
+        tests: [{
+            fragement: true,
+            input: '<div a="1" b="2"><div>test</div></div>',
+            output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
+        }]
+    }, {
         name: "Attribute Wrap",
         description: "Wraps attributes inside of html tags",
         matrix: [{
@@ -506,6 +534,12 @@ exports.test_data = {
                 { name: "indent_handlebars", value: "true" }
             ],
             content: '{{!-- \\n mult-line\\ncomment \\n{{#> component}}\\n mult-line\\ncomment  \\n     with spacing\\n {{/ component}}--}}'
+        }, {
+            options: [
+                { name: "indent_handlebars", value: "true" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            content: 'content'
         }],
         tests: [
             { fragment: true, unchanged: '{{page-title}}' },
@@ -670,6 +704,9 @@ exports.test_data = {
             }, {
                 fragment: true,
                 unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
+            }, {
+                fragment: true,
+                unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
             }
         ],
     }, {
