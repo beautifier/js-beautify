@@ -218,26 +218,24 @@ exports.test_data = {
             ],
             separator_input: '\\n\\n',
             separator_output: '\\n\\n',
-            separator_output_tabs: '\\n\\t\\n\\t',
         }, {
             options: [
                 { name: "preserve_newlines", value: "false" }
             ],
             separator_input: '\\n\\n',
             separator_output: '\\n',
-            separator_output_tabs: '\\n\\t'
         }],
         tests: [
             { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
-            { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output_tabs}}font-size: 12px;\n}' }
+            { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output}}\tfont-size: 12px;\n}' }
         ],
     }, {
         name: "Preserve Newlines and add tabs",
         options: [{ name: "preserve_newlines", value: "true" }],
         description: "",
         tests: [{
-            input: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
-            output: '.tool-tip {\n\tposition: relative;\n\t\n\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\t\t\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
+            input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
+            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\\n\\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
         }],
     }, {
         name: "Newline Between Rules",

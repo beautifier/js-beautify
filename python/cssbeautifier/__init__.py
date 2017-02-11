@@ -331,6 +331,13 @@ class Beautifier:
 
         return False
 
+    def removeWhiteSpaceOnEmptyLines(self, input):
+        output = input.split('\n')
+        for i in range(len(output)):
+            if len(output[i].strip()) == 0:
+                output[i] = ''
+
+        return '\n'.join(output)
 
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
@@ -525,6 +532,9 @@ class Beautifier:
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
+
+        if self.opts.preserve_newlines:
+            sweet_code = self.removeWhiteSpaceOnEmptyLines(sweet_code)
 
         # establish end_with_newline
         if self.opts.end_with_newline:

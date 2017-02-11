@@ -326,13 +326,13 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
-        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n", separator_output_tabs = "\n\t\n\t")
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
         reset_options();
         opts.preserve_newlines = true;
         t('.div {}\n\n.span {}');
-        t('#bla, #foo{\n\tcolor:black;\n\n\tfont-size: 12px;\n}', '#bla,\n#foo {\n\tcolor: black;\n\t\n\tfont-size: 12px;\n}');
+        t('#bla, #foo{\n\tcolor:black;\n\n\tfont-size: 12px;\n}', '#bla,\n#foo {\n\tcolor: black;\n\n\tfont-size: 12px;\n}');
 
-        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n", separator_output_tabs = "\n\t")
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
         reset_options();
         opts.preserve_newlines = false;
         t('.div {}\n\n.span {}', '.div {}\n.span {}');
@@ -343,7 +343,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         // Preserve Newlines and add tabs
         reset_options();
         opts.preserve_newlines = true;
-        t('.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}', '.tool-tip {\n\tposition: relative;\n\t\n\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\t\t\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}');
+        t('.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}', '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}');
 
 
         //============================================================
