@@ -31,7 +31,7 @@ Also, check your change needs any tooling updates.  For example, the CDN urls re
 ### 4. Submit a Pull Request 
 
 * Run `./build full` locally after commit but before creation of Pull Request.  You may start a Pull Request if this does not succeed, but the PR will not be accepted without additional changes.
-* Include description of changea. Include examples of input and expected output if possible. 
+* Include description of changes. Include examples of input and expected output if possible. 
 * Pull requests must pass build checks on all platforms before being accepted. We use travis-ci and appveyor to run tests on Linux and Windows, across multiple versions of Node.js and Python.
 
 # Folders

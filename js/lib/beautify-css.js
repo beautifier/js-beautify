@@ -41,6 +41,7 @@
     The options are (default in brackets):
         indent_size (4)                         — indentation size,
         indent_char (space)                     — character to indent with,
+        preserve_newlines (default false)       - whether existing line breaks should be preserved,
         selector_separator_newline (true)       - separate selectors with newline or
                                                   not (e.g. "a,\nbr" or "a, br")
         end_with_newline (false)                - end with a newline
@@ -98,6 +99,7 @@
 
         var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
         var indentCharacter = options.indent_char || ' ';
+        var preserve_newlines = (options.preserve_newlines === undefined) ? false : options.preserve_newlines;
         var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
         var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
         var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
@@ -234,6 +236,16 @@
             return false;
         }
 
+        function removeWhiteSpaceOnEmptyLines(input) {
+            var output = input.split('\n');
+            for (var i = 0; i < output.length; i++) {
+                if (output[i].trim().length === 0) {
+                    output[i] = '';
+                }
+            }
+            return output.join('\n');
+        }
+
         // printer
         var basebaseIndentString = source_text.match(/^[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
@@ -311,6 +323,8 @@
             var whitespace = skipWhitespace();
             var isAfterSpace = whitespace !== '';
             var isAfterNewline = whitespace.indexOf('\n') !== -1;
+            var newLines = whitespace.replace(/ /g, '').replace(/\t/g, '');
+            var isAfterEmptyline = newLines.indexOf('\n\n') !== -1;
             last_top_ch = top_ch;
             top_ch = ch;
 
@@ -490,7 +504,15 @@
                 ch = '=';
                 output.push(ch);
             } else {
-                print.preserveSingleSpace();
+                if (isAfterEmptyline && preserve_newlines) {
+                    var newLineCount = newLines.split('\n').length - 2;
+                    for (var i = 0; i < newLineCount; i++) {
+                        print.newLine(true);
+                    }
+                    eatWhitespace();
+                } else {
+                    print.preserveSingleSpace();
+                }
                 output.push(ch);
             }
         }
@@ -502,6 +524,10 @@
         }
 
         sweetCode += output.join('').replace(/[\r\n\t ]+$/, '');
+
+        if (preserve_newlines) {
+            sweetCode = removeWhiteSpaceOnEmptyLines(sweetCode);
+        }
 
         // establish end_with_newline
         if (end_with_newline) {
