@@ -22,8 +22,8 @@ release_python()
     echo "__version__ = '$NEW_VERSION'" > python/jsbeautifier/__version__.py
     git commit -am "Python $NEW_VERSION"
     cd python
-    python setup.py register
-    python setup.py sdist bdist_wininst upload
+    python setup.py register -r pypi
+    python setup.py sdist upload -r pypi
     git push
 }
 

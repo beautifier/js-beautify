@@ -281,6 +281,34 @@ exports.test_data = {
 
         ],
     }, {
+        name: "Attribute Wrap alignment with spaces",
+        description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+        matrix: [{
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "indent_with_tabs", value: "true" }
+            ]
+        }],
+        tests: [{
+            fragment: true,
+            input: '<div><div a="1" b="2"><div>test</div></div></div>',
+            output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+        }]
+    }, {
+        name: "Attribute Wrap de-indent",
+        description: "Tags de-indent when attributes are wrapped",
+        matrix: [{
+            options: [
+                { name: "wrap_attributes", value: "'force-aligned'" },
+                { name: "indent_with_tabs", value: "false" }
+            ]
+        }],
+        tests: [{
+            fragement: true,
+            input: '<div a="1" b="2"><div>test</div></div>',
+            output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
+        }]
+    }, {
         name: "Attribute Wrap",
         description: "Wraps attributes inside of html tags",
         matrix: [{

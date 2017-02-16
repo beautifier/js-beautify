@@ -1,4 +1,20 @@
 # Changelog
+## v1.6.9
+
+### Description
+* Fixed html formatting issue with attribute wrap (Thanks, @HookyQR!)
+* Fixed python package publishing
+
+
+### Closed Issues
+* Wrong HTML beautification starting with v1.6.5 ([#1115](https://github.com/beautify-web/js-beautify/issues/1115))
+* Ignore linebreak when meet handlebar ([#1104](https://github.com/beautify-web/js-beautify/pull/1104))
+* Lines are not un-indented correctly when attributes are wrapped ([#1103](https://github.com/beautify-web/js-beautify/issues/1103))
+* force-aligned is not aligned when indenting with tabs ([#1102](https://github.com/beautify-web/js-beautify/issues/1102))
+* Python package fails to publish  ([#1101](https://github.com/beautify-web/js-beautify/issues/1101))
+* Explaination of 'operator_position' is absent from README.md ([#1047](https://github.com/beautify-web/js-beautify/issues/1047))
+
+
 ## v1.6.8
 
 ### Description
@@ -365,7 +381,7 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 * Allow `<style>` and `<script>` tags to be unformatted ([#494](https://github.com/beautify-web/js-beautify/pull/494))
 * Preserve new line at end of file ([#492](https://github.com/beautify-web/js-beautify/issues/492))
 * Line wraps breaking numbers (causes syntax error) ([#488](https://github.com/beautify-web/js-beautify/issues/488))
-* jsBeautify acts differently when handling different kinds of function expressions[BUG][javascript] ([#485](https://github.com/beautify-web/js-beautify/issues/485))
+* jsBeautify acts differently when handling different kinds of function expressions ([#485](https://github.com/beautify-web/js-beautify/issues/485))
 * AttributeError: 'NoneType' object has no attribute 'groups' ([#479](https://github.com/beautify-web/js-beautify/issues/479))
 * installation doco for python need update -- pip install six? ([#478](https://github.com/beautify-web/js-beautify/issues/478))
 * Move einars/js-beautify to beautify-web/js-beautify ([#475](https://github.com/beautify-web/js-beautify/issues/475))
@@ -496,71 +512,5 @@ https://github.com/einars/js-beautify/compare/v1.3.4...v1.4.0
 * Ending parenthesis in function call ([#239](https://github.com/beautify-web/js-beautify/issues/239))
 * Preventing line breaks around Unformatted tags ([#105](https://github.com/beautify-web/js-beautify/issues/105))
 * IE conditional HTML comments don't play well with the rest of the document ([#91](https://github.com/beautify-web/js-beautify/issues/91))
-
-
-## v1.3.4
-
-### Description
-1.3.3 introduced an change to function formatting.  This fixes primarily that but also a few other tweaks.
-
-### Closed Issues
-* Broken indentation ([#277](https://github.com/beautify-web/js-beautify/issues/277))
-* Nested inline statements (if, while, do, for) should start new line ([#276](https://github.com/beautify-web/js-beautify/issues/276))
-* Bare expression followed immediately by function definition should not indent ([#275](https://github.com/beautify-web/js-beautify/issues/275))
-* bug fix for "js-beautify does not create directory automatically when use '-o' parameter" ([#272](https://github.com/beautify-web/js-beautify/pull/272))
-* js-beautify does not create directory automatically when use '-o' parameter ([#270](https://github.com/beautify-web/js-beautify/issues/270))
-* Problem with indentation inside function ([#268](https://github.com/beautify-web/js-beautify/issues/268))
-* added a deindent() function . ([#267](https://github.com/beautify-web/js-beautify/pull/267))
-
-
-## v1.3.3
-
-### Description
-Another good set of fixes. 
-
-### Closed Issues
-* Nested arrays indentation with --good-stuff ([#273](https://github.com/beautify-web/js-beautify/issues/273))
-* Keep Array Indentation doesn't always work ([#263](https://github.com/beautify-web/js-beautify/issues/263))
-* Whitespace issue with function call with object literal + other arguments. ([#262](https://github.com/beautify-web/js-beautify/issues/262))
-* Implement wider fix to Indenting within parenthesis frames ([#259](https://github.com/beautify-web/js-beautify/issues/259))
-* Block formatting within function call parameters. ([#258](https://github.com/beautify-web/js-beautify/issues/258))
-* make python accept -w or --wrap-line-lengthmake python accept -w or --wrap-line-length ([#252](https://github.com/beautify-web/js-beautify/pull/252))
-* Beautifying function call chains that end with a callback results in incorrect formatting ([#241](https://github.com/beautify-web/js-beautify/pull/241))
-* Keeping New lines  ([#96](https://github.com/beautify-web/js-beautify/issues/96))
-
-
-## v1.3.2
-
-### Description
-Seems like there are enough features on `master` to justify a patch revision. To wit:
-
-* Removal of `expand-strict` value for `--brace-style` option.
-* Added `--space-in-paren` option.
-* E4X
-* Functions as sub-array literals (#246)
-* Minor updates to `p_a_c_k_e_r` unpacking.
-
-https://github.com/einars/js-beautify/compare/v1.3.1...master
-
-### Closed Issues
-* Why removed support for global object? ([#249](https://github.com/beautify-web/js-beautify/issues/249))
-* Incorrect indentation of functions in array ([#246](https://github.com/beautify-web/js-beautify/issues/246))
-* E4X for Python ([#243](https://github.com/beautify-web/js-beautify/issues/243))
-* Single line comments on "case:" lines forced to next line ([#242](https://github.com/beautify-web/js-beautify/issues/242))
-* Remove expand-strict ([#240](https://github.com/beautify-web/js-beautify/pull/240))
-* empty braces should always collapse to {} on the same line ([#237](https://github.com/beautify-web/js-beautify/issues/237))
-* braces "expand-strict", return { } should be on same line ([#236](https://github.com/beautify-web/js-beautify/issues/236))
-* Option for different formatting of spaces in parens ([#235](https://github.com/beautify-web/js-beautify/pull/235))
-* E4X ([#234](https://github.com/beautify-web/js-beautify/pull/234))
-* -h option in cli.js ([#233](https://github.com/beautify-web/js-beautify/pull/233))
-* Globally installed npm js-beautify will never catch .jsbeautifyrc in /home ([#228](https://github.com/beautify-web/js-beautify/issues/228))
-* html conditional tag treated as open tag "<!--[if IE 8]>" ([#222](https://github.com/beautify-web/js-beautify/issues/222))
-* Document package release process ([#214](https://github.com/beautify-web/js-beautify/issues/214))
-* Add basic tests for beautify command line ([#209](https://github.com/beautify-web/js-beautify/issues/209))
-* Index.html - "Preserve empty lines" does not describe the behavior ([#199](https://github.com/beautify-web/js-beautify/issues/199))
-* Bug: <![CDATA[ ([#152](https://github.com/beautify-web/js-beautify/issues/152))
-* New options proposal: spaces around arguments ([#126](https://github.com/beautify-web/js-beautify/issues/126))
-* Add option to put single-statement blocks into a new line ([#116](https://github.com/beautify-web/js-beautify/issues/116))
-* [Feature request] --disable-preserve-newlines to one line ([#74](https://github.com/beautify-web/js-beautify/issues/74))
 
 
