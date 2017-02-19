@@ -14,7 +14,7 @@ var fs = require('fs'),
 function node_beautifier_html_tests() {
     console.log('Testing performance...');
     var index_html = fs.readFileSync(__dirname + '/../../index.html', 'utf8');
-    var data_attr = fs.readFileSync(__dirname + '/../../test/html-with-base64image.html', 'utf8');
+    var data_attr = fs.readFileSync(__dirname + '/../../test/resources/html-with-base64image.html', 'utf8');
     var options = {
         wrap_line_length: 80
     };

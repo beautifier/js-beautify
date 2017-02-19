@@ -4,6 +4,6 @@ node_modules/**
 python/**
 target/**
 tools/**
-test/underscore-min.js
-test/underscore.js
+test/resources/underscore-min.js
+test/resources/underscore.js
 web/third-party/**
