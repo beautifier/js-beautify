@@ -58,7 +58,7 @@ exports.test_data = {
                 options: [
                     { name: "end_with_newline", value: "true" }
                 ],
-                eof: '\\n'
+                eof: '\n'
             }, {
                 options: [
                     { name: "end_with_newline", value: "false" }
@@ -315,31 +315,31 @@ exports.test_data = {
             options: [
                 { name: "wrap_attributes", value: "'force'" }
             ],
-            indent_attr: '\\n    ',
+            indent_attr: '\n    ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n    '
+            indent_over80: '\n    '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force'" },
                 { name: "wrap_line_length", value: "80" }
             ],
-            indent_attr: '\\n    ',
+            indent_attr: '\n    ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n    '
+            indent_over80: '\n    '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force'" },
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
-            indent_attr: '\\n        ',
+            indent_attr: '\n        ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n        '
+            indent_over80: '\n        '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'auto'" },
@@ -350,7 +350,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n'
+            indent_over80: '\n'
         }, {
             options: [
                 { name: "wrap_attributes", value: "'auto'" },
@@ -361,7 +361,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n    '
+            indent_over80: '\n    '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'auto'" },
@@ -376,65 +376,65 @@ exports.test_data = {
             options: [
                 { name: "wrap_attributes", value: "'force-aligned'" }
             ],
-            indent_attr: '\\n     ',
+            indent_attr: '\n     ',
             indent_attr_faligned: ' ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n     '
+            indent_over80: '\n     '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-aligned'" },
                 { name: "wrap_line_length", value: "80" }
             ],
-            indent_attr: '\\n     ',
+            indent_attr: '\n     ',
             indent_attr_faligned: ' ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n     '
+            indent_over80: '\n     '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-aligned'" },
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
-            indent_attr: '\\n     ',
+            indent_attr: '\n     ',
             indent_attr_faligned: ' ',
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
-            indent_over80: '\\n     '
+            indent_over80: '\n     '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "4" }
             ],
-            indent_attr: '\\n    ',
-            indent_attr_first: '\\n    ',
-            indent_end: '\\n',
-            indent_end_selfclosing: '\\n',
-            indent_over80: '\\n    '
+            indent_attr: '\n    ',
+            indent_attr_first: '\n    ',
+            indent_end: '\n',
+            indent_end_selfclosing: '\n',
+            indent_over80: '\n    '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "4" },
                 { name: "wrap_line_length", value: "80" }
             ],
-            indent_attr: '\\n    ',
-            indent_attr_first: '\\n    ',
-            indent_end: '\\n',
-            indent_end_selfclosing: '\\n',
-            indent_over80: '\\n    '
+            indent_attr: '\n    ',
+            indent_attr_first: '\n    ',
+            indent_end: '\n',
+            indent_end_selfclosing: '\n',
+            indent_over80: '\n    '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-expand-multiline'" },
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
-            indent_attr: '\\n        ',
-            indent_attr_first: '\\n        ',
-            indent_end: '\\n',
-            indent_end_selfclosing: '\\n',
-            indent_over80: '\\n        '
+            indent_attr: '\n        ',
+            indent_attr_first: '\n        ',
+            indent_end: '\n',
+            indent_end_selfclosing: '\n',
+            indent_over80: '\n        '
         }],
         tests: [{
             fragment: true,
@@ -523,17 +523,17 @@ exports.test_data = {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
-            content: '{{! \\n mult-line\\ncomment  \\n     with spacing\\n}}'
+            content: '{{! \n mult-line\ncomment  \n     with spacing\n}}'
         }, {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
-            content: '{{!-- \\n mult-line\\ncomment  \\n     with spacing\\n--}}'
+            content: '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}'
         }, {
             options: [
                 { name: "indent_handlebars", value: "true" }
             ],
-            content: '{{!-- \\n mult-line\\ncomment \\n{{#> component}}\\n mult-line\\ncomment  \\n     with spacing\\n {{/ component}}--}}'
+            content: '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}'
         }, {
             options: [
                 { name: "indent_handlebars", value: "true" },

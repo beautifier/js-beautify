@@ -393,15 +393,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force';
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n    attr1="123"\n    data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n    attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n    rel="stylesheet"\n    type="text/css">');
+            '<root attr1="foo"\n' +
+            '    attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
         reset_options();
@@ -409,15 +432,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n    attr1="123"\n    data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n    attr1="123"\n    data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n    attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n    rel="stylesheet"\n    type="text/css">');
+            '<root attr1="foo"\n' +
+            '    attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n        ")
         reset_options();
@@ -425,15 +471,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n        attr1="123"\n        data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n        attr0\n        attr1="123"\n        data-attr2="hello    t here"\n        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n        attr1="123"\n        data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '        attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here"\n' +
+            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n        attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n        rel="stylesheet"\n        type="text/css">');
+            '<root attr1="foo"\n' +
+            '        attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '        rel="stylesheet"\n' +
+            '        type="text/css">');
 
         // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n")
         reset_options();
@@ -443,14 +512,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\nheymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\n' +
+            'heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\nrel="stylesheet" type="text/css">');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            'rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
         reset_options();
@@ -460,14 +537,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n    rel="stylesheet" type="text/css">');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = " ")
         reset_options();
@@ -490,15 +575,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force-aligned';
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n     attr1="123"\n     data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n     attr0\n     attr1="123"\n     data-attr2="hello    t here"\n     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n     attr1="123"\n     data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n      attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n      rel="stylesheet"\n      type="text/css">');
+            '<root attr1="foo"\n' +
+            '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
         reset_options();
@@ -506,15 +614,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n     attr1="123"\n     data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n     attr0\n     attr1="123"\n     data-attr2="hello    t here"\n     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n     attr1="123"\n     data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n      attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n      rel="stylesheet"\n      type="text/css">');
+            '<root attr1="foo"\n' +
+            '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
         reset_options();
@@ -522,15 +653,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div attr0\n     attr1="123"\n     data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n     attr0\n     attr1="123"\n     data-attr2="hello    t here"\n     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0\n     attr1="123"\n     data-attr2="hello    t here" />');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img attr0\n' +
+            '     attr1="123"\n' +
+            '     data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root attr1="foo"\n      attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n      rel="stylesheet"\n      type="text/css">');
+            '<root attr1="foo"\n' +
+            '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n    ")
         reset_options();
@@ -538,15 +692,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 4;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n>This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div\n    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false"\n>This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n/>');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '/>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root\n    attr1="foo"\n    attr2="bar"\n/>');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link\n    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n    rel="stylesheet"\n    type="text/css"\n>');
+            '<root\n' +
+            '    attr1="foo"\n' +
+            '    attr2="bar"\n' +
+            '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css"\n' +
+            '>');
 
         // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n    ")
         reset_options();
@@ -555,15 +742,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n>This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div\n    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n    heymanimreallylongtoowhocomesupwiththesenames="false"\n>This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img\n    attr0\n    attr1="123"\n    data-attr2="hello    t here"\n/>');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img\n' +
+            '    attr0\n' +
+            '    attr1="123"\n' +
+            '    data-attr2="hello    t here"\n' +
+            '/>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root\n    attr1="foo"\n    attr2="bar"\n/>');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link\n    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n    rel="stylesheet"\n    type="text/css"\n>');
+            '<root\n' +
+            '    attr1="foo"\n' +
+            '    attr2="bar"\n' +
+            '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css"\n' +
+            '>');
 
         // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = "\n        ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n        ")
         reset_options();
@@ -571,15 +791,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
-        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>', '<div\n        attr0\n        attr1="123"\n        data-attr2="hello    t here"\n>This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div\n        lookatthissuperduperlongattributenamewhoahcrazy0="true"\n        attr0\n        attr1="123"\n        data-attr2="hello    t here"\n        heymanimreallylongtoowhocomesupwiththesenames="false"\n>This is some text</div>');
-        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img\n        attr0\n        attr1="123"\n        data-attr2="hello    t here"\n/>');
+        test_fragment(
+            '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '        attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '        lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '        attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here"\n' +
+            '        heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+            //  -- output --
+            '<img\n' +
+            '        attr0\n' +
+            '        attr1="123"\n' +
+            '        data-attr2="hello    t here"\n' +
+            '/>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
-            '<root\n        attr1="foo"\n        attr2="bar"\n/>');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">', '<link\n        href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n        rel="stylesheet"\n        type="text/css"\n>');
+            '<root\n' +
+            '        attr1="foo"\n' +
+            '        attr2="bar"\n' +
+            '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '        href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '        rel="stylesheet"\n' +
+            '        type="text/css"\n' +
+            '>');
 
 
         //============================================================
@@ -1186,7 +1439,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.indent_handlebars = true;
         test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+        test_fragment(
+            '{{#if 0}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
             '{{/if}}');
@@ -1195,13 +1453,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '{{#if words}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if     words}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+            '{{#if words}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}',
+            '{{#if     words}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}');
+            '{{#if words}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
             '    <div>\n' +
@@ -1236,10 +1510,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
-            '{{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}\n' +
             '{{#if}}\n' +
-            '{{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}\n' +
             '{{/each}}\n' +
             '{{/if}}',
@@ -1247,10 +1529,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '    {{#each}}\n' +
             '        {{#if}}\n' +
-            '            {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '            {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '        {{/if}}\n' +
             '        {{#if}}\n' +
-            '            {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '            {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
@@ -1261,15 +1551,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '    {{else}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if 1}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{else}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
@@ -1282,45 +1588,131 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '    {{else}}\n' +
-            '{{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '    {{/if}}\n' +
             '       {{else}}\n' +
-            '{{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if thing}}\n' +
             '    {{#if otherthing}}\n' +
-            '        {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '        {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '    {{else}}\n' +
-            '        {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '        {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
-            '    {{! \n mult-line\ncomment  \n     with spacing\n}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{/if}}');
         test_fragment(
             '<div{{somestyle}}></div>',
             //  -- output --
             '<div {{somestyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div{{#if test}}class="foo"{{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+            '<div {{#if test}} class="foo" {{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>',
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>');
         test_fragment(
-            '<span{{#if condition}}class="foo"{{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>',
+            '<span{{#if condition}}class="foo"{{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{! \n mult-line\ncomment  \n     with spacing\n}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}">{{! \n mult-line\ncomment  \n     with spacing\n}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! \n mult-line\ncomment  \n     with spacing\n}}{{/if}}\'></div>');
+            '<span {{#if condition}} class="foo" {{/if}}>{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</span>');
+        test_fragment(
+            '<div unformatted="{{#if}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}">{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>');
+        test_fragment(
+            '<div unformatted="{{#if  }}    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}">{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</div>');
+        test_fragment(
+            '<div class="{{#if thingIs "value"}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}"></div>');
+        test_fragment(
+            '<div class="{{#if thingIs \'value\'}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}"></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs "value"}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}\'></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs \'value\'}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
@@ -1329,7 +1721,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.indent_handlebars = true;
         test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}');
+        test_fragment(
+            '{{#if 0}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
             '{{/if}}');
@@ -1338,13 +1735,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '{{#if words}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}',
+            '{{#if     words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}');
+            '{{#if words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}',
+            '{{#if     words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}');
+            '{{#if words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
             '    <div>\n' +
@@ -1379,10 +1792,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
-            '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}\n' +
             '{{#if}}\n' +
-            '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}\n' +
             '{{/each}}\n' +
             '{{/if}}',
@@ -1390,10 +1811,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '    {{#each}}\n' +
             '        {{#if}}\n' +
-            '            {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '            {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '        {{/if}}\n' +
             '        {{#if}}\n' +
-            '            {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '            {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
@@ -1404,15 +1833,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '    {{else}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if 1}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{else}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
@@ -1425,45 +1870,131 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '    {{else}}\n' +
-            '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '    {{/if}}\n' +
             '       {{else}}\n' +
-            '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if thing}}\n' +
             '    {{#if otherthing}}\n' +
-            '        {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '    {{else}}\n' +
-            '        {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
-            '    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{/if}}');
         test_fragment(
             '<div{{somestyle}}></div>',
             //  -- output --
             '<div {{somestyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>',
+            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>');
+            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>',
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>');
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>');
         test_fragment(
-            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</span>',
+            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}">{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}">{{!-- \n mult-line\ncomment  \n     with spacing\n--}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment  \n     with spacing\n--}}{{/if}}\'></div>');
+            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</span>');
+        test_fragment(
+            '<div unformatted="{{#if}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>');
+        test_fragment(
+            '<div unformatted="{{#if  }}    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</div>');
+        test_fragment(
+            '<div class="{{#if thingIs "value"}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}"></div>');
+        test_fragment(
+            '<div class="{{#if thingIs \'value\'}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}"></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs "value"}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}\'></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs \'value\'}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
@@ -1472,7 +2003,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.indent_handlebars = true;
         test_fragment('{{page-title}}');
         test_fragment('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}');
+        test_fragment(
+            '{{#if 0}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
             '{{/if}}');
@@ -1481,13 +2020,41 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '{{#if words}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}',
+            '{{#if     words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}');
+            '{{#if words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}',
+            '{{#if     words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}');
+            '{{#if words}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
             '    <div>\n' +
@@ -1522,10 +2089,24 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
-            '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}\n' +
             '{{#if}}\n' +
-            '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}\n' +
             '{{/each}}\n' +
             '{{/if}}',
@@ -1533,10 +2114,24 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '    {{#each}}\n' +
             '        {{#if}}\n' +
-            '            {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '            {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '        {{/if}}\n' +
             '        {{#if}}\n' +
-            '            {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '            {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
@@ -1547,15 +2142,43 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '    {{else}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if 1}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{else}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
@@ -1568,45 +2191,191 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '    {{else}}\n' +
-            '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '    {{/if}}\n' +
             '       {{else}}\n' +
-            '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if thing}}\n' +
             '    {{#if otherthing}}\n' +
-            '        {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '    {{else}}\n' +
-            '        {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
-            '    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{/if}}');
         test_fragment(
             '<div{{somestyle}}></div>',
             //  -- output --
             '<div {{somestyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>',
+            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>');
+            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>',
+            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>');
+            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>');
         test_fragment(
-            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</span>',
+            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}">{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}">{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}{{/if}}\'></div>');
+            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</span>');
+        test_fragment(
+            '<div unformatted="{{#if}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>');
+        test_fragment(
+            '<div unformatted="{{#if  }}    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</div>');
+        test_fragment(
+            '<div class="{{#if thingIs "value"}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}"></div>');
+        test_fragment(
+            '<div class="{{#if thingIs \'value\'}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}"></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs "value"}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}\'></div>');
+        test_fragment(
+            '<div class=\'{{#if thingIs \'value\'}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 

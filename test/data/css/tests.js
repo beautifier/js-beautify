@@ -43,7 +43,7 @@ exports.test_data = {
             options: [
                 { name: "end_with_newline", value: "true" }
             ],
-            eof: '\\n'
+            eof: '\n'
         }, {
             options: [
                 { name: "end_with_newline", value: "false" }
@@ -190,15 +190,15 @@ exports.test_data = {
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '" "' }
             ],
-            separator: '\\n',
-            separator1: '\\n\\t'
+            separator: '\n',
+            separator1: '\n\t'
         }, {
             options: [
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '"  "' }
             ],
-            separator: '\\n',
-            separator1: '\\n\\t'
+            separator: '\n',
+            separator1: '\n\t'
         }],
         tests: [
             { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}' },
@@ -216,14 +216,14 @@ exports.test_data = {
             options: [
                 { name: "preserve_newlines", value: "true" }
             ],
-            separator_input: '\\n\\n',
-            separator_output: '\\n\\n',
+            separator_input: '\n\n',
+            separator_output: '\n\n',
         }, {
             options: [
                 { name: "preserve_newlines", value: "false" }
             ],
-            separator_input: '\\n\\n',
-            separator_output: '\\n',
+            separator_input: '\n\n',
+            separator_output: '\n',
         }],
         tests: [
             { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
@@ -235,7 +235,7 @@ exports.test_data = {
         description: "",
         tests: [{
             input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
-            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\\n\\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
+            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
         }],
     }, {
         name: "Newline Between Rules",
@@ -244,7 +244,7 @@ exports.test_data = {
             options: [
                 { name: "newline_between_rules", value: "true" }
             ],
-            separator: '\\n'
+            separator: '\n'
         }, {
             options: [
                 { name: "newline_between_rules", value: "false" }

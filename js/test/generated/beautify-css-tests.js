@@ -412,7 +412,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t(
             '#bla, #foo{color:green}',
             //  -- output --
-            '#bla,\n#foo {\n' +
+            '#bla,\n' +
+            '#foo {\n' +
             '\tcolor: green\n' +
             '}');
         t(
@@ -425,20 +426,24 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
-            '\t.tab,\n\t.bat {}\n' +
+            '\t.tab,\n' +
+            '\t.bat {}\n' +
             '}');
         t(
             '#bla, #foo{color:black}',
             //  -- output --
-            '#bla,\n#foo {\n' +
+            '#bla,\n' +
+            '#foo {\n' +
             '\tcolor: black\n' +
             '}');
         t(
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
-            'a:first-child,\na:first-child {\n' +
+            'a:first-child,\n' +
+            'a:first-child {\n' +
             '\tcolor: red;\n' +
-            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\tdiv:first-child,\n' +
+            '\tdiv:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
             '}');
@@ -450,7 +455,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t(
             '#bla, #foo{color:green}',
             //  -- output --
-            '#bla,\n#foo {\n' +
+            '#bla,\n' +
+            '#foo {\n' +
             '\tcolor: green\n' +
             '}');
         t(
@@ -463,20 +469,24 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
-            '\t.tab,\n\t.bat {}\n' +
+            '\t.tab,\n' +
+            '\t.bat {}\n' +
             '}');
         t(
             '#bla, #foo{color:black}',
             //  -- output --
-            '#bla,\n#foo {\n' +
+            '#bla,\n' +
+            '#foo {\n' +
             '\tcolor: black\n' +
             '}');
         t(
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
-            'a:first-child,\na:first-child {\n' +
+            'a:first-child,\n' +
+            'a:first-child {\n' +
             '\tcolor: red;\n' +
-            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\tdiv:first-child,\n' +
+            '\tdiv:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
             '}');
@@ -486,29 +496,45 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
         reset_options();
         opts.preserve_newlines = true;
-        t('.div {}\n\n.span {}');
+        t(
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
         t(
             '#bla, #foo{\n' +
-            '\tcolor:black;\n\n\tfont-size: 12px;\n' +
+            '\tcolor:black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
             '}',
             //  -- output --
             '#bla,\n' +
             '#foo {\n' +
-            '\tcolor: black;\n\n\tfont-size: 12px;\n' +
+            '\tcolor: black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
             '}');
 
         // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
         reset_options();
         opts.preserve_newlines = false;
-        t('.div {}\n\n.span {}', '.div {}\n.span {}');
+        t(
+            '.div {}\n' +
+            '\n' +
+            '.span {}',
+            //  -- output --
+            '.div {}\n' +
+            '.span {}');
         t(
             '#bla, #foo{\n' +
-            '\tcolor:black;\n\n\tfont-size: 12px;\n' +
+            '\tcolor:black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
             '}',
             //  -- output --
             '#bla,\n' +
             '#foo {\n' +
-            '\tcolor: black;\n\tfont-size: 12px;\n' +
+            '\tcolor: black;\n' +
+            '\tfont-size: 12px;\n' +
             '}');
 
 
@@ -542,7 +568,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\t&>* {\n' +
             '\t\t\tmargin-top: 0;\n' +
             '\t\t}\n' +
-            '\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
+            '\n' +
+            '\n' +
+            '\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
             '\t\tpadding: 1rem;\n' +
             '\t\tposition: absolute;\n' +
             '\t\tz-index: 10;\n' +
@@ -559,21 +587,24 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.span {}',
             //  -- output --
             '.div {}\n' +
-            '\n.span {}');
+            '\n' +
+            '.span {}');
         t(
             '.div{}\n' +
             '   \n' +
             '.span{}',
             //  -- output --
             '.div {}\n' +
-            '\n.span {}');
+            '\n' +
+            '.span {}');
         t(
             '.div {}    \n' +
             '  \n' +
             '.span { } \n',
             //  -- output --
             '.div {}\n' +
-            '\n.span {}');
+            '\n' +
+            '.span {}');
         t(
             '.div {\n' +
             '    \n' +
@@ -582,7 +613,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             ' }  ',
             //  -- output --
             '.div {}\n' +
-            '\n.span {}');
+            '\n' +
+            '.span {}');
         t(
             '.selector1 {\n' +
             '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
@@ -593,7 +625,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tmargin: 0;\n' +
             '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
         t(
@@ -606,7 +639,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\twidth: 10px; //end of line comment\n' +
             '\theight: 10px; //another\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
         t(
@@ -626,7 +660,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
             '\t}\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
         t(
@@ -650,7 +685,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
             '\t}\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
         t(
@@ -676,7 +712,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
             '}\n' +
-            '\n@media screen {\n' +
+            '\n' +
+            '@media screen {\n' +
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
@@ -699,7 +736,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\tcolor: black;\n' +
             '\t}\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
         t(
@@ -712,7 +750,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t\tcolor: black;\n' +
             '\t}\n' +
             '}\n' +
-            '\n.div {\n' +
+            '\n' +
+            '.div {\n' +
             '\theight: 15px;\n' +
             '}');
 
