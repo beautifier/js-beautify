@@ -85,13 +85,11 @@ function isStringOrArray(val) {
 }
 
 function getTestString(val) {
-    if (typeof val === 'string') {
-        return "'" + val.replace(/\n/g, '\\n').replace(/\t/g, '\\t') + "'";
-    } else if (val instanceof Array) {
-        return "'" + val.join("\\n' +\n            '").replace(/\t/g, '\\t') + "'";
-    } else {
-        return null;
-    }
+    val = val.split('\n');
+
+    var result = "'" + val.join("\\n' +\n            '").replace(/\t/g, '\\t') + "'";
+    result = result.replace(/' \+\n            ''$/, "'");
+    return result;
 }
 
 function set_formatters(data, test_method, comment_mark) {
@@ -108,7 +106,7 @@ function set_formatters(data, test_method, comment_mark) {
                 }
 
                 if (context.hasOwnProperty(name)) {
-                    outputs.push(name + ' = "' + context[name] + '"');
+                    outputs.push(name + ' = "' + context[name].replace(/\n/g, '\\n').replace(/\t/g, '\\t') + '"');
                 }
             }
             return render(outputs.join(', '));
@@ -117,76 +115,77 @@ function set_formatters(data, test_method, comment_mark) {
 
     data.test_line = function() {
         return function(text, render) {
-            var method_text = test_method;
-            if (this.fragment) {
-                method_text = 'test_fragment';
-            }
+            var method_text = this.fragment ? 'test_fragment' : test_method;
+            var comment = '';
+            var before_input = method_text + '(';
+            var input = null;
+            var before_output = ', ';
+            var output = null;
 
             // text is ignored for this.
-            var comment = '';
             if (typeof this.comment === 'string') {
-                comment = '\n        ' + comment_mark + this.comment + '\n        ';
-            } else if (this.comment instanceof Array) {
+                this.comment = this.comment.split('\n');
+            }
+
+            if (this.comment instanceof Array) {
                 comment = '\n        ' + comment_mark + this.comment.join('\n        ' + comment_mark) + '\n        ';
             }
 
-            var input = null;
-            var before_input = method_text + '(';
-            var before_output = ', ';
+            // input: the default field
+            // input_: allow underscore for formatting alignment with "output"
+            // unchanged: use "unchanged" instead of "input" if there is no output
+            input = this.input || this.input_ || this.unchanged;
+            if (input instanceof Array) {
+                input = input.join('\n');
+            }
 
-            function set_input(field, opt_newline) {
-                if (input !== null && isStringOrArray(field)) {
-                    throw "Only one test input field allowed (input, input_, or unchanged): " + input;
-                }
-
-                if (typeof field === 'string' && !opt_newline) {
-                    input = getTestString(field);
-                } else if (field instanceof Array || (typeof field === 'string' && opt_newline)) {
-                    before_input = method_text + '(\n            ';
-                    before_output = ',\n            ';
-                    input = getTestString(field);
+            if (isStringOrArray(this.output)) {
+                output = this.output;
+                if (output instanceof Array) {
+                    output = output.join('\n');
                 }
             }
 
-            set_input(this.input);
-
-            // allow underscore for formatting alignment with "output"
-            set_input(this.input_, true);
-
-            // use "unchanged" instead of "input" if there is no output
-            set_input(this.unchanged);
-            if (isStringOrArray(this.unchanged) && isStringOrArray(this.output)) {
-                throw "Cannot specify 'output' with 'unchanged' test input: " + input;
-            }
-
-            if (input === null) {
+            // Do all most error checking
+            if (!(this.input !== null || this.input_ !== null || this.unchanged !== null)) {
                 throw "Missing test input field (input, input_, or unchanged).";
-            }
-
-            var output = null;
-            if (typeof this.output === 'string') {
-                output = getTestString(this.output);
-            } else if (this.output instanceof Array) {
-                before_input = method_text + '(\n            ';
-                before_output = ',\n            ';
-                output = getTestString(this.output);
-            } else {
-                before_output = '';
-            }
-
-            if (input === output) {
+            } else if ((this.input !== null && (this.input_ !== null || this.unchanged !== null)) &&
+                (this.input_ === null || this.unchanged === null)) {
+                throw "Only one test input field allowed (input, input_, or unchanged): " + input;
+            } else if (output && isStringOrArray(this.unchanged)) {
+                throw "Cannot specify 'output' with 'unchanged' test input: " + input;
+            } else if (!output && !isStringOrArray(this.unchanged)) {
+                throw "Neither 'output' nor 'unchanged' specified for test input: " + input;
+            } else if (input === output) {
+                // Raw input and output can be the same, just omit output.
                 throw "Test strings are identical.  Omit 'output' and use 'unchanged': " + input;
             }
 
             if (output && output.indexOf('<%') !== -1) {
                 mustache.tags = ['<%', '%>'];
             }
-            input = render(input);
-            output = render(output);
+
+            input = getTestString(render(input));
+
+            if (output) {
+                output = getTestString(render(output));
+            } else {
+                output = '';
+            }
+
             if (output && output.indexOf('<%') !== -1) {
                 mustache.tags = ['{{', '}}'];
             }
 
+            if (this.input_ || input.indexOf('\n') !== -1 || output.indexOf('\n') !== -1) {
+                before_input = method_text + '(\n            ';
+                before_output = ',\n            ' + comment_mark + ' -- output --\n            ';
+            }
+            if (output === '') {
+                before_output = '';
+            }
+
+            // Rendered input and output can be the same, just omit output.
             if (output === input) {
                 before_output = '';
                 output = '';
