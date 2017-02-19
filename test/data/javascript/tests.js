@@ -172,7 +172,7 @@ exports.test_data = {
                 options: [
                     { name: "end_with_newline", value: "true" }
                 ],
-                eof: '\\n'
+                eof: '\n'
             }, {
                 options: [
                     { name: "end_with_newline", value: "false" }
@@ -243,13 +243,13 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
 
@@ -263,21 +263,21 @@ exports.test_data = {
                 ibc: '',
                 iac: '',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
             {
                 options: [
                     { name: "brace_style", value: "'collapse'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
         ],
@@ -317,20 +317,20 @@ exports.test_data = {
             options: [
                 { name: "comma_first", value: "false" }
             ],
-            c0: ',\\n',
-            c1: ',\\n    ',
-            c2: ',\\n        ',
-            c3: ',\\n            ',
+            c0: ',\n',
+            c1: ',\n    ',
+            c2: ',\n        ',
+            c3: ',\n            ',
             // edge cases where engine bails
-            f1: '    ,\\n    '
+            f1: '    ,\n    '
         }, {
             options: [
                 { name: "comma_first", value: "true" }
             ],
-            c0: '\\n, ',
-            c1: '\\n    , ',
-            c2: '\\n        , ',
-            c3: '\\n            , ',
+            c0: '\n, ',
+            c1: '\n    , ',
+            c2: '\n        , ',
+            c3: '\n            , ',
             // edge cases where engine bails
             f1: ', '
         }],
@@ -2278,9 +2278,9 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '', //Output Before Open curlybrace & Tab character
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ', //Output After Open curlybrace & corresponding Tab
-                obc: '\\n', //Output Before Close curlybrace
+                obc: '\n', //Output Before Close curlybrace
                 oac: ' ',
                 oact: '' //Output After Close curlybrace & corresponding Tab character
             },
@@ -2288,12 +2288,12 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'expand,preserve-inline'" }
                 ],
-                obo: '\\n',
+                obo: '\n',
                 obot: '    ',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
-                oac: '\\n',
+                obc: '\n',
+                oac: '\n',
                 oact: '    '
             },
             {
@@ -2302,10 +2302,10 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
-                oac: '\\n',
+                obc: '\n',
+                oac: '\n',
                 oact: '    '
             },
             {
@@ -2316,9 +2316,9 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
+                obc: '\n',
                 oac: ' ',
                 oact: ''
             },
@@ -2330,9 +2330,9 @@ exports.test_data = {
                 //Equivalent to the output of the first test
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
+                obc: '\n',
                 oac: ' ',
                 oact: ''
             }

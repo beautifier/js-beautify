@@ -344,23 +344,73 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = 'collapse,preserve-inline'
         bt(
-            'var a =\n{\na: 2\n}\n;\n' +
-            'var a =\n{\na: 2\n}\n;',
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';\n' +
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';',
             #  -- output --
-            'var a = {\n    a: 2\n};\n' +
-            'var a = {\n    a: 2\n};')
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
         bt(
             '//case 1\n' +
-            'if (a == 1)\n{}\n' +
+            'if (a == 1)\n' +
+            '{}\n' +
             '//case 2\n' +
-            'else if (a == 2)\n{}',
+            'else if (a == 2)\n' +
+            '{}',
             #  -- output --
             '//case 1\n' +
             'if (a == 1) {}\n' +
             '//case 2\n' +
             'else if (a == 2) {}')
-        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'if(1)\n' +
+            '{\n' +
+            '2\n' +
+            '}\n' +
+            'else\n' +
+            '{\n' +
+            '3\n' +
+            '}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try\n' +
+            '{\n' +
+            'a();\n' +
+            '}\n' +
+            'catch(b)\n' +
+            '{\n' +
+            'c();\n' +
+            '}\n' +
+            'catch(d)\n' +
+            '{}\n' +
+            'finally\n' +
+            '{\n' +
+            'e();\n' +
+            '}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
         # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
         self.reset_options();
@@ -369,8 +419,12 @@ class TestJSBeautifier(unittest.TestCase):
             'var a ={a: 2};\n' +
             'var a ={a: 2};',
             #  -- output --
-            'var a = {\n    a: 2\n};\n' +
-            'var a = {\n    a: 2\n};')
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
         bt(
             '//case 1\n' +
             'if (a == 1){}\n' +
@@ -381,30 +435,96 @@ class TestJSBeautifier(unittest.TestCase):
             'if (a == 1) {}\n' +
             '//case 2\n' +
             'else if (a == 2) {}')
-        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'if(1){2}else{3}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try{a();}catch(b){c();}catch(d){}finally{e();}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
         # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
         self.reset_options();
         self.options.brace_style = 'collapse'
         bt(
-            'var a =\n{\na: 2\n}\n;\n' +
-            'var a =\n{\na: 2\n}\n;',
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';\n' +
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';',
             #  -- output --
-            'var a = {\n    a: 2\n};\n' +
-            'var a = {\n    a: 2\n};')
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
         bt(
             '//case 1\n' +
-            'if (a == 1)\n{}\n' +
+            'if (a == 1)\n' +
+            '{}\n' +
             '//case 2\n' +
-            'else if (a == 2)\n{}',
+            'else if (a == 2)\n' +
+            '{}',
             #  -- output --
             '//case 1\n' +
             'if (a == 1) {}\n' +
             '//case 2\n' +
             'else if (a == 2) {}')
-        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'if(1)\n' +
+            '{\n' +
+            '2\n' +
+            '}\n' +
+            'else\n' +
+            '{\n' +
+            '3\n' +
+            '}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try\n' +
+            '{\n' +
+            'a();\n' +
+            '}\n' +
+            'catch(b)\n' +
+            '{\n' +
+            'c();\n' +
+            '}\n' +
+            'catch(d)\n' +
+            '{}\n' +
+            'finally\n' +
+            '{\n' +
+            'e();\n' +
+            '}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
 
         #============================================================
@@ -415,9 +535,15 @@ class TestJSBeautifier(unittest.TestCase):
             '{a:1, b:2}',
             #  -- output --
             '{\n' +
-            '    a: 1,\n    b: 2\n' +
+            '    a: 1,\n' +
+            '    b: 2\n' +
             '}')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;')
+        bt(
+            'var a=1, b=c[d], e=6;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = c[d],\n' +
+            '    e = 6;')
         bt(
             'for(var a=1,b=2,c=3;d<3;d++)\n' +
             'e',
@@ -429,49 +555,69 @@ class TestJSBeautifier(unittest.TestCase):
             'c=3;d<3;d++)\n' +
             'e',
             #  -- output --
-            'for (var a = 1, b = 2,\n        c = 3; d < 3; d++)\n' +
+            'for (var a = 1, b = 2,\n' +
+            '        c = 3; d < 3; d++)\n' +
             '    e')
         bt(
             'function foo() {\n' +
             '    return [\n' +
-            '        "one",\n        "two"\n' +
+            '        "one",\n' +
+            '        "two"\n' +
             '    ];\n' +
             '}')
         bt(
             'a=[[1,2],[4,5],[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2],\n    [4, 5],\n    [7, 8]\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],[7,8],]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2],\n    [4, 5],\n    [7, 8],\n]')
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    [7, 8],\n' +
+            ']')
         bt(
             'a=[[1,2],[4,5],function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
             ']')
         bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
         bt(
             'a=[b,c,\n' +
             'function(){},function(){},d]',
             #  -- output --
-            'a = [b, c,\n    function() {},\n    function() {},\n    d\n' +
+            'a = [b, c,\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    d\n' +
             ']')
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
@@ -480,11 +626,17 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             '[\n' +
             '    [\n' +
-            '        ["1", "2"],\n        ["3", "4"]\n' +
-            '    ],\n    [\n' +
-            '        ["5", "6", "7"],\n        ["8", "9", "0"]\n' +
-            '    ],\n    [\n' +
-            '        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n' +
+            '        ["1", "2"],\n' +
+            '        ["3", "4"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["1", "2", "3"],\n' +
+            '        ["4", "5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
             '    ]\n' +
             ']')
         bt(
@@ -495,7 +647,8 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             'changeCollection.add({\n' +
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
-            '        ,\n    age: 25\n' +
+            '        ,\n' +
+            '    age: 25\n' +
             '});')
         bt(
             'changeCollection.add(\n' +
@@ -503,14 +656,6 @@ class TestJSBeautifier(unittest.TestCase):
             '        return true;\n' +
             '    },\n' +
             '    function() {\n' +
-            '        return true;\n' +
-            '    }\n' +
-            ');',
-            #  -- output --
-            'changeCollection.add(\n' +
-            '    function() {\n' +
-            '        return true;\n' +
-            '    },\n    function() {\n' +
             '        return true;\n' +
             '    }\n' +
             ');')
@@ -522,9 +667,15 @@ class TestJSBeautifier(unittest.TestCase):
             '{a:1, b:2}',
             #  -- output --
             '{\n' +
-            '    a: 1\n    , b: 2\n' +
+            '    a: 1\n' +
+            '    , b: 2\n' +
             '}')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1\n    , b = c[d]\n    , e = 6;')
+        bt(
+            'var a=1, b=c[d], e=6;',
+            #  -- output --
+            'var a = 1\n' +
+            '    , b = c[d]\n' +
+            '    , e = 6;')
         bt(
             'for(var a=1,b=2,c=3;d<3;d++)\n' +
             'e',
@@ -536,49 +687,69 @@ class TestJSBeautifier(unittest.TestCase):
             'c=3;d<3;d++)\n' +
             'e',
             #  -- output --
-            'for (var a = 1, b = 2\n        , c = 3; d < 3; d++)\n' +
+            'for (var a = 1, b = 2\n' +
+            '        , c = 3; d < 3; d++)\n' +
             '    e')
         bt(
             'function foo() {\n' +
             '    return [\n' +
-            '        "one"\n        , "two"\n' +
+            '        "one"\n' +
+            '        , "two"\n' +
             '    ];\n' +
             '}')
         bt(
             'a=[[1,2],[4,5],[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2]\n    , [4, 5]\n    , [7, 8]\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],[7,8],]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2]\n    , [4, 5]\n    , [7, 8]\n, ]')
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , [7, 8]\n' +
+            ', ]')
         bt(
             'a=[[1,2],[4,5],function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2]\n    , [4, 5]\n    , function() {}\n    , [7, 8]\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2]\n    , [4, 5]\n    , function() {}\n    , function() {}\n    , [7, 8]\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
             ']')
         bt(
             'a=[[1,2],[4,5],function(){},[7,8]]',
             #  -- output --
             'a = [\n' +
-            '    [1, 2]\n    , [4, 5]\n    , function() {}\n    , [7, 8]\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
             ']')
         bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
         bt(
             'a=[b,c,\n' +
             'function(){},function(){},d]',
             #  -- output --
-            'a = [b, c\n    , function() {}\n    , function() {}\n    , d\n' +
+            'a = [b, c\n' +
+            '    , function() {}\n' +
+            '    , function() {}\n' +
+            '    , d\n' +
             ']')
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
@@ -587,11 +758,17 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             '[\n' +
             '    [\n' +
-            '        ["1", "2"]\n        , ["3", "4"]\n' +
-            '    ]\n    , [\n' +
-            '        ["5", "6", "7"]\n        , ["8", "9", "0"]\n' +
-            '    ]\n    , [\n' +
-            '        ["1", "2", "3"]\n        , ["4", "5", "6", "7"]\n        , ["8", "9", "0"]\n' +
+            '        ["1", "2"]\n' +
+            '        , ["3", "4"]\n' +
+            '    ]\n' +
+            '    , [\n' +
+            '        ["5", "6", "7"]\n' +
+            '        , ["8", "9", "0"]\n' +
+            '    ]\n' +
+            '    , [\n' +
+            '        ["1", "2", "3"]\n' +
+            '        , ["4", "5", "6", "7"]\n' +
+            '        , ["8", "9", "0"]\n' +
             '    ]\n' +
             ']')
         bt(
@@ -612,7 +789,8 @@ class TestJSBeautifier(unittest.TestCase):
             'changeCollection.add(\n' +
             '    function() {\n' +
             '        return true;\n' +
-            '    }\n    , function() {\n' +
+            '    }\n' +
+            '    , function() {\n' +
             '        return true;\n' +
             '    }\n' +
             ');')
@@ -2994,14 +3172,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            #  -- output --
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -3015,11 +3186,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function complex() {\n    console.log("wowe");\n' +
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
         self.reset_options();
@@ -3028,7 +3205,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
-        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
+        bt(
+            'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+            #  -- output --
+            'if (ding) { console.log("dong"); }\n' +
+            'else { console.log("dang"); }')
         bt(
             'function kindaComplex() {\n' +
             '    var a = 2;\n' +
@@ -3041,12 +3222,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function kindaComplex()\n{\n    var a = 2;\n' +
+            'function kindaComplex()\n' +
+            '{\n' +
+            '    var a = 2;\n' +
             '    var obj = {};\n' +
             '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
             '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '        e: "e"\n' +
+            '    };\n' +
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -3060,11 +3246,19 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function complex()\n{\n    console.log("wowe");\n' +
+            'function complex()\n' +
+            '{\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b()\n        {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b()\n' +
+            '        {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
         self.reset_options();
@@ -3073,7 +3267,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
-        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
+        bt(
+            'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+            #  -- output --
+            'if (ding) { console.log("dong"); }\n' +
+            'else { console.log("dang"); }')
         bt(
             'function kindaComplex() {\n' +
             '    var a = 2;\n' +
@@ -3084,14 +3282,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            #  -- output --
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -3105,11 +3296,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function complex() {\n    console.log("wowe");\n' +
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         self.reset_options();
@@ -3129,14 +3326,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            #  -- output --
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -3150,11 +3340,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function complex() {\n    console.log("wowe");\n' +
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         self.reset_options();
@@ -3174,14 +3370,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            #  -- output --
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -3195,11 +3384,17 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}',
             #  -- output --
-            'function complex() {\n    console.log("wowe");\n' +
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
 
         #============================================================
