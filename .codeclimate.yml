@@ -8,3 +8,5 @@ ratings:
  - "**.js"
  - "**.py"
 exclude_paths:
+- web/third-party/**
+- "**/generated/*"

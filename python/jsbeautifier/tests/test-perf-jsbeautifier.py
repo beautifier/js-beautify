@@ -23,8 +23,8 @@ def report_perf(fn):
 
 if __name__ == '__main__':
     dirname = os.path.dirname(os.path.abspath(__file__))
-    underscore_file = os.path.join(dirname, "../../../", "test/underscore.js")
-    underscore_min_file = os.path.join(dirname, "../../../", "test/underscore-min.js")
+    underscore_file = os.path.join(dirname, "../../../", "test/resources/underscore.js")
+    underscore_min_file = os.path.join(dirname, "../../../", "test/resources/underscore-min.js")
     data = copy.copy(''.join(open(underscore_file).readlines()))
     data_min = copy.copy(''.join(open(underscore_min_file).readlines()))
 
