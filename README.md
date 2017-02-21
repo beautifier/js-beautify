@@ -184,7 +184,7 @@ In addition to CLI arguments, you may pass config to the JS executable via:
 
 Configuration sources provided earlier in this stack will override later ones.
 
-### Setting inheritance and Lanuguage-specific overrides
+### Setting inheritance and Language-specific overrides
 
 The settings are a shallow tree whose values are inherited for all languages, but
 can be overridden.  This works for settings passed directly to the API in either implementation.
