@@ -514,3 +514,12 @@ https://github.com/einars/js-beautify/compare/v1.3.4...v1.4.0
 * IE conditional HTML comments don't play well with the rest of the document ([#91](https://github.com/beautify-web/js-beautify/issues/91))
 
 
+## 1.6.10
+
+### Description
+Added `preserver_newlines` to css beautifier
+
+### Closed Issues
+* CSS: Preserve Newlines ([#537](https://github.com/beautify-web/js-beautify/issues/537))
+
+
