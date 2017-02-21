@@ -35,6 +35,7 @@ class BeautifierOptions:
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
+        self.preserve_newlines = False
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
@@ -65,11 +66,12 @@ class BeautifierOptions:
 """indent_size = %d
 indent_char = [%s]
 indent_with_tabs = [%s]
+preserve_newlines = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
 space_around_combinator = [%s]
-""" % (self.indent_size, self.indent_char, self.indent_with_tabs,
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
        self.space_around_combinator)
 
@@ -329,6 +331,13 @@ class Beautifier:
 
         return False
 
+    def removeWhiteSpaceOnEmptyLines(self, input):
+        output = input.split('\n')
+        for i in range(len(output)):
+            if len(output[i].strip()) == 0:
+                output[i] = ''
+
+        return '\n'.join(output)
 
     def beautify(self):
         m = re.search("^[\t ]*", self.source_text)
@@ -346,6 +355,8 @@ class Beautifier:
             whitespace = self.skipWhitespace()
             isAfterSpace = whitespace != ''
             isAfterNewline = '\n' in whitespace
+            newLines = whitespace.replace(" ", "").replace("\t", "")
+            isAfterEmptyline = '\n\n' in newLines
             last_top_ch = top_ch
             top_ch = self.ch
 
@@ -510,10 +521,20 @@ class Beautifier:
                 self.ch = '='
                 printer.push(self.ch)
             else:
-                printer.preserveSingleSpace(isAfterSpace)
+                if isAfterEmptyline and self.opts.preserve_newlines:
+                    newLineCount = range(len(newLines.split('\n')) - 2)
+                    for i in newLineCount:
+                        printer.newLine(True)
+
+                    self.eatWhitespace()
+                else:
+                    printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
+
+        if self.opts.preserve_newlines:
+            sweet_code = self.removeWhiteSpaceOnEmptyLines(sweet_code)
 
         # establish end_with_newline
         if self.opts.end_with_newline:

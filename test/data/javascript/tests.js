@@ -40,9 +40,9 @@ exports.test_data = {
         name: "Unicode Support",
         description: "",
         tests: [{
-            input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+            unchanged: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
         }, {
-            input: [
+            unchanged: [
                 "var ' + unicode_char(228) + 'x = {",
                 "    ' + unicode_char(228) + 'rgerlich: true",
                 "};"
@@ -54,8 +54,8 @@ exports.test_data = {
         tests: [
             { unchanged: '`This is a ${template} string.`' },
             { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
-            { unchanged: 'a = `This is a continuation\\\nstring.`' },
-            { unchanged: 'a = "This is a continuation\\\nstring."' },
+            { unchanged: 'a = `This is a continuation\\\\\nstring.`' },
+            { unchanged: 'a = "This is a continuation\\\\\nstring."' },
             { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
             {
                 comment: 'Tests for #1030',
@@ -172,7 +172,7 @@ exports.test_data = {
                 options: [
                     { name: "end_with_newline", value: "true" }
                 ],
-                eof: '\\n'
+                eof: '\n'
             }, {
                 options: [
                     { name: "end_with_newline", value: "false" }
@@ -243,13 +243,13 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
 
@@ -263,21 +263,21 @@ exports.test_data = {
                 ibc: '',
                 iac: '',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
             {
                 options: [
                     { name: "brace_style", value: "'collapse'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
         ],
@@ -317,20 +317,20 @@ exports.test_data = {
             options: [
                 { name: "comma_first", value: "false" }
             ],
-            c0: ',\\n',
-            c1: ',\\n    ',
-            c2: ',\\n        ',
-            c3: ',\\n            ',
+            c0: ',\n',
+            c1: ',\n    ',
+            c2: ',\n        ',
+            c3: ',\n            ',
             // edge cases where engine bails
-            f1: '    ,\\n    '
+            f1: '    ,\n    '
         }, {
             options: [
                 { name: "comma_first", value: "true" }
             ],
-            c0: '\\n, ',
-            c1: '\\n    , ',
-            c2: '\\n        , ',
-            c3: '\\n            , ',
+            c0: '\n, ',
+            c1: '\n    , ',
+            c2: '\n        , ',
+            c3: '\n            , ',
             // edge cases where engine bails
             f1: ', '
         }],
@@ -339,7 +339,7 @@ exports.test_data = {
             { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1{{c1}}b = c[d]{{c1}}e = 6;' },
             { input: "for(var a=1,b=2,c=3;d<3;d++)\ne", output: "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e" },
             { input: "for(var a=1,b=2,\nc=3;d<3;d++)\ne", output: "for (var a = 1, b = 2{{c2}}c = 3; d < 3; d++)\n    e" },
-            { input: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
+            { unchanged: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]\n]" },
             { input: 'a=[[1,2],[4,5],[7,8],]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]{{c0}}]" },
             {
@@ -730,12 +730,12 @@ exports.test_data = {
         name: "Async / await tests",
         description: "ES7 async / await tests",
         tests: [
-            { input: "async function foo() {}" },
-            { input: "let w = async function foo() {}" },
-            { input: "async function foo() {}\nvar x = await foo();" },
+            { unchanged: "async function foo() {}" },
+            { unchanged: "let w = async function foo() {}" },
+            { unchanged: "async function foo() {}\nvar x = await foo();" },
             {
                 comment: "async function as an input to another function",
-                input: "wrapper(async function foo() {})"
+                unchanged: "wrapper(async function foo() {})"
             },
             {
                 comment: "await on inline anonymous function. should have a space after await",
@@ -744,7 +744,7 @@ exports.test_data = {
             },
             {
                 comment: "ensure that this doesn't break anyone with the async library",
-                input: "async.map(function(t) {})"
+                unchanged: "async.map(function(t) {})"
             }
         ]
     }, {
@@ -2278,9 +2278,9 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '', //Output Before Open curlybrace & Tab character
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ', //Output After Open curlybrace & corresponding Tab
-                obc: '\\n', //Output Before Close curlybrace
+                obc: '\n', //Output Before Close curlybrace
                 oac: ' ',
                 oact: '' //Output After Close curlybrace & corresponding Tab character
             },
@@ -2288,12 +2288,12 @@ exports.test_data = {
                 options: [
                     { name: "brace_style", value: "'expand,preserve-inline'" }
                 ],
-                obo: '\\n',
+                obo: '\n',
                 obot: '    ',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
-                oac: '\\n',
+                obc: '\n',
+                oac: '\n',
                 oact: '    '
             },
             {
@@ -2302,10 +2302,10 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
-                oac: '\\n',
+                obc: '\n',
+                oac: '\n',
                 oact: '    '
             },
             {
@@ -2316,9 +2316,9 @@ exports.test_data = {
                 ],
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
+                obc: '\n',
                 oac: ' ',
                 oact: ''
             },
@@ -2330,9 +2330,9 @@ exports.test_data = {
                 //Equivalent to the output of the first test
                 obo: ' ',
                 obot: '',
-                oao: '\\n',
+                oao: '\n',
                 oaot: '    ',
-                obc: '\\n',
+                obc: '\n',
                 oac: ' ',
                 oact: ''
             }
@@ -2571,7 +2571,7 @@ exports.test_data = {
             { input: 'a        =          1', output: 'a = 1' },
             { input: 'a=1', output: 'a = 1' },
             { unchanged: '(3) / 2' },
-            { input: '["a", "b"].join("")' },
+            { unchanged: '["a", "b"].join("")' },
             { unchanged: 'a();\n\nb();' },
             { input: 'var a = 1 var b = 2', output: 'var a = 1\nvar b = 2' },
             { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1,\n    b = c[d],\n    e = 6;' },
@@ -2591,7 +2591,7 @@ exports.test_data = {
             { input: 'var a = 1 if (2) 3;', output: 'var a = 1\nif (2) 3;' },
             { unchanged: 'a = a + 1' },
             { unchanged: 'a = a == 1' },
-            { input: '/12345[^678]*9+/.match(a)' },
+            { unchanged: '/12345[^678]*9+/.match(a)' },
             { unchanged: 'a /= 5' },
             { unchanged: 'a = 0.5 * 3' },
             { unchanged: 'a *= 10.55' },
@@ -2713,7 +2713,7 @@ exports.test_data = {
             { input: 'x={a:1,b:w=="foo"?x:y,c:z}', output: 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}' },
             { input: 'x=a?b?c?d:e:f:g;', output: 'x = a ? b ? c ? d : e : f : g;' },
             { input: 'x=a?b?c?d:{e1:1,e2:2}:f:g;', output: 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;' },
-            { input: 'function void(void) {}' },
+            { unchanged: 'function void(void) {}' },
             { input: 'if(!a)foo();', output: 'if (!a) foo();' },
             { input: 'a=~a', output: 'a = ~a' },
             { input: 'a;/*comment*/b;', output: "a; /*comment*/\nb;" },
@@ -2733,15 +2733,15 @@ exports.test_data = {
             { input: 'for(;;++i)a', output: 'for (;; ++i) a' },
             { input: 'return(1)', output: 'return (1)' },
             { input: 'try{a();}catch(b){c();}finally{d();}', output: "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}" },
-            { input: '(xx)()', comment: ' magic function call' },
-            { input: 'a[1]()', comment: 'another magic function call' },
+            { unchanged: '(xx)()', comment: ' magic function call' },
+            { unchanged: 'a[1]()', comment: 'another magic function call' },
             { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
             { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
             { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
-            { input: 'a !== b' },
+            { unchanged: 'a !== b' },
             { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
-            { input: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
-            { input: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
+            { unchanged: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
+            { unchanged: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
             { unchanged: 'if (a in b) foo();' },
             { unchanged: 'if (a of b) foo();' },
             { unchanged: 'if (a of [1, 2, 3]) foo();' },
@@ -2749,7 +2749,7 @@ exports.test_data = {
                 input: 'if(X)if(Y)a();else b();else c();',
                 output: "if (X)\n    if (Y) a();\n    else b();\nelse c();"
             },
-            { input: 'if (foo) bar();\nelse break' },
+            { unchanged: 'if (foo) bar();\nelse break' },
             { unchanged: 'var a, b;' },
             { unchanged: 'var a = new function();' },
             { fragment: true, unchanged: 'new function' },
@@ -2757,7 +2757,7 @@ exports.test_data = {
             { input: '{a:1, b:2}', output: "{\n    a: 1,\n    b: 2\n}" },
             { input: 'a={1:[-1],2:[+1]}', output: 'a = {\n    1: [-1],\n    2: [+1]\n}' },
             { input: "var l = {\\'a\\':\\'1\\', \\'b\\':\\'2\\'}", output: "var l = {\n    \\'a\\': \\'1\\',\n    \\'b\\': \\'2\\'\n}" },
-            { input: 'if (template.user[n] in bk) foo();' },
+            { unchanged: 'if (template.user[n] in bk) foo();' },
             { unchanged: 'return 45' },
             { unchanged: 'return this.prevObject ||\n\n    this.constructor(null);' },
             { unchanged: 'If[1]' },
@@ -2783,7 +2783,7 @@ exports.test_data = {
 
             {
                 comment: 'was: extra space appended',
-                input: "if (a) {\n    do();\n}"
+                unchanged: "if (a) {\n    do();\n}"
             },
 
             {
@@ -2879,7 +2879,7 @@ exports.test_data = {
             { fragment: true, unchanged: "#" },
             { fragment: true, unchanged: "#!" },
 
-            { input: "function namespace::something()" },
+            { unchanged: "function namespace::something()" },
 
             { fragment: true, unchanged: "<!--\nsomething();\n-->" },
             { fragment: true, input: "<!--\nif(i<0){bla();}\n-->", output: "<!--\nif (i < 0) {\n    bla();\n}\n-->" },

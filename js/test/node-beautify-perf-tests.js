@@ -12,8 +12,8 @@ var fs = require('fs'),
 
 function node_beautifier_tests() {
     console.log('Testing performance...');
-    var data = fs.readFileSync(__dirname + '/../../test/underscore.js', 'utf8');
-    var data_min = fs.readFileSync(__dirname + '/../../test/underscore-min.js', 'utf8');
+    var data = fs.readFileSync(__dirname + '/../../test/resources/underscore.js', 'utf8');
+    var data_min = fs.readFileSync(__dirname + '/../../test/resources/underscore-min.js', 'utf8');
     var options = {
         wrap_line_length: 80
     };

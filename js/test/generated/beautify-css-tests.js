@@ -53,6 +53,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
     default_opts.space_around_combinator = false;
+    default_opts.preserve_newlines = false;
     default_opts.space_around_selector_separator = false;
 
     function reset_options()
@@ -122,7 +123,15 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('   .tabs{}', '   .tabs {}\n');
-        test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}\n');
+        test_fragment(
+            '   \n' +
+            '\n' +
+            '.tabs{}\n' +
+            '\n' +
+            '\n' +
+            '\n',
+            //  -- output --
+            '   .tabs {}\n');
         test_fragment('\n');
 
         // End With Newline - (eof = "")
@@ -130,7 +139,15 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.end_with_newline = false;
         test_fragment('');
         test_fragment('   .tabs{}', '   .tabs {}');
-        test_fragment('   \n\n.tabs{}\n\n\n\n', '   .tabs {}');
+        test_fragment(
+            '   \n' +
+            '\n' +
+            '.tabs{}\n' +
+            '\n' +
+            '\n' +
+            '\n',
+            //  -- output --
+            '   .tabs {}');
         test_fragment('\n', '');
 
 
@@ -140,13 +157,30 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('.tabs{}', '.tabs {}');
         t('.tabs { }', '.tabs {}');
         t('.tabs    {    }', '.tabs {}');
-        t('.tabs    \n{\n    \n  }', '.tabs {}');
+        t(
+            '.tabs    \n' +
+            '{\n' +
+            '    \n' +
+            '  }',
+            //  -- output --
+            '.tabs {}');
 
 
         //============================================================
         // 
         reset_options();
-        t('#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}', '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}');
+        t(
+            '#cboxOverlay {\n' +
+            '\tbackground: url(images/overlay.png) repeat 0 0;\n' +
+            '\topacity: 0.9;\n' +
+            '\tfilter: alpha(opacity = 90);\n' +
+            '}',
+            //  -- output --
+            '#cboxOverlay {\n' +
+            '\tbackground: url(images/overlay.png) repeat 0 0;\n' +
+            '\topacity: 0.9;\n' +
+            '\tfilter: alpha(opacity=90);\n' +
+            '}');
 
 
         //============================================================
@@ -198,21 +232,25 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a + b > c{}', 'a + b > c {}');
         t(
             'a > b{width: calc(100% + 45px);}',
+            //  -- output --
             'a > b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a ~ b{width: calc(100% + 45px);}',
+            //  -- output --
             'a ~ b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b{width: calc(100% + 45px);}',
+            //  -- output --
             'a + b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b > c{width: calc(100% + 45px);}',
+            //  -- output --
             'a + b > c {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
@@ -230,21 +268,25 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a + b > c{}', 'a+b>c {}');
         t(
             'a > b{width: calc(100% + 45px);}',
+            //  -- output --
             'a>b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a ~ b{width: calc(100% + 45px);}',
+            //  -- output --
             'a~b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b{width: calc(100% + 45px);}',
+            //  -- output --
             'a+b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b > c{width: calc(100% + 45px);}',
+            //  -- output --
             'a+b>c {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
@@ -262,21 +304,25 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a + b > c{}', 'a + b > c {}');
         t(
             'a > b{width: calc(100% + 45px);}',
+            //  -- output --
             'a > b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a ~ b{width: calc(100% + 45px);}',
+            //  -- output --
             'a ~ b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b{width: calc(100% + 45px);}',
+            //  -- output --
             'a + b {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
         t(
             'a + b > c{width: calc(100% + 45px);}',
+            //  -- output --
             'a + b > c {\n' +
             '\twidth: calc(100% + 45px);\n' +
             '}');
@@ -287,73 +333,571 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         reset_options();
         opts.selector_separator_newline = false;
         opts.selector_separator = " ";
-        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}');
-        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}');
-        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}');
-        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}');
-        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}');
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab, .bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
 
         // Selector Separator - (separator = " ", separator1 = " ")
         reset_options();
         opts.selector_separator_newline = false;
         opts.selector_separator = "  ";
-        t('#bla, #foo{color:green}', '#bla, #foo {\n\tcolor: green\n}');
-        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}');
-        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab, .bat {}\n}');
-        t('#bla, #foo{color:black}', '#bla, #foo {\n\tcolor: black\n}');
-        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child, a:first-child {\n\tcolor: red;\n\tdiv:first-child, div:hover {\n\t\tcolor: black;\n\t}\n}');
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab, .bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
 
         // Selector Separator - (separator = "\n", separator1 = "\n\t")
         reset_options();
         opts.selector_separator_newline = true;
         opts.selector_separator = " ";
-        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}');
-        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}');
-        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}');
-        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}');
-        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}');
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab,\n' +
+            '\t.bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child,\n' +
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n' +
+            '\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
 
         // Selector Separator - (separator = "\n", separator1 = "\n\t")
         reset_options();
         opts.selector_separator_newline = true;
         opts.selector_separator = "  ";
-        t('#bla, #foo{color:green}', '#bla,\n#foo {\n\tcolor: green\n}');
-        t('@media print {.tab{}}', '@media print {\n\t.tab {}\n}');
-        t('@media print {.tab,.bat{}}', '@media print {\n\t.tab,\n\t.bat {}\n}');
-        t('#bla, #foo{color:black}', '#bla,\n#foo {\n\tcolor: black\n}');
-        t('a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}', 'a:first-child,\na:first-child {\n\tcolor: red;\n\tdiv:first-child,\n\tdiv:hover {\n\t\tcolor: black;\n\t}\n}');
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab,\n' +
+            '\t.bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child,\n' +
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n' +
+            '\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
+
+
+        //============================================================
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
+        reset_options();
+        opts.preserve_newlines = true;
+        t(
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
+        t(
+            '#bla, #foo{\n' +
+            '\tcolor:black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
+            '}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
+            '}');
+
+        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
+        reset_options();
+        opts.preserve_newlines = false;
+        t(
+            '.div {}\n' +
+            '\n' +
+            '.span {}',
+            //  -- output --
+            '.div {}\n' +
+            '.span {}');
+        t(
+            '#bla, #foo{\n' +
+            '\tcolor:black;\n' +
+            '\n' +
+            '\tfont-size: 12px;\n' +
+            '}',
+            //  -- output --
+            '#bla,\n' +
+            '#foo {\n' +
+            '\tcolor: black;\n' +
+            '\tfont-size: 12px;\n' +
+            '}');
+
+
+        //============================================================
+        // Preserve Newlines and add tabs
+        reset_options();
+        opts.preserve_newlines = true;
+        t(
+            '.tool-tip {\n' +
+            '\tposition: relative;\n' +
+            '\n' +
+            '\t\t\n' +
+            '\t.tool-tip-content {\n' +
+            '\t\t&>* {\n' +
+            '\t\t\tmargin-top: 0;\n' +
+            '\t\t}\n' +
+            '\t\t\n' +
+            '\n' +
+            '\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
+            '\t\tpadding: 1rem;\n' +
+            '\t\tposition: absolute;\n' +
+            '\t\tz-index: 10;\n' +
+            '\t}\n' +
+            '}',
+            //  -- output --
+            '.tool-tip {\n' +
+            '\tposition: relative;\n' +
+            '\n' +
+            '\n' +
+            '\t.tool-tip-content {\n' +
+            '\t\t&>* {\n' +
+            '\t\t\tmargin-top: 0;\n' +
+            '\t\t}\n' +
+            '\n' +
+            '\n' +
+            '\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
+            '\t\tpadding: 1rem;\n' +
+            '\t\tposition: absolute;\n' +
+            '\t\tz-index: 10;\n' +
+            '\t}\n' +
+            '}');
 
 
         //============================================================
         // Newline Between Rules - (separator = "\n")
         reset_options();
         opts.newline_between_rules = true;
-        t('.div {}\n.span {}', '.div {}\n\n.span {}');
-        t('.div{}\n   \n.span{}', '.div {}\n\n.span {}');
-        t('.div {}    \n  \n.span { } \n', '.div {}\n\n.span {}');
-        t('.div {\n    \n} \n  .span {\n }  ', '.div {}\n\n.span {}');
-        t('.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div{height:15px;}', '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n\n.div {\n\theight: 15px;\n}');
-        t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}\n\n.div {\n\theight: 15px;\n}');
-        t('#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n\n.div {\n\theight: 15px;\n}');
-        t('@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n\n.div {\n\theight: 15px;\n}');
-        t('@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}');
-        t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n\n.div {\n\theight: 15px;\n}');
-        t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n\n.div {\n\theight: 15px;\n}');
+        t(
+            '.div {}\n' +
+            '.span {}',
+            //  -- output --
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
+        t(
+            '.div{}\n' +
+            '   \n' +
+            '.span{}',
+            //  -- output --
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
+        t(
+            '.div {}    \n' +
+            '  \n' +
+            '.span { } \n',
+            //  -- output --
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
+        t(
+            '.div {\n' +
+            '    \n' +
+            '} \n' +
+            '  .span {\n' +
+            ' }  ',
+            //  -- output --
+            '.div {}\n' +
+            '\n' +
+            '.span {}');
+        t(
+            '.selector1 {\n' +
+            '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;//another\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '#foo {\n' +
+            '\tbackground-image: url(foo@2x.png);\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '#foo {\n' +
+            '\tbackground-image: url(foo@2x.png);\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t}\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t}\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '@font-face {\n' +
+            '\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '}\n' +
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo.png);\n' +
+            '\t}\n' +
+            '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
+            '\t\t@font-face {\n' +
+            '\t\t\tfont-family: "Helvetica Neue"\n' +
+            '\t\t}\n' +
+            '\t\t#foo:hover {\n' +
+            '\t\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '}',
+            //  -- output --
+            '@font-face {\n' +
+            '\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '}\n' +
+            '\n' +
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo.png);\n' +
+            '\t}\n' +
+            '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
+            '\t\t@font-face {\n' +
+            '\t\t\tfont-family: "Helvetica Neue"\n' +
+            '\t\t}\n' +
+            '\t\t#foo:hover {\n' +
+            '\t\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '}');
+        t(
+            'a:first-child{color:red;div:first-child{color:black;}}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            'a:first-child{color:red;div:not(.peq){color:black;}}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:not(.peq) {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
 
         // Newline Between Rules - (separator = "")
         reset_options();
         opts.newline_between_rules = false;
-        t('.div {}\n.span {}');
-        t('.div{}\n   \n.span{}', '.div {}\n.span {}');
-        t('.div {}    \n  \n.span { } \n', '.div {}\n.span {}');
-        t('.div {\n    \n} \n  .span {\n }  ', '.div {}\n.span {}');
-        t('.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div{height:15px;}', '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div {\n\theight: 15px;\n}');
-        t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}\n.div {\n\theight: 15px;\n}');
-        t('#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div {\n\theight: 15px;\n}');
-        t('@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div {\n\theight: 15px;\n}');
-        t('@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}');
-        t('a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}');
-        t('a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n.div {\n\theight: 15px;\n}');
+        t(
+            '.div {}\n' +
+            '.span {}');
+        t(
+            '.div{}\n' +
+            '   \n' +
+            '.span{}',
+            //  -- output --
+            '.div {}\n' +
+            '.span {}');
+        t(
+            '.div {}    \n' +
+            '  \n' +
+            '.span { } \n',
+            //  -- output --
+            '.div {}\n' +
+            '.span {}');
+        t(
+            '.div {\n' +
+            '    \n' +
+            '} \n' +
+            '  .span {\n' +
+            ' }  ',
+            //  -- output --
+            '.div {}\n' +
+            '.span {}');
+        t(
+            '.selector1 {\n' +
+            '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;//another\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '#foo {\n' +
+            '\tbackground-image: url(foo@2x.png);\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '#foo {\n' +
+            '\tbackground-image: url(foo@2x.png);\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t}\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t}\n' +
+            '\t@font-face {\n' +
+            '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            '@font-face {\n' +
+            '\tfont-family: "Bitstream Vera Serif Bold";\n' +
+            '\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
+            '}\n' +
+            '@media screen {\n' +
+            '\t#foo:hover {\n' +
+            '\t\tbackground-image: url(foo.png);\n' +
+            '\t}\n' +
+            '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
+            '\t\t@font-face {\n' +
+            '\t\t\tfont-family: "Helvetica Neue"\n' +
+            '\t\t}\n' +
+            '\t\t#foo:hover {\n' +
+            '\t\t\tbackground-image: url(foo@2x.png);\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '}');
+        t(
+            'a:first-child{color:red;div:first-child{color:black;}}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
+        t(
+            'a:first-child{color:red;div:not(.peq){color:black;}}\n' +
+            '.div{height:15px;}',
+            //  -- output --
+            'a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:not(.peq) {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '.div {\n' +
+            '\theight: 15px;\n' +
+            '}');
 
 
         //============================================================
@@ -361,54 +905,200 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         reset_options();
         t('.tabs(){}', '.tabs() {}');
         t('.tabs (){}', '.tabs () {}');
-        t('.tabs (pa, pa(1,2)), .cols { }', '.tabs (pa, pa(1, 2)),\n.cols {}');
-        t('.tabs(pa, pa(1,2)), .cols { }', '.tabs(pa, pa(1, 2)),\n.cols {}');
+        t(
+            '.tabs (pa, pa(1,2)), .cols { }',
+            //  -- output --
+            '.tabs (pa, pa(1, 2)),\n' +
+            '.cols {}');
+        t(
+            '.tabs(pa, pa(1,2)), .cols { }',
+            //  -- output --
+            '.tabs(pa, pa(1, 2)),\n' +
+            '.cols {}');
         t('.tabs (   )   {    }', '.tabs () {}');
         t('.tabs(   )   {    }', '.tabs() {}');
-        t('.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}');
-        t('.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}');
+        t(
+            '.tabs  (t, t2)  \n' +
+            '{\n' +
+            '  key: val(p1  ,p2);  \n' +
+            '  }',
+            //  -- output --
+            '.tabs (t, t2) {\n' +
+            '\tkey: val(p1, p2);\n' +
+            '}');
+        t(
+            '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n' +
+            '\t-webkit-box-shadow: @shadow;\n' +
+            '\t-moz-box-shadow: @shadow;\n' +
+            '\tbox-shadow: @shadow;\n' +
+            '}');
 
 
         //============================================================
         // Comments
         reset_options();
         t('/* test */');
-        t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}');
-        t('.tabs{/* test */}', '.tabs {\n\t/* test */\n}');
-        t('/* header */.tabs {}', '/* header */\n\n.tabs {}');
-        t('.tabs {\n/* non-header */\nwidth:10px;}', '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}');
+        t(
+            '.tabs{/* test */}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* test */\n' +
+            '}');
+        t(
+            '.tabs{/* test */}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* test */\n' +
+            '}');
+        t(
+            '/* header */.tabs {}',
+            //  -- output --
+            '/* header */\n' +
+            '\n' +
+            '.tabs {}');
+        t(
+            '.tabs {\n' +
+            '/* non-header */\n' +
+            'width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* non-header */\n' +
+            '\twidth: 10px;\n' +
+            '}');
         t('/* header');
         t('// comment');
-        t('.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}', '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}');
+        t(
+            '.selector1 {\n' +
+            '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}');
         
         // single line comment support (less/sass)
-        t('.tabs{\n// comment\nwidth:10px;\n}', '.tabs {\n\t// comment\n\twidth: 10px;\n}');
-        t('.tabs{// comment\nwidth:10px;\n}', '.tabs {\n\t// comment\n\twidth: 10px;\n}');
-        t('//comment\n.tabs{width:10px;}', '//comment\n.tabs {\n\twidth: 10px;\n}');
-        t('.tabs{//comment\n//2nd single line comment\nwidth:10px;}', '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}');
-        t('.tabs{width:10px;//end of line comment\n}', '.tabs {\n\twidth: 10px; //end of line comment\n}');
-        t('.tabs{width:10px;//end of line comment\nheight:10px;}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}');
-        t('.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}');
+        t(
+            '.tabs{\n' +
+            '// comment\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{// comment\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '//comment\n' +
+            '.tabs{width:10px;}',
+            //  -- output --
+            '//comment\n' +
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{//comment\n' +
+            '//2nd single line comment\n' +
+            'width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t//comment\n' +
+            '\t//2nd single line comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;//another\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another\n' +
+            '}');
 
 
         //============================================================
         // Handle LESS property name interpolation
         reset_options();
-        t('tag {\n\t@{prop}: none;\n}');
-        t('tag{@{prop}:none;}', 'tag {\n\t@{prop}: none;\n}');
-        t('tag{ @{prop}: none;}', 'tag {\n\t@{prop}: none;\n}');
+        t(
+            'tag {\n' +
+            '\t@{prop}: none;\n' +
+            '}');
+        t(
+            'tag{@{prop}:none;}',
+            //  -- output --
+            'tag {\n' +
+            '\t@{prop}: none;\n' +
+            '}');
+        t(
+            'tag{ @{prop}: none;}',
+            //  -- output --
+            'tag {\n' +
+            '\t@{prop}: none;\n' +
+            '}');
         
         // can also be part of property name
-        t('tag {\n\tdynamic-@{prop}: none;\n}');
-        t('tag{dynamic-@{prop}:none;}', 'tag {\n\tdynamic-@{prop}: none;\n}');
-        t('tag{ dynamic-@{prop}: none;}', 'tag {\n\tdynamic-@{prop}: none;\n}');
+        t(
+            'tag {\n' +
+            '\tdynamic-@{prop}: none;\n' +
+            '}');
+        t(
+            'tag{dynamic-@{prop}:none;}',
+            //  -- output --
+            'tag {\n' +
+            '\tdynamic-@{prop}: none;\n' +
+            '}');
+        t(
+            'tag{ dynamic-@{prop}: none;}',
+            //  -- output --
+            'tag {\n' +
+            '\tdynamic-@{prop}: none;\n' +
+            '}');
 
 
         //============================================================
         // Handle LESS property name interpolation, test #631
         reset_options();
-        t('.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}');
-        t('.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}', '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}');
+        t(
+            '.generate-columns(@n, @i: 1) when (@i =< @n) {\n' +
+            '\t.column-@{i} {\n' +
+            '\t\twidth: (@i * 100% / @n);\n' +
+            '\t}\n' +
+            '\t.generate-columns(@n, (@i + 1));\n' +
+            '}');
+        t(
+            '.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}',
+            //  -- output --
+            '.generate-columns(@n, @i: 1) when (@i =< @n) {\n' +
+            '\t.column-@{i} {\n' +
+            '\t\twidth: (@i * 100% / @n);\n' +
+            '\t}\n' +
+            '\t.generate-columns(@n, (@i + 1));\n' +
+            '}');
 
 
         //============================================================
@@ -426,7 +1116,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         reset_options();
         
         // Basic Interpolation
-        t('p {\n\t$font-size: 12px;\n\t$line-height: 30px;\n\tfont: #{$font-size}/#{$line-height};\n}');
+        t(
+            'p {\n' +
+            '\t$font-size: 12px;\n' +
+            '\t$line-height: 30px;\n' +
+            '\tfont: #{$font-size}/#{$line-height};\n' +
+            '}');
         t('p.#{$name} {}');
         t(
             '@mixin itemPropertiesCoverItem($items, $margin) {\n' +
@@ -452,7 +1147,14 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t('a ::b {}');
         t('a:b {}');
         t('a::b {}');
-        t('a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}', 'a {}\n, a::b {}\n, a ::b {}\n, a:b {}\n, a :b {}');
+        t(
+            'a {}, a::b {}, a   ::b {}, a:b {}, a   :b {}',
+            //  -- output --
+            'a {}\n' +
+            ', a::b {}\n' +
+            ', a ::b {}\n' +
+            ', a:b {}\n' +
+            ', a :b {}');
         t(
             '.card-blue ::-webkit-input-placeholder {\n' +
             '\tcolor: #87D1FF;\n' +

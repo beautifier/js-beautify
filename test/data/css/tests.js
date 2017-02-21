@@ -32,6 +32,7 @@ exports.test_data = {
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
         { name: "space_around_combinator", value: "false" },
+        { name: "preserve_newlines", value: "false" },
         // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
@@ -42,7 +43,7 @@ exports.test_data = {
             options: [
                 { name: "end_with_newline", value: "true" }
             ],
-            eof: '\\n'
+            eof: '\n'
         }, {
             options: [
                 { name: "end_with_newline", value: "false" }
@@ -189,15 +190,15 @@ exports.test_data = {
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '" "' }
             ],
-            separator: '\\n',
-            separator1: '\\n\\t'
+            separator: '\n',
+            separator1: '\n\t'
         }, {
             options: [
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '"  "' }
             ],
-            separator: '\\n',
-            separator1: '\\n\\t'
+            separator: '\n',
+            separator1: '\n\t'
         }],
         tests: [
             { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}' },
@@ -209,13 +210,41 @@ exports.test_data = {
             }
         ]
     }, {
+        name: "Preserve Newlines",
+        description: "",
+        matrix: [{
+            options: [
+                { name: "preserve_newlines", value: "true" }
+            ],
+            separator_input: '\n\n',
+            separator_output: '\n\n',
+        }, {
+            options: [
+                { name: "preserve_newlines", value: "false" }
+            ],
+            separator_input: '\n\n',
+            separator_output: '\n',
+        }],
+        tests: [
+            { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
+            { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output}}\tfont-size: 12px;\n}' }
+        ],
+    }, {
+        name: "Preserve Newlines and add tabs",
+        options: [{ name: "preserve_newlines", value: "true" }],
+        description: "",
+        tests: [{
+            input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
+            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
+        }],
+    }, {
         name: "Newline Between Rules",
         description: "",
         matrix: [{
             options: [
                 { name: "newline_between_rules", value: "true" }
             ],
-            separator: '\\n'
+            separator: '\n'
         }, {
             options: [
                 { name: "newline_between_rules", value: "false" }
@@ -246,7 +275,7 @@ exports.test_data = {
             { input: '.tabs (   )   {    }', output: '.tabs () {}' },
             { input: '.tabs(   )   {    }', output: '.tabs() {}' },
             { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
-            { input: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
+            { unchanged: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
         ],
     }, {
         name: "Comments",

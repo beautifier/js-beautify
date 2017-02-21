@@ -135,10 +135,22 @@ class TestJSBeautifier(unittest.TestCase):
         # Test template and continuation strings
         self.reset_options();
         bt('`This is a ${template} string.`')
-        bt('`This\n  is\n  a\n  ${template}\n  string.`')
-        bt('a = `This is a continuation\\nstring.`')
-        bt('a = "This is a continuation\\nstring."')
-        bt('`SELECT\n  nextval(\'${this.options.schema ? `${this.options.schema}.` : \'\'}"${this.tableName}_${this.autoIncrementField}_seq"\'::regclass\n  ) nextval;`')
+        bt(
+            '`This\n' +
+            '  is\n' +
+            '  a\n' +
+            '  ${template}\n' +
+            '  string.`')
+        bt(
+            'a = `This is a continuation\\\n' +
+            'string.`')
+        bt(
+            'a = "This is a continuation\\\n' +
+            'string."')
+        bt(
+            '`SELECT\n' +
+            '  nextval(\'${this.options.schema ? `${this.options.schema}.` : \'\'}"${this.tableName}_${this.autoIncrementField}_seq"\'::regclass\n' +
+            '  ) nextval;`')
         
         # Tests for #1030
         bt(
@@ -181,7 +193,11 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.brace_style = "collapse,preserve-inline"
         bt('const m = { ...item, c: 3 };')
-        bt('const m = {\n    ...item,\n    c: 3\n};')
+        bt(
+            'const m = {\n' +
+            '    ...item,\n' +
+            '    c: 3\n' +
+            '};')
         bt('const m = { c: 3, ...item };')
         bt('const m = [...item, 3];')
         bt('const m = [3, ...item];')
@@ -190,7 +206,12 @@ class TestJSBeautifier(unittest.TestCase):
         #============================================================
         # Object literal shorthand functions
         self.reset_options();
-        bt('return {\n    foo() {\n        return 42;\n    }\n}')
+        bt(
+            'return {\n' +
+            '    foo() {\n' +
+            '        return 42;\n' +
+            '    }\n' +
+            '}')
         bt(
             'var foo = {\n' +
             '    * bar() {\n' +
@@ -199,6 +220,7 @@ class TestJSBeautifier(unittest.TestCase):
             '};')
         bt(
             'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+            #  -- output --
             'var foo = {\n' +
             '    bar() {\n' +
             '        return 42;\n' +
@@ -237,7 +259,15 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.end_with_newline = true
         test_fragment('', '\n')
         test_fragment('   return .5', '   return .5\n')
-        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5\n')
+        test_fragment(
+            '   \n' +
+            '\n' +
+            'return .5\n' +
+            '\n' +
+            '\n' +
+            '\n',
+            #  -- output --
+            '   return .5\n')
         test_fragment('\n')
 
         # End With Newline - (eof = "")
@@ -245,7 +275,15 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.end_with_newline = false
         test_fragment('')
         test_fragment('   return .5')
-        test_fragment('   \n\nreturn .5\n\n\n\n', '   return .5')
+        test_fragment(
+            '   \n' +
+            '\n' +
+            'return .5\n' +
+            '\n' +
+            '\n' +
+            '\n',
+            #  -- output --
+            '   return .5')
         test_fragment('\n', '')
 
 
@@ -283,63 +321,334 @@ class TestJSBeautifier(unittest.TestCase):
         # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
         self.reset_options();
         self.options.brace_style = 'collapse,preserve-inline'
-        bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = { a: 2 };\nvar a = { a: 2 };')
-        bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
+        bt(
+            'var a ={a: 2};\n' +
+            'var a ={a: 2};',
+            #  -- output --
+            'var a = { a: 2 };\n' +
+            'var a = { a: 2 };')
+        bt(
+            '//case 1\n' +
+            'if (a == 1){}\n' +
+            '//case 2\n' +
+            'else if (a == 2){}',
+            #  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}')
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }')
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }')
 
         # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
         self.reset_options();
         self.options.brace_style = 'collapse,preserve-inline'
-        bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
-        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
-        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';\n' +
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';',
+            #  -- output --
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
+        bt(
+            '//case 1\n' +
+            'if (a == 1)\n' +
+            '{}\n' +
+            '//case 2\n' +
+            'else if (a == 2)\n' +
+            '{}',
+            #  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}')
+        bt(
+            'if(1)\n' +
+            '{\n' +
+            '2\n' +
+            '}\n' +
+            'else\n' +
+            '{\n' +
+            '3\n' +
+            '}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try\n' +
+            '{\n' +
+            'a();\n' +
+            '}\n' +
+            'catch(b)\n' +
+            '{\n' +
+            'c();\n' +
+            '}\n' +
+            'catch(d)\n' +
+            '{}\n' +
+            'finally\n' +
+            '{\n' +
+            'e();\n' +
+            '}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
         # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
         self.reset_options();
         self.options.brace_style = 'collapse'
-        bt('var a ={a: 2};\nvar a ={a: 2};', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
-        bt('//case 1\nif (a == 1){}\n//case 2\nelse if (a == 2){}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
-        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'var a ={a: 2};\n' +
+            'var a ={a: 2};',
+            #  -- output --
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
+        bt(
+            '//case 1\n' +
+            'if (a == 1){}\n' +
+            '//case 2\n' +
+            'else if (a == 2){}',
+            #  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}')
+        bt(
+            'if(1){2}else{3}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try{a();}catch(b){c();}catch(d){}finally{e();}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
         # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
         self.reset_options();
         self.options.brace_style = 'collapse'
-        bt('var a =\n{\na: 2\n}\n;\nvar a =\n{\na: 2\n}\n;', 'var a = {\n    a: 2\n};\nvar a = {\n    a: 2\n};')
-        bt('//case 1\nif (a == 1)\n{}\n//case 2\nelse if (a == 2)\n{}', '//case 1\nif (a == 1) {}\n//case 2\nelse if (a == 2) {}')
-        bt('if(1)\n{\n2\n}\nelse\n{\n3\n}', 'if (1) {\n    2\n} else {\n    3\n}')
-        bt('try\n{\na();\n}\ncatch(b)\n{\nc();\n}\ncatch(d)\n{}\nfinally\n{\ne();\n}', 'try {\n    a();\n} catch (b) {\n    c();\n} catch (d) {} finally {\n    e();\n}')
+        bt(
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';\n' +
+            'var a =\n' +
+            '{\n' +
+            'a: 2\n' +
+            '}\n' +
+            ';',
+            #  -- output --
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
+        bt(
+            '//case 1\n' +
+            'if (a == 1)\n' +
+            '{}\n' +
+            '//case 2\n' +
+            'else if (a == 2)\n' +
+            '{}',
+            #  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}')
+        bt(
+            'if(1)\n' +
+            '{\n' +
+            '2\n' +
+            '}\n' +
+            'else\n' +
+            '{\n' +
+            '3\n' +
+            '}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try\n' +
+            '{\n' +
+            'a();\n' +
+            '}\n' +
+            'catch(b)\n' +
+            '{\n' +
+            'c();\n' +
+            '}\n' +
+            'catch(d)\n' +
+            '{}\n' +
+            'finally\n' +
+            '{\n' +
+            'e();\n' +
+            '}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
 
 
         #============================================================
         # Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
         self.reset_options();
         self.options.comma_first = false
-        bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;')
-        bt('for(var a=1,b=2,c=3;d<3;d++)\ne', 'for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e')
-        bt('for(var a=1,b=2,\nc=3;d<3;d++)\ne', 'for (var a = 1, b = 2,\n        c = 3; d < 3; d++)\n    e')
-        bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
-        bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],[7,8],]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8],\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
+        bt(
+            '{a:1, b:2}',
+            #  -- output --
+            '{\n' +
+            '    a: 1,\n' +
+            '    b: 2\n' +
+            '}')
+        bt(
+            'var a=1, b=c[d], e=6;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = c[d],\n' +
+            '    e = 6;')
+        bt(
+            'for(var a=1,b=2,c=3;d<3;d++)\n' +
+            'e',
+            #  -- output --
+            'for (var a = 1, b = 2, c = 3; d < 3; d++)\n' +
+            '    e')
+        bt(
+            'for(var a=1,b=2,\n' +
+            'c=3;d<3;d++)\n' +
+            'e',
+            #  -- output --
+            'for (var a = 1, b = 2,\n' +
+            '        c = 3; d < 3; d++)\n' +
+            '    e')
+        bt(
+            'function foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}')
+        bt(
+            'a=[[1,2],[4,5],[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],[7,8],]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    [7, 8],\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
         bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
-        bt('a=[b,c,\nfunction(){},function(){},d]', 'a = [b, c,\n    function() {},\n    function() {},\n    d\n]')
+        bt(
+            'a=[b,c,\n' +
+            'function(){},function(){},d]',
+            #  -- output --
+            'a = [b, c,\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    d\n' +
+            ']')
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
-        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
+        bt(
+            '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+            #  -- output --
+            '[\n' +
+            '    [\n' +
+            '        ["1", "2"],\n' +
+            '        ["3", "4"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["1", "2", "3"],\n' +
+            '        ["4", "5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
+            '    ]\n' +
+            ']')
         bt(
             'changeCollection.add({\n' +
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
             '    , age: 25\n' +
             '});',
+            #  -- output --
             'changeCollection.add({\n' +
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
-            '        ,\n    age: 25\n' +
+            '        ,\n' +
+            '    age: 25\n' +
             '});')
         bt(
             'changeCollection.add(\n' +
@@ -347,13 +656,6 @@ class TestJSBeautifier(unittest.TestCase):
             '        return true;\n' +
             '    },\n' +
             '    function() {\n' +
-            '        return true;\n' +
-            '    }\n' +
-            ');',
-            'changeCollection.add(\n' +
-            '    function() {\n' +
-            '        return true;\n' +
-            '    },\n    function() {\n' +
             '        return true;\n' +
             '    }\n' +
             ');')
@@ -361,21 +663,114 @@ class TestJSBeautifier(unittest.TestCase):
         # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
         self.reset_options();
         self.options.comma_first = true
-        bt('{a:1, b:2}', '{\n    a: 1\n    , b: 2\n}')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1\n    , b = c[d]\n    , e = 6;')
-        bt('for(var a=1,b=2,c=3;d<3;d++)\ne', 'for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e')
-        bt('for(var a=1,b=2,\nc=3;d<3;d++)\ne', 'for (var a = 1, b = 2\n        , c = 3; d < 3; d++)\n    e')
-        bt('function foo() {\n    return [\n        "one"\n        , "two"\n    ];\n}')
-        bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2]\n    , [4, 5]\n    , [7, 8]\n]')
-        bt('a=[[1,2],[4,5],[7,8],]', 'a = [\n    [1, 2]\n    , [4, 5]\n    , [7, 8]\n, ]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2]\n    , [4, 5]\n    , function() {}\n    , [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]', 'a = [\n    [1, 2]\n    , [4, 5]\n    , function() {}\n    , function() {}\n    , [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2]\n    , [4, 5]\n    , function() {}\n    , [7, 8]\n]')
+        bt(
+            '{a:1, b:2}',
+            #  -- output --
+            '{\n' +
+            '    a: 1\n' +
+            '    , b: 2\n' +
+            '}')
+        bt(
+            'var a=1, b=c[d], e=6;',
+            #  -- output --
+            'var a = 1\n' +
+            '    , b = c[d]\n' +
+            '    , e = 6;')
+        bt(
+            'for(var a=1,b=2,c=3;d<3;d++)\n' +
+            'e',
+            #  -- output --
+            'for (var a = 1, b = 2, c = 3; d < 3; d++)\n' +
+            '    e')
+        bt(
+            'for(var a=1,b=2,\n' +
+            'c=3;d<3;d++)\n' +
+            'e',
+            #  -- output --
+            'for (var a = 1, b = 2\n' +
+            '        , c = 3; d < 3; d++)\n' +
+            '    e')
+        bt(
+            'function foo() {\n' +
+            '    return [\n' +
+            '        "one"\n' +
+            '        , "two"\n' +
+            '    ];\n' +
+            '}')
+        bt(
+            'a=[[1,2],[4,5],[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],[7,8],]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , [7, 8]\n' +
+            ', ]')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2]\n' +
+            '    , [4, 5]\n' +
+            '    , function() {}\n' +
+            '    , [7, 8]\n' +
+            ']')
         bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
-        bt('a=[b,c,\nfunction(){},function(){},d]', 'a = [b, c\n    , function() {}\n    , function() {}\n    , d\n]')
+        bt(
+            'a=[b,c,\n' +
+            'function(){},function(){},d]',
+            #  -- output --
+            'a = [b, c\n' +
+            '    , function() {}\n' +
+            '    , function() {}\n' +
+            '    , d\n' +
+            ']')
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
-        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"]\n        , ["3", "4"]\n    ]\n    , [\n        ["5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n    , [\n        ["1", "2", "3"]\n        , ["4", "5", "6", "7"]\n        , ["8", "9", "0"]\n    ]\n]')
+        bt(
+            '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+            #  -- output --
+            '[\n' +
+            '    [\n' +
+            '        ["1", "2"]\n' +
+            '        , ["3", "4"]\n' +
+            '    ]\n' +
+            '    , [\n' +
+            '        ["5", "6", "7"]\n' +
+            '        , ["8", "9", "0"]\n' +
+            '    ]\n' +
+            '    , [\n' +
+            '        ["1", "2", "3"]\n' +
+            '        , ["4", "5", "6", "7"]\n' +
+            '        , ["8", "9", "0"]\n' +
+            '    ]\n' +
+            ']')
         bt(
             'changeCollection.add({\n' +
             '    name: "Jonathan" // New line inserted after this line on every save\n' +
@@ -390,10 +785,12 @@ class TestJSBeautifier(unittest.TestCase):
             '        return true;\n' +
             '    }\n' +
             ');',
+            #  -- output --
             'changeCollection.add(\n' +
             '    function() {\n' +
             '        return true;\n' +
-            '    }\n    , function() {\n' +
+            '    }\n' +
+            '    , function() {\n' +
             '        return true;\n' +
             '    }\n' +
             ');')
@@ -405,9 +802,28 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = false
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);')
-        bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }', 'try {\n    while (true) {\n        willThrow()\n    }\n} catch (result) switch (result) {\n    case 1:\n        ++result\n}')
+        bt(
+            'try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
+            #  -- output --
+            'try {\n' +
+            '    while (true) {\n' +
+            '        willThrow()\n' +
+            '    }\n' +
+            '} catch (result) switch (result) {\n' +
+            '    case 1:\n' +
+            '        ++result\n' +
+            '}')
         bt('((e/((a+(b)*c)-d))^2)*5;', '((e / ((a + (b) * c) - d)) ^ 2) * 5;')
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}', 'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}')
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            #  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}')
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
@@ -420,6 +836,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
+            #  -- output --
             '{\n' +
             '    files: [{\n' +
             '        expand: true,\n' +
@@ -434,9 +851,28 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = true
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);')
-        bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }', 'try {\n    while (true) {\n        willThrow()\n    }\n} catch (result) switch (result) {\n    case 1:\n        ++result\n}')
+        bt(
+            'try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
+            #  -- output --
+            'try {\n' +
+            '    while (true) {\n' +
+            '        willThrow()\n' +
+            '    }\n' +
+            '} catch (result) switch (result) {\n' +
+            '    case 1:\n' +
+            '        ++result\n' +
+            '}')
         bt('((e/((a+(b)*c)-d))^2)*5;', '((e / ((a + (b) * c) - d)) ^ 2) * 5;')
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}', 'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}')
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            #  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}')
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
@@ -449,6 +885,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
+            #  -- output --
             '{\n' +
             '    files: [{\n' +
             '        expand: true,\n' +
@@ -463,9 +900,28 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = false
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );')
-        bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }', 'try {\n    while ( true ) {\n        willThrow()\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}')
+        bt(
+            'try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
+            #  -- output --
+            'try {\n' +
+            '    while ( true ) {\n' +
+            '        willThrow()\n' +
+            '    }\n' +
+            '} catch ( result ) switch ( result ) {\n' +
+            '    case 1:\n' +
+            '        ++result\n' +
+            '}')
         bt('((e/((a+(b)*c)-d))^2)*5;', '( ( e / ( ( a + ( b ) * c ) - d ) ) ^ 2 ) * 5;')
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}', 'function f( a, b ) {\n    if ( a ) b()\n}\n\nfunction g( a, b ) {\n    if ( !a ) b()\n}')
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            #  -- output --
+            'function f( a, b ) {\n' +
+            '    if ( a ) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g( a, b ) {\n' +
+            '    if ( !a ) b()\n' +
+            '}')
         bt('a=[];', 'a = [];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
@@ -484,9 +940,28 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = true
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );')
-        bt('try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }', 'try {\n    while ( true ) {\n        willThrow( )\n    }\n} catch ( result ) switch ( result ) {\n    case 1:\n        ++result\n}')
+        bt(
+            'try{while(true){willThrow()}}catch(result)switch(result){case 1:++result }',
+            #  -- output --
+            'try {\n' +
+            '    while ( true ) {\n' +
+            '        willThrow( )\n' +
+            '    }\n' +
+            '} catch ( result ) switch ( result ) {\n' +
+            '    case 1:\n' +
+            '        ++result\n' +
+            '}')
         bt('((e/((a+(b)*c)-d))^2)*5;', '( ( e / ( ( a + ( b ) * c ) - d ) ) ^ 2 ) * 5;')
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}', 'function f( a, b ) {\n    if ( a ) b( )\n}\n\nfunction g( a, b ) {\n    if ( !a ) b( )\n}')
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            #  -- output --
+            'function f( a, b ) {\n' +
+            '    if ( a ) b( )\n' +
+            '}\n' +
+            '\n' +
+            'function g( a, b ) {\n' +
+            '    if ( !a ) b( )\n' +
+            '}')
         bt('a=[];', 'a = [ ];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
@@ -543,6 +1018,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j;\n' +
             'var res = (k && l || m) ? n : o;\n' +
@@ -591,6 +1067,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j;\n' +
             'var res = (k && l || m) ? n : o;\n' +
@@ -639,6 +1116,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j;\n' +
             'var res = (k && l || m) ? n : o;\n' +
@@ -682,6 +1160,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b -\n' +
             '    c /\n' +
             '    d * e %\n' +
@@ -722,6 +1201,7 @@ class TestJSBeautifier(unittest.TestCase):
             ': h;\n' +
             'var i = j ? k :\n' +
             'l;',
+            #  -- output --
             'var a = {\n' +
             '    b: bval,\n' +
             '    c: cval,\n' +
@@ -749,6 +1229,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        anOcean\n' +
             '        || aRiver);\n' +
             '}',
+            #  -- output --
             'var d = 1;\n' +
             'if (a === b &&\n' +
             '    c) {\n' +
@@ -802,6 +1283,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b\n' +
             '    - c\n' +
             '    / d * e\n' +
@@ -841,6 +1323,7 @@ class TestJSBeautifier(unittest.TestCase):
             ': h;\n' +
             'var i = j ? k :\n' +
             'l;',
+            #  -- output --
             'var a = {\n' +
             '    b: bval,\n' +
             '    c: cval,\n' +
@@ -868,6 +1351,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        anOcean\n' +
             '        || aRiver);\n' +
             '}',
+            #  -- output --
             'var d = 1;\n' +
             'if (a === b\n' +
             '    && c) {\n' +
@@ -921,6 +1405,7 @@ class TestJSBeautifier(unittest.TestCase):
             'ab;\n' +
             'ac +\n' +
             '-ad',
+            #  -- output --
             'var res = a + b\n' +
             '    - c /\n' +
             '    d * e\n' +
@@ -962,6 +1447,7 @@ class TestJSBeautifier(unittest.TestCase):
             ': h;\n' +
             'var i = j ? k :\n' +
             'l;',
+            #  -- output --
             'var a = {\n' +
             '    b: bval,\n' +
             '    c: cval,\n' +
@@ -1011,15 +1497,26 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         bt('async function foo() {}')
         bt('let w = async function foo() {}')
-        bt('async function foo() {}\nvar x = await foo();')
+        bt(
+            'async function foo() {}\n' +
+            'var x = await foo();')
         
         # async function as an input to another function
         bt('wrapper(async function foo() {})')
         
         # await on inline anonymous function. should have a space after await
         bt(
-            'async function() {\n    var w = await(async function() {\n        return await foo();\n    })();\n}',
-            'async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}')
+            'async function() {\n' +
+            '    var w = await(async function() {\n' +
+            '        return await foo();\n' +
+            '    })();\n' +
+            '}',
+            #  -- output --
+            'async function() {\n' +
+            '    var w = await (async function() {\n' +
+            '        return await foo();\n' +
+            '    })();\n' +
+            '}')
         
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
@@ -1029,7 +1526,12 @@ class TestJSBeautifier(unittest.TestCase):
         # e4x - Test that e4x literals passed through when e4x-option is enabled
         self.reset_options();
         self.options.e4x = true
-        bt('xml=<a b="c"><d/><e>\n foo</e>x</a>;', 'xml = <a b="c"><d/><e>\n foo</e>x</a>;')
+        bt(
+            'xml=<a b="c"><d/><e>\n' +
+            ' foo</e>x</a>;',
+            #  -- output --
+            'xml = <a b="c"><d/><e>\n' +
+            ' foo</e>x</a>;')
         bt('<a b=\'This is a quoted "c".\'/>')
         bt('<a b="This is a quoted \'c\'."/>')
         bt('<a b="A quote \' inside string."/>')
@@ -1037,8 +1539,20 @@ class TestJSBeautifier(unittest.TestCase):
         bt('<a b=\'Some """ quotes ""  inside string.\'/>')
         
         # Handles inline expressions
-        bt('xml=<{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c"><d/><e v={z}>\n foo</e>x</{a}>;')
-        bt('xml=<{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;', 'xml = <{a} b="c">\n    <e v={z}>\n foo</e>x</{a}>;')
+        bt(
+            'xml=<{a} b="c"><d/><e v={z}>\n' +
+            ' foo</e>x</{a}>;',
+            #  -- output --
+            'xml = <{a} b="c"><d/><e v={z}>\n' +
+            ' foo</e>x</{a}>;')
+        bt(
+            'xml=<{a} b="c">\n' +
+            '    <e v={z}>\n' +
+            ' foo</e>x</{a}>;',
+            #  -- output --
+            'xml = <{a} b="c">\n' +
+            '    <e v={z}>\n' +
+            ' foo</e>x</{a}>;')
         
         # xml literals with special characters in elem names - see http://www.w3.org/TR/REC-xml/#NT-NameChar
         bt('xml = <_:.valid.xml- _:.valid.xml-="123"/>;')
@@ -1047,7 +1561,12 @@ class TestJSBeautifier(unittest.TestCase):
         bt('xml = <elem someAttr/>;')
         
         # Handles CDATA
-        bt('xml=<![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;', 'xml = <![CDATA[ b="c"><d/><e v={z}>\n foo</e>x/]]>;')
+        bt(
+            'xml=<![CDATA[ b="c"><d/><e v={z}>\n' +
+            ' foo</e>x/]]>;',
+            #  -- output --
+            'xml = <![CDATA[ b="c"><d/><e v={z}>\n' +
+            ' foo</e>x/]]>;')
         bt('xml=<![CDATA[]]>;', 'xml = <![CDATA[]]>;')
         bt('xml=<a b="c"><![CDATA[d/></a></{}]]></a>;', 'xml = <a b="c"><![CDATA[d/></a></{}]]></a>;')
         
@@ -1201,6 +1720,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             '});\n' +
             'React.render(<MarkdownEditor />, mountNode);',
+            #  -- output --
             'var converter = new Showdown.converter();\n' +
             'var MarkdownEditor = React.createClass({\n' +
             '    getInitialState: function() {\n' +
@@ -1248,6 +1768,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    );\n' +
             'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;\n' +
             'render(dropdown);',
+            #  -- output --
             'var content = (\n' +
             '    <Nav>\n' +
             '            {/* child comment, put {} around */}\n' +
@@ -1268,13 +1789,17 @@ class TestJSBeautifier(unittest.TestCase):
         # as long as nesting matches.
         bt(
             'xml=<a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;',
+            #  -- output --
             'xml = <a x="jn"><c></b></f><a><d jnj="jnn"><f></a ></nj></a>;')
         
         # If xml is not terminated, the remainder of the file is treated
         # as part of the xml-literal (passed through unaltered)
         test_fragment(
-            'xml=<a></b>\nc<b;',
-            'xml = <a></b>\nc<b;')
+            'xml=<a></b>\n' +
+            'c<b;',
+            #  -- output --
+            'xml = <a></b>\n' +
+            'c<b;')
         
         # Issue #646 = whitespace is allowed in attribute declarations
         bt(
@@ -1355,6 +1880,7 @@ class TestJSBeautifier(unittest.TestCase):
             '       {children}\n' +
             '    </{a + b}>\n' +
             '    );',
+            #  -- output --
             'return (\n' +
             '    <{\n' +
             '        a + b\n' +
@@ -1373,29 +1899,61 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         self.options.e4x = false
         bt(
-            'xml=<a b="c"><d/><e>\n foo</e>x</a>;',
-            'xml = < a b = "c" > < d / > < e >\n    foo < /e>x</a > ;')
+            'xml=<a b="c"><d/><e>\n' +
+            ' foo</e>x</a>;',
+            #  -- output --
+            'xml = < a b = "c" > < d / > < e >\n' +
+            '    foo < /e>x</a > ;')
 
 
         #============================================================
         # Multiple braces
         self.reset_options();
-        bt('{{}/z/}', '{\n    {}\n    /z/\n}')
+        bt(
+            '{{}/z/}',
+            #  -- output --
+            '{\n' +
+            '    {}\n' +
+            '    /z/\n' +
+            '}')
 
 
         #============================================================
         # Beautify preserve formatting
         self.reset_options();
-        bt('/* beautify preserve:start */\n/* beautify preserve:end */')
-        bt('/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
-        bt('var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+        bt(
+            '/* beautify preserve:start */\n' +
+            '/* beautify preserve:end */')
+        bt(
+            '/* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */')
+        bt(
+            'var a = 1;\n' +
+            '/* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */')
         bt('/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */')
         bt(
-            'var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
-            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+            'var a =  1;\n' +
+            '/* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */',
+            #  -- output --
+            'var a = 1;\n' +
+            '/* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */')
         bt(
-            'var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */',
-            'var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */')
+            'var a = 1;\n' +
+            ' /* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */',
+            #  -- output --
+            'var a = 1;\n' +
+            '/* beautify preserve:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify preserve:end */')
         bt(
             'var a = {\n' +
             '    /* beautify preserve:start */\n' +
@@ -1414,6 +1972,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ten   : 10\n' +
             '/* beautify preserve:end */\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify preserve:start */\n' +
             '    one   :  1,\n' +
@@ -1432,6 +1991,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    three :  3,\n' +
             '    ten   : 10\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /*  beautify preserve:start  */\n' +
             '    one: 1,\n' +
@@ -1447,6 +2007,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    three :  3,\n' +
             '    ten   : 10\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /*beautify preserve:start*/\n' +
             '    one: 1,\n' +
@@ -1462,6 +2023,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    three :  3,\n' +
             '    ten   : 10\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /*beautify  preserve:start*/\n' +
             '    one: 1,\n' +
@@ -1471,16 +2033,39 @@ class TestJSBeautifier(unittest.TestCase):
             '};')
         
         # Directive: ignore
-        bt('/* beautify ignore:start */\n/* beautify ignore:end */')
-        bt('/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
-        bt('var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */')
+        bt(
+            '/* beautify ignore:start */\n' +
+            '/* beautify ignore:end */')
+        bt(
+            '/* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            '/* beautify ignore:end */')
+        bt(
+            'var a = 1;\n' +
+            '/* beautify ignore:start */\n' +
+            '   var a = 1;\n' +
+            '/* beautify ignore:end */')
         bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */')
         bt(
-            'var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
-            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+            'var a =  1;\n' +
+            '/* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            '/* beautify ignore:end */',
+            #  -- output --
+            'var a = 1;\n' +
+            '/* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            '/* beautify ignore:end */')
         bt(
-            'var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */',
-            'var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */')
+            'var a = 1;\n' +
+            ' /* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            '/* beautify ignore:end */',
+            #  -- output --
+            'var a = 1;\n' +
+            '/* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            '/* beautify ignore:end */')
         bt(
             'var a = {\n' +
             '    /* beautify ignore:start */\n' +
@@ -1499,6 +2084,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ten   : 10\n' +
             '/* beautify ignore:end */\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify ignore:start */\n' +
             '    one   :  1\n' +
@@ -1521,6 +2107,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ten   : 10\n' +
             '/* beautify preserve:end */\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify preserve:start */\n' +
             '/* beautify preserve:start */\n' +
@@ -1543,6 +2130,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ten   : 10\n' +
             '/* beautify ignore:end */\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify ignore:start */\n' +
             '    one   :  1\n' +
@@ -1569,6 +2157,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ==The next comment ends the starting ignore==\n' +
             '/* beautify ignore:end */\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify ignore:start */\n' +
             '    one   :  1\n' +
@@ -1594,6 +2183,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    ten   : 10\n' +
             '   // This is all preserved\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify ignore:start preserve:start */\n' +
             '    one   :  {\n' +
@@ -1618,6 +2208,7 @@ class TestJSBeautifier(unittest.TestCase):
             '/* beautify preserve:end */\n' +
             '     eleven: 11\n' +
             '};',
+            #  -- output --
             'var a = {\n' +
             '    /* beautify ignore:start preserve:start */\n' +
             '    one   :  {\n' +
@@ -1737,33 +2328,91 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_after_anon_function = true
         bt(
             'a=typeof(x)',
+            #  -- output --
             'a = typeof (x)')
         bt(
-            'x();\n\nfunction(){}',
-            'x();\n\nfunction () {}')
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function () {}')
         bt(
-            'x();\n\nvar x = {\nx: function(){}\n}',
-            'x();\n\nvar x = {\n    x: function () {}\n}')
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function () {}\n' +
+            '}')
         bt(
-            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
-            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}')
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1:\n' +
+            '    a();\n' +
+            '    break;\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y:\n' +
+            '    break;\n' +
+            '}')
         
         # typical greasemonkey start
-        test_fragment('// comment 2\n(function ()')
+        test_fragment(
+            '// comment 2\n' +
+            '(function ()')
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
-            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
             'var o2=$.extend(a);function(){alert(x);}',
-            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
-        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
-        bt('function* x() {\n    yield 1;\n}')
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function () {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'function* () {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
         # jslint and space after anon function - (f = " ", c = "")
         self.reset_options();
@@ -1771,33 +2420,91 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_after_anon_function = false
         bt(
             'a=typeof(x)',
+            #  -- output --
             'a = typeof (x)')
         bt(
-            'x();\n\nfunction(){}',
-            'x();\n\nfunction () {}')
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function () {}')
         bt(
-            'x();\n\nvar x = {\nx: function(){}\n}',
-            'x();\n\nvar x = {\n    x: function () {}\n}')
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function () {}\n' +
+            '}')
         bt(
-            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
-            'switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}')
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1:\n' +
+            '    a();\n' +
+            '    break;\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y:\n' +
+            '    break;\n' +
+            '}')
         
         # typical greasemonkey start
-        test_fragment('// comment 2\n(function ()')
+        test_fragment(
+            '// comment 2\n' +
+            '(function ()')
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
-            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
             'var o2=$.extend(a);function(){alert(x);}',
-            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
-        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
-        bt('function* x() {\n    yield 1;\n}')
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function () {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'function* () {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
         # jslint and space after anon function - (f = " ", c = "    ")
         self.reset_options();
@@ -1805,33 +2512,91 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_after_anon_function = true
         bt(
             'a=typeof(x)',
+            #  -- output --
             'a = typeof (x)')
         bt(
-            'x();\n\nfunction(){}',
-            'x();\n\nfunction () {}')
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function () {}')
         bt(
-            'x();\n\nvar x = {\nx: function(){}\n}',
-            'x();\n\nvar x = {\n    x: function () {}\n}')
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function () {}\n' +
+            '}')
         bt(
-            'function () {\n    var a, b, c, d, e = [],\n        f;\n}')
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
-            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y:\n' +
+            '        break;\n' +
+            '}')
         
         # typical greasemonkey start
-        test_fragment('// comment 2\n(function ()')
+        test_fragment(
+            '// comment 2\n' +
+            '(function ()')
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
-            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function () {},\n    d = \'\';')
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function () {},\n' +
+            '    d = \'\';')
         bt(
             'var o2=$.extend(a);function(){alert(x);}',
-            'var o2 = $.extend(a);\n\nfunction () {\n    alert(x);\n}')
-        bt('function*() {\n    yield 1;\n}', 'function* () {\n    yield 1;\n}')
-        bt('function* x() {\n    yield 1;\n}')
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function () {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'function* () {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
         # jslint and space after anon function - (f = "", c = "    ")
         self.reset_options();
@@ -1839,34 +2604,92 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.space_after_anon_function = false
         bt(
             'a=typeof(x)',
+            #  -- output --
             'a = typeof(x)')
         bt(
-            'x();\n\nfunction(){}',
-            'x();\n\nfunction() {}')
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function() {}')
         bt(
-            'x();\n\nvar x = {\nx: function(){}\n}',
-            'x();\n\nvar x = {\n    x: function() {}\n}')
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function() {}\n' +
+            '}')
         bt(
-            'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
-            'function() {\n    var a, b, c, d, e = [],\n        f;\n}')
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}',
+            #  -- output --
+            'function() {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
         bt(
             'switch(x) {case 0: case 1: a(); break; default: break}',
-            'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y:\n' +
+            '        break;\n' +
+            '}')
         
         # typical greasemonkey start
-        test_fragment('// comment 2\n(function()')
+        test_fragment(
+            '// comment 2\n' +
+            '(function()')
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';')
         bt(
-            'var a2, b2, c2, d2 = 0, c = function() {},\nd = \'\';',
-            'var a2, b2, c2, d2 = 0,\n    c = function() {},\n    d = \'\';')
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';')
         bt(
             'var o2=$.extend(a);function(){alert(x);}',
-            'var o2 = $.extend(a);\n\nfunction() {\n    alert(x);\n}')
-        bt('function*() {\n    yield 1;\n}')
-        bt('function* x() {\n    yield 1;\n}')
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
 
         #============================================================
@@ -1908,6 +2731,7 @@ class TestJSBeautifier(unittest.TestCase):
             'var test = 1;')
         bt(
             '(function() {if (!window.FOO) window.FOO || (window.FOO = function() {var b = {bar: "zort"};});})();',
+            #  -- output --
             '(function() {\n' +
             '    if (!window.FOO) window.FOO || (window.FOO = function() {\n' +
             '        var b = {\n' +
@@ -1999,6 +2823,7 @@ class TestJSBeautifier(unittest.TestCase):
         # Issue 331 - if-else with braces edge case
         bt(
             'if(x){a();}else{b();}if(y){c();}',
+            #  -- output --
             'if (x) {\n' +
             '    a();\n' +
             '} else {\n' +
@@ -2347,13 +3172,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -2366,11 +3185,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        }\n' +
             '    };\n' +
             '}',
-            'function complex() {\n    console.log("wowe");\n' +
+            #  -- output --
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
         self.reset_options();
@@ -2379,7 +3205,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
-        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
+        bt(
+            'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+            #  -- output --
+            'if (ding) { console.log("dong"); }\n' +
+            'else { console.log("dang"); }')
         bt(
             'function kindaComplex() {\n' +
             '    var a = 2;\n' +
@@ -2391,12 +3221,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        e: "e"\n' +
             '    };\n' +
             '}',
-            'function kindaComplex()\n{\n    var a = 2;\n' +
+            #  -- output --
+            'function kindaComplex()\n' +
+            '{\n' +
+            '    var a = 2;\n' +
             '    var obj = {};\n' +
             '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
+            '    var obj3 = {\n' +
+            '        c: "c",\n' +
             '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '        e: "e"\n' +
+            '    };\n' +
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -2409,11 +3245,20 @@ class TestJSBeautifier(unittest.TestCase):
             '        }\n' +
             '    };\n' +
             '}',
-            'function complex()\n{\n    console.log("wowe");\n' +
+            #  -- output --
+            'function complex()\n' +
+            '{\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b()\n        {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b()\n' +
+            '        {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
         self.reset_options();
@@ -2422,7 +3267,11 @@ class TestJSBeautifier(unittest.TestCase):
         bt('import { get } from "asdf";')
         bt('function inLine() { console.log("oh em gee"); }')
         bt('if (cancer) { console.log("Im sorry but you only have so long to live..."); }')
-        bt('if (ding) { console.log("dong"); } else { console.log("dang"); }', 'if (ding) { console.log("dong"); }\nelse { console.log("dang"); }')
+        bt(
+            'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+            #  -- output --
+            'if (ding) { console.log("dong"); }\n' +
+            'else { console.log("dang"); }')
         bt(
             'function kindaComplex() {\n' +
             '    var a = 2;\n' +
@@ -2433,13 +3282,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -2452,11 +3295,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        }\n' +
             '    };\n' +
             '}',
-            'function complex() {\n    console.log("wowe");\n' +
+            #  -- output --
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         self.reset_options();
@@ -2476,13 +3326,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -2495,11 +3339,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        }\n' +
             '    };\n' +
             '}',
-            'function complex() {\n    console.log("wowe");\n' +
+            #  -- output --
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
         # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         self.reset_options();
@@ -2519,13 +3370,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        d: "d",\n' +
             '        e: "e"\n' +
             '    };\n' +
-            '}',
-            'function kindaComplex() {\n    var a = 2;\n' +
-            '    var obj = {};\n' +
-            '    var obj2 = { a: "a", b: "b" };\n' +
-            '    var obj3 = {\n        c: "c",\n' +
-            '        d: "d",\n' +
-            '        e: "e"\n    };\n}')
+            '}')
         bt(
             'function complex() {\n' +
             '    console.log("wowe");\n' +
@@ -2538,11 +3383,18 @@ class TestJSBeautifier(unittest.TestCase):
             '        }\n' +
             '    };\n' +
             '}',
-            'function complex() {\n    console.log("wowe");\n' +
+            #  -- output --
+            'function complex() {\n' +
+            '    console.log("wowe");\n' +
             '    (function() { var a = 2; var b = 3; })();\n' +
             '    $.each(arr, function(el, idx) { return el; });\n' +
-            '    var obj = {\n        a: function() { console.log("test"); },\n' +
-            '        b() {\n            console.log("test2");\n        }\n    };\n}')
+            '    var obj = {\n' +
+            '        a: function() { console.log("test"); },\n' +
+            '        b() {\n' +
+            '            console.log("test2");\n' +
+            '        }\n' +
+            '    };\n' +
+            '}')
 
 
         #============================================================
@@ -2584,8 +3436,7 @@ class TestJSBeautifier(unittest.TestCase):
             '}')
         
         # Issue 315 - Short objects
-        bt(
-            'var a = { b: { c: { d: e } } };')
+        bt('var a = { b: { c: { d: e } } };')
         bt(
             'var a = {\n' +
             '    b: {\n' +
@@ -2657,31 +3508,87 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options();
         bt('')
         test_fragment('   return .5')
-        test_fragment('   return .5;\n   a();')
-        test_fragment('    return .5;\n    a();')
-        test_fragment('     return .5;\n     a();')
+        test_fragment(
+            '   return .5;\n' +
+            '   a();')
+        test_fragment(
+            '    return .5;\n' +
+            '    a();')
+        test_fragment(
+            '     return .5;\n' +
+            '     a();')
         test_fragment('   < div')
         bt('a        =          1', 'a = 1')
         bt('a=1', 'a = 1')
         bt('(3) / 2')
         bt('["a", "b"].join("")')
-        bt('a();\n\nb();')
-        bt('var a = 1 var b = 2', 'var a = 1\nvar b = 2')
-        bt('var a=1, b=c[d], e=6;', 'var a = 1,\n    b = c[d],\n    e = 6;')
-        bt('var a,\n    b,\n    c;')
-        bt('let a = 1 let b = 2', 'let a = 1\nlet b = 2')
-        bt('let a=1, b=c[d], e=6;', 'let a = 1,\n    b = c[d],\n    e = 6;')
-        bt('let a,\n    b,\n    c;')
-        bt('const a = 1 const b = 2', 'const a = 1\nconst b = 2')
-        bt('const a=1, b=c[d], e=6;', 'const a = 1,\n    b = c[d],\n    e = 6;')
-        bt('const a,\n    b,\n    c;')
+        bt(
+            'a();\n' +
+            '\n' +
+            'b();')
+        bt(
+            'var a = 1 var b = 2',
+            #  -- output --
+            'var a = 1\n' +
+            'var b = 2')
+        bt(
+            'var a=1, b=c[d], e=6;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = c[d],\n' +
+            '    e = 6;')
+        bt(
+            'var a,\n' +
+            '    b,\n' +
+            '    c;')
+        bt(
+            'let a = 1 let b = 2',
+            #  -- output --
+            'let a = 1\n' +
+            'let b = 2')
+        bt(
+            'let a=1, b=c[d], e=6;',
+            #  -- output --
+            'let a = 1,\n' +
+            '    b = c[d],\n' +
+            '    e = 6;')
+        bt(
+            'let a,\n' +
+            '    b,\n' +
+            '    c;')
+        bt(
+            'const a = 1 const b = 2',
+            #  -- output --
+            'const a = 1\n' +
+            'const b = 2')
+        bt(
+            'const a=1, b=c[d], e=6;',
+            #  -- output --
+            'const a = 1,\n' +
+            '    b = c[d],\n' +
+            '    e = 6;')
+        bt(
+            'const a,\n' +
+            '    b,\n' +
+            '    c;')
         bt('a = " 12345 "')
         bt('a = \' 12345 \'')
         bt('if (a == 1) b = 2;')
-        bt('if(1){2}else{3}', 'if (1) {\n    2\n} else {\n    3\n}')
+        bt(
+            'if(1){2}else{3}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
         bt('if(1||2);', 'if (1 || 2);')
         bt('(a==1)||(b==2)', '(a == 1) || (b == 2)')
-        bt('var a = 1 if (2) 3;', 'var a = 1\nif (2) 3;')
+        bt(
+            'var a = 1 if (2) 3;',
+            #  -- output --
+            'var a = 1\n' +
+            'if (2) 3;')
         bt('a = a + 1')
         bt('a = a == 1')
         bt('/12345[^678]*9+/.match(a)')
@@ -2784,79 +3691,262 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=0Bg0b0o0', 'a = 0B g0b0o0')
         bt('a = [1, 2, 3, 4]')
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b')
-        bt('a.b({c:d})', 'a.b({\n    c: d\n})')
-        bt('a.b\n(\n{\nc:\nd\n}\n)', 'a.b({\n    c: d\n})')
-        bt('a.b({c:"d"})', 'a.b({\n    c: "d"\n})')
-        bt('a.b\n(\n{\nc:\n"d"\n}\n)', 'a.b({\n    c: "d"\n})')
+        bt(
+            'a.b({c:d})',
+            #  -- output --
+            'a.b({\n' +
+            '    c: d\n' +
+            '})')
+        bt(
+            'a.b\n' +
+            '(\n' +
+            '{\n' +
+            'c:\n' +
+            'd\n' +
+            '}\n' +
+            ')',
+            #  -- output --
+            'a.b({\n' +
+            '    c: d\n' +
+            '})')
+        bt(
+            'a.b({c:"d"})',
+            #  -- output --
+            'a.b({\n' +
+            '    c: "d"\n' +
+            '})')
+        bt(
+            'a.b\n' +
+            '(\n' +
+            '{\n' +
+            'c:\n' +
+            '"d"\n' +
+            '}\n' +
+            ')',
+            #  -- output --
+            'a.b({\n' +
+            '    c: "d"\n' +
+            '})')
         bt('a=!b', 'a = !b')
         bt('a=!!b', 'a = !!b')
         bt('a?b:c', 'a ? b : c')
         bt('a?1:2', 'a ? 1 : 2')
         bt('a?(b):c', 'a ? (b) : c')
-        bt('x={a:1,b:w=="foo"?x:y,c:z}', 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}')
+        bt(
+            'x={a:1,b:w=="foo"?x:y,c:z}',
+            #  -- output --
+            'x = {\n' +
+            '    a: 1,\n' +
+            '    b: w == "foo" ? x : y,\n' +
+            '    c: z\n' +
+            '}')
         bt('x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;')
-        bt('x=a?b?c?d:{e1:1,e2:2}:f:g;', 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;')
+        bt(
+            'x=a?b?c?d:{e1:1,e2:2}:f:g;',
+            #  -- output --
+            'x = a ? b ? c ? d : {\n' +
+            '    e1: 1,\n' +
+            '    e2: 2\n' +
+            '} : f : g;')
         bt('function void(void) {}')
         bt('if(!a)foo();', 'if (!a) foo();')
         bt('a=~a', 'a = ~a')
-        bt('a;/*comment*/b;', 'a; /*comment*/\nb;')
-        bt('a;/* comment */b;', 'a; /* comment */\nb;')
+        bt(
+            'a;/*comment*/b;',
+            #  -- output --
+            'a; /*comment*/\n' +
+            'b;')
+        bt(
+            'a;/* comment */b;',
+            #  -- output --
+            'a; /* comment */\n' +
+            'b;')
         
         # simple comments don't get touched at all
-        test_fragment('a;/*\ncomment\n*/b;', 'a;\n/*\ncomment\n*/\nb;')
-        bt('a;/**\n* javadoc\n*/b;', 'a;\n/**\n * javadoc\n */\nb;')
-        test_fragment('a;/**\n\nno javadoc\n*/b;', 'a;\n/**\n\nno javadoc\n*/\nb;')
+        test_fragment(
+            'a;/*\n' +
+            'comment\n' +
+            '*/b;',
+            #  -- output --
+            'a;\n' +
+            '/*\n' +
+            'comment\n' +
+            '*/\n' +
+            'b;')
+        bt(
+            'a;/**\n' +
+            '* javadoc\n' +
+            '*/b;',
+            #  -- output --
+            'a;\n' +
+            '/**\n' +
+            ' * javadoc\n' +
+            ' */\n' +
+            'b;')
+        test_fragment(
+            'a;/**\n' +
+            '\n' +
+            'no javadoc\n' +
+            '*/b;',
+            #  -- output --
+            'a;\n' +
+            '/**\n' +
+            '\n' +
+            'no javadoc\n' +
+            '*/\n' +
+            'b;')
         
         # comment blocks detected and reindented even w/o javadoc starter
-        bt('a;/*\n* javadoc\n*/b;', 'a;\n/*\n * javadoc\n */\nb;')
+        bt(
+            'a;/*\n' +
+            '* javadoc\n' +
+            '*/b;',
+            #  -- output --
+            'a;\n' +
+            '/*\n' +
+            ' * javadoc\n' +
+            ' */\n' +
+            'b;')
         bt('if(a)break;', 'if (a) break;')
-        bt('if(a){break}', 'if (a) {\n    break\n}')
+        bt(
+            'if(a){break}',
+            #  -- output --
+            'if (a) {\n' +
+            '    break\n' +
+            '}')
         bt('if((a))foo();', 'if ((a)) foo();')
         bt('for(var i=0;;) a', 'for (var i = 0;;) a')
-        bt('for(var i=0;;)\na', 'for (var i = 0;;)\n    a')
+        bt(
+            'for(var i=0;;)\n' +
+            'a',
+            #  -- output --
+            'for (var i = 0;;)\n' +
+            '    a')
         bt('a++;')
         bt('for(;;i++)a()', 'for (;; i++) a()')
-        bt('for(;;i++)\na()', 'for (;; i++)\n    a()')
+        bt(
+            'for(;;i++)\n' +
+            'a()',
+            #  -- output --
+            'for (;; i++)\n' +
+            '    a()')
         bt('for(;;++i)a', 'for (;; ++i) a')
         bt('return(1)', 'return (1)')
-        bt('try{a();}catch(b){c();}finally{d();}', 'try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}')
+        bt(
+            'try{a();}catch(b){c();}finally{d();}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} finally {\n' +
+            '    d();\n' +
+            '}')
         
         #  magic function call
         bt('(xx)()')
         
         # another magic function call
         bt('a[1]()')
-        bt('if(a){b();}else if(c) foo();', 'if (a) {\n    b();\n} else if (c) foo();')
-        bt('switch(x) {case 0: case 1: a(); break; default: break}', 'switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}')
-        bt('switch(x){case -1:break;case !y:break;}', 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}')
+        bt(
+            'if(a){b();}else if(c) foo();',
+            #  -- output --
+            'if (a) {\n' +
+            '    b();\n' +
+            '} else if (c) foo();')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y:\n' +
+            '        break;\n' +
+            '}')
         bt('a !== b')
-        bt('if (a) b(); else c();', 'if (a) b();\nelse c();')
+        bt(
+            'if (a) b(); else c();',
+            #  -- output --
+            'if (a) b();\n' +
+            'else c();')
         
         # typical greasemonkey start
-        bt('// comment\n(function something() {})')
+        bt(
+            '// comment\n' +
+            '(function something() {})')
         
         # duplicating newlines
-        bt('{\n\n    x();\n\n}')
+        bt(
+            '{\n' +
+            '\n' +
+            '    x();\n' +
+            '\n' +
+            '}')
         bt('if (a in b) foo();')
         bt('if (a of b) foo();')
         bt('if (a of [1, 2, 3]) foo();')
-        bt('if(X)if(Y)a();else b();else c();', 'if (X)\n    if (Y) a();\n    else b();\nelse c();')
-        bt('if (foo) bar();\nelse break')
+        bt(
+            'if(X)if(Y)a();else b();else c();',
+            #  -- output --
+            'if (X)\n' +
+            '    if (Y) a();\n' +
+            '    else b();\n' +
+            'else c();')
+        bt(
+            'if (foo) bar();\n' +
+            'else break')
         bt('var a, b;')
         bt('var a = new function();')
         test_fragment('new function')
         bt('var a, b')
-        bt('{a:1, b:2}', '{\n    a: 1,\n    b: 2\n}')
-        bt('a={1:[-1],2:[+1]}', 'a = {\n    1: [-1],\n    2: [+1]\n}')
-        bt('var l = {\'a\':\'1\', \'b\':\'2\'}', 'var l = {\n    \'a\': \'1\',\n    \'b\': \'2\'\n}')
+        bt(
+            '{a:1, b:2}',
+            #  -- output --
+            '{\n' +
+            '    a: 1,\n' +
+            '    b: 2\n' +
+            '}')
+        bt(
+            'a={1:[-1],2:[+1]}',
+            #  -- output --
+            'a = {\n' +
+            '    1: [-1],\n' +
+            '    2: [+1]\n' +
+            '}')
+        bt(
+            'var l = {\'a\':\'1\', \'b\':\'2\'}',
+            #  -- output --
+            'var l = {\n' +
+            '    \'a\': \'1\',\n' +
+            '    \'b\': \'2\'\n' +
+            '}')
         bt('if (template.user[n] in bk) foo();')
         bt('return 45')
-        bt('return this.prevObject ||\n\n    this.constructor(null);')
+        bt(
+            'return this.prevObject ||\n' +
+            '\n' +
+            '    this.constructor(null);')
         bt('If[1]')
         bt('Then[1]')
         bt('a = 1;// comment', 'a = 1; // comment')
         bt('a = 1; // comment')
-        bt('a = 1;\n // comment', 'a = 1;\n// comment')
+        bt(
+            'a = 1;\n' +
+            ' // comment',
+            #  -- output --
+            'a = 1;\n' +
+            '// comment')
         bt('a = [-1, -1, -1]')
         bt(
             '// a\n' +
@@ -2874,106 +3964,375 @@ class TestJSBeautifier(unittest.TestCase):
             '// end-func-comment')
         
         # The exact formatting these should have is open for discussion, but they are at least reasonable
-        bt('a = [ // comment\n    -1, -1, -1\n]')
-        bt('var a = [ // comment\n    -1, -1, -1\n]')
-        bt('a = [ // comment\n    -1, // comment\n    -1, -1\n]')
-        bt('var a = [ // comment\n    -1, // comment\n    -1, -1\n]')
-        bt('o = [{a:b},{c:d}]', 'o = [{\n    a: b\n}, {\n    c: d\n}]')
+        bt(
+            'a = [ // comment\n' +
+            '    -1, -1, -1\n' +
+            ']')
+        bt(
+            'var a = [ // comment\n' +
+            '    -1, -1, -1\n' +
+            ']')
+        bt(
+            'a = [ // comment\n' +
+            '    -1, // comment\n' +
+            '    -1, -1\n' +
+            ']')
+        bt(
+            'var a = [ // comment\n' +
+            '    -1, // comment\n' +
+            '    -1, -1\n' +
+            ']')
+        bt(
+            'o = [{a:b},{c:d}]',
+            #  -- output --
+            'o = [{\n' +
+            '    a: b\n' +
+            '}, {\n' +
+            '    c: d\n' +
+            '}]')
         
         # was: extra space appended
-        bt('if (a) {\n    do();\n}')
+        bt(
+            'if (a) {\n' +
+            '    do();\n' +
+            '}')
         
         # if/else statement with empty body
-        bt('if (a) {\n// comment\n}else{\n// comment\n}', 'if (a) {\n    // comment\n} else {\n    // comment\n}')
+        bt(
+            'if (a) {\n' +
+            '// comment\n' +
+            '}else{\n' +
+            '// comment\n' +
+            '}',
+            #  -- output --
+            'if (a) {\n' +
+            '    // comment\n' +
+            '} else {\n' +
+            '    // comment\n' +
+            '}')
         
         # multiple comments indentation
-        bt('if (a) {\n// comment\n// comment\n}', 'if (a) {\n    // comment\n    // comment\n}')
-        bt('if (a) b() else c();', 'if (a) b()\nelse c();')
-        bt('if (a) b() else if c() d();', 'if (a) b()\nelse if c() d();')
+        bt(
+            'if (a) {\n' +
+            '// comment\n' +
+            '// comment\n' +
+            '}',
+            #  -- output --
+            'if (a) {\n' +
+            '    // comment\n' +
+            '    // comment\n' +
+            '}')
+        bt(
+            'if (a) b() else c();',
+            #  -- output --
+            'if (a) b()\n' +
+            'else c();')
+        bt(
+            'if (a) b() else if c() d();',
+            #  -- output --
+            'if (a) b()\n' +
+            'else if c() d();')
         bt('{}')
-        bt('{\n\n}')
-        bt('do { a(); } while ( 1 );', 'do {\n    a();\n} while (1);')
+        bt(
+            '{\n' +
+            '\n' +
+            '}')
+        bt(
+            'do { a(); } while ( 1 );',
+            #  -- output --
+            'do {\n' +
+            '    a();\n' +
+            '} while (1);')
         bt('do {} while (1);')
-        bt('do {\n} while (1);', 'do {} while (1);')
-        bt('do {\n\n} while (1);')
+        bt(
+            'do {\n' +
+            '} while (1);',
+            #  -- output --
+            'do {} while (1);')
+        bt(
+            'do {\n' +
+            '\n' +
+            '} while (1);')
         bt('var a = x(a, b, c)')
-        bt('delete x if (a) b();', 'delete x\nif (a) b();')
-        bt('delete x[x] if (a) b();', 'delete x[x]\nif (a) b();')
+        bt(
+            'delete x if (a) b();',
+            #  -- output --
+            'delete x\n' +
+            'if (a) b();')
+        bt(
+            'delete x[x] if (a) b();',
+            #  -- output --
+            'delete x[x]\n' +
+            'if (a) b();')
         bt('for(var a=1,b=2)d', 'for (var a = 1, b = 2) d')
         bt('for(var a=1,b=2,c=3) d', 'for (var a = 1, b = 2, c = 3) d')
-        bt('for(var a=1,b=2,c=3;d<3;d++)\ne', 'for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e')
-        bt('function x(){(a||b).c()}', 'function x() {\n    (a || b).c()\n}')
-        bt('function x(){return - 1}', 'function x() {\n    return -1\n}')
-        bt('function x(){return ! a}', 'function x() {\n    return !a\n}')
+        bt(
+            'for(var a=1,b=2,c=3;d<3;d++)\n' +
+            'e',
+            #  -- output --
+            'for (var a = 1, b = 2, c = 3; d < 3; d++)\n' +
+            '    e')
+        bt(
+            'function x(){(a||b).c()}',
+            #  -- output --
+            'function x() {\n' +
+            '    (a || b).c()\n' +
+            '}')
+        bt(
+            'function x(){return - 1}',
+            #  -- output --
+            'function x() {\n' +
+            '    return -1\n' +
+            '}')
+        bt(
+            'function x(){return ! a}',
+            #  -- output --
+            'function x() {\n' +
+            '    return !a\n' +
+            '}')
         bt('x => x')
         bt('(x) => x')
-        bt('x => { x }', 'x => {\n    x\n}')
-        bt('(x) => { x }', '(x) => {\n    x\n}')
+        bt(
+            'x => { x }',
+            #  -- output --
+            'x => {\n' +
+            '    x\n' +
+            '}')
+        bt(
+            '(x) => { x }',
+            #  -- output --
+            '(x) => {\n' +
+            '    x\n' +
+            '}')
         
         # a common snippet in jQuery plugins
         bt(
             'settings = $.extend({},defaults,settings);',
+            #  -- output --
             'settings = $.extend({}, defaults, settings);')
         bt('$http().then().finally().default()')
-        bt('$http()\n.then()\n.finally()\n.default()', '$http()\n    .then()\n    .finally()\n    .default()')
+        bt(
+            '$http()\n' +
+            '.then()\n' +
+            '.finally()\n' +
+            '.default()',
+            #  -- output --
+            '$http()\n' +
+            '    .then()\n' +
+            '    .finally()\n' +
+            '    .default()')
         bt('$http().when.in.new.catch().throw()')
-        bt('$http()\n.when\n.in\n.new\n.catch()\n.throw()', '$http()\n    .when\n    .in\n    .new\n    .catch()\n    .throw()')
-        bt('{xxx;}()', '{\n    xxx;\n}()')
-        bt('a = \'a\'\nb = \'b\'')
+        bt(
+            '$http()\n' +
+            '.when\n' +
+            '.in\n' +
+            '.new\n' +
+            '.catch()\n' +
+            '.throw()',
+            #  -- output --
+            '$http()\n' +
+            '    .when\n' +
+            '    .in\n' +
+            '    .new\n' +
+            '    .catch()\n' +
+            '    .throw()')
+        bt(
+            '{xxx;}()',
+            #  -- output --
+            '{\n' +
+            '    xxx;\n' +
+            '}()')
+        bt(
+            'a = \'a\'\n' +
+            'b = \'b\'')
         bt('a = /reg/exp')
         bt('a = /reg/')
         bt('/abc/.test()')
         bt('/abc/i.test()')
-        bt('{/abc/i.test()}', '{\n    /abc/i.test()\n}')
+        bt(
+            '{/abc/i.test()}',
+            #  -- output --
+            '{\n' +
+            '    /abc/i.test()\n' +
+            '}')
         bt('var x=(a)/a;', 'var x = (a) / a;')
         bt('x != -1')
         bt('for (; s-->0;)t', 'for (; s-- > 0;) t')
         bt('for (; s++>0;)u', 'for (; s++ > 0;) u')
         bt('a = s++>s--;', 'a = s++ > s--;')
         bt('a = s++>--s;', 'a = s++ > --s;')
-        bt('{x=#1=[]}', '{\n    x = #1=[]\n}')
-        bt('{a:#1={}}', '{\n    a: #1={}\n}')
-        bt('{a:#1#}', '{\n    a: #1#\n}')
+        bt(
+            '{x=#1=[]}',
+            #  -- output --
+            '{\n' +
+            '    x = #1=[]\n' +
+            '}')
+        bt(
+            '{a:#1={}}',
+            #  -- output --
+            '{\n' +
+            '    a: #1={}\n' +
+            '}')
+        bt(
+            '{a:#1#}',
+            #  -- output --
+            '{\n' +
+            '    a: #1#\n' +
+            '}')
         test_fragment('"incomplete-string')
         test_fragment('\'incomplete-string')
         test_fragment('/incomplete-regex')
         test_fragment('`incomplete-template-string')
-        test_fragment('{a:1},{a:2}', '{\n    a: 1\n}, {\n    a: 2\n}')
-        test_fragment('var ary=[{a:1}, {a:2}];', 'var ary = [{\n    a: 1\n}, {\n    a: 2\n}];')
+        test_fragment(
+            '{a:1},{a:2}',
+            #  -- output --
+            '{\n' +
+            '    a: 1\n' +
+            '}, {\n' +
+            '    a: 2\n' +
+            '}')
+        test_fragment(
+            'var ary=[{a:1}, {a:2}];',
+            #  -- output --
+            'var ary = [{\n' +
+            '    a: 1\n' +
+            '}, {\n' +
+            '    a: 2\n' +
+            '}];')
         
         # incomplete
-        test_fragment('{a:#1', '{\n    a: #1')
+        test_fragment(
+            '{a:#1',
+            #  -- output --
+            '{\n' +
+            '    a: #1')
         
         # incomplete
-        test_fragment('{a:#', '{\n    a: #')
+        test_fragment(
+            '{a:#',
+            #  -- output --
+            '{\n' +
+            '    a: #')
         
         # incomplete
-        test_fragment('}}}', '}\n}\n}')
-        test_fragment('<!--\nvoid();\n// -->')
+        test_fragment(
+            '}}}',
+            #  -- output --
+            '}\n' +
+            '}\n' +
+            '}')
+        test_fragment(
+            '<!--\n' +
+            'void();\n' +
+            '// -->')
         
         # incomplete regexp
         test_fragment('a=/regexp', 'a = /regexp')
-        bt('{a:#1=[],b:#1#,c:#999999#}', '{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}')
-        bt('do{x()}while(a>1)', 'do {\n    x()\n} while (a > 1)')
-        bt('x(); /reg/exp.match(something)', 'x();\n/reg/exp.match(something)')
-        test_fragment('something();(', 'something();\n(')
-        test_fragment('#!she/bangs, she bangs\nf=1', '#!she/bangs, she bangs\n\nf = 1')
-        test_fragment('#!she/bangs, she bangs\n\nf=1', '#!she/bangs, she bangs\n\nf = 1')
-        test_fragment('#!she/bangs, she bangs\n\n/* comment */')
-        test_fragment('#!she/bangs, she bangs\n\n\n/* comment */')
+        bt(
+            '{a:#1=[],b:#1#,c:#999999#}',
+            #  -- output --
+            '{\n' +
+            '    a: #1=[],\n' +
+            '    b: #1#,\n' +
+            '    c: #999999#\n' +
+            '}')
+        bt(
+            'do{x()}while(a>1)',
+            #  -- output --
+            'do {\n' +
+            '    x()\n' +
+            '} while (a > 1)')
+        bt(
+            'x(); /reg/exp.match(something)',
+            #  -- output --
+            'x();\n' +
+            '/reg/exp.match(something)')
+        test_fragment(
+            'something();(',
+            #  -- output --
+            'something();\n' +
+            '(')
+        test_fragment(
+            '#!she/bangs, she bangs\n' +
+            'f=1',
+            #  -- output --
+            '#!she/bangs, she bangs\n' +
+            '\n' +
+            'f = 1')
+        test_fragment(
+            '#!she/bangs, she bangs\n' +
+            '\n' +
+            'f=1',
+            #  -- output --
+            '#!she/bangs, she bangs\n' +
+            '\n' +
+            'f = 1')
+        test_fragment(
+            '#!she/bangs, she bangs\n' +
+            '\n' +
+            '/* comment */')
+        test_fragment(
+            '#!she/bangs, she bangs\n' +
+            '\n' +
+            '\n' +
+            '/* comment */')
         test_fragment('#')
         test_fragment('#!')
         bt('function namespace::something()')
-        test_fragment('<!--\nsomething();\n-->')
-        test_fragment('<!--\nif(i<0){bla();}\n-->', '<!--\nif (i < 0) {\n    bla();\n}\n-->')
-        bt('{foo();--bar;}', '{\n    foo();\n    --bar;\n}')
-        bt('{foo();++bar;}', '{\n    foo();\n    ++bar;\n}')
-        bt('{--bar;}', '{\n    --bar;\n}')
-        bt('{++bar;}', '{\n    ++bar;\n}')
+        test_fragment(
+            '<!--\n' +
+            'something();\n' +
+            '-->')
+        test_fragment(
+            '<!--\n' +
+            'if(i<0){bla();}\n' +
+            '-->',
+            #  -- output --
+            '<!--\n' +
+            'if (i < 0) {\n' +
+            '    bla();\n' +
+            '}\n' +
+            '-->')
+        bt(
+            '{foo();--bar;}',
+            #  -- output --
+            '{\n' +
+            '    foo();\n' +
+            '    --bar;\n' +
+            '}')
+        bt(
+            '{foo();++bar;}',
+            #  -- output --
+            '{\n' +
+            '    foo();\n' +
+            '    ++bar;\n' +
+            '}')
+        bt(
+            '{--bar;}',
+            #  -- output --
+            '{\n' +
+            '    --bar;\n' +
+            '}')
+        bt(
+            '{++bar;}',
+            #  -- output --
+            '{\n' +
+            '    ++bar;\n' +
+            '}')
         bt('if(true)++a;', 'if (true) ++a;')
-        bt('if(true)\n++a;', 'if (true)\n    ++a;')
+        bt(
+            'if(true)\n' +
+            '++a;',
+            #  -- output --
+            'if (true)\n' +
+            '    ++a;')
         bt('if(true)--a;', 'if (true) --a;')
-        bt('if(true)\n--a;', 'if (true)\n    --a;')
+        bt(
+            'if(true)\n' +
+            '--a;',
+            #  -- output --
+            'if (true)\n' +
+            '    --a;')
         bt('elem[array]++;')
         bt('elem++ * elem[array]++;')
         bt('elem-- * -elem[array]++;')
@@ -2983,106 +4342,510 @@ class TestJSBeautifier(unittest.TestCase):
         bt('elem-- - +elem[array]++;')
         
         # Handling of newlines around unary ++ and -- operators
-        bt('{foo\n++bar;}', '{\n    foo\n    ++bar;\n}')
-        bt('{foo++\nbar;}', '{\n    foo++\n    bar;\n}')
+        bt(
+            '{foo\n' +
+            '++bar;}',
+            #  -- output --
+            '{\n' +
+            '    foo\n' +
+            '    ++bar;\n' +
+            '}')
+        bt(
+            '{foo++\n' +
+            'bar;}',
+            #  -- output --
+            '{\n' +
+            '    foo++\n' +
+            '    bar;\n' +
+            '}')
         
         # This is invalid, but harder to guard against. Issue #203.
-        bt('{foo\n++\nbar;}', '{\n    foo\n    ++\n    bar;\n}')
+        bt(
+            '{foo\n' +
+            '++\n' +
+            'bar;}',
+            #  -- output --
+            '{\n' +
+            '    foo\n' +
+            '    ++\n' +
+            '    bar;\n' +
+            '}')
         
         # regexps
-        bt('a(/abc\\/\\/def/);b()', 'a(/abc\\/\\/def/);\nb()')
-        bt('a(/a[b\\[\\]c]d/);b()', 'a(/a[b\\[\\]c]d/);\nb()')
+        bt(
+            'a(/abc\\/\\/def/);b()',
+            #  -- output --
+            'a(/abc\\/\\/def/);\n' +
+            'b()')
+        bt(
+            'a(/a[b\\[\\]c]d/);b()',
+            #  -- output --
+            'a(/a[b\\[\\]c]d/);\n' +
+            'b()')
         
         # incomplete char class
         test_fragment('a(/a[b\\[')
         
         # allow unescaped / in char classes
-        bt('a(/[a/b]/);b()', 'a(/[a/b]/);\nb()')
+        bt(
+            'a(/[a/b]/);b()',
+            #  -- output --
+            'a(/[a/b]/);\n' +
+            'b()')
         bt('typeof /foo\\//;')
         bt('throw /foo\\//;')
         bt('do /foo\\//;')
         bt('return /foo\\//;')
-        bt('switch (a) {\n    case /foo\\//:\n        b\n}')
-        bt('if (a) /foo\\//\nelse /foo\\//;')
+        bt(
+            'switch (a) {\n' +
+            '    case /foo\\//:\n' +
+            '        b\n' +
+            '}')
+        bt(
+            'if (a) /foo\\//\n' +
+            'else /foo\\//;')
         bt('if (foo) /regex/.test();')
         bt('for (index in [1, 2, 3]) /^test$/i.test(s)')
-        bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}')
-        bt('a=[[1,2],[4,5],[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    function() {},\n    [7, 8]\n]')
-        bt('a=[[1,2],[4,5],function(){},[7,8]]', 'a = [\n    [1, 2],\n    [4, 5],\n    function() {},\n    [7, 8]\n]')
+        bt(
+            'function foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}')
+        bt(
+            'a=[[1,2],[4,5],[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
+        bt(
+            'a=[[1,2],[4,5],function(){},[7,8]]',
+            #  -- output --
+            'a = [\n' +
+            '    [1, 2],\n' +
+            '    [4, 5],\n' +
+            '    function() {},\n' +
+            '    [7, 8]\n' +
+            ']')
         bt('a=[b,c,function(){},function(){},d]', 'a = [b, c, function() {}, function() {}, d]')
-        bt('a=[b,c,\nfunction(){},function(){},d]', 'a = [b, c,\n    function() {},\n    function() {},\n    d\n]')
+        bt(
+            'a=[b,c,\n' +
+            'function(){},function(){},d]',
+            #  -- output --
+            'a = [b, c,\n' +
+            '    function() {},\n' +
+            '    function() {},\n' +
+            '    d\n' +
+            ']')
         bt('a=[a[1],b[4],c[d[7]]]', 'a = [a[1], b[4], c[d[7]]]')
         bt('[1,2,[3,4,[5,6],7],8]', '[1, 2, [3, 4, [5, 6], 7], 8]')
-        bt('[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]', '[\n    [\n        ["1", "2"],\n        ["3", "4"]\n    ],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]\n    ],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]\n    ]\n]')
-        bt('{[x()[0]];indent;}', '{\n    [x()[0]];\n    indent;\n}')
-        bt('/*\n foo trailing space    \n * bar trailing space   \n**/')
-        bt('{\n    /*\n    foo    \n    * bar    \n    */\n}')
+        bt(
+            '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+            #  -- output --
+            '[\n' +
+            '    [\n' +
+            '        ["1", "2"],\n' +
+            '        ["3", "4"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
+            '    ],\n' +
+            '    [\n' +
+            '        ["1", "2", "3"],\n' +
+            '        ["4", "5", "6", "7"],\n' +
+            '        ["8", "9", "0"]\n' +
+            '    ]\n' +
+            ']')
+        bt(
+            '{[x()[0]];indent;}',
+            #  -- output --
+            '{\n' +
+            '    [x()[0]];\n' +
+            '    indent;\n' +
+            '}')
+        bt(
+            '/*\n' +
+            ' foo trailing space    \n' +
+            ' * bar trailing space   \n' +
+            '**/')
+        bt(
+            '{\n' +
+            '    /*\n' +
+            '    foo    \n' +
+            '    * bar    \n' +
+            '    */\n' +
+            '}')
         bt('return ++i')
         bt('return !!x')
         bt('return !x')
         bt('return [1,2]', 'return [1, 2]')
         bt('return;')
-        bt('return\nfunc')
+        bt(
+            'return\n' +
+            'func')
         bt('catch(e)', 'catch (e)')
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    }, c = 4;')
-        bt('var a=1,b={foo:2,bar:3},{baz:4,wham:5},\nc=4;', 'var a = 1,\n    b = {\n        foo: 2,\n        bar: 3\n    },\n    {\n        baz: 4,\n        wham: 5\n    },\n    c = 4;')
+        bt(
+            'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = {\n' +
+            '        foo: 2,\n' +
+            '        bar: 3\n' +
+            '    },\n' +
+            '    {\n' +
+            '        baz: 4,\n' +
+            '        wham: 5\n' +
+            '    }, c = 4;')
+        bt(
+            'var a=1,b={foo:2,bar:3},{baz:4,wham:5},\n' +
+            'c=4;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = {\n' +
+            '        foo: 2,\n' +
+            '        bar: 3\n' +
+            '    },\n' +
+            '    {\n' +
+            '        baz: 4,\n' +
+            '        wham: 5\n' +
+            '    },\n' +
+            '    c = 4;')
         
         # inline comment
         bt(
             'function x(/*int*/ start, /*string*/ foo)',
+            #  -- output --
             'function x( /*int*/ start, /*string*/ foo)')
         
         # javadoc comment
-        bt('/**\n* foo\n*/', '/**\n * foo\n */')
-        bt('{\n/**\n* foo\n*/\n}', '{\n    /**\n     * foo\n     */\n}')
+        bt(
+            '/**\n' +
+            '* foo\n' +
+            '*/',
+            #  -- output --
+            '/**\n' +
+            ' * foo\n' +
+            ' */')
+        bt(
+            '{\n' +
+            '/**\n' +
+            '* foo\n' +
+            '*/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '     * foo\n' +
+            '     */\n' +
+            '}')
         
         # starless block comment
-        bt('/**\nfoo\n*/')
-        bt('/**\nfoo\n**/')
-        bt('/**\nfoo\nbar\n**/')
-        bt('/**\nfoo\n\nbar\n**/')
-        bt('/**\nfoo\n    bar\n**/')
-        bt('{\n/**\nfoo\n*/\n}', '{\n    /**\n    foo\n    */\n}')
-        bt('{\n/**\nfoo\n**/\n}', '{\n    /**\n    foo\n    **/\n}')
-        bt('{\n/**\nfoo\nbar\n**/\n}', '{\n    /**\n    foo\n    bar\n    **/\n}')
-        bt('{\n/**\nfoo\n\nbar\n**/\n}', '{\n    /**\n    foo\n\n    bar\n    **/\n}')
-        bt('{\n/**\nfoo\n    bar\n**/\n}', '{\n    /**\n    foo\n        bar\n    **/\n}')
-        bt('{\n    /**\n    foo\nbar\n    **/\n}')
-        bt('var a,b,c=1,d,e,f=2;', 'var a, b, c = 1,\n    d, e, f = 2;')
-        bt('var a,b,c=[],d,e,f=2;', 'var a, b, c = [],\n    d, e, f = 2;')
-        bt('function() {\n    var a, b, c, d, e = [],\n        f;\n}')
-        bt('do/regexp/;\nwhile(1);', 'do /regexp/;\nwhile (1);')
-        bt('var a = a,\na;\nb = {\nb\n}', 'var a = a,\n    a;\nb = {\n    b\n}')
-        bt('var a = a,\n    /* c */\n    b;')
-        bt('var a = a,\n    // c\n    b;')
+        bt(
+            '/**\n' +
+            'foo\n' +
+            '*/')
+        bt(
+            '/**\n' +
+            'foo\n' +
+            '**/')
+        bt(
+            '/**\n' +
+            'foo\n' +
+            'bar\n' +
+            '**/')
+        bt(
+            '/**\n' +
+            'foo\n' +
+            '\n' +
+            'bar\n' +
+            '**/')
+        bt(
+            '/**\n' +
+            'foo\n' +
+            '    bar\n' +
+            '**/')
+        bt(
+            '{\n' +
+            '/**\n' +
+            'foo\n' +
+            '*/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            '    */\n' +
+            '}')
+        bt(
+            '{\n' +
+            '/**\n' +
+            'foo\n' +
+            '**/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            '    **/\n' +
+            '}')
+        bt(
+            '{\n' +
+            '/**\n' +
+            'foo\n' +
+            'bar\n' +
+            '**/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            '    bar\n' +
+            '    **/\n' +
+            '}')
+        bt(
+            '{\n' +
+            '/**\n' +
+            'foo\n' +
+            '\n' +
+            'bar\n' +
+            '**/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            '\n' +
+            '    bar\n' +
+            '    **/\n' +
+            '}')
+        bt(
+            '{\n' +
+            '/**\n' +
+            'foo\n' +
+            '    bar\n' +
+            '**/\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            '        bar\n' +
+            '    **/\n' +
+            '}')
+        bt(
+            '{\n' +
+            '    /**\n' +
+            '    foo\n' +
+            'bar\n' +
+            '    **/\n' +
+            '}')
+        bt(
+            'var a,b,c=1,d,e,f=2;',
+            #  -- output --
+            'var a, b, c = 1,\n' +
+            '    d, e, f = 2;')
+        bt(
+            'var a,b,c=[],d,e,f=2;',
+            #  -- output --
+            'var a, b, c = [],\n' +
+            '    d, e, f = 2;')
+        bt(
+            'function() {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
+        bt(
+            'do/regexp/;\n' +
+            'while(1);',
+            #  -- output --
+            'do /regexp/;\n' +
+            'while (1);')
+        bt(
+            'var a = a,\n' +
+            'a;\n' +
+            'b = {\n' +
+            'b\n' +
+            '}',
+            #  -- output --
+            'var a = a,\n' +
+            '    a;\n' +
+            'b = {\n' +
+            '    b\n' +
+            '}')
+        bt(
+            'var a = a,\n' +
+            '    /* c */\n' +
+            '    b;')
+        bt(
+            'var a = a,\n' +
+            '    // c\n' +
+            '    b;')
         
         # weird element referencing
         bt('foo.("bar");')
-        bt('if (a) a()\nelse b()\nnewline()')
-        bt('if (a) a()\nnewline()')
+        bt(
+            'if (a) a()\n' +
+            'else b()\n' +
+            'newline()')
+        bt(
+            'if (a) a()\n' +
+            'newline()')
         bt('a=typeof(x)', 'a = typeof(x)')
-        bt('var a = function() {\n        return null;\n    },\n    b = false;')
-        bt('var a = function() {\n    func1()\n}')
-        bt('var a = function() {\n    func1()\n}\nvar b = function() {\n    func2()\n}')
+        bt(
+            'var a = function() {\n' +
+            '        return null;\n' +
+            '    },\n' +
+            '    b = false;')
+        bt(
+            'var a = function() {\n' +
+            '    func1()\n' +
+            '}')
+        bt(
+            'var a = function() {\n' +
+            '    func1()\n' +
+            '}\n' +
+            'var b = function() {\n' +
+            '    func2()\n' +
+            '}')
         
         # code with and without semicolons
         bt(
-            'var whatever = require("whatever");\nfunction() {\n    a = 6;\n}',
-            'var whatever = require("whatever");\n\nfunction() {\n    a = 6;\n}')
-        bt('var whatever = require("whatever")\nfunction() {\n    a = 6\n}', 'var whatever = require("whatever")\n\nfunction() {\n    a = 6\n}')
-        bt('{"x":[{"a":1,"b":3},\n7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n            "a": 1,\n            "b": 3\n        },\n        7, 8, 8, 8, 8, {\n            "b": 99\n        }, {\n            "a": 11\n        }\n    ]\n}')
-        bt('{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}', '{\n    "x": [{\n        "a": 1,\n        "b": 3\n    }, 7, 8, 8, 8, 8, {\n        "b": 99\n    }, {\n        "a": 11\n    }]\n}')
-        bt('{"1":{"1a":"1b"},"2"}', '{\n    "1": {\n        "1a": "1b"\n    },\n    "2"\n}')
-        bt('{a:{a:b},c}', '{\n    a: {\n        a: b\n    },\n    c\n}')
-        bt('{[y[a]];keep_indent;}', '{\n    [y[a]];\n    keep_indent;\n}')
-        bt('if (x) {y} else { if (x) {y}}', 'if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}')
-        bt('if (foo) one()\ntwo()\nthree()')
-        bt('if (1 + foo() && bar(baz()) / 2) one()\ntwo()\nthree()')
-        bt('if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();')
-        bt('var a=1,b={bang:2},c=3;', 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;')
-        bt('var a={bing:1},b=2,c=3;', 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;')
+            'var whatever = require("whatever");\n' +
+            'function() {\n' +
+            '    a = 6;\n' +
+            '}',
+            #  -- output --
+            'var whatever = require("whatever");\n' +
+            '\n' +
+            'function() {\n' +
+            '    a = 6;\n' +
+            '}')
+        bt(
+            'var whatever = require("whatever")\n' +
+            'function() {\n' +
+            '    a = 6\n' +
+            '}',
+            #  -- output --
+            'var whatever = require("whatever")\n' +
+            '\n' +
+            'function() {\n' +
+            '    a = 6\n' +
+            '}')
+        bt(
+            '{"x":[{"a":1,"b":3},\n' +
+            '7,8,8,8,8,{"b":99},{"a":11}]}',
+            #  -- output --
+            '{\n' +
+            '    "x": [{\n' +
+            '            "a": 1,\n' +
+            '            "b": 3\n' +
+            '        },\n' +
+            '        7, 8, 8, 8, 8, {\n' +
+            '            "b": 99\n' +
+            '        }, {\n' +
+            '            "a": 11\n' +
+            '        }\n' +
+            '    ]\n' +
+            '}')
+        bt(
+            '{"x":[{"a":1,"b":3},7,8,8,8,8,{"b":99},{"a":11}]}',
+            #  -- output --
+            '{\n' +
+            '    "x": [{\n' +
+            '        "a": 1,\n' +
+            '        "b": 3\n' +
+            '    }, 7, 8, 8, 8, 8, {\n' +
+            '        "b": 99\n' +
+            '    }, {\n' +
+            '        "a": 11\n' +
+            '    }]\n' +
+            '}')
+        bt(
+            '{"1":{"1a":"1b"},"2"}',
+            #  -- output --
+            '{\n' +
+            '    "1": {\n' +
+            '        "1a": "1b"\n' +
+            '    },\n' +
+            '    "2"\n' +
+            '}')
+        bt(
+            '{a:{a:b},c}',
+            #  -- output --
+            '{\n' +
+            '    a: {\n' +
+            '        a: b\n' +
+            '    },\n' +
+            '    c\n' +
+            '}')
+        bt(
+            '{[y[a]];keep_indent;}',
+            #  -- output --
+            '{\n' +
+            '    [y[a]];\n' +
+            '    keep_indent;\n' +
+            '}')
+        bt(
+            'if (x) {y} else { if (x) {y}}',
+            #  -- output --
+            'if (x) {\n' +
+            '    y\n' +
+            '} else {\n' +
+            '    if (x) {\n' +
+            '        y\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'if (foo) one()\n' +
+            'two()\n' +
+            'three()')
+        bt(
+            'if (1 + foo() && bar(baz()) / 2) one()\n' +
+            'two()\n' +
+            'three()')
+        bt(
+            'if (1 + foo() && bar(baz()) / 2) one();\n' +
+            'two();\n' +
+            'three();')
+        bt(
+            'var a=1,b={bang:2},c=3;',
+            #  -- output --
+            'var a = 1,\n' +
+            '    b = {\n' +
+            '        bang: 2\n' +
+            '    },\n' +
+            '    c = 3;')
+        bt(
+            'var a={bing:1},b=2,c=3;',
+            #  -- output --
+            'var a = {\n' +
+            '        bing: 1\n' +
+            '    },\n' +
+            '    b = 2,\n' +
+            '    c = 3;')
 
 
 
