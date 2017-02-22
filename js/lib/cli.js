@@ -360,9 +360,8 @@ function usage(err) {
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
-            msg.push('  -L, --selector-separator-newline  Add a newline between multiple selectors.');
-            msg.push('  -N, --newline-between-rules       Add a newline between CSS rules.');
-            msg.push('  -p, --preserve-newlines           Preserve line-breaks');
+            msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
+            msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
     }
 
     if (err) {
