@@ -104,7 +104,7 @@
         var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
         space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
         var eol = options.eol ? options.eol : 'auto';
-        var newline_following_header = (options.newline_following_header == undefined) ? true : options.newline_following_header;
+        var newline_following_header = (options.newline_following_header === undefined) ? true : options.newline_following_header;
 
         if (options.indent_with_tabs) {
             indentCharacter = '\t';
