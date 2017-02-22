@@ -53,7 +53,6 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
     default_opts.space_around_combinator = false;
-    default_opts.preserve_newlines = false;
     default_opts.space_around_selector_separator = false;
 
     function reset_options()
@@ -488,92 +487,6 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tdiv:first-child,\n' +
             '\tdiv:hover {\n' +
             '\t\tcolor: black;\n' +
-            '\t}\n' +
-            '}');
-
-
-        //============================================================
-        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
-        reset_options();
-        opts.preserve_newlines = true;
-        t(
-            '.div {}\n' +
-            '\n' +
-            '.span {}');
-        t(
-            '#bla, #foo{\n' +
-            '\tcolor:black;\n' +
-            '\n' +
-            '\tfont-size: 12px;\n' +
-            '}',
-            //  -- output --
-            '#bla,\n' +
-            '#foo {\n' +
-            '\tcolor: black;\n' +
-            '\n' +
-            '\tfont-size: 12px;\n' +
-            '}');
-
-        // Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
-        reset_options();
-        opts.preserve_newlines = false;
-        t(
-            '.div {}\n' +
-            '\n' +
-            '.span {}',
-            //  -- output --
-            '.div {}\n' +
-            '.span {}');
-        t(
-            '#bla, #foo{\n' +
-            '\tcolor:black;\n' +
-            '\n' +
-            '\tfont-size: 12px;\n' +
-            '}',
-            //  -- output --
-            '#bla,\n' +
-            '#foo {\n' +
-            '\tcolor: black;\n' +
-            '\tfont-size: 12px;\n' +
-            '}');
-
-
-        //============================================================
-        // Preserve Newlines and add tabs
-        reset_options();
-        opts.preserve_newlines = true;
-        t(
-            '.tool-tip {\n' +
-            '\tposition: relative;\n' +
-            '\n' +
-            '\t\t\n' +
-            '\t.tool-tip-content {\n' +
-            '\t\t&>* {\n' +
-            '\t\t\tmargin-top: 0;\n' +
-            '\t\t}\n' +
-            '\t\t\n' +
-            '\n' +
-            '\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
-            '\t\tpadding: 1rem;\n' +
-            '\t\tposition: absolute;\n' +
-            '\t\tz-index: 10;\n' +
-            '\t}\n' +
-            '}',
-            //  -- output --
-            '.tool-tip {\n' +
-            '\tposition: relative;\n' +
-            '\n' +
-            '\n' +
-            '\t.tool-tip-content {\n' +
-            '\t\t&>* {\n' +
-            '\t\t\tmargin-top: 0;\n' +
-            '\t\t}\n' +
-            '\n' +
-            '\n' +
-            '\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n' +
-            '\t\tpadding: 1rem;\n' +
-            '\t\tposition: absolute;\n' +
-            '\t\tz-index: 10;\n' +
             '\t}\n' +
             '}');
 

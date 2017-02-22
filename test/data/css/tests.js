@@ -32,7 +32,6 @@ exports.test_data = {
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
         { name: "space_around_combinator", value: "false" },
-        { name: "preserve_newlines", value: "false" },
         // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
@@ -209,34 +208,6 @@ exports.test_data = {
                 output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'
             }
         ]
-    }, {
-        name: "Preserve Newlines",
-        description: "",
-        matrix: [{
-            options: [
-                { name: "preserve_newlines", value: "true" }
-            ],
-            separator_input: '\n\n',
-            separator_output: '\n\n',
-        }, {
-            options: [
-                { name: "preserve_newlines", value: "false" }
-            ],
-            separator_input: '\n\n',
-            separator_output: '\n',
-        }],
-        tests: [
-            { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
-            { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output}}\tfont-size: 12px;\n}' }
-        ],
-    }, {
-        name: "Preserve Newlines and add tabs",
-        options: [{ name: "preserve_newlines", value: "true" }],
-        description: "",
-        tests: [{
-            input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
-            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
-        }],
     }, {
         name: "Newline Between Rules",
         description: "",
