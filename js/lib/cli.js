@@ -87,6 +87,7 @@ var path = require('path'),
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
         "space_around_combinator": Boolean,
+        "newline_following_header": Boolean,
         //deprecated - replaced with space_around_combinator, remove in future version
         "space_around_selector_separator": Boolean,
         // HTML-only
@@ -149,7 +150,8 @@ var path = require('path'),
         "good-stuff": [
             "--keep_array_indentation",
             "--keep_function_indentation",
-            "--jslint_happy"
+            "--jslint_happy",
+            "--newline_following_header"
         ],
         "js": ["--type", "js"],
         "css": ["--type", "css"],
@@ -362,6 +364,7 @@ function usage(err) {
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
             msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
+            msg.push('  --newline-following-header              Add a newline following a header comment');
     }
 
     if (err) {

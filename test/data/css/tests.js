@@ -251,11 +251,22 @@ exports.test_data = {
     }, {
         name: "Comments",
         description: "",
+        matrix: [{
+            options: [
+                { name: "newline_following_header", value: "true" }
+            ],
+            separator: '\\n'
+        }, {
+            options: [
+                { name: "newline_following_header", value: "false" }
+            ],
+            separator: ''
+        }],
         tests: [
             { unchanged: '/* test */' },
             { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
             { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-            { input: '/* header */.tabs {}', output: '/* header */\n\n.tabs {}' },
+            { input: '/* header */.tabs {}', output: '/* header */\n{{separator}}.tabs {}' },
             { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
             { unchanged: '/* header' },
             { unchanged: '// comment' }, {
