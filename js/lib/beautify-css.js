@@ -276,11 +276,11 @@
             }
         };
         print["}"] = function(newline) {
-            if(newline) {
+            if (newline) {
                 print.newLine();
             }
             output.push('}');
-            if(!eatWhitespace(true)) {
+            if (!eatWhitespace(true)) {
                 print.newLine();
             }
         };
@@ -512,7 +512,7 @@
             } else if (ch === '=') { // no whitespace before or after
                 eatWhitespace();
                 output.push('=');
-                if ( whiteRe.test(ch)) {
+                if (whiteRe.test(ch)) {
                     ch = '';
                 }
             } else {

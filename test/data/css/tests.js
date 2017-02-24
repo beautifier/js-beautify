@@ -37,25 +37,25 @@ exports.test_data = {
         { name: "space_around_selector_separator", value: "false" }
     ],
     groups: [{
-        name: "End With Newline",
-        description: "",
-        matrix: [{
-            options: [
-                { name: "end_with_newline", value: "true" }
+            name: "End With Newline",
+            description: "",
+            matrix: [{
+                options: [
+                    { name: "end_with_newline", value: "true" }
+                ],
+                eof: '\\n'
+            }, {
+                options: [
+                    { name: "end_with_newline", value: "false" }
+                ],
+                eof: ''
+            }],
+            tests: [
+                { fragment: true, input: '', output: '{{eof}}' },
+                { fragment: true, input: '   .tabs{}', output: '   .tabs {}{{eof}}' },
+                { fragment: true, input: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
+                { fragment: true, input: '\n', output: '{{eof}}' }
             ],
-            eof: '\\n'
-        }, {
-            options: [
-                { name: "end_with_newline", value: "false" }
-            ],
-            eof: ''
-        }],
-        tests: [
-            { fragment: true, input: '', output: '{{eof}}' },
-            { fragment: true, input: '   .tabs{}', output: '   .tabs {}{{eof}}' },
-            { fragment: true, input: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
-            { fragment: true, input: '\n', output: '{{eof}}' }
-        ],
         }, {
             name: "Empty braces",
             description: "",
@@ -231,23 +231,23 @@ exports.test_data = {
             ],
         },
         {
-        name: "Preserve Newlines and newline_between_rules",
-        description: "",
-        options: [
-            { name: "preserve_newlines", value: "true" },
-            { name: "newline_between_rules", value: "true" }
-        ],
-        tests: [
-            { input: '.div {}.span {}', output: '.div {}\n\n.span {}' },
-            { input: '#bla, #foo{\n\tcolor:black;\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
-            { input: '#bla, #foo{\n\tcolor:black;\n\n\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\n\n\tfont-size: 12px;\n}' },
-            { unchanged: '#bla,\n\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
-            { unchanged: 'a {\n\tb: c;\n\n\n\td: {\n\t\te: f;\n\t}\n}' },
-            { unchanged: '.div {}\n\n.span {}' },
-            { unchanged: '.div {\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
-            { unchanged: '.div {\n\n\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
-            { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' },
-        ],
+            name: "Preserve Newlines and newline_between_rules",
+            description: "",
+            options: [
+                { name: "preserve_newlines", value: "true" },
+                { name: "newline_between_rules", value: "true" }
+            ],
+            tests: [
+                { input: '.div {}.span {}', output: '.div {}\n\n.span {}' },
+                { input: '#bla, #foo{\n\tcolor:black;\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
+                { input: '#bla, #foo{\n\tcolor:black;\n\n\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\n\n\tfont-size: 12px;\n}' },
+                { unchanged: '#bla,\n\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
+                { unchanged: 'a {\n\tb: c;\n\n\n\td: {\n\t\te: f;\n\t}\n}' },
+                { unchanged: '.div {}\n\n.span {}' },
+                { unchanged: '.div {\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
+                { unchanged: '.div {\n\n\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
+                { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' },
+            ],
         }, {
             name: "Preserve Newlines and add tabs",
             options: [{ name: "preserve_newlines", value: "true" }],
@@ -440,5 +440,6 @@ exports.test_data = {
             }]
         }, {
 
-    }]
+        }
+    ]
 };
