@@ -2593,6 +2593,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // unformatted tags with namespaces
+        reset_options();
+        opts.unformatted = [ "name:space"];
+        test_fragment(
+            '<html>\n' +
+            '<body>\n' +
+            '    <p><name:space>namespaced tag unformatted</name:space>\n' +
+            '    </p>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
         // File starting with comment
         reset_options();
         test_fragment(
