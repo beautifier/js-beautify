@@ -2590,6 +2590,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</ul>');
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
 
 
         //============================================================
