@@ -378,7 +378,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         opts.wrap_attributes = 'force-aligned';
         opts.indent_with_tabs = false;
-        bth(
+        test_fragment(
             '<div a="1" b="2"><div>test</div></div>',
             //  -- output --
             '<div a="1"\n' +
