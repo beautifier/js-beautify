@@ -385,6 +385,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     b="2">\n' +
             '    <div>test</div>\n' +
             '</div>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n' +
+            '</p>',
+            //  -- output --
+            '<p>\n' +
+            '    <a href="/test/"\n' +
+            '       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n' +
+            '       target="_blank"><img src="test.jpg" /></a>\n' +
+            '</p>');
 
 
         //============================================================
@@ -2592,7 +2602,23 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
         test_fragment(
             '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n' +
             '</p>');
 
 
