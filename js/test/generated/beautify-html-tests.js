@@ -395,6 +395,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n' +
             '       target="_blank"><img src="test.jpg" /></a>\n' +
             '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
+            '</p>',
+            //  -- output --
+            '<p>\n' +
+            '    <span data-not-a-href="/test/"\n' +
+            '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n' +
+            '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
+            '</p>');
 
 
         //============================================================

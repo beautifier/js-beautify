@@ -312,6 +312,11 @@ exports.test_data = {
             fragment: true,
             input: '<p>\n    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n</p>',
             output: '<p>\n    <a href="/test/"\n       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n       target="_blank"><img src="test.jpg" /></a>\n</p>'
+        },
+        {
+            fragment: true,
+            input: '<p>\n    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>',
+            output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
         }]
     }, {
         name: "Attribute Wrap",
