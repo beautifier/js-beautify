@@ -40,6 +40,7 @@ class BeautifierOptions:
         self.newline_between_rules = True
         self.space_around_combinator = False
         self.eol = 'auto'
+        self.newline_following_header = True
 
         self.css = None
         self.js = None
@@ -69,9 +70,10 @@ separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
 space_around_combinator = [%s]
+newline_following_header = [%s]
 """ % (self.indent_size, self.indent_char, self.indent_with_tabs,
        self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
-       self.space_around_combinator)
+       self.space_around_combinator, self.newline_following_header)
 
 
 def default_options():
@@ -218,6 +220,8 @@ class Beautifier:
 
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
+        self.newlineFollowingHeader = self.opts.newline_following_header
+
         # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
         self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
@@ -361,8 +365,8 @@ class Beautifier:
                 comment = self.eatComment()
                 printer.comment(comment)
                 printer.newLine()
-                if header:
-                    printer.newLine(True)
+                if header and self.newlineFollowingHeader:
+                   printer.newLine(True)
             elif self.ch == '/' and self.peek() == '/':
                 if not isAfterNewline and last_top_ch != '{':
                     printer.trim()
