@@ -32,6 +32,7 @@ exports.test_data = {
         { name: "end_with_newline", value: "false" },
         { name: "newline_between_rules", value: "false" },
         { name: "space_around_combinator", value: "false" },
+        { name: "preserve_newlines", value: "false" },
         // deprecated
         { name: "space_around_selector_separator", value: "false" }
     ],
@@ -42,7 +43,7 @@ exports.test_data = {
             options: [
                 { name: "end_with_newline", value: "true" }
             ],
-            eof: '\n'
+            eof: '\\n'
         }, {
             options: [
                 { name: "end_with_newline", value: "false" }
@@ -189,15 +190,15 @@ exports.test_data = {
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '" "' }
             ],
-            separator: '\n',
-            separator1: '\n\t'
+            separator: '\\n',
+            separator1: '\\n\\t'
         }, {
             options: [
                 { name: 'selector_separator_newline', value: 'true' },
                 { name: 'selector_separator', value: '"  "' }
             ],
-            separator: '\n',
-            separator1: '\n\t'
+            separator: '\\n',
+            separator1: '\\n\\t'
         }],
         tests: [
             { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}' },
@@ -209,13 +210,57 @@ exports.test_data = {
             }
         ]
     }, {
+        name: "Preserve Newlines",
+        description: "",
+        matrix: [{
+            options: [
+                { name: "preserve_newlines", value: "true" }
+            ],
+            separator_input: '\\n\\n',
+            separator_output: '\\n\\n',
+        }, {
+            options: [
+                { name: "preserve_newlines", value: "false" }
+            ],
+            separator_input: '\\n\\n',
+            separator_output: '\\n',
+        }],
+        tests: [
+            { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
+            { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output}}\tfont-size: 12px;\n}' }
+        ],
+    }, {
+        name: "Preserve Newlines and newline_between_rules",
+        description: "",
+        options: [
+            { name: "preserve_newlines", value: "true" },
+            { name: "newline_between_rules", value: "true" },
+        ],
+        tests: [
+            { input: '.div {}.span {}', output: '.div {}\n\n.span {}' },
+            { input: '#bla, #foo{\n\tcolor:black;\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
+            { input: '#bla, #foo{\n\tcolor:black;\n\n\n\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;\n\n\n\tfont-size: 12px;\n}' },
+            { unchanged: '.div {}\n\n.span {}' },
+            { unchanged: '.div {\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
+            { unchanged: '.div {\n\n\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
+            { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' },
+        ],
+    }, {
+        name: "Preserve Newlines and add tabs",
+        options: [{ name: "preserve_newlines", value: "true" }],
+        description: "",
+        tests: [{
+            input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
+            output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\\n\\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
+        }],
+    }, {
         name: "Newline Between Rules",
         description: "",
         matrix: [{
             options: [
                 { name: "newline_between_rules", value: "true" }
             ],
-            separator: '\n'
+            separator: '\\n'
         }, {
             options: [
                 { name: "newline_between_rules", value: "false" }
