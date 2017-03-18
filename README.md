@@ -191,7 +191,7 @@ can be overridden.  This works for settings passed directly to the API in either
 In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc,
 can also use inheritance/overriding.  
 
-Below is an example configuration tree showing all the the supported locations
+Below is an example configuration tree showing all the supported locations
 for language override nodes.  We'll use `indent_size` to discuss how this configuration
 would behave, but any number of settings can be inherited or overridden:
 
