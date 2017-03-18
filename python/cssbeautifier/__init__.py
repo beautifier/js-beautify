@@ -163,6 +163,8 @@ class Printer:
         if len(self.output) > 0 :
             if not keepWhitespace and self.output[-1] != '\n':
                 self.trim()
+            elif self.output[-1] == self.baseIndentString:
+                self.output.pop()
 
             self.output.append("\n")
 
@@ -342,14 +344,6 @@ class Beautifier:
             i += 1;
 
         return False
-
-    def removeWhiteSpaceOnEmptyLines(self, input):
-        output = input.split('\n')
-        for i in range(len(output)):
-            if len(output[i].strip()) == 0:
-                output[i] = ''
-
-        return '\n'.join(output)
 
     def beautify(self):
         printer = self.printer
@@ -534,9 +528,6 @@ class Beautifier:
                 printer.push(self.ch)
 
         sweet_code = re.sub('[\r\n\t ]+$', '', printer.result())
-
-        if self.opts.preserve_newlines:
-            sweet_code = self.removeWhiteSpaceOnEmptyLines(sweet_code)
 
         # establish end_with_newline
         if self.opts.end_with_newline:

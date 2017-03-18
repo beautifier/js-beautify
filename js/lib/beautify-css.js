@@ -241,16 +241,6 @@
             return false;
         }
 
-        function removeWhiteSpaceOnEmptyLines(input) {
-            var output = input.split('\n');
-            for (var i = 0; i < output.length; i++) {
-                if (output[i].trim().length === 0) {
-                    output[i] = '';
-                }
-            }
-            return output.join('\n');
-        }
-
         // printer
         var basebaseIndentString = source_text.match(/^[\t ]*/)[0];
         var singleIndent = new Array(indentSize + 1).join(indentCharacter);
@@ -293,8 +283,9 @@
             if (output.length) {
                 if (!keepWhitespace && output[output.length - 1] !== '\n') {
                     print.trim();
+                } else if (output[output.length - 1] === basebaseIndentString) {
+                    output.pop();
                 }
-
                 output.push('\n');
 
                 if (basebaseIndentString) {
@@ -528,10 +519,6 @@
         }
 
         sweetCode += output.join('').replace(/[\r\n\t ]+$/, '');
-
-        if (preserve_newlines) {
-            sweetCode = removeWhiteSpaceOnEmptyLines(sweetCode);
-        }
 
         // establish end_with_newline
         if (end_with_newline) {
