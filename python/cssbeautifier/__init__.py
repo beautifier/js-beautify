@@ -35,6 +35,7 @@ class BeautifierOptions:
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
+        self.preserve_newlines = False
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
@@ -65,13 +66,14 @@ class BeautifierOptions:
 """indent_size = %d
 indent_char = [%s]
 indent_with_tabs = [%s]
+preserve_newlines = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
 space_around_combinator = [%s]
-""" % (self.indent_size, self.indent_char, self.indent_with_tabs,
-       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
-       self.space_around_combinator)
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines,
+    self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
+    self.space_around_combinator)
 
 
 def default_options():
@@ -111,7 +113,9 @@ WORD_RE = re.compile("[\w$\-_]")
 
 class Printer:
 
-    def __init__(self, indent_char, indent_size, default_indent=""):
+    def __init__(self, beautifier, indent_char, indent_size, default_indent=""):
+        self.beautifier = beautifier
+        self.newlines_from_last_ws_eat = 0
         self.indentSize = indent_size
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
@@ -138,16 +142,19 @@ class Printer:
     def openBracket(self):
         self.singleSpace()
         self.output.append("{")
-        self.newLine()
+        if self.beautifier.eatWhitespace(True) == 0:
+            self.newLine()
 
-    def closeBracket(self):
-        self.newLine()
+    def closeBracket(self,newLine):
+        if newLine:
+            self.newLine()
         self.output.append("}")
-        self.newLine()
+        self.beautifier.eatWhitespace(True)
+        if self.beautifier.newlines_from_last_ws_eat == 0:
+            self.newLine()
 
     def semicolon(self):
         self.output.append(";")
-        self.newLine()
 
     def comment(self, comment):
         self.output.append(comment)
@@ -156,6 +163,8 @@ class Printer:
         if len(self.output) > 0 :
             if not keepWhitespace and self.output[-1] != '\n':
                 self.trim()
+            elif self.output[-1] == self.baseIndentString:
+                self.output.pop()
 
             self.output.append("\n")
 
@@ -235,6 +244,10 @@ class Beautifier:
             "@supports", \
             "@document"]
 
+        m = re.search("^[\t ]*", self.source_text)
+        baseIndentString = m.group(0)
+        self.printer = Printer(self, self.indentChar, self.indentSize, baseIndentString)
+
     def next(self):
         self.pos = self.pos + 1
         if self.pos < len(self.source_text):
@@ -274,11 +287,14 @@ class Beautifier:
         self.next()
         return st
 
-    def eatWhitespace(self):
-        result = ''
+    def eatWhitespace(self, pn=False):
+        result = 0
         while WHITE_RE.search(self.peek()) is not None:
             self.next()
-            result += self.ch
+            if self.ch == "\n" and pn and self.opts.preserve_newlines:
+                self.printer.newLine(True)
+                result += 1
+        self.newlines_from_last_ws_eat = result
         return result
 
     def skipWhitespace(self):
@@ -329,12 +345,8 @@ class Beautifier:
 
         return False
 
-
     def beautify(self):
-        m = re.search("^[\t ]*", self.source_text)
-        baseIndentString = m.group(0)
-        printer = Printer(self.indentChar, self.indentSize, baseIndentString)
-
+        printer = self.printer
         insideRule = False
         insidePropertyValue = False
         enteringConditionalGroup = False
@@ -406,9 +418,9 @@ class Beautifier:
                     self.eatWhitespace()
                     self.next()
                     printer.singleSpace()
-                    printer.push("{}")
-                    printer.newLine()
-                    if self.opts.newline_between_rules and printer.indentLevel == 0:
+                    printer.push("{")
+                    printer.closeBracket(False)
+                    if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
                         printer.newLine(True)
                 else:
                     printer.indent()
@@ -422,12 +434,12 @@ class Beautifier:
                         insideRule = printer.indentLevel >= printer.nestedLevel
             elif self.ch == '}':
                 printer.outdent()
-                printer.closeBracket()
+                printer.closeBracket(True)
                 insideRule = False
                 insidePropertyValue = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
-                if self.opts.newline_between_rules and printer.indentLevel == 0:
+                if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
                     printer.newLine(True)
             elif self.ch == ":":
                 self.eatWhitespace()
@@ -460,6 +472,8 @@ class Beautifier:
             elif self.ch == ';':
                 insidePropertyValue = False
                 printer.semicolon()
+                if self.eatWhitespace(True) == 0:
+                    printer.newLine()
             elif self.ch == '(':
                 # may be a url
                 if self.lookBack("url"):
@@ -481,8 +495,7 @@ class Beautifier:
                 parenLevel -= 1
             elif self.ch == ',':
                 printer.push(self.ch)
-                self.eatWhitespace()
-                if not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
+                if self.eatWhitespace(True) == 0 and not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
                     printer.newLine()
                 else:
                     printer.singleSpace()
@@ -507,8 +520,9 @@ class Beautifier:
             elif self.ch == '=':
                 # no whitespace before or after
                 self.eatWhitespace()
-                self.ch = '='
-                printer.push(self.ch)
+                printer.push('=')
+                if WHITE_RE.search(self.ch):
+                    self.ch = ''
             else:
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.push(self.ch)
