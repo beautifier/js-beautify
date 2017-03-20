@@ -1,10 +1,20 @@
 # Changelog
+## v1.6.12
+
+### Description
+
+
+### Closed Issues
+* CSS: Preserve Newlines ([#537](https://github.com/beautify-web/js-beautify/issues/537))
+
+
 ## v1.6.11
 
 ### Description
 Reverted #1117 - Preserve newlines broken
 
 ### Closed Issues
+* On beautify, new line before next CSS selector ([#1142](https://github.com/beautify-web/js-beautify/issues/1142))
 
 
 ## v1.6.10
