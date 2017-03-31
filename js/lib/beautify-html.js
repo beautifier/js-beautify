@@ -424,7 +424,8 @@
                     orig_pos = this.pos,
                     orig_line_char_count = this.line_char_count,
                     is_tag_closed = false,
-                    tail;
+                    tail,
+                    is_attribute_value = false;
 
                 peek = peek !== undefined ? peek : false;
 
@@ -445,13 +446,15 @@
                         continue;
                     }
 
-                    if (input_char === "'" || input_char === '"') {
+                    if (is_attribute_value && (input_char === "'" || input_char === '"')) {
                         input_char += this.get_unformatted(input_char);
+                        is_attribute_value = false;
                         space = true;
                     }
 
                     if (input_char === '=') { //no space before =
                         space = false;
+                        is_attribute_value = true;
                     }
                     tail = this.input.substr(this.pos - 1);
                     if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs && !is_tag_closed && (input_char === '>' || input_char === '/')) {

@@ -374,6 +374,41 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Invalid attribute names - ()
+        reset_options();
+        test_fragment(
+            '<div "=""><div>hello</div></div>',
+            //  -- output --
+            '<div "="">\n' +
+            '    <div>hello</div>\n' +
+            '</div>');
+        test_fragment(
+            '<div "><div>hello</div></div>',
+            //  -- output --
+            '<div ">\n' +
+            '    <div>hello</div>\n' +
+            '</div>');
+        test_fragment(
+            '<div "a=""><div>hello</div></div>',
+            //  -- output --
+            '<div "a="">\n' +
+            '    <div>hello</div>\n' +
+            '</div>');
+        test_fragment(
+            '<div "a><div>hello</div></div>',
+            //  -- output --
+            '<div "a>\n' +
+            '    <div>hello</div>\n' +
+            '</div>');
+        test_fragment(
+            '<div a="b" "=""><div>hello</div></div>',
+            //  -- output --
+            '<div a="b" "="">\n' +
+            '    <div>hello</div>\n' +
+            '</div>');
+
+
+        //============================================================
         // Attribute Wrap de-indent - ()
         reset_options();
         opts.wrap_attributes = 'force-aligned';
