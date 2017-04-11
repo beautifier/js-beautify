@@ -173,6 +173,212 @@ JS APIs have not been 100% identical. For example, `space_before_conditional` is
 currently JS-only, and not addressable from the CLI script. There are still a
 few other additional cases keeping us from 100% API-compatibility.
 
+<h3>In depth explanation of options<h3>
+
+<h4>indent-size</h4>
+The number of characters to use for indentation.
+
+<h4>indent-char</h4>
+The acutal character that will be used to indent your code. It can be anything.
+
+<h4>indent-with-tabs</h4>
+True or false that makes the default indentation to be a tab, and overrides the indent-size and indent-char.
+
+<h4>eol</h4>
+What character to be used for the end of line. This can be \0, \r, \n, \l\r or whatever you like to use for your end of line character.
+
+<h4>end-with-newline</h4>
+This makes the file end with a new line at the end of the file to make Git happy.
+
+<h4>editorconfig</h4>
+This is to be able to use js-beautify in your favorite linux editor.
+
+<h4>indent-level</h4>
+This is if you like to have your entire file indented before any scopes.
+
+<h4>preserve-newlines</h4>
+This makes it so that if there is a new line in the middle of the document for some unknown reason, or if you have an array with every item in the array on a new line, then all those new line characters will not be removed.
+
+<h4>max-preserve-newlines</h4>
+This makes it so if you have 100 new lines in a document it will be trimmed down to at most this many new lines.
+
+<h4>space-in-paren</h4>
+This makes a `function( a, b, c )` do this otherwise it would look like this `function(a, b, c)`.
+
+<h4>space-in-empty-paren</h4>
+With true `function( )` with false `function()`. Notice the space.
+
+<h4>jslint-happy</h4>
+Small difference with switch statments
+<h6>true:</h6>
+```
+switch (a){
+    case 1:
+        b = 2;
+        break;
+    case 2:
+        b = 3
+        break;
+}
+```
+
+<h6>false:</h6>
+```
+switch (a){
+case 1:
+    b = 2;
+    break;
+case 2:
+    b = 3
+    break;
+}
+```
+
+<h4>space-after-anon-function</h4>
+True looks like `function ()` false looks like `function()`. Notice the space.
+
+<h4>brace-style</h4>
+<h6>collapse:</h6>
+
+```
+if(){
+
+}
+else{
+
+}
+```
+
+<h6>expand:</h6>
+```
+if()
+{
+
+}
+else
+{
+
+}
+```
+
+<h6>end-expand:</h6>
+```
+if(){
+
+}
+else{
+
+}
+```
+
+<h6>none:</h6>
+do nothing
+
+<h5>preserve-inline:</h5>
+<h6>true:</h6>
+```
+myobject: { myid: 1 }
+```
+<h6>false:</h6>
+```
+myobject: {
+    myid: 1
+}
+```
+
+<h4>break-chained-methods</h4>
+<h6>true:</h6>
+```
+object.kill()
+    .burry()
+    .cry();
+```
+<h6>false:</h6>
+```
+object.kill().burry().cry();
+```
+
+<h4>keep-array-indentation</h4>
+<h6>true:</h6>
+```
+options.filter = [
+{
+    'field': 'type',
+    'value': ['raw_material', 'processed_material'],
+    'operator': 'not in'
+}
+];
+```
+```
+        object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+<h6>false:</h6>
+```
+apiOptions.filter = [{
+    'field': 'type',
+    'value': ['raw_material', 'processed_material'],
+    'operator': 'not in'
+}];
+```
+```
+object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+
+<h4>unescape-strings</h4>
+Decode printable characters encoded in xNN notation.
+
+<h4>wrap-line-length</h4>
+Force the code to wrap after a certain number of characters.
+
+<h4>e4x</h4>
+Pass E4X xml literals through untouched.
+
+<h4>good-stuff</h4>
+Pretty sure this does the same thing as the JS lint thing, but don't quote me.
+
+<h4>comma-first</h4>
+<h6>true:</h6>
+```
+object: [
+    ,'assembly-bom'
+    ,'assembly-lid'
+    'assembly-container'
+]
+```
+<h6>false:</h6>
+```
+object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+
+<h4>operator-position</h4>     
+<h6>before-newline:</h6>
+```
+'im a string' +
+'I swear im a string' +
+'Im not a string';
+```
+<h6>after-newline:</h6>
+```
+'im a string'
++ 'I swear im a string'
++ 'Im not a string';
+```
+
+<h6>preserve-newline:</h6>
+Does nothing to the operators either way.
+
 
 ### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
 
