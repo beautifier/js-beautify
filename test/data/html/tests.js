@@ -295,6 +295,31 @@ exports.test_data = {
             output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
         }]
     }, {
+        name: "Invalid attribute names",
+        description: "Ensure invalid attribute names are ignored",
+        matrix: [{}],
+        tests: [{
+            fragment: true,
+            input: '<div "=""><div>hello</div></div>',
+            output: '<div "="">\n    <div>hello</div>\n</div>'
+        }, {
+            fragment: true,
+            input: '<div "><div>hello</div></div>',
+            output: '<div ">\n    <div>hello</div>\n</div>'
+        }, {
+            fragment: true,
+            input: '<div "a=""><div>hello</div></div>',
+            output: '<div "a="">\n    <div>hello</div>\n</div>'
+        }, {
+            fragment: true,
+            input: '<div "a><div>hello</div></div>',
+            output: '<div "a>\n    <div>hello</div>\n</div>'
+        }, {
+            fragment: true,
+            input: '<div a="b" "=""><div>hello</div></div>',
+            output: '<div a="b" "="">\n    <div>hello</div>\n</div>'
+        }]
+    }, {
         name: "Attribute Wrap de-indent",
         description: "Tags de-indent when attributes are wrapped",
         matrix: [{
