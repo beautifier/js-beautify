@@ -218,7 +218,7 @@
             this.Utils = { //Uilities made available to the various functions
                 whitespace: "\n\r\t ".split(''),
 
-                single_token: [
+                single_token: options.void_elements || [
                     // HTLM void elements - aka self-closing tags - aka singletons
                     // https://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
                     'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen',
