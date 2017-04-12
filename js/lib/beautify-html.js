@@ -130,7 +130,8 @@
             is_wrap_attributes_force_aligned,
             end_with_newline,
             extra_liners,
-            eol;
+            eol,
+            source_text;
 
         options = options || {};
 
