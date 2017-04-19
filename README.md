@@ -173,6 +173,133 @@ JS APIs have not been 100% identical. For example, `space_before_conditional` is
 currently JS-only, and not addressable from the CLI script. There are still a
 few other additional cases keeping us from 100% API-compatibility.
 
+### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
+
+In addition to CLI arguments, you may pass config to the JS executable via:
+
+ * any `jsbeautify_`-prefixed environment variables
+ * a `JSON`-formatted file indicated by the `--config` parameter
+ * a `.jsbeautifyrc` file containing `JSON` data at any level of the filesystem above `$PWD`
+
+Configuration sources provided earlier in this stack will override later ones.
+
+### Setting inheritance and Language-specific overrides
+
+The settings are a shallow tree whose values are inherited for all languages, but
+can be overridden.  This works for settings passed directly to the API in either implementation.
+In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc,
+can also use inheritance/overriding.  
+
+Below is an example configuration tree showing all the supported locations
+for language override nodes.  We'll use `indent_size` to discuss how this configuration
+would behave, but any number of settings can be inherited or overridden:
+
+```json
+{
+    "indent_size": 4,
+    "html": {
+        "end_with_newline": true,
+        "js": {
+            "indent_size": 2
+        },
+        "css": {
+            "indent_size": 2
+        }
+    },
+    "css": {
+        "indent_size": 1
+    },
+    "js": {
+       "preserve-newlines": true
+    }
+}
+```
+
+Using the above example would have the following result:
+
+* HTML files
+  * Inherit `indent_size` of 4 spaces from the top-level setting.  
+  * The files would also end with a newline.
+  * JavaScript and CSS inside HTML
+    * Inherit the HTML `end_with_newline` setting
+    * Override their indentation to 2 spaces
+* CSS files
+  * Override the top-level setting to an `indent_size` of 1 space.
+* JavaScript files
+  * Inherit `indent_size` of 4 spaces from the top-level setting
+  * Set `preserve-newlines` to `true`
+
+### CSS & HTML
+
+In addition to the `js-beautify` executable, `css-beautify` and `html-beautify`
+are also provided as an easy interface into those scripts. Alternatively,
+`js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
+
+```js
+// Programmatic access
+var beautify_js = require('js-beautify'); // also available under "js" export
+var beautify_css = require('js-beautify').css;
+var beautify_html = require('js-beautify').html;
+
+// All methods accept two arguments, the string to be beautified, and an options object.
+```
+
+The CSS & HTML beautifiers are much simpler in scope, and possess far fewer options.
+
+```text
+CSS Beautifier Options:
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -L, --selector-separator-newline   Add a newline between multiple selectors
+  -N, --newline-between-rules        Add a newline between CSS rules
+
+HTML Beautifier Options:
+  -s, --indent-size                  Indentation size [4]
+  -c, --indent-char                  Indentation character [" "]
+  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
+  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
+  -n, --end-with-newline             End output with newline
+  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
+  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
+  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
+  -b, --brace-style                  [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
+  -S, --indent-scripts               [keep|separate|normal] ["normal"]
+  -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline] ["auto"]
+  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "force-aligned")
+  -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
+  -T, --content_unformatted          List of tags (defaults to pre) that its content should not be reformatted
+  -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
+  --editorconfig                     Use EditorConfig to set up the options
+```
+
+## Directives to Ignore or Preserve sections (Javascript only)
+
+Beautifier for  supports directives in comments inside the file.
+This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
+The example input below will remain changed after beautification
+
+```js
+// Use preserve when the content is not javascript, but you don't want it reformatted.
+/* beautify preserve:start */
+{
+    browserName: 'internet explorer',
+    platform:    'Windows 7',
+    version:     '8'
+}
+/* beautify preserve:end */
+
+// Use ignore when the content is not parsable as javascript.
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
+
 <h3>In depth explanation of options<h3>
 
 <h4>indent-size</h4>
@@ -379,132 +506,6 @@ object: [
 <h6>preserve-newline:</h6>
 Does nothing to the operators either way.
 
-
-### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
-
-In addition to CLI arguments, you may pass config to the JS executable via:
-
- * any `jsbeautify_`-prefixed environment variables
- * a `JSON`-formatted file indicated by the `--config` parameter
- * a `.jsbeautifyrc` file containing `JSON` data at any level of the filesystem above `$PWD`
-
-Configuration sources provided earlier in this stack will override later ones.
-
-### Setting inheritance and Language-specific overrides
-
-The settings are a shallow tree whose values are inherited for all languages, but
-can be overridden.  This works for settings passed directly to the API in either implementation.
-In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc,
-can also use inheritance/overriding.  
-
-Below is an example configuration tree showing all the supported locations
-for language override nodes.  We'll use `indent_size` to discuss how this configuration
-would behave, but any number of settings can be inherited or overridden:
-
-```json
-{
-    "indent_size": 4,
-    "html": {
-        "end_with_newline": true,
-        "js": {
-            "indent_size": 2
-        },
-        "css": {
-            "indent_size": 2
-        }
-    },
-    "css": {
-        "indent_size": 1
-    },
-    "js": {
-       "preserve-newlines": true
-    }
-}
-```
-
-Using the above example would have the following result:
-
-* HTML files
-  * Inherit `indent_size` of 4 spaces from the top-level setting.  
-  * The files would also end with a newline.
-  * JavaScript and CSS inside HTML
-    * Inherit the HTML `end_with_newline` setting
-    * Override their indentation to 2 spaces
-* CSS files
-  * Override the top-level setting to an `indent_size` of 1 space.
-* JavaScript files
-  * Inherit `indent_size` of 4 spaces from the top-level setting
-  * Set `preserve-newlines` to `true`
-
-### CSS & HTML
-
-In addition to the `js-beautify` executable, `css-beautify` and `html-beautify`
-are also provided as an easy interface into those scripts. Alternatively,
-`js-beautify --css` or `js-beautify --html` will accomplish the same thing, respectively.
-
-```js
-// Programmatic access
-var beautify_js = require('js-beautify'); // also available under "js" export
-var beautify_css = require('js-beautify').css;
-var beautify_html = require('js-beautify').html;
-
-// All methods accept two arguments, the string to be beautified, and an options object.
-```
-
-The CSS & HTML beautifiers are much simpler in scope, and possess far fewer options.
-
-```text
-CSS Beautifier Options:
-  -s, --indent-size                  Indentation size [4]
-  -c, --indent-char                  Indentation character [" "]
-  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
-  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
-  -n, --end-with-newline             End output with newline
-  -L, --selector-separator-newline   Add a newline between multiple selectors
-  -N, --newline-between-rules        Add a newline between CSS rules
-
-HTML Beautifier Options:
-  -s, --indent-size                  Indentation size [4]
-  -c, --indent-char                  Indentation character [" "]
-  -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
-  -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
-  -n, --end-with-newline             End output with newline
-  -p, --preserve-newlines            Preserve existing line-breaks (--no-preserve-newlines disables)
-  -m, --max-preserve-newlines        Maximum number of line-breaks to be preserved in one chunk [10]
-  -I, --indent-inner-html            Indent <head> and <body> sections. Default is false.
-  -b, --brace-style                  [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
-  -S, --indent-scripts               [keep|separate|normal] ["normal"]
-  -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
-  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline] ["auto"]
-  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "force-aligned")
-  -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
-  -T, --content_unformatted          List of tags (defaults to pre) that its content should not be reformatted
-  -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
-  --editorconfig                     Use EditorConfig to set up the options
-```
-
-## Directives to Ignore or Preserve sections (Javascript only)
-
-Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
-The example input below will remain changed after beautification
-
-```js
-// Use preserve when the content is not javascript, but you don't want it reformatted.
-/* beautify preserve:start */
-{
-    browserName: 'internet explorer',
-    platform:    'Windows 7',
-    version:     '8'
-}
-/* beautify preserve:end */
-
-// Use ignore when the content is not parsable as javascript.
-var a =  1;
-/* beautify ignore:start */
- {This is some strange{template language{using open-braces?
-/* beautify ignore:end */
-```
 
 # License
 
