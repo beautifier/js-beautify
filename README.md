@@ -300,45 +300,45 @@ var a =  1;
 ```
 
 
-<h3>In depth explanation of options<h3>
+# In depth explanation of options
 
-<h4>indent-size</h4>
+## indent-size
 The number of characters to use for indentation.
 
-<h4>indent-char</h4>
+## indent-char
 The acutal character that will be used to indent your code. It can be anything.
 
-<h4>indent-with-tabs</h4>
+## indent-with-tabs
 True or false that makes the default indentation to be a tab, and overrides the indent-size and indent-char.
 
-<h4>eol</h4>
+## eol
 What character to be used for the end of line. This can be \0, \r, \n, \l\r or whatever you like to use for your end of line character.
 
-<h4>end-with-newline</h4>
+## end-with-newline
 This makes the file end with a new line at the end of the file to make Git happy.
 
-<h4>editorconfig</h4>
+## editorconfig
 This is to be able to use js-beautify in your favorite linux editor.
 
-<h4>indent-level</h4>
+## indent-level
 This is if you like to have your entire file indented before any scopes.
 
-<h4>preserve-newlines</h4>
+## preserve-newlines
 This makes it so that if there is a new line in the middle of the document for some unknown reason, or if you have an array with every item in the array on a new line, then all those new line characters will not be removed.
 
-<h4>max-preserve-newlines</h4>
+## max-preserve-newlines
 This makes it so if you have 100 new lines in a document it will be trimmed down to at most this many new lines.
 
-<h4>space-in-paren</h4>
+## space-in-paren
 This makes a `function( a, b, c )` do this otherwise it would look like this `function(a, b, c)`.
 
-<h4>space-in-empty-paren</h4>
+## space-in-empty-paren
 With true `function( )` with false `function()`. Notice the space.
 
-<h4>jslint-happy</h4>
+## jslint-happy
 Small difference with switch statments
-<h6>true:</h6>
-```
+### true:
+```js
 switch (a){
     case 1:
         b = 2;
@@ -349,8 +349,8 @@ switch (a){
 }
 ```
 
-<h6>false:</h6>
-```
+### false:
+```js
 switch (a){
 case 1:
     b = 2;
@@ -361,13 +361,13 @@ case 2:
 }
 ```
 
-<h4>space-after-anon-function</h4>
+## space-after-anon-function
 True looks like `function ()` false looks like `function()`. Notice the space.
 
-<h4>brace-style</h4>
-<h6>collapse:</h6>
+## brace-style
+### collapse:
 
-```
+```js
 if(){
 
 }
@@ -376,8 +376,8 @@ else{
 }
 ```
 
-<h6>expand:</h6>
-```
+### expand:
+```js
 if()
 {
 
@@ -388,8 +388,8 @@ else
 }
 ```
 
-<h6>end-expand:</h6>
-```
+### end-expand:
+```js
 if(){
 
 }
@@ -398,36 +398,36 @@ else{
 }
 ```
 
-<h6>none:</h6>
+### none:
 do nothing
 
-<h5>preserve-inline:</h5>
-<h6>true:</h6>
-```
+## preserve-inline:
+### true:
+```js
 myobject: { myid: 1 }
 ```
-<h6>false:</h6>
-```
+### false:
+```js
 myobject: {
     myid: 1
 }
 ```
 
-<h4>break-chained-methods</h4>
-<h6>true:</h6>
-```
+## break-chained-methods
+### true:
+```js
 object.kill()
     .burry()
     .cry();
 ```
-<h6>false:</h6>
-```
+### false:
+```js
 object.kill().burry().cry();
 ```
 
-<h4>keep-array-indentation</h4>
-<h6>true:</h6>
-```
+## keep-array-indentation
+### true:
+```js
 options.filter = [
 {
     'field': 'type',
@@ -436,22 +436,22 @@ options.filter = [
 }
 ];
 ```
-```
+```js
         object: [
     'assembly-bom',
     'assembly-lid',
     'assembly-container'
 ]
 ```
-<h6>false:</h6>
-```
+### false:
+```js
 apiOptions.filter = [{
     'field': 'type',
     'value': ['raw_material', 'processed_material'],
     'operator': 'not in'
 }];
 ```
-```
+```js
 object: [
     'assembly-bom',
     'assembly-lid',
@@ -459,20 +459,20 @@ object: [
 ]
 ```
 
-<h4>unescape-strings</h4>
+## unescape-strings
 Decode printable characters encoded in xNN notation.
 
-<h4>wrap-line-length</h4>
+## wrap-line-length
 Force the code to wrap after a certain number of characters.
 
-<h4>e4x</h4>
+## e4x
 Pass E4X xml literals through untouched.
 
-<h4>good-stuff</h4>
+## good-stuff
 Pretty sure this does the same thing as the JS lint thing, but don't quote me.
 
-<h4>comma-first</h4>
-<h6>true:</h6>
+## comma-first
+### true:
 ```
 object: [
     ,'assembly-bom'
@@ -480,7 +480,7 @@ object: [
     'assembly-container'
 ]
 ```
-<h6>false:</h6>
+### false:
 ```
 object: [
     'assembly-bom',
@@ -489,21 +489,21 @@ object: [
 ]
 ```
 
-<h4>operator-position</h4>     
-<h6>before-newline:</h6>
+## operator-position     
+### before-newline:
 ```
 'im a string' +
 'I swear im a string' +
 'Im not a string';
 ```
-<h6>after-newline:</h6>
+### after-newline:
 ```
 'im a string'
 + 'I swear im a string'
 + 'Im not a string';
 ```
 
-<h6>preserve-newline:</h6>
+### preserve-newline:
 Does nothing to the operators either way.
 
 
