@@ -306,7 +306,7 @@ var a =  1;
 The number of characters to use for indentation.
 
 ## indent-char
-The acutal character that will be used to indent your code. It can be anything.
+The actual character that will be used to indent your code. It can be anything.
 
 ## indent-with-tabs
 True or false that makes the default indentation to be a tab, and overrides the indent-size and indent-char.
@@ -336,7 +336,7 @@ This makes a `function( a, b, c )` do this otherwise it would look like this `fu
 With true `function( )` with false `function()`. Notice the space.
 
 ## jslint-happy
-Small difference with switch statments
+Small difference with switch statements
 ### true:
 ```js
 switch (a){
@@ -404,7 +404,7 @@ do nothing
 ## preserve-inline:
 ### true:
 ```js
-myobject: { myid: 1 }
+myObject: { myId: 1 }
 ```
 ### false:
 ```js
@@ -459,21 +459,9 @@ object: [
 ]
 ```
 
-## unescape-strings
-Decode printable characters encoded in xNN notation.
-
-## wrap-line-length
-Force the code to wrap after a certain number of characters.
-
-## e4x
-Pass E4X xml literals through untouched.
-
-## good-stuff
-Pretty sure this does the same thing as the JS lint thing, but don't quote me.
-
 ## comma-first
 ### true:
-```
+```js
 object: [
     ,'assembly-bom'
     ,'assembly-lid'
@@ -481,7 +469,7 @@ object: [
 ]
 ```
 ### false:
-```
+```js
 object: [
     'assembly-bom',
     'assembly-lid',
@@ -491,13 +479,13 @@ object: [
 
 ## operator-position     
 ### before-newline:
-```
+```js
 'im a string' +
 'I swear im a string' +
 'Im not a string';
 ```
 ### after-newline:
-```
+```js
 'im a string'
 + 'I swear im a string'
 + 'Im not a string';
