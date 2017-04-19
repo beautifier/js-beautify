@@ -280,7 +280,8 @@
             // at the wrap_line_length, append a newline/indentation.
             // return true if a newline was added, false if a space was added
             this.space_or_wrap = function(content) {
-                if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
+                var next_token = this.input.slice(this.pos - 1).split(' ')[0];
+                if ((content + next_token).length >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
                     this.print_newline(false, content);
                     this.print_indentation(content);
                     return true;
