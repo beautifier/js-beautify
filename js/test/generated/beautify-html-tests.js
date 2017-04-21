@@ -378,13 +378,33 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         opts.wrap_attributes = 'force-aligned';
         opts.indent_with_tabs = false;
-        bth(
+        test_fragment(
             '<div a="1" b="2"><div>test</div></div>',
             //  -- output --
             '<div a="1"\n' +
             '     b="2">\n' +
             '    <div>test</div>\n' +
             '</div>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n' +
+            '</p>',
+            //  -- output --
+            '<p>\n' +
+            '    <a href="/test/"\n' +
+            '       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n' +
+            '       target="_blank"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
+            '</p>',
+            //  -- output --
+            '<p>\n' +
+            '    <span data-not-a-href="/test/"\n' +
+            '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n' +
+            '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
+            '</p>');
 
 
         //============================================================
@@ -2590,6 +2610,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</ul>');
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
         test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n' +
+            '</p>');
+        test_fragment(
+            '<p>\n' +
+            '    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n' +
+            '</p>');
 
 
         //============================================================

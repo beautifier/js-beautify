@@ -834,7 +834,7 @@
                 // if next_tag comes back but is not an isolated tag, then
                 // let's treat the 'a' tag as having content
                 // and respect the unformatted option
-                if (!tag || this.Utils.in_array(tag, unformatted)) {
+                if (!tag || this.Utils.in_array(tag[1], unformatted)) {
                     return true;
                 } else {
                     return false;
