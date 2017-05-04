@@ -15,6 +15,16 @@ main()
       exit 1
     fi
 
+    jq --version || {
+      echo "Required tool 'jq' missing.  Failed."
+      exit 1
+    }
+
+    gsort --version || {
+      echo "Required tool 'gsort' missing.  Failed."
+      exit 1
+    }
+
     IFS=$'\n'
     echo "# Changelog" > CHANGELOG.md
 

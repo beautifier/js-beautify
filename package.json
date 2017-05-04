@@ -44,10 +44,11 @@
     "nopt": "~3.0.1"
   },
   "devDependencies": {
+    "benchmark": "2.1.0",
     "jshint": "~2.9.1",
-    "node-static": "~0.7.1",
     "mustache": "~2.2.1",
-    "requirejs": "2.1.x",
-    "benchmark": "2.1.0"
+    "node-static": "~0.7.1",
+    "requirejs": "^2.3.3",
+    "webpack": "^2.2.1"
   }
 }
