@@ -774,6 +774,9 @@ class Beautifier:
         elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'await':
             self.output.space_before_token = True
 
+        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'async':
+            self.output.space_before_token = True
+
 
         # Support of this kind of newline preservation:
         # a = (b &&
