@@ -2476,6 +2476,11 @@ if (!Object.values) {
     } else if (typeof global !== "undefined") {
         // If we don't even have window, try global.
         global.js_beautify = js_beautify;
+    } else {
+      //try last time if everything failed (rhino etc.)
+      try {
+        (function(){ return this; }()).js_beautify = js_beautify;
+      } catch (ex) {}
     }
 
 }());
