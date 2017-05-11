@@ -2776,6 +2776,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Indent with initial level
+        reset_options();
+        opts.indent_level = 1;
+        test_fragment(
+            '<div>\n' +
+            '<div>\n' +
+            '</div>\n' +
+            '</div>',
+            //  -- output --
+            '    <div>\n' +
+            '        <div>\n' +
+            '        </div>\n' +
+            '    </div>');
+
+
+        //============================================================
         // Indent body inner html by default
         reset_options();
         test_fragment(

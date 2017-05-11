@@ -890,7 +890,7 @@
                         return;
                     }
                     if (text || text !== '') {
-                        if (this.output.length && this.output[this.output.length - 1] === '\n') {
+                        if (!this.output.length || this.output[this.output.length - 1] === '\n') {
                             this.print_indentation(this.output);
                             text = ltrim(text);
                         }
