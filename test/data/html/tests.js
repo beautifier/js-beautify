@@ -926,6 +926,23 @@ exports.test_data = {
                 '</div>'
         }]
     }, {
+        name: "Indent with initial level",
+        description: "",
+        options: [
+            { name: 'indent_level', value: "1" }
+        ],
+        tests: [{
+            fragment: true,
+            input_: '<div>\n' +
+                '<div>\n' +
+                '</div>\n' +
+                '</div>',
+            output: '    <div>\n' +
+                '        <div>\n' +
+                '        </div>\n' +
+                '    </div>'
+        }]
+    }, {
         name: "Indent body inner html by default",
         description: "",
         tests: [{

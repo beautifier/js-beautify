@@ -43,6 +43,7 @@
     indent_inner_html (default false)  — indent <head> and <body> sections,
     indent_size (default 4)          — indentation size,
     indent_char (default space)      — character to indent with,
+    indent_level (default 0)         — the initial indent level,
     wrap_line_length (default 250)            -  maximum amount of characters per line (0 = disable)
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
@@ -116,6 +117,7 @@
             indent_head_inner_html,
             indent_size,
             indent_character,
+            indent_level,
             wrap_line_length,
             brace_style,
             unformatted,
@@ -149,6 +151,7 @@
         indent_head_inner_html = (options.indent_head_inner_html === undefined) ? true : options.indent_head_inner_html;
         indent_size = (options.indent_size === undefined) ? 4 : parseInt(options.indent_size, 10);
         indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
+        indent_level = (options.indent_level === undefined) ? 0 : parseInt(options.indent_level, 10);
         brace_style = (options.brace_style === undefined) ? 'collapse' : options.brace_style;
         wrap_line_length = parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
         unformatted = options.unformatted || [
@@ -853,7 +856,7 @@
                 this.indent_string = '';
                 this.indent_size = indent_size;
                 this.brace_style = brace_style;
-                this.indent_level = 0;
+                this.indent_level = indent_level;
                 this.wrap_line_length = wrap_line_length;
                 this.line_char_count = 0; //count to see if wrap_line_length was exceeded
 
@@ -887,7 +890,7 @@
                         return;
                     }
                     if (text || text !== '') {
-                        if (this.output.length && this.output[this.output.length - 1] === '\n') {
+                        if (!this.output.length || this.output[this.output.length - 1] === '\n') {
                             this.print_indentation(this.output);
                             text = ltrim(text);
                         }
