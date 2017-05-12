@@ -10,4 +10,8 @@ ratings:
 exclude_paths:
 - test/resources/**
 - web/third-party/**
+- js/lib/beautify.js
+- js/lib/beautify-css.js
+- js/lib/beautify-html.js
+- tools/template/*
 - "**/generated/*"

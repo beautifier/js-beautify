@@ -45,8 +45,26 @@ build_js()
     echo Building javascript...
     npm install || exit 1
     generate_tests
+
+    # generate lib files
+    ./node_modules/.bin/webpack
+
+    # Wrap webkit output into an non-breaking form.
+    # In an upcoming verion these will be replaced with standard webpack umd
+    cat ./tools/template/beautify.begin.js > ./js/lib/beautify.js
+    cat ./dist/legacy_beautify_js.js >> ./js/lib/beautify.js
+    cat ./tools/template/beautify.end.js >> ./js/lib/beautify.js
+
+    cat ./tools/template/beautify-css.begin.js > ./js/lib/beautify-css.js
+    cat ./dist/legacy_beautify_css.js >> ./js/lib/beautify-css.js
+    cat ./tools/template/beautify-css.end.js >> ./js/lib/beautify-css.js
+
+    cat ./tools/template/beautify-html.begin.js > ./js/lib/beautify-html.js
+    cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
+    cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
+
     # jshint
-    $PROJECT_DIR/node_modules/.bin/jshint 'js' 'test' || exit 1
+    $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 
     # beautify test and data
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/amd-beautify-tests.js || exit 1
@@ -65,9 +83,12 @@ build_js()
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/myobfuscate_unpacker.js || exit 1
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/p_a_c_k_e_r_unpacker.js  || exit 1
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/urlencode_unpacker.js || exit 1
-    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify-css.js || exit 1
-    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify-html.js || exit 1
-    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/beautify.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/css/index.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/html/index.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/index.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/beautifier.js || exit 1
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/tokenizer.js || exit 1
+
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/cli.js || exit 1
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/index.js || exit 1
 
@@ -76,7 +97,7 @@ build_js()
     # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
 
     # jshint again to make sure things haven't changed
-    $PROJECT_DIR/node_modules/.bin/jshint 'js' 'test' || exit 1
+    $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 }
 
 generate_tests()

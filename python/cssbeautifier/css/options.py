@@ -23,42 +23,35 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import print_function
-import sys
-import re
-import copy
-from jsbeautifier.__version__ import __version__
-from cssbeautifier.css.options import BeautifierOptions
-from cssbeautifier.css.beautifier import Beautifier
+class BeautifierOptions:
+    def __init__(self):
+        self.indent_size = 4
+        self.indent_char = ' '
+        self.indent_with_tabs = False
+        self.preserve_newlines = False
+        self.selector_separator_newline = True
+        self.end_with_newline = False
+        self.newline_between_rules = True
+        self.space_around_combinator = False
+        self.eol = 'auto'
 
+        self.css = None
+        self.js = None
+        self.html = None
 
-def default_options():
-    return BeautifierOptions()
+        # deprecated
+        self.space_around_selector_separator = False
 
-
-def beautify(string, opts=default_options()):
-    b = Beautifier(string, opts)
-    return b.beautify()
-
-
-def beautify_file(file_name, opts=default_options()):
-    if file_name == '-':  # stdin
-        stream = sys.stdin
-    else:
-        stream = open(file_name)
-    content = ''.join(stream.readlines())
-    b = Beautifier(content, opts)
-    return b.beautify()
-
-
-def usage(stream=sys.stdout):
-
-    print("cssbeautifier.py@" + __version__ + """
-
-CSS beautifier (http://jsbeautifier.org/)
-
-""", file=stream)
-    if stream == sys.stderr:
-        return 1
-    else:
-        return 0
+    def __repr__(self):
+        return \
+"""indent_size = %d
+indent_char = [%s]
+indent_with_tabs = [%s]
+preserve_newlines = [%s]
+separate_selectors_newline = [%s]
+end_with_newline = [%s]
+newline_between_rules = [%s]
+space_around_combinator = [%s]
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines,
+    self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
+    self.space_around_combinator)
