@@ -777,8 +777,24 @@ exports.test_data = {
             { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' },
         ]
     }, {
+        name: "unformatted tags with namespaces",
+        description: "namespaced tags with colons can be specified for leaving unformatted",
+        options: [ {name: 'unformatted', value: '[ "name:space"]'}],
+        tests: [{
+            fragment: true,
+            unchanged: [
+                '<html>',
+                '<body>',
+                '    <p><name:space>namespaced tag unformatted</name:space>',
+                '    </p>',
+                '</body>',
+                '',
+                '</html>'
+            ]
+        }, ]
+    }, {
         name: "File starting with comment",
-        description: "Unformatted tag behavior",
+        description: "Comments left untouched",
         options: [],
         tests: [{
             fragment: true,
