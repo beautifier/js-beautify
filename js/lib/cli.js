@@ -75,6 +75,7 @@ var path = require('path'),
         "brace_style": "brace_style", //See above for validation
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
+        "align_object_literals": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
         "wrap_attributes": ["auto", "force", "force-aligned"],
@@ -338,6 +339,7 @@ function usage(err) {
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
+            msg.push('  --align-object-literals           Align the values inside object literals');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');

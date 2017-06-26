@@ -458,6 +458,7 @@ function Beautifier(js_source_text, options) {
     opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
     opt.space_after_anon_function = (options.space_after_anon_function === undefined) ? false : options.space_after_anon_function;
     opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
+    opt.align_object_literals = (options.align_object_literals === undefined) ? false : options.align_object_literals;
     opt.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
     opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
     opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
@@ -997,11 +998,12 @@ function Beautifier(js_source_text, options) {
         var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
             last_type === 'TK_END_EXPR';
 
+        var index, check_token;
         if (opt.brace_preserve_inline) // check for inline, set inline_frame if so
         {
             // search forward for a newline wanted inside this block
-            var index = 0;
-            var check_token = null;
+            index = 0;
+            check_token = null;
             flags.inline_frame = true;
             do {
                 index += 1;
@@ -1012,6 +1014,62 @@ function Beautifier(js_source_text, options) {
                 }
             } while (check_token.type !== 'TK_EOF' &&
                 !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
+        }
+
+        if (flags.inline_frame === false && opt.align_object_literals) {
+            var setKeyPadding = null;
+            var maxKeyLen = 0;
+            var lookingAt, ignoreUntil;
+            var lastKeyLen = 0;
+            while (true) {
+                index = 0;
+                lookingAt = 'KEY';
+                check_token = null;
+                ignoreUntil = null;
+                do {
+                    index += 1;
+                    check_token = get_token(index);
+                    if ((lookingAt === 'VALUE' || lookingAt === 'VALUESTART') && ignoreUntil !== null) {
+                        if ((check_token.type === 'TK_END_BLOCK' || check_token.type === 'TK_END_EXPR') && check_token.opened === ignoreUntil) {
+                            ignoreUntil = null;
+                        }
+                        continue;
+                    }
+                    if (lookingAt === 'OPERATOR' && check_token.type === 'TK_OPERATOR') {
+                        lookingAt = 'VALUESTART';
+                        continue;
+                    }
+                    if (lookingAt === 'VALUESTART' || lookingAt === 'VALUE') {
+                        if (lookingAt === 'VALUESTART' && setKeyPadding !== null) {
+                            check_token.text = new Array(setKeyPadding - lastKeyLen + 1).join(' ') + check_token.text;
+                        }
+                        lookingAt = 'VALUE';
+                        if (check_token.type === 'TK_START_BLOCK' || check_token.type === 'TK_START_EXPR') {
+                            ignoreUntil = check_token;
+                            continue;
+                        }
+                        if (check_token.type === 'TK_COMMA') {
+                            lookingAt = 'KEY';
+                            continue;
+                        }
+                    }
+                    if (lookingAt === 'KEY') {
+                        lastKeyLen = check_token.text.length;
+                        if (setKeyPadding === null) {
+                            if (lastKeyLen > maxKeyLen) {
+                                maxKeyLen = lastKeyLen;
+                            }
+                        }
+                        lookingAt = 'OPERATOR';
+                    }
+                } while (check_token.type !== 'TK_EOF' &&
+                    !(check_token.type === 'TK_END_BLOCK' && check_token.opened === current_token));
+                if (setKeyPadding === null) {
+                    setKeyPadding = maxKeyLen;
+                } else {
+                    break;
+                }
+            }
         }
 
         if ((opt.brace_style === "expand" ||
