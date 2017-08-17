@@ -39,6 +39,7 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? funct
 var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
+    unpackers = {},
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
 nopt.typeDefs.brace_style = {
@@ -61,6 +62,7 @@ var path = require('path'),
     editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
+        "unpack": Boolean,
         "indent_size": Number,
         "indent_char": String,
         "eol": String,
@@ -112,6 +114,7 @@ var path = require('path'),
     // translation, allowing more convenient dashes in CLI arguments
     shortHands = dasherizeShorthands({
         // Beautifier
+        "u": ["--unpack"],
         "s": ["--indent_size"],
         "c": ["--indent_char"],
         "e": ["--eol"],
@@ -283,6 +286,12 @@ var interpret = exports.interpret = function(argv, slice) {
         checkFiles(cfg);
         debug(cfg);
 
+        if (cfg.unpack) {
+            ["javascriptobfuscator_unpacker", "myobfuscate_unpacker", "p_a_c_k_e_r_unpacker", "urlencode_unpacker"].forEach(function(unpacker) {
+                unpackers[unpacker] = require("./unpackers/" + unpacker);
+            });
+        }
+
         // Process files synchronously to avoid EMFILE error
         cfg.files.forEach(processInputSync, {
             cfg: cfg
@@ -328,6 +337,7 @@ function usage(err) {
 
     switch (scriptName.split('-').shift()) {
         case "js":
+            msg.push('  -u, --unpack                      Try to unpack before beautifying');
             msg.push('  -l, --indent-level                Initial indentation level [0]');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
@@ -425,6 +435,9 @@ function processInputSync(filepath) {
 }
 
 function makePretty(fileType, code, config, outfile, callback) {
+    if (fileType == "js" && config.unpack) {
+        code = unpack(code, config);
+    }
     try {
         var pretty = beautify[fileType](code, config);
 
@@ -432,6 +445,20 @@ function makePretty(fileType, code, config, outfile, callback) {
     } catch (ex) {
         callback(ex);
     }
+}
+
+function unpack(code, config) {
+    Object.getOwnPropertyNames(unpackers).forEach(function(unpackername) {
+        var unpacker = unpackers[unpackername];
+        if (unpacker.detect(code)) {
+            debug('unpacking using ' + unpackername);
+            var unpacked = unpacker.unpack(code);
+            if (unpacked != code) {
+                code = unpack(unpacked, config);
+            }
+        }
+    });
+    return code;
 }
 
 function writePretty(err, pretty, outfile, config) {

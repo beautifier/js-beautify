@@ -10,6 +10,7 @@ import copy
 from jsbeautifier.__version__ import __version__
 from jsbeautifier.javascript.options import BeautifierOptions
 from jsbeautifier.javascript.beautifier import Beautifier
+from jsbeautifier.unpackers import run as UnpackRun
 
 #
 # The MIT License (MIT)
@@ -67,8 +68,13 @@ def default_options():
 
 
 def beautify(string, opts = default_options() ):
+    if opts.unpack == True:
+        string = unpack(string, opts)
     b = Beautifier()
     return b.beautify(string, opts)
+
+def unpack(string, opts):
+	return UnpackRun(string, opts.eval_code)
 
 def set_file_editorconfig_opts(filename, js_options):
     from editorconfig import get_properties, EditorConfigError
@@ -144,6 +150,7 @@ Input options:
 
 Output options:
 
+ -u,  --unpack                     Try to unpack before beautifying.
  -s,  --indent-size=NUMBER         Indentation size. (default 4).
  -c,  --indent-char=CHAR           Character to indent with. (default space).
  -e,  --eol=STRING                 Character(s) to use as line terminators.
@@ -209,8 +216,8 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-            ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "us:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
+            ['unpack', 'indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
             'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
@@ -236,6 +243,8 @@ def main():
             outfile = arg
         elif opt in ('--replace', '-r'):
             replace = True
+        elif opt in ('--unpack', '-u'):
+            js_options.unpack = True
         elif opt in ('--indent-size', '-s'):
             js_options.indent_size = int(arg)
         elif opt in ('--indent-char', '-c'):

@@ -12,7 +12,7 @@
 //
 //
 
-var P_A_C_K_E_R = {
+var P_A_C_K_E_R = module.exports = {
     detect: function(str) {
         return (P_A_C_K_E_R.get_chunks(str).length > 0);
     },
