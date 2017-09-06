@@ -1,5 +1,29 @@
 /*
 {{&header_text}}
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 */
 /*jshint unused:false */
 
@@ -51,8 +75,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         sanitytest.expect(input, expected);
-        input = input.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
+        if (input.indexOf('\n') !== -1) {
+            input = input.replace(/[\n]/g, '\r\n');
+            sanitytest.expect(input, expected);
+            // Ensure support for auto eol detection
+            opts.eol = 'auto';
+            sanitytest.expect(input, expected);
+        }
         opts.eol = '\n';
     }
 
@@ -83,7 +112,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //     indent;
         // }
 
-        if (opts.indent_size === 4 && input) {
+        var current_indent_size = opts.js ? opts.js.indent_size : null;
+        current_indent_size = current_indent_size ? current_indent_size : opts.indent_size;
+        if (current_indent_size === 4 && input) {
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             test_fragment(wrapped_input, wrapped_expectation);
@@ -254,10 +285,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         sanitytest = test_obj;
 
 {{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
-        reset_options();
         //============================================================
     {{^matrix}}
         // {{&name}}
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -268,6 +299,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {{/matrix}}
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -330,7 +362,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         opts.preserve_newlines = true;
         bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;');
-        bt('// a\n// b\n\n// c\n// d');
         bt('if (foo) //  comment\n{\n    bar();\n}');
 
 
@@ -489,8 +520,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         beautify_brace_tests('end-expand');
         beautify_brace_tests('none');
 
-        bt('// func-comment\n\nfunction foo() {}\n\n// end-func-comment');
-
         test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 
         bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
@@ -541,16 +570,30 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         opts.unescape_strings = false;
-        test_fragment('"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+        bt('"\\\\s"'); // == "\\s" in the js source
+        bt("'\\\\s'"); // == '\\s' in the js source
+        bt("'\\\\\\s'"); // == '\\\s' in the js source
+        bt("'\\s'"); // == '\s' in the js source
+        bt('"•"');
+        bt('"—"');
+        bt('"\\x41\\x42\\x43\\x01"', '"\\x41\\x42\\x43\\x01"');
+        bt('"\\u2022"', '"\\u2022"');
+        bt('a = /\s+/');
+        // bt('a = /\\x41/','a = /A/');
+        bt('"\\u2022";a = /\s+/;"\\x41\\x42\\x43\\x01".match(/\\x41/);','"\\u2022";\na = /\s+/;\n"\\x41\\x42\\x43\\x01".match(/\\x41/);');
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"', '"\\x22\\x27", \'\\x22\\x27\', "\\x5c", \'\\x5c\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
+
         opts.unescape_strings = true;
         test_fragment('"\\x20\\x40\\x4a"', '" @J"');
         test_fragment('"\\xff\\x40\\x4a"');
-        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"rūķītis"');
+        test_fragment('"\\u0072\\u016B\\u0137\\u012B\\u0074\\u0069\\u0073"', '"\u0072\u016B\u0137\u012B\u0074\u0069\u0073"');
         test_fragment('"Google Chrome est\\u00E1 actualizado."', '"Google Chrome está actualizado."');
-        /*
-        bt('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
-           '"\\"\'", \'"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \' \\\\ \\uffff \\uzzzz"');
-        */
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff"',
+           '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\" \\\' \\\\ ' + unicode_char(0xffff) + '"');
+
+        // For error case, return the string unchanged
+        test_fragment('"\\x22\\x27",\'\\x22\\x27\',"\\x5c",\'\\x5c\',"\\xff and \\xzz","unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"',
+            '"\\"\\\'", \'\\"\\\'\', "\\\\", \'\\\\\', "\\xff and \\xzz", "unicode \\u0000 \\u0022 \\u0027 \\u005c \\uffff \\uzzzz"');
 
         reset_options();
         //============================================================
@@ -984,6 +1027,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
         bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
             'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
+        bt('if (foo)\nbar();\nelse\ncar();',
+            'if (foo)\n    bar();\nelse\n    car();');
         bt('if (foo) bar();\nelse\ncar();',
             'if (foo) bar();\nelse\n    car();');
 

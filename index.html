@@ -2,7 +2,7 @@
 <!--
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -239,7 +239,7 @@
                 }
             } while (found);
 
-            var unpackers = [P_A_C_K_E_R, Urlencoded, /*JavascriptObfuscator,*/ MyObfuscate];
+            var unpackers = [P_A_C_K_E_R, Urlencoded, JavascriptObfuscator/*, MyObfuscate*/];
             for (var i = 0; i < unpackers.length; i++) {
                 if (unpackers[i].detect(source)) {
                     unpacked = unpackers[i].unpack(source);
@@ -271,7 +271,7 @@
             opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');
             opts.break_chained_methods = $('#break-chained-methods').prop('checked');
             opts.indent_scripts = $('#indent-scripts').val();
-            opts.brace_style = $('#brace-style').val();
+            opts.brace_style = $('#brace-style').val() + ($('#brace-preserve-inline').prop('checked') ? ",preserve-inline" : "");
             opts.space_before_conditional = $('#space-before-conditional').prop('checked');
             opts.unescape_strings = $('#unescape-strings').prop('checked');
             opts.jslint_happy = $('#jslint-happy').prop('checked');
@@ -300,11 +300,8 @@
 
         function looks_like_html(source) {
             // <foo> - looks like html
-            // <!--\nalert('foo!');\n--> - doesn't look like html
-
             var trimmed = source.replace(/^[ \t\n\r]+/, '');
-            var comment_mark = '<' + '!-' + '-';
-            return (trimmed && (trimmed.substring(0, 1) === '<' && trimmed.substring(0, 4) !== comment_mark));
+            return trimmed && (trimmed.substring(0, 1) === '<');
         }
     </script>
 </head>
@@ -357,7 +354,6 @@
 
                 <select id="brace-style">
                     <option value="collapse">Braces with control statement</option>
-                    <option value="collapse-preserve-inline">Braces inline or with control statement</option>
                     <option value="expand">Braces on own line</option>
                     <option value="end-expand">End braces on own line</option>
                     <option value="none">Attempt to keep braces where they are</option>
@@ -383,6 +379,9 @@
                 <br>
                 <input class="checkbox" type="checkbox" id="detect-packers">
                 <label for="detect-packers">Detect packers and obfuscators?</label>
+                <br>
+                <input class="checkbox" type="checkbox" id="brace-preserve-inline">
+                <label for="brace-preserve-inline">Preserve inline braces/code blocks?</label>
                 <br>
                 <input class="checkbox" type="checkbox" id="keep-array-indentation">
                 <label for="keep-array-indentation">Keep array indentation?</label>
@@ -460,8 +459,7 @@
               <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
               <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
               <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-              <li><a href="http://www.symetronapps.com/pages/apps/shrinker.html">Shrinker</a>, a non-free JavaScript packer for Mac. I&nbsp;haven't used it, so I&nbsp;have
-                  no idea if it's any good,</li>
+              <li><a href="https://www.comment-devenir-un-hacker.com/app.html">Devenir Hacker App</a>, a non-free JavaScript packer for Mac,</li>
               <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
               <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
               <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a>
@@ -477,7 +475,6 @@
               <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,
               <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),
               <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library,
-              <li><a href="https://github.com/Diogenesthecynic/FullScreenMario-JSON/">FullScreenMario</a>, a HTML5/javascript remake of Super Mario Bros game, uses the library in its level editor.
           </ul>
         </div>
         <p>Doing anything interesting? Write us to <b>team@jsbeautifier.org</b> so we can add your project to the list.</p>

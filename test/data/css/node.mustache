@@ -1,5 +1,29 @@
 /*
 {{&header_text}}
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 */
 /*jshint unused:false */
 
@@ -51,8 +75,13 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         sanitytest.expect(input, expected);
-        input = input.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
+        if (input.indexOf('\n') !== -1) {
+            input = input.replace(/[\n]/g, '\r\n');
+            sanitytest.expect(input, expected);
+            // Ensure support for auto eol detection
+            opts.eol = 'auto';
+            sanitytest.expect(input, expected);
+        }
         opts.eol = '\n';
     }
 
@@ -79,10 +108,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t(".tabs {}");
 
 {{#groups}}{{#set_mustache_tags}}.{{/set_mustache_tags}}
-        reset_options();
         //============================================================
     {{^matrix}}
         // {{&name}}
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -93,6 +122,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     {{/matrix}}
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
+        reset_options();
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}

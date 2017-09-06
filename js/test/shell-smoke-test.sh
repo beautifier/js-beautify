@@ -93,6 +93,11 @@ test_cli_js_beautify()
       exit 1
   }
 
+  node $SCRIPT_DIR/../lib/cli.js $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      exit 1
+  }
+
   cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
       exit 1
@@ -104,14 +109,28 @@ test_cli_js_beautify()
   }
 
   setup_temp
+  cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $TEST_TEMP/js-beautify-pipe.js $SCRIPT_DIR/../bin/js-beautify.js || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
+      cleanup 1
+  }
+
   $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../bin/js-beautify.js && diff $SCRIPT_DIR/../bin/js-beautify.js $TEST_TEMP/js-beautify.js || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify.js."
       cleanup 1
   }
 
   # ensure new line settings work
-  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n.js --eol '\n' $SCRIPT_DIR/../bin/js-beautify.js
-  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn.js --eol '\r\n' $TEST_TEMP/js-beautify-n.js
+  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n.js -e '\n' $SCRIPT_DIR/../bin/js-beautify.js
+  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn.js -e '\r\n' $TEST_TEMP/js-beautify-n.js
+
+  # ensure eol processed correctly
+  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
+  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn-dash.js --indent-size 2 --eol '\r\n' $TEST_TEMP/js-beautify-n.js
+  diff -q $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js && {
+      diff $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js | cat -t -e
+      echo "js-beautify output for $TEST_TEMP/js-beautify-n-dash.js and $TEST_TEMP/js-beautify-rn-dash.js was expected to be different."
+      cleanup 1
+  }
 
   diff -q $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js && {
       diff $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js | cat -t -e
@@ -124,10 +143,127 @@ test_cli_js_beautify()
       cleanup 1
   }
 
-  $CLI_SCRIPT --eol 'auto' $TEST_TEMP/js-beautify-rn.js | diff -q $TEST_TEMP/js-beautify-rn.js - || {
+  $CLI_SCRIPT -e 'auto' $TEST_TEMP/js-beautify-rn.js | diff -q $TEST_TEMP/js-beautify-rn.js - || {
       echo "js-beautify output for $TEST_TEMP/js-beautify-rn.js was expected to be unchanged."
       cleanup 1
   }
+
+  # EditorConfig related tests
+  cp -r js/test/resources/editorconfig $TEST_TEMP/
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/example-ec.js --indent-size 2 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/cr/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/cr/example-ec.js --indent-size 2 -e '\r' $TEST_TEMP/editorconfig/example-base.js
+
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/crlf/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/crlf/example-ec.js --indent-size 2 -e '\r\n' $TEST_TEMP/editorconfig/example-base.js
+
+  $CLI_SCRIPT -o $TEST_TEMP/editorconfig/error/example.js --end-with-newline --indent-size 4 -e '\n' $TEST_TEMP/editorconfig/example-base.js
+
+  pushd $TEST_TEMP/editorconfig
+
+  cd $TEST_TEMP/editorconfig/error
+  $CLI_SCRIPT --editorconfig $TEST_TEMP/js-beautify-n.js \
+  > /dev/null || {
+      echo "Invalid editorconfig file should not report error (consistent with the EditorConfig)."
+      cleanup 1
+  }
+
+  $CLI_SCRIPT --editorconfig example.js \
+  > /dev/null || {
+      echo "Invalid editorconfig file should not report error (consistent with the EditorConfig)."
+      cleanup 1
+  }
+
+  # TODO: EditorConfig setting should NOT overide cli setting, but that is
+  # the current by-design behavior, due to code limitations.
+
+  # file input scenario
+  SCENARIO=a
+  cd $TEST_TEMP/editorconfig || exit 1
+  $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/crlf || exit 1
+  $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/cr || exit 1
+  $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js example.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  # stdin input to stdout scenario
+  SCENARIO=b
+  cd $TEST_TEMP/editorconfig || exit 1
+  echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/crlf || exit 1
+  echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/cr || exit 1
+  echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js"
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig > example-${SCENARIO}.js \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+
+  # stdin input to file scenario
+  SCENARIO=c
+  cd $TEST_TEMP/editorconfig || exit 1
+  echo "cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js"
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/crlf || exit 1
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  cd $TEST_TEMP/editorconfig/cr || exit 1
+  cat example.js | $CLI_SCRIPT --end-with-newline --indent-size 6 --editorconfig -o example-${SCENARIO}.js - \
+  && diff -q example-${SCENARIO}.js example-ec.js || {
+      echo "EditorConfig setting should overide cli setting."
+      diff example-${SCENARIO}.js example-ec.js | cat -t -e
+      cleanup 1
+  }
+
+  popd
+  # End EditorConfig
 
   # ensure unchanged files are not overwritten
   $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../bin/js-beautify.js
@@ -166,7 +302,7 @@ test_cli_js_beautify()
   }
 
   cd $SCRIPT_DIR/resources/configerror
-  $CLI_SCRIPT $TEST_TEMP/example1-default.js 2>&1 |  grep -q "Error while loading beautifier configuration file\." || {
+  $CLI_SCRIPT $TEST_TEMP/example1-default.js 2>&1 |  grep -q "Error while loading beautifier configuration\." || {
       echo "js-beautify output for $TEST_TEMP/example1-default.js was expected to be configration load error message."
       cleanup 1
   }

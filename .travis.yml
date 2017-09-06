@@ -1,14 +1,19 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 
 node_js:
-  - "0.10"
+  - 'node'
 
+env:
+  - TRAVIS_NODE_VERSION="6"
 
+install:
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
+  - npm install
 
 script: "./build ci"

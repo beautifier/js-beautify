@@ -1,7 +1,7 @@
 echo "Post-build git status check..."
 echo "Ensuring no changes visible to git have been made to '$*' ..."
 
-git status $* | grep "nothing to commit.*working directory clean" || {
+git status $* | egrep -q 'nothing to commit.*working (directory|tree) clean' || {
     # we should find nothing to commit. If we don't, build has failed.
     echo "ERROR: Post-build git status check - FAILED."
     echo "Git status reported changes to non-git-ignore'd files."

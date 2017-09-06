@@ -1,3 +1,29 @@
+/*
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
 var inputlib = require('./inputlib');
 
 exports.test_data = {
@@ -14,9 +40,9 @@ exports.test_data = {
         name: "Unicode Support",
         description: "",
         tests: [{
-            input: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
+            unchanged: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
         }, {
-            input: [
+            unchanged: [
                 "var ' + unicode_char(228) + 'x = {",
                 "    ' + unicode_char(228) + 'rgerlich: true",
                 "};"
@@ -28,9 +54,30 @@ exports.test_data = {
         tests: [
             { unchanged: '`This is a ${template} string.`' },
             { unchanged: '`This\n  is\n  a\n  ${template}\n  string.`' },
-            { unchanged: 'a = `This is a continuation\\\nstring.`' },
-            { unchanged: 'a = "This is a continuation\\\nstring."' },
+            { unchanged: 'a = `This is a continuation\\\\\nstring.`' },
+            { unchanged: 'a = "This is a continuation\\\\\nstring."' },
             { unchanged: '`SELECT\n  nextval(\\\'${this.options.schema ? `${this.options.schema}.` : \\\'\\\'}"${this.tableName}_${this.autoIncrementField}_seq"\\\'::regclass\n  ) nextval;`' },
+            {
+                comment: 'Tests for #1030',
+                unchanged: [
+                    'const composeUrl = (host) => {',
+                    '    return `${host `test`}`;',
+                    '};'
+                ]
+            }, {
+                unchanged: [
+                    'const composeUrl = (host, api, key, data) => {',
+                    '    switch (api) {',
+                    '        case "Init":',
+                    '            return `${host}/vwapi/Init?VWID=${key}&DATA=${encodeURIComponent(',
+                    '                Object.keys(data).map((k) => `${k}=${ data[k]}` ).join(";")',
+                    '            )}`;',
+                    '        case "Pay":',
+                    '            return `${host}/vwapi/Pay?SessionId=${par}`;',
+                    '    };',
+                    '};'
+                ]
+            }
         ]
     }, {
         name: "ES7 Decorators",
@@ -54,13 +101,78 @@ exports.test_data = {
             { unchanged: 'x ** -2' }
         ]
     }, {
+        name: "Spread operator",
+        description: "Spread operator",
+        options: [
+            { name: 'brace_style', value: '"collapse,preserve-inline"' }
+        ],
+        tests: [
+            { unchanged: 'const m = { ...item, c: 3 };' },
+            { unchanged: 'const m = {\n    ...item,\n    c: 3\n};' },
+            { unchanged: 'const m = { c: 3, ...item };' },
+            { unchanged: 'const m = [...item, 3];' },
+            { unchanged: 'const m = [3, ...item];' }
+        ]
+    }, {
+        name: "Object literal shorthand functions",
+        description: "Object literal shorthand functions",
+        tests: [
+            { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
+            {
+                unchanged: [
+                    'var foo = {',
+                    '    * bar() {',
+                    '        yield 42;',
+                    '    }',
+                    '};'
+                ]
+            },
+            {
+                input: 'var foo = {bar(){return 42;},*barGen(){yield 42;}};',
+                output: ['var foo = {',
+                    '    bar() {',
+                    '        return 42;',
+                    '    },',
+                    '    * barGen() {',
+                    '        yield 42;',
+                    '    }',
+                    '};'
+                ]
+            }, {
+                comment: 'also handle generator shorthand in class - #1013',
+                unchanged: [
+                    'class A {',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    'class A {',
+                    '    * gen() {',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    fn() {',
+                    '        return true;',
+                    '    }',
+                    '}'
+                ]
+            }
+        ]
+    }, {
         name: "End With Newline",
         description: "",
         matrix: [{
                 options: [
                     { name: "end_with_newline", value: "true" }
                 ],
-                eof: '\\n'
+                eof: '\n'
             }, {
                 options: [
                     { name: "end_with_newline", value: "false" }
@@ -76,14 +188,47 @@ exports.test_data = {
             { fragment: true, input: '\n', output: '{{eof}}' }
         ],
     }, {
+        name: "Support simple language specific option inheritance/overriding",
+        description: "Support simple language specific option inheritance/overriding",
+        matrix: [{
+                options: [
+                    { name: "js", value: "{ 'indent_size': 3 }" },
+                    { name: "css", value: "{ 'indent_size': 5 }" }
+                ],
+                j: '   '
+            },
+            {
+                options: [
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+                ],
+                j: '    '
+            },
+            {
+                options: [
+                    { name: "indent_size", value: "9" },
+                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+                    { name: "js", value: "{ 'indent_size': 4 }" },
+                    { name: "css", value: "{ 'indent_size': 3 }" }
+                ],
+                j: '    '
+            }
+        ],
+        tests: [{
+            unchanged: [
+                'if (a == b) {',
+                '{{j}}test();',
+                '}'
+            ]
+        }, ]
+    }, {
         name: "Brace style permutations",
         description: "",
         template: "< >",
         matrix: [
-            // collapse-preserve-inline variations
+            // brace_style collapse,preserve-inline - Should preserve if no newlines
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
                 ibo: '',
                 iao: '',
@@ -96,19 +241,19 @@ exports.test_data = {
             },
             {
                 options: [
-                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
 
-            // collapse variations
+            // brace_style collapse - Shouldn't preserve if no newlines (uses collapse styling)
             {
                 options: [
                     { name: "brace_style", value: "'collapse'" }
@@ -118,21 +263,21 @@ exports.test_data = {
                 ibc: '',
                 iac: '',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
             {
                 options: [
                     { name: "brace_style", value: "'collapse'" }
                 ],
-                ibo: '\\n',
-                iao: '\\n',
-                ibc: '\\n',
-                iac: '\\n',
+                ibo: '\n',
+                iao: '\n',
+                ibc: '\n',
+                iac: '\n',
                 obo: ' ',
-                oao: '\\n    ',
-                obc: '\\n',
+                oao: '\n    ',
+                obc: '\n',
                 oac: ' '
             },
         ],
@@ -158,7 +303,7 @@ exports.test_data = {
                     'catch(d)<ibo>{}<iac>' +
                     'finally<ibo>{<iao>e();<ibc>}',
                 output:
-                // expected
+                    // expected
                     'try<obo>{<oao>a();<obc>}<oac>' +
                     'catch (b)<obo>{<oao>c();<obc>}<oac>' +
                     'catch (d)<obo>{}<oac>' +
@@ -172,20 +317,20 @@ exports.test_data = {
             options: [
                 { name: "comma_first", value: "false" }
             ],
-            c0: ',\\n',
-            c1: ',\\n    ',
-            c2: ',\\n        ',
-            c3: ',\\n            ',
+            c0: ',\n',
+            c1: ',\n    ',
+            c2: ',\n        ',
+            c3: ',\n            ',
             // edge cases where engine bails
-            f1: '    ,\\n    '
+            f1: '    ,\n    '
         }, {
             options: [
                 { name: "comma_first", value: "true" }
             ],
-            c0: '\\n, ',
-            c1: '\\n    , ',
-            c2: '\\n        , ',
-            c3: '\\n            , ',
+            c0: '\n, ',
+            c1: '\n    , ',
+            c2: '\n        , ',
+            c3: '\n            , ',
             // edge cases where engine bails
             f1: ', '
         }],
@@ -194,7 +339,7 @@ exports.test_data = {
             { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1{{c1}}b = c[d]{{c1}}e = 6;' },
             { input: "for(var a=1,b=2,c=3;d<3;d++)\ne", output: "for (var a = 1, b = 2, c = 3; d < 3; d++)\n    e" },
             { input: "for(var a=1,b=2,\nc=3;d<3;d++)\ne", output: "for (var a = 1, b = 2{{c2}}c = 3; d < 3; d++)\n    e" },
-            { input: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
+            { unchanged: 'function foo() {\n    return [\n        "one"{{c2}}"two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]\n]" },
             { input: 'a=[[1,2],[4,5],[7,8],]', output: "a = [\n    [1, 2]{{c1}}[4, 5]{{c1}}[7, 8]{{c0}}]" },
             {
@@ -237,7 +382,28 @@ exports.test_data = {
                     '    {{f1}}age: 25',
                     '});'
                 ]
-            }
+            },
+            {
+                input: [
+                    'changeCollection.add(',
+                    '    function() {',
+                    '        return true;',
+                    '    },',
+                    '    function() {',
+                    '        return true;',
+                    '    }',
+                    ');'
+                ],
+                output: [
+                    'changeCollection.add(',
+                    '    function() {',
+                    '        return true;',
+                    '    }{{c1}}function() {',
+                    '        return true;',
+                    '    }',
+                    ');'
+                ]
+            },
         ],
     }, {
         name: "Unindent chained functions",
@@ -589,15 +755,34 @@ exports.test_data = {
             unchanged: inputlib.operator_position.catch_all
         }]
     }, {
+        name: "Yield tests",
+        description: "ES6 yield tests",
+        tests: [
+            { unchanged: 'yield /foo\\\\//;' },
+            { unchanged: 'result = yield pgClient.query_(queryString);' },
+            { unchanged: 'yield [1, 2]' },
+            { unchanged: "yield* bar();" },
+            {
+                comment: "yield should have no space between yield and star",
+                input: "yield * bar();",
+                output: "yield* bar();"
+            },
+            {
+                comment: "yield should have space between star and generator",
+                input: "yield *bar();",
+                output: "yield* bar();"
+            }
+        ]
+    }, {
         name: "Async / await tests",
         description: "ES7 async / await tests",
         tests: [
-            { input: "async function foo() {}" },
-            { input: "let w = async function foo() {}" },
-            { input: "async function foo() {}\nvar x = await foo();" },
+            { unchanged: "async function foo() {}" },
+            { unchanged: "let w = async function foo() {}" },
+            { unchanged: "async function foo() {}\nvar x = await foo();" },
             {
                 comment: "async function as an input to another function",
-                input: "wrapper(async function foo() {})"
+                unchanged: "wrapper(async function foo() {})"
             },
             {
                 comment: "await on inline anonymous function. should have a space after await",
@@ -606,7 +791,7 @@ exports.test_data = {
             },
             {
                 comment: "ensure that this doesn't break anyone with the async library",
-                input: "async.map(function(t) {})"
+                unchanged: "async.map(function(t) {})"
             }
         ]
     }, {
@@ -966,6 +1151,65 @@ exports.test_data = {
                     '    }',
                     '});'
                 ]
+            },
+            {
+                comment: 'Issue #914 - Multiline attribute in root tag',
+                unchanged: [
+                    'return (',
+                    '    <a href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </a>',
+                    ');'
+                ]
+            },
+            {
+                unchanged: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{',
+                    '        a + b',
+                    '    }>',
+                    ');'
+                ]
+            },
+            {
+                input: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    '    );'
+                ],
+                output: [
+                    'return (',
+                    '    <{',
+                    '        a + b',
+                    '    } href="#"',
+                    '        onClick={e => {',
+                    '            e.preventDefault()',
+                    '            onClick()',
+                    '       }}>',
+                    '       {children}',
+                    '    </{a + b}>',
+                    ');'
+                ]
             }
         ]
     }, {
@@ -1295,6 +1539,103 @@ exports.test_data = {
             },
         ]
     }, {
+        name: "Comments and  tests",
+        description: "Comments should be in the right indent and not side-ffect.",
+        options: [],
+        tests: [{
+                comment: '#913',
+
+                unchanged: [
+                    'class test {',
+                    '    method1() {',
+                    '        let resp = null;',
+                    '    }',
+                    '    /**',
+                    '     * @param {String} id',
+                    '     */',
+                    '    method2(id) {',
+                    '        let resp2 = null;',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
+                comment: '#1090',
+                unchanged: [
+                    'for (var i = 0; i < 20; ++i) // loop',
+                    '    if (i % 3) {',
+                    '        console.log(i);',
+                    '    }',
+                    'console.log("done");',
+                ]
+            },
+            {
+                comment: '#1043',
+                unchanged: [
+                    'var o = {',
+                    '    k: 0',
+                    '}',
+                    '// ...',
+                    'foo(o)',
+                ]
+            },
+            {
+                comment: '#713 and #964',
+                unchanged: [
+                    'Meteor.call("foo", bar, function(err, result) {',
+                    '    Session.set("baz", result.lorem)',
+                    '})',
+                    '//blah blah',
+                ]
+            },
+            {
+                comment: '#815',
+                unchanged: [
+                    'foo()',
+                    '// this is a comment',
+                    'bar()',
+                    '',
+                    'const foo = 5',
+                    '// comment',
+                    'bar()',
+                ]
+            },
+            {
+                comment: 'This shows current behavior.  Note #1069 is not addressed yet.',
+                unchanged: [
+                    'if (modulus === 2) {',
+                    '    // i might be odd here',
+                    '    i += (i & 1);',
+                    '    // now i is guaranteed to be even',
+                    '    // this block is obviously about the statement above',
+                    '',
+                    '    // #1069 This should attach to the block below',
+                    '    // this comment is about the block after it.',
+                    '} else {',
+                    '    // rounding up using integer arithmetic only',
+                    '    if (i % modulus)',
+                    '        i += modulus - (i % modulus);',
+                    '    // now i is divisible by modulus',
+                    '    // behavior of comments should be different for single statements vs block statements/expressions',
+                    '}',
+                    '',
+                    'if (modulus === 2)',
+                    '    // i might be odd here',
+                    '    i += (i & 1);',
+                    '// now i is guaranteed to be even',
+                    '// non-braced comments unindent immediately',
+                    '',
+                    '// this comment is about the block after it.',
+                    'else',
+                    '    // rounding up using integer arithmetic only',
+                    '    if (i % modulus)',
+                    '        i += modulus - (i % modulus);',
+                    '// behavior of comments should be different for single statements vs block statements/expressions',
+                ]
+            },
+
+        ]
+    }, {
         name: "Template Formatting",
         description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
         options: [],
@@ -1610,6 +1951,31 @@ exports.test_data = {
                 ]
             },
             {
+                comment: 'Issue 889 - export default { ... }',
+                unchanged: [
+                    'export default {',
+                    '    func1() {},',
+                    '    func2() {}',
+                    '    func3() {}',
+                    '}'
+                ]
+            },
+            {
+                unchanged: [
+                    'export default {',
+                    '    a() {',
+                    '        return 1;',
+                    '    },',
+                    '    b() {',
+                    '        return 2;',
+                    '    },',
+                    '    c() {',
+                    '        return 3;',
+                    '    }',
+                    '}'
+                ]
+            },
+            {
                 comment: "Issue 508",
                 unchanged: 'set["name"]'
             },
@@ -1857,6 +2223,78 @@ exports.test_data = {
                     '].join("-");'
                 ]
             },
+            {
+                comment: "Issue #996 - Input ends with backslash throws exception",
+                fragment: true,
+                unchanged: [
+                    'sd = 1;',
+                    '/'
+                ]
+            },
+            {
+                comment: "Issue #1079 - unbraced if with comments should still look right",
+                unchanged: [
+                    'if (console.log)',
+                    '    for (var i = 0; i < 20; ++i)',
+                    '        if (i % 3)',
+                    '            console.log(i);',
+                    '// all done',
+                    'console.log("done");'
+                ]
+            },
+            {
+                comment: "Issue #1085 - function should not have blank line in a number of cases",
+                unchanged: [
+                    'var transformer =',
+                    '    options.transformer ||',
+                    '    globalSettings.transformer ||',
+                    '    function(x) {',
+                    '        return x;',
+                    '    };'
+                ]
+            },
+            {
+                comment: "Issue #569 - function should not have blank line in a number of cases",
+                unchanged: [
+                    '(function(global) {',
+                    '    "use strict";',
+                    '',
+                    '    /* jshint ignore:start */',
+                    '    include "somefile.js"',
+                    '    /* jshint ignore:end */',
+                    '}(this));'
+                ]
+            },
+            {
+                unchanged: [
+                    'function bindAuthEvent(eventName) {',
+                    '    self.auth.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+                    '',
+                    'function bindBrowserEvent(eventName) {',
+                    '    browser.on(eventName, function(event, meta) {',
+                    '        self.emit(eventName, event, meta);',
+                    '    });',
+                    '}',
+                    '["navigating"].forEach(bindBrowserEvent);'
+                ]
+            },
+            {
+                comment: "Issue #892 - new line between chained methods ",
+                unchanged: [
+                    'foo',
+                    '    .who()',
+                    '',
+                    '    .knows()',
+                    '    // comment',
+                    '    .nothing() // comment',
+                    '',
+                    '    .more()'
+                ]
+            }
         ]
     }, {
         name: "Test non-positionable-ops",
@@ -1875,9 +2313,164 @@ exports.test_data = {
             { unchanged: 'a >>= 2;' },
         ]
     }, {
+        //Relies on the tab being four spaces as default for the tests
+        name: "brace_style ,preserve-inline tests",
+        description: "brace_style *,preserve-inline varying different brace_styles",
+        template: "< >",
+        matrix: [
+            //test for all options of brace_style
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '', //Output Before Open curlybrace & Tab character
+                oao: '\n',
+                oaot: '    ', //Output After Open curlybrace & corresponding Tab
+                obc: '\n', //Output Before Close curlybrace
+                oac: ' ',
+                oact: '' //Output After Close curlybrace & corresponding Tab character
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'expand,preserve-inline'" }
+                ],
+                obo: '\n',
+                obot: '    ',
+                oao: '\n',
+                oaot: '    ',
+                obc: '\n',
+                oac: '\n',
+                oact: '    '
+            },
+            {
+                options: [
+                    { name: "brace_style", value: "'end-expand,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '',
+                oao: '\n',
+                oaot: '    ',
+                obc: '\n',
+                oac: '\n',
+                oact: '    '
+            },
+            {
+                //None tries not to touch brace style so all the tests in this
+                //matrix were formatted as if they were collapse
+                options: [
+                    { name: "brace_style", value: "'none,preserve-inline'" }
+                ],
+                obo: ' ',
+                obot: '',
+                oao: '\n',
+                oaot: '    ',
+                obc: '\n',
+                oac: ' ',
+                oact: ''
+            },
+            //Test for backward compatibility
+            {
+                options: [
+                    { name: "brace_style", value: "'collapse-preserve-inline'" }
+                ],
+                //Equivalent to the output of the first test
+                obo: ' ',
+                obot: '',
+                oao: '\n',
+                oaot: '    ',
+                obc: '\n',
+                oac: ' ',
+                oact: ''
+            }
+        ],
+        tests: [
+            //Test single inline blocks
+            {
+                unchanged: 'import { asdf } from "asdf";'
+            },
+            {
+                unchanged: 'import { get } from "asdf";'
+            },
+            {
+                unchanged: 'function inLine() { console.log("oh em gee"); }'
+            },
+            {
+                unchanged: 'if (cancer) { console.log("Im sorry but you only have so long to live..."); }'
+            },
+            //Test more complex inliners
+            {
+                input: 'if (ding) { console.log("dong"); } else { console.log("dang"); }',
+                output: 'if (ding) { console.log("dong"); }<oac>else { console.log("dang"); }'
+            },
+            //Test complex mixes of the two
+            {
+                //The outer function and the third object (obj3) should not
+                //be preserved. All other objects should be
+                input: [
+                    'function kindaComplex() {',
+                    '    var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {',
+                    '        c: "c",',
+                    '        d: "d",',
+                    '        e: "e"',
+                    '    };',
+                    '}'
+                ],
+                output: [
+                    'function kindaComplex()<obo>{<oao>' + //NL in templates
+                    '<oaot>var a = 2;',
+                    '    var obj = {};',
+                    '    var obj2 = { a: "a", b: "b" };',
+                    '    var obj3 = {<oao>' + //NL in templates, Expand doesnt affect js objects
+                    '<oaot><oaot>c: "c",',
+                    '        d: "d",',
+                    '        e: "e"' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
+                ]
+            },
+            {
+                //All inlines should be preserved, all non-inlines (specifically
+                //complex(), obj, and obj.b should not be preserved (and hence
+                //have the template spacing defined in output)
+                input: [
+                    'function complex() {',
+                    '    console.log("wowe");',
+                    '    (function() { var a = 2; var b = 3; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {',
+                    '        a: function() { console.log("test"); },',
+                    '        b() {',
+                    '             console.log("test2");',
+                    '        }',
+                    '    };',
+                    '}'
+
+                ],
+                output: [
+                    'function complex()<obo>{<oao>' + //NL in templates
+                    '<oaot>console.log("wowe");',
+                    '    (function() { var a = 2; var b = 3; })();',
+                    '    $.each(arr, function(el, idx) { return el; });',
+                    '    var obj = {<oao>' + //NL in templates
+                    '<oaot><oaot>a: function() { console.log("test"); },',
+                    '        b()<obo><obot><obot>{<oao>' + //NL in templates
+                    '<oaot><oaot><oaot>console.log("test2");' +
+                    '<obc>        }' + //NL in templates
+                    '<obc>    };' + //NL in templates
+                    '<obc>}'
+                ]
+            }
+        ]
+    }, {
         name: "Destructured and related",
         description: "Ensure specific bugs do not recur",
-        options: [{ name: "brace_style", value: "'collapse-preserve-inline'" }],
+        options: [
+            { name: "brace_style", value: "'collapse,preserve-inline'" }
+        ], //Issue 1052, now collapse,preserve-inline instead of collapse-preserve-inline
         tests: [{
                 comment: "Issue 382 - import destructured ",
                 unchanged: [
@@ -1981,19 +2574,30 @@ exports.test_data = {
                     'import { fs } from "fs";'
                 ]
             },
-            // {
-            //     comment: "Issue #338 - Short expressions ",
-            //     unchanged: [
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}',
-            //         'if(someCondition) { return something; }',
-            //         'if(someCondition) {',
-            //         '    return something;',
-            //         '}'
-            //     ]
-            // },
+            {
+                comment: "Issue #982 - Fixed return expression collapse-preserve-inline",
+                unchanged: [
+                    'function foo(arg) {',
+                    '    if (!arg) { a(); }',
+                    '    if (!arg) { return false; }',
+                    '    if (!arg) { throw "inline"; }',
+                    '    return true;',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #338 - Short expressions ",
+                unchanged: [
+                    'if (someCondition) { return something; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}',
+                    'if (someCondition) { break; }',
+                    'if (someCondition) {',
+                    '    return something;',
+                    '}'
+                ]
+            }
         ]
     }, {
         // =======================================================
@@ -2014,7 +2618,7 @@ exports.test_data = {
             { input: 'a        =          1', output: 'a = 1' },
             { input: 'a=1', output: 'a = 1' },
             { unchanged: '(3) / 2' },
-            { input: '["a", "b"].join("")' },
+            { unchanged: '["a", "b"].join("")' },
             { unchanged: 'a();\n\nb();' },
             { input: 'var a = 1 var b = 2', output: 'var a = 1\nvar b = 2' },
             { input: 'var a=1, b=c[d], e=6;', output: 'var a = 1,\n    b = c[d],\n    e = 6;' },
@@ -2034,7 +2638,7 @@ exports.test_data = {
             { input: 'var a = 1 if (2) 3;', output: 'var a = 1\nif (2) 3;' },
             { unchanged: 'a = a + 1' },
             { unchanged: 'a = a == 1' },
-            { input: '/12345[^678]*9+/.match(a)' },
+            { unchanged: '/12345[^678]*9+/.match(a)' },
             { unchanged: 'a /= 5' },
             { unchanged: 'a = 0.5 * 3' },
             { unchanged: 'a *= 10.55' },
@@ -2054,12 +2658,13 @@ exports.test_data = {
             { unchanged: 'a = 06789e-10' },
             { unchanged: 'a = e - 10' },
             { unchanged: 'a = 1.3e+10' },
+            { unchanged: 'a = 1.e-7' },
             { unchanged: 'a = -12345.3e+10' },
             { unchanged: 'a = .12345e+10' },
             { unchanged: 'a = 06789e+10' },
             { unchanged: 'a = e + 10' },
             { input: 'a=0e-12345.3e-10', output: 'a = 0e-12345 .3e-10' },
-            { input: 'a=0.e-12345.3e-10', output: 'a = 0. e - 12345.3e-10' },
+            { input: 'a=0.e-12345.3e-10', output: 'a = 0.e-12345 .3e-10' },
             { input: 'a=0x.e-12345.3e-10', output: 'a = 0x.e - 12345.3e-10' },
             { input: 'a=0x0.e-12345.3e-10', output: 'a = 0x0.e - 12345.3e-10' },
             { input: 'a=0x0.0e-12345.3e-10', output: 'a = 0x0 .0e-12345 .3e-10' },
@@ -2155,7 +2760,7 @@ exports.test_data = {
             { input: 'x={a:1,b:w=="foo"?x:y,c:z}', output: 'x = {\n    a: 1,\n    b: w == "foo" ? x : y,\n    c: z\n}' },
             { input: 'x=a?b?c?d:e:f:g;', output: 'x = a ? b ? c ? d : e : f : g;' },
             { input: 'x=a?b?c?d:{e1:1,e2:2}:f:g;', output: 'x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;' },
-            { input: 'function void(void) {}' },
+            { unchanged: 'function void(void) {}' },
             { input: 'if(!a)foo();', output: 'if (!a) foo();' },
             { input: 'a=~a', output: 'a = ~a' },
             { input: 'a;/*comment*/b;', output: "a; /*comment*/\nb;" },
@@ -2175,21 +2780,23 @@ exports.test_data = {
             { input: 'for(;;++i)a', output: 'for (;; ++i) a' },
             { input: 'return(1)', output: 'return (1)' },
             { input: 'try{a();}catch(b){c();}finally{d();}', output: "try {\n    a();\n} catch (b) {\n    c();\n} finally {\n    d();\n}" },
-            { input: '(xx)()', comment: ' magic function call' },
-            { input: 'a[1]()', comment: 'another magic function call' },
+            { unchanged: '(xx)()', comment: ' magic function call' },
+            { unchanged: 'a[1]()', comment: 'another magic function call' },
             { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
             { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
             { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
-            { input: 'a !== b' },
+            { unchanged: 'a !== b' },
             { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
-            { input: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
-            { input: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
-            { input: 'if (a in b) foo();' },
+            { unchanged: "// comment\n(function something() {})", comment: 'typical greasemonkey start' },
+            { unchanged: "{\n\n    x();\n\n}", comment: 'duplicating newlines' },
+            { unchanged: 'if (a in b) foo();' },
+            { unchanged: 'if (a of b) foo();' },
+            { unchanged: 'if (a of [1, 2, 3]) foo();' },
             {
                 input: 'if(X)if(Y)a();else b();else c();',
                 output: "if (X)\n    if (Y) a();\n    else b();\nelse c();"
             },
-            { input: 'if (foo) bar();\nelse break' },
+            { unchanged: 'if (foo) bar();\nelse break' },
             { unchanged: 'var a, b;' },
             { unchanged: 'var a = new function();' },
             { fragment: true, unchanged: 'new function' },
@@ -2197,7 +2804,7 @@ exports.test_data = {
             { input: '{a:1, b:2}', output: "{\n    a: 1,\n    b: 2\n}" },
             { input: 'a={1:[-1],2:[+1]}', output: 'a = {\n    1: [-1],\n    2: [+1]\n}' },
             { input: "var l = {\\'a\\':\\'1\\', \\'b\\':\\'2\\'}", output: "var l = {\n    \\'a\\': \\'1\\',\n    \\'b\\': \\'2\\'\n}" },
-            { input: 'if (template.user[n] in bk) foo();' },
+            { unchanged: 'if (template.user[n] in bk) foo();' },
             { unchanged: 'return 45' },
             { unchanged: 'return this.prevObject ||\n\n    this.constructor(null);' },
             { unchanged: 'If[1]' },
@@ -2207,6 +2814,9 @@ exports.test_data = {
             { input: "a = 1;\n // comment", output: "a = 1;\n// comment" },
             { unchanged: 'a = [-1, -1, -1]' },
 
+            // These must work as non-fragments.
+            { unchanged: ['// a', '// b', '', '', '', '// c', '// d'] },
+            { unchanged: ['// func-comment', '', 'function foo() {}', '', '// end-func-comment'] },
 
             {
                 comment: 'The exact formatting these should have is open for discussion, but they are at least reasonable',
@@ -2220,7 +2830,7 @@ exports.test_data = {
 
             {
                 comment: 'was: extra space appended',
-                input: "if (a) {\n    do();\n}"
+                unchanged: "if (a) {\n    do();\n}"
             },
 
             {
@@ -2316,7 +2926,7 @@ exports.test_data = {
             { fragment: true, unchanged: "#" },
             { fragment: true, unchanged: "#!" },
 
-            { input: "function namespace::something()" },
+            { unchanged: "function namespace::something()" },
 
             { fragment: true, unchanged: "<!--\nsomething();\n-->" },
             { fragment: true, input: "<!--\nif(i<0){bla();}\n-->", output: "<!--\nif (i < 0) {\n    bla();\n}\n-->" },
@@ -2365,7 +2975,6 @@ exports.test_data = {
                 output: "a(/[a/b]/);\nb()"
             },
             { unchanged: 'typeof /foo\\\\//;' },
-            { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'throw /foo\\\\//;' },
             { unchanged: 'do /foo\\\\//;' },
             { unchanged: 'return /foo\\\\//;' },
@@ -2374,7 +2983,6 @@ exports.test_data = {
 
             { unchanged: 'if (foo) /regex/.test();' },
             { unchanged: "for (index in [1, 2, 3]) /^test$/i.test(s)" },
-            { unchanged: 'result = yield pgClient.query_(queryString);' },
 
             { unchanged: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}' },
             { input: 'a=[[1,2],[4,5],[7,8]]', output: "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]\n]" },
@@ -2417,7 +3025,6 @@ exports.test_data = {
             { unchanged: 'return;' },
             { unchanged: 'return\nfunc' },
             { input: 'catch(e)', output: 'catch (e)' },
-            { unchanged: 'yield [1, 2]' },
 
             {
                 input: 'var a=1,b={foo:2,bar:3},{baz:4,wham:5},c=4;',

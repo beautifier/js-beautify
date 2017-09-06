@@ -3,7 +3,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2007-2013 Einar Lielmanis and contributors.
+  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -40,8 +40,25 @@ var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
-    nopt = require('nopt'),
-    path = require('path'),
+    nopt = require('nopt');
+nopt.typeDefs.brace_style = {
+    type: "brace_style",
+    validate: function(data, key, val) {
+        data[key] = val;
+        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
+        // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
+        for (var i = 0; i < validVals.length; i++) {
+            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+var path = require('path'),
+    editorconfig = require('editorconfig'),
     knownOpts = {
         // Beautifier
         "indent_size": Number,
@@ -55,14 +72,13 @@ var fs = require('fs'),
         "space_in_empty_paren": Boolean,
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
-        // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
-        "brace_style": ["collapse", "expand", "end-expand", "collapse-preserve-inline", "expand-strict", "none"],
+        "brace_style": "brace_style", //See above for validation
         "unindent_chained_methods": Boolean,
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
         "wrap_line_length": Number,
-        "wrap_attributes": ["auto", "force"],
+        "wrap_attributes": ["auto", "force", "force-aligned"],
         "wrap_attributes_indent_size": Number,
         "e4x": Boolean,
         "end_with_newline": Boolean,
@@ -71,10 +87,15 @@ var fs = require('fs'),
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
+        "space_around_combinator": Boolean,
+        //deprecated - replaced with space_around_combinator, remove in future version
+        "space_around_selector_separator": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "unformatted": [String, Array],
+        "content_unformatted": [String, Array],
         "indent_inner_html": [Boolean],
+        "indent_handlebars": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
         "extra_liners": [String, Array],
         // CLI
@@ -85,7 +106,8 @@ var fs = require('fs'),
         "replace": Boolean,
         "quiet": Boolean,
         "type": ["js", "css", "html"],
-        "config": path
+        "config": path,
+        "editorconfig": Boolean
     },
     // dasherizeShorthands provides { "indent-size": ["--indent_size"] }
     // translation, allowing more convenient dashes in CLI arguments
@@ -120,7 +142,9 @@ var fs = require('fs'),
         "i": ["--wrap_attributes_indent_size"],
         "W": ["--max_char"], // obsolete since 1.3.5
         "U": ["--unformatted"],
+        "T": ["--content_unformatted"],
         "I": ["--indent_inner_html"],
+        "H": ["--indent_handlebars"],
         "S": ["--indent_scripts"],
         "E": ["--extra_liners"],
         // non-dasherized hybrid shortcuts
@@ -139,7 +163,8 @@ var fs = require('fs'),
         "o": ["--outfile"],
         "r": ["--replace"],
         "q": ["--quiet"]
-            // no shorthand for "config"
+        // no shorthand for "config"
+        // no shorthand for "editorconfig"
     });
 
 function verifyExists(fullPath) {
@@ -166,6 +191,48 @@ function getUserHome() {
     return user_home;
 }
 
+function set_file_editorconfig_opts(file, config) {
+    try {
+        var eConfigs = editorconfig.parseSync(file);
+
+        if (eConfigs.indent_style === "tab") {
+            config.indent_with_tabs = true;
+        } else if (eConfigs.indent_style === "space") {
+            config.indent_with_tabs = false;
+        }
+
+        if (eConfigs.indent_size) {
+            config.indent_size = eConfigs.indent_size;
+        }
+
+        if (eConfigs.max_line_length) {
+            if (eConfigs.max_line_length === "off") {
+                config.wrap_line_length = 0;
+            } else {
+                config.wrap_line_length = parseInt(eConfigs.max_line_length);
+            }
+        }
+
+        if (eConfigs.insert_final_newline === true) {
+            config.end_with_newline = true;
+        } else if (eConfigs.insert_final_newline === false) {
+            config.end_with_newline = false;
+        }
+
+        if (eConfigs.end_of_line) {
+            if (eConfigs.end_of_line === 'cr') {
+                config.eol = '\r';
+            } else if (eConfigs.end_of_line === 'lf') {
+                config.eol = '\n';
+            } else if (eConfigs.end_of_line === 'crlf') {
+                config.eol = '\r\n';
+            }
+        }
+    } catch (e) {
+        debug(e);
+    }
+}
+
 // var cli = require('js-beautify/cli'); cli.interpret();
 var interpret = exports.interpret = function(argv, slice) {
     var parsed = nopt(knownOpts, shortHands, argv, slice);
@@ -179,20 +246,35 @@ var interpret = exports.interpret = function(argv, slice) {
     }
 
     var cfg;
+    var configRecursive = findRecursive(process.cwd(), '.jsbeautifyrc');
+    var configHome = verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc"));
+    var configDefault = __dirname + '/../config/defaults.json';
+
     try {
         cfg = cc(
             parsed,
             cleanOptions(cc.env('jsbeautify_'), knownOpts),
             parsed.config,
-            findRecursive(process.cwd(), '.jsbeautifyrc'),
-            verifyExists(path.join(getUserHome() || "", ".jsbeautifyrc")),
-            __dirname + '/../config/defaults.json'
+            configRecursive,
+            configHome,
+            configDefault
         ).snapshot;
     } catch (ex) {
         debug(cfg);
         // usage(ex);
         console.error(ex);
-        console.error('Error while loading beautifier configuration file.');
+        console.error('Error while loading beautifier configuration.');
+        console.error('Configuration file chain included:');
+        if (parsed.config) {
+            console.error(parsed.config);
+        }
+        if (configRecursive) {
+            console.error(configRecursive);
+        }
+        if (configHome) {
+            console.error(configHome);
+        }
+        console.error(configDefault);
         console.error('Run `' + getScriptName() + ' -h` for help.');
         process.exit(1);
     }
@@ -237,12 +319,13 @@ function usage(err) {
         '  -v, --version    Show the version',
         '',
         'Beautifier Options:',
-        '  -s, --indent-size             Indentation size [4]',
-        '  -c, --indent-char             Indentation character [" "]',
-        '  -t, --indent-with-tabs        Indent with tabs, overrides -s and -c',
-        '  -e, --eol                     Character(s) to use as line terminators.',
-        '                                [first newline in file, otherwise "\\n]',
-        '  -n, --end-with-newline        End output with newline'
+        '  -s, --indent-size                 Indentation size [4]',
+        '  -c, --indent-char                 Indentation character [" "]',
+        '  -t, --indent-with-tabs            Indent with tabs, overrides -s and -c',
+        '  -e, --eol                         Character(s) to use as line terminators.',
+        '                                    [first newline in file, otherwise "\\n]',
+        '  -n, --end-with-newline            End output with newline',
+        '  --editorconfig                    Use EditorConfig to set up the options'
     ];
 
     switch (scriptName.split('-').shift()) {
@@ -254,7 +337,7 @@ function usage(err) {
             msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
-            msg.push('  -b, --brace-style                 [collapse|expand|collapse-preserve-inline|end-expand|none] ["collapse"]');
+            msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
             msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
@@ -268,6 +351,7 @@ function usage(err) {
         case "html":
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand] ["collapse"]');
             msg.push('  -I, --indent-inner-html           Indent body and head sections. Default is false.');
+            msg.push('  -H, --indent-handlebars           Indent handlebars. Default is false.');
             msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
             msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
             msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
@@ -275,6 +359,7 @@ function usage(err) {
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
+            msg.push('  -T, --content_unformatted         List of tags (defaults to pre) that its content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":
@@ -304,6 +389,25 @@ function processInputSync(filepath) {
         outfile = filepath;
     }
 
+    var fileType = getOutputType(outfile, filepath, config.type);
+
+    if (config.editorconfig) {
+        var editorconfig_filepath = filepath;
+
+        if (editorconfig_filepath === '-') {
+            if (outfile) {
+                editorconfig_filepath = outfile;
+            } else {
+                editorconfig_filepath = 'stdin.' + fileType;
+            }
+        }
+
+        debug("EditorConfig is enabled for ", editorconfig_filepath);
+        config = cc(config).snapshot;
+        set_file_editorconfig_opts(editorconfig_filepath, config);
+        debug(config);
+    }
+
     if (filepath === '-') {
         input = process.stdin;
         input.resume();
@@ -315,19 +419,16 @@ function processInputSync(filepath) {
         });
 
         input.on('end', function() {
-            makePretty(data, config, outfile, writePretty);
+            makePretty(fileType, data, config, outfile, writePretty); // Where things get beautified
         });
     } else {
-        var dir = path.dirname(outfile);
-        mkdirp.sync(dir);
         data = fs.readFileSync(filepath, 'utf8');
-        makePretty(data, config, outfile, writePretty);
+        makePretty(fileType, data, config, outfile, writePretty);
     }
 }
 
-function makePretty(code, config, outfile, callback) {
+function makePretty(fileType, code, config, outfile, callback) {
     try {
-        var fileType = getOutputType(outfile, config.type);
         var pretty = beautify[fileType](code, config);
 
         callback(null, pretty, outfile, config);
@@ -337,12 +438,15 @@ function makePretty(code, config, outfile, callback) {
 }
 
 function writePretty(err, pretty, outfile, config) {
+    debug('writing ' + outfile);
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     if (outfile) {
+        mkdirp.sync(path.dirname(outfile));
+
         if (isFileDifferent(outfile, pretty)) {
             try {
                 fs.writeFileSync(outfile, pretty, 'utf8');
@@ -409,11 +513,16 @@ function dasherizeShorthands(hash) {
     return hash;
 }
 
-function getOutputType(outfile, configType) {
+function getOutputType(outfile, filepath, configType) {
     if (outfile && /\.(js|css|html)$/.test(outfile)) {
         return outfile.split('.').pop();
+    } else if (filepath !== '-' && /\.(js|css|html)$/.test(filepath)) {
+        return filepath.split('.').pop();
+    } else if (configType) {
+        return configType;
+    } else {
+        throw 'Could not determine appropriate beautifier from file paths: ' + filepath;
     }
-    return configType;
 }
 
 function getScriptName() {
@@ -422,6 +531,10 @@ function getScriptName() {
 
 function checkType(parsed) {
     var scriptType = getScriptName().split('-').shift();
+    if (!/^(js|css|html)$/.test(scriptType)) {
+        scriptType = null;
+    }
+
     debug("executable type:", scriptType);
 
     var parsedType = parsed.type;
@@ -443,6 +556,8 @@ function checkFiles(parsed) {
         debug("error querying for isTTY:", ex);
     }
 
+    debug('isTTY: ' + isTTY);
+
     if (!parsed.files) {
         parsed.files = [];
     } else {
@@ -461,7 +576,7 @@ function checkFiles(parsed) {
         });
     }
 
-    if ('string' === typeof parsed.outfile && !parsed.files.length) {
+    if ('string' === typeof parsed.outfile && isTTY && !parsed.files.length) {
         // use outfile as input when no other files passed in args
         parsed.files.push(parsed.outfile);
         // operation is now an implicit overwrite
