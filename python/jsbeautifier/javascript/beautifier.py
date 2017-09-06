@@ -397,8 +397,8 @@ class Beautifier:
                 ):
 
             self.set_mode(MODE.Statement)
-	    if not self.opts.unindent_chained_methods:
-            	self.indent()
+            if not self.opts.unindent_chained_methods:
+                self.indent()
 
             self.handle_whitespace_and_comments(current_token, True);
 
