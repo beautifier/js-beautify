@@ -200,6 +200,7 @@ function Beautifier(js_source_text, options) {
     opt.indent_char = options.indent_char ? options.indent_char : ' ';
     opt.eol = options.eol ? options.eol : 'auto';
     opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
+    opt.unindent_chained_methods = (options.unindent_chained_methods === undefined) ? false : options.unindent_chained_methods;
     opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
     opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
     opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
@@ -487,7 +488,7 @@ function Beautifier(js_source_text, options) {
         if (flag_store.length > 0) {
             previous_flags = flags;
             flags = flag_store.pop();
-            if (previous_flags.mode === MODE.Statement) {
+            if (previous_flags.mode === MODE.Statement && !opt.unindent_chained_methods) {
                 remove_redundant_indentation(output, previous_flags);
             }
         }
@@ -516,7 +517,9 @@ function Beautifier(js_source_text, options) {
         ) {
 
             set_mode(MODE.Statement);
-            indent();
+            if (!opt.unindent_chained_methods) {
+                indent();
+            }
 
             handle_whitespace_and_comments(current_token, true);
 
