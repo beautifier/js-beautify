@@ -970,16 +970,19 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         //============================================================
         // Unindent chained functions - ()
+        reset_options();
         opts.unindent_chained_methods = true;
         bt(
             'f().f().f()\n' +
             '    .f().f();',
+            //  -- output --
             'f().f().f()\n' +
             '.f().f();');
         bt(
             'f()\n' +
             '    .f()\n' +
             '    .f();',
+            //  -- output --
             'f()\n' +
             '.f()\n' +
             '.f();');
@@ -989,6 +992,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        .f()\n' +
             '        .f();\n' +
             '});',
+            //  -- output --
             'f(function() {\n' +
             '    f()\n' +
             '    .f()\n' +
@@ -996,7 +1000,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '});');
 
 
-        reset_options();
         //============================================================
         // Space in parens tests - (s = "", e = "")
         reset_options();
