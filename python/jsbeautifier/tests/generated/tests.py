@@ -797,6 +797,38 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Unindent chained functions - ()
+        self.reset_options();
+        self.options.unindent_chained_methods = true
+        bt(
+            'f().f().f()\n' +
+            '    .f().f();',
+            #  -- output --
+            'f().f().f()\n' +
+            '.f().f();')
+        bt(
+            'f()\n' +
+            '    .f()\n' +
+            '    .f();',
+            #  -- output --
+            'f()\n' +
+            '.f()\n' +
+            '.f();')
+        bt(
+            'f(function() {\n' +
+            '    f()\n' +
+            '        .f()\n' +
+            '        .f();\n' +
+            '});',
+            #  -- output --
+            'f(function() {\n' +
+            '    f()\n' +
+            '    .f()\n' +
+            '    .f();\n' +
+            '});')
+
+
+        #============================================================
         # Space in parens tests - (s = "", e = "")
         self.reset_options();
         self.options.space_in_paren = false
