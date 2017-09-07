@@ -1,5 +1,6 @@
-Makefile
-index.html
-php/
-python/
-web/
+**/*
+!js/
+!README.md
+!LICENSE
+!CHANGELOG.md
+!CONTRIBUTING.MD
