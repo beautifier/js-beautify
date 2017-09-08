@@ -87,25 +87,6 @@
 
 */
 
-// Object.values polyfill found here:
-// http://tokenposts.blogspot.com.au/2012/04/javascript-objectkeys-browser.html
-// This is required for early versions of IE.
-if (!Object.values) {
-    Object.values = function(o) {
-        if (o !== Object(o)) {
-            throw new TypeError('Object.values called on a non-object');
-        }
-        var k = [],
-            p;
-        for (p in o) {
-            if (Object.prototype.hasOwnProperty.call(o, p)) {
-                k.push(o[p]);
-            }
-        }
-        return k;
-    };
-}
-
 (function() {
 var legacy_beautify_js =
 /******/ (function(modules) { // webpackBootstrap
@@ -321,10 +302,18 @@ function ltrim(s) {
 //     return s.replace(/\s+$/g, '');
 // }
 
+
+function generateMapFromStrings(list) {
+    var result = {};
+    for (var x = 0; x < list.length; x++) {
+        // make the mapped names underscored instead of dash
+        result[list[x].replace(/-/g, '_')] = list[x];
+    }
+    return result;
+} 
+
 function sanitizeOperatorPosition(opPosition) {
     opPosition = opPosition || OPERATOR_POSITION.before_newline;
-
-    var validPositionValues = Object.values(OPERATOR_POSITION);
 
     if (!in_array(opPosition, validPositionValues)) {
         throw new Error("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
@@ -335,11 +324,10 @@ function sanitizeOperatorPosition(opPosition) {
     return opPosition;
 }
 
-var OPERATOR_POSITION = {
-    before_newline: 'before-newline',
-    after_newline: 'after-newline',
-    preserve_newline: 'preserve-newline',
-};
+var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
+
+// Generate map from array
+var OPERATOR_POSITION = generateMapFromStrings(validPositionValues);
 
 var OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION.before_newline, OPERATOR_POSITION.preserve_newline];
 
