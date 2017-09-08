@@ -1,6 +1,4 @@
 **/*
 !js/
-!README.md
-!LICENSE
-!CHANGELOG.md
 !CONTRIBUTING.MD
+# README, LICENSE, CHANGELOG and package.json are always added
