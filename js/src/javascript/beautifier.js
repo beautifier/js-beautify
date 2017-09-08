@@ -363,7 +363,7 @@ function Beautifier(js_source_text, options) {
         return out;
     }
 
-    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw'];
+    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw', 'yield'];
 
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
@@ -510,7 +510,7 @@ function Beautifier(js_source_text, options) {
         if (
             (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-            (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
+            (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline) ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
                 !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length)) ||
             (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
@@ -932,7 +932,9 @@ function Beautifier(js_source_text, options) {
                 }
             }
             if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
-                if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set', 'new', 'return', 'export', 'async'])) {
+                if (last_type === 'TK_RESERVED' && (
+                        in_array(flags.last_text, ['get', 'set', 'new', 'export', 'async']) ||
+                        in_array(flags.last_text, newline_restricted_tokens))) {
                     output.space_before_token = true;
                 } else if (last_type === 'TK_RESERVED' && flags.last_text === 'default' && last_last_text === 'export') {
                     output.space_before_token = true;

@@ -268,7 +268,7 @@ class Beautifier:
         return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
 
-    _newline_restricted_tokens = ['break','continue','return', 'throw']
+    _newline_restricted_tokens = ['break','continue','return', 'throw', 'yield']
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
         # never wrap the first token of a line.
         if self.output.just_added_newline():
@@ -383,7 +383,7 @@ class Beautifier:
         if (
             (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and current_token.type == 'TK_WORD') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw'] and not current_token.wanted_newline) \
+                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline) \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' \
                     and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' and not len(current_token.comments_before))) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
@@ -729,7 +729,10 @@ class Beautifier:
                     self.print_newline(True)
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
-                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return', 'export', 'async']:
+                if self.last_type == 'TK_RESERVED' and (
+                    self.flags.last_text in ['get', 'set', 'new', 'export', 'async'] or
+                    self.flags.last_text in self._newline_restricted_tokens
+                ):
                     self.output.space_before_token = True
                 elif self.last_type == 'TK_RESERVED' and self.flags.last_text == 'default' and self.last_last_text == 'export':
                     self.output.space_before_token = True

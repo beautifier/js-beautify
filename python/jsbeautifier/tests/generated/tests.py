@@ -1515,6 +1515,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('yield /foo\\//;')
         bt('result = yield pgClient.query_(queryString);')
         bt('yield [1, 2]')
+        bt('yield function() {};')
         bt('yield* bar();')
         
         # yield should have no space between yield and star
