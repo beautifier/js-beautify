@@ -1,5 +1,4 @@
-Makefile
-index.html
-php/
-python/
-web/
+**/*
+!js/
+!CONTRIBUTING.MD
+# README, LICENSE, CHANGELOG and package.json are always added
