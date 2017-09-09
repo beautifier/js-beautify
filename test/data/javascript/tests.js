@@ -761,6 +761,7 @@ exports.test_data = {
             { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'result = yield pgClient.query_(queryString);' },
             { unchanged: 'yield [1, 2]' },
+            { unchanged: 'yield function() {};' },
             { unchanged: "yield* bar();" },
             {
                 comment: "yield should have no space between yield and star",

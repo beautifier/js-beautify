@@ -70,10 +70,18 @@ function ltrim(s) {
 //     return s.replace(/\s+$/g, '');
 // }
 
+
+function generateMapFromStrings(list) {
+    var result = {};
+    for (var x = 0; x < list.length; x++) {
+        // make the mapped names underscored instead of dash
+        result[list[x].replace(/-/g, '_')] = list[x];
+    }
+    return result;
+}
+
 function sanitizeOperatorPosition(opPosition) {
     opPosition = opPosition || OPERATOR_POSITION.before_newline;
-
-    var validPositionValues = Object.values(OPERATOR_POSITION);
 
     if (!in_array(opPosition, validPositionValues)) {
         throw new Error("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
@@ -84,11 +92,10 @@ function sanitizeOperatorPosition(opPosition) {
     return opPosition;
 }
 
-var OPERATOR_POSITION = {
-    before_newline: 'before-newline',
-    after_newline: 'after-newline',
-    preserve_newline: 'preserve-newline',
-};
+var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
+
+// Generate map from array
+var OPERATOR_POSITION = generateMapFromStrings(validPositionValues);
 
 var OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION.before_newline, OPERATOR_POSITION.preserve_newline];
 
@@ -356,7 +363,7 @@ function Beautifier(js_source_text, options) {
         return out;
     }
 
-    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw'];
+    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw', 'yield'];
 
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
@@ -503,7 +510,7 @@ function Beautifier(js_source_text, options) {
         if (
             (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-            (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
+            (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline) ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
                 !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length)) ||
             (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
@@ -925,7 +932,9 @@ function Beautifier(js_source_text, options) {
                 }
             }
             if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
-                if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set', 'new', 'return', 'export', 'async'])) {
+                if (last_type === 'TK_RESERVED' && (
+                        in_array(flags.last_text, ['get', 'set', 'new', 'export', 'async']) ||
+                        in_array(flags.last_text, newline_restricted_tokens))) {
                     output.space_before_token = true;
                 } else if (last_type === 'TK_RESERVED' && flags.last_text === 'default' && last_last_text === 'export') {
                     output.space_before_token = true;

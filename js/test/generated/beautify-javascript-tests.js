@@ -1687,6 +1687,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('yield /foo\\//;');
         bt('result = yield pgClient.query_(queryString);');
         bt('yield [1, 2]');
+        bt('yield function() {};');
         bt('yield* bar();');
         
         // yield should have no space between yield and star
