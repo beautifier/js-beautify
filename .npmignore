@@ -1,6 +1,5 @@
-**/*
-!js/
-!README.md
-!LICENSE
-!CHANGELOG.md
-!CONTRIBUTING.MD
+Makefile
+index.html
+php/
+python/
+web/
