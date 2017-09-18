@@ -1,4 +1,8 @@
-**/*
+# Ignore all files
+*
+
+# Add exceptions
 !js/
+!js/**/*
 !CONTRIBUTING.MD
 # README, LICENSE, CHANGELOG and package.json are always added
