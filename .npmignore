@@ -1,4 +1,4 @@
-**/*
+node_modules/
 !js/
 !CONTRIBUTING.MD
 # README, LICENSE, CHANGELOG and package.json are always added
