@@ -406,6 +406,53 @@ exports.test_data = {
             },
         ],
     }, {
+        name: "Unindent chained functions",
+        description: "Don't indent chained functions if unindent_chained_functions is true",
+        matrix: [{
+            options: [
+                { name: "unindent_chained_methods", value: "true" }
+            ]
+        }],
+        tests: [{
+                input: [
+                    'f().f().f()',
+                    '    .f().f();',
+                ],
+                output: [
+                    'f().f().f()',
+                    '.f().f();'
+                ]
+            },
+            {
+                input: [
+                    'f()',
+                    '    .f()',
+                    '    .f();'
+                ],
+                output: [
+                    'f()',
+                    '.f()',
+                    '.f();'
+                ]
+            },
+            {
+                input: [
+                    'f(function() {',
+                    '    f()',
+                    '        .f()',
+                    '        .f();',
+                    '});'
+                ],
+                output: [
+                    'f(function() {',
+                    '    f()',
+                    '    .f()',
+                    '    .f();',
+                    '});'
+                ]
+            }
+        ],
+    }, {
         name: "Space in parens tests",
         description: "put space inside parens",
         matrix: [{
@@ -714,6 +761,7 @@ exports.test_data = {
             { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'result = yield pgClient.query_(queryString);' },
             { unchanged: 'yield [1, 2]' },
+            { unchanged: 'yield function() {};' },
             { unchanged: "yield* bar();" },
             {
                 comment: "yield should have no space between yield and star",

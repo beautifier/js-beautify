@@ -8,7 +8,7 @@ deploy: off
 # Test against this version of Node.js
 environment:
   global:
-    nodejs_version: "0.12"
+    nodejs_version: "6"
 
   matrix:
     - PYTHON: "C:\\Python27"

@@ -73,6 +73,7 @@ var path = require('path'),
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
         "brace_style": "brace_style", //See above for validation
+        "unindent_chained_methods": Boolean,
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -124,6 +125,7 @@ var path = require('path'),
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
+        "u": ["--unindent_chained_methods"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
@@ -336,6 +338,7 @@ function usage(err) {
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
+            msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
