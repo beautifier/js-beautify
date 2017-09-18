@@ -297,21 +297,6 @@ Version jump due to release script tweaks
 
 
 ### Closed Issues
-* Fix tokenizer's bracket pairs' open stack ([#693](https://github.com/beautify-web/js-beautify/pull/693))
-* Indentation is incorrect for HTML5 void tag <source> ([#692](https://github.com/beautify-web/js-beautify/issues/692))
-* Line wrapping breaks at the wrong place when the line is indented. ([#691](https://github.com/beautify-web/js-beautify/issues/691))
-* Publish v1.5.6 ([#687](https://github.com/beautify-web/js-beautify/issues/687))
-* Replace existing file fails using python beautifier ([#686](https://github.com/beautify-web/js-beautify/issues/686))
-* Pseudo-classes formatted incorrectly and inconsistently with @page ([#661](https://github.com/beautify-web/js-beautify/issues/661))
-* doc: add end_with_newline option ([#650](https://github.com/beautify-web/js-beautify/pull/650))
-* Improve support for xml parts of jsx (React) => spaces, spread attributes and nested objects break the process ([#646](https://github.com/beautify-web/js-beautify/issues/646))
-* html-beautify formats handlebars comments but does not format html comments ([#635](https://github.com/beautify-web/js-beautify/issues/635))
-* Support for ES7 async ([#630](https://github.com/beautify-web/js-beautify/issues/630))
-* css beautify adding an extra newline after a comment line in a css block ([#609](https://github.com/beautify-web/js-beautify/issues/609))
-* No option to "Indent with tabs" for HTML files ([#587](https://github.com/beautify-web/js-beautify/issues/587))
-* Function body is indented when followed by a comment ([#583](https://github.com/beautify-web/js-beautify/issues/583))
-* JSX support ([#425](https://github.com/beautify-web/js-beautify/issues/425))
-* Alternative Newline Characters ([#260](https://github.com/beautify-web/js-beautify/issues/260))
 
 
 ## v1.5.5
@@ -324,21 +309,6 @@ Version jump due to release script tweaks
 * General bug fixing
 
 ### Closed Issues
-* Add GUI support for `--indent-inner-html`. ([#633](https://github.com/beautify-web/js-beautify/pull/633))
-* Publish v1.5.5 ([#629](https://github.com/beautify-web/js-beautify/issues/629))
-* CSS: Updating the documentation for the 'newline_between_rules' ([#615](https://github.com/beautify-web/js-beautify/pull/615))
-* Equal Sign Removed from Filter Properties Alpha Opacity Assignment ([#599](https://github.com/beautify-web/js-beautify/issues/599))
-* Keep trailing spaces on comments ([#598](https://github.com/beautify-web/js-beautify/issues/598))
-* only print the file names of changed files ([#597](https://github.com/beautify-web/js-beautify/issues/597))
-*  CSS: support add newline between rules ([#574](https://github.com/beautify-web/js-beautify/pull/574))
-* elem[array]++ changes to elem[array] ++ inserting unnecessary gap ([#570](https://github.com/beautify-web/js-beautify/issues/570))
-* add support to less functions paramters braces ([#568](https://github.com/beautify-web/js-beautify/pull/568))
-* selector_separator_newline: true for Sass doesn't work ([#563](https://github.com/beautify-web/js-beautify/issues/563))
-* yield statements are being beautified to their own newlines since 1.5.2 ([#560](https://github.com/beautify-web/js-beautify/issues/560))
-* HTML beautifier inserts extra newline into `<li>`s ending with `<code>` ([#524](https://github.com/beautify-web/js-beautify/issues/524))
-* Add wrap_attributes option ([#476](https://github.com/beautify-web/js-beautify/issues/476))
-* Add or preserve empty line between CSS rules ([#467](https://github.com/beautify-web/js-beautify/issues/467))
-* Support comma first style of variable declaration ([#245](https://github.com/beautify-web/js-beautify/issues/245))
 
 
 ## v1.5.4
@@ -350,12 +320,6 @@ Version jump due to release script tweaks
 https://github.com/beautify-web/js-beautify/compare/v1.5.3...v1.5.4
 
 ### Closed Issues
-* TypeScript oddly formatted with 1.5.3 ([#552](https://github.com/beautify-web/js-beautify/issues/552))
-* HTML beautifier inserts double spaces between adjacent tags ([#525](https://github.com/beautify-web/js-beautify/issues/525))
-* Keep space in font rule ([#491](https://github.com/beautify-web/js-beautify/issues/491))
-* [Brackets plug in] Space after </a> disappears ([#454](https://github.com/beautify-web/js-beautify/issues/454))
-* Support nested pseudo-classes and parent reference (LESS) ([#427](https://github.com/beautify-web/js-beautify/pull/427))
-* Alternate approach: preserve single spacing and treat img as inline element ([#415](https://github.com/beautify-web/js-beautify/pull/415))
 
 
 ## v1.5.3
@@ -368,20 +332,6 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.3...v1.5.4
 https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 
 ### Closed Issues
-* [TypeError: Cannot read property 'type' of undefined] ([#548](https://github.com/beautify-web/js-beautify/issues/548))
-* Bug with RegExp ([#547](https://github.com/beautify-web/js-beautify/issues/547))
-* Odd behaviour on less ([#520](https://github.com/beautify-web/js-beautify/issues/520))
-* css beauitify ([#506](https://github.com/beautify-web/js-beautify/issues/506))
-* Extra space after scss pseudo classes. ([#500](https://github.com/beautify-web/js-beautify/issues/500))
-* Generates invalid scss when formatting ampersand selectors ([#498](https://github.com/beautify-web/js-beautify/issues/498))
-* bad formatting of .less files using @variable or &:hover syntax ([#489](https://github.com/beautify-web/js-beautify/issues/489))
-* Incorrect beautifying of CSS comment including an url. ([#466](https://github.com/beautify-web/js-beautify/issues/466))
-* Handle SASS parent reference &: ([#414](https://github.com/beautify-web/js-beautify/issues/414))
-* Js-beautify breaking selectors in less code.  ([#410](https://github.com/beautify-web/js-beautify/issues/410))
-* Problem with "content" ([#364](https://github.com/beautify-web/js-beautify/issues/364))
-* Space gets inserted between function and paren for function in Define  ([#313](https://github.com/beautify-web/js-beautify/issues/313))
-* beautify-html returns null on broken html ([#301](https://github.com/beautify-web/js-beautify/issues/301))
-* Indentation of functions inside conditionals not passing jslint ([#298](https://github.com/beautify-web/js-beautify/issues/298))
 
 
 ## v1.5.2
@@ -405,36 +355,6 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
 ### Closed Issues
-* Allow custom elements to be unformatted ([#540](https://github.com/beautify-web/js-beautify/pull/540))
-* Need option to ignore brace style ([#538](https://github.com/beautify-web/js-beautify/issues/538))
-* Refactor to Output and OutputLine classes ([#536](https://github.com/beautify-web/js-beautify/pull/536))
-* Recognize ObjectLiteral on open brace ([#535](https://github.com/beautify-web/js-beautify/pull/535))
-* Refactor to fully tokenize before formatting ([#530](https://github.com/beautify-web/js-beautify/pull/530))
-* Cleanup checked in six.py file ([#527](https://github.com/beautify-web/js-beautify/pull/527))
-* Changelog.md? ([#526](https://github.com/beautify-web/js-beautify/issues/526))
-* New line added between each css declaration ([#523](https://github.com/beautify-web/js-beautify/issues/523))
-* Kendo Template scripts get messed up! ([#516](https://github.com/beautify-web/js-beautify/issues/516))
-* SyntaxError: Unexpected token ++ ([#514](https://github.com/beautify-web/js-beautify/issues/514))
-* space appears before open square bracket when the object name is "set" ([#508](https://github.com/beautify-web/js-beautify/issues/508))
-* Unclosed string problem ([#505](https://github.com/beautify-web/js-beautify/issues/505))
-* "--n" and "++n" are not indented like "n--" and "n++" are... ([#495](https://github.com/beautify-web/js-beautify/issues/495))
-* Allow `<style>` and `<script>` tags to be unformatted ([#494](https://github.com/beautify-web/js-beautify/pull/494))
-* Preserve new line at end of file ([#492](https://github.com/beautify-web/js-beautify/issues/492))
-* Line wraps breaking numbers (causes syntax error) ([#488](https://github.com/beautify-web/js-beautify/issues/488))
-* jsBeautify acts differently when handling different kinds of function expressions ([#485](https://github.com/beautify-web/js-beautify/issues/485))
-* AttributeError: 'NoneType' object has no attribute 'groups' ([#479](https://github.com/beautify-web/js-beautify/issues/479))
-* installation doco for python need update -- pip install six? ([#478](https://github.com/beautify-web/js-beautify/issues/478))
-* Move einars/js-beautify to beautify-web/js-beautify ([#475](https://github.com/beautify-web/js-beautify/issues/475))
-* Bring back space_after_anon_function ([#474](https://github.com/beautify-web/js-beautify/pull/474))
-* fix for #453, Incompatible handlebar syntax ([#468](https://github.com/beautify-web/js-beautify/pull/468))
-* Python: missing explicit dependency on "six" package ([#465](https://github.com/beautify-web/js-beautify/issues/465))
-* function declaration inside array, adds extra line.  ([#464](https://github.com/beautify-web/js-beautify/issues/464))
-* [es6] yield a array ([#458](https://github.com/beautify-web/js-beautify/issues/458))
-* Publish v1.5.2 ([#452](https://github.com/beautify-web/js-beautify/issues/452))
-* Port css colon character fix to python  ([#446](https://github.com/beautify-web/js-beautify/issues/446))
-* Cannot declare object literal properties with unquoted reserved words ([#440](https://github.com/beautify-web/js-beautify/issues/440))
-* Do not put a space within `function*` generator functions. ([#428](https://github.com/beautify-web/js-beautify/issues/428))
-* beautification of "nth-child" css fails csslint ([#418](https://github.com/beautify-web/js-beautify/issues/418))
 
 
 ## v1.5.1
@@ -453,35 +373,5 @@ Highlights:
 https://github.com/einars/js-beautify/compare/v1.4.2...v1.5.1
 
 ### Closed Issues
-* Nested if statements not displayed correctly ([#450](https://github.com/beautify-web/js-beautify/issues/450))
-* preserve_newlines always true ([#449](https://github.com/beautify-web/js-beautify/issues/449))
-* line wrapping breaks in weird places ([#438](https://github.com/beautify-web/js-beautify/issues/438))
-* Update dependencies to current versions ([#437](https://github.com/beautify-web/js-beautify/pull/437))
-* Add support for ES6 template strings ([#434](https://github.com/beautify-web/js-beautify/pull/434))
-* Fix #402: support ES6 fat arrow ([#433](https://github.com/beautify-web/js-beautify/pull/433))
-* Ending brace missaligned when part of first definition in var line ([#430](https://github.com/beautify-web/js-beautify/issues/430))
-* fixing disabled line wrapping for HTML ([#429](https://github.com/beautify-web/js-beautify/pull/429))
-* Missing semi colon ([#420](https://github.com/beautify-web/js-beautify/issues/420))
-* Fixed require.js support ([#416](https://github.com/beautify-web/js-beautify/pull/416))
-* should not split the es6 operator '=>' ([#402](https://github.com/beautify-web/js-beautify/issues/402))
-* fixed relative paths for require.js ([#387](https://github.com/beautify-web/js-beautify/pull/387))
-* Support reserved words as property names ([#378](https://github.com/beautify-web/js-beautify/issues/378))
-* Make the AMD API match the rest of the APIs ([#376](https://github.com/beautify-web/js-beautify/pull/376))
-* Preserve newlines in html related to issue #307 ([#375](https://github.com/beautify-web/js-beautify/pull/375))
-* Multi-line statements ([#374](https://github.com/beautify-web/js-beautify/issues/374))
-* Reserved words used as property/function/variable identifiers are formatted incorrectly ([#368](https://github.com/beautify-web/js-beautify/issues/368))
-* fixed problems with colon character ([#363](https://github.com/beautify-web/js-beautify/pull/363))
-* require.JS paths are hardcoded in beautify-html.js  ([#359](https://github.com/beautify-web/js-beautify/issues/359))
-* Regression in p.a.c.ked file detection ([#357](https://github.com/beautify-web/js-beautify/issues/357))
-* Fix Issue #339 ([#354](https://github.com/beautify-web/js-beautify/pull/354))
-* Added single line comment support in less/sass for javascript parser ([#353](https://github.com/beautify-web/js-beautify/pull/353))
-* Function named 'in' not formatting correctly ([#351](https://github.com/beautify-web/js-beautify/issues/351))
-* CSS Pseudo element ([#346](https://github.com/beautify-web/js-beautify/issues/346))
-* array closing brace error for return statements with keep_array_indentation ([#340](https://github.com/beautify-web/js-beautify/issues/340))
-* CSS Beautifier: breaks :before and :after (regression) ([#339](https://github.com/beautify-web/js-beautify/issues/339))
-* Publish v1.5.0  ([#335](https://github.com/beautify-web/js-beautify/issues/335))
-* "keep array indentation" not working ([#333](https://github.com/beautify-web/js-beautify/issues/333))
-* CSS Beautifier: support LESS/SASS line comments ([#326](https://github.com/beautify-web/js-beautify/issues/326))
-* Incorrect formating with semicolon-less code ([#323](https://github.com/beautify-web/js-beautify/issues/323))
 
 
