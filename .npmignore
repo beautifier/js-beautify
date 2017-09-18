@@ -1,5 +1,11 @@
-Makefile
-index.html
-php/
-python/
-web/
+# ANY FUTURE CHANGES TO THIS FILE NEED TO BE MANUALLY TESTED LOCALLY
+# USE npm pack AND VERIFY THAT PACKAGE CONTENTS ARE STILL VALID
+# Ignore all files
+*
+
+# Add exceptions
+!js/
+!js/**/*
+!CONTRIBUTING.MD
+# README, LICENSE, CHANGELOG and package.json are always added
+
