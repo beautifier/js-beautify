@@ -793,6 +793,11 @@ exports.test_data = {
             {
                 comment: "ensure that this doesn't break anyone with the async library",
                 unchanged: "async.map(function(t) {})"
+            },
+            {
+                comment: "async on arrow function. should have a space after async",
+                input_: "async() => {}",
+                output: "async () => {}"
             }
         ]
     }, {
