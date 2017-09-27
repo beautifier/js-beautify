@@ -1725,6 +1725,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         
         // ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})');
+        
+        // async on arrow function. should have a space after async
+        bt(
+            'async() => {}',
+            //  -- output --
+            'async () => {}');
 
 
         //============================================================
