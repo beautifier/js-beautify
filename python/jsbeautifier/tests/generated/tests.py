@@ -1553,6 +1553,44 @@ class TestJSBeautifier(unittest.TestCase):
         
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
+        
+        # async on arrow function. should have a space after async
+        bt(
+            'async() => {}',
+            #  -- output --
+            'async () => {}')
+        
+        # async on arrow function. should have a space after async
+        bt(
+            'async() => {\n' +
+            '    return 5;\n' +
+            '}',
+            #  -- output --
+            'async () => {\n' +
+            '    return 5;\n' +
+            '}')
+        
+        # async on arrow function returning expression. should have a space after async
+        bt(
+            'async() => 5;',
+            #  -- output --
+            'async () => 5;')
+        
+        # async on arrow function returning object literal. should have a space after async
+        bt(
+            'async(x) => ({\n' +
+            '    foo: "5"\n' +
+            '})',
+            #  -- output --
+            'async (x) => ({\n' +
+            '    foo: "5"\n' +
+            '})')
+        bt(
+            'async (x) => {\n' +
+            '    return x * 2;\n' +
+            '}')
+        bt('async () => 5;')
+        bt('async x => x * 2;')
 
 
         #============================================================

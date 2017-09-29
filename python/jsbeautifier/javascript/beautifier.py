@@ -480,7 +480,7 @@ class Beautifier:
             # TODO: option space_before_conditional
             self.output.space_before_token = True
 
-        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'await':
+        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word in ['await', 'async']:
             self.output.space_before_token = True
 
 
