@@ -1,4 +1,13 @@
 # Changelog
+## v1.7.4
+
+### Description
+Thanks @cejast for contributing!
+
+### Closed Issues
+* Whitespace after ES7 `async` keyword for arrow functions ([#896](https://github.com/beautify-web/js-beautify/issues/896))
+
+
 ## v1.7.3
 
 ### Description

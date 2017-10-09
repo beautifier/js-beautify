@@ -646,8 +646,8 @@ function Beautifier(js_source_text, options) {
             }
         }
 
-        // Should be a space between await and an IIFE
-        if (current_token.text === '(' && last_type === 'TK_RESERVED' && flags.last_word === 'await') {
+        // Should be a space between await and an IIFE, or async and an arrow function
+        if (current_token.text === '(' && last_type === 'TK_RESERVED' && in_array(flags.last_word, ['await', 'async'])) {
             output.space_before_token = true;
         }
 

@@ -93,10 +93,10 @@ Each platform has it's own release process.
 
 NOTE: Before you do any of these make sure the latest changes have passed the travis-ci build!
 
-##Web
+## Web
 Merge changes from `master` to `gh-pages` branch.  This is very low cost and can be done whenever is convenient.
 
-##Python
+## Python
 NOTE: For now, we'd like to keep python and node version numbers synchronized,
 so if you publish a python release, you should publish a node release as well.
 
@@ -118,7 +118,7 @@ python setup.py sdist bdist_wininst upload
 git push
 ```
 
-##Node
+## Node
 NOTE: For now, we'd like to keep python and node version numbers synchronized,
 so if you plan to publish a node release, you should publish a python release *first*,
 then perform the steps below.

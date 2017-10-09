@@ -793,6 +793,35 @@ exports.test_data = {
             {
                 comment: "ensure that this doesn't break anyone with the async library",
                 unchanged: "async.map(function(t) {})"
+            },
+            {
+                comment: "async on arrow function. should have a space after async",
+                input_: "async() => {}",
+                output: "async () => {}"
+            },
+            {
+                comment: "async on arrow function. should have a space after async",
+                input_: "async() => {\n    return 5;\n}",
+                output: "async () => {\n    return 5;\n}"
+            },
+            {
+                comment: "async on arrow function returning expression. should have a space after async",
+                input_: "async() => 5;",
+                output: "async () => 5;"
+            },
+            {
+                comment: "async on arrow function returning object literal. should have a space after async",
+                input_: "async(x) => ({\n    foo: \"5\"\n})",
+                output: "async (x) => ({\n    foo: \"5\"\n})"
+            },
+            {
+                unchanged: "async (x) => {\n    return x * 2;\n}"
+            },
+            {
+                unchanged: "async () => 5;"
+            },
+            {
+                unchanged: "async x => x * 2;"
             }
         ]
     }, {

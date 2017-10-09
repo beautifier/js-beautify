@@ -1,9 +1,12 @@
 # JS Beautifier
-[![Build Status](https://img.shields.io/travis/beautify-web/js-beautify/master.svg)](http://travis-ci.org/beautify-web/js-beautify)
+[![Build Status](https://api.travis-ci.org/beautify-web/js-beautify.svg?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
 [![Build status](https://ci.appveyor.com/api/projects/status/5bxmpvew5n3e58te/branch/master?svg=true)](https://ci.appveyor.com/project/beautify-web/js-beautify/branch/master)
+
+[![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
 [![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
 [![NPM version](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
 [![Download stats](https://img.shields.io/npm/dm/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
+
 [![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
@@ -21,17 +24,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.3/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.3/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.3/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.3/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify-html.js"></script>
 ```
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
 
@@ -274,7 +277,7 @@ HTML Beautifier Options:
   -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline] ["auto"]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "force-aligned")
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
-  -T, --content_unformatted          List of tags (defaults to pre) that its content should not be reformatted
+  -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
   --editorconfig                     Use EditorConfig to set up the options
 ```
@@ -318,4 +321,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.7.3)
+(README.md: js-beautify@1.7.4)
