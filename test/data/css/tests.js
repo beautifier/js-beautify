@@ -439,6 +439,19 @@ exports.test_data = {
                 ]
             }]
         }, {
+            name: "Important ",
+            description: "Spacing of !important",
+            options: [],
+            tests: [{
+                input: 'a {\n\tcolor: blue  !important;\n}',
+                output: 'a {\n\tcolor: blue !important;\n}'
+            }, {
+                input: 'a {\n\tcolor: blue!important;\n}',
+                output: 'a {\n\tcolor: blue !important;\n}'
+            }, {
+                unchanged: 'a {\n\tcolor: blue !important;\n}'
+            }]
+        }, {
 
         }
     ]
