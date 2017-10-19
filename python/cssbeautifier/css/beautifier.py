@@ -443,7 +443,7 @@ class Beautifier:
                 printer.print_string('=')
                 if WHITE_RE.search(self.ch):
                     self.ch = ''
-            elif self.ch == '!': # !important
+            elif self.ch == '!':  # !important
                 printer.print_string(' ')
                 printer.print_string(self.ch)
             else:
