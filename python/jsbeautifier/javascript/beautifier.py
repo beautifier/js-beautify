@@ -173,15 +173,23 @@ class Beautifier:
         if self.opts.brace_style == 'collapse-preserve-inline':
             self.opts.brace_style = 'collapse,preserve-inline'
 
+        #split always returns at least one value
         split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
-        self.opts.brace_style = split[0]
-        self.opts.brace_preserve_inline = (True if bool(split[1] == 'preserve-inline') else None) if len(split) > 1 else False
-
-        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
-            raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
-
-        if self.opts.brace_preserve_inline == None:
-            raise(Exception('opts.brace_style second item must be "preserve-inline"'))
+        #preserve-inline in delimited string will trigger brace_preserve_inline
+        #Everything else is considered a brace_style and the last one only will
+        #have an effect
+        #specify defaults in case one half of meta-option is missing
+        self.opts.brace_style = "collapse"
+        self.opts.brace_preserve_inline = False
+        for bs in split:
+            if bs == "preserve-inline":
+                self.opts.brace_preserve_inline = True
+            else:
+                #validate each brace_style that's not a preserve-inline
+                #(results in very similar validation as js version)
+                if bs not in ['expand', 'collapse', 'end-expand', 'none']:
+                    raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
+                self.opts.brace_style = bs
 
         s = self.blank_state(s)
 
