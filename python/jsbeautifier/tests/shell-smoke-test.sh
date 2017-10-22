@@ -54,7 +54,6 @@ test_cli_common()
         echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Stdout should have no text."
         exit 1
     fi
-
 }
 
 setup_temp()
@@ -288,6 +287,21 @@ test_cli_js_beautify()
 
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/css-beautify.js | diff -q $SCRIPT_DIR/../../../js/bin/css-beautify.js - && {
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/css-beautify.js was expected to be different."
+        cleanup 1
+    }
+
+    #meta-parameter brace_style
+    cp ../js/test/resources/example1.js $TEST_TEMP/example.js
+    $CLI_SCRIPT --brace-style=invalid $TEST_TEMP/example.js > /dev/null && {
+        echo "[$CLI_SCRIPT_NAME --brace-style=invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
+        cleanup 1
+    }
+    $CLI_SCRIPT --brace-style=expand,preserve-inline,invalid 'expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
+        echo "[$CLI_SCRIPT_NAME --brace-style=expand,preserve-inline,invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
+        cleanup 1
+    }
+    $CLI_SCRIPT --brace-style=preserve-inline $TEST_TEMP/example.js > /dev/null || {
+        echo "[$CLI_SCRIPT_NAME --brace-style=preserve-inline $TEST_TEMP/example.js] Return code for only one part of valid brace_style meta-parameter should be success (uses default where it can)."
         cleanup 1
     }
 
