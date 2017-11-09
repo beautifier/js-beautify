@@ -1256,6 +1256,31 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Important 
+        reset_options();
+        t(
+            'a {\n' +
+            '\tcolor: blue  !important;\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
+        t(
+            'a {\n' +
+            '\tcolor: blue!important;\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
+        t(
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
 

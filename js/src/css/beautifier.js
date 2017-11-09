@@ -445,7 +445,9 @@ function Beautifier(source_text, options) {
                 if (whiteRe.test(ch)) {
                     ch = '';
                 }
-
+            } else if (ch === '!') { // !important
+                print_string(' ');
+                print_string(ch);
             } else {
                 preserveSingleSpace(isAfterSpace);
                 print_string(ch);

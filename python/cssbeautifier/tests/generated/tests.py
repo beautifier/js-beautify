@@ -1214,6 +1214,31 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Important 
+        self.reset_options();
+        t(
+            'a {\n' +
+            '\tcolor: blue  !important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue!important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+
+
+        #============================================================
         # 
         self.reset_options();
 
