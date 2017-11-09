@@ -238,7 +238,16 @@ function set_file_editorconfig_opts(file, config) {
 
 // var cli = require('js-beautify/cli'); cli.interpret();
 var interpret = exports.interpret = function(argv, slice) {
-    var parsed = nopt(knownOpts, shortHands, argv, slice);
+    var parsed;
+    try {
+        parsed = nopt(knownOpts, shortHands, argv, slice);
+    } catch (ex) {
+        usage(ex);
+        // console.error(ex);
+        // console.error('Run `' + getScriptName() + ' -h` for help.');
+        process.exit(1);
+    }
+
 
     if (parsed.version) {
         console.log(require('../../package.json').version);
