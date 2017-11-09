@@ -570,6 +570,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n' +
             '.span {}');
         t(
+            'html {}\n' +
+            '\n' +
+            '/*this is a comment*/');
+        t(
             '.div {\n' +
             '\ta: 1;\n' +
             '\n' +

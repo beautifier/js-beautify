@@ -528,6 +528,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.span {}')
         t(
+            'html {}\n' +
+            '\n' +
+            '/*this is a comment*/')
+        t(
             '.div {\n' +
             '\ta: 1;\n' +
             '\n' +
