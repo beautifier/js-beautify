@@ -273,19 +273,22 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                header = printer.indentLevel == 0
-
-                if not isAfterNewline or header:
-                    output.add_new_line()
-
-                printer.print_string(self.eatComment())
+                # Always start block comments on a new line. 
+                # This handles scenarios where a block comment immediately
+                # follows a property definition on the same line or where
+                # minified code is being beautified.
                 output.add_new_line()
-                if header:
-                    output.add_new_line(True)
-            elif self.ch == '/' and self.peek() == '/':
-                if not isAfterNewline and last_top_ch != '{':
-                    output.trim(True)
+                printer.print_string(self.eatComment())
 
+                # Ensures any new lines following the comment are preserved
+                self.eatWhitespace(True)
+                
+                # Block comments are followed by a new line so they don't
+                # share a line with other properties
+                output.add_new_line()
+            elif self.ch == '/' and self.peek() == '/':
+                # Preserves the space before a comment
+                # on the same line as a rule
                 output.space_before_token = True
                 printer.print_string(self.eatComment())
                 output.add_new_line()
@@ -392,7 +395,13 @@ class Beautifier:
             elif self.ch == ';':
                 insidePropertyValue = False
                 printer.print_string(self.ch)
-                if self.eatWhitespace(True) == 0:
+                self.eatWhitespace(True)
+
+                # This maintains single line comments on the same
+                # line. Block comments are also affected, but
+                # a new line is always output before one inside
+                # that section
+                if self.peek() is not '/':
                     output.add_new_line()
             elif self.ch == '(':
                 # may be a url

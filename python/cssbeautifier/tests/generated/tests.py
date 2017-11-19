@@ -983,7 +983,6 @@ class CSSBeautifierTest(unittest.TestCase):
             '/* header */.tabs {}',
             #  -- output --
             '/* header */\n' +
-            '\n' +
             '.tabs {}')
         t(
             '.tabs {\n' +

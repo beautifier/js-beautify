@@ -388,28 +388,28 @@ function Beautifier(source_text, options) {
         while (true) {
             var whitespace = skipWhitespace();
             var isAfterSpace = whitespace !== '';
-            var isAfterNewline = whitespace.indexOf('\n') !== -1;
             last_top_ch = top_ch;
             top_ch = ch;
 
             if (!ch) {
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
-                var header = indentLevel === 0;
-
-                if (isAfterNewline || header) {
-                    output.add_new_line();
-                }
-
-                print_string(eatComment());
+                // Always start block comments on a new line. 
+                // This handles scenarios where a block comment immediately
+                // follows a property definition on the same line or where
+                // minified code is being beautified.
                 output.add_new_line();
-                if (header) {
-                    output.add_new_line(true);
-                }
+                print_string(eatComment());
+
+                // Ensures any new lines following the comment are preserved
+                eatWhitespace(true);
+                
+                // Block comments are followed by a new line so they don't
+                // share a line with other properties
+                output.add_new_line();
             } else if (ch === '/' && peek() === '/') { // single line comment
-                if (!isAfterNewline && last_top_ch !== '{') {
-                    output.trim(true);
-                }
+                // Preserves the space before a comment
+                // on the same line as a rule
                 output.space_before_token = true;
                 print_string(eatComment());
                 output.add_new_line();
@@ -528,7 +528,13 @@ function Beautifier(source_text, options) {
             } else if (ch === ';') {
                 insidePropertyValue = false;
                 print_string(ch);
-                if (!eatWhitespace(true)) {
+                eatWhitespace(true);
+
+                // This maintains single line comments on the same
+                // line. Block comments are also affected, but
+                // a new line is always output before one inside
+                // that section
+                if (peek() !== '/') {
                     output.add_new_line();
                 }
             } else if (ch === '(') { // may be a url

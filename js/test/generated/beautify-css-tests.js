@@ -1025,7 +1025,6 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '/* header */.tabs {}',
             //  -- output --
             '/* header */\n' +
-            '\n' +
             '.tabs {}');
         t(
             '.tabs {\n' +
