@@ -273,7 +273,7 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                # Always start block comments on a new line. 
+                # Always start block comments on a new line.
                 # This handles scenarios where a block comment immediately
                 # follows a property definition on the same line or where
                 # minified code is being beautified.
@@ -282,7 +282,7 @@ class Beautifier:
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
-                
+
                 # Block comments are followed by a new line so they don't
                 # share a line with other properties
                 output.add_new_line()
