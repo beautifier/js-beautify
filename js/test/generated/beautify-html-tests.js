@@ -667,6 +667,45 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '      rel="stylesheet"\n' +
             '      type="text/css">');
 
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_attr_aligned = " ", indent_end_selfclosing = " ", indent_over80 = "\n     ")
+        reset_options();
+        opts.wrap_attributes = 'aligned';
+        opts.wrap_line_length = 80;
+        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1="foo" attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet" type="text/css">');
+
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = " ")
+        reset_options();
+        opts.wrap_attributes = 'aligned';
+        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1="foo" attr2="bar" />');
+        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
+
         // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
         reset_options();
         opts.wrap_attributes = 'force-aligned';

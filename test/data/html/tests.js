@@ -406,6 +406,26 @@ exports.test_data = {
             indent_over80: '\n     '
         }, {
             options: [
+                { name: "wrap_attributes", value: "'aligned'" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_attr_aligned: ' ',
+            indent_end_selfclosing: ' ',
+            indent_over80: '\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'aligned'" },
+            ],
+            indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
+            indent_over80: ' '
+        }, {
+            options: [
                 { name: "wrap_attributes", value: "'force-aligned'" },
                 { name: "wrap_attributes_indent_size", value: "8" }
             ],
@@ -474,7 +494,7 @@ exports.test_data = {
         }, {
             fragment: true,
             input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
         }]
     }, {
         name: "Handlebars Indenting Off",

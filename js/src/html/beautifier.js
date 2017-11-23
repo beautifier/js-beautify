@@ -69,6 +69,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         is_wrap_attributes_force,
         is_wrap_attributes_force_expand_multiline,
         is_wrap_attributes_force_aligned,
+        is_wrap_attributes_aligned,
         end_with_newline,
         extra_liners,
         eol;
@@ -115,6 +116,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
     is_wrap_attributes_force_expand_multiline = (wrap_attributes === 'force-expand-multiline');
     is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
+    is_wrap_attributes_aligned = (wrap_attributes === 'aligned');
     end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
     extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
         options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -451,9 +453,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     if (indentAttrs) {
                         has_wrapped_attrs = true;
 
-                        //indent attributes an auto, forced, or forced-align line-wrap
+                        //indent attributes an auto, forced, aligned or forced-align line-wrap
                         var alignment_size = wrap_attributes_indent_size;
-                        if (is_wrap_attributes_force_aligned) {
+                        if (is_wrap_attributes_force_aligned || is_wrap_attributes_aligned) {
                             alignment_size = content.indexOf(' ') + 1;
                         }
 
