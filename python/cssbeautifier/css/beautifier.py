@@ -201,8 +201,10 @@ class Beautifier:
         while WHITE_RE.search(self.peek()) is not None:
             self.next()
             if self.ch == "\n":
-                if (allowAtLeastOneNewLine and 
-                    (self.opts.preserve_newlines or isFirstNewLine)):
+                if (
+                        allowAtLeastOneNewLine and
+                        (self.opts.preserve_newlines or isFirstNewLine)
+                   ):
                     isFirstNewLine = False
                     self.output.add_new_line(True)
                     result += 1
