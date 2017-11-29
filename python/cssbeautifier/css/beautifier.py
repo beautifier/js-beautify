@@ -190,13 +190,22 @@ class Beautifier:
         self.next()
         return st
 
-    def eatWhitespace(self, preserve_newlines_local=False):
+    # Skips any white space in the source text from the current position.
+    # When allowAtLeastOneNewLine is true, will output new lines for each
+    # newline character found; if the user has preserve_newlines off, only
+    # the first newline will be output
+    def eatWhitespace(self, allowAtLeastOneNewLine=False):
         result = 0
+        isFirstNewLine = True
+
         while WHITE_RE.search(self.peek()) is not None:
             self.next()
-            if self.ch == "\n" and preserve_newlines_local and self.opts.preserve_newlines:
-                self.output.add_new_line(True)
-                result += 1
+            if self.ch == "\n":
+                if allowAtLeastOneNewLine and (self.opts.preserve_newlines or isFirstNewLine):
+                    isFirstNewLine = False
+                    self.output.add_new_line(True)
+                    result += 1
+
         self.newlines_from_last_ws_eat = result
         return result
 

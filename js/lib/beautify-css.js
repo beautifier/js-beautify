@@ -256,13 +256,22 @@ function Beautifier(source_text, options) {
         return str;
     }
 
-    function eatWhitespace(preserve_newlines_local) {
+    // Skips any white space in the source text from the current position.
+    // When allowAtLeastOneNewLine is true, will output new lines for each
+    // newline character found; if the user has preserve_newlines off, only
+    // the first newline will be output
+    function eatWhitespace(allowAtLeastOneNewLine) {
         var result = 0;
+        var isFirstNewLine = true;
+
         while (whiteRe.test(peek())) {
             next();
-            if (ch === '\n' && preserve_newlines_local && preserve_newlines) {
-                output.add_new_line(true);
-                result++;
+            if (ch === '\n') {
+                if (allowAtLeastOneNewLine && (preserve_newlines || isFirstNewLine)) {
+                    isFirstNewLine = false;
+                    output.add_new_line(true);
+                    result++;
+                }
             }
         }
         newlinesFromLastWSEat = result;

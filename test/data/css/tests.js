@@ -322,9 +322,49 @@ exports.test_data = {
                 { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
                 { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
                 { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' }
+                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' },
+                {
+                    input: '.tabs{width: 10px;\n// comment follows rule\n// another comment new line\n}',
+                    output: '.tabs {\n\twidth: 10px;\n\t// comment follows rule\n\t// another comment new line\n}'
+                }
             ],
-        }, {
+        },
+        {
+            name: "Comments",
+            description: "With preserve newlines option on",
+            options: [
+                { name: "preserve_newlines", value: "true" }
+            ],
+            tests: [
+                { unchanged: '/* header comment newlines on */' },
+                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
+                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
+                { input: '/* header */.tabs {}', output: '/* header */\n.tabs {}' },
+                { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
+                { unchanged: '/* header' },
+                { unchanged: '// comment' }, {
+                    input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
+                    output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'
+                },
+
+                {
+                    comment: "single line comment support (less/sass)",
+                    input: '.tabs{\n// comment\nwidth:10px;\n}',
+                    output: '.tabs {\n\t// comment\n\twidth: 10px;\n}'
+                },
+                { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
+                { input: '//comment\n.tabs{width:10px;}', output: '//comment\n.tabs {\n\twidth: 10px;\n}' },
+                { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
+                { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
+                { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
+                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another nl\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another nl\n}' },
+                {
+                    input: '.tabs{width: 10px;\n// comment follows rule\n// another comment new line\n}',
+                    output: '.tabs {\n\twidth: 10px;\n\t// comment follows rule\n\t// another comment new line\n}'
+                }
+            ],
+        },
+        {
             name: "Handle LESS property name interpolation",
             description: "",
             tests: [
