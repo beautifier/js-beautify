@@ -335,7 +335,7 @@ function Beautifier(source_text, options) {
             preindent_index += 1;
         }
         baseIndentString = source_text.substring(0, preindent_index);
-        js_source_text = source_text.substring(preindent_index);
+        source_text = source_text.substring(preindent_index);
     }
 
 
@@ -584,7 +584,9 @@ function Beautifier(source_text, options) {
                 if (whiteRe.test(ch)) {
                     ch = '';
                 }
-
+            } else if (ch === '!') { // !important
+                print_string(' ');
+                print_string(ch);
             } else {
                 preserveSingleSpace(isAfterSpace);
                 print_string(ch);

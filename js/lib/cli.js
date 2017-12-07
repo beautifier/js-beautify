@@ -41,20 +41,23 @@ var fs = require('fs'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
+nopt.invalidHandler = function(key, val, types) {
+    throw new Error(key + " was invalid with value \"" + val + "\"");
+}
 nopt.typeDefs.brace_style = {
     type: "brace_style",
     validate: function(data, key, val) {
         data[key] = val;
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
-        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
-        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
-        for (var i = 0; i < validVals.length; i++) {
-            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
-                return true;
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none", "preserve-inline"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/); //Split will always return at least one parameter
+        for (var i = 0; i < valSplit.length; i++) {
+            if (validVals.indexOf(valSplit[i]) === -1) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 };
 var path = require('path'),
@@ -235,7 +238,16 @@ function set_file_editorconfig_opts(file, config) {
 
 // var cli = require('js-beautify/cli'); cli.interpret();
 var interpret = exports.interpret = function(argv, slice) {
-    var parsed = nopt(knownOpts, shortHands, argv, slice);
+    var parsed;
+    try {
+        parsed = nopt(knownOpts, shortHands, argv, slice);
+    } catch (ex) {
+        usage(ex);
+        // console.error(ex);
+        // console.error('Run `' + getScriptName() + ' -h` for help.');
+        process.exit(1);
+    }
+
 
     if (parsed.version) {
         console.log(require('../../package.json').version);

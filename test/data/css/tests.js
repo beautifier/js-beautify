@@ -244,6 +244,7 @@ exports.test_data = {
                 { unchanged: '#bla,\n\n#foo {\n\tcolor: black;\n\tfont-size: 12px;\n}' },
                 { unchanged: 'a {\n\tb: c;\n\n\n\td: {\n\t\te: f;\n\t}\n}' },
                 { unchanged: '.div {}\n\n.span {}' },
+                { unchanged: 'html {}\n\n/*this is a comment*/' },
                 { unchanged: '.div {\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
                 { unchanged: '.div {\n\n\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
                 { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' },
@@ -437,6 +438,19 @@ exports.test_data = {
                     '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
                     '}'
                 ]
+            }]
+        }, {
+            name: "Important ",
+            description: "Spacing of !important",
+            options: [],
+            tests: [{
+                input: 'a {\n\tcolor: blue  !important;\n}',
+                output: 'a {\n\tcolor: blue !important;\n}'
+            }, {
+                input: 'a {\n\tcolor: blue!important;\n}',
+                output: 'a {\n\tcolor: blue !important;\n}'
+            }, {
+                unchanged: 'a {\n\tcolor: blue !important;\n}'
             }]
         }, {
 

@@ -193,15 +193,22 @@ function Beautifier(js_source_text, options) {
         options.brace_style = "collapse,preserve-inline";
     } else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
         options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
-    } else if (!options.brace_style) //Nothing exists to set it
-    {
+    } else if (!options.brace_style) { //Nothing exists to set it
         options.brace_style = "collapse";
     }
 
-
+    //preserve-inline in delimited string will trigger brace_preserve_inline, everything
+    //else is considered a brace_style and the last one only will have an effect
     var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
-    opt.brace_style = brace_style_split[0];
-    opt.brace_preserve_inline = brace_style_split[1] ? brace_style_split[1] : false;
+    opt.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
+    opt.brace_style = "collapse";
+    for (var bs = 0; bs < brace_style_split.length; bs++) {
+        if (brace_style_split[bs] === "preserve-inline") {
+            opt.brace_preserve_inline = true;
+        } else {
+            opt.brace_style = brace_style_split[bs];
+        }
+    }
 
     opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
     opt.indent_char = options.indent_char ? options.indent_char : ' ';

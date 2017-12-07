@@ -528,6 +528,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.span {}')
         t(
+            'html {}\n' +
+            '\n' +
+            '/*this is a comment*/')
+        t(
             '.div {\n' +
             '\ta: 1;\n' +
             '\n' +
@@ -1206,6 +1210,31 @@ class CSSBeautifierTest(unittest.TestCase):
         t(
             '.fa-rotate-270 {\n' +
             '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}')
+
+
+        #============================================================
+        # Important 
+        self.reset_options();
+        t(
+            'a {\n' +
+            '\tcolor: blue  !important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue!important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
             '}')
 
 
