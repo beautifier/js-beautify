@@ -154,6 +154,7 @@ class Tokenizer:
         if self.digit.match(c) or (c == '.' and self.input.testChar(self.digit)):
             allow_decimal = True
             allow_e = True
+            allow_bigint = True
             local_digit = self.digit
 
             if c == '0' and self.input.testChar(re.compile('[XxOoBb]')):
@@ -170,6 +171,7 @@ class Tokenizer:
             elif c == '.':
                 # Already have a decimal for this literal, don't allow another
                 allow_decimal = False
+                allow_bigint = False
             else:
                 # we know this first loop will run.  It keeps the logic simpler.
                 c = ''
@@ -182,6 +184,7 @@ class Tokenizer:
                 if allow_decimal and self.input.peek() == '.':
                     c += self.input.next()
                     allow_decimal = False
+                    allow_bigint = False
 
                 # a = 1.e-7 is valid, so we test for . then e in one loop
                 if allow_e and self.input.testChar(re.compile('[Ee]')):
@@ -192,6 +195,10 @@ class Tokenizer:
 
                     allow_e = False
                     allow_decimal = False
+                    allow_bigint = False
+
+            if allow_bigint and self.input.peek() == 'n':
+                c += self.input.next()
 
             return c, 'TK_WORD'
 
