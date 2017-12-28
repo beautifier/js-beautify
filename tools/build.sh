@@ -36,8 +36,8 @@ build_all()
 
 build_py()
 {
-  	echo Building python module...
-  	pip install -e ./python || exit 1
+	echo Building python module...
+	/usr/bin/env python -m pip install -e ./python || exit 1
 }
 
 build_js()
