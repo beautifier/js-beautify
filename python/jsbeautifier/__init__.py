@@ -160,8 +160,8 @@ Output options:
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
- -C,  --comma-first                Allow comma at the beginning of line.
- -O,  --operator-position=STRING   Operator position (before-newline, after-newline, preserve-newline)
+ -C,  --comma-first                Put commas at the beginning of new line instead of end.
+ -O,  --operator-position=STRING   Set operator position (before-newline, after-newline, preserve-newline)
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
  -n,  --end-with-newline           End output with newline
