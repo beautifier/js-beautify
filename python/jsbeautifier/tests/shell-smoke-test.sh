@@ -121,15 +121,13 @@ test_cli_js_beautify()
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn.js -e '\r\n' $TEST_TEMP/js-beautify-n.js
 
     # ensure eol processed correctly
-    # Issue #987 - strange error when processing --eol
-    # uncomment to reproduce
-    # $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
-    # $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn-dash.js --indent-size 2 --eol '\r\n' $TEST_TEMP/js-beautify-n.js
-    # diff -q $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js && {
-    #     diff $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js | cat -t -e
-    #     echo "js-beautify output for $TEST_TEMP/js-beautify-n-dash.js and $TEST_TEMP/js-beautify-rn-dash.js was expected to be different."
-    #     cleanup 1
-    # }
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn-dash.js --indent-size 2 --eol '\r\n' $TEST_TEMP/js-beautify-n.js
+    diff -q $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js && {
+        diff $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js | cat -t -e
+        echo "js-beautify output for $TEST_TEMP/js-beautify-n-dash.js and $TEST_TEMP/js-beautify-rn-dash.js was expected to be different."
+        cleanup 1
+    }
 
     diff -q $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js && {
         diff $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js | cat -t -e
