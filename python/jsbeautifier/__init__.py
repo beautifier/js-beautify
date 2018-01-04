@@ -117,7 +117,7 @@ def beautify_file(file_name, opts = default_options() ):
             stream = sys.stdin
             input_string = ''.join(stream.readlines())
         except Exception as ex:
-            print("Must pipe input or define input file.\n", file=sys.stderr)
+            print("Must pipe input or define at least one file.\n", file=sys.stderr)
             usage(sys.stderr)
             raise Exception()
     else:
