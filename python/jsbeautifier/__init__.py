@@ -210,7 +210,7 @@ def main():
 
     try:
         opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-            ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
+            ['indent-size=','indent-char=','eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
             'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
