@@ -22,9 +22,36 @@ var JavascriptObfuscator = {
                 var var_name = matches[1];
                 var strings = JavascriptObfuscator._smart_split(matches[2]);
                 str = str.substring(matches[0].length);
+                var fnc_name;
+                try {
+                    // find function which use var_name
+                    fnc_name = str.split(var_name+'[')[ 0 ].match(/var ([^=]*?)=function/g).pop().match(/var (.*?)=/)[ 1 ];
+                } catch(e){}
+
+                if (
+                    fnc_name &&
+                    str.match(new RegExp(var_name + '\\[0\\]', 'g')) &&
+                    !confirm('Fount 2 variant of string obfuscation (fnc and var).\n\nYes/Ok - use fnc replace.\nNo/Cancel - use var replace')
+                ) {
+                    fnc_name = null;
+                }
+
                 for (var k in strings) {
-                    str = str.replace(new RegExp(var_name + '\\[' + k + '\\]', 'g'),
-                        JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[k])));
+                    str = str.replace(
+                        (
+                            fnc_name
+                                ?
+                                new RegExp(
+                                    fnc_name + '\\(' + k + '\\)|'
+                                    + fnc_name + '\\(\'' + '0x' + Number(k).toString(16) + '\'\\)|'
+                                    + fnc_name + '\\("' + '0x' + Number(k).toString(16) + '"\\)'
+                                    , 'g')
+                                :
+                                new RegExp(var_name + '\\[' + k + '\\]', 'g')
+                        ),
+                        JavascriptObfuscator._fix_quotes(JavascriptObfuscator._unescape(strings[ k ]))
+                            .replace(new RegExp('\\$', 'g'), '$$$$') // escape $ in results ( because result like: "'123 $'" makes a bug! )
+                    )
                 }
             }
         }
@@ -44,12 +71,12 @@ var JavascriptObfuscator = {
         var strings = [];
         var pos = 0;
         while (pos < str.length) {
-            if (str.charAt(pos) === '"') {
+            if (str.charAt(pos) === '"' || str.charAt(pos) === "'") {
                 // new word
                 var word = '';
                 pos += 1;
                 while (pos < str.length) {
-                    if (str.charAt(pos) === '"') {
+                    if (str.charAt(pos) === '"' || str.charAt(pos) === "'") {
                         break;
                     }
                     if (str.charAt(pos) === '\\') {
