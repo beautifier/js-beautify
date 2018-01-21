@@ -952,11 +952,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             }
 
             this.print_newline = function(force, arr) {
-                this.line_char_count = 0;
                 if (!arr || !arr.length) {
                     return;
                 }
                 if (force || (arr[arr.length - 1] !== '\n')) { //we might want the extra line
+                    this.line_char_count = 0;
                     if ((arr[arr.length - 1] !== '\n')) {
                         arr[arr.length - 1] = rtrim(arr[arr.length - 1]);
                     }
