@@ -280,6 +280,7 @@ HTML Beautifier Options:
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
+  -K, --keep_collapsed_whitespace    Don't add a newline before tag which has a direct previous sibling tag. Default is false.
   --editorconfig                     Use EditorConfig to set up the options
 ```
 

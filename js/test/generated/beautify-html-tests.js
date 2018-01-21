@@ -2968,6 +2968,90 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // keep_collapsed_whitespace: prevent wrapping in case of collapsed tags
+        reset_options();
+        opts.keep_collapsed_whitespace = true;
+        opts.unformatted = [];
+        test_fragment(
+            '<div>Beautify</div> <div>me</div> <p>But</p><div>not</div><i>me</i> <span>Also, wrap me</span>',
+            //  -- output --
+            '<div>Beautify</div>\n' +
+            '<div>me</div>\n' +
+            '<p>But</p><div>not</div><i>me</i>\n' +
+            '<span>Also, wrap me</span>');
+        test_fragment(
+            '<input value="Collapsed single tags..." type="text"><img src="" alt="...are not wrapped"/> <input value="This single tag is wrapped" type="text">',
+            //  -- output --
+            '<input value="Collapsed single tags..." type="text"><img src="" alt="...are not wrapped" />\n' +
+            '<input value="This single tag is wrapped" type="text">');
+        test_fragment(
+            '<div>\n' +
+            '    keep\n' +
+            '</div\n' +
+            '><div>\n' +
+            '    tags\n' +
+            '</div\n' +
+            '><div>\n' +
+            '    collapsed\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    keep\n' +
+            '</div><div>\n' +
+            '    tags\n' +
+            '</div><div>\n' +
+            '    collapsed\n' +
+            '</div>');
+        test_fragment('<label>Type to the right: </label><input type="text">');
+        test_fragment('<input type="text"><label> - type to the left</label>');
+
+
+        //============================================================
+        // default keep_collapsed_whitespace
+        reset_options();
+        opts.unformatted = [];
+        test_fragment(
+            '<div>Beautify</div> <div>me</div> <p>And</p><div>me</div><i>also</i>',
+            //  -- output --
+            '<div>Beautify</div>\n' +
+            '<div>me</div>\n' +
+            '<p>And</p>\n' +
+            '<div>me</div>\n' +
+            '<i>also</i>');
+        test_fragment(
+            '<input value="Collapsed single tags..." type="text"><img src="" alt="...are wrapped"/> <input value="This single tag is wrapped" type="text">',
+            //  -- output --
+            '<input value="Collapsed single tags..." type="text">\n' +
+            '<img src="" alt="...are wrapped" />\n' +
+            '<input value="This single tag is wrapped" type="text">');
+        test_fragment(
+            '<label>Wrap</label><input value="us" type="text">',
+            //  -- output --
+            '<label>Wrap</label>\n' +
+            '<input value="us" type="text">');
+        test_fragment(
+            '<div>\n' +
+            '    all\n' +
+            '</div\n' +
+            '><div>\n' +
+            '    tags\n' +
+            '</div\n' +
+            '><div>\n' +
+            '    are wrapped\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    all\n' +
+            '</div>\n' +
+            '<div>\n' +
+            '    tags\n' +
+            '</div>\n' +
+            '<div>\n' +
+            '    are wrapped\n' +
+            '</div>');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
 
