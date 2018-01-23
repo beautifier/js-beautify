@@ -915,6 +915,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             //unformatted?
             var next_tag = this.get_tag(true /* peek. */ );
 
+            next_tag = next_tag || '';
+            if (typeof next_tag !== 'string') {
+                next_tag = next_tag[0];
+            }
+
             // test next_tag to see if it is just html tag (no external content)
             var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
 
