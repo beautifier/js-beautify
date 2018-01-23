@@ -2647,6 +2647,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Regression Tests
+        reset_options();
+        
+        // #1202
+        test_fragment('<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>');
+        test_fragment('<a ">9</a">');
+        test_fragment('<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>');
+        test_fragment('<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>');
+
+
+        //============================================================
         // Php formatting
         reset_options();
         test_fragment(
