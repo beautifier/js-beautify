@@ -1,14 +1,22 @@
 language: python
-os:
-  - linux
-  - osx
 
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.6"
+matrix:
+    include:
+        - os: linux
+          python: 2.7
+          env: TRAVIS_NODE_VERSION="6"
+        - os: linux
+          python: 3.3
+          env: TRAVIS_NODE_VERSION="8"
+        - os: osx
+          python: 3.4
+          env: TRAVIS_NODE_VERSION="8"
+        - os: linux
+          python: 3.5
+          env: TRAVIS_NODE_VERSION="9"
+        - os: osx
+          python: 3.6
+          env: TRAVIS_NODE_VERSION="9"
 
 node_js:
   - 'node'
