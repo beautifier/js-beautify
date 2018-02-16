@@ -170,8 +170,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
                 // Doctype and xml elements
                 '!doctype', '?xml',
-                // ?php tag
-                '?php',
+                // ?php and ?= tags
+                '?php', '?=',
                 // other tags that were in this list, keeping just in case
                 'basefont', 'isindex'
             ],
