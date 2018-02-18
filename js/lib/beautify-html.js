@@ -649,6 +649,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             // then not un-indent correctly
             if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
                 tag_index = tag_complete.indexOf(' ');
+                if (tag_complete.substring(0, tag_index).indexOf('\n') !== -1) { // if there's a line break before the space, thats where the tag name ends
+                    tag_index = tag_complete.indexOf('\n');
+                }
             } else if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
                 tag_index = tag_complete.indexOf('\n');
             } else if (tag_complete.charAt(0) === '{') {
