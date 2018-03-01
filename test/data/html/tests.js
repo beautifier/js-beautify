@@ -794,8 +794,21 @@ exports.test_data = {
             ]
         }, ]
     }, {
+        name: "Regression Tests",
+        description: "Regression Tests",
+        options: [],
+        tests: [{
+                comment: '#1202',
+                fragment: true,
+                unchanged: '<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>'
+            },
+            { fragment: true, unchanged: '<a ">9</a">' },
+            { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
+            { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
+        ]
+    }, {
         name: "Php formatting",
-        description: "Php (<?php ... ?>) treated as comments.",
+        description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
         options: [],
         tests: [{
             fragment: true,
@@ -824,6 +837,21 @@ exports.test_data = {
                 '<body></body>',
                 '',
                 '</html>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?= "A" ?>',
+                '<?= "B" ?>',
+                '<?= "C" ?>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php',
+                'echo "A";',
+                '?>',
+                '<span>Test</span>'
             ]
         }]
     }, {
