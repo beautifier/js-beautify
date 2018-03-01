@@ -845,6 +845,14 @@ exports.test_data = {
                 '<?= "B" ?>',
                 '<?= "C" ?>'
             ]
+        }, {
+            fragment: true,
+            unchanged: [
+                '<?php',
+                'echo "A";',
+                '?>',
+                '<span>Test</span>'
+            ]
         }]
     }, {
         name: "Support simple language specific option inheritance/overriding",

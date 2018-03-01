@@ -647,10 +647,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
             // must check for space first otherwise the tag could have the first attribute included, and
             // then not un-indent correctly
-            if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
-                tag_index = tag_complete.indexOf(' ');
-            } else if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
-                tag_index = tag_complete.indexOf('\n');
+            if (tag_complete.search(/\s/) !== -1) { //if there's whitespace, thats where the tag name ends
+                tag_index = tag_complete.search(/\s/);
             } else if (tag_complete.charAt(0) === '{') {
                 tag_index = tag_complete.indexOf('}');
             } else { //otherwise go with the tag ending
