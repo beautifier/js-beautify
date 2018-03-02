@@ -25,17 +25,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.4/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.5/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.5/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.7.5/js/lib/beautify-html.js"></script>
 ```
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
 
@@ -65,8 +65,11 @@ res = jsbeautifier.beautify_file('some_file.js')
 ``` python
 opts = jsbeautifier.default_options()
 opts.indent_size = 2
+opts.space_in_empty_paren = True
 res = jsbeautifier.beautify('some javascript', opts)
 ```
+The configuration option names are the same as the CLI names but with underscores instead of dashes.  The example above would be set on the command-line as `--indent-size 2 --space-in-empty-paren`.
+
 
 ## JavaScript
 
@@ -83,17 +86,22 @@ You can also use `js-beautify` as a `node` library (install locally, the `npm` d
 $ npm install js-beautify
 ```
 
+Import and call the approriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is a the string of code to be beautified. options is an object with the settings you would like used to beautify the code.  
+
+The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
+
 ```js
-var beautify = require('js-beautify').js_beautify,
+var beautify = require('js-beautify').js,
     fs = require('fs');
 
 fs.readFile('foo.js', 'utf8', function (err, data) {
     if (err) {
         throw err;
     }
-    console.log(beautify(data, { indent_size: 2 }));
+    console.log(beautify(data, { indent_size: 2, space_in_empty_paren: true }));
 });
 ```
+
 
 ## Options
 
@@ -322,4 +330,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.7.4)
+(README.md: js-beautify@1.7.5)

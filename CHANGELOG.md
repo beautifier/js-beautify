@@ -1,4 +1,15 @@
 # Changelog
+## v1.7.5
+
+### Description
+
+
+### Closed Issues
+* Strict mode: js_source_text is not defined [CSS] ([#1286](https://github.com/beautify-web/js-beautify/issues/1286))
+* Made brace_style option more inclusive ([#1277](https://github.com/beautify-web/js-beautify/pull/1277))
+* White space before"!important" tag missing in CSS beautify ([#1273](https://github.com/beautify-web/js-beautify/issues/1273))
+
+
 ## v1.7.4
 
 ### Description
@@ -32,6 +43,7 @@ Lessons learned:
 
 
 ### Closed Issues
+* undindent-chained-methods option. Resolves #482 ([#1240](https://github.com/beautify-web/js-beautify/pull/1240))
 * Add test and tools folder to npmignore ([#1239](https://github.com/beautify-web/js-beautify/issues/1239))
 * incorrect new-line insertion after "yield" ([#1206](https://github.com/beautify-web/js-beautify/issues/1206))
 * Do not modify built-in objects ([#1205](https://github.com/beautify-web/js-beautify/issues/1205))
