@@ -9,7 +9,7 @@ import errno
 import copy
 from jsbeautifier.__version__ import __version__
 from jsbeautifier.javascript.options import BeautifierOptions
-from jsbeautifier.javascript.beautifier import Beautifier
+from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosition
 
 #
 # The MIT License (MIT)
@@ -117,7 +117,7 @@ def beautify_file(file_name, opts = default_options() ):
             stream = sys.stdin
             input_string = ''.join(stream.readlines())
         except Exception as ex:
-            print("Must pipe input or define at least one file.", file=sys.stderr)
+            print("Must pipe input or define at least one file.\n", file=sys.stderr)
             usage(sys.stderr)
             raise Exception()
     else:
@@ -136,7 +136,6 @@ Javascript beautifier (http://jsbeautifier.org/)
 Usage: jsbeautifier.py [options] <infile>
 
     <infile> can be "-", which means stdin.
-    <outfile> defaults to stdout
 
 Input options:
 
@@ -153,7 +152,7 @@ Output options:
  -P,  --space-in-paren             Add padding spaces within paren, ie. f( a, b )
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
- -a,  --space_after_anon_function  Add a space before an anonymous function's parens, ie. function ()
+ -a,  --space-after-anon-function  Add a space before an anonymous function's parens, ie. function ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
@@ -161,9 +160,11 @@ Output options:
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
- -w,  --wrap-line-length                   Attempt to wrap line when it exceeds this length.
+ -C,  --comma-first                Put commas at the beginning of new line instead of end.
+ -O,  --operator-position=STRING   Set operator position (before-newline, after-newline, preserve-newline)
+ -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
- -n, --end_with_newline            End output with newline
+ -n,  --end-with-newline           End output with newline
  --editorconfig                    Enable setting configuration from EditorConfig
 
 Rarely needed options:
@@ -175,7 +176,7 @@ Rarely needed options:
  -l,  --indent-level=NUMBER        Initial indentation level. (default 0).
 
  -h,  --help, --usage              Prints this help statement.
- -v, --version                     Show the version
+ -v,  --version                    Show the version
 
 """, file=stream)
     if stream == sys.stderr:
@@ -210,7 +211,7 @@ def main():
 
     try:
         opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-            ['indent-size=','indent-char=','eol=''outfile=', 'replace', 'disable-preserve-newlines',
+            ['indent-size=','indent-char=','eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
             'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
             'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
             'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',

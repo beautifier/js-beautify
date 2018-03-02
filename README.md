@@ -65,8 +65,11 @@ res = jsbeautifier.beautify_file('some_file.js')
 ``` python
 opts = jsbeautifier.default_options()
 opts.indent_size = 2
+opts.space_in_empty_paren = True
 res = jsbeautifier.beautify('some javascript', opts)
 ```
+The configuration option names are the same as the CLI names but with underscores instead of dashes.  The example above would be set on the command-line as `--indent-size 2 --space-in-empty-paren`.
+
 
 ## JavaScript
 
@@ -83,17 +86,22 @@ You can also use `js-beautify` as a `node` library (install locally, the `npm` d
 $ npm install js-beautify
 ```
 
+Import and call the approriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is a the string of code to be beautified. options is an object with the settings you would like used to beautify the code.  
+
+The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
+
 ```js
-var beautify = require('js-beautify').js_beautify,
+var beautify = require('js-beautify').js,
     fs = require('fs');
 
 fs.readFile('foo.js', 'utf8', function (err, data) {
     if (err) {
         throw err;
     }
-    console.log(beautify(data, { indent_size: 2 }));
+    console.log(beautify(data, { indent_size: 2, space_in_empty_paren: true }));
 });
 ```
+
 
 ## Options
 
