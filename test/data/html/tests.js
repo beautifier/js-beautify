@@ -462,7 +462,7 @@ exports.test_data = {
         }, {
             fragment: true,
             input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
-            output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
+            output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_over80}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
         }, {
             fragment: true,
             input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
@@ -473,8 +473,8 @@ exports.test_data = {
             output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
         }, {
             fragment: true,
-            input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+            input: '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
+            output: '<link{{indent_attr_first}}rel="stylesheet"{{indent_over80}}{{indent_attr_faligned}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
         }]
     }, {
         name: "Handlebars Indenting Off",
@@ -684,8 +684,8 @@ exports.test_data = {
                 output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
-                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
-                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
+                input_: '<div{{#if thing}}{{somestyle}}class="{{c1}}"{{else}}class="{{c2}}"{{/if}}>^^^&content$$$</div>',
+                output: '<div {{#if thing}} {{somestyle}} class="{{c1}}" {{else}} class="{{c2}}" {{/if}}>^^^&content$$$</div>'
             }, {
                 fragment: true,
                 input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
