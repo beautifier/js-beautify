@@ -1131,6 +1131,22 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Handle LESS function parameters
+        self.reset_options();
+        t(
+            'div{.px2rem(width,12);}',
+            #  -- output --
+            'div {\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}')
+        t(
+            'div {\n' +
+            '\tbackground: url("//test.com/dummy.png");\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}')
+
+
+        #============================================================
         # Psuedo-classes vs Variables
         self.reset_options();
         t('@page :first {}')

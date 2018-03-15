@@ -1173,6 +1173,22 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Handle LESS function parameters
+        reset_options();
+        t(
+            'div{.px2rem(width,12);}',
+            //  -- output --
+            'div {\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}');
+        t(
+            'div {\n' +
+            '\tbackground: url("//test.com/dummy.png");\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}');
+
+
+        //============================================================
         // Psuedo-classes vs Variables
         reset_options();
         t('@page :first {}');
