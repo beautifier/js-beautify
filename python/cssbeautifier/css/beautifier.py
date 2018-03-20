@@ -404,7 +404,8 @@ class Beautifier:
                         and self.ch is not '\'':
                             printer.print_string(self.eatString(')'))
                         else:
-                            self.pos = self.pos - 1
+                            self.pos -= 1
+                            parenLevel += 1
                 else:
                     parenLevel += 1
                     printer.preserveSingleSpace(isAfterSpace)
