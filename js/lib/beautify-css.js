@@ -555,6 +555,7 @@ function Beautifier(source_text, options) {
                             print_string(eatString(')'));
                         } else {
                             pos--;
+                            parenLevel++;
                         }
                     }
                 } else {

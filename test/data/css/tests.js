@@ -389,6 +389,14 @@ exports.test_data = {
                 }
             ],
         }, {
+            name: "Handle LESS function parameters",
+            description: "",
+            tests: [
+                { input: 'div{.px2rem(width,12);}', output: 'div {\n\t.px2rem(width, 12);\n}' },
+                //mixin next to 'background: url("...")' should not add a linebreak after the comma
+                { unchanged: 'div {\n\tbackground: url("//test.com/dummy.png");\n\t.px2rem(width, 12);\n}' }
+            ],
+        }, {
             name: "Psuedo-classes vs Variables",
             description: "",
             tests: [
