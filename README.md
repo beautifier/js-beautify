@@ -187,7 +187,6 @@ JS APIs have not been 100% identical. For example, `space_before_conditional` is
 currently JS-only, and not addressable from the CLI script. There are still a
 few other additional cases keeping us from 100% API-compatibility.
 
-
 ### Loading settings from environment or .jsbeautifyrc (JavaScript-Only)
 
 In addition to CLI arguments, you may pass config to the JS executable via:
@@ -313,6 +312,202 @@ var a =  1;
  {This is some strange{template language{using open-braces?
 /* beautify ignore:end */
 ```
+
+
+# In depth explanation of options
+
+## indent-size
+The number of characters to use for indentation.
+
+## indent-char
+The actual character that will be used to indent your code. It can be anything.
+
+## indent-with-tabs
+True or false that makes the default indentation to be a tab, and overrides the indent-size and indent-char.
+
+## eol
+What character to be used for the end of line. This can be \0, \r, \n, \l\r or whatever you like to use for your end of line character.
+
+## end-with-newline
+This makes the file end with a new line at the end of the file to make Git happy.
+
+## editorconfig
+This is to be able to use js-beautify in your favorite linux editor.
+
+## indent-level
+This is if you like to have your entire file indented before any scopes.
+
+## preserve-newlines
+This makes it so that if there is a new line in the middle of the document for some unknown reason, or if you have an array with every item in the array on a new line, then all those new line characters will not be removed.
+
+## max-preserve-newlines
+This makes it so if you have 100 new lines in a document it will be trimmed down to at most this many new lines.
+
+## space-in-paren
+This makes a `function( a, b, c )` do this otherwise it would look like this `function(a, b, c)`.
+
+## space-in-empty-paren
+With true `function( )` with false `function()`. Notice the space.
+
+## jslint-happy
+Small difference with switch statements
+### true:
+```js
+switch (a){
+    case 1:
+        b = 2;
+        break;
+    case 2:
+        b = 3
+        break;
+}
+```
+
+### false:
+```js
+switch (a){
+case 1:
+    b = 2;
+    break;
+case 2:
+    b = 3
+    break;
+}
+```
+
+## space-after-anon-function
+True looks like `function ()` false looks like `function()`. Notice the space.
+
+## brace-style
+### collapse:
+
+```js
+if(){
+
+}
+else{
+
+}
+```
+
+### expand:
+```js
+if()
+{
+
+}
+else
+{
+
+}
+```
+
+### end-expand:
+```js
+if(){
+
+}
+else{
+
+}
+```
+
+### none:
+do nothing
+
+## preserve-inline:
+### true:
+```js
+myObject: { myId: 1 }
+```
+### false:
+```js
+myobject: {
+    myid: 1
+}
+```
+
+## break-chained-methods
+### true:
+```js
+object.kill()
+    .burry()
+    .cry();
+```
+### false:
+```js
+object.kill().burry().cry();
+```
+
+## keep-array-indentation
+### true:
+```js
+options.filter = [
+{
+    'field': 'type',
+    'value': ['raw_material', 'processed_material'],
+    'operator': 'not in'
+}
+];
+```
+```js
+        object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+### false:
+```js
+apiOptions.filter = [{
+    'field': 'type',
+    'value': ['raw_material', 'processed_material'],
+    'operator': 'not in'
+}];
+```
+```js
+object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+
+## comma-first
+### true:
+```js
+object: [
+    ,'assembly-bom'
+    ,'assembly-lid'
+    'assembly-container'
+]
+```
+### false:
+```js
+object: [
+    'assembly-bom',
+    'assembly-lid',
+    'assembly-container'
+]
+```
+
+## operator-position     
+### before-newline:
+```js
+'im a string' +
+'I swear im a string' +
+'Im not a string';
+```
+### after-newline:
+```js
+'im a string'
++ 'I swear im a string'
++ 'Im not a string';
+```
+
+### preserve-newline:
+Does nothing to the operators either way.
+
 
 # License
 
