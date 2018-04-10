@@ -79,9 +79,7 @@ def _replacestrings(source):
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
-    ALPHABET  = {
-        53 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ',
-        59 : '0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       ALPHABET  = {
         62 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         95 : (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
@@ -90,6 +88,12 @@ class Unbaser(object):
     def __init__(self, base):
         self.base = base
 
+        # fill elements 37...61, if necessary
+        if 36 < base < 62: 
+            if not hasattr(self.ALPHABET, self.ALPHABET[62][:base]):
+                      self.ALPHABET[base] =  self.ALPHABET[62][:base]
+            #attrs = self.ALPHABET
+            #print ', '.join("%s: %s" % item for item in attrs.items())
         # If base can be handled by int() builtin, let it do it for us
         if 2 <= base <= 36:
             self.unbase = lambda string: int(string, base)
