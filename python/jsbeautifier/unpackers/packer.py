@@ -3,6 +3,8 @@
 # by Einar Lielmanis <einar@jsbeautifier.org>
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
+#     Updated to handle radix 33..61 properly  swan46 <eleonora45@gmx.net>
+#     Updated to handle string begin and end properly swan46 <eleonora45@gmx.net>
 #
 # usage:
 #
@@ -17,10 +19,23 @@ import string
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
+beginstr = ''
+endstr = ''
 
 def detect(source):
+    global beginstr
+    global endstr
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    return source.replace(' ', '').startswith('eval(function(p,a,c,k,e,')
+    mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
+    if(mystr > 0): 
+       beginstr = source[:mystr]
+    if(mystr != -1):
+       """ Find endstr"""
+       if(source.split("')))", 1)[0] == source):
+          endstr = source.split("}))", 1)[1]
+       else:
+          endstr = source.split("')))", 1)[1]
+    return ( mystr != -1 )
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
@@ -62,6 +77,8 @@ def _filterargs(source):
 
 
 def _replacestrings(source):
+    global beginstr
+    global endstr
     """Strip string lookup table (list) and replace values in source."""
     match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source, re.DOTALL)
 
@@ -73,7 +90,7 @@ def _replacestrings(source):
         for index, value in enumerate(lookup):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
-    return source
+    return beginstr + source + endstr
 
 
 class Unbaser(object):
