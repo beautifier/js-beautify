@@ -19,12 +19,12 @@ import string
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
-beginstr = ''
-endstr = ''
 
 def detect(source):
     global beginstr
     global endstr
+    beginstr = ''
+    endstr = ''
     """Detects whether `source` is P.A.C.K.E.R. coded."""
     mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
     if(mystr > 0): 
@@ -32,7 +32,10 @@ def detect(source):
     if(mystr != -1):
        """ Find endstr"""
        if(source.split("')))", 1)[0] == source):
-          endstr = source.split("}))", 1)[1]
+          try:
+             endstr = source.split("}))", 1)[1]
+          except IndexError:
+             endstr = ''
        else:
           endstr = source.split("')))", 1)[1]
     return ( mystr != -1 )
