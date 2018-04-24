@@ -3,8 +3,6 @@
 # by Einar Lielmanis <einar@jsbeautifier.org>
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
-#     Updated to handle radix 33..61 properly  swan46 <eleonora45@gmx.net>
-#     Updated to handle string begin and end properly swan46 <eleonora45@gmx.net>
 #
 # usage:
 #
@@ -20,6 +18,7 @@ from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
 
+
 def detect(source):
     global beginstr
     global endstr
@@ -27,7 +26,7 @@ def detect(source):
     endstr = ''
     """Detects whether `source` is P.A.C.K.E.R. coded."""
     mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
-    if(mystr > 0): 
+    if(mystr > 0):
        beginstr = source[:mystr]
     if(mystr != -1):
        """ Find endstr"""
@@ -38,7 +37,8 @@ def detect(source):
              endstr = ''
        else:
           endstr = source.split("')))", 1)[1]
-    return ( mystr != -1 )
+    return (mystr != -1)
+
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
@@ -54,11 +54,12 @@ def unpack(source):
 
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
-        word  = match.group(0)
+        word = match.group(0)
         return symtab[unbase(word)] or word
 
     source = re.sub(r'\b\w+\b', lookup, payload)
     return _replacestrings(source)
+
 
 def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
@@ -76,7 +77,6 @@ def _filterargs(source):
 
     # could not find a satisfying regex
     raise UnpackingError('Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
-
 
 
 def _replacestrings(source):
@@ -99,9 +99,9 @@ def _replacestrings(source):
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
-    ALPHABET  = {
-        62 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        95 : (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ALPHABET = {
+        62: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        95: (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
     }
 
@@ -109,9 +109,9 @@ class Unbaser(object):
         self.base = base
 
         # fill elements 37...61, if necessary
-        if 36 < base < 62: 
+        if 36 < base < 62:
             if not hasattr(self.ALPHABET, self.ALPHABET[62][:base]):
-                      self.ALPHABET[base] =  self.ALPHABET[62][:base]
+                      self.ALPHABET[base] = self.ALPHABET[62][:base]
             #attrs = self.ALPHABET
             #print ', '.join("%s: %s" % item for item in attrs.items())
         # If base can be handled by int() builtin, let it do it for us
@@ -136,3 +136,4 @@ class Unbaser(object):
         for index, cipher in enumerate(string[::-1]):
             ret += (self.base ** index) * self.dictionary[cipher]
         return ret
+
