@@ -18,6 +18,14 @@ JavaScript, unpack scripts packed by Dean Edward’s popular packer,
 as well as deobfuscate scripts processed by
 [javascriptobfuscator.com](http://javascriptobfuscator.com/).
 
+# Contributors Needed
+I'm puting this front and center above because existing owners have very limited time to work on this project currently.
+This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both 
+customer facing bugs and underlying problems with the internal design and implementation.  
+
+If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/master/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks! 
+
+
 # Usage
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
