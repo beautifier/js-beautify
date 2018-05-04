@@ -642,7 +642,7 @@ function Beautifier(js_source_text, options) {
 
     function print_newline(force_newline, preserve_statement_flags) {
         if (!preserve_statement_flags) {
-            if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && last_type !== 'TK_OPERATOR') {
+            if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && (last_type !== 'TK_OPERATOR' || flags.last_text === '--' || flags.last_text === '++')) {
                 var next_token = get_token(1);
                 while (flags.mode === MODE.Statement &&
                     !(flags.if_block && next_token && next_token.type === 'TK_RESERVED' && next_token.text === 'else') &&

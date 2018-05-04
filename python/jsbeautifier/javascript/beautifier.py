@@ -307,7 +307,7 @@ class Beautifier:
 
     def print_newline(self, force_newline = False, preserve_statement_flags = False):
         if not preserve_statement_flags:
-            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and self.last_type != 'TK_OPERATOR':
+            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and (self.last_type != 'TK_OPERATOR' or self.flags.last_text == '--' or self.flags.last_text == '++'):
                 next_token = self.get_token(1)
                 while (self.flags.mode == MODE.Statement and
                         not (self.flags.if_block and next_token and next_token.type == 'TK_RESERVED' and next_token.text == 'else') and
