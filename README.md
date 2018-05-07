@@ -19,7 +19,7 @@ as well as deobfuscate scripts processed by
 [javascriptobfuscator.com](http://javascriptobfuscator.com/).
 
 # Contributors Needed
-I'm puting this front and center above because existing owners have very limited time to work on this project currently.
+I'm putting this front and center above because existing owners have very limited time to work on this project currently.
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both 
 customer facing bugs and underlying problems with the internal design and implementation.  
 
