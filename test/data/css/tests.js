@@ -305,16 +305,18 @@ exports.test_data = {
                 { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
                 { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
                 { input: '/* header */.tabs {}', output: '/* header */\n.tabs {}' },
-                { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
+                { input: '/* header */\n\n.tabs {}\n', output: '/* header */\n.tabs {}' },
+                { input: '.tabs {\n\n/* non-header */\n\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
                 { unchanged: '/* header' },
-                { unchanged: '// comment' }, {
-                    input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
+                { unchanged: '// comment' },
+                {
+                    input: '.selector1 {\n\tmargin: 0;\n\n/* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
                     output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'
                 },
 
                 {
                     comment: "single line comment support (less/sass)",
-                    input: '.tabs{\n// comment\nwidth:10px;\n}',
+                    input: '.tabs{\n\n// comment\n\nwidth:10px;\n}',
                     output: '.tabs {\n\t// comment\n\twidth: 10px;\n}'
                 },
                 { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
@@ -330,7 +332,7 @@ exports.test_data = {
             ],
         },
         {
-            name: "Comments",
+            name: "Comments with preserve newlines option on",
             description: "With preserve newlines option on",
             options: [
                 { name: "preserve_newlines", value: "true" }
@@ -338,13 +340,15 @@ exports.test_data = {
             tests: [
                 { unchanged: '/* header comment newlines on */' },
                 { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
+                { input: '.tabs{\n\n/* test */\n\n}', output: '.tabs {\n\n\t/* test */\n\n}' },
                 { input: '/* header */.tabs {}', output: '/* header */\n.tabs {}' },
-                { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
+                { input: '/* header */\n\n.tabs {}\n', output: '/* header */\n\n.tabs {}' },
+                { input: '.tabs {\n\n/* non-header */\n\nwidth:10px;}', output: '.tabs {\n\n\t/* non-header */\n\n\twidth: 10px;\n}' },
                 { unchanged: '/* header' },
-                { unchanged: '// comment' }, {
-                    input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
-                    output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'
+                { unchanged: '// comment' },
+                {
+                    input: '.selector1 {\n\tmargin: 0;\n\n/* This is a comment including an url http://domain.com/path/to/file.ext */\n\n}',
+                    output: '.selector1 {\n\tmargin: 0;\n\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n\n}'
                 },
 
                 {
@@ -361,7 +365,23 @@ exports.test_data = {
                 {
                     input: '.tabs{width: 10px;\n// comment follows rule\n// another comment new line\n}',
                     output: '.tabs {\n\twidth: 10px;\n\t// comment follows rule\n\t// another comment new line\n}'
-                }
+                },
+
+                {
+                    comment: "#736",
+                    unchanged: [
+                        '/*',
+                        ' * comment',
+                        ' */',
+                        '',
+                        '',
+                        '/* another comment */',
+                        '',
+                        '',
+                        'body {}'
+                    ]
+                },
+
             ],
         },
         {

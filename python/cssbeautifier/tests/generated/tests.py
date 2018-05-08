@@ -985,8 +985,17 @@ class CSSBeautifierTest(unittest.TestCase):
             '/* header */\n' +
             '.tabs {}')
         t(
+            '/* header */\n' +
+            '\n' +
+            '.tabs {}\n',
+            #  -- output --
+            '/* header */\n' +
+            '.tabs {}')
+        t(
             '.tabs {\n' +
+            '\n' +
             '/* non-header */\n' +
+            '\n' +
             'width:10px;}',
             #  -- output --
             '.tabs {\n' +
@@ -997,7 +1006,9 @@ class CSSBeautifierTest(unittest.TestCase):
         t('// comment')
         t(
             '.selector1 {\n' +
-            '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\tmargin: 0;\n' +
+            '\n' +
+            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
             '}',
             #  -- output --
             '.selector1 {\n' +
@@ -1008,7 +1019,9 @@ class CSSBeautifierTest(unittest.TestCase):
         # single line comment support (less/sass)
         t(
             '.tabs{\n' +
+            '\n' +
             '// comment\n' +
+            '\n' +
             'width:10px;\n' +
             '}',
             #  -- output --
@@ -1081,7 +1094,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Comments
+        # Comments with preserve newlines option on
         self.reset_options();
         self.options.preserve_newlines = true
         t('/* header comment newlines on */')
@@ -1092,10 +1105,16 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t/* test */\n' +
             '}')
         t(
-            '.tabs{/* test */}',
+            '.tabs{\n' +
+            '\n' +
+            '/* test */\n' +
+            '\n' +
+            '}',
             #  -- output --
             '.tabs {\n' +
+            '\n' +
             '\t/* test */\n' +
+            '\n' +
             '}')
         t(
             '/* header */.tabs {}',
@@ -1103,24 +1122,41 @@ class CSSBeautifierTest(unittest.TestCase):
             '/* header */\n' +
             '.tabs {}')
         t(
+            '/* header */\n' +
+            '\n' +
+            '.tabs {}\n',
+            #  -- output --
+            '/* header */\n' +
+            '\n' +
+            '.tabs {}')
+        t(
             '.tabs {\n' +
+            '\n' +
             '/* non-header */\n' +
+            '\n' +
             'width:10px;}',
             #  -- output --
             '.tabs {\n' +
+            '\n' +
             '\t/* non-header */\n' +
+            '\n' +
             '\twidth: 10px;\n' +
             '}')
         t('/* header')
         t('// comment')
         t(
             '.selector1 {\n' +
-            '\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\tmargin: 0;\n' +
+            '\n' +
+            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\n' +
             '}',
             #  -- output --
             '.selector1 {\n' +
             '\tmargin: 0;\n' +
+            '\n' +
             '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\n' +
             '}')
         
         # single line comment support (less/sass)
@@ -1196,6 +1232,18 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t// comment follows rule\n' +
             '\t// another comment new line\n' +
             '}')
+        
+        # #736
+        t(
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '\n' +
+            '\n' +
+            '/* another comment */\n' +
+            '\n' +
+            '\n' +
+            'body {}')
 
 
         #============================================================
