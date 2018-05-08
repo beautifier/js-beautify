@@ -27,5 +27,11 @@ str = "a=b;\r\nwhile(1){\ng=h;{return'\\w+'};break;eval(function(p,a,c,k,e,d){e=
 expected = "a = b;\nwhile (1) {\n    g = h; {\n        return '\w+'\n    };\n    break;\n    $(document).ready(function() {\n        $('.r5e57').html(8080);\n        $('.r1655').html(80);\n        $('.rc15b').html(3128);\n        $('.r6ae9').html(8888);\n        $('.r39b0').html(65309)\n    });\n    c = abx;"
 
 res = test_str(str, expected)
+
+str = "eval(function(p,a,c,k,e,r){e=function(c){return c.toString(36)};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];k=[function(e){return r[e]||e}];e=function(){return'[0-9ab]'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('$(5).a(6(){ $(\'.8\').0(1); $(\'.b\').0(4); $(\'.9\').0(2); $(\'.7\').0(3)})',[],12,'html|52136|555|65103|8088|document|function|r542c|r8ce6|rb0de|ready|rfab0'.split('|'),0,{}))"
+expected = "$(document).ready(function() {\n    $(\'.r8ce6\').html(52136);\n    $(\'.rfab0\').html(8088);\n    $(\'.rb0de\').html(555);\n    $(\'.r542c\').html(65103)\n})"
+
+res = test_str(str, expected)
+
 if (fails == 0):
   print "OK"
