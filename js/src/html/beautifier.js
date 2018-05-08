@@ -218,10 +218,21 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         // Append a space to the given content (string array) or, if we are
         // at the wrap_line_length, append a newline/indentation.
         // return true if a newline was added, false if a space was added
-        this.space_or_wrap = function(content) {
+        this.space_or_wrap = function(content, pos) {
             if (this.line_char_count >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
-                this.print_newline(false, content);
-                this.print_indentation(content);
+                if (pos < content.length) {
+                    content[pos] = '\n';
+                    var indent = [];
+                    this.print_indentation(indent);
+                    content.splice.apply(content, [pos+1, 0].concat(indent));
+                    this.line_char_count = 0;
+                    for (var i = pos + 1; i < content.length; i++) {
+                        this.line_char_count += content[i].length;
+                    }
+                } else {
+                    this.print_newline(false, content);
+                    this.print_indentation(content);
+                }
                 return true;
             } else {
                 this.line_char_count++;
@@ -363,6 +374,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 orig_pos = this.pos,
                 orig_line_char_count = this.line_char_count,
                 is_tag_closed = false,
+                last_breakpoint = 0,
                 tail;
 
             peek = peek !== undefined ? peek : false;
@@ -401,9 +413,22 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                         this.print_indentation(content);
                     }
                 }
-                if (content.length && content[content.length - 1] !== '=' && input_char !== '>' && space) {
-                    //no space after = or before >
-                    var wrapped = this.space_or_wrap(content);
+
+                var last_newline = Math.max(content.lastIndexOf('\n'), 0);
+                // Check if over line limit and wrapping is possible
+                var over_line_limit = this.line_char_count > this.wrap_line_length &&
+                                      content.slice(last_newline, last_breakpoint).join('').trim().length !== 0;
+                var is_breakpoint = content.length && content[content.length - 1] !== '=' &&
+                                    space && (input_char !== '>' || over_line_limit);
+
+                if (is_breakpoint) {
+                    var break_pos = over_line_limit ? last_breakpoint : content.length;
+                    var wrapped = this.space_or_wrap(content, break_pos);
+                    if (over_line_limit && input_char !== '>') {
+                        content.push(' ');
+                        this.line_char_count++;
+                    }
+
                     var indentAttrs = wrapped && input_char !== '/' && !is_wrap_attributes_force;
                     space = false;
 
@@ -414,11 +439,14 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                             force_first_attr_wrap = !is_only_attribute;
                         }
                         if (!first_attr || force_first_attr_wrap) {
-                            this.print_newline(false, content);
-                            this.print_indentation(content);
+                            if (!wrapped) {
+                                this.print_newline(false, content);
+                                this.print_indentation(content);
+                            }
                             indentAttrs = true;
                         }
                     }
+
                     if (indentAttrs) {
                         has_wrapped_attrs = true;
 
@@ -427,12 +455,20 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                         if (is_wrap_attributes_force_aligned) {
                             alignment_size = content.indexOf(' ') + 1;
                         }
-
+                        var alignment = [];
                         for (var count = 0; count < alignment_size; count++) {
                             // only ever further indent with spaces since we're trying to align characters
-                            content.push(' ');
+                            alignment.push(' ');
+                        }
+                        if (over_line_limit) {
+                            content.splice.apply(content, [break_pos+1, 0].concat(alignment));
+                        } else {
+                            content.push.apply(content, alignment);
                         }
                     }
+
+                    last_breakpoint = content.length - 1;
+
                     if (first_attr) {
                         for (var i = 0; i < content.length; i++) {
                             if (content[i] === ' ') {
@@ -804,7 +840,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             }
 
             this.print_newline = function(force, arr) {
-                this.line_char_count = 0;
                 if (!arr || !arr.length) {
                     return;
                 }
@@ -813,6 +848,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                         arr[arr.length - 1] = rtrim(arr[arr.length - 1]);
                     }
                     arr.push('\n');
+                    this.line_char_count = 0;
                 }
             };
 
