@@ -1006,139 +1006,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
-        // Comments
+        // Comments - (i = "", i1 = "\n", o = "\n")
         reset_options();
-        t('/* test */');
-        t(
-            '.tabs{/* test */}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t/* test */\n' +
-            '}');
-        t(
-            '.tabs{/* test */}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t/* test */\n' +
-            '}');
-        t(
-            '/* header */.tabs {}',
-            //  -- output --
-            '/* header */\n' +
-            '.tabs {}');
-        t(
-            '/* header */\n' +
-            '\n' +
-            '.tabs {}\n',
-            //  -- output --
-            '/* header */\n' +
-            '.tabs {}');
-        t(
-            '.tabs {\n' +
-            '\n' +
-            '/* non-header */\n' +
-            '\n' +
-            'width:10px;}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t/* non-header */\n' +
-            '\twidth: 10px;\n' +
-            '}');
-        t('/* header');
-        t('// comment');
-        t(
-            '.selector1 {\n' +
-            '\tmargin: 0;\n' +
-            '\n' +
-            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
-            '}',
-            //  -- output --
-            '.selector1 {\n' +
-            '\tmargin: 0;\n' +
-            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
-            '}');
-        
-        // single line comment support (less/sass)
-        t(
-            '.tabs{\n' +
-            '\n' +
-            '// comment\n' +
-            '\n' +
-            'width:10px;\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t// comment\n' +
-            '\twidth: 10px;\n' +
-            '}');
-        t(
-            '.tabs{// comment\n' +
-            'width:10px;\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t// comment\n' +
-            '\twidth: 10px;\n' +
-            '}');
-        t(
-            '//comment\n' +
-            '.tabs{width:10px;}',
-            //  -- output --
-            '//comment\n' +
-            '.tabs {\n' +
-            '\twidth: 10px;\n' +
-            '}');
-        t(
-            '.tabs{//comment\n' +
-            '//2nd single line comment\n' +
-            'width:10px;}',
-            //  -- output --
-            '.tabs {\n' +
-            '\t//comment\n' +
-            '\t//2nd single line comment\n' +
-            '\twidth: 10px;\n' +
-            '}');
-        t(
-            '.tabs{width:10px;//end of line comment\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\twidth: 10px; //end of line comment\n' +
-            '}');
-        t(
-            '.tabs{width:10px;//end of line comment\n' +
-            'height:10px;}',
-            //  -- output --
-            '.tabs {\n' +
-            '\twidth: 10px; //end of line comment\n' +
-            '\theight: 10px;\n' +
-            '}');
-        t(
-            '.tabs{width:10px;//end of line comment\n' +
-            'height:10px;//another\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\twidth: 10px; //end of line comment\n' +
-            '\theight: 10px; //another\n' +
-            '}');
-        t(
-            '.tabs{width: 10px;\n' +
-            '// comment follows rule\n' +
-            '// another comment new line\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\twidth: 10px;\n' +
-            '\t// comment follows rule\n' +
-            '\t// another comment new line\n' +
-            '}');
-
-
-        //============================================================
-        // Comments with preserve newlines option on
-        reset_options();
-        opts.preserve_newlines = true;
+        opts.preserve_newlines = false;
         t('/* header comment newlines on */');
         t(
             '.tabs{/* test */}',
@@ -1147,66 +1017,40 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\t/* test */\n' +
             '}');
         t(
-            '.tabs{\n' +
-            '\n' +
-            '/* test */\n' +
-            '\n' +
-            '}',
-            //  -- output --
-            '.tabs {\n' +
-            '\n' +
-            '\t/* test */\n' +
-            '\n' +
-            '}');
-        t(
             '/* header */.tabs {}',
             //  -- output --
             '/* header */\n' +
             '.tabs {}');
+        
+        // #1185
         t(
-            '/* header */\n' +
-            '\n' +
-            '.tabs {}\n',
+            '/* header */.tabs {}\n',
             //  -- output --
             '/* header */\n' +
-            '\n' +
             '.tabs {}');
         t(
-            '.tabs {\n' +
-            '\n' +
-            '/* non-header */\n' +
-            '\n' +
-            'width:10px;}',
+            '.tabs {/* non-header */width:10px;}',
             //  -- output --
             '.tabs {\n' +
-            '\n' +
             '\t/* non-header */\n' +
-            '\n' +
             '\twidth: 10px;\n' +
             '}');
         t('/* header');
         t('// comment');
+        t('/*');
+        t('//');
         t(
-            '.selector1 {\n' +
-            '\tmargin: 0;\n' +
-            '\n' +
-            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
-            '\n' +
-            '}',
+            '.selector1 {margin: 0;/* This is a comment including an url http://domain.com/path/to/file.ext */}',
             //  -- output --
             '.selector1 {\n' +
             '\tmargin: 0;\n' +
-            '\n' +
             '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
-            '\n' +
             '}');
         
         // single line comment support (less/sass)
         t(
-            '.tabs{\n' +
-            '// comment\n' +
-            'width:10px;\n' +
-            '}',
+            '.tabs{// comment\n' +
+            'width:10px;}',
             //  -- output --
             '.tabs {\n' +
             '\t// comment\n' +
@@ -1214,8 +1058,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}');
         t(
             '.tabs{// comment\n' +
-            'width:10px;\n' +
-            '}',
+            'width:10px;}',
             //  -- output --
             '.tabs {\n' +
             '\t// comment\n' +
@@ -1264,9 +1107,278 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\theight: 10px; //another nl\n' +
             '}');
         t(
-            '.tabs{width: 10px;\n' +
-            '// comment follows rule\n' +
+            '.tabs{width: 10px;   // comment follows rule\n' +
             '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; // comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #1165
+        t(
+            '.tabs{width: 10px;\n' +
+            '\t\t// comment follows rule\n' +
+            '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '\t// comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #736
+        t(
+            '/*\n' +
+            ' * comment\n' +
+            ' *//* another comment */body {}\n',
+            //  -- output --
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '/* another comment */\n' +
+            'body {}');
+        
+        // #1348
+        t(
+            '.demoa1 {text-align:left; //demoa1 instructions for LESS note visibility only\n' +
+            '}.demob {text-align: right;}',
+            //  -- output --
+            '.demoa1 {\n' +
+            '\ttext-align: left; //demoa1 instructions for LESS note visibility only\n' +
+            '}\n' +
+            '.demob {\n' +
+            '\ttext-align: right;\n' +
+            '}');
+        t(
+            '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
+            '.demob {text-align: right}',
+            //  -- output --
+            '.demoa2 {\n' +
+            '\ttext-align: left;\n' +
+            '}\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '.demob {\n' +
+            '\ttext-align: right\n' +
+            '}');
+
+        // Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n")
+        reset_options();
+        opts.preserve_newlines = false;
+        t('/* header comment newlines on */');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '/* test */\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* test */\n' +
+            '}');
+        t(
+            '/* header */\n' +
+            '\n' +
+            '\n' +
+            '.tabs {}',
+            //  -- output --
+            '/* header */\n' +
+            '.tabs {}');
+        
+        // #1185
+        t(
+            '/* header */\n' +
+            '\n' +
+            '\n' +
+            '.tabs {}\n',
+            //  -- output --
+            '/* header */\n' +
+            '.tabs {}');
+        t(
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '/* non-header */\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* non-header */\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t('/* header');
+        t('// comment');
+        t('/*');
+        t('//');
+        t(
+            '.selector1 {\n' +
+            '\n' +
+            '\n' +
+            'margin: 0;\n' +
+            '\n' +
+            '\n' +
+            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}');
+        
+        // single line comment support (less/sass)
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '// comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '// comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '//comment\n' +
+            '\n' +
+            '\n' +
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '//comment\n' +
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '//comment\n' +
+            '\n' +
+            '\n' +
+            '//2nd single line comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t//comment\n' +
+            '\t//2nd single line comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            'height:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            'height:10px;//another nl\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another nl\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width: 10px;   // comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '// another comment new line\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; // comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #1165
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width: 10px;\n' +
+            '\n' +
+            '\n' +
+            '\t\t// comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '// another comment new line\n' +
+            '\n' +
+            '\n' +
             '}',
             //  -- output --
             '.tabs {\n' +
@@ -1285,7 +1397,798 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '/* another comment */\n' +
             '\n' +
             '\n' +
+            'body {}\n',
+            //  -- output --
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '/* another comment */\n' +
             'body {}');
+        
+        // #1348
+        t(
+            '.demoa1 {\n' +
+            '\n' +
+            '\n' +
+            'text-align:left; //demoa1 instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            'text-align: right;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.demoa1 {\n' +
+            '\ttext-align: left; //demoa1 instructions for LESS note visibility only\n' +
+            '}\n' +
+            '.demob {\n' +
+            '\ttext-align: right;\n' +
+            '}');
+        t(
+            '.demoa2 {\n' +
+            '\n' +
+            '\n' +
+            'text-align:left;\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            'text-align: right}',
+            //  -- output --
+            '.demoa2 {\n' +
+            '\ttext-align: left;\n' +
+            '}\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '.demob {\n' +
+            '\ttext-align: right\n' +
+            '}');
+
+        // Comments - (i = "", i1 = "\n", o = "\n")
+        reset_options();
+        opts.preserve_newlines = true;
+        t('/* header comment newlines on */');
+        t(
+            '.tabs{/* test */}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* test */\n' +
+            '}');
+        t(
+            '/* header */.tabs {}',
+            //  -- output --
+            '/* header */\n' +
+            '.tabs {}');
+        
+        // #1185
+        t(
+            '/* header */.tabs {}\n',
+            //  -- output --
+            '/* header */\n' +
+            '.tabs {}');
+        t(
+            '.tabs {/* non-header */width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* non-header */\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t('/* header');
+        t('// comment');
+        t('/*');
+        t('//');
+        t(
+            '.selector1 {margin: 0;/* This is a comment including an url http://domain.com/path/to/file.ext */}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}');
+        
+        // single line comment support (less/sass)
+        t(
+            '.tabs{// comment\n' +
+            'width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{// comment\n' +
+            'width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '//comment\n' +
+            '.tabs{width:10px;}',
+            //  -- output --
+            '//comment\n' +
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{//comment\n' +
+            '//2nd single line comment\n' +
+            'width:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t//comment\n' +
+            '\t//2nd single line comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px;\n' +
+            '}');
+        t(
+            '.tabs{width:10px;//end of line comment\n' +
+            'height:10px;//another nl\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another nl\n' +
+            '}');
+        t(
+            '.tabs{width: 10px;   // comment follows rule\n' +
+            '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; // comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #1165
+        t(
+            '.tabs{width: 10px;\n' +
+            '\t\t// comment follows rule\n' +
+            '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '\t// comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #736
+        t(
+            '/*\n' +
+            ' * comment\n' +
+            ' *//* another comment */body {}\n',
+            //  -- output --
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '/* another comment */\n' +
+            'body {}');
+        
+        // #1348
+        t(
+            '.demoa1 {text-align:left; //demoa1 instructions for LESS note visibility only\n' +
+            '}.demob {text-align: right;}',
+            //  -- output --
+            '.demoa1 {\n' +
+            '\ttext-align: left; //demoa1 instructions for LESS note visibility only\n' +
+            '}\n' +
+            '.demob {\n' +
+            '\ttext-align: right;\n' +
+            '}');
+        t(
+            '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
+            '.demob {text-align: right}',
+            //  -- output --
+            '.demoa2 {\n' +
+            '\ttext-align: left;\n' +
+            '}\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '.demob {\n' +
+            '\ttext-align: right\n' +
+            '}');
+
+        // Comments - (i = "\n", i1 = "\n", o = "\n")
+        reset_options();
+        opts.preserve_newlines = true;
+        t('/* header comment newlines on */');
+        t(
+            '.tabs{\n' +
+            '/* test */\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* test */\n' +
+            '}');
+        t(
+            '/* header */\n' +
+            '.tabs {}');
+        
+        // #1185
+        t(
+            '/* header */\n' +
+            '.tabs {}\n',
+            //  -- output --
+            '/* header */\n' +
+            '.tabs {}');
+        t(
+            '.tabs {\n' +
+            '/* non-header */\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t/* non-header */\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t('/* header');
+        t('// comment');
+        t('/*');
+        t('//');
+        t(
+            '.selector1 {\n' +
+            'margin: 0;\n' +
+            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\tmargin: 0;\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '}');
+        
+        // single line comment support (less/sass)
+        t(
+            '.tabs{\n' +
+            '// comment\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '// comment\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t// comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '//comment\n' +
+            '.tabs{\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '//comment\n' +
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '//comment\n' +
+            '//2nd single line comment\n' +
+            'width:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\t//comment\n' +
+            '\t//2nd single line comment\n' +
+            '\twidth: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            'width:10px;//end of line comment\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            'width:10px;//end of line comment\n' +
+            'height:10px;\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px;\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            'width:10px;//end of line comment\n' +
+            'height:10px;//another nl\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\theight: 10px; //another nl\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            'width: 10px;   // comment follows rule\n' +
+            '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px; // comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #1165
+        t(
+            '.tabs{\n' +
+            'width: 10px;\n' +
+            '\t\t// comment follows rule\n' +
+            '// another comment new line\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\twidth: 10px;\n' +
+            '\t// comment follows rule\n' +
+            '\t// another comment new line\n' +
+            '}');
+        
+        // #736
+        t(
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '/* another comment */\n' +
+            'body {}\n',
+            //  -- output --
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '/* another comment */\n' +
+            'body {}');
+        
+        // #1348
+        t(
+            '.demoa1 {\n' +
+            'text-align:left; //demoa1 instructions for LESS note visibility only\n' +
+            '}\n' +
+            '.demob {\n' +
+            'text-align: right;\n' +
+            '}',
+            //  -- output --
+            '.demoa1 {\n' +
+            '\ttext-align: left; //demoa1 instructions for LESS note visibility only\n' +
+            '}\n' +
+            '.demob {\n' +
+            '\ttext-align: right;\n' +
+            '}');
+        t(
+            '.demoa2 {\n' +
+            'text-align:left;\n' +
+            '}\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '.demob {\n' +
+            'text-align: right}',
+            //  -- output --
+            '.demoa2 {\n' +
+            '\ttext-align: left;\n' +
+            '}\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '.demob {\n' +
+            '\ttext-align: right\n' +
+            '}');
+
+        // Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n\n\n")
+        reset_options();
+        opts.preserve_newlines = true;
+        t('/* header comment newlines on */');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '/* test */\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\t/* test */\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '/* header */\n' +
+            '\n' +
+            '\n' +
+            '.tabs {}');
+        
+        // #1185
+        t(
+            '/* header */\n' +
+            '\n' +
+            '\n' +
+            '.tabs {}\n',
+            //  -- output --
+            '/* header */\n' +
+            '\n' +
+            '\n' +
+            '.tabs {}');
+        t(
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '/* non-header */\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\t/* non-header */\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t('/* header');
+        t('// comment');
+        t('/*');
+        t('//');
+        t(
+            '.selector1 {\n' +
+            '\n' +
+            '\n' +
+            'margin: 0;\n' +
+            '\n' +
+            '\n' +
+            '/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.selector1 {\n' +
+            '\n' +
+            '\n' +
+            '\tmargin: 0;\n' +
+            '\n' +
+            '\n' +
+            '\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n' +
+            '\n' +
+            '\n' +
+            '}');
+        
+        // single line comment support (less/sass)
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '// comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '// comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '//comment\n' +
+            '\n' +
+            '\n' +
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '//comment\n' +
+            '\n' +
+            '\n' +
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            '//comment\n' +
+            '\n' +
+            '\n' +
+            '//2nd single line comment\n' +
+            '\n' +
+            '\n' +
+            'width:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\t//comment\n' +
+            '\n' +
+            '\n' +
+            '\t//2nd single line comment\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            'height:10px;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\n' +
+            '\n' +
+            '\theight: 10px;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width:10px;//end of line comment\n' +
+            '\n' +
+            '\n' +
+            'height:10px;//another nl\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px; //end of line comment\n' +
+            '\n' +
+            '\n' +
+            '\theight: 10px; //another nl\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width: 10px;   // comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '// another comment new line\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px; // comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '\t// another comment new line\n' +
+            '\n' +
+            '\n' +
+            '}');
+        
+        // #1165
+        t(
+            '.tabs{\n' +
+            '\n' +
+            '\n' +
+            'width: 10px;\n' +
+            '\n' +
+            '\n' +
+            '\t\t// comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '// another comment new line\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.tabs {\n' +
+            '\n' +
+            '\n' +
+            '\twidth: 10px;\n' +
+            '\n' +
+            '\n' +
+            '\t// comment follows rule\n' +
+            '\n' +
+            '\n' +
+            '\t// another comment new line\n' +
+            '\n' +
+            '\n' +
+            '}');
+        
+        // #736
+        t(
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '\n' +
+            '\n' +
+            '/* another comment */\n' +
+            '\n' +
+            '\n' +
+            'body {}\n',
+            //  -- output --
+            '/*\n' +
+            ' * comment\n' +
+            ' */\n' +
+            '\n' +
+            '\n' +
+            '/* another comment */\n' +
+            '\n' +
+            '\n' +
+            'body {}');
+        
+        // #1348
+        t(
+            '.demoa1 {\n' +
+            '\n' +
+            '\n' +
+            'text-align:left; //demoa1 instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            'text-align: right;\n' +
+            '\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '.demoa1 {\n' +
+            '\n' +
+            '\n' +
+            '\ttext-align: left; //demoa1 instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            '\ttext-align: right;\n' +
+            '\n' +
+            '\n' +
+            '}');
+        t(
+            '.demoa2 {\n' +
+            '\n' +
+            '\n' +
+            'text-align:left;\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            'text-align: right}',
+            //  -- output --
+            '.demoa2 {\n' +
+            '\n' +
+            '\n' +
+            '\ttext-align: left;\n' +
+            '\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '//demob instructions for LESS note visibility only\n' +
+            '\n' +
+            '\n' +
+            '.demob {\n' +
+            '\n' +
+            '\n' +
+            '\ttext-align: right\n' +
+            '}');
 
 
         //============================================================

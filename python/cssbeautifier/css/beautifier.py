@@ -229,8 +229,8 @@ class Beautifier:
             if not singleLine and self.ch == "*" and self.peek() == "/":
                 self.next()
                 break
-            elif singleLine and self.ch == "\n":
-                return self.source_text[start:self.pos]
+            elif singleLine and self.peek() == "\n":
+                break
         return self.source_text[start:self.pos] + self.ch
 
     def lookBack(self, string):
@@ -303,7 +303,9 @@ class Beautifier:
                 # on the same line as a rule
                 output.space_before_token = True
                 printer.print_string(self.eatComment())
-                output.add_new_line()
+
+                # Ensures any new lines following the comment are preserved
+                self.eatWhitespace(True)
             elif self.ch == '@':
                 printer.preserveSingleSpace(isAfterSpace)
 

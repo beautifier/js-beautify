@@ -150,16 +150,17 @@ function Beautifier(source_text, options) {
         return result;
     }
 
-    function eatComment() {
+    function eatComment(singleLine) {
         var start = pos;
-        var singleLine = peek() === "/";
-        next();
+        if (!singleLine) {
+            next();
+        }
         while (next()) {
             if (!singleLine && ch === "*" && peek() === "/") {
                 next();
                 break;
-            } else if (singleLine && ch === "\n") {
-                return source_text.substring(start, pos);
+            } else if (singleLine && peek() === "\n") {
+                break;
             }
         }
 
@@ -264,16 +265,16 @@ function Beautifier(source_text, options) {
             if (!ch) {
                 break;
             } else if (ch === '/' && peek() === '*') { /* css comment */
-                // Always start block comments on a new line. 
+                // Always start block comments on a new line.
                 // This handles scenarios where a block comment immediately
                 // follows a property definition on the same line or where
                 // minified code is being beautified.
                 output.add_new_line();
-                print_string(eatComment());
+                print_string(eatComment(false));
 
                 // Ensures any new lines following the comment are preserved
                 eatWhitespace(true);
-                
+
                 // Block comments are followed by a new line so they don't
                 // share a line with other properties
                 output.add_new_line();
@@ -281,8 +282,10 @@ function Beautifier(source_text, options) {
                 // Preserves the space before a comment
                 // on the same line as a rule
                 output.space_before_token = true;
-                print_string(eatComment());
-                output.add_new_line();
+                print_string(eatComment(true));
+
+                // Ensures any new lines following the comment are preserved
+                eatWhitespace(true);
             } else if (ch === '@') {
                 preserveSingleSpace(isAfterSpace);
 

@@ -297,91 +297,102 @@ exports.test_data = {
                 { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
                 { unchanged: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
             ],
-        }, {
-            name: "Comments",
-            description: "",
-            tests: [
-                { unchanged: '/* test */' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '/* header */.tabs {}', output: '/* header */\n.tabs {}' },
-                { input: '/* header */\n\n.tabs {}\n', output: '/* header */\n.tabs {}' },
-                { input: '.tabs {\n\n/* non-header */\n\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
-                { unchanged: '/* header' },
-                { unchanged: '// comment' },
-                {
-                    input: '.selector1 {\n\tmargin: 0;\n\n/* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
-                    output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'
-                },
-
-                {
-                    comment: "single line comment support (less/sass)",
-                    input: '.tabs{\n\n// comment\n\nwidth:10px;\n}',
-                    output: '.tabs {\n\t// comment\n\twidth: 10px;\n}'
-                },
-                { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
-                { input: '//comment\n.tabs{width:10px;}', output: '//comment\n.tabs {\n\twidth: 10px;\n}' },
-                { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' },
-                {
-                    input: '.tabs{width: 10px;\n// comment follows rule\n// another comment new line\n}',
-                    output: '.tabs {\n\twidth: 10px;\n\t// comment follows rule\n\t// another comment new line\n}'
-                }
-            ],
         },
         {
-            name: "Comments with preserve newlines option on",
+            name: "Comments",
             description: "With preserve newlines option on",
-            options: [
-                { name: "preserve_newlines", value: "true" }
-            ],
+            template: "< >",
+            matrix: [{
+                options: [
+                    { name: "preserve_newlines", value: "false" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n',
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" }
+                ],
+                i: '\n',
+                i1: '\n',
+                o: '\n',
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n\n\n',
+            }],
+
             tests: [
                 { unchanged: '/* header comment newlines on */' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '.tabs{\n\n/* test */\n\n}', output: '.tabs {\n\n\t/* test */\n\n}' },
-                { input: '/* header */.tabs {}', output: '/* header */\n.tabs {}' },
-                { input: '/* header */\n\n.tabs {}\n', output: '/* header */\n\n.tabs {}' },
-                { input: '.tabs {\n\n/* non-header */\n\nwidth:10px;}', output: '.tabs {\n\n\t/* non-header */\n\n\twidth: 10px;\n}' },
+                { input: '.tabs{<i>/* test */<i>}', output: '.tabs {<o>\t/* test */<o>}' },
+                { input: '/* header */<i>.tabs {}', output: '/* header */<o>.tabs {}' },
+                {
+                    comment: '#1185',
+                    input: '/* header */<i>.tabs {}\n',
+                    output: '/* header */<o>.tabs {}'
+                },
+                { input: '.tabs {<i>/* non-header */<i>width:10px;<i>}', output: '.tabs {<o>\t/* non-header */<o>\twidth: 10px;<o>}' },
                 { unchanged: '/* header' },
                 { unchanged: '// comment' },
+                { unchanged: '/*' },
+                { unchanged: '//' },
                 {
-                    input: '.selector1 {\n\tmargin: 0;\n\n/* This is a comment including an url http://domain.com/path/to/file.ext */\n\n}',
-                    output: '.selector1 {\n\tmargin: 0;\n\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n\n}'
+                    input: '.selector1 {<i>margin: 0;<i>/* This is a comment including an url http://domain.com/path/to/file.ext */<i>}',
+                    output: '.selector1 {<o>\tmargin: 0;<o>\t/* This is a comment including an url http://domain.com/path/to/file.ext */<o>}'
                 },
 
                 {
                     comment: "single line comment support (less/sass)",
-                    input: '.tabs{\n// comment\nwidth:10px;\n}',
-                    output: '.tabs {\n\t// comment\n\twidth: 10px;\n}'
+                    input: '.tabs{<i>// comment<i1>width:10px;<i>}',
+                    output: '.tabs {<o>\t// comment<o>\twidth: 10px;<o>}'
                 },
-                { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
-                { input: '//comment\n.tabs{width:10px;}', output: '//comment\n.tabs {\n\twidth: 10px;\n}' },
-                { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another nl\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another nl\n}' },
+                { input: '.tabs{<i>// comment<i1>width:10px;<i>}', output: '.tabs {<o>\t// comment<o>\twidth: 10px;<o>}' },
+                { input: '//comment<i1>.tabs{<i>width:10px;<i>}', output: '//comment<o>.tabs {<o>\twidth: 10px;<o>}' },
+                { input: '.tabs{<i>//comment<i1>//2nd single line comment<i1>width:10px;<i>}', output: '.tabs {<o>\t//comment<o>\t//2nd single line comment<o>\twidth: 10px;<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>height:10px;<i>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>\theight: 10px;<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>height:10px;//another nl<i1>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>\theight: 10px; //another nl<o>}' },
                 {
-                    input: '.tabs{width: 10px;\n// comment follows rule\n// another comment new line\n}',
-                    output: '.tabs {\n\twidth: 10px;\n\t// comment follows rule\n\t// another comment new line\n}'
+                    input: '.tabs{<i>width: 10px;   // comment follows rule<i1>// another comment new line<i1>}',
+                    output: '.tabs {<o>\twidth: 10px; // comment follows rule<o>\t// another comment new line<o>}'
+                },
+                {
+                    comment: '#1165',
+                    input: '.tabs{<i>width: 10px;<i1>\t\t// comment follows rule<i1>// another comment new line<i1>}',
+                    output: '.tabs {<o>\twidth: 10px;<o>\t// comment follows rule<o>\t// another comment new line<o>}'
                 },
 
                 {
                     comment: "#736",
-                    unchanged: [
-                        '/*',
-                        ' * comment',
-                        ' */',
-                        '',
-                        '',
-                        '/* another comment */',
-                        '',
-                        '',
-                        'body {}'
-                    ]
+                    input: '/*\n * comment\n */<i>/* another comment */<i>body {}\n',
+                    output: '/*\n * comment\n */<o>/* another comment */<o>body {}'
                 },
-
+                {
+                    comment: "#1348",
+                    input: '.demoa1 {<i>text-align:left; //demoa1 instructions for LESS note visibility only<i1>}<i>.demob {<i>text-align: right;<i>}',
+                    output: '.demoa1 {<o>\ttext-align: left; //demoa1 instructions for LESS note visibility only<o>}<o>.demob {<o>\ttext-align: right;<o>}'
+                },
+                {
+                    input: '.demoa2 {<i>text-align:left;<i>}<i>//demob instructions for LESS note visibility only<i1>.demob {<i>text-align: right}',
+                    output: '.demoa2 {<o>\ttext-align: left;<o>}<o>//demob instructions for LESS note visibility only<o>.demob {<o>\ttext-align: right\n}'
+                },
             ],
         },
         {
