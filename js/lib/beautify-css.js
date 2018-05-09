@@ -182,7 +182,6 @@ function Beautifier(source_text, options) {
 
     source_text = source_text || '';
 
-    var newlinesFromLastWSEat = 0;
     var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
     var indentCharacter = options.indent_char || ' ';
     var preserve_newlines = (options.preserve_newlines === undefined) ? false : options.preserve_newlines;
@@ -274,7 +273,6 @@ function Beautifier(source_text, options) {
                 }
             }
         }
-        newlinesFromLastWSEat = result;
         return result;
     }
 
@@ -468,7 +466,7 @@ function Beautifier(source_text, options) {
                         output.add_new_line();
                     }
 
-                    if (newlinesFromLastWSEat < 2 && newline_between_rules && indentLevel === 0) {
+                    if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
                         output.add_new_line(true);
                     }
                 } else {
@@ -502,7 +500,7 @@ function Beautifier(source_text, options) {
                     output.add_new_line();
                 }
 
-                if (newlinesFromLastWSEat < 2 && newline_between_rules && indentLevel === 0) {
+                if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
                     output.add_new_line(true);
                 }
             } else if (ch === ":") {

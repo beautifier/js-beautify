@@ -72,7 +72,6 @@ class Printer:
 
     def __init__(self, beautifier, indent_char, indent_size, default_indent=""):
         self.beautifier = beautifier
-        self.newlines_from_last_ws_eat = 0
         self.indentSize = indent_size
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
@@ -208,8 +207,6 @@ class Beautifier:
                     isFirstNewLine = False
                     self.output.add_new_line(True)
                     result += 1
-
-        self.newlines_from_last_ws_eat = result
         return result
 
     def skipWhitespace(self):
@@ -346,7 +343,7 @@ class Beautifier:
                     if self.eatWhitespace(True) == 0:
                         output.add_new_line()
 
-                    if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
+                    if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                         output.add_new_line(True)
                 else:
                     printer.indent()
@@ -374,8 +371,7 @@ class Beautifier:
                 if self.eatWhitespace(True) == 0:
                     output.add_new_line()
 
-
-                if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
+                if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                     output.add_new_line(True)
             elif self.ch == ":":
                 self.eatWhitespace()
