@@ -54,7 +54,6 @@ test_cli_common()
         echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Stdout should have no text."
         exit 1
     fi
-
 }
 
 setup_temp()
@@ -122,15 +121,13 @@ test_cli_js_beautify()
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn.js -e '\r\n' $TEST_TEMP/js-beautify-n.js
 
     # ensure eol processed correctly
-    # Issue #987 - strange error when processing --eol
-    # uncomment to reproduce
-    # $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
-    # $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn-dash.js --indent-size 2 --eol '\r\n' $TEST_TEMP/js-beautify-n.js
-    # diff -q $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js && {
-    #     diff $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js | cat -t -e
-    #     echo "js-beautify output for $TEST_TEMP/js-beautify-n-dash.js and $TEST_TEMP/js-beautify-rn-dash.js was expected to be different."
-    #     cleanup 1
-    # }
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn-dash.js --indent-size 2 --eol '\r\n' $TEST_TEMP/js-beautify-n.js
+    diff -q $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js && {
+        diff $TEST_TEMP/js-beautify-n-dash.js $TEST_TEMP/js-beautify-rn-dash.js | cat -t -e
+        echo "js-beautify output for $TEST_TEMP/js-beautify-n-dash.js and $TEST_TEMP/js-beautify-rn-dash.js was expected to be different."
+        cleanup 1
+    }
 
     diff -q $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js && {
         diff $TEST_TEMP/js-beautify-n.js $TEST_TEMP/js-beautify-rn.js | cat -t -e
@@ -288,6 +285,21 @@ test_cli_js_beautify()
 
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/css-beautify.js | diff -q $SCRIPT_DIR/../../../js/bin/css-beautify.js - && {
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/css-beautify.js was expected to be different."
+        cleanup 1
+    }
+
+    #meta-parameter brace_style
+    cp ../js/test/resources/example1.js $TEST_TEMP/example.js
+    $CLI_SCRIPT --brace-style=invalid $TEST_TEMP/example.js > /dev/null && {
+        echo "[$CLI_SCRIPT_NAME --brace-style=invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
+        cleanup 1
+    }
+    $CLI_SCRIPT --brace-style=expand,preserve-inline,invalid 'expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
+        echo "[$CLI_SCRIPT_NAME --brace-style=expand,preserve-inline,invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
+        cleanup 1
+    }
+    $CLI_SCRIPT --brace-style=preserve-inline $TEST_TEMP/example.js > /dev/null || {
+        echo "[$CLI_SCRIPT_NAME --brace-style=preserve-inline $TEST_TEMP/example.js] Return code for only one part of valid brace_style meta-parameter should be success (uses default where it can)."
         cleanup 1
     }
 

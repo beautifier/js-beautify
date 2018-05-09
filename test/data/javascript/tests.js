@@ -406,6 +406,53 @@ exports.test_data = {
             },
         ],
     }, {
+        name: "Unindent chained functions",
+        description: "Don't indent chained functions if unindent_chained_functions is true",
+        matrix: [{
+            options: [
+                { name: "unindent_chained_methods", value: "true" }
+            ]
+        }],
+        tests: [{
+                input: [
+                    'f().f().f()',
+                    '    .f().f();',
+                ],
+                output: [
+                    'f().f().f()',
+                    '.f().f();'
+                ]
+            },
+            {
+                input: [
+                    'f()',
+                    '    .f()',
+                    '    .f();'
+                ],
+                output: [
+                    'f()',
+                    '.f()',
+                    '.f();'
+                ]
+            },
+            {
+                input: [
+                    'f(function() {',
+                    '    f()',
+                    '        .f()',
+                    '        .f();',
+                    '});'
+                ],
+                output: [
+                    'f(function() {',
+                    '    f()',
+                    '    .f()',
+                    '    .f();',
+                    '});'
+                ]
+            }
+        ],
+    }, {
         name: "Space in parens tests",
         description: "put space inside parens",
         matrix: [{
@@ -714,6 +761,7 @@ exports.test_data = {
             { unchanged: 'yield /foo\\\\//;' },
             { unchanged: 'result = yield pgClient.query_(queryString);' },
             { unchanged: 'yield [1, 2]' },
+            { unchanged: 'yield function() {};' },
             { unchanged: "yield* bar();" },
             {
                 comment: "yield should have no space between yield and star",
@@ -745,6 +793,35 @@ exports.test_data = {
             {
                 comment: "ensure that this doesn't break anyone with the async library",
                 unchanged: "async.map(function(t) {})"
+            },
+            {
+                comment: "async on arrow function. should have a space after async",
+                input_: "async() => {}",
+                output: "async () => {}"
+            },
+            {
+                comment: "async on arrow function. should have a space after async",
+                input_: "async() => {\n    return 5;\n}",
+                output: "async () => {\n    return 5;\n}"
+            },
+            {
+                comment: "async on arrow function returning expression. should have a space after async",
+                input_: "async() => 5;",
+                output: "async () => 5;"
+            },
+            {
+                comment: "async on arrow function returning object literal. should have a space after async",
+                input_: "async(x) => ({\n    foo: \"5\"\n})",
+                output: "async (x) => ({\n    foo: \"5\"\n})"
+            },
+            {
+                unchanged: "async (x) => {\n    return x * 2;\n}"
+            },
+            {
+                unchanged: "async () => 5;"
+            },
+            {
+                unchanged: "async x => x * 2;"
             }
         ]
     }, {

@@ -48,7 +48,7 @@
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
     unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
-    content_unformatted (defaults to pre tag) - list of tags, that its content shouldn't be reformatted
+    content_unformatted (defaults to pre tag) - list of tags, whose content shouldn't be reformatted
     indent_scripts (default normal)  - "keep"|"separate"|"normal"
     preserve_newlines (default true) - whether existing line breaks before elements should be preserved
                                         Only works before elements, not inside tags or for text.
@@ -318,8 +318,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
                 // Doctype and xml elements
                 '!doctype', '?xml',
-                // ?php tag
-                '?php',
+                // ?php and ?= tags
+                '?php', '?=',
                 // other tags that were in this list, keeping just in case
                 'basefont', 'isindex'
             ],
@@ -647,10 +647,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
             // must check for space first otherwise the tag could have the first attribute included, and
             // then not un-indent correctly
-            if (tag_complete.indexOf(' ') !== -1) { //if there's whitespace, thats where the tag name ends
-                tag_index = tag_complete.indexOf(' ');
-            } else if (tag_complete.indexOf('\n') !== -1) { //if there's a line break, thats where the tag name ends
-                tag_index = tag_complete.indexOf('\n');
+            if (tag_complete.search(/\s/) !== -1) { //if there's whitespace, thats where the tag name ends
+                tag_index = tag_complete.search(/\s/);
             } else if (tag_complete.charAt(0) === '{') {
                 tag_index = tag_complete.indexOf('}');
             } else { //otherwise go with the tag ending
@@ -914,6 +912,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             //at this point we have an  tag; is its first child something we want to remain
             //unformatted?
             var next_tag = this.get_tag(true /* peek. */ );
+
+            next_tag = next_tag || '';
+            if (typeof next_tag !== 'string') {
+                next_tag = next_tag[0];
+            }
 
             // test next_tag to see if it is just html tag (no external content)
             var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);

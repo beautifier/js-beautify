@@ -70,10 +70,18 @@ function ltrim(s) {
 //     return s.replace(/\s+$/g, '');
 // }
 
+
+function generateMapFromStrings(list) {
+    var result = {};
+    for (var x = 0; x < list.length; x++) {
+        // make the mapped names underscored instead of dash
+        result[list[x].replace(/-/g, '_')] = list[x];
+    }
+    return result;
+}
+
 function sanitizeOperatorPosition(opPosition) {
     opPosition = opPosition || OPERATOR_POSITION.before_newline;
-
-    var validPositionValues = Object.values(OPERATOR_POSITION);
 
     if (!in_array(opPosition, validPositionValues)) {
         throw new Error("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
@@ -84,11 +92,10 @@ function sanitizeOperatorPosition(opPosition) {
     return opPosition;
 }
 
-var OPERATOR_POSITION = {
-    before_newline: 'before-newline',
-    after_newline: 'after-newline',
-    preserve_newline: 'preserve-newline',
-};
+var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
+
+// Generate map from array
+var OPERATOR_POSITION = generateMapFromStrings(validPositionValues);
 
 var OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION.before_newline, OPERATOR_POSITION.preserve_newline];
 
@@ -186,20 +193,28 @@ function Beautifier(js_source_text, options) {
         options.brace_style = "collapse,preserve-inline";
     } else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
         options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
-    } else if (!options.brace_style) //Nothing exists to set it
-    {
+    } else if (!options.brace_style) { //Nothing exists to set it
         options.brace_style = "collapse";
     }
 
-
+    //preserve-inline in delimited string will trigger brace_preserve_inline, everything
+    //else is considered a brace_style and the last one only will have an effect
     var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
-    opt.brace_style = brace_style_split[0];
-    opt.brace_preserve_inline = brace_style_split[1] ? brace_style_split[1] : false;
+    opt.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
+    opt.brace_style = "collapse";
+    for (var bs = 0; bs < brace_style_split.length; bs++) {
+        if (brace_style_split[bs] === "preserve-inline") {
+            opt.brace_preserve_inline = true;
+        } else {
+            opt.brace_style = brace_style_split[bs];
+        }
+    }
 
     opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
     opt.indent_char = options.indent_char ? options.indent_char : ' ';
     opt.eol = options.eol ? options.eol : 'auto';
     opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
+    opt.unindent_chained_methods = (options.unindent_chained_methods === undefined) ? false : options.unindent_chained_methods;
     opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
     opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
     opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
@@ -355,7 +370,7 @@ function Beautifier(js_source_text, options) {
         return out;
     }
 
-    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw'];
+    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw', 'yield'];
 
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
@@ -487,7 +502,7 @@ function Beautifier(js_source_text, options) {
         if (flag_store.length > 0) {
             previous_flags = flags;
             flags = flag_store.pop();
-            if (previous_flags.mode === MODE.Statement) {
+            if (previous_flags.mode === MODE.Statement && !opt.unindent_chained_methods) {
                 remove_redundant_indentation(output, previous_flags);
             }
         }
@@ -502,7 +517,7 @@ function Beautifier(js_source_text, options) {
         if (
             (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-            (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['return', 'throw']) && !current_token.wanted_newline) ||
+            (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline) ||
             (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
                 !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length)) ||
             (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
@@ -516,7 +531,9 @@ function Beautifier(js_source_text, options) {
         ) {
 
             set_mode(MODE.Statement);
-            indent();
+            if (!opt.unindent_chained_methods) {
+                indent();
+            }
 
             handle_whitespace_and_comments(current_token, true);
 
@@ -636,8 +653,8 @@ function Beautifier(js_source_text, options) {
             }
         }
 
-        // Should be a space between await and an IIFE
-        if (current_token.text === '(' && last_type === 'TK_RESERVED' && flags.last_word === 'await') {
+        // Should be a space between await and an IIFE, or async and an arrow function
+        if (current_token.text === '(' && last_type === 'TK_RESERVED' && in_array(flags.last_word, ['await', 'async'])) {
             output.space_before_token = true;
         }
 
@@ -922,7 +939,9 @@ function Beautifier(js_source_text, options) {
                 }
             }
             if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
-                if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set', 'new', 'return', 'export', 'async'])) {
+                if (last_type === 'TK_RESERVED' && (
+                        in_array(flags.last_text, ['get', 'set', 'new', 'export', 'async']) ||
+                        in_array(flags.last_text, newline_restricted_tokens))) {
                     output.space_before_token = true;
                 } else if (last_type === 'TK_RESERVED' && flags.last_text === 'default' && last_last_text === 'export') {
                     output.space_before_token = true;

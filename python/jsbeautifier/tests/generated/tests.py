@@ -797,6 +797,38 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Unindent chained functions - ()
+        self.reset_options();
+        self.options.unindent_chained_methods = true
+        bt(
+            'f().f().f()\n' +
+            '    .f().f();',
+            #  -- output --
+            'f().f().f()\n' +
+            '.f().f();')
+        bt(
+            'f()\n' +
+            '    .f()\n' +
+            '    .f();',
+            #  -- output --
+            'f()\n' +
+            '.f()\n' +
+            '.f();')
+        bt(
+            'f(function() {\n' +
+            '    f()\n' +
+            '        .f()\n' +
+            '        .f();\n' +
+            '});',
+            #  -- output --
+            'f(function() {\n' +
+            '    f()\n' +
+            '    .f()\n' +
+            '    .f();\n' +
+            '});')
+
+
+        #============================================================
         # Space in parens tests - (s = "", e = "")
         self.reset_options();
         self.options.space_in_paren = false
@@ -1483,6 +1515,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('yield /foo\\//;')
         bt('result = yield pgClient.query_(queryString);')
         bt('yield [1, 2]')
+        bt('yield function() {};')
         bt('yield* bar();')
         
         # yield should have no space between yield and star
@@ -1520,6 +1553,44 @@ class TestJSBeautifier(unittest.TestCase):
         
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
+        
+        # async on arrow function. should have a space after async
+        bt(
+            'async() => {}',
+            #  -- output --
+            'async () => {}')
+        
+        # async on arrow function. should have a space after async
+        bt(
+            'async() => {\n' +
+            '    return 5;\n' +
+            '}',
+            #  -- output --
+            'async () => {\n' +
+            '    return 5;\n' +
+            '}')
+        
+        # async on arrow function returning expression. should have a space after async
+        bt(
+            'async() => 5;',
+            #  -- output --
+            'async () => 5;')
+        
+        # async on arrow function returning object literal. should have a space after async
+        bt(
+            'async(x) => ({\n' +
+            '    foo: "5"\n' +
+            '})',
+            #  -- output --
+            'async (x) => ({\n' +
+            '    foo: "5"\n' +
+            '})')
+        bt(
+            'async (x) => {\n' +
+            '    return x * 2;\n' +
+            '}')
+        bt('async () => 5;')
+        bt('async x => x * 2;')
 
 
         #============================================================

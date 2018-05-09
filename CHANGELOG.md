@@ -1,4 +1,57 @@
 # Changelog
+## v1.7.5
+
+### Description
+
+
+### Closed Issues
+* Strict mode: js_source_text is not defined [CSS] ([#1286](https://github.com/beautify-web/js-beautify/issues/1286))
+* Made brace_style option more inclusive ([#1277](https://github.com/beautify-web/js-beautify/pull/1277))
+* White space before"!important" tag missing in CSS beautify ([#1273](https://github.com/beautify-web/js-beautify/issues/1273))
+
+
+## v1.7.4
+
+### Description
+Thanks @cejast for contributing!
+
+### Closed Issues
+* Whitespace after ES7 `async` keyword for arrow functions ([#896](https://github.com/beautify-web/js-beautify/issues/896))
+
+
+## v1.7.3
+
+### Description
+* Fixed broken installs
+
+Lessons learned:
+* Don't publish and go to bed.
+* I thought I had sufficient test coverage and I did not. Tests will be implemented to protect against this before the next release (#1254).
+* Also, this break highlights the need to create a beta channel for releases and a way to request feedback on beta releases (#1255).
+* The project has been maintained by mostly one person over the past year or so, with some additions by other individuals. This break also highlights the need for this project to have a few more people who have the ability address issues/emergencies (#1256).
+* Many projects do not not lock or even limit their version dependencies.  Those that do often use `^x.x.x` instead of `~x.x.x`.  Consider switching to making major version updates under more circumstances to limit risk to dependent projects.  (#1257)
+
+
+### Closed Issues
+* Version 1.7.0 fail to install through pip ([#1250](https://github.com/beautify-web/js-beautify/issues/1250))
+* Installing js-beautify fails ([#1247](https://github.com/beautify-web/js-beautify/issues/1247))
+
+
+## v1.7.0
+
+### Description
+
+
+### Closed Issues
+* undindent-chained-methods option. Resolves #482 ([#1240](https://github.com/beautify-web/js-beautify/pull/1240))
+* Add test and tools folder to npmignore ([#1239](https://github.com/beautify-web/js-beautify/issues/1239))
+* incorrect new-line insertion after "yield" ([#1206](https://github.com/beautify-web/js-beautify/issues/1206))
+* Do not modify built-in objects ([#1205](https://github.com/beautify-web/js-beautify/issues/1205))
+* Fix label checking incorrect box when clicked ([#1169](https://github.com/beautify-web/js-beautify/pull/1169))
+* Webpack ([#1149](https://github.com/beautify-web/js-beautify/pull/1149))
+* daisy-chain indentation leads to over-indentation ([#482](https://github.com/beautify-web/js-beautify/issues/482))
+
+
 ## v1.6.12
 
 ### Description
@@ -469,74 +522,5 @@ https://github.com/einars/js-beautify/compare/v1.4.2...v1.5.1
 * "keep array indentation" not working ([#333](https://github.com/beautify-web/js-beautify/issues/333))
 * CSS Beautifier: support LESS/SASS line comments ([#326](https://github.com/beautify-web/js-beautify/issues/326))
 * Incorrect formating with semicolon-less code ([#323](https://github.com/beautify-web/js-beautify/issues/323))
-
-
-## v1.4.2
-
-### Description
-Release quick fix for python errno error that has started being more heavily reported
-Initial release of css beautifier ported to python
-Additional minor fixes and enhancements
-
-
-
-### Closed Issues
-* global name 'errno' is not defined ([#352](https://github.com/beautify-web/js-beautify/issues/352))
-* import errno for errno.EEXIST ([#349](https://github.com/beautify-web/js-beautify/pull/349))
-* Added bower.json ([#343](https://github.com/beautify-web/js-beautify/pull/343))
-* HTML wrap-line-length: 0 doesn't work ([#342](https://github.com/beautify-web/js-beautify/issues/342))
-* Make beautify.js, beautify-html.js, beautify-css.js available in bower ([#341](https://github.com/beautify-web/js-beautify/issues/341))
-* Making .jsbeautifyrc resolve work (in general and for Windows re home dir) ([#334](https://github.com/beautify-web/js-beautify/pull/334))
-* windows 8 error: path.js:204         throw new TypeError('Arguments to path.join must be strings'); ([#300](https://github.com/beautify-web/js-beautify/issues/300))
-* Port beautify-css to python ([#204](https://github.com/beautify-web/js-beautify/issues/204))
-
-
-## v1.4.1
-
-### Description
-Incremental fixes and improvements 
-
-
-### Closed Issues
-* Tests borked when running from web ([#332](https://github.com/beautify-web/js-beautify/issues/332))
-* wrap_line_length isn't enforced for property values ([#331](https://github.com/beautify-web/js-beautify/issues/331))
-* Have no empty line between comment and function ([#329](https://github.com/beautify-web/js-beautify/issues/329))
-* Add new line at the end of the file (html-beautify) ([#325](https://github.com/beautify-web/js-beautify/issues/325))
-* Space in empty parentheses ([#322](https://github.com/beautify-web/js-beautify/pull/322))
-* Handlebars ([#321](https://github.com/beautify-web/js-beautify/pull/321))
-* Space in empty parentheses ([#320](https://github.com/beautify-web/js-beautify/issues/320))
-* The indent_with_tabs option did not work when required in node, only CLI. ([#319](https://github.com/beautify-web/js-beautify/pull/319))
-* add option to indent "inner HTML"... ([#312](https://github.com/beautify-web/js-beautify/pull/312))
-* Wrong format of HTML textnode containing multipe words ([#306](https://github.com/beautify-web/js-beautify/issues/306))
-* Repair to work in windows ([#304](https://github.com/beautify-web/js-beautify/pull/304))
-* make export object the same with common and amd methods ([#303](https://github.com/beautify-web/js-beautify/pull/303))
-* jshint cleanup and make require.js optimizable ([#302](https://github.com/beautify-web/js-beautify/pull/302))
-* E4X xml-literal allowed xml-characters ([#294](https://github.com/beautify-web/js-beautify/pull/294))
-* Publish 1.4.1 ([#292](https://github.com/beautify-web/js-beautify/issues/292))
-* Blank line inserted between function and preceding comment ([#291](https://github.com/beautify-web/js-beautify/issues/291))
-* Add tests for beautify-html.js ([#211](https://github.com/beautify-web/js-beautify/issues/211))
-
-
-## v1.4.0
-
-### Description
-Given the breadth of the changes in the code and api, bump to 1.4.0 for the next release.
-
-https://github.com/einars/js-beautify/compare/v1.3.4...v1.4.0
-
-### Closed Issues
-* Fix major performance degradation from minimal indenting ([#288](https://github.com/beautify-web/js-beautify/issues/288))
-* Minimal indenting ([#286](https://github.com/beautify-web/js-beautify/pull/286))
-* Empty lines are removed in HTML and CSS, and also adds trailing spaces ([#285](https://github.com/beautify-web/js-beautify/issues/285))
-* npmjs cli options incomplete ([#283](https://github.com/beautify-web/js-beautify/issues/283))
-* Publish 1.4.0 ([#282](https://github.com/beautify-web/js-beautify/issues/282))
-* Blocks, arrays, and expressions over indented ([#281](https://github.com/beautify-web/js-beautify/issues/281))
-* Keeping New lines inside markup ([#280](https://github.com/beautify-web/js-beautify/issues/280))
-* E4X xml-literal small fixes ([#279](https://github.com/beautify-web/js-beautify/pull/279))
-* Add support for Asynchronous Module Definition (AMD) API ([#274](https://github.com/beautify-web/js-beautify/pull/274))
-* fixed broken run tests script ([#255](https://github.com/beautify-web/js-beautify/pull/255))
-* Ending parenthesis in function call ([#239](https://github.com/beautify-web/js-beautify/issues/239))
-* Preventing line breaks around Unformatted tags ([#105](https://github.com/beautify-web/js-beautify/issues/105))
-* IE conditional HTML comments don't play well with the rest of the document ([#91](https://github.com/beautify-web/js-beautify/issues/91))
 
 

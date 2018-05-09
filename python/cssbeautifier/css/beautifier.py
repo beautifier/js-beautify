@@ -404,7 +404,8 @@ class Beautifier:
                         and self.ch is not '\'':
                             printer.print_string(self.eatString(')'))
                         else:
-                            self.pos = self.pos - 1
+                            self.pos -= 1
+                            parenLevel += 1
                 else:
                     parenLevel += 1
                     printer.preserveSingleSpace(isAfterSpace)
@@ -443,6 +444,9 @@ class Beautifier:
                 printer.print_string('=')
                 if WHITE_RE.search(self.ch):
                     self.ch = ''
+            elif self.ch == '!':  # !important
+                printer.print_string(' ')
+                printer.print_string(self.ch)
             else:
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch)

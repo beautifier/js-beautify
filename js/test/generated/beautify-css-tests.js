@@ -570,6 +570,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n' +
             '.span {}');
         t(
+            'html {}\n' +
+            '\n' +
+            '/*this is a comment*/');
+        t(
             '.div {\n' +
             '\ta: 1;\n' +
             '\n' +
@@ -1169,6 +1173,22 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Handle LESS function parameters
+        reset_options();
+        t(
+            'div{.px2rem(width,12);}',
+            //  -- output --
+            'div {\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}');
+        t(
+            'div {\n' +
+            '\tbackground: url("//test.com/dummy.png");\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}');
+
+
+        //============================================================
         // Psuedo-classes vs Variables
         reset_options();
         t('@page :first {}');
@@ -1248,6 +1268,31 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         t(
             '.fa-rotate-270 {\n' +
             '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}');
+
+
+        //============================================================
+        // Important 
+        reset_options();
+        t(
+            'a {\n' +
+            '\tcolor: blue  !important;\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
+        t(
+            'a {\n' +
+            '\tcolor: blue!important;\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
+        t(
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
             '}');
 
 
@@ -1361,6 +1406,11 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         //variables
         t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
         t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}");
+
+        //mixins
+        t("div{.px2rem(width,12);}", "div {\n\t.px2rem(width, 12);\n}");
+        // mixin next to 'background: url("...")' should not add a line break after the comma
+        t("div {\n\tbackground: url(\"//test.com/dummy.png\");\n\t.px2rem(width, 12);\n}");
 
         // test options
         opts.indent_size = 2;

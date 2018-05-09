@@ -173,15 +173,23 @@ class Beautifier:
         if self.opts.brace_style == 'collapse-preserve-inline':
             self.opts.brace_style = 'collapse,preserve-inline'
 
+        #split always returns at least one value
         split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
-        self.opts.brace_style = split[0]
-        self.opts.brace_preserve_inline = (True if bool(split[1] == 'preserve-inline') else None) if len(split) > 1 else False
-
-        if self.opts.brace_style not in ['expand', 'collapse', 'end-expand', 'none']:
-            raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
-
-        if self.opts.brace_preserve_inline == None:
-            raise(Exception('opts.brace_style second item must be "preserve-inline"'))
+        #preserve-inline in delimited string will trigger brace_preserve_inline
+        #Everything else is considered a brace_style and the last one only will
+        #have an effect
+        #specify defaults in case one half of meta-option is missing
+        self.opts.brace_style = "collapse"
+        self.opts.brace_preserve_inline = False
+        for bs in split:
+            if bs == "preserve-inline":
+                self.opts.brace_preserve_inline = True
+            else:
+                #validate each brace_style that's not a preserve-inline
+                #(results in very similar validation as js version)
+                if bs not in ['expand', 'collapse', 'end-expand', 'none']:
+                    raise(Exception('opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
+                self.opts.brace_style = bs
 
         s = self.blank_state(s)
 
@@ -268,7 +276,7 @@ class Beautifier:
         return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
 
-    _newline_restricted_tokens = ['break','continue','return', 'throw']
+    _newline_restricted_tokens = ['break','continue','return', 'throw', 'yield']
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
         # never wrap the first token of a line.
         if self.output.just_added_newline():
@@ -371,7 +379,7 @@ class Beautifier:
         if len(self.flag_store) > 0:
             self.previous_flags = self.flags
             self.flags = self.flag_store.pop()
-            if self.previous_flags.mode == MODE.Statement:
+            if self.previous_flags.mode == MODE.Statement and not self.opts.unindent_chained_methods:
                 remove_redundant_indentation(self.output, self.previous_flags)
 
 
@@ -383,7 +391,7 @@ class Beautifier:
         if (
             (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and current_token.type == 'TK_WORD') \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['return', 'throw'] and not current_token.wanted_newline) \
+                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline) \
                 or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' \
                     and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' and not len(current_token.comments_before))) \
                 or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
@@ -397,7 +405,8 @@ class Beautifier:
                 ):
 
             self.set_mode(MODE.Statement)
-            self.indent()
+            if not self.opts.unindent_chained_methods:
+                self.indent()
 
             self.handle_whitespace_and_comments(current_token, True);
 
@@ -479,7 +488,7 @@ class Beautifier:
             # TODO: option space_before_conditional
             self.output.space_before_token = True
 
-        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word == 'await':
+        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word in ['await', 'async']:
             self.output.space_before_token = True
 
 
@@ -728,7 +737,10 @@ class Beautifier:
                     self.print_newline(True)
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
-                if self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set', 'new', 'return', 'export', 'async']:
+                if self.last_type == 'TK_RESERVED' and (
+                    self.flags.last_text in ['get', 'set', 'new', 'export', 'async'] or
+                    self.flags.last_text in self._newline_restricted_tokens
+                ):
                     self.output.space_before_token = True
                 elif self.last_type == 'TK_RESERVED' and self.flags.last_text == 'default' and self.last_last_text == 'export':
                     self.output.space_before_token = True

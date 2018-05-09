@@ -528,6 +528,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.span {}')
         t(
+            'html {}\n' +
+            '\n' +
+            '/*this is a comment*/')
+        t(
             '.div {\n' +
             '\ta: 1;\n' +
             '\n' +
@@ -1127,6 +1131,22 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Handle LESS function parameters
+        self.reset_options();
+        t(
+            'div{.px2rem(width,12);}',
+            #  -- output --
+            'div {\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}')
+        t(
+            'div {\n' +
+            '\tbackground: url("//test.com/dummy.png");\n' +
+            '\t.px2rem(width, 12);\n' +
+            '}')
+
+
+        #============================================================
         # Psuedo-classes vs Variables
         self.reset_options();
         t('@page :first {}')
@@ -1206,6 +1226,31 @@ class CSSBeautifierTest(unittest.TestCase):
         t(
             '.fa-rotate-270 {\n' +
             '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}')
+
+
+        #============================================================
+        # Important 
+        self.reset_options();
+        t(
+            'a {\n' +
+            '\tcolor: blue  !important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue!important;\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
+        t(
+            'a {\n' +
+            '\tcolor: blue !important;\n' +
             '}')
 
 

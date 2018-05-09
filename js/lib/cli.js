@@ -42,20 +42,23 @@ var fs = require('fs'),
     unpackers = {},
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
+nopt.invalidHandler = function(key, val, types) {
+    throw new Error(key + " was invalid with value \"" + val + "\"");
+}
 nopt.typeDefs.brace_style = {
     type: "brace_style",
     validate: function(data, key, val) {
         data[key] = val;
         // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
         // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
-        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none"];
-        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/);
-        for (var i = 0; i < validVals.length; i++) {
-            if (validVals[i] === val || validVals[i] === valSplit[0] && valSplit[1] === "preserve-inline") {
-                return true;
+        var validVals = ["collapse", "collapse-preserve-inline", "expand", "end-expand", "expand-strict", "none", "preserve-inline"];
+        var valSplit = val.split(/[^a-zA-Z0-9_\-]+/); //Split will always return at least one parameter
+        for (var i = 0; i < valSplit.length; i++) {
+            if (validVals.indexOf(valSplit[i]) === -1) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 };
 var path = require('path'),
@@ -75,6 +78,7 @@ var path = require('path'),
         "jslint_happy": Boolean,
         "space_after_anon_function": Boolean,
         "brace_style": "brace_style", //See above for validation
+        "unindent_chained_methods": Boolean,
         "break_chained_methods": Boolean,
         "keep_array_indentation": Boolean,
         "unescape_strings": Boolean,
@@ -127,6 +131,7 @@ var path = require('path'),
         "j": ["--jslint_happy"],
         "a": ["--space_after_anon_function"],
         "b": ["--brace_style"],
+        "u": ["--unindent_chained_methods"],
         "B": ["--break_chained_methods"],
         "k": ["--keep_array_indentation"],
         "x": ["--unescape_strings"],
@@ -236,7 +241,16 @@ function set_file_editorconfig_opts(file, config) {
 
 // var cli = require('js-beautify/cli'); cli.interpret();
 var interpret = exports.interpret = function(argv, slice) {
-    var parsed = nopt(knownOpts, shortHands, argv, slice);
+    var parsed;
+    try {
+        parsed = nopt(knownOpts, shortHands, argv, slice);
+    } catch (ex) {
+        usage(ex);
+        // console.error(ex);
+        // console.error('Run `' + getScriptName() + ' -h` for help.');
+        process.exit(1);
+    }
+
 
     if (parsed.version) {
         console.log(require('../../package.json').version);
@@ -346,6 +360,7 @@ function usage(err) {
             msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
             msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
             msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
+            msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
@@ -366,7 +381,7 @@ function usage(err) {
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
             msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
-            msg.push('  -T, --content_unformatted         List of tags (defaults to pre) that its content should not be reformatted');
+            msg.push('  -T, --content_unformatted         List of tags (defaults to pre) whose content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
             break;
         case "css":

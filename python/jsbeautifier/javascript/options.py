@@ -42,6 +42,7 @@ class BeautifierOptions:
         self.eval_code = False
         self.unescape_strings = False
         self.wrap_line_length = 0
+        self.unindent_chained_methods = False
         self.break_chained_methods = False
         self.end_with_newline = False
         self.comma_first = False
