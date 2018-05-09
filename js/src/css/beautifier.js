@@ -82,13 +82,17 @@ function Beautifier(source_text, options) {
         return ch || '';
     }
 
-    function peek(skipWhitespace) {
-        var result = '';
+    function peek(index) {
+        index = index || 0;
+        index += pos + 1;
+        var result = source_text.charAt(index) || '';
+        return result;
+    }
+
+    function peekIgnoreWhitespace(index) {
         var prev_pos = pos;
-        if (skipWhitespace) {
-            eatWhitespace();
-        }
-        result = source_text.charAt(pos + 1) || '';
+        eatWhitespace();
+        var result = peek(index);
         pos = prev_pos - 1;
         next();
         return result;
@@ -121,16 +125,15 @@ function Beautifier(source_text, options) {
     // newline character found; if the user has preserve_newlines off, only
     // the first newline will be output
     function eatWhitespace(allowAtLeastOneNewLine) {
-        var result = 0;
+        var result = whiteRe.test(peek());
         var isFirstNewLine = true;
 
         while (whiteRe.test(peek())) {
             next();
-            if (ch === '\n') {
-                if (allowAtLeastOneNewLine && (preserve_newlines || isFirstNewLine)) {
+            if (allowAtLeastOneNewLine && ch === '\n') {
+                if (preserve_newlines || isFirstNewLine) {
                     isFirstNewLine = false;
                     output.add_new_line(true);
-                    result++;
                 }
             }
         }
@@ -262,7 +265,8 @@ function Beautifier(source_text, options) {
 
             if (!ch) {
                 break;
-            } else if (ch === '/' && peek() === '*') { /* css comment */
+            } else if (ch === '/' && peek() === '*') {
+                // /* css comment */
                 // Always start block comments on a new line.
                 // This handles scenarios where a block comment immediately
                 // follows a property definition on the same line or where
@@ -276,7 +280,8 @@ function Beautifier(source_text, options) {
                 // Block comments are followed by a new line so they don't
                 // share a line with other properties
                 output.add_new_line();
-            } else if (ch === '/' && peek() === '/') { // single line comment
+            } else if (ch === '/' && peek() === '/') {
+                // // single line comment
                 // Preserves the space before a comment
                 // on the same line as a rule
                 output.space_before_token = true;
@@ -318,14 +323,14 @@ function Beautifier(source_text, options) {
                 preserveSingleSpace(isAfterSpace);
                 print_string(eatString('}'));
             } else if (ch === '{') {
-                if (peek(true) === '}') {
+                if (peekIgnoreWhitespace() === '}') {
                     eatWhitespace();
                     next();
                     output.space_before_token = true;
                     print_string("{}");
-                    if (!eatWhitespace(true)) {
-                        output.add_new_line();
-                    }
+
+                    eatWhitespace(true);
+                    output.add_new_line();
 
                     if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
                         output.add_new_line(true);
@@ -334,9 +339,8 @@ function Beautifier(source_text, options) {
                     indent();
                     output.space_before_token = true;
                     print_string(ch);
-                    if (!eatWhitespace(true)) {
-                        output.add_new_line();
-                    }
+                    eatWhitespace(true);
+                    output.add_new_line();
 
                     // when entering conditional groups, only rulesets are allowed
                     if (enteringConditionalGroup) {
@@ -357,9 +361,8 @@ function Beautifier(source_text, options) {
                     nestedLevel--;
                 }
 
-                if (!eatWhitespace(true)) {
-                    output.add_new_line();
-                }
+                eatWhitespace(true);
+                output.add_new_line();
 
                 if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
                     output.add_new_line(true);
@@ -431,7 +434,8 @@ function Beautifier(source_text, options) {
                 parenLevel--;
             } else if (ch === ',') {
                 print_string(ch);
-                if (!eatWhitespace(true) && selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1) {
+                eatWhitespace(true);
+                if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1) {
                     output.add_new_line();
                 } else {
                     output.space_before_token = true;

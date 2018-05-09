@@ -158,17 +158,19 @@ class Beautifier:
             self.ch = ''
         return self.ch
 
-    def peek(self,skipWhitespace=False):
-        start = self.pos
-        if skipWhitespace:
-            self.eatWhitespace()
+    def peek(self,index=0):
         result = ""
-        if self.pos + 1 < len(self.source_text):
-            result = self.source_text[self.pos + 1]
-        if skipWhitespace:
-            self.pos = start - 1
-            self.next()
+        index += self.pos + 1
+        if index < len(self.source_text):
+            result = self.source_text[index]
+        return result
 
+    def peekIgnoreWhitespace(self,index=0):
+        start = self.pos
+        self.eatWhitespace()
+        result = self.peek(index)
+        self.pos = start - 1
+        self.next()
         return result
 
     def eatString(self, endChars):
@@ -194,19 +196,15 @@ class Beautifier:
     # newline character found; if the user has preserve_newlines off, only
     # the first newline will be output
     def eatWhitespace(self, allowAtLeastOneNewLine=False):
-        result = 0
+        result = WHITE_RE.search(self.peek()) is not None
         isFirstNewLine = True
 
         while WHITE_RE.search(self.peek()) is not None:
             self.next()
-            if self.ch == "\n":
-                if (
-                        allowAtLeastOneNewLine and
-                        (self.opts.preserve_newlines or isFirstNewLine)
-                   ):
+            if allowAtLeastOneNewLine and self.ch == "\n":
+                if self.opts.preserve_newlines or isFirstNewLine:
                     isFirstNewLine = False
                     self.output.add_new_line(True)
-                    result += 1
         return result
 
     def skipWhitespace(self):
@@ -218,10 +216,11 @@ class Beautifier:
             result += self.ch
         return result
 
-    def eatComment(self):
+    def eatComment(self, singleLine):
         start = self.pos
-        singleLine = self.peek() == "/"
-        self.next()
+        if not singleLine:
+            self.next()
+
         while self.next():
             if not singleLine and self.ch == "*" and self.peek() == "/":
                 self.next()
@@ -282,12 +281,13 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
+                # /* css comment */
                 # Always start block comments on a new line.
                 # This handles scenarios where a block comment immediately
                 # follows a property definition on the same line or where
                 # minified code is being beautified.
                 output.add_new_line()
-                printer.print_string(self.eatComment())
+                printer.print_string(self.eatComment(False))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -296,10 +296,11 @@ class Beautifier:
                 # share a line with other properties
                 output.add_new_line()
             elif self.ch == '/' and self.peek() == '/':
+                # // single line comment
                 # Preserves the space before a comment
                 # on the same line as a rule
                 output.space_before_token = True
-                printer.print_string(self.eatComment())
+                printer.print_string(self.eatComment(True))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -307,8 +308,8 @@ class Beautifier:
                 printer.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
-                if self.peek(True) == '{':
-                    printer.print_string(self.eatString('}'));
+                if self.peek() == '{':
+                    printer.print_string(self.eatString('}'))
                 else:
                     printer.print_string(self.ch)
                     # strip trailing space, if present, for hash property check
@@ -333,15 +334,15 @@ class Beautifier:
                             enteringConditionalGroup = True
             elif self.ch == '#' and self.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
-                printer.print_string(self.eatString('}'));
+                printer.print_string(self.eatString('}'))
             elif self.ch == '{':
-                if self.peek(True) == '}':
+                if self.peekIgnoreWhitespace() == '}':
                     self.eatWhitespace()
                     self.next()
                     output.space_before_token = True
                     printer.print_string("{}")
-                    if self.eatWhitespace(True) == 0:
-                        output.add_new_line()
+                    self.eatWhitespace(True)
+                    output.add_new_line()
 
                     if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                         output.add_new_line(True)
@@ -349,8 +350,8 @@ class Beautifier:
                     printer.indent()
                     output.space_before_token = True
                     printer.print_string(self.ch)
-                    if self.eatWhitespace(True) == 0:
-                        output.add_new_line()
+                    self.eatWhitespace(True)
+                    output.add_new_line()
 
                     # when entering conditional groups, only rulesets are allowed
                     if enteringConditionalGroup:
@@ -368,8 +369,8 @@ class Beautifier:
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
 
-                if self.eatWhitespace(True) == 0:
-                    output.add_new_line()
+                self.eatWhitespace(True)
+                output.add_new_line()
 
                 if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                     output.add_new_line(True)
@@ -435,7 +436,8 @@ class Beautifier:
                 parenLevel -= 1
             elif self.ch == ',':
                 printer.print_string(self.ch)
-                if self.eatWhitespace(True) == 0 and not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
+                self.eatWhitespace(True)
+                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1:
                     output.add_new_line()
                 else:
                     output.space_before_token = True
