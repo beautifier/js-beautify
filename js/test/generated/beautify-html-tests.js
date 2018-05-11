@@ -440,6 +440,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<root attr1="foo"\n' +
             '    attr2="bar" />');
         test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css">');
+        test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
             '<link rel="stylesheet"\n' +
@@ -478,6 +484,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '    attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css">');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -518,6 +530,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<root attr1="foo"\n' +
             '        attr2="bar" />');
         test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '        rel="stylesheet"\n' +
+            '        type="text/css">');
+        test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
             '<link rel="stylesheet"\n' +
@@ -544,6 +562,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            'rel="stylesheet" type="text/css">');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -572,6 +595,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
         test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet" type="text/css">');
+        test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
             '<link rel="stylesheet"\n' +
@@ -592,6 +620,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
         test_fragment('<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">');
 
         // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
@@ -625,6 +654,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -664,6 +699,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -703,6 +744,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '      attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet"\n' +
+            '      type="text/css">');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -750,6 +797,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="foo"\n' +
             '    attr2="bar"\n' +
             '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css"\n' +
+            '>');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -800,6 +855,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="foo"\n' +
             '    attr2="bar"\n' +
             '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '    rel="stylesheet"\n' +
+            '    type="text/css"\n' +
+            '>');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --
@@ -849,6 +912,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        attr1="foo"\n' +
             '        attr2="bar"\n' +
             '/>');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link\n' +
+            '        href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '        rel="stylesheet"\n' +
+            '        type="text/css"\n' +
+            '>');
         test_fragment(
             '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             //  -- output --

@@ -473,6 +473,10 @@ exports.test_data = {
             output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
         }, {
             fragment: true,
+            input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+        }, {
+            fragment: true,
             input: '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" type="text/css">',
             output: '<link{{indent_attr_first}}rel="stylesheet"{{indent_over80}}{{indent_attr_faligned}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
         }]
