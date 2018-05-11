@@ -472,6 +472,8 @@ class Beautifier:
                 elif self.flags.last_word in ['await', 'async']:
                     # Should be a space between await and an IIFE, or async and an arrow function
                     self.output.space_before_token = True
+                elif self.flags.last_text == 'import' and current_token.whitespace_before == '':
+                    self.output.space_before_token = False
                 elif self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch':
                     self.output.space_before_token = True
 

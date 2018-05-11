@@ -865,6 +865,8 @@ function Beautifier(js_source_text, options) {
                 } else if (in_array(flags.last_word, ['await', 'async'])) {
                     // Should be a space between await and an IIFE, or async and an arrow function
                     output.space_before_token = true;
+                } else if (flags.last_text === 'import' && current_token.whitespace_before === '') {
+                    output.space_before_token = false;
                 } else if (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch') {
                     output.space_before_token = true;
                 }

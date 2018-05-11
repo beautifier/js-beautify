@@ -2556,7 +2556,18 @@ exports.test_data = {
                     'import { member1, member2 as alias2 } from "module-name";',
                     'import defaultMember, { member, member2 } from "module-name";',
                     'import defaultMember, * as name from "module-name";',
-                    'import "module-name";'
+                    'import "module-name";',
+                    'import("module-name")'
+                ]
+            },
+            {
+                comment: "Issue #1393 - dynamic import()",
+                unchanged: [
+                    'if (from < to) {',
+                    '    import(`dynamic${library}`);',
+                    '} else {',
+                    '    import("otherdynamic");',
+                    '}'
                 ]
             },
             {

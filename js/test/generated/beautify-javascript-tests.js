@@ -3747,7 +3747,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'import { member1, member2 as alias2 } from "module-name";\n' +
             'import defaultMember, { member, member2 } from "module-name";\n' +
             'import defaultMember, * as name from "module-name";\n' +
-            'import "module-name";');
+            'import "module-name";\n' +
+            'import("module-name")');
+        
+        // Issue #1393 - dynamic import()
+        bt(
+            'if (from < to) {\n' +
+            '    import(`dynamic${library}`);\n' +
+            '} else {\n' +
+            '    import("otherdynamic");\n' +
+            '}');
         
         // Issue 858 - from is a keyword only after import
         bt(
