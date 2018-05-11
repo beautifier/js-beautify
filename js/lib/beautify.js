@@ -2811,7 +2811,6 @@ function Tokenizer(input_string, opts) {
 
 module.exports.Tokenizer = Tokenizer;
 
-
 /***/ })
 /******/ ]);
 var js_beautify = legacy_beautify_js;
