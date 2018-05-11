@@ -549,12 +549,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
-        opts.space_before_conditional = false;
-        bt('if(a) b()');
-
-
-        reset_options();
-        //============================================================
         opts.preserve_newlines = true;
         bt('var a = 42; // foo\n\nvar b;');
         bt('var a = 42; // foo\n\n\nvar b;');

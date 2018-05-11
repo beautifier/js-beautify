@@ -856,24 +856,25 @@ class TestJSBeautifier(unittest.TestCase):
             'function g(a, b) {\n' +
             '    if (!a) b()\n' +
             '}')
-        bt('a=[];', 'a = [];')
+        bt('a=[][    ](  );', 'a = [][]();')
+        bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
             #  -- output --
             '{\n' +
-            '    files: [{\n' +
+            '    files: a[][{\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: ["im/design_standards/*.*"],\n' +
+            '        src: b(c)["im/design_standards/*.*"],\n' +
             '        dest: "www/gui/build"\n' +
             '    }]\n' +
             '}')
@@ -905,24 +906,25 @@ class TestJSBeautifier(unittest.TestCase):
             'function g(a, b) {\n' +
             '    if (!a) b()\n' +
             '}')
-        bt('a=[];', 'a = [];')
+        bt('a=[][    ](  );', 'a = [][]();')
+        bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
             #  -- output --
             '{\n' +
-            '    files: [{\n' +
+            '    files: a[][{\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: ["im/design_standards/*.*"],\n' +
+            '        src: b(c)["im/design_standards/*.*"],\n' +
             '        dest: "www/gui/build"\n' +
             '    }]\n' +
             '}')
@@ -954,15 +956,25 @@ class TestJSBeautifier(unittest.TestCase):
             'function g( a, b ) {\n' +
             '    if ( !a ) b()\n' +
             '}')
-        bt('a=[];', 'a = [];')
+        bt('a=[][    ](  );', 'a = [][]();')
+        bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    files: a[][ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: b( c )[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}')
@@ -994,15 +1006,25 @@ class TestJSBeautifier(unittest.TestCase):
             'function g( a, b ) {\n' +
             '    if ( !a ) b( )\n' +
             '}')
-        bt('a=[];', 'a = [ ];')
+        bt('a=[][    ](  );', 'a = [ ][ ]( );')
+        bt('a=()(    )[  ];', 'a = ( )( )[ ];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    files: a[ ][ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: b( c )[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}')
@@ -1987,6 +2009,72 @@ class TestJSBeautifier(unittest.TestCase):
             '    {}\n' +
             '    /z/\n' +
             '}')
+
+
+        #============================================================
+        # Space before conditional - (s = "")
+        self.reset_options();
+        self.options.space_before_conditional = false
+        bt('if(a) b()')
+        bt('while(a) b()')
+        bt(
+            'do\n' +
+            '    c();\n' +
+            'while(a) b()')
+        bt(
+            'if(a)\n' +
+            'b();',
+            #  -- output --
+            'if(a)\n' +
+            '    b();')
+        bt(
+            'while(a)\n' +
+            'b();',
+            #  -- output --
+            'while(a)\n' +
+            '    b();')
+        bt(
+            'do\n' +
+            'c();\n' +
+            'while(a);',
+            #  -- output --
+            'do\n' +
+            '    c();\n' +
+            'while(a);')
+        bt('return [];')
+        bt('return ();')
+
+        # Space before conditional - (s = " ")
+        self.reset_options();
+        self.options.space_before_conditional = true
+        bt('if (a) b()')
+        bt('while (a) b()')
+        bt(
+            'do\n' +
+            '    c();\n' +
+            'while (a) b()')
+        bt(
+            'if(a)\n' +
+            'b();',
+            #  -- output --
+            'if (a)\n' +
+            '    b();')
+        bt(
+            'while(a)\n' +
+            'b();',
+            #  -- output --
+            'while (a)\n' +
+            '    b();')
+        bt(
+            'do\n' +
+            'c();\n' +
+            'while(a);',
+            #  -- output --
+            'do\n' +
+            '    c();\n' +
+            'while (a);')
+        bt('return [];')
+        bt('return ();')
 
 
         #============================================================
@@ -3487,7 +3575,16 @@ class TestJSBeautifier(unittest.TestCase):
             'import { member1, member2 as alias2 } from "module-name";\n' +
             'import defaultMember, { member, member2 } from "module-name";\n' +
             'import defaultMember, * as name from "module-name";\n' +
-            'import "module-name";')
+            'import "module-name";\n' +
+            'import("module-name")')
+        
+        # Issue #1393 - dynamic import()
+        bt(
+            'if (from < to) {\n' +
+            '    import(`dynamic${library}`);\n' +
+            '} else {\n' +
+            '    import("otherdynamic");\n' +
+            '}')
         
         # Issue 858 - from is a keyword only after import
         bt(
