@@ -501,8 +501,12 @@ exports.test_data = {
                 output: 'function f({{s}}a, b{{s}}) {\n    if ({{s}}a{{s}}) b({{e}})\n}\n\nfunction g({{s}}a, b{{s}}) {\n    if ({{s}}!a{{s}}) b({{e}})\n}'
             },
             {
-                input: 'a=[];',
-                output: 'a = [{{e}}];'
+                input: 'a=[][    ](  );',
+                output: 'a = [{{e}}][{{e}}]({{e}});'
+            },
+            {
+                input: 'a=()(    )[  ];',
+                output: 'a = ({{e}})({{e}})[{{e}}];'
             },
             {
                 input: 'a=[b,c,d];',
@@ -515,20 +519,20 @@ exports.test_data = {
             {
                 input: [
                     '{',
-                    '    files: [ {',
+                    '    files: a[][ {',
                     '        expand: true,',
                     '        cwd: "www/gui/",',
-                    '        src: [ "im/design_standards/*.*" ],',
+                    '        src: b(c)[ "im/design_standards/*.*" ],',
                     '        dest: "www/gui/build"',
                     '    } ]',
                     '}'
                 ],
                 output: [
                     '{',
-                    '    files: [{{s}}{',
+                    '    files: a[{{e}}][{{s}}{',
                     '        expand: true,',
                     '        cwd: "www/gui/",',
-                    '        src: [{{s}}"im/design_standards/*.*"{{s}}],',
+                    '        src: b({{s}}c{{s}})[{{s}}"im/design_standards/*.*"{{s}}],',
                     '        dest: "www/gui/build"',
                     '    }{{s}}]',
                     '}'
@@ -1259,6 +1263,39 @@ exports.test_data = {
         options: [],
         tests: [
             { input: '{{}/z/}', output: '{\n    {}\n    /z/\n}' }
+        ]
+    }, {
+        name: "Space before conditional",
+        description: "",
+        matrix: [{
+            options: [
+                { name: "space_before_conditional", value: "false" }
+            ],
+            s: '',
+        }, {
+            options: [
+                { name: "space_before_conditional", value: "true" }
+            ],
+            s: ' ',
+        }],
+        tests: [
+            { unchanged: 'if{{s}}(a) b()' },
+            { unchanged: 'while{{s}}(a) b()' },
+            { unchanged: 'do\n    c();\nwhile{{s}}(a) b()' },
+            {
+                input: 'if(a)\nb();',
+                output: 'if{{s}}(a)\n    b();'
+            },
+            {
+                input: 'while(a)\nb();',
+                output: 'while{{s}}(a)\n    b();'
+            },
+            {
+                input: 'do\nc();\nwhile(a);',
+                output: 'do\n    c();\nwhile{{s}}(a);'
+            },
+            { unchanged: 'return [];' },
+            { unchanged: 'return ();' },
         ]
     }, {
         name: "Beautify preserve formatting",
