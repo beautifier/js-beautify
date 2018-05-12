@@ -619,62 +619,61 @@ function Beautifier(js_source_text, options) {
                 }
             }
 
-        } else {
-            if (last_type === 'TK_RESERVED' && flags.last_text === 'for') {
-                next_mode = MODE.ForInitializer;
-            } else if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['if', 'while'])) {
-                next_mode = MODE.Conditional;
-            } else {
-                // next_mode = MODE.Expression;
+            if (!in_array(last_type, ['TK_START_EXPR', 'TK_END_EXPR', 'TK_WORD', 'TK_OPERATOR'])) {
+                output.space_before_token = true;
             }
+        } else {
+            if (last_type === 'TK_RESERVED') {
+                if (flags.last_text === 'for') {
+                    output.space_before_token = opt.space_before_conditional;
+                    next_mode = MODE.ForInitializer;
+                } else if (in_array(flags.last_text, ['if', 'while'])) {
+                    output.space_before_token = opt.space_before_conditional;
+                    next_mode = MODE.Conditional;
+                } else if (in_array(flags.last_word, ['await', 'async'])) {
+                    // Should be a space between await and an IIFE, or async and an arrow function
+                    output.space_before_token = true;
+                } else if (flags.last_text === 'import' && current_token.whitespace_before === '') {
+                    output.space_before_token = false;
+                } else if (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch') {
+                    output.space_before_token = true;
+                }
+            } else if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                // Support of this kind of newline preservation.
+                // a = (b &&
+                //     (c || d));
+                if (!start_of_object_property()) {
+                    allow_wrap_or_preserved_newline();
+                }
+            } else if (last_type === 'TK_WORD') {
+                output.space_before_token = false;
+            } else {
+                // Support preserving wrapped arrow function expressions
+                // a.b('c',
+                //     () => d.e
+                // )
+                allow_wrap_or_preserved_newline();
+            }
+
+            // function() vs function ()
+            // yield*() vs yield* ()
+            // function*() vs function* ()
+            if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
+                (flags.last_text === '*' &&
+                    (in_array(last_last_text, ['function', 'yield']) ||
+                        (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
+
+                output.space_before_token = opt.space_after_anon_function;
+            }
+
         }
 
         if (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
             print_newline();
         } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.') {
+            // do nothing on (( and )( and ][ and ]( and .(
             // TODO: Consider whether forcing this is required.  Review failing tests when removed.
             allow_wrap_or_preserved_newline(current_token.wanted_newline);
-            // do nothing on (( and )( and ][ and ]( and .(
-        } else if (!(last_type === 'TK_RESERVED' && current_token.text === '(') && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
-            output.space_before_token = true;
-        } else if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
-            (flags.last_text === '*' &&
-                (in_array(last_last_text, ['function', 'yield']) ||
-                    (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
-            // function() vs function ()
-            // yield*() vs yield* ()
-            // function*() vs function* ()
-            if (opt.space_after_anon_function) {
-                output.space_before_token = true;
-            }
-        } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch')) {
-            if (opt.space_before_conditional) {
-                output.space_before_token = true;
-            }
-        }
-
-        // Should be a space between await and an IIFE, or async and an arrow function
-        if (current_token.text === '(' && last_type === 'TK_RESERVED' && in_array(flags.last_word, ['await', 'async'])) {
-            output.space_before_token = true;
-        }
-
-        // Support of this kind of newline preservation.
-        // a = (b &&
-        //     (c || d));
-        if (current_token.text === '(') {
-            if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (!start_of_object_property()) {
-                    allow_wrap_or_preserved_newline();
-                }
-            }
-        }
-
-        // Support preserving wrapped arrow function expressions
-        // a.b('c',
-        //     () => d.e
-        // )
-        if (current_token.text === '(' && last_type !== 'TK_WORD' && last_type !== 'TK_RESERVED') {
-            allow_wrap_or_preserved_newline();
         }
 
         set_mode(next_mode);

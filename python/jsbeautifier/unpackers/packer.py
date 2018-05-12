@@ -18,9 +18,27 @@ from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
 
+
 def detect(source):
+    global beginstr
+    global endstr
+    beginstr = ''
+    endstr = ''
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    return source.replace(' ', '').startswith('eval(function(p,a,c,k,e,')
+    mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
+    if(mystr > 0):
+       beginstr = source[:mystr]
+    if(mystr != -1):
+       """ Find endstr"""
+       if(source.split("')))", 1)[0] == source):
+          try:
+             endstr = source.split("}))", 1)[1]
+          except IndexError:
+             endstr = ''
+       else:
+          endstr = source.split("')))", 1)[1]
+    return (mystr != -1)
+
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
@@ -36,21 +54,26 @@ def unpack(source):
 
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
-        word  = match.group(0)
+        word = match.group(0)
         return symtab[unbase(word)] or word
 
     source = re.sub(r'\b\w+\b', lookup, payload)
     return _replacestrings(source)
 
+
 def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
-    juicers = [ (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
-                (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\)"),
+    juicers = [ (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
+                (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\)"),
               ]
     for juicer in juicers:
         args = re.search(juicer, source, re.DOTALL)
         if args:
             a = args.groups()
+            if a[1] == "[]":
+                a = list(a)
+                a[1] = 62
+                a = tuple(a)
             try:
                 return a[0], a[3].split('|'), int(a[1]), int(a[2])
             except ValueError:
@@ -60,8 +83,9 @@ def _filterargs(source):
     raise UnpackingError('Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
 
 
-
 def _replacestrings(source):
+    global beginstr
+    global endstr
     """Strip string lookup table (list) and replace values in source."""
     match = re.search(r'var *(_\w+)\=\["(.*?)"\];', source, re.DOTALL)
 
@@ -73,23 +97,27 @@ def _replacestrings(source):
         for index, value in enumerate(lookup):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
-    return source
+    return beginstr + source + endstr
 
 
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
-    ALPHABET  = {
-        53 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ',
-        59 : '0123456789abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        62 : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        95 : (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ALPHABET = {
+        62: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        95: (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
               '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
     }
 
     def __init__(self, base):
         self.base = base
 
+        # fill elements 37...61, if necessary
+        if 36 < base < 62:
+            if not hasattr(self.ALPHABET, self.ALPHABET[62][:base]):
+                      self.ALPHABET[base] = self.ALPHABET[62][:base]
+        # attrs = self.ALPHABET
+        # print ', '.join("%s: %s" % item for item in attrs.items())
         # If base can be handled by int() builtin, let it do it for us
         if 2 <= base <= 36:
             self.unbase = lambda string: int(string, base)

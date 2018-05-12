@@ -72,7 +72,6 @@ class Printer:
 
     def __init__(self, beautifier, indent_char, indent_size, default_indent=""):
         self.beautifier = beautifier
-        self.newlines_from_last_ws_eat = 0
         self.indentSize = indent_size
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
@@ -159,17 +158,19 @@ class Beautifier:
             self.ch = ''
         return self.ch
 
-    def peek(self,skipWhitespace=False):
-        start = self.pos
-        if skipWhitespace:
-            self.eatWhitespace()
+    def peek(self,index=0):
         result = ""
-        if self.pos + 1 < len(self.source_text):
-            result = self.source_text[self.pos + 1]
-        if skipWhitespace:
-            self.pos = start - 1
-            self.next()
+        index += self.pos + 1
+        if index < len(self.source_text):
+            result = self.source_text[index]
+        return result
 
+    def peekIgnoreWhitespace(self,index=0):
+        start = self.pos
+        self.eatWhitespace()
+        result = self.peek(index)
+        self.pos = start - 1
+        self.next()
         return result
 
     def eatString(self, endChars):
@@ -190,14 +191,20 @@ class Beautifier:
         self.next()
         return st
 
-    def eatWhitespace(self, preserve_newlines_local=False):
-        result = 0
+    # Skips any white space in the source text from the current position.
+    # When allowAtLeastOneNewLine is true, will output new lines for each
+    # newline character found; if the user has preserve_newlines off, only
+    # the first newline will be output
+    def eatWhitespace(self, allowAtLeastOneNewLine=False):
+        result = WHITE_RE.search(self.peek()) is not None
+        isFirstNewLine = True
+
         while WHITE_RE.search(self.peek()) is not None:
             self.next()
-            if self.ch == "\n" and preserve_newlines_local and self.opts.preserve_newlines:
-                self.output.add_new_line(True)
-                result += 1
-        self.newlines_from_last_ws_eat = result
+            if allowAtLeastOneNewLine and self.ch == "\n":
+                if self.opts.preserve_newlines or isFirstNewLine:
+                    isFirstNewLine = False
+                    self.output.add_new_line(True)
         return result
 
     def skipWhitespace(self):
@@ -209,16 +216,17 @@ class Beautifier:
             result += self.ch
         return result
 
-    def eatComment(self):
+    def eatComment(self, singleLine):
         start = self.pos
-        singleLine = self.peek() == "/"
-        self.next()
+        if not singleLine:
+            self.next()
+
         while self.next():
             if not singleLine and self.ch == "*" and self.peek() == "/":
                 self.next()
                 break
-            elif singleLine and self.ch == "\n":
-                return self.source_text[start:self.pos]
+            elif singleLine and self.peek() == "\n":
+                break
         return self.source_text[start:self.pos] + self.ch
 
     def lookBack(self, string):
@@ -273,28 +281,35 @@ class Beautifier:
             if not self.ch:
                 break
             elif self.ch == '/' and self.peek() == '*':
-                header = printer.indentLevel == 0
-
-                if not isAfterNewline or header:
-                    output.add_new_line()
-
-                printer.print_string(self.eatComment())
+                # /* css comment */
+                # Always start block comments on a new line.
+                # This handles scenarios where a block comment immediately
+                # follows a property definition on the same line or where
+                # minified code is being beautified.
                 output.add_new_line()
-                if header:
-                    output.add_new_line(True)
+                printer.print_string(self.eatComment(False))
+
+                # Ensures any new lines following the comment are preserved
+                self.eatWhitespace(True)
+
+                # Block comments are followed by a new line so they don't
+                # share a line with other properties
+                output.add_new_line()
             elif self.ch == '/' and self.peek() == '/':
-                if not isAfterNewline and last_top_ch != '{':
-                    output.trim(True)
-
+                # // single line comment
+                # Preserves the space before a comment
+                # on the same line as a rule
                 output.space_before_token = True
-                printer.print_string(self.eatComment())
-                output.add_new_line()
+                printer.print_string(self.eatComment(True))
+
+                # Ensures any new lines following the comment are preserved
+                self.eatWhitespace(True)
             elif self.ch == '@':
                 printer.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
-                if self.peek(True) == '{':
-                    printer.print_string(self.eatString('}'));
+                if self.peek() == '{':
+                    printer.print_string(self.eatString('}'))
                 else:
                     printer.print_string(self.ch)
                     # strip trailing space, if present, for hash property check
@@ -319,24 +334,24 @@ class Beautifier:
                             enteringConditionalGroup = True
             elif self.ch == '#' and self.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
-                printer.print_string(self.eatString('}'));
+                printer.print_string(self.eatString('}'))
             elif self.ch == '{':
-                if self.peek(True) == '}':
+                if self.peekIgnoreWhitespace() == '}':
                     self.eatWhitespace()
                     self.next()
                     output.space_before_token = True
                     printer.print_string("{}")
-                    if self.eatWhitespace(True) == 0:
-                        output.add_new_line()
+                    self.eatWhitespace(True)
+                    output.add_new_line()
 
-                    if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
+                    if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                         output.add_new_line(True)
                 else:
                     printer.indent()
                     output.space_before_token = True
                     printer.print_string(self.ch)
-                    if self.eatWhitespace(True) == 0:
-                        output.add_new_line()
+                    self.eatWhitespace(True)
+                    output.add_new_line()
 
                     # when entering conditional groups, only rulesets are allowed
                     if enteringConditionalGroup:
@@ -354,11 +369,10 @@ class Beautifier:
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
 
-                if self.eatWhitespace(True) == 0:
-                    output.add_new_line()
+                self.eatWhitespace(True)
+                output.add_new_line()
 
-
-                if self.newlines_from_last_ws_eat < 2 and self.opts.newline_between_rules and printer.indentLevel == 0:
+                if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                     output.add_new_line(True)
             elif self.ch == ":":
                 self.eatWhitespace()
@@ -392,7 +406,13 @@ class Beautifier:
             elif self.ch == ';':
                 insidePropertyValue = False
                 printer.print_string(self.ch)
-                if self.eatWhitespace(True) == 0:
+                self.eatWhitespace(True)
+
+                # This maintains single line comments on the same
+                # line. Block comments are also affected, but
+                # a new line is always output before one inside
+                # that section
+                if self.peek() is not '/':
                     output.add_new_line()
             elif self.ch == '(':
                 # may be a url
@@ -404,7 +424,8 @@ class Beautifier:
                         and self.ch is not '\'':
                             printer.print_string(self.eatString(')'))
                         else:
-                            self.pos = self.pos - 1
+                            self.pos -= 1
+                            parenLevel += 1
                 else:
                     parenLevel += 1
                     printer.preserveSingleSpace(isAfterSpace)
@@ -415,7 +436,8 @@ class Beautifier:
                 parenLevel -= 1
             elif self.ch == ',':
                 printer.print_string(self.ch)
-                if self.eatWhitespace(True) == 0 and not insidePropertyValue and self.opts.selector_separator_newline and parenLevel < 1:
+                self.eatWhitespace(True)
+                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1:
                     output.add_new_line()
                 else:
                     output.space_before_token = True

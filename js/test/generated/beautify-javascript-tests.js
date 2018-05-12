@@ -1028,24 +1028,25 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'function g(a, b) {\n' +
             '    if (!a) b()\n' +
             '}');
-        bt('a=[];', 'a = [];');
+        bt('a=[][    ](  );', 'a = [][]();');
+        bt('a=()(    )[  ];', 'a = ()()[];');
         bt('a=[b,c,d];', 'a = [b, c, d];');
         bt('a= f[b];', 'a = f[b];');
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
             //  -- output --
             '{\n' +
-            '    files: [{\n' +
+            '    files: a[][{\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: ["im/design_standards/*.*"],\n' +
+            '        src: b(c)["im/design_standards/*.*"],\n' +
             '        dest: "www/gui/build"\n' +
             '    }]\n' +
             '}');
@@ -1077,24 +1078,25 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'function g(a, b) {\n' +
             '    if (!a) b()\n' +
             '}');
-        bt('a=[];', 'a = [];');
+        bt('a=[][    ](  );', 'a = [][]();');
+        bt('a=()(    )[  ];', 'a = ()()[];');
         bt('a=[b,c,d];', 'a = [b, c, d];');
         bt('a= f[b];', 'a = f[b];');
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}',
             //  -- output --
             '{\n' +
-            '    files: [{\n' +
+            '    files: a[][{\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: ["im/design_standards/*.*"],\n' +
+            '        src: b(c)["im/design_standards/*.*"],\n' +
             '        dest: "www/gui/build"\n' +
             '    }]\n' +
             '}');
@@ -1126,15 +1128,25 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'function g( a, b ) {\n' +
             '    if ( !a ) b()\n' +
             '}');
-        bt('a=[];', 'a = [];');
+        bt('a=[][    ](  );', 'a = [][]();');
+        bt('a=()(    )[  ];', 'a = ()()[];');
         bt('a=[b,c,d];', 'a = [ b, c, d ];');
         bt('a= f[b];', 'a = f[ b ];');
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    files: a[][ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: b( c )[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}');
@@ -1166,15 +1178,25 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'function g( a, b ) {\n' +
             '    if ( !a ) b( )\n' +
             '}');
-        bt('a=[];', 'a = [ ];');
+        bt('a=[][    ](  );', 'a = [ ][ ]( );');
+        bt('a=()(    )[  ];', 'a = ( )( )[ ];');
         bt('a=[b,c,d];', 'a = [ b, c, d ];');
         bt('a= f[b];', 'a = f[ b ];');
         bt(
             '{\n' +
-            '    files: [ {\n' +
+            '    files: a[][ {\n' +
             '        expand: true,\n' +
             '        cwd: "www/gui/",\n' +
-            '        src: [ "im/design_standards/*.*" ],\n' +
+            '        src: b(c)[ "im/design_standards/*.*" ],\n' +
+            '        dest: "www/gui/build"\n' +
+            '    } ]\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    files: a[ ][ {\n' +
+            '        expand: true,\n' +
+            '        cwd: "www/gui/",\n' +
+            '        src: b( c )[ "im/design_standards/*.*" ],\n' +
             '        dest: "www/gui/build"\n' +
             '    } ]\n' +
             '}');
@@ -2159,6 +2181,72 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    {}\n' +
             '    /z/\n' +
             '}');
+
+
+        //============================================================
+        // Space before conditional - (s = "")
+        reset_options();
+        opts.space_before_conditional = false;
+        bt('if(a) b()');
+        bt('while(a) b()');
+        bt(
+            'do\n' +
+            '    c();\n' +
+            'while(a) b()');
+        bt(
+            'if(a)\n' +
+            'b();',
+            //  -- output --
+            'if(a)\n' +
+            '    b();');
+        bt(
+            'while(a)\n' +
+            'b();',
+            //  -- output --
+            'while(a)\n' +
+            '    b();');
+        bt(
+            'do\n' +
+            'c();\n' +
+            'while(a);',
+            //  -- output --
+            'do\n' +
+            '    c();\n' +
+            'while(a);');
+        bt('return [];');
+        bt('return ();');
+
+        // Space before conditional - (s = " ")
+        reset_options();
+        opts.space_before_conditional = true;
+        bt('if (a) b()');
+        bt('while (a) b()');
+        bt(
+            'do\n' +
+            '    c();\n' +
+            'while (a) b()');
+        bt(
+            'if(a)\n' +
+            'b();',
+            //  -- output --
+            'if (a)\n' +
+            '    b();');
+        bt(
+            'while(a)\n' +
+            'b();',
+            //  -- output --
+            'while (a)\n' +
+            '    b();');
+        bt(
+            'do\n' +
+            'c();\n' +
+            'while(a);',
+            //  -- output --
+            'do\n' +
+            '    c();\n' +
+            'while (a);');
+        bt('return [];');
+        bt('return ();');
 
 
         //============================================================
@@ -3397,6 +3485,112 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // 
+        reset_options();
+        
+        // exponent literals
+        bt('a = 1e10');
+        bt('a = 1.3e10');
+        bt('a = 1.3e-10');
+        bt('a = -12345.3e-10');
+        bt('a = .12345e-10');
+        bt('a = 06789e-10');
+        bt('a = e - 10');
+        bt('a = 1.3e+10');
+        bt('a = 1.e-7');
+        bt('a = -12345.3e+10');
+        bt('a = .12345e+10');
+        bt('a = 06789e+10');
+        bt('a = e + 10');
+        bt('a=0e-12345.3e-10', 'a = 0e-12345 .3e-10');
+        bt('a=0.e-12345.3e-10', 'a = 0.e-12345 .3e-10');
+        bt('a=0x.e-12345.3e-10', 'a = 0x.e - 12345.3e-10');
+        bt('a=0x0.e-12345.3e-10', 'a = 0x0.e - 12345.3e-10');
+        bt('a=0x0.0e-12345.3e-10', 'a = 0x0 .0e-12345 .3e-10');
+        bt('a=0g-12345.3e-10', 'a = 0 g - 12345.3e-10');
+        bt('a=0.g-12345.3e-10', 'a = 0. g - 12345.3e-10');
+        bt('a=0x.g-12345.3e-10', 'a = 0x.g - 12345.3e-10');
+        bt('a=0x0.g-12345.3e-10', 'a = 0x0.g - 12345.3e-10');
+        bt('a=0x0.0g-12345.3e-10', 'a = 0x0 .0 g - 12345.3e-10');
+        
+        // Decimal literals
+        bt('a = 0123456789;');
+        bt('a = 9876543210;');
+        bt('a = 5647308291;');
+        bt('a=030e-5', 'a = 030e-5');
+        bt('a=00+4', 'a = 00 + 4');
+        bt('a=32+4', 'a = 32 + 4');
+        bt('a=0.6g+4', 'a = 0.6 g + 4');
+        bt('a=01.10', 'a = 01.10');
+        bt('a=a.10', 'a = a .10');
+        bt('a=00B0x0', 'a = 00 B0x0');
+        bt('a=00B0xb0', 'a = 00 B0xb0');
+        bt('a=00B0x0b0', 'a = 00 B0x0b0');
+        bt('a=0090x0', 'a = 0090 x0');
+        bt('a=0g0b0o0', 'a = 0 g0b0o0');
+        
+        // Hexadecimal literals
+        bt('a = 0x0123456789abcdef;');
+        bt('a = 0X0123456789ABCDEF;');
+        bt('a = 0xFeDcBa9876543210;');
+        bt('a=0x30e-5', 'a = 0x30e - 5');
+        bt('a=0xF0+4', 'a = 0xF0 + 4');
+        bt('a=0Xff+4', 'a = 0Xff + 4');
+        bt('a=0Xffg+4', 'a = 0Xff g + 4');
+        bt('a=0x01.10', 'a = 0x01 .10');
+        bt('a = 0xb0ce;');
+        bt('a = 0x0b0;');
+        bt('a=0x0B0x0', 'a = 0x0B0 x0');
+        bt('a=0x0B0xb0', 'a = 0x0B0 xb0');
+        bt('a=0x0B0x0b0', 'a = 0x0B0 x0b0');
+        bt('a=0X090x0', 'a = 0X090 x0');
+        bt('a=0Xg0b0o0', 'a = 0X g0b0o0');
+        
+        // Octal literals
+        bt('a = 0o01234567;');
+        bt('a = 0O01234567;');
+        bt('a = 0o34120675;');
+        bt('a=0o30e-5', 'a = 0o30 e - 5');
+        bt('a=0o70+4', 'a = 0o70 + 4');
+        bt('a=0O77+4', 'a = 0O77 + 4');
+        bt('a=0O778+4', 'a = 0O77 8 + 4');
+        bt('a=0O77a+4', 'a = 0O77 a + 4');
+        bt('a=0o01.10', 'a = 0o01 .10');
+        bt('a=0o0B0x0', 'a = 0o0 B0x0');
+        bt('a=0o0B0xb0', 'a = 0o0 B0xb0');
+        bt('a=0o0B0x0b0', 'a = 0o0 B0x0b0');
+        bt('a=0O090x0', 'a = 0O0 90 x0');
+        bt('a=0Og0b0o0', 'a = 0O g0b0o0');
+        
+        // Binary literals
+        bt('a = 0b010011;');
+        bt('a = 0B010011;');
+        bt('a = 0b01001100001111;');
+        bt('a=0b10e-5', 'a = 0b10 e - 5');
+        bt('a=0b10+4', 'a = 0b10 + 4');
+        bt('a=0B11+4', 'a = 0B11 + 4');
+        bt('a=0B112+4', 'a = 0B11 2 + 4');
+        bt('a=0B11a+4', 'a = 0B11 a + 4');
+        bt('a=0b01.10', 'a = 0b01 .10');
+        bt('a=0b0B0x0', 'a = 0b0 B0x0');
+        bt('a=0b0B0xb0', 'a = 0b0 B0xb0');
+        bt('a=0b0B0x0b0', 'a = 0b0 B0x0b0');
+        bt('a=0B090x0', 'a = 0B0 90 x0');
+        bt('a=0Bg0b0o0', 'a = 0B g0b0o0');
+        
+        // BigInt literals
+        bt('a = 1n;');
+        bt('a = 1234567890123456789n;');
+        bt('a = -1234567890123456789n;');
+        bt('a = 1234567890123456789 N;');
+        bt('a=0b10e-5n', 'a = 0b10 e - 5n');
+        bt('a=.0n', 'a = .0 n');
+        bt('a=1.0n', 'a = 1.0 n');
+        bt('a=1e0n', 'a = 1e0 n');
+        bt('a=0n11a+4', 'a = 0n 11 a + 4');
+
+
+        //============================================================
         // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
         reset_options();
         opts.brace_style = 'collapse,preserve-inline';
@@ -3659,7 +3853,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'import { member1, member2 as alias2 } from "module-name";\n' +
             'import defaultMember, { member, member2 } from "module-name";\n' +
             'import defaultMember, * as name from "module-name";\n' +
-            'import "module-name";');
+            'import "module-name";\n' +
+            'import("module-name")');
+        
+        // Issue #1393 - dynamic import()
+        bt(
+            'if (from < to) {\n' +
+            '    import(`dynamic${library}`);\n' +
+            '} else {\n' +
+            '    import("otherdynamic");\n' +
+            '}');
         
         // Issue 858 - from is a keyword only after import
         bt(
@@ -3842,96 +4045,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('a <= .5');
         bt('a<.5', 'a < .5');
         bt('a<=.5', 'a <= .5');
-        
-        // exponent literals
-        bt('a = 1e10');
-        bt('a = 1.3e10');
-        bt('a = 1.3e-10');
-        bt('a = -12345.3e-10');
-        bt('a = .12345e-10');
-        bt('a = 06789e-10');
-        bt('a = e - 10');
-        bt('a = 1.3e+10');
-        bt('a = 1.e-7');
-        bt('a = -12345.3e+10');
-        bt('a = .12345e+10');
-        bt('a = 06789e+10');
-        bt('a = e + 10');
-        bt('a=0e-12345.3e-10', 'a = 0e-12345 .3e-10');
-        bt('a=0.e-12345.3e-10', 'a = 0.e-12345 .3e-10');
-        bt('a=0x.e-12345.3e-10', 'a = 0x.e - 12345.3e-10');
-        bt('a=0x0.e-12345.3e-10', 'a = 0x0.e - 12345.3e-10');
-        bt('a=0x0.0e-12345.3e-10', 'a = 0x0 .0e-12345 .3e-10');
-        bt('a=0g-12345.3e-10', 'a = 0 g - 12345.3e-10');
-        bt('a=0.g-12345.3e-10', 'a = 0. g - 12345.3e-10');
-        bt('a=0x.g-12345.3e-10', 'a = 0x.g - 12345.3e-10');
-        bt('a=0x0.g-12345.3e-10', 'a = 0x0.g - 12345.3e-10');
-        bt('a=0x0.0g-12345.3e-10', 'a = 0x0 .0 g - 12345.3e-10');
-        
-        // Decimal literals
-        bt('a = 0123456789;');
-        bt('a = 9876543210;');
-        bt('a = 5647308291;');
-        bt('a=030e-5', 'a = 030e-5');
-        bt('a=00+4', 'a = 00 + 4');
-        bt('a=32+4', 'a = 32 + 4');
-        bt('a=0.6g+4', 'a = 0.6 g + 4');
-        bt('a=01.10', 'a = 01.10');
-        bt('a=a.10', 'a = a .10');
-        bt('a=00B0x0', 'a = 00 B0x0');
-        bt('a=00B0xb0', 'a = 00 B0xb0');
-        bt('a=00B0x0b0', 'a = 00 B0x0b0');
-        bt('a=0090x0', 'a = 0090 x0');
-        bt('a=0g0b0o0', 'a = 0 g0b0o0');
-        
-        // Hexadecimal literals
-        bt('a = 0x0123456789abcdef;');
-        bt('a = 0X0123456789ABCDEF;');
-        bt('a = 0xFeDcBa9876543210;');
-        bt('a=0x30e-5', 'a = 0x30e - 5');
-        bt('a=0xF0+4', 'a = 0xF0 + 4');
-        bt('a=0Xff+4', 'a = 0Xff + 4');
-        bt('a=0Xffg+4', 'a = 0Xff g + 4');
-        bt('a=0x01.10', 'a = 0x01 .10');
-        bt('a = 0xb0ce;');
-        bt('a = 0x0b0;');
-        bt('a=0x0B0x0', 'a = 0x0B0 x0');
-        bt('a=0x0B0xb0', 'a = 0x0B0 xb0');
-        bt('a=0x0B0x0b0', 'a = 0x0B0 x0b0');
-        bt('a=0X090x0', 'a = 0X090 x0');
-        bt('a=0Xg0b0o0', 'a = 0X g0b0o0');
-        
-        // Octal literals
-        bt('a = 0o01234567;');
-        bt('a = 0O01234567;');
-        bt('a = 0o34120675;');
-        bt('a=0o30e-5', 'a = 0o30 e - 5');
-        bt('a=0o70+4', 'a = 0o70 + 4');
-        bt('a=0O77+4', 'a = 0O77 + 4');
-        bt('a=0O778+4', 'a = 0O77 8 + 4');
-        bt('a=0O77a+4', 'a = 0O77 a + 4');
-        bt('a=0o01.10', 'a = 0o01 .10');
-        bt('a=0o0B0x0', 'a = 0o0 B0x0');
-        bt('a=0o0B0xb0', 'a = 0o0 B0xb0');
-        bt('a=0o0B0x0b0', 'a = 0o0 B0x0b0');
-        bt('a=0O090x0', 'a = 0O0 90 x0');
-        bt('a=0Og0b0o0', 'a = 0O g0b0o0');
-        
-        // Binary literals
-        bt('a = 0b010011;');
-        bt('a = 0B010011;');
-        bt('a = 0b01001100001111;');
-        bt('a=0b10e-5', 'a = 0b10 e - 5');
-        bt('a=0b10+4', 'a = 0b10 + 4');
-        bt('a=0B11+4', 'a = 0B11 + 4');
-        bt('a=0B112+4', 'a = 0B11 2 + 4');
-        bt('a=0B11a+4', 'a = 0B11 a + 4');
-        bt('a=0b01.10', 'a = 0b01 .10');
-        bt('a=0b0B0x0', 'a = 0b0 B0x0');
-        bt('a=0b0B0xb0', 'a = 0b0 B0xb0');
-        bt('a=0b0B0x0b0', 'a = 0b0 B0x0b0');
-        bt('a=0B090x0', 'a = 0B0 90 x0');
-        bt('a=0Bg0b0o0', 'a = 0B g0b0o0');
         bt('a = [1, 2, 3, 4]');
         bt('F*(g/=f)*g+b', 'F * (g /= f) * g + b');
         bt(
@@ -5328,12 +5441,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}');
         bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}');
-
-        reset_options();
-        //============================================================
-        opts.space_before_conditional = false;
-        bt('if(a) b()');
-
 
         reset_options();
         //============================================================

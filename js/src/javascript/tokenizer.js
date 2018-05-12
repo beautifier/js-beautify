@@ -188,6 +188,7 @@ function Tokenizer(input_string, opts) {
         if (digit.test(c) || (c === '.' && input.testChar(digit))) {
             var allow_decimal = true;
             var allow_e = true;
+            var allow_bigint = true;
             var local_digit = digit;
 
             if (c === '0' && input.testChar(/[XxOoBb]/)) {
@@ -205,6 +206,7 @@ function Tokenizer(input_string, opts) {
             } else if (c === '.') {
                 // Already have a decimal for this literal, don't allow another
                 allow_decimal = false;
+                allow_bigint = false;
             } else {
                 // we know this first loop will run.  It keeps the logic simpler.
                 c = '';
@@ -218,6 +220,7 @@ function Tokenizer(input_string, opts) {
                 if (allow_decimal && input.peek() === '.') {
                     c += input.next();
                     allow_decimal = false;
+                    allow_bigint = false;
                 }
 
                 // a = 1.e-7 is valid, so we test for . then e in one loop
@@ -230,7 +233,12 @@ function Tokenizer(input_string, opts) {
 
                     allow_e = false;
                     allow_decimal = false;
+                    allow_bigint = false;
                 }
+            }
+
+            if (allow_bigint && input.peek() === 'n') {
+                c += input.next();
             }
 
             return [c, 'TK_WORD'];

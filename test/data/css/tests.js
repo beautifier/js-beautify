@@ -264,25 +264,28 @@ exports.test_data = {
                 options: [
                     { name: "newline_between_rules", value: "true" }
                 ],
-                separator: '\\n'
+                new_rule: '\n\n'
             }, {
                 options: [
                     { name: "newline_between_rules", value: "false" }
                 ],
-                separator: ''
+                new_rule: '\n'
             }],
             tests: [
-                { input: '.div {}\n.span {}', output: '.div {}\n{{separator}}.span {}' },
-                { input: '.div{}\n   \n.span{}', output: '.div {}\n{{separator}}.span {}' },
-                { input: '.div {}    \n  \n.span { } \n', output: '.div {}\n{{separator}}.span {}' },
-                { input: '.div {\n    \n} \n  .span {\n }  ', output: '.div {}\n{{separator}}.span {}' },
-                { input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div{height:15px;}', output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
-                { input: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
-                { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
-                { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n{{separator}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}' },
-                { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
-                { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n{{separator}}.div {\n\theight: 15px;\n}' },
+                { input: '.div {}\n.span {}', output: '.div {}{{new_rule}}.span {}' },
+                { input: '.div{}\n   \n.span{}', output: '.div {}{{new_rule}}.span {}' },
+                { input: '.div {}    \n  \n.span { } \n', output: '.div {}{{new_rule}}.span {}' },
+                { input: '.div {\n    \n} \n  .span {\n }  ', output: '.div {}{{new_rule}}.span {}' },
+                {
+                    input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div{height:15px;}',
+                    output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}{{new_rule}}.div {\n\theight: 15px;\n}'
+                },
+                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
+                { input: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
+                { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
+                { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}{{new_rule}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}' },
+                { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
+                { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
             ],
         }, {
             name: "Functions braces",
@@ -297,34 +300,236 @@ exports.test_data = {
                 { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
                 { unchanged: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
             ],
-        }, {
+        },
+        {
             name: "Comments",
-            description: "",
+            description: "With preserve newlines option on",
+            template: "< >",
+            matrix: [{
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n',
+                new_rule: '\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '\n\t\t\n    \n',
+                i1: '\n\t\t\t\n   \n',
+                o: '\n',
+                new_rule: '\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '\n',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '\n\t\t\n    \n',
+                i1: '\n\t\t\t\n   \n',
+                o: '\n\n\n',
+                new_rule: '\n\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "false" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n\n\n',
+                new_rule: '\n\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n',
+                new_rule: '\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "false" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '\n\t\t\n    \n',
+                i1: '\n\t\t\t\n   \n',
+                o: '\n',
+                new_rule: '\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '\n',
+                i1: '\n',
+                o: '\n',
+                new_rule: '\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '\n\n\n',
+                i1: '\n\n\n',
+                o: '\n\n\n',
+                new_rule: '\n\n\n'
+            }, {
+                options: [
+                    { name: "preserve_newlines", value: "true" },
+                    { name: "newline_between_rules", value: "true" }
+                ],
+                i: '\n\t\t\n    \n',
+                i1: '\n\t\t\t\n   \n',
+                o: '\n\n\n',
+                new_rule: '\n\n\n'
+            }],
             tests: [
-                { unchanged: '/* test */' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '.tabs{/* test */}', output: '.tabs {\n\t/* test */\n}' },
-                { input: '/* header */.tabs {}', output: '/* header */\n\n.tabs {}' },
-                { input: '.tabs {\n/* non-header */\nwidth:10px;}', output: '.tabs {\n\t/* non-header */\n\twidth: 10px;\n}' },
+                { unchanged: '/* header comment newlines on */' },
+                { input: '.tabs{<i>/* test */<i>}', output: '.tabs {<o>\t/* test */<o>}' },
+                {
+                    comment: '#1185',
+                    input: '/* header */<i>.tabs{}',
+                    output: '/* header */<o>.tabs {}'
+                },
+                { input: '.tabs {<i>/* non-header */<i>width:10px;<i>}', output: '.tabs {<o>\t/* non-header */<o>\twidth: 10px;<o>}' },
                 { unchanged: '/* header' },
-                { unchanged: '// comment' }, {
-                    input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}',
-                    output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}'
+                { unchanged: '// comment' },
+                { unchanged: '/*' },
+                { unchanged: '//' },
+                {
+                    input: '.selector1 {<i>margin: 0;<i>/* This is a comment including an url http://domain.com/path/to/file.ext */<i>}',
+                    output: '.selector1 {<o>\tmargin: 0;<o>\t/* This is a comment including an url http://domain.com/path/to/file.ext */<o>}'
                 },
 
                 {
                     comment: "single line comment support (less/sass)",
-                    input: '.tabs{\n// comment\nwidth:10px;\n}',
-                    output: '.tabs {\n\t// comment\n\twidth: 10px;\n}'
+                    input: '.tabs{<i>// comment<i1>width:10px;<i>}',
+                    output: '.tabs {<o>\t// comment<o>\twidth: 10px;<o>}'
                 },
-                { input: '.tabs{// comment\nwidth:10px;\n}', output: '.tabs {\n\t// comment\n\twidth: 10px;\n}' },
-                { input: '//comment\n.tabs{width:10px;}', output: '//comment\n.tabs {\n\twidth: 10px;\n}' },
-                { input: '.tabs{//comment\n//2nd single line comment\nwidth:10px;}', output: '.tabs {\n\t//comment\n\t//2nd single line comment\n\twidth: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px;\n}' },
-                { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}' }
+                { input: '.tabs{<i>// comment<i1>width:10px;<i>}', output: '.tabs {<o>\t// comment<o>\twidth: 10px;<o>}' },
+                { input: '//comment<i1>.tabs{<i>width:10px;<i>}', output: '//comment<o>.tabs {<o>\twidth: 10px;<o>}' },
+                { input: '.tabs{<i>//comment<i1>//2nd single line comment<i1>width:10px;<i>}', output: '.tabs {<o>\t//comment<o>\t//2nd single line comment<o>\twidth: 10px;<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>height:10px;<i>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>\theight: 10px;<o>}' },
+                { input: '.tabs{<i>width:10px;//end of line comment<i1>height:10px;//another nl<i1>}', output: '.tabs {<o>\twidth: 10px; //end of line comment<o>\theight: 10px; //another nl<o>}' },
+                {
+                    input: '.tabs{<i>width: 10px;   // comment follows rule<i1>// another comment new line<i1>}',
+                    output: '.tabs {<o>\twidth: 10px; // comment follows rule<o>\t// another comment new line<o>}'
+                },
+                {
+                    comment: '#1165',
+                    input: '.tabs{<i>width: 10px;<i1>\t\t// comment follows rule<i1>// another comment new line<i1>}',
+                    output: '.tabs {<o>\twidth: 10px;<o>\t// comment follows rule<o>\t// another comment new line<o>}'
+                },
+
+                {
+                    comment: "#736",
+                    input: '/*\n * comment\n */<i>/* another comment */<i>body{}<i>',
+                    output: '/*\n * comment\n */<o>/* another comment */<o>body {}'
+                },
+                {
+                    comment: "#1348",
+                    input: '.demoa1 {<i>text-align:left; //demoa1 instructions for LESS note visibility only<i1>}<i>.demob {<i>text-align: right;<i>}',
+                    output: '.demoa1 {<o>\ttext-align: left; //demoa1 instructions for LESS note visibility only<o>}<new_rule>.demob {<o>\ttext-align: right;<o>}'
+                },
+                {
+                    input: '.demoa2 {<i>text-align:left;<i>}<i>//demob instructions for LESS note visibility only<i1>.demob {<i>text-align: right}',
+                    output: '.demoa2 {<o>\ttext-align: left;<o>}<new_rule>//demob instructions for LESS note visibility only<o>.demob {<o>\ttext-align: right\n}'
+                },
+                {
+                    comment: 'new lines between rules - #531 and #857',
+                    input: '.div{}<i1>.span {<i>}',
+                    output: '.div {}<new_rule>.span {}'
+                },
+                {
+                    input: '/**/<i>/**/<i>//<i1>/**/<i>.div{}<i>/**/<i>/**/<i>//<i1>/**/<i>.span {<i>}',
+                    output: '/**/<o>/**/<o>//<o>/**/<o>.div {}<new_rule>/**/<o>/**/<o>//<o>/**/<o>.span {}'
+                },
+                {
+                    input: '//<i1>.div{}<i>//<i1>.span {<i>}',
+                    output: '//<o>.div {}<new_rule>//<o>.span {}'
+                },
+                {
+                    input: '.selector1 {<i>margin: 0; <i>/* This is a comment including an url http://domain.com/path/to/file.ext */<i>}<i1>.div{<i>height:15px;<i>}',
+                    output: '.selector1 {<o>\tmargin: 0;<o>\t/* This is a comment including an url http://domain.com/path/to/file.ext */<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+                {
+                    input: '.tabs{<i>width:10px;//end of line comment<i1>height:10px;//another<i1>}<i>.div{<i>height:15px;<i>}',
+                    output: '.tabs {<o>\twidth: 10px; //end of line comment<o>\theight: 10px; //another<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+                {
+                    input: '#foo {<i>background-image: url(foo@2x.png);<i>\t@font-face {<i>\t\tfont-family: "Bitstream Vera Serif Bold";<i>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<i>\t}<i>}<i>.div{<i>height:15px;<i>}',
+                    output: '#foo {<o>\tbackground-image: url(foo@2x.png);<o>\t@font-face {<o>\t\tfont-family: "Bitstream Vera Serif Bold";<o>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+                {
+                    input: '@media screen {<i>\t#foo:hover {<i>\t\tbackground-image: url(foo@2x.png);<i>\t}<i>\t@font-face {<i>\t\tfont-family: "Bitstream Vera Serif Bold";<i>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<i>\t}<i>}<i>.div{<i>height:15px;<i>}',
+                    output: '@media screen {<o>\t#foo:hover {<o>\t\tbackground-image: url(foo@2x.png);<o>\t}<o>\t@font-face {<o>\t\tfont-family: "Bitstream Vera Serif Bold";<o>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+                {
+                    input: '@font-face {<i>\tfont-family: "Bitstream Vera Serif Bold";<i>\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<i>}<i1>@media screen {<i>\t#foo:hover {<i>\t\tbackground-image: url(foo.png);<i>\t}<i>\t@media screen and (min-device-pixel-ratio: 2) {<i>\t\t@font-face {<i>\t\t\tfont-family: "Helvetica Neue";<i>\t\t}<i>\t\t#foo:hover {<i>\t\t\tbackground-image: url(foo@2x.png);<i>\t\t}<i>\t}<i>}',
+                    output: '@font-face {<o>\tfont-family: "Bitstream Vera Serif Bold";<o>\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<o>}<new_rule>@media screen {<o>\t#foo:hover {<o>\t\tbackground-image: url(foo.png);<o>\t}<o>\t@media screen and (min-device-pixel-ratio: 2) {<o>\t\t@font-face {<o>\t\t\tfont-family: "Helvetica Neue";<o>\t\t}<o>\t\t#foo:hover {<o>\t\t\tbackground-image: url(foo@2x.png);<o>\t\t}<o>\t}<o>}'
+                },
+                {
+                    input: 'a:first-child{<i>color:red;<i>div:first-child{<i>color:black;<i>}<i>}<i>.div{<i>height:15px;<i>}',
+                    output: 'a:first-child {<o>\tcolor: red;<o>\tdiv:first-child {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+                {
+                    input: 'a:first-child{<i>color:red;<i>div:not(.peq){<i>color:black;<i>}<i>}<i>.div{<i>height:15px;<i>}',
+                    output: 'a:first-child {<o>\tcolor: red;<o>\tdiv:not(.peq) {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+                },
+
             ],
-        }, {
+        },
+        {
             name: "Handle LESS property name interpolation",
             description: "",
             tests: [
@@ -347,6 +552,14 @@ exports.test_data = {
                     input: '.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}',
                     output: '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}'
                 }
+            ],
+        }, {
+            name: "Handle LESS function parameters",
+            description: "",
+            tests: [
+                { input: 'div{.px2rem(width,12);}', output: 'div {\n\t.px2rem(width, 12);\n}' },
+                //mixin next to 'background: url("...")' should not add a linebreak after the comma
+                { unchanged: 'div {\n\tbackground: url("//test.com/dummy.png");\n\t.px2rem(width, 12);\n}' }
             ],
         }, {
             name: "Psuedo-classes vs Variables",
