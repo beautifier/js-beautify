@@ -115,6 +115,8 @@ class Beautifier:
         self.blank_state()
 
     def blank_state(self, js_source_text = None):
+        if js_source_text is None:
+            js_source_text = ''
 
         # internal flags
         self.flags = None
@@ -145,7 +147,7 @@ class Beautifier:
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
 
-        preindent_index = 0;
+        preindent_index = 0
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
                     js_source_text[preindent_index] in [' ', '\t'] :
@@ -163,7 +165,6 @@ class Beautifier:
 
 
     def beautify(self, s, opts = None ):
-
         if opts != None:
             opts = mergeOpts(opts, 'js')
             self.opts = copy.copy(opts)

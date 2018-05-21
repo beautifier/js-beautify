@@ -196,6 +196,7 @@ function rtrim(s) {
 function Beautifier(html_source, options, js_beautify, css_beautify) {
     //Wrapper function to invoke all the necessary constructors and deal with the output.
     html_source = html_source || '';
+    options = options || {};
 
     var multi_parser,
         indent_inner_html,
@@ -218,8 +219,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         end_with_newline,
         extra_liners,
         eol;
-
-    options = options || {};
 
     // Allow the setting of language/file-type specific options
     // with inheritance of overall settings

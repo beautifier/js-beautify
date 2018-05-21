@@ -9198,6 +9198,10 @@ class CSSBeautifierTest(unittest.TestCase):
         self.reset_options()
         t = self.decodesto
 
+        self.reset_options();
+        #============================================================
+        t(None, "")
+
         t("", "")
         t("\n", "")
         t(".tabs{}\n", ".tabs {}")
@@ -9349,7 +9353,7 @@ class CSSBeautifierTest(unittest.TestCase):
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
-        if input.find('\n') != -1:
+        if input and input.find('\n') != -1:
             input = input.replace('\n', '\r\n')
             self.assertMultiLineEqual(
                 cssbeautifier.beautify(input, self.options), expectation)

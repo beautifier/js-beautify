@@ -111,6 +111,9 @@ var MODE = {
 
 function Beautifier(js_source_text, options) {
     "use strict";
+    options = options || {};
+    js_source_text = js_source_text || '';
+
     var output;
     var tokens = [],
         token_pos;
@@ -176,9 +179,6 @@ function Beautifier(js_source_text, options) {
         };
         return next_flags;
     }
-
-    // Some interpreters have unexpected results with foo = baz || bar;
-    options = options ? options : {};
 
     // Allow the setting of language/file-type specific options
     // with inheritance of overall settings

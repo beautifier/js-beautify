@@ -174,13 +174,12 @@ var lineBreak = acorn.lineBreak;
 var allLineBreaks = acorn.allLineBreaks;
 
 function Beautifier(source_text, options) {
+    source_text = source_text || '';
     options = options || {};
 
     // Allow the setting of language/file-type specific options
     // with inheritance of overall settings
     options = mergeOpts(options, 'css');
-
-    source_text = source_text || '';
 
     var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
     var indentCharacter = options.indent_char || ' ';

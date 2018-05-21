@@ -27,7 +27,7 @@
 */
 
 function InputScanner(input) {
-    var _input = input;
+    var _input = input || '';
     var _input_length = _input.length;
     var _position = 0;
 

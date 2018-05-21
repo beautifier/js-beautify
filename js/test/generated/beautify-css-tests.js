@@ -84,7 +84,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         sanitytest.expect(input, expected);
-        if (input.indexOf('\n') !== -1) {
+        if (input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
@@ -9230,6 +9230,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     function beautifier_unconverted_tests()
     {
         sanitytest = test_obj;
+
+        reset_options();
+        //============================================================
+        test_fragment(null, '');
 
         reset_options();
         //============================================================

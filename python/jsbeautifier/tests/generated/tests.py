@@ -5039,6 +5039,10 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options();
         #============================================================
+        bt(None, "")
+
+        self.reset_options();
+        #============================================================
         self.options.indent_size = 1;
         self.options.indent_char = ' ';
         bt('{ one_char() }', "{\n one_char()\n}")
@@ -6170,7 +6174,7 @@ class TestJSBeautifier(unittest.TestCase):
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             jsbeautifier.beautify(input, self.options), expectation)
-        if input.find('\n') != -1:
+        if input and input.find('\n') != -1:
             input = input.replace('\n', '\r\n')
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(input, self.options), expectation)
