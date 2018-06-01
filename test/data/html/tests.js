@@ -1010,23 +1010,23 @@ exports.test_data = {
             ]
         }, {
             fragment: true,
-            input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
             output: [
                 '<div>',
                 '    <p>Beautify me</p>',
                 '</div>',
-                '<p><p>But not me</p></p>'
+                '<p><div>But not me</div></p>'
             ]
         }, {
             fragment: true,
-            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
             output: [
                 '<div>',
                 '    <p class="beauty-me">Beautify me</p>',
                 '</div>',
-                '<p><p',
+                '<p><div',
                 '  class="iamalreadybeauty"',
-                '>But not me</p></p>'
+                '>But not me</div></p>'
             ]
         }, {
             fragment: true,

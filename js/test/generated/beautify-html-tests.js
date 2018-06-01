@@ -2878,25 +2878,25 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '</html>');
         test_fragment(
-            '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
             //  -- output --
             '<div>\n' +
             '    <p>Beautify me</p>\n' +
             '</div>\n' +
-            '<p><p>But not me</p></p>');
+            '<p><div>But not me</div></p>');
         test_fragment(
             '<div><p\n' +
             '  class="beauty-me"\n' +
-            '>Beautify me</p></div><p><p\n' +
+            '>Beautify me</p></div><p><div\n' +
             '  class="iamalreadybeauty"\n' +
-            '>But not me</p></p>',
+            '>But not me</div></p>',
             //  -- output --
             '<div>\n' +
             '    <p class="beauty-me">Beautify me</p>\n' +
             '</div>\n' +
-            '<p><p\n' +
+            '<p><div\n' +
             '  class="iamalreadybeauty"\n' +
-            '>But not me</p></p>');
+            '>But not me</div></p>');
         test_fragment('<div><span>blabla<div>something here</div></span></div>');
         test_fragment('<div><br /></div>');
         test_fragment(
