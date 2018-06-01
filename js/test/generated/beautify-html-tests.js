@@ -3116,8 +3116,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div> content <img> content </div>');
         bth('Text <a href="#">Link</a> Text');
 
-        var unformatted = opts.unformatted;
-        opts.unformatted = ['script', 'style'];
+        var content_unformatted = opts.content_unformatted;
+        opts.content_unformatted = ['script', 'style'];
         bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
             '  <ul>\n' +
             '  # for (var i = 0; i < data.length; i++) { #\n' +
@@ -3129,15 +3129,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '  body {background-color:lightgrey}\n' +
             '  h1   {color:blue}\n' +
             '</style>');
-        opts.unformatted = unformatted;
+        opts.content_unformatted = content_unformatted;
 
-        unformatted = opts.unformatted;
-        opts.unformatted = ['custom-element'];
+        inline_tags = opts.inline;
+        opts.inline = ['custom-element'];
         test_fragment('<div>should <custom-element>not</custom-element>' +
                       ' insert newlines</div>',
                       '<div>should <custom-element>not</custom-element>' +
                       ' insert newlines</div>');
-        opts.unformatted = unformatted;
+        opts.inline = inline_tags;
 
         // Tests that don't pass, but probably should.
         // bth('<div><span>content</span></div>');
