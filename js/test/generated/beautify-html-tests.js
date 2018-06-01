@@ -2863,6 +2863,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Inline tags formatting
+        reset_options();
+        test_fragment('<div><span></span></div><span><div></div></span>');
+        test_fragment(
+            '<div><div><span><span>Nested spans</span></span></div></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <div><span><span>Nested spans</span></span></div>\n' +
+            '</div>');
+        test_fragment(
+            '<p>Should remove <span><span \n' +
+            '\n' +
+            'class="some-class">attribute</span></span> newlines</p>',
+            //  -- output --
+            '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>');
+        test_fragment('<div><span>All</span> on <span>one</span> line</div>');
+        test_fragment('<span class="{{class_name}}">{{content}}</span>');
+        test_fragment('{{#if 1}}<span>{{content}}</span>{{/if}}');
+
+
+        //============================================================
         // content_unformatted to prevent formatting content
         reset_options();
         opts.content_unformatted = ['script', 'style', 'p', 'span', 'br'];

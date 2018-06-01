@@ -990,6 +990,37 @@ exports.test_data = {
             unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
         }]
     }, {
+        name: "Inline tags formatting",
+        description: "",
+        template: "^^^ $$$",
+        tests: [{
+            fragment: true,
+            unchanged: '<div><span></span></div><span><div></div></span>'
+        }, {
+            fragment: true,
+            input: '<div><div><span><span>Nested spans</span></span></div></div>',
+            output: [
+                '<div>',
+                '    <div><span><span>Nested spans</span></span></div>',
+                '</div>'
+            ]
+        }, {
+            fragment: true,
+            input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
+            output: [
+                '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<div><span>All</span> on <span>one</span> line</div>'
+        }, {
+            fragment: true,
+            unchanged: '<span class="{{class_name}}">{{content}}</span>'
+        }, {
+            fragment: true,
+            unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
+        }]
+    }, {
         name: "content_unformatted to prevent formatting content",
         description: "",
         options: [
