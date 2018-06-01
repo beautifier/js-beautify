@@ -285,8 +285,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
                       ' insert newlines</div>');
         opts.inline = inline_tags;
 
-        // Tests that don't pass, but probably should.
-        // bth('<div><span>content</span></div>');
+        bth('<div><span>content</span></div>');
 
         // Handlebars tests
         // Without the indent option on, handlebars are treated as content.
