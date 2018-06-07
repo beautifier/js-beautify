@@ -1021,6 +1021,28 @@ exports.test_data = {
             unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
         }]
     }, {
+        name: "unformatted to prevent formatting changes",
+        description: "",
+        options: [
+            { name: 'unformatted', value: "['u']" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
+        }, {
+            fragment: true,
+            unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
+        }, {
+            fragment: true,
+            unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
+        }, {
+            fragment: true,
+            unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
+        }, {
+            fragment: true,
+            unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
+        }]
+    }, {
         name: "content_unformatted to prevent formatting content",
         description: "",
         options: [

@@ -2884,6 +2884,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // unformatted to prevent formatting changes
+        reset_options();
+        opts.unformatted = ['u'];
+        test_fragment('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
+        test_fragment('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
+        test_fragment(
+            '<u>  \n' +
+            '\n' +
+            '\n' +
+            '  Ignore extra whitespace  \n' +
+            '\n' +
+            '\n' +
+            '  </u>');
+        test_fragment(
+            '<u><div \n' +
+            '\n' +
+            'class="">Ignore whitespace in attributes</div></u>');
+        test_fragment(
+            '<u \n' +
+            '\n' +
+            'class="">Ignore whitespace in attributes</u>');
+
+
+        //============================================================
         // content_unformatted to prevent formatting content
         reset_options();
         opts.content_unformatted = ['script', 'style', 'p', 'span', 'br'];
