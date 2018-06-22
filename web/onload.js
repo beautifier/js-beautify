@@ -39,6 +39,8 @@ $(function () {
   })
   $('.submit').click(beautify);
   $('select').change(beautify);
+  $(':checkbox').change(beautify);
+  $('#additional-options').change(beautify);
 
 
 });
