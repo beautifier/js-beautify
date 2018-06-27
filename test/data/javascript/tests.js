@@ -450,7 +450,35 @@ exports.test_data = {
                     '    .f();',
                     '});'
                 ]
-            }
+            },
+            {
+                comment: 'regression test for fix #1378',
+                input: [
+                    'f(function() {',
+                    '    if(g === 1)',
+                    '        g = 0;',
+                    '    else',
+                    '        g = 1;',
+                    '',
+                    '    f()',
+                    '        .f()',
+                    '        .f();',
+                    '});'
+                ],
+                output: [
+                    'f(function() {',
+                    '    if (g === 1)',
+                    '        g = 0;',
+                    '    else',
+                    '        g = 1;',
+                    '',
+                    '    f()',
+                    '    .f()',
+                    '    .f();',
+                    '});'
+                ]
+            },
+
         ],
     }, {
         name: "Space in parens tests",
