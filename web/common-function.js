@@ -36,6 +36,7 @@ function read_settings_from_cookie() {
     $('#keep-array-indentation').prop('checked', $.cookie('keep-array-indentation') === 'on');
     $('#break-chained-methods').prop('checked', $.cookie('break-chained-methods') === 'on');
     $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
+    $('#additional-options').val(any($.cookie('additional-options'), '{}'));
     $('#space-before-conditional').prop('checked', $.cookie('space-before-conditional') !== 'off');
     $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
     $('#unescape-strings').prop('checked', $.cookie('unescape-strings') === 'on');
@@ -63,6 +64,7 @@ function store_settings_to_cookie() {
     $.cookie('end-with-newline', $('#end-with-newline').prop('checked') ? 'on' : 'off', opts);
     $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
     $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
+    $.cookie('additional-options', $('#additional-options').val(), opts);
     $.cookie('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
     $.cookie('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
     $.cookie('e4x', $('#e4x').prop('checked') ? 'on' : 'off', opts);
@@ -116,6 +118,8 @@ function beautify() {
         output,
         opts = {};
 
+    var additional_options = $('#additional-options').val();
+
     opts.indent_size = $('#tabsize').val();
     opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
     opts.max_preserve_newlines = $('#max-preserve-newlines').val();
@@ -132,6 +136,20 @@ function beautify() {
     opts.indent_inner_html = $('#indent-inner-html').prop('checked');
     opts.comma_first = $('#comma-first').prop('checked');
     opts.e4x = $('#e4x').prop('checked');
+
+    $('#additional-options-error').hide();
+
+    if (additional_options && additional_options !== '{}') {
+      try {
+        additional_options = JSON.parse(additional_options);
+        opts = mergeObjects(opts, additional_options);
+      } catch {
+        $('#additional-options-error').show();
+      }
+    }
+
+    var selectedOptions = JSON.stringify(opts, null, 2);
+    $('#options-selected').val(selectedOptions);
 
     if (looks_like_html(source)) {
         output = html_beautify(source, opts);
@@ -154,4 +172,17 @@ function looks_like_html(source) {
     // <foo> - looks like html
     var trimmed = source.replace(/^[ \t\n\r]+/, '');
     return trimmed && (trimmed.substring(0, 1) === '<');
+}
+
+function mergeObjects(allOptions, additionalOptions) {
+    var finalOpts = {};
+    var name;
+
+    for (name in allOptions) {
+      finalOpts[name] = allOptions[name];
+    }
+    for (name in additionalOptions) {
+      finalOpts[name] = additionalOptions[name];
+    }
+    return finalOpts;
 }

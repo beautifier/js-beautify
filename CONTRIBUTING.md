@@ -15,10 +15,9 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
   * Run `./build js`
-  * Run `./build static` to see changes served locally
+  * Run `./build static` to see changes served locally at `http://localhost:8080`
 * If working in the Python implementation:
   * Run `./build py`
-  * Run `./build static` to see changes served locally
 * Add tests to `/test/data/*/test.js`.
 * Run `./build jstest` or `./build pytest` to run style checks, and to generate and run tests.
 * Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
