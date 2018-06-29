@@ -117,6 +117,7 @@ function beautify() {
     var source = the.editor ? the.editor.getValue() : $('#source').val(),
         output,
         opts = {};
+    the.lastInput = source;
 
     var additional_options = $('#additional-options').val();
 
@@ -138,6 +139,7 @@ function beautify() {
     opts.e4x = $('#e4x').prop('checked');
 
     $('#additional-options-error').hide();
+    $('#open-issue').hide();
 
     if (additional_options && additional_options !== '{}') {
       try {
@@ -165,6 +167,11 @@ function beautify() {
         $('#source').val(output);
     }
 
+    $('#open-issue').show();
+
+    the.lastOutput = output;
+    the.lastOpts = selectedOptions;
+
     the.beautify_in_progress = false;
 }
 
@@ -185,4 +192,47 @@ function mergeObjects(allOptions, additionalOptions) {
       finalOpts[name] = additionalOptions[name];
     }
     return finalOpts;
+}
+
+function submitIssue() {
+  let url = 'https://github.com/beautify-web/js-beautify/issues/new?';
+  let body = `# Description
+> NOTE:
+> * Check the list of open issues before filing a new issue.
+> * Please update the expect output section to match how you would prefer the code to look.
+
+# Input
+The code looked like this before beautification:
+\`\`\`
+${the.lastInput}
+\`\`\`
+
+# Current Output
+The  code actually looked like this after beautification:
+\`\`\`
+${the.lastOutput}
+\`\`\`
+
+# Expected Output
+The code should have looked like this after beautification:
+\`\`\`
+/*Adjust the code to look how you prefer the output to be.*/
+${the.lastInput}
+\`\`\`
+
+## Environment
+Browser User Agent:
+${navigator.userAgent}
+
+## Settings
+Example:
+\`\`\`json
+${the.lastOpts}
+\`\`\`
+`
+  var encoded = encodeURIComponent(body);
+  url += 'body=' + encoded;
+
+  console.log(url);
+  window.open(url, '_blank').focus();
 }
