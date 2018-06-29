@@ -826,6 +826,30 @@ class TestJSBeautifier(unittest.TestCase):
             '    .f()\n' +
             '    .f();\n' +
             '});')
+        
+        # regression test for fix #1378
+        bt(
+            'f(function() {\n' +
+            '    if(g === 1)\n' +
+            '        g = 0;\n' +
+            '    else\n' +
+            '        g = 1;\n' +
+            '\n' +
+            '    f()\n' +
+            '        .f()\n' +
+            '        .f();\n' +
+            '});',
+            #  -- output --
+            'f(function() {\n' +
+            '    if (g === 1)\n' +
+            '        g = 0;\n' +
+            '    else\n' +
+            '        g = 1;\n' +
+            '\n' +
+            '    f()\n' +
+            '    .f()\n' +
+            '    .f();\n' +
+            '});')
 
 
         #============================================================
