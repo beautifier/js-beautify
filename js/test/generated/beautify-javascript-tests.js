@@ -3971,6 +3971,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}');
+        
+        // Issue #1283 - Javascript ++ Operator get wrong indent 
+        bt(
+            '{this.foo++\n' +
+            'bar}',
+            //  -- output --
+            '{\n' +
+            '    this.foo++\n' +
+            '    bar\n' +
+            '}');
+        
+        // Issue #1283 - Javascript ++ Operator get wrong indent (2)
+        bt(
+            'axios.interceptors.request.use(\n' +
+            '    config => {\n' +
+            '        // loading\n' +
+            '        window.store.loading++\n' +
+            '        let extraParams = {}\n' +
+            '    }\n' +
+            ')');
 
 
         //============================================================

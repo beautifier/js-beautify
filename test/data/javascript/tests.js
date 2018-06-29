@@ -2817,6 +2817,31 @@ exports.test_data = {
                     '    return something;',
                     '}'
                 ]
+            },
+            {
+                comment: "Issue #1283 - Javascript ++ Operator get wrong indent ",
+                input: [
+                    '{this.foo++',
+                    'bar}'
+                ],
+                output: [
+                    '{',
+                    '    this.foo++',
+                    '    bar',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #1283 - Javascript ++ Operator get wrong indent (2)",
+                unchanged: [
+                    'axios.interceptors.request.use(',
+                    '    config => {',
+                    '        // loading',
+                    '        window.store.loading++',
+                    '        let extraParams = {}',
+                    '    }',
+                    ')'
+                ]
             }
         ]
     }, {
