@@ -266,6 +266,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
         options.extra_liners.split(',') : 'head,body,/html'.split(',');
     eol = options.eol ? options.eol : 'auto';
+    keep_collapsed_whitespace = (options.keep_collapsed_whitespace === undefined) ? false : options.keep_collapsed_whitespace;
 
     if (options.indent_with_tabs) {
         indent_character = '\t';
@@ -300,6 +301,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         this.indent_content = indent_inner_html;
         this.indent_body_inner_html = indent_body_inner_html;
         this.indent_head_inner_html = indent_head_inner_html;
+        this.should_wrap_next_tag_start = true;
 
         this.Utils = { //Uilities made available to the various functions
             whitespace: "\n\r\t ".split(''),
@@ -447,6 +449,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         };
 
         this.record_tag = function(tag) { //function to record a tag and its parent in this.tags Object
+            tag = ltrim(rtrim(tag));
             if (this.tags[tag + 'count']) { //check for the existence of this tag type
                 this.tags[tag + 'count']++;
                 this.tags[tag + this.tags[tag + 'count']] = this.indent_level; //and record the present indent level
@@ -1023,10 +1026,32 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     /*_____________________--------------------_____________________*/
 
     this.beautify = function() {
+        function disallow_next_tag_wrapping_if_required() {
+          if (
+              // Should we keep whitespace between tags collapsed?
+              keep_collapsed_whitespace &&
+              // Means that there is no whitespace at the end of token_text
+              !multi_parser.is_whitespace(multi_parser.token_text[multi_parser.token_text.length - 1])
+            ) {
+              multi_parser.should_wrap_next_tag_start = false;
+            }
+        }
+
+        function print_newline_if_allowed() {
+            // Don't add a newline before tag which has a direct previous sibling tag (this is optional).
+            if (
+              !keep_collapsed_whitespace ||
+              multi_parser.should_wrap_next_tag_start
+            ) {
+              multi_parser.print_newline(false, multi_parser.output);
+            }
+        }
+
         multi_parser = new Parser(); //wrapping functions Parser
         multi_parser.printer(html_source, indent_character, indent_size, wrap_line_length, brace_style); //initialize starting values
         while (true) {
             var t = multi_parser.get_token();
+            var token_was_matched = true;
             multi_parser.token_text = t[0];
             multi_parser.token_type = t[1];
 
@@ -1036,7 +1061,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
             switch (multi_parser.token_type) {
                 case 'TK_TAG_START':
-                    multi_parser.print_newline(false, multi_parser.output);
+                    print_newline_if_allowed();
                     multi_parser.print_token(multi_parser.token_text);
                     if (multi_parser.indent_content) {
                         if ((multi_parser.indent_body_inner_html || !multi_parser.token_text.match(/<body(?:.*)>/)) &&
@@ -1056,6 +1081,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_END':
+                    disallow_next_tag_wrapping_if_required();
+
                     //Print new line only if the tag has no content and has child
                     if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
                         var tag_name = (multi_parser.token_text.match(/\w+/) || [])[0];
@@ -1075,8 +1102,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     // Don't add a newline before elements that should remain unformatted.
                     var tag_check = multi_parser.token_text.match(/^\s*<([a-z-]+)/i);
                     if (!tag_check || !multi_parser.Utils.in_array(tag_check[1], unformatted)) {
-                        multi_parser.print_newline(false, multi_parser.output);
+                        print_newline_if_allowed();
                     }
+
+                    disallow_next_tag_wrapping_if_required();
+
                     multi_parser.print_token(multi_parser.token_text);
                     multi_parser.current_mode = 'CONTENT';
                     break;
@@ -1108,6 +1138,10 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     multi_parser.current_mode = 'TAG';
                     break;
                 case 'TK_CONTENT':
+                    if (multi_parser.token_text.length !== 0) {
+                      multi_parser.should_wrap_next_tag_start = true;
+                    }
+
                     multi_parser.print_token(multi_parser.token_text);
                     multi_parser.current_mode = 'TAG';
                     break;
@@ -1157,6 +1191,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     multi_parser.current_mode = 'TAG';
                     break;
                 default:
+                    token_was_matched = false;
                     // We should not be getting here but we don't want to drop input on the floor
                     // Just output the text and move on
                     if (multi_parser.token_text !== '') {
@@ -1164,6 +1199,18 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     }
                     break;
             }
+
+            if (
+              (token_was_matched &&
+              multi_parser.token_type !== 'TK_TAG_SINGLE' &&
+              multi_parser.token_type !== 'TK_TAG_END' &&
+              multi_parser.token_type !== 'TK_CONTENT') ||
+
+              !token_was_matched
+            ) {
+              multi_parser.should_wrap_next_tag_start = true;
+            }
+
             multi_parser.last_token = multi_parser.token_type;
             multi_parser.last_text = multi_parser.token_text;
         }

@@ -101,6 +101,7 @@ var path = require('path'),
         "indent_handlebars": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
         "extra_liners": [String, Array],
+        "keep_collapsed_whitespace": Boolean,
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -150,6 +151,7 @@ var path = require('path'),
         "H": ["--indent_handlebars"],
         "S": ["--indent_scripts"],
         "E": ["--extra_liners"],
+        "K": ["--keep_collapsed_whitespace"],
         // non-dasherized hybrid shortcuts
         "good-stuff": [
             "--keep_array_indentation",
@@ -373,6 +375,7 @@ function usage(err) {
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
             msg.push('  -T, --content_unformatted         List of tags (defaults to pre) whose content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
+            msg.push('  -K, --keep_collapsed_whitespace   Don\'t add a newline before tag which has a direct previous sibling tag. Default is false.');
             break;
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');

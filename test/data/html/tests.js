@@ -1128,6 +1128,110 @@ exports.test_data = {
             ]
         }]
     }, {
+        name: "keep_collapsed_whitespace: prevent wrapping in case of collapsed tags",
+        description: "Don't add a newline before a tag which has another closing tag directly before it",
+        options: [
+            { name: 'keep_collapsed_whitespace', value: "true" },
+            { name: 'unformatted', value: "[]" }
+        ],
+        tests: [{
+            fragment: true,
+            input: '<div>Beautify</div> <div>me</div> <p>But</p><div>not</div><i>me</i> <span>Also, wrap me</span>',
+            output: [
+                '<div>Beautify</div>',
+                '<div>me</div>',
+                '<p>But</p><div>not</div><i>me</i>',
+                '<span>Also, wrap me</span>'
+            ]
+        }, {
+            fragment: true,
+            input: '<input value="Collapsed single tags..." type="text"><img src="" alt="...are not wrapped"/> <input value="This single tag is wrapped" type="text">',
+            output: [
+                '<input value="Collapsed single tags..." type="text"><img src="" alt="...are not wrapped" />',
+                '<input value="This single tag is wrapped" type="text">'
+            ]
+        }, {
+            fragment: true,
+            input: '<div>\n' +
+                '    keep\n' +
+                '</div\n' +
+                '><div>\n' +
+                '    tags\n' +
+                '</div\n' +
+                '><div>\n' +
+                '    collapsed\n' +
+                '</div>',
+            output: [
+                '<div>',
+                '    keep',
+                '</div><div>',
+                '    tags',
+                '</div><div>',
+                '    collapsed',
+                '</div>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<label>Type to the right: </label><input type="text">'
+        }, {
+            fragment: true,
+            unchanged: '<input type="text"><label> - type to the left</label>'
+        }]
+    }, {
+        name: "default keep_collapsed_whitespace",
+        description: "by default keep_collapsed_whitespace is off, wrap tags as usual",
+        options: [
+            { name: 'unformatted', value: "[]" }
+        ],
+        tests: [{
+            fragment: true,
+            input: '<div>Beautify</div> <div>me</div> <p>And</p><div>me</div><i>also</i>',
+            output: [
+                '<div>Beautify</div>',
+                '<div>me</div>',
+                '<p>And</p>',
+                '<div>me</div>',
+                '<i>also</i>'
+            ]
+        }, {
+            fragment: true,
+            input: '<input value="Collapsed single tags..." type="text"><img src="" alt="...are wrapped"/> <input value="This single tag is wrapped" type="text">',
+            output: [
+                '<input value="Collapsed single tags..." type="text">',
+                '<img src="" alt="...are wrapped" />',
+                '<input value="This single tag is wrapped" type="text">'
+            ]
+        }, {
+            fragment: true,
+            input: '<label>Wrap</label><input value="us" type="text">',
+            output: [
+                '<label>Wrap</label>',
+                '<input value="us" type="text">'
+            ]
+        }, {
+            fragment: true,
+            input: '<div>\n' +
+                '    all\n' +
+                '</div\n' +
+                '><div>\n' +
+                '    tags\n' +
+                '</div\n' +
+                '><div>\n' +
+                '    are wrapped\n' +
+                '</div>',
+            output: [
+                '<div>',
+                '    all',
+                '</div>',
+                '<div>',
+                '    tags',
+                '</div>',
+                '<div>',
+                '    are wrapped',
+                '</div>'
+            ]
+        }]
+    }, {
         name: "New Test Suite"
     }],
 };
