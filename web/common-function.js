@@ -45,6 +45,7 @@ function read_settings_from_cookie() {
     $('#indent-inner-html').prop('checked', $.cookie('indent-inner-html') === 'on');
     $('#comma-first').prop('checked', $.cookie('comma-first') === 'on');
     $('#e4x').prop('checked', $.cookie('e4x') === 'on');
+    $('#language').val(any($.cookie('language'), 'auto'));
 }
 
 function store_settings_to_cookie() {
@@ -68,6 +69,7 @@ function store_settings_to_cookie() {
     $.cookie('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
     $.cookie('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
     $.cookie('e4x', $('#e4x').prop('checked') ? 'on' : 'off', opts);
+    $.cookie('language', $('#language').val(), opts);
 
 }
 
@@ -121,6 +123,9 @@ function beautify() {
 
     var additional_options = $('#additional-options').val();
 
+    var language = $('#language').val();
+    the.language = $('#language option:selected').text();
+
     opts.indent_size = $('#tabsize').val();
     opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
     opts.max_preserve_newlines = $('#max-preserve-newlines').val();
@@ -142,25 +147,28 @@ function beautify() {
     $('#open-issue').hide();
 
     if (additional_options && additional_options !== '{}') {
-      try {
-        additional_options = JSON.parse(additional_options);
-        opts = mergeObjects(opts, additional_options);
-      } catch {
-        $('#additional-options-error').show();
-      }
+        try {
+            additional_options = JSON.parse(additional_options);
+            opts = mergeObjects(opts, additional_options);
+        } catch {
+            $('#additional-options-error').show();
+        }
     }
 
     var selectedOptions = JSON.stringify(opts, null, 2);
     $('#options-selected').val(selectedOptions);
 
-    if (looks_like_html(source)) {
+    if (language === 'html' || (language === 'auto' && looks_like_html(source))) {
         output = html_beautify(source, opts);
+    } else if (language === 'css') {
+        output = css_beautify(source, opts);
     } else {
         if ($('#detect-packers').prop('checked')) {
             source = unpacker_filter(source);
         }
         output = js_beautify(source, opts);
     }
+
     if (the.editor) {
         the.editor.setValue(output);
     } else {
@@ -223,6 +231,9 @@ ${the.lastInput}
 ## Environment
 Browser User Agent:
 ${navigator.userAgent}
+
+Language Selected:
+${the.language}
 
 ## Settings
 Example:
