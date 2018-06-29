@@ -734,7 +734,7 @@ function Beautifier(js_source_text, options) {
         if (flag_store.length > 0) {
             previous_flags = flags;
             flags = flag_store.pop();
-            if (previous_flags.mode === MODE.Statement && !opt.unindent_chained_methods) {
+            if (previous_flags.mode === MODE.Statement) {
                 remove_redundant_indentation(output, previous_flags);
             }
         }
@@ -763,9 +763,7 @@ function Beautifier(js_source_text, options) {
         ) {
 
             set_mode(MODE.Statement);
-            if (!opt.unindent_chained_methods) {
-                indent();
-            }
+            indent();
 
             handle_whitespace_and_comments(current_token, true);
 
@@ -1654,6 +1652,10 @@ function Beautifier(js_source_text, options) {
             // The conditional starts the statement if appropriate.
         } else {
             handle_whitespace_and_comments(current_token, true);
+        }
+
+        if (opt.unindent_chained_methods) {
+            deindent();
         }
 
         if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {

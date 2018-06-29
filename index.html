@@ -54,6 +54,8 @@
     <script src="web/common-function.js"></script>
 </head>
 
+<h1>Online JavaScript beautifier</h1>
+
 <body>
 
     <div id="about">
@@ -114,6 +116,11 @@
                     <option value="separate">Separate indentation</option>
                 </select>
 
+                <p style="margin:6px 0 0 0">Additional Settings (JSON):</p>
+                <textarea id="additional-options" rows="5" cols="32">{}</textarea>
+
+                <p id ="additional-options-error" hidden style="margin:6px 0 0 0; color:red ">Could Not Parse JSON!</p>
+
             </td>
             <td>
                 <input class="checkbox" type="checkbox" id="end-with-newline">
@@ -162,6 +169,15 @@
         <button class="submit"><strong>Beautify JavaScript or HTML</strong>  <em>(ctrl-enter)</em>
         </button>
     </div>
+
+    <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
+    <div style="line-height: 0">
+        <textarea readonly id="options-selected" rows="10" cols="40"></textarea>
+    </div>
+
+    <p id="open-issue" hidden>Not pretty enough for you?
+    <button type="button" onclick="submitIssue()" name="issue-button">Report an issue</button>
+    </p>
 
     <div class="blurb">
 

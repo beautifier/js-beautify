@@ -1,6 +1,11 @@
+---
+name: Beautification problem
+about: You tried using the beautifier and the resulting format was not what you expected
+
+---
+
 # Description
-> This is the default template for bug reports, if you have a more general
-> issue, question, or request, you may ignore this template and write freeform.
+> This is the default template for bug reports
 >
 > NOTE: 
 > * Do not include screenshots! This library is a text processor, we need text inputs and outputs for debugging and fixing issues. 

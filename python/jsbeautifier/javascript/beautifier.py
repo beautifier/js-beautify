@@ -380,7 +380,7 @@ class Beautifier:
         if len(self.flag_store) > 0:
             self.previous_flags = self.flags
             self.flags = self.flag_store.pop()
-            if self.previous_flags.mode == MODE.Statement and not self.opts.unindent_chained_methods:
+            if self.previous_flags.mode == MODE.Statement:
                 remove_redundant_indentation(self.output, self.previous_flags)
 
 
@@ -406,8 +406,7 @@ class Beautifier:
                 ):
 
             self.set_mode(MODE.Statement)
-            if not self.opts.unindent_chained_methods:
-                self.indent()
+            self.indent()
 
             self.handle_whitespace_and_comments(current_token, True);
 
@@ -1174,6 +1173,9 @@ class Beautifier:
             pass
         else:
             self.handle_whitespace_and_comments(current_token, True)
+
+        if self.opts.unindent_chained_methods:
+            self.deindent()
 
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
             self.output.space_before_token = True
