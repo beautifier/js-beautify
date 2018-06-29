@@ -196,6 +196,7 @@ function rtrim(s) {
 function Beautifier(html_source, options, js_beautify, css_beautify) {
     //Wrapper function to invoke all the necessary constructors and deal with the output.
     html_source = html_source || '';
+    options = options || {};
 
     var multi_parser,
         indent_inner_html,
@@ -218,8 +219,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         end_with_newline,
         extra_liners,
         eol;
-
-    options = options || {};
 
     // Allow the setting of language/file-type specific options
     // with inheritance of overall settings
@@ -952,11 +951,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             }
 
             this.print_newline = function(force, arr) {
-                this.line_char_count = 0;
                 if (!arr || !arr.length) {
                     return;
                 }
                 if (force || (arr[arr.length - 1] !== '\n')) { //we might want the extra line
+                    this.line_char_count = 0;
                     if ((arr[arr.length - 1] !== '\n')) {
                         arr[arr.length - 1] = rtrim(arr[arr.length - 1]);
                     }

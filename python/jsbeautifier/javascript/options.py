@@ -37,6 +37,7 @@ class BeautifierOptions:
         self.space_after_anon_function = False
         self.brace_style = 'collapse'
         self.keep_array_indentation = False
+        self.space_before_conditional = True
         self.keep_function_indentation = False
         self.eval_code = False
         self.unescape_strings = False

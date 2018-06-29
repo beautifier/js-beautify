@@ -343,6 +343,9 @@ var MODE = {
 
 function Beautifier(js_source_text, options) {
     "use strict";
+    options = options || {};
+    js_source_text = js_source_text || '';
+
     var output;
     var tokens = [],
         token_pos;
@@ -408,9 +411,6 @@ function Beautifier(js_source_text, options) {
         };
         return next_flags;
     }
-
-    // Some interpreters have unexpected results with foo = baz || bar;
-    options = options ? options : {};
 
     // Allow the setting of language/file-type specific options
     // with inheritance of overall settings
@@ -734,7 +734,7 @@ function Beautifier(js_source_text, options) {
         if (flag_store.length > 0) {
             previous_flags = flags;
             flags = flag_store.pop();
-            if (previous_flags.mode === MODE.Statement && !opt.unindent_chained_methods) {
+            if (previous_flags.mode === MODE.Statement) {
                 remove_redundant_indentation(output, previous_flags);
             }
         }
@@ -763,9 +763,7 @@ function Beautifier(js_source_text, options) {
         ) {
 
             set_mode(MODE.Statement);
-            if (!opt.unindent_chained_methods) {
-                indent();
-            }
+            indent();
 
             handle_whitespace_and_comments(current_token, true);
 
@@ -851,62 +849,61 @@ function Beautifier(js_source_text, options) {
                 }
             }
 
-        } else {
-            if (last_type === 'TK_RESERVED' && flags.last_text === 'for') {
-                next_mode = MODE.ForInitializer;
-            } else if (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['if', 'while'])) {
-                next_mode = MODE.Conditional;
-            } else {
-                // next_mode = MODE.Expression;
+            if (!in_array(last_type, ['TK_START_EXPR', 'TK_END_EXPR', 'TK_WORD', 'TK_OPERATOR'])) {
+                output.space_before_token = true;
             }
+        } else {
+            if (last_type === 'TK_RESERVED') {
+                if (flags.last_text === 'for') {
+                    output.space_before_token = opt.space_before_conditional;
+                    next_mode = MODE.ForInitializer;
+                } else if (in_array(flags.last_text, ['if', 'while'])) {
+                    output.space_before_token = opt.space_before_conditional;
+                    next_mode = MODE.Conditional;
+                } else if (in_array(flags.last_word, ['await', 'async'])) {
+                    // Should be a space between await and an IIFE, or async and an arrow function
+                    output.space_before_token = true;
+                } else if (flags.last_text === 'import' && current_token.whitespace_before === '') {
+                    output.space_before_token = false;
+                } else if (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch') {
+                    output.space_before_token = true;
+                }
+            } else if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
+                // Support of this kind of newline preservation.
+                // a = (b &&
+                //     (c || d));
+                if (!start_of_object_property()) {
+                    allow_wrap_or_preserved_newline();
+                }
+            } else if (last_type === 'TK_WORD') {
+                output.space_before_token = false;
+            } else {
+                // Support preserving wrapped arrow function expressions
+                // a.b('c',
+                //     () => d.e
+                // )
+                allow_wrap_or_preserved_newline();
+            }
+
+            // function() vs function ()
+            // yield*() vs yield* ()
+            // function*() vs function* ()
+            if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
+                (flags.last_text === '*' &&
+                    (in_array(last_last_text, ['function', 'yield']) ||
+                        (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
+
+                output.space_before_token = opt.space_after_anon_function;
+            }
+
         }
 
         if (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
             print_newline();
         } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.') {
+            // do nothing on (( and )( and ][ and ]( and .(
             // TODO: Consider whether forcing this is required.  Review failing tests when removed.
             allow_wrap_or_preserved_newline(current_token.wanted_newline);
-            // do nothing on (( and )( and ][ and ]( and .(
-        } else if (!(last_type === 'TK_RESERVED' && current_token.text === '(') && last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
-            output.space_before_token = true;
-        } else if ((last_type === 'TK_RESERVED' && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
-            (flags.last_text === '*' &&
-                (in_array(last_last_text, ['function', 'yield']) ||
-                    (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
-            // function() vs function ()
-            // yield*() vs yield* ()
-            // function*() vs function* ()
-            if (opt.space_after_anon_function) {
-                output.space_before_token = true;
-            }
-        } else if (last_type === 'TK_RESERVED' && (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch')) {
-            if (opt.space_before_conditional) {
-                output.space_before_token = true;
-            }
-        }
-
-        // Should be a space between await and an IIFE, or async and an arrow function
-        if (current_token.text === '(' && last_type === 'TK_RESERVED' && in_array(flags.last_word, ['await', 'async'])) {
-            output.space_before_token = true;
-        }
-
-        // Support of this kind of newline preservation.
-        // a = (b &&
-        //     (c || d));
-        if (current_token.text === '(') {
-            if (last_type === 'TK_EQUALS' || last_type === 'TK_OPERATOR') {
-                if (!start_of_object_property()) {
-                    allow_wrap_or_preserved_newline();
-                }
-            }
-        }
-
-        // Support preserving wrapped arrow function expressions
-        // a.b('c',
-        //     () => d.e
-        // )
-        if (current_token.text === '(' && last_type !== 'TK_WORD' && last_type !== 'TK_RESERVED') {
-            allow_wrap_or_preserved_newline();
         }
 
         set_mode(next_mode);
@@ -1657,6 +1654,10 @@ function Beautifier(js_source_text, options) {
             handle_whitespace_and_comments(current_token, true);
         }
 
+        if (opt.unindent_chained_methods) {
+            deindent();
+        }
+
         if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {
             output.space_before_token = true;
         } else {
@@ -1720,7 +1721,7 @@ module.exports.Beautifier = Beautifier;
 */
 
 function InputScanner(input) {
-    var _input = input;
+    var _input = input || '';
     var _input_length = _input.length;
     var _position = 0;
 
@@ -2372,6 +2373,7 @@ function Tokenizer(input_string, opts) {
         if (digit.test(c) || (c === '.' && input.testChar(digit))) {
             var allow_decimal = true;
             var allow_e = true;
+            var allow_bigint = true;
             var local_digit = digit;
 
             if (c === '0' && input.testChar(/[XxOoBb]/)) {
@@ -2389,6 +2391,7 @@ function Tokenizer(input_string, opts) {
             } else if (c === '.') {
                 // Already have a decimal for this literal, don't allow another
                 allow_decimal = false;
+                allow_bigint = false;
             } else {
                 // we know this first loop will run.  It keeps the logic simpler.
                 c = '';
@@ -2402,6 +2405,7 @@ function Tokenizer(input_string, opts) {
                 if (allow_decimal && input.peek() === '.') {
                     c += input.next();
                     allow_decimal = false;
+                    allow_bigint = false;
                 }
 
                 // a = 1.e-7 is valid, so we test for . then e in one loop
@@ -2414,7 +2418,12 @@ function Tokenizer(input_string, opts) {
 
                     allow_e = false;
                     allow_decimal = false;
+                    allow_bigint = false;
                 }
+            }
+
+            if (allow_bigint && input.peek() === 'n') {
+                c += input.next();
             }
 
             return [c, 'TK_WORD'];

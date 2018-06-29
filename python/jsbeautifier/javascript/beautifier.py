@@ -115,6 +115,8 @@ class Beautifier:
         self.blank_state()
 
     def blank_state(self, js_source_text = None):
+        if js_source_text is None:
+            js_source_text = ''
 
         # internal flags
         self.flags = None
@@ -145,7 +147,7 @@ class Beautifier:
         self.last_type = 'TK_START_BLOCK' # last token type
         self.last_last_text = ''         # pre-last token text
 
-        preindent_index = 0;
+        preindent_index = 0
         if not js_source_text == None and len(js_source_text) > 0:
             while preindent_index < len(js_source_text) and \
                     js_source_text[preindent_index] in [' ', '\t'] :
@@ -163,7 +165,6 @@ class Beautifier:
 
 
     def beautify(self, s, opts = None ):
-
         if opts != None:
             opts = mergeOpts(opts, 'js')
             self.opts = copy.copy(opts)
@@ -379,7 +380,7 @@ class Beautifier:
         if len(self.flag_store) > 0:
             self.previous_flags = self.flags
             self.flags = self.flag_store.pop()
-            if self.previous_flags.mode == MODE.Statement and not self.opts.unindent_chained_methods:
+            if self.previous_flags.mode == MODE.Statement:
                 remove_redundant_indentation(self.output, self.previous_flags)
 
 
@@ -405,8 +406,7 @@ class Beautifier:
                 ):
 
             self.set_mode(MODE.Statement)
-            if not self.opts.unindent_chained_methods:
-                self.indent()
+            self.indent()
 
             self.handle_whitespace_and_comments(current_token, True);
 
@@ -458,14 +458,48 @@ class Beautifier:
                     if not self.opts.keep_array_indentation:
                         self.print_newline()
 
-        else:
-            if self.last_type == 'TK_RESERVED' and self.flags.last_text == 'for':
-                next_mode = MODE.ForInitializer
-            elif self.last_type == 'TK_RESERVED' and self.flags.last_text in ['if', 'while']:
-                next_mode = MODE.Conditional
-            else:
-                next_mode = MODE.Expression
+            if self.last_type not in ['TK_START_EXPR', 'TK_END_EXPR', 'TK_WORD', 'TK_OPERATOR']:
+                self.output.space_before_token = True
 
+        else:
+            if self.last_type == 'TK_RESERVED':
+                if self.flags.last_text == 'for':
+                    self.output.space_before_token = self.opts.space_before_conditional
+                    next_mode = MODE.ForInitializer
+                elif self.flags.last_text in ['if', 'while']:
+                    self.output.space_before_token = self.opts.space_before_conditional
+                    next_mode = MODE.Conditional
+                elif self.flags.last_word in ['await', 'async']:
+                    # Should be a space between await and an IIFE, or async and an arrow function
+                    self.output.space_before_token = True
+                elif self.flags.last_text == 'import' and current_token.whitespace_before == '':
+                    self.output.space_before_token = False
+                elif self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch':
+                    self.output.space_before_token = True
+
+            elif self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
+                # Support of this kind of newline preservation:
+                # a = (b &&
+                #     (c || d));
+                if not self.start_of_object_property():
+                    self.allow_wrap_or_preserved_newline(current_token)
+            elif self.last_type == 'TK_WORD':
+                self.output.space_before_token = False
+            else:
+                # Support preserving wrapped arrow function expressions
+                # a.b('c',
+                #     () => d.e
+                # )
+                self.allow_wrap_or_preserved_newline(current_token)
+
+
+            # function() vs function (), typeof() vs typeof ()
+            # function*() vs function* (), yield*() vs yield* ()
+            if (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
+                (self.flags.last_text == '*' and (
+                    self.last_last_text in ['function', 'yield'] or
+                    (self.flags.mode == MODE.ObjectLiteral and self.last_last_text in ['{', ',']))):
+                self.output.space_before_token = self.opts.space_after_anon_function
 
         if self.flags.last_text == ';' or self.last_type == 'TK_START_BLOCK':
             self.print_newline()
@@ -473,40 +507,6 @@ class Beautifier:
             # do nothing on (( and )( and ][ and ]( and .(
             # TODO: Consider whether forcing this is required.  Review failing tests when removed.
             self.allow_wrap_or_preserved_newline(current_token, current_token.wanted_newline)
-
-        elif not (self.last_type == 'TK_RESERVED' and current_token.text == '(') and self.last_type not in ['TK_WORD', 'TK_OPERATOR']:
-            self.output.space_before_token = True
-        elif (self.last_type == 'TK_RESERVED' and (self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or \
-            (self.flags.last_text == '*' and (
-                self.last_last_text in ['function', 'yield'] or
-                (self.flags.mode == MODE.ObjectLiteral and self.last_last_text in ['{', ',']))):
-            # function() vs function (), typeof() vs typeof ()
-            # function*() vs function* (), yield*() vs yield* ()
-            if self.opts.space_after_anon_function:
-                self.output.space_before_token = True
-        elif self.last_type == 'TK_RESERVED' and (self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch'):
-            # TODO: option space_before_conditional
-            self.output.space_before_token = True
-
-        elif current_token.text == '(' and self.last_type == 'TK_RESERVED' and self.flags.last_word in ['await', 'async']:
-            self.output.space_before_token = True
-
-
-        # Support of this kind of newline preservation:
-        # a = (b &&
-        #     (c || d));
-        if self.last_type in ['TK_EQUALS', 'TK_OPERATOR']:
-            if not self.start_of_object_property():
-                self.allow_wrap_or_preserved_newline(current_token)
-
-
-        # Support preserving wrapped arrow function expressions
-        # a.b('c',
-        #     () => d.e
-        # )
-        if current_token.text == '(' and self.last_type not in ['TK_WORD', 'TK_RESERVED']:
-            self.allow_wrap_or_preserved_newline(current_token)
-
 
         self.set_mode(next_mode)
         self.print_token(current_token)
@@ -1173,6 +1173,9 @@ class Beautifier:
             pass
         else:
             self.handle_whitespace_and_comments(current_token, True)
+
+        if self.opts.unindent_chained_methods:
+            self.deindent()
 
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
             self.output.space_before_token = True
