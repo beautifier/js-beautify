@@ -826,6 +826,30 @@ class TestJSBeautifier(unittest.TestCase):
             '    .f()\n' +
             '    .f();\n' +
             '});')
+        
+        # regression test for fix #1378
+        bt(
+            'f(function() {\n' +
+            '    if(g === 1)\n' +
+            '        g = 0;\n' +
+            '    else\n' +
+            '        g = 1;\n' +
+            '\n' +
+            '    f()\n' +
+            '        .f()\n' +
+            '        .f();\n' +
+            '});',
+            #  -- output --
+            'f(function() {\n' +
+            '    if (g === 1)\n' +
+            '        g = 0;\n' +
+            '    else\n' +
+            '        g = 1;\n' +
+            '\n' +
+            '    f()\n' +
+            '    .f()\n' +
+            '    .f();\n' +
+            '});')
 
 
         #============================================================
@@ -3775,6 +3799,26 @@ class TestJSBeautifier(unittest.TestCase):
             'if (someCondition) {\n' +
             '    return something;\n' +
             '}')
+        
+        # Issue #1283 - Javascript ++ Operator get wrong indent 
+        bt(
+            '{this.foo++\n' +
+            'bar}',
+            #  -- output --
+            '{\n' +
+            '    this.foo++\n' +
+            '    bar\n' +
+            '}')
+        
+        # Issue #1283 - Javascript ++ Operator get wrong indent (2)
+        bt(
+            'axios.interceptors.request.use(\n' +
+            '    config => {\n' +
+            '        // loading\n' +
+            '        window.store.loading++\n' +
+            '        let extraParams = {}\n' +
+            '    }\n' +
+            ')')
 
 
         #============================================================

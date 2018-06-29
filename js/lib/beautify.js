@@ -642,7 +642,7 @@ function Beautifier(js_source_text, options) {
 
     function print_newline(force_newline, preserve_statement_flags) {
         if (!preserve_statement_flags) {
-            if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && last_type !== 'TK_OPERATOR') {
+            if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && (last_type !== 'TK_OPERATOR' || flags.last_text === '--' || flags.last_text === '++')) {
                 var next_token = get_token(1);
                 while (flags.mode === MODE.Statement &&
                     !(flags.if_block && next_token && next_token.type === 'TK_RESERVED' && next_token.text === 'else') &&
@@ -734,7 +734,7 @@ function Beautifier(js_source_text, options) {
         if (flag_store.length > 0) {
             previous_flags = flags;
             flags = flag_store.pop();
-            if (previous_flags.mode === MODE.Statement && !opt.unindent_chained_methods) {
+            if (previous_flags.mode === MODE.Statement) {
                 remove_redundant_indentation(output, previous_flags);
             }
         }
@@ -763,9 +763,7 @@ function Beautifier(js_source_text, options) {
         ) {
 
             set_mode(MODE.Statement);
-            if (!opt.unindent_chained_methods) {
-                indent();
-            }
+            indent();
 
             handle_whitespace_and_comments(current_token, true);
 
@@ -1654,6 +1652,10 @@ function Beautifier(js_source_text, options) {
             // The conditional starts the statement if appropriate.
         } else {
             handle_whitespace_and_comments(current_token, true);
+        }
+
+        if (opt.unindent_chained_methods) {
+            deindent();
         }
 
         if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {

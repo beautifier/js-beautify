@@ -450,7 +450,35 @@ exports.test_data = {
                     '    .f();',
                     '});'
                 ]
-            }
+            },
+            {
+                comment: 'regression test for fix #1378',
+                input: [
+                    'f(function() {',
+                    '    if(g === 1)',
+                    '        g = 0;',
+                    '    else',
+                    '        g = 1;',
+                    '',
+                    '    f()',
+                    '        .f()',
+                    '        .f();',
+                    '});'
+                ],
+                output: [
+                    'f(function() {',
+                    '    if (g === 1)',
+                    '        g = 0;',
+                    '    else',
+                    '        g = 1;',
+                    '',
+                    '    f()',
+                    '    .f()',
+                    '    .f();',
+                    '});'
+                ]
+            },
+
         ],
     }, {
         name: "Space in parens tests",
@@ -2788,6 +2816,31 @@ exports.test_data = {
                     'if (someCondition) {',
                     '    return something;',
                     '}'
+                ]
+            },
+            {
+                comment: "Issue #1283 - Javascript ++ Operator get wrong indent ",
+                input: [
+                    '{this.foo++',
+                    'bar}'
+                ],
+                output: [
+                    '{',
+                    '    this.foo++',
+                    '    bar',
+                    '}'
+                ]
+            },
+            {
+                comment: "Issue #1283 - Javascript ++ Operator get wrong indent (2)",
+                unchanged: [
+                    'axios.interceptors.request.use(',
+                    '    config => {',
+                    '        // loading',
+                    '        window.store.loading++',
+                    '        let extraParams = {}',
+                    '    }',
+                    ')'
                 ]
             }
         ]

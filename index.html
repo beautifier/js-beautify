@@ -1,4 +1,5 @@
-<html>
+<!doctype html>
+<html lang="en-US" dir="ltr" prefix="og:http://ogp.me/ns# fb:http://ogp.me/ns/fb#">
 <!--
   The MIT License (MIT)
 
@@ -24,10 +25,9 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
   -->
-
 <head>
+    <meta charset="utf-8" /><meta http-equiv="Content-type" content="text/html;charset=utf-8" />
     <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
-    <meta charset="utf-8">
     <title>Online JavaScript beautifier</title>
     <link rel="icon" href="web/favicon.png" type="image/png">
     <link rel="stylesheet" href="web/third-party/codemirror/lib/codemirror.css">
@@ -163,6 +163,12 @@
     </table>
 
     <div style="line-height: 0">
+        <select name="language" id="language">
+            <option value="auto">Auto Detect</option>
+            <option value="css">CSS</option>
+            <option value="html">HTML</option>
+            <option value="js">JavaScript</option>
+        </select>
         <button class="submit"><strong>Beautify JavaScript or HTML</strong>  <em>(ctrl-enter)</em>
         </button>
         <textarea id="source" rows="30" cols="160"></textarea>
@@ -175,7 +181,9 @@
         <textarea readonly id="options-selected" rows="10" cols="40"></textarea>
     </div>
 
-
+    <p id="open-issue" hidden>Not pretty enough for you?
+    <button type="button" onclick="submitIssue()" name="issue-button">Report an issue</button>
+    </p>
 
     <div class="blurb">
 
