@@ -267,7 +267,7 @@ class Beautifier:
             return source
 
     def is_special_word(self, s):
-        return s in ['case', 'return', 'do', 'if', 'throw', 'else']
+        return s in ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async']
 
     def is_array(self, mode):
         return mode == MODE.ArrayLiteral
@@ -277,7 +277,7 @@ class Beautifier:
         return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
 
 
-    _newline_restricted_tokens = ['break','continue','return', 'throw', 'yield']
+    _newline_restricted_tokens = ['async', 'await', 'break', 'continue', 'return', 'throw', 'yield']
     def allow_wrap_or_preserved_newline(self, current_token, force_linewrap = False):
         # never wrap the first token of a line.
         if self.output.just_added_newline():
@@ -738,7 +738,7 @@ class Beautifier:
 
             if self.last_type == 'TK_RESERVED' or self.last_type == 'TK_WORD':
                 if self.last_type == 'TK_RESERVED' and (
-                    self.flags.last_text in ['get', 'set', 'new', 'export', 'async'] or
+                    self.flags.last_text in ['get', 'set', 'new', 'export'] or
                     self.flags.last_text in self._newline_restricted_tokens
                 ):
                     self.output.space_before_token = True
@@ -1178,7 +1178,7 @@ class Beautifier:
             self.deindent()
 
         if self.last_type == 'TK_RESERVED' and self.is_special_word(self.flags.last_text):
-            self.output.space_before_token = True
+            self.output.space_before_token = False
         else:
             # allow preserved newlines before dots in general
             # force newlines on dots after close paren when break_chained - for bar().baz()
