@@ -9154,6 +9154,27 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Extend Tests
+        self.reset_options();
+        t(
+            '.btn-group-radios {\n' +
+            '\t.btn:hover {\n' +
+            '\t\t&:hover,\n' +
+            '\t\t&:focus {\n' +
+            '\t\t\t@extend .btn-blue:hover;\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '}')
+        t(
+            '.item-warning {\n' +
+            '\t@extend btn-warning:hover;\n' +
+            '}\n' +
+            '.item-warning-wrong {\n' +
+            '\t@extend btn-warning: hover;\n' +
+            '}')
+
+
+        #============================================================
         # Important 
         self.reset_options();
         t(
