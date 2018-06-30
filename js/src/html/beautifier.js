@@ -148,8 +148,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             parentcount: 1,
             parent1: ''
         };
-        this.tag_type = '';
-        this.token_text = this.last_token = this.last_text = this.token_type = '';
+        this.last_token = {
+            text: '',
+            type: ''
+        };
+        this.token_text = '';
         this.newlines = 0;
         this.indent_content = indent_inner_html;
         this.indent_body_inner_html = indent_body_inner_html;
@@ -185,14 +188,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 }
                 return false;
             },
-            get_tag_name: function(full_tag) {
-                var tag_match = (full_tag || "").match(/^\s*(<\/?|\{\{[#\/])([^\s>\}]+)/);
-                var is_closing_tag = !!((full_tag || "").match(/^\s*(<\/|\{\{\/)/));
-                return {
-                    tag_name: tag_match && tag_match[2],
-                    is_closing_tag: is_closing_tag
-                };
-            }
         };
 
         // Return true if the given text is composed entirely of whitespace.
@@ -239,25 +234,21 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             }
         };
 
-        this.get_last_tag = function() {
-            var last_tag;
-            for (var i = this.output.length - 1; i >= 0; i --) {
-                last_tag = this.Utils.get_tag_name(multi_parser.output[i]);
-                if (last_tag.tag_name) {
-                    break;
-                }
-            }
-            return last_tag;
-        };
-
         this.get_content = function() { //function to capture regular content between tags
             var input_char = '',
+                token = {
+                    text: '',
+                    type: 'TK_CONTENT'
+                },
                 content = [],
                 handlebarsStarted = 0;
 
             while (this.input.charAt(this.pos) !== '<' || handlebarsStarted === 2) {
                 if (this.pos >= this.input.length) {
-                    return content.length ? content.join('') : ['', 'TK_EOF'];
+                    if (!content.length) {
+                        token.type = 'TK_EOF';
+                    }
+                    break;
                 }
 
                 if (handlebarsStarted < 2 && this.traverse_whitespace()) {
@@ -288,9 +279,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                         // These are tags and not content.
                         break;
                     } else if (peek3 === '{{!') {
-                        return [this.get_tag(), 'TK_TAG_HANDLEBARS_COMMENT'];
+                        token = this.get_tag();
+                        token.type = 'TK_TAG_HANDLEBARS_COMMENT';
+                        return token;
                     } else if (this.input.substr(this.pos, 2) === '{{') {
-                        if (this.get_tag(true) === '{{else}}') {
+                        if (this.get_tag(true).text === '{{else}}') {
                             break;
                         }
                     }
@@ -300,12 +293,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 this.line_char_count++;
                 content.push(input_char); //letter at-a-time (or string) inserted to an array
             }
-            return content.length ? content.join('') : '';
+            token.text = content.join('');
+            return token;
         };
 
         this.get_contents_to = function(name) { //get the full content of a script or style to pass to js_beautify
             if (this.pos === this.input.length) {
-                return ['', 'TK_EOF'];
+                return {text: '', type: 'TK_EOF'};
             }
             var content = '';
             var reg_match = new RegExp('</' + name + '\\s*>', 'igm');
@@ -316,7 +310,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 content = this.input.substring(this.pos, end_script);
                 this.pos = end_script;
             }
-            return content;
+            return {text: content, type: 'TK_' + name};
         };
 
         this.record_tag = function(tag) { //function to record a tag and its parent in this.tags Object
@@ -373,6 +367,15 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
         this.get_tag = function(peek) { //function to get a full tag and parse its type
             var input_char = '',
+                token = {
+                    text: '',
+                    type: '',
+                    tag_type: '',
+                    tag_name: '',
+                    is_inline_tag: false,
+                    is_opening_tag: false,
+                    is_closing_tag: false
+                },
                 content = [],
                 comment = '',
                 space = false,
@@ -393,7 +396,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                         this.pos = orig_pos;
                         this.line_char_count = orig_line_char_count;
                     }
-                    return content.length ? content.join('') : ['', 'TK_EOF'];
+                    if (content.length) {
+                        token.text = content.join('');
+                    } else {
+                        token.type = 'TK_EOF';
+                    }
+
+                    return token;
                 }
 
                 input_char = this.input.charAt(this.pos);
@@ -532,16 +541,19 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 tag_offset = tag_complete.charAt(2) === '#' ? 3 : 2;
             }
             var tag_check = tag_complete.substring(tag_offset, tag_index).toLowerCase();
-            this.is_inline_tag = this.Utils.in_array(tag_check, inline_tags);
+            token.is_closing_tag = tag_check.charAt(0) === '/';
+            token.tag_name = token.is_closing_tag ? tag_check.substr(1) : tag_check;
+            token.is_inline_tag = this.Utils.in_array(token.tag_name, inline_tags);
+
+
             if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
                 this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
-                if (!peek) {
-                    this.tag_type = 'SINGLE';
-                }
+                token.tag_type = 'SINGLE';
+                token.is_closing_tag = true;
             } else if (indent_handlebars && tag_complete.charAt(0) === '{' && tag_check === 'else') {
                 if (!peek) {
                     this.indent_to_tag('if');
-                    this.tag_type = 'HANDLEBARS_ELSE';
+                    token.tag_type = 'HANDLEBARS_ELSE';
                     this.indent_content = true;
                     this.traverse_whitespace();
                 }
@@ -554,40 +566,41 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
                 content.push(comment);
                 tag_end = this.pos - 1;
-                this.tag_type = 'SINGLE';
+                token.tag_type = 'SINGLE';
+                token.is_closing_tag = true;
             } else if (tag_check === 'script' &&
                 (tag_complete.search('type') === -1 ||
                     (tag_complete.search('type') > -1 &&
                         tag_complete.search(/\b(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1))) {
                 if (!peek) {
                     this.record_tag(tag_check);
-                    this.tag_type = 'SCRIPT';
+                    token.tag_type = 'SCRIPT';
                 }
             } else if (tag_check === 'style' &&
                 (tag_complete.search('type') === -1 ||
                     (tag_complete.search('type') > -1 && tag_complete.search('text/css') > -1))) {
                 if (!peek) {
                     this.record_tag(tag_check);
-                    this.tag_type = 'STYLE';
+                    token.tag_type = 'STYLE';
                 }
             } else if (tag_check.charAt(0) === '!') { //peek for <! comment
                 // for comments content is already correct.
                 if (!peek) {
-                    this.tag_type = 'SINGLE';
+                    token.tag_type = 'SINGLE';
                     this.traverse_whitespace();
                 }
             } else if (!peek) {
-                if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
+                if (token.is_closing_tag) { //this tag is a double tag so check for tag-ending
                     this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
-                    this.tag_type = 'END';
+                    token.tag_type = 'END';
                 } else { //otherwise it's a start-tag
                     this.record_tag(tag_check); //push it on the tag stack
                     if (tag_check.toLowerCase() !== 'html') {
                         this.indent_content = true;
                     }
-                    this.tag_type = 'START';
+                    token.tag_type = 'START';
+                    token.is_opening_tag = true;
                 }
-                this.is_inline_tag = this.Utils.in_array(tag_check.charAt(0) === '/' ? tag_check.substr(1) : tag_check, inline_tags);
 
                 // Allow preserving of newlines after a start or end tag
                 if (this.traverse_whitespace()) {
@@ -607,7 +620,10 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 this.line_char_count = orig_line_char_count;
             }
 
-            return content.join(''); //returns fully formatted tag
+            token.text = content.join('');
+            token.type = 'TK_TAG_' + token.tag_type;
+
+            return token; //returns fully formatted tag
         };
 
         this.get_comment = function(start_pos) { //function to return comment content in its entirety
@@ -737,35 +753,16 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         };
 
         this.get_token = function() { //initial handler for token-retrieval
-            var token;
-            this.is_inline_tag = true;
-
-            if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
-                var type = this.last_token.substr(7);
+            var token ;
+            if (this.last_token.type === 'TK_TAG_SCRIPT' || this.last_token.type === 'TK_TAG_STYLE') { //check if we need to format javascript
+                var type = this.last_token.type.substr(7);
                 token = this.get_contents_to(type);
-                if (typeof token !== 'string') {
-                    return token;
-                }
-                return [token, 'TK_' + type];
-            }
-            if (this.current_mode === 'CONTENT') {
+            } else if (this.current_mode === 'CONTENT') {
                 token = this.get_content();
-                if (typeof token !== 'string') {
-                    return token;
-                } else {
-                    return [token, 'TK_CONTENT'];
-                }
-            }
-
-            if (this.current_mode === 'TAG') {
+            } else if (this.current_mode === 'TAG') {
                 token = this.get_tag();
-                if (typeof token !== 'string') {
-                    return token;
-                } else {
-                    var tag_name_type = 'TK_TAG_' + this.tag_type;
-                    return [token, tag_name_type];
-                }
             }
+            return token;
         };
 
         this.get_full_indent = function(level) {
@@ -787,17 +784,12 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 return true;
             }
 
-            //at this point we have an  tag; is its first child something we want to remain
+            //at this point we have a tag; is its first child something we want to remain
             //unformatted?
             var next_tag = this.get_tag(true /* peek. */ );
 
-            next_tag = next_tag || '';
-            if (typeof next_tag !== 'string') {
-                next_tag = next_tag[0];
-            }
-
             // test next_tag to see if it is just html tag (no external content)
-            var tag = (next_tag || "").match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
+            var tag = (next_tag.text).match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
 
             // if next_tag comes back but is not an isolated tag, then
             // let's treat the 'a' tag as having content
@@ -904,60 +896,68 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     this.beautify = function() {
         multi_parser = new Parser(); //wrapping functions Parser
         multi_parser.printer(html_source, indent_character, indent_size, wrap_line_length, brace_style); //initialize starting values
+        var token = null;
+        var last_tag_token = {
+            text: '',
+            type: '',
+            tag_name: '',
+            is_opening_tag: false,
+            is_closing_tag: false,
+            is_inline_tag: false
+        };
         while (true) {
-            var t = multi_parser.get_token();
-            multi_parser.token_text = t[0];
-            multi_parser.token_type = t[1];
+            token = multi_parser.get_token();
 
-            if (multi_parser.token_type === 'TK_EOF') {
+            if (token.type === 'TK_EOF') {
                 break;
             }
 
-            switch (multi_parser.token_type) {
+            switch (token.type) {
                 case 'TK_TAG_START':
-                    if (!multi_parser.is_last_tag_inline && !multi_parser.is_inline_tag) {
+                    if (!last_tag_token.is_inline_tag && !token.is_inline_tag) {
                         multi_parser.print_newline(false, multi_parser.output);
                     }
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
                     if (multi_parser.indent_content) {
-                        if ((multi_parser.indent_body_inner_html || !multi_parser.token_text.match(/<body(?:.*)>/)) &&
-                            (multi_parser.indent_head_inner_html || !multi_parser.token_text.match(/<head(?:.*)>/))) {
+                        if ((multi_parser.indent_body_inner_html || !token.text.match(/<body(?:.*)>/)) &&
+                            (multi_parser.indent_head_inner_html || !token.text.match(/<head(?:.*)>/))) {
 
                             multi_parser.indent();
                         }
 
                         multi_parser.indent_content = false;
                     }
+                    last_tag_token = token;
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_STYLE':
                 case 'TK_TAG_SCRIPT':
                     multi_parser.print_newline(false, multi_parser.output);
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
+                    last_tag_token = token;
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_END':
-                    if (!multi_parser.is_inline_tag) {
+                    if (!token.is_inline_tag) {
                         //Print new line only if the tag has no content and has child
-                        var tag_name = multi_parser.Utils.get_tag_name(multi_parser.token_text).tag_name;
-                        var last_tag = multi_parser.get_last_tag();
                         if (
                             !(
-                                !last_tag.is_closing_tag &&
-                                tag_name === last_tag.tag_name &&
-                                !multi_parser.Utils.in_array(tag_name, content_unformatted)
+                                !last_tag_token.is_closing_tag &&
+                                token.tag_name === last_tag_token.tag_name &&
+                                !multi_parser.Utils.in_array(token.tag_name, content_unformatted)
                             ) &&
-                            !multi_parser.is_last_tag_inline
+                            !last_tag_token.is_inline_tag
                         ) {
                             multi_parser.print_newline(false, multi_parser.output);
                         }
                     }
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
+                    last_tag_token = token;
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_SINGLE':
                     // Don't add a newline before elements that should remain unformatted.
-                    var tag_check = multi_parser.token_text.match(/^\s*<([a-z-]+)/i);
+                    var tag_check = token.text.match(/^\s*<([a-z-]+)/i);
                     if (
                         !tag_check ||
                         !multi_parser.Utils.in_array(tag_check[1], inline_tags) &&
@@ -965,7 +965,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     ) {
                         multi_parser.print_newline(false, multi_parser.output);
                     }
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
+                    last_tag_token = token;
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_HANDLEBARS_ELSE':
@@ -984,7 +985,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     if (!foundIfOnCurrentLine) {
                         multi_parser.print_newline(false, multi_parser.output);
                     }
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
                     if (multi_parser.indent_content) {
                         multi_parser.indent();
                         multi_parser.indent_content = false;
@@ -992,26 +993,26 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     multi_parser.current_mode = 'CONTENT';
                     break;
                 case 'TK_TAG_HANDLEBARS_COMMENT':
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
                     multi_parser.current_mode = 'TAG';
                     break;
                 case 'TK_CONTENT':
-                    multi_parser.print_token(multi_parser.token_text);
+                    multi_parser.print_token(token.text);
                     multi_parser.current_mode = 'TAG';
-                    if (!multi_parser.token_text) {
+                    if (!token.text) {
                         continue;
                     }
                     break;
                 case 'TK_STYLE':
                 case 'TK_SCRIPT':
-                    if (multi_parser.token_text !== '') {
+                    if (token.text !== '') {
                         multi_parser.print_newline(false, multi_parser.output);
-                        var text = multi_parser.token_text,
+                        var text = token.text,
                             _beautifier,
                             script_indent_level = 1;
-                        if (multi_parser.token_type === 'TK_SCRIPT') {
+                        if (token.type === 'TK_SCRIPT') {
                             _beautifier = typeof js_beautify === 'function' && js_beautify;
-                        } else if (multi_parser.token_type === 'TK_STYLE') {
+                        } else if (token.type === 'TK_STYLE') {
                             _beautifier = typeof css_beautify === 'function' && css_beautify;
                         }
 
@@ -1050,14 +1051,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 default:
                     // We should not be getting here but we don't want to drop input on the floor
                     // Just output the text and move on
-                    if (multi_parser.token_text !== '') {
-                        multi_parser.print_token(multi_parser.token_text);
+                    if (token.text !== '') {
+                        multi_parser.print_token(token.text);
                     }
                     break;
             }
-            multi_parser.last_token = multi_parser.token_type;
-            multi_parser.last_text = multi_parser.token_text;
-            multi_parser.is_last_tag_inline = multi_parser.is_inline_tag;
+            multi_parser.last_token = token;
+
         }
         var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
 
