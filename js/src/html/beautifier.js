@@ -646,7 +646,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 }
 
                 // only need to search for custom delimiter for the first few characters
-                if (!matched && comment.length < 10) {
+                if (!matched) {
+                    matched = comment.length > 10;
                     if (comment.indexOf('<![if') === 0) { //peek for <![if conditional comment
                         delimiter = '<![endif]>';
                         matched = true;
@@ -892,8 +893,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     }
                     multi_parser.print_token(token.text);
                     if (multi_parser.indent_content) {
-                        if ((multi_parser.indent_body_inner_html || !token.text.match(/<body(?:.*)>/)) &&
-                            (multi_parser.indent_head_inner_html || !token.text.match(/<head(?:.*)>/))) {
+                        if ((multi_parser.indent_body_inner_html || token.tag_name !== 'body') &&
+                            (multi_parser.indent_head_inner_html || token.tag_name !== 'head')) {
 
                             multi_parser.indent();
                         }
