@@ -330,6 +330,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -340,6 +341,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -350,6 +352,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n        '
         }, {
             options: [
@@ -361,6 +364,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n'
         }, {
             options: [
@@ -372,6 +376,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -382,6 +387,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: ' '
         }, {
             options: [
@@ -392,6 +398,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -403,6 +410,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -414,6 +422,7 @@ exports.test_data = {
             indent_end: '',
             indent_attr_aligned: ' ',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -423,6 +432,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: ' '
         }, {
             options: [
@@ -434,6 +444,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -444,6 +455,7 @@ exports.test_data = {
             indent_attr_first: '\n    ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: ' ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -455,6 +467,7 @@ exports.test_data = {
             indent_attr_first: '\n    ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -465,12 +478,18 @@ exports.test_data = {
             indent_attr_first: '\n        ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: ' ',
             indent_over80: '\n        '
         }],
         tests: [{
             fragment: true,
             input: '<div  >This is some text</div>',
             output: '<div>This is some text</div>'
+        }, {
+            fragment: true,
+            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
         }, {
             fragment: true,
             input: '<div attr="123"  >This is some text</div>',
