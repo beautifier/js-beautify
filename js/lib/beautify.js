@@ -592,7 +592,7 @@ function Beautifier(js_source_text, options) {
         return out;
     }
 
-    var newline_restricted_tokens = ['break', 'continue', 'return', 'throw', 'yield'];
+    var newline_restricted_tokens = ['async', 'await', 'break', 'continue', 'return', 'throw', 'yield'];
 
     function allow_wrap_or_preserved_newline(force_linewrap) {
         force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
@@ -795,7 +795,7 @@ function Beautifier(js_source_text, options) {
     }
 
     function is_special_word(word) {
-        return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else']);
+        return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async']);
     }
 
     function get_token(offset) {
@@ -1159,7 +1159,7 @@ function Beautifier(js_source_text, options) {
             }
             if (last_type === 'TK_RESERVED' || last_type === 'TK_WORD') {
                 if (last_type === 'TK_RESERVED' && (
-                        in_array(flags.last_text, ['get', 'set', 'new', 'export', 'async']) ||
+                        in_array(flags.last_text, ['get', 'set', 'new', 'export']) ||
                         in_array(flags.last_text, newline_restricted_tokens))) {
                     output.space_before_token = true;
                 } else if (last_type === 'TK_RESERVED' && flags.last_text === 'default' && last_last_text === 'export') {
@@ -1649,7 +1649,7 @@ function Beautifier(js_source_text, options) {
         }
 
         if (last_type === 'TK_RESERVED' && is_special_word(flags.last_text)) {
-            output.space_before_token = true;
+            output.space_before_token = false;
         } else {
             // allow preserved newlines before dots in general
             // force newlines on dots after close paren when break_chained - for bar().baz()

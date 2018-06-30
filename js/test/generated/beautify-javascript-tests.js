@@ -1769,6 +1769,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    })();\n' +
             '}');
         
+        // Regression test #1228
+        bt('const module = await import("...")');
+        
         // ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})');
         

@@ -823,6 +823,10 @@ exports.test_data = {
                 output: "async function() {\n    var w = await (async function() {\n        return await foo();\n    })();\n}"
             },
             {
+                comment: "Regression test #1228",
+                unchanged: 'const module = await import("...")'
+            },
+            {
                 comment: "ensure that this doesn't break anyone with the async library",
                 unchanged: "async.map(function(t) {})"
             },
