@@ -957,6 +957,41 @@ exports.test_data = {
             ]
         }, ]
     }, {
+        name: "Linewrap length",
+        description: "",
+        options: [{ name: "wrap_line_length", value: "80" }],
+        tests: [{
+            comment: "This test shows how line wrapping is still not correct.",
+            fragment: true,
+            input: [
+                '<body>',
+                '    <div>',
+                '        <div>',
+                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>',
+                '        </div>',
+                '    </div>',
+                '</body>'
+            ],
+            output: [
+                '<body>',
+                '    <div>',
+                '        <div>',
+                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>',
+                '                series</p>',
+                '        </div>',
+                '    </div>',
+                '</body>'
+            ]
+        }, {
+            fragment: true,
+            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            output: [
+                '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015',
+                '    0016 0017 0018 0019 0020</span>'
+            ]
+        }]
+    }, {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
         template: "^^^ $$$",

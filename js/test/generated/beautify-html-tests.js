@@ -2869,6 +2869,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Linewrap length
+        reset_options();
+        opts.wrap_line_length = 80;
+        
+        // This test shows how line wrapping is still not correct.
+        test_fragment(
+            '<body>\n' +
+            '    <div>\n' +
+            '        <div>\n' +
+            '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</body>',
+            //  -- output --
+            '<body>\n' +
+            '    <div>\n' +
+            '        <div>\n' +
+            '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>\n' +
+            '                series</p>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</body>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+
+
+        //============================================================
         // Indent with tabs
         reset_options();
         opts.indent_with_tabs = true;
