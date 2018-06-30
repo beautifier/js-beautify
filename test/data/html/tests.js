@@ -990,6 +990,59 @@ exports.test_data = {
             unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
         }]
     }, {
+        name: "Inline tags formatting",
+        description: "",
+        template: "^^^ $$$",
+        tests: [{
+            fragment: true,
+            unchanged: '<div><span></span></div><span><div></div></span>'
+        }, {
+            fragment: true,
+            input: '<div><div><span><span>Nested spans</span></span></div></div>',
+            output: [
+                '<div>',
+                '    <div><span><span>Nested spans</span></span></div>',
+                '</div>'
+            ]
+        }, {
+            fragment: true,
+            input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
+            output: [
+                '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
+            ]
+        }, {
+            fragment: true,
+            unchanged: '<div><span>All</span> on <span>one</span> line</div>'
+        }, {
+            fragment: true,
+            unchanged: '<span class="{{class_name}}">{{content}}</span>'
+        }, {
+            fragment: true,
+            unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
+        }]
+    }, {
+        name: "unformatted to prevent formatting changes",
+        description: "",
+        options: [
+            { name: 'unformatted', value: "['u']" }
+        ],
+        tests: [{
+            fragment: true,
+            unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
+        }, {
+            fragment: true,
+            unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
+        }, {
+            fragment: true,
+            unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
+        }, {
+            fragment: true,
+            unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
+        }, {
+            fragment: true,
+            unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
+        }]
+    }, {
         name: "content_unformatted to prevent formatting content",
         description: "",
         options: [
@@ -1010,23 +1063,23 @@ exports.test_data = {
             ]
         }, {
             fragment: true,
-            input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
             output: [
                 '<div>',
                 '    <p>Beautify me</p>',
                 '</div>',
-                '<p><p>But not me</p></p>'
+                '<p><div>But not me</div></p>'
             ]
         }, {
             fragment: true,
-            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
             output: [
                 '<div>',
                 '    <p class="beauty-me">Beautify me</p>',
                 '</div>',
-                '<p><p',
+                '<p><div',
                 '  class="iamalreadybeauty"',
-                '>But not me</p></p>'
+                '>But not me</div></p>'
             ]
         }, {
             fragment: true,

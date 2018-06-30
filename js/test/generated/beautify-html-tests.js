@@ -2863,6 +2863,51 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Inline tags formatting
+        reset_options();
+        test_fragment('<div><span></span></div><span><div></div></span>');
+        test_fragment(
+            '<div><div><span><span>Nested spans</span></span></div></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <div><span><span>Nested spans</span></span></div>\n' +
+            '</div>');
+        test_fragment(
+            '<p>Should remove <span><span \n' +
+            '\n' +
+            'class="some-class">attribute</span></span> newlines</p>',
+            //  -- output --
+            '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>');
+        test_fragment('<div><span>All</span> on <span>one</span> line</div>');
+        test_fragment('<span class="{{class_name}}">{{content}}</span>');
+        test_fragment('{{#if 1}}<span>{{content}}</span>{{/if}}');
+
+
+        //============================================================
+        // unformatted to prevent formatting changes
+        reset_options();
+        opts.unformatted = ['u'];
+        test_fragment('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
+        test_fragment('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
+        test_fragment(
+            '<u>  \n' +
+            '\n' +
+            '\n' +
+            '  Ignore extra whitespace  \n' +
+            '\n' +
+            '\n' +
+            '  </u>');
+        test_fragment(
+            '<u><div \n' +
+            '\n' +
+            'class="">Ignore whitespace in attributes</div></u>');
+        test_fragment(
+            '<u \n' +
+            '\n' +
+            'class="">Ignore whitespace in attributes</u>');
+
+
+        //============================================================
         // content_unformatted to prevent formatting content
         reset_options();
         opts.content_unformatted = ['script', 'style', 'p', 'span', 'br'];
@@ -2878,25 +2923,25 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '</html>');
         test_fragment(
-            '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+            '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
             //  -- output --
             '<div>\n' +
             '    <p>Beautify me</p>\n' +
             '</div>\n' +
-            '<p><p>But not me</p></p>');
+            '<p><div>But not me</div></p>');
         test_fragment(
             '<div><p\n' +
             '  class="beauty-me"\n' +
-            '>Beautify me</p></div><p><p\n' +
+            '>Beautify me</p></div><p><div\n' +
             '  class="iamalreadybeauty"\n' +
-            '>But not me</p></p>',
+            '>But not me</div></p>',
             //  -- output --
             '<div>\n' +
             '    <p class="beauty-me">Beautify me</p>\n' +
             '</div>\n' +
-            '<p><p\n' +
+            '<p><div\n' +
             '  class="iamalreadybeauty"\n' +
-            '>But not me</p></p>');
+            '>But not me</div></p>');
         test_fragment('<div><span>blabla<div>something here</div></span></div>');
         test_fragment('<div><br /></div>');
         test_fragment(
@@ -3116,8 +3161,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div> content <img> content </div>');
         bth('Text <a href="#">Link</a> Text');
 
-        var unformatted = opts.unformatted;
-        opts.unformatted = ['script', 'style'];
+        var content_unformatted = opts.content_unformatted;
+        opts.content_unformatted = ['script', 'style'];
         bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
             '  <ul>\n' +
             '  # for (var i = 0; i < data.length; i++) { #\n' +
@@ -3129,18 +3174,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '  body {background-color:lightgrey}\n' +
             '  h1   {color:blue}\n' +
             '</style>');
-        opts.unformatted = unformatted;
+        opts.content_unformatted = content_unformatted;
 
-        unformatted = opts.unformatted;
-        opts.unformatted = ['custom-element'];
+        inline_tags = opts.inline;
+        opts.inline = ['custom-element'];
         test_fragment('<div>should <custom-element>not</custom-element>' +
                       ' insert newlines</div>',
                       '<div>should <custom-element>not</custom-element>' +
                       ' insert newlines</div>');
-        opts.unformatted = unformatted;
+        opts.inline = inline_tags;
 
-        // Tests that don't pass, but probably should.
-        // bth('<div><span>content</span></div>');
+        bth('<div><span>content</span></div>');
 
         // Handlebars tests
         // Without the indent option on, handlebars are treated as content.
