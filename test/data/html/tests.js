@@ -406,7 +406,7 @@ exports.test_data = {
             indent_over80: '\n     '
         }, {
             options: [
-                { name: "wrap_attributes", value: "'aligned'" },
+                { name: "wrap_attributes", value: "'aligned-multiple'" },
                 { name: "wrap_line_length", value: "80" }
             ],
             indent_attr: ' ',
@@ -417,7 +417,7 @@ exports.test_data = {
             indent_over80: '\n     '
         }, {
             options: [
-                { name: "wrap_attributes", value: "'aligned'" },
+                { name: "wrap_attributes", value: "'aligned-multiple'" },
             ],
             indent_attr: ' ',
             indent_attr_first: ' ',

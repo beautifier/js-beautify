@@ -669,7 +669,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_attr_aligned = " ", indent_end_selfclosing = " ", indent_over80 = "\n     ")
         reset_options();
-        opts.wrap_attributes = 'aligned';
+        opts.wrap_attributes = 'aligned-multiple';
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
@@ -693,7 +693,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = " ")
         reset_options();
-        opts.wrap_attributes = 'aligned';
+        opts.wrap_attributes = 'aligned-multiple';
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');

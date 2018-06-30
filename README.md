@@ -21,7 +21,7 @@ as well as deobfuscate scripts processed by
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both
-customer facing bugs and underlying problems with the internal design and implementation.  
+customer facing bugs and underlying problems with the internal design and implementation.
 
 If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/master/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
 
@@ -94,7 +94,7 @@ You can also use `js-beautify` as a `node` library (install locally, the `npm` d
 $ npm install js-beautify
 ```
 
-Import and call the appropriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.  
+Import and call the appropriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.
 
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
 
@@ -210,7 +210,7 @@ Configuration sources provided earlier in this stack will override later ones.
 
 The settings are a shallow tree whose values are inherited for all languages, but
 can be overridden.  This works for settings passed directly to the API in either implementation.
-In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.  
+In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.
 
 Below is an example configuration tree showing all the supported locations
 for language override nodes.  We'll use `indent_size` to discuss how this configuration would behave, but any number of settings can be inherited or overridden:
@@ -239,7 +239,7 @@ for language override nodes.  We'll use `indent_size` to discuss how this config
 Using the above example would have the following result:
 
 * HTML files
-  * Inherit `indent_size` of 4 spaces from the top-level setting.  
+  * Inherit `indent_size` of 4 spaces from the top-level setting.
   * The files would also end with a newline.
   * JavaScript and CSS inside HTML
     * Inherit the HTML `end_with_newline` setting.
@@ -289,8 +289,8 @@ HTML Beautifier Options:
   -b, --brace-style                  [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
-  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline] ["auto"]
-  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "force-aligned")
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple] ["auto"]
+  -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
