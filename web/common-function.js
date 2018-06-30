@@ -1,28 +1,34 @@
 var the = {
-    use_codemirror: (!window.location.href.match(/without-codemirror/)),
+    use_codemirror: !window.location.href.match(/without-codemirror/),
+    debug: window.location.href.match(/debug/),
     beautify_in_progress: false,
     editor: null // codemirror editor
 };
 
 function run_tests() {
-    var st = new SanityTest();
-    run_javascript_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
-    run_css_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
-    run_html_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
-    JavascriptObfuscator.run_tests(st);
-    P_A_C_K_E_R.run_tests(st);
-    Urlencoded.run_tests(st);
-    MyObfuscate.run_tests(st);
-    var results = st.results_raw()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/ /g, '&nbsp;')
-        .replace(/\r/g, '·')
-        .replace(/\n/g, '<br>');
-    $('#testresults').html(results).show();
+    $.when($.getScript("js/test/sanitytest.js"),
+        $.getScript("js/test/generated/beautify-javascript-tests.js"),
+        $.getScript("js/test/generated/beautify-css-tests.js"),
+        $.getScript("js/test/generated/beautify-html-tests.js"))
+    .done(function() {
+        var st = new SanityTest();
+        run_javascript_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+        run_css_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+        run_html_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+        JavascriptObfuscator.run_tests(st);
+        P_A_C_K_E_R.run_tests(st);
+        Urlencoded.run_tests(st);
+        MyObfuscate.run_tests(st);
+        var results = st.results_raw()
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/ /g, '&nbsp;')
+            .replace(/\r/g, '·')
+            .replace(/\n/g, '<br>');
+        $('#testresults').html(results).show();
+    });
 }
-
 
 function any(a, b) {
     return a || b;

@@ -40,6 +40,9 @@ var legacy_html = {
 
 var dist_full = {
   entry: './js/src/index.js',
+  resolve: {
+    modules: [ path.resolve(__dirname, "js/src") ]
+  },
   output: {
     library: 'beautifier',
     libraryTarget: 'umd',

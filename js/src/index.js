@@ -25,3 +25,11 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+
+var js_beautify = require('javascript/index');
+var css_beautify = require('css/index');
+var html_beautify = require('html/index');
+
+module.exports.js = js_beautify;
+module.exports.css = css_beautify;
+module.exports.html = html_beautify;

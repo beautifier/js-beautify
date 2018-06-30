@@ -39,16 +39,18 @@
   "license": "MIT",
   "dependencies": {
     "config-chain": "~1.1.5",
-    "editorconfig": "^0.13.2",
+    "editorconfig": "^0.15.0",
     "mkdirp": "~0.5.0",
-    "nopt": "~3.0.1"
+    "nopt": "~4.0.1",
+    "npm": "^6.1.0"
   },
   "devDependencies": {
-    "benchmark": "2.1.0",
+    "benchmark": "^2.1.4",
     "jshint": "~2.9.1",
-    "mustache": "~2.2.1",
-    "node-static": "~0.7.1",
+    "mustache": "~2.3.0",
+    "node-static": "^0.7.10",
     "requirejs": "^2.3.3",
-    "webpack": "^2.2.1"
+    "webpack": "^4.13.0",
+    "webpack-command": "^0.3.1"
   }
 }

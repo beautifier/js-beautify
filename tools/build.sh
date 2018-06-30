@@ -54,7 +54,7 @@ build_js()
   generate_tests
 
   # generate lib files
-  ./node_modules/.bin/webpack
+  ./node_modules/.bin/webpack --mode=none
 
   # Wrap webkit output into an non-breaking form.
   # In an upcoming verion these will be replaced with standard webpack umd
