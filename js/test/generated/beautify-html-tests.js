@@ -3070,7 +3070,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // default content_unformatted
+        // default content_unformatted and inline element test
         reset_options();
         test_fragment(
             '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
@@ -3134,6 +3134,46 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'var a=1;\n' +
             'var b=a;\n' +
             '</pre>\n' +
+            '</div>');
+        
+        // Test for #1041
+        test_fragment(
+            '<p><span class="foo">foo <span class="bar">bar</span></span></p>\n' +
+            '\n' +
+            '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>\n' +
+            '<p class="foo"><span class="bar">bar</span></p>',
+            //  -- output --
+            '<p><span class="foo">foo <span class="bar">bar</span></span></p>\n' +
+            '\n' +
+            '<aside>\n' +
+            '    <p class="foo">foo <span class="bar">bar</span></p>\n' +
+            '</aside>\n' +
+            '<p class="foo"><span class="bar">bar</span></p>');
+        
+        // Test for #1167
+        test_fragment(
+            '<span>\n' +
+            '    <span><img src="images/off.svg" alt=""></span>\n' +
+            '    <span><img src="images/on.svg" alt=""></span>\n' +
+            '</span>');
+        
+        // Test for #882
+        test_fragment(
+            '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
+            //  -- output --
+            '<tr>\n' +
+            '    <th>\n' +
+            '        <h3>Name</h3>\n' +
+            '    </th>\n' +
+            '    <td class="full-width"></td>\n' +
+            '</tr>');
+        
+        // Test for #1184
+        test_fragment(
+            '<div><div></div>Connect</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <div></div>Connect\n' +
             '</div>');
 
 

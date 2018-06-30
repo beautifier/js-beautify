@@ -1146,7 +1146,7 @@ exports.test_data = {
             ]
         }]
     }, {
-        name: "default content_unformatted",
+        name: "default content_unformatted and inline element test",
         description: "",
         options: [],
         tests: [{
@@ -1216,6 +1216,53 @@ exports.test_data = {
                 'var a=1;',
                 'var b=a;',
                 '</pre>',
+                '</div>'
+            ]
+        }, {
+            comment: "Test for #1041",
+            fragment: true,
+            input: [
+                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+                '',
+                '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>',
+                '<p class="foo"><span class="bar">bar</span></p>'
+            ],
+            output: [
+                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+                '',
+                '<aside>',
+                '    <p class="foo">foo <span class="bar">bar</span></p>',
+                '</aside>',
+                '<p class="foo"><span class="bar">bar</span></p>'
+            ]
+        }, {
+            comment: "Test for #1167",
+            fragment: true,
+            unchanged: [
+                '<span>',
+                '    <span><img src="images/off.svg" alt=""></span>',
+                '    <span><img src="images/on.svg" alt=""></span>',
+                '</span>'
+            ]
+        }, {
+            comment: "Test for #882",
+            fragment: true,
+            input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
+            output: [
+                '<tr>',
+                '    <th>',
+                '        <h3>Name</h3>',
+                '    </th>',
+                '    <td class="full-width"></td>',
+                '</tr>'
+            ]
+        }, {
+            comment: "Test for #1184",
+            fragment: true,
+            input: '<div><div></div>Connect</div>',
+            output: [
+                '<div>',
+                '    <div></div>Connect',
                 '</div>'
             ]
         }]
