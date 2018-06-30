@@ -267,6 +267,7 @@ class Beautifier:
         insideRule = False
         insidePropertyValue = False
         enteringConditionalGroup = False
+        insideAtExtend = False
         top_ch = ''
         last_top_ch = ''
         parenLevel = 0
@@ -327,6 +328,9 @@ class Beautifier:
                     if variableOrRule[-1].isspace():
                         variableOrRule = variableOrRule[:-1]
 
+                    if variableOrRule == "extend":
+                        insideAtExtend = True
+
                     # might be a nesting at-rule
                     if variableOrRule in self.NESTED_AT_RULE:
                         printer.nestedLevel += 1
@@ -378,7 +382,7 @@ class Beautifier:
                 self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
                         not (self.lookBack('&') or self.foundNestedPseudoClass()) and \
-                        not self.lookBack('('):
+                        not self.lookBack('(') and not insideAtExtend:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     printer.print_string(":")
@@ -405,6 +409,7 @@ class Beautifier:
                 printer.print_string(self.eatString(self.ch))
             elif self.ch == ';':
                 insidePropertyValue = False
+                insideAtExtend = False
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
 

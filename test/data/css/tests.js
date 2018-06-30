@@ -653,6 +653,31 @@ exports.test_data = {
                 ]
             }]
         }, {
+            name: "Extend Tests",
+            description: "Test for '@extend'",
+            options: [],
+            tests: [{
+                unchanged: [
+                    '.btn-group-radios {',
+                    '\t.btn:hover {',
+                    '\t\t&:hover,',
+                    '\t\t&:focus {',
+                    '\t\t\t@extend .btn-blue:hover;',
+                    '\t\t}',
+                    '\t}',
+                    '}'
+                ]
+            }, {
+                unchanged: [
+                    '.item-warning {',
+                    '\t@extend btn-warning:hover;',
+                    '}',
+                    '.item-warning-wrong {',
+                    '\t@extend btn-warning: hover;',
+                    '}'
+                ]
+            }]
+        }, {
             name: "Important ",
             description: "Spacing of !important",
             options: [],
