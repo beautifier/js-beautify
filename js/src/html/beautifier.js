@@ -557,10 +557,10 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     this.indent_content = true;
                     this.traverse_whitespace();
                 }
-            } else if (this.is_unformatted(tag_check, unformatted) ||
-                this.is_unformatted(tag_check, content_unformatted)) {
+            } else if (this.Utils.in_array(tag_check, unformatted) ||
+                this.Utils.in_array(tag_check, content_unformatted)) {
                 // do not reformat the "unformatted" or "content_unformatted" tags
-                if (this.is_unformatted(tag_check, unformatted)) {
+                if (this.Utils.in_array(tag_check, unformatted)) {
                     content = [this.input.slice(tag_start, this.pos)];
                 }
                 comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
@@ -772,33 +772,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             }
 
             return Array(level + 1).join(this.indent_string);
-        };
-
-        this.is_unformatted = function(tag_check, unformatted) {
-            //is this an HTML5 block-level link?
-            if (!this.Utils.in_array(tag_check, unformatted)) {
-                return false;
-            }
-
-            if (tag_check.toLowerCase() !== 'a' || !this.Utils.in_array('a', unformatted)) {
-                return true;
-            }
-
-            //at this point we have a tag; is its first child something we want to remain
-            //unformatted?
-            var next_tag = this.get_tag(true /* peek. */ );
-
-            // test next_tag to see if it is just html tag (no external content)
-            var tag = (next_tag.text).match(/^\s*<\s*\/?([a-z]*)\s*[^>]*>\s*$/);
-
-            // if next_tag comes back but is not an isolated tag, then
-            // let's treat the 'a' tag as having content
-            // and respect the unformatted option
-            if (!tag || this.Utils.in_array(tag[1], unformatted)) {
-                return true;
-            } else {
-                return false;
-            }
         };
 
         this.printer = function(js_source, indent_character, indent_size, wrap_line_length, brace_style) { //handles input/output and some other printing functions
