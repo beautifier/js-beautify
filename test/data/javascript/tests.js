@@ -3168,6 +3168,17 @@ exports.test_data = {
             { unchanged: '{\n    /*\n    foo    \n    * bar    \n    */\n}' },
 
             { unchanged: 'return ++i' },
+            {
+                unchanged: [
+                    'obj.num++',
+                    'foo()',
+                    'bar()',
+                    '',
+                    'obj.num--',
+                    'foo()',
+                    'bar()'
+                ]
+            },
             { unchanged: 'return !!x' },
             { unchanged: 'return !x' },
             { input: 'return [1,2]', output: 'return [1, 2]' },

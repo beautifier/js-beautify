@@ -4730,6 +4730,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    */\n' +
             '}')
         bt('return ++i')
+        bt(
+            'obj.num++\n' +
+            'foo()\n' +
+            'bar()\n' +
+            '\n' +
+            'obj.num--\n' +
+            'foo()\n' +
+            'bar()')
         bt('return !!x')
         bt('return !x')
         bt('return [1,2]', 'return [1, 2]')
