@@ -886,6 +886,25 @@ function Beautifier(js_source_text, options) {
                 output.space_before_token = opt.space_after_anon_function;
             }
 
+
+            // {
+            //   data() {}
+            // };
+            // vs
+            // {
+            //   data () {}
+            // }
+            if (current_token.text === '(') {
+              if(last_type === 'TK_RESERVED' && in_array(flags.last_word, ['get', 'set'])){
+                  output.space_before_token = true;
+              }
+              if (last_type === 'TK_WORD' &&
+                tokens[token_pos - 2] &&
+                !in_array(tokens[token_pos - 2].type, ['TK_DOT', 'TK_RESERVED'])) {
+                output.space_before_token = true;
+              }
+            }
+
         }
 
         if (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
@@ -1677,6 +1696,7 @@ function Beautifier(js_source_text, options) {
 }
 
 module.exports.Beautifier = Beautifier;
+
 
 /***/ }),
 /* 2 */
