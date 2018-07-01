@@ -524,9 +524,26 @@ class Beautifier:
                     'function', 'yield'] or (
                         self._flags.mode == MODE.ObjectLiteral and self._last_last_text in [
                             '{', ',']))):
-                self._output.space_before_token = self._options.space_after_anon_function
+                # self._output.space_before_token = self._options.space_after_anon_function
 
-        if self._flags.last_token.text == ';' or self._flags.last_token.type == TOKEN.START_BLOCK:
+                # BUGBUG slice not allowed on this._tokens
+                if current_token.text == '(' and \
+                    (self.previous_flags.mode in [MODE.Expression, MODE.Statement, MODE.BlockStatement, MODE.ObjectLiteral] and
+                    (self.last_type == TOKEN.WORD or self.last_type == TOKEN.RESERVED and self.flags.last_word in ['get', 'set'])):
+                    isFn = False
+                    afterTokens = self.tokens[self.token_pos + 1:]
+                    for i in range(len(afterTokens)):
+                        if current_token == afterTokens[i].opened:
+                            if self.tokens[self.token_pos - 2] and self.tokens[self.token_pos - 2].type == TOKEN.RESERVED:
+                                break
+                            if self.last_last_text == '*' and self.tokens[self.token_pos - 3] and self.tokens[self.token_pos - 3].type == TOKEN.RESERVED:
+                                break
+                            isFn = afterTokens[i] == afterTokens[i + 1].parent and afterTokens[i + 1].type == TOKEN.START_BLOCK
+                            break
+                    if isFn:
+                        self._output.space_before_token = self._options.space_after_named_function
+
+        if self.flags.last_text == ';' or self.last_type == TOKEN.START_BLOCK:
             self.print_newline()
         elif self._flags.last_token.type in [TOKEN.END_EXPR, TOKEN.START_EXPR, TOKEN.END_BLOCK, TOKEN.COMMA] or self._flags.last_token.text == '.':
             # do nothing on (( and )( and ][ and ]( and .(

@@ -6151,6 +6151,66 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    c = 3;');
 
 
+        //============================================================
+        // jslint and space after function - (space_after_named_function = "true")
+        reset_options();
+        set_name('jslint and space after function - (space_after_named_function = "true")');
+        opts.space_after_named_function = true;
+        bt(
+            'var a={data(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data () {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data () {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {\n' +
+            'data(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data () {},\n' +
+            '    a: 1\n' +
+            '}');
+
+        // jslint and space after function - (space_after_named_function = "false")
+        reset_options();
+        set_name('jslint and space after function - (space_after_named_function = "false")');
+        opts.space_after_named_function = false;
+        bt(
+            'var a={data(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {\n' +
+            'data(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    a: 1\n' +
+            '}');
+
+
     }
 
     function beautifier_unconverted_tests()

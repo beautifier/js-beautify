@@ -5897,6 +5897,64 @@ class TestJSBeautifier(unittest.TestCase):
             '    c = 3;')
 
 
+        #============================================================
+        # jslint and space after function - (space_after_named_function = "true")
+        self.reset_options()
+        self.options.space_after_named_function = true
+        bt(
+            'var a={data(){}}',
+            #  -- output --
+            'var a = {\n' +
+            '    data () {}\n' +
+            '}')
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'a:1})',
+            #  -- output --
+            'new Vue({\n' +
+            '    data () {},\n' +
+            '    a: 1\n' +
+            '})')
+        bt(
+            'export default {\n' +
+            'data(){},\n' +
+            'a:1}',
+            #  -- output --
+            'export default {\n' +
+            '    data () {},\n' +
+            '    a: 1\n' +
+            '}')
+
+        # jslint and space after function - (space_after_named_function = "false")
+        self.reset_options()
+        self.options.space_after_named_function = false
+        bt(
+            'var a={data(){}}',
+            #  -- output --
+            'var a = {\n' +
+            '    data() {}\n' +
+            '}')
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'a:1})',
+            #  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    a: 1\n' +
+            '})')
+        bt(
+            'export default {\n' +
+            'data(){},\n' +
+            'a:1}',
+            #  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    a: 1\n' +
+            '}')
+
+
 
     def test_beautifier_unconverted(self):
         test_fragment = self.decodesto

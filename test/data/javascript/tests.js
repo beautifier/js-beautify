@@ -3571,8 +3571,32 @@ exports.test_data = {
 
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
         { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
-
       ]
+    },
+    {
+      name: "jslint and space after function",
+      description: "jslint_happy and space_after_named_function tests",
+      matrix: [{
+        options: [
+          { name: "space_after_named_function", value: "true" }
+        ],
+        f: ' '
+      }, {
+        options: [
+          { name: "space_after_named_function", value: "false" }
+        ],
+        f: ''
+      }],
+      tests: [{
+        input_: 'var a={data(){}}',
+        output: 'var a = {\n    data{{f}}() {}\n}'
+      }, {
+        input_: 'new Vue({\ndata(){},\na:1})',
+        output: 'new Vue({\n    data{{f}}() {},\n    a: 1\n})'
+      }, {
+        input_: 'export default {\ndata(){},\na:1}',
+        output: 'export default {\n    data{{f}}() {},\n    a: 1\n}'
+      }]
     }
   ],
   examples: [{
