@@ -833,6 +833,41 @@ exports.test_data = {
             ]
         }, ]
     }, {
+        name: "Single line comment after closing tag",
+        description: "Keep single line comments as they are after closing tags",
+        options: [],
+        tests: [{
+            fragment: true,
+            input: [
+                '<div class="col">',
+                '    <div class="row">',
+                '        <div class="card">',
+                '',
+                '            <h1>Some heading</h1>',
+                '            <p>Some text for the card.</p>',
+                '            <img src="some/image.jpg" alt="">',
+                '',
+                '            </div>    <!-- /.card -->',
+                '    </div>',
+                '            <!-- /.row -->',
+                '</div> <!-- /.col -->'
+            ],
+            output: [
+                '<div class="col">',
+                '    <div class="row">',
+                '        <div class="card">',
+                '',
+                '            <h1>Some heading</h1>',
+                '            <p>Some text for the card.</p>',
+                '            <img src="some/image.jpg" alt="">',
+                '',
+                '        </div> <!-- /.card -->',
+                '    </div>',
+                '    <!-- /.row -->',
+                '</div> <!-- /.col -->'
+            ]
+        }, ]
+    }, {
         name: "Regression Tests",
         description: "Regression Tests",
         options: [],
