@@ -934,7 +934,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 case 'TK_TAG_SINGLE':
                     // Don't add a newline before elements that should remain unformatted.
                     var tag_check = token.text.match(/^\s*<([a-z-]+)/i);
-                    if (
+                    if (token.tag_name === '!--' && multi_parser.last_token.is_closing_tag && token.text.indexOf('\n') === -1) {
+                      //Do nothing. Leave comments on same line.
+                    } else if (
                         !tag_check ||
                         !multi_parser.Utils.in_array(tag_check[1], inline_tags) &&
                         !multi_parser.Utils.in_array(tag_check[1], unformatted)

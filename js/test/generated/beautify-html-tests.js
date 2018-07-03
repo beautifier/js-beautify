@@ -2752,6 +2752,37 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Single line comment after closing tag
+        reset_options();
+        test_fragment(
+            '<div class="col">\n' +
+            '    <div class="row">\n' +
+            '        <div class="card">\n' +
+            '\n' +
+            '            <h1>Some heading</h1>\n' +
+            '            <p>Some text for the card.</p>\n' +
+            '            <img src="some/image.jpg" alt="">\n' +
+            '\n' +
+            '            </div>    <!-- /.card -->\n' +
+            '    </div>\n' +
+            '            <!-- /.row -->\n' +
+            '</div> <!-- /.col -->',
+            //  -- output --
+            '<div class="col">\n' +
+            '    <div class="row">\n' +
+            '        <div class="card">\n' +
+            '\n' +
+            '            <h1>Some heading</h1>\n' +
+            '            <p>Some text for the card.</p>\n' +
+            '            <img src="some/image.jpg" alt="">\n' +
+            '\n' +
+            '        </div> <!-- /.card -->\n' +
+            '    </div>\n' +
+            '    <!-- /.row -->\n' +
+            '</div> <!-- /.col -->');
+
+
+        //============================================================
         // Regression Tests
         reset_options();
         
