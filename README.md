@@ -127,6 +127,7 @@ CLI Options:
   -v, --version    Show the version
 
 Beautifier Options:
+  -u, --unpack                      Try to unpack before beautifying
   -s, --indent-size                 Indentation size [4]
   -c, --indent-char                 Indentation character [" "]
   -t, --indent-with-tabs            Indent with tabs, overrides -s and -c
@@ -158,6 +159,7 @@ Which correspond to the underscored option keys for both library interfaces
 **defaults per CLI options**
 ```json
 {
+    "unpack": false,
     "indent_size": 4,
     "indent_char": " ",
     "indent_with_tabs": false,

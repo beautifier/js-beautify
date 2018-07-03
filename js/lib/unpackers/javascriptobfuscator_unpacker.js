@@ -10,7 +10,7 @@
 //
 //
 
-var JavascriptObfuscator = {
+var JavascriptObfuscator = module.exports = {
     detect: function(str) {
         return /^var _0x[a-f0-9]+ ?\= ?\[/.test(str);
     },

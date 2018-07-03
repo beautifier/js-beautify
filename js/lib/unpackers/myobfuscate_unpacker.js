@@ -26,7 +26,7 @@
 //
 //
 
-var MyObfuscate = {
+var MyObfuscate = module.exports = {
     detect: function(str) {
         if (/^var _?[0O1lI]{3}\=('|\[).*\)\)\);/.test(str)) {
             return true;

@@ -24,6 +24,7 @@
 
 class BeautifierOptions:
     def __init__(self):
+        self.unpack = False
         self.indent_size = 4
         self.indent_char = ' '
         self.indent_with_tabs = False
