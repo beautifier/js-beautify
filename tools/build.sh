@@ -54,7 +54,7 @@ build_js()
   generate_tests
 
   # generate lib files
-  ./node_modules/.bin/webpack --mode=none
+  ./node_modules/.bin/webpack
 
   mkdir -p ./js/lib/unpackers
   cp -r ./js/src/unpackers ./js/lib/
@@ -73,6 +73,9 @@ build_js()
   cat ./tools/template/beautify-html.begin.js > ./js/lib/beautify-html.js
   cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
   cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
+
+  cp ./dist/beautifier.js ./js/lib/
+  cp ./dist/beautifier.min.js ./js/lib/
 
   # jshint
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
