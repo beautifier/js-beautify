@@ -299,7 +299,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
         this.get_contents_to = function(name) { //get the full content of a script or style to pass to js_beautify
             if (this.pos === this.input.length) {
-                return {text: '', type: 'TK_EOF'};
+                return { text: '', type: 'TK_EOF' };
             }
             var content = '';
             var reg_match = new RegExp('</' + name + '\\s*>', 'igm');
@@ -310,7 +310,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 content = this.input.substring(this.pos, end_script);
                 this.pos = end_script;
             }
-            return {text: content, type: 'TK_' + name};
+            return { text: content, type: 'TK_' + name };
         };
 
         this.record_tag = function(tag) { //function to record a tag and its parent in this.tags Object
@@ -754,7 +754,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         };
 
         this.get_token = function() { //initial handler for token-retrieval
-            var token ;
+            var token;
             if (this.last_token.type === 'TK_TAG_SCRIPT' || this.last_token.type === 'TK_TAG_STYLE') { //check if we need to format javascript
                 var type = this.last_token.type.substr(7);
                 token = this.get_contents_to(type);
@@ -914,9 +914,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 case 'TK_TAG_END':
                     if (!token.is_inline_tag) {
                         //Print new line only if the tag has no content and has child
-                        if (
-                            !(
-                                !last_tag_token.is_closing_tag &&
+                        if (!(!last_tag_token.is_closing_tag &&
                                 token.tag_name === last_tag_token.tag_name &&
                                 !multi_parser.Utils.in_array(token.tag_name, content_unformatted)
                             ) &&
@@ -932,8 +930,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 case 'TK_TAG_SINGLE':
                     // Don't add a newline before elements that should remain unformatted.
                     var tag_check = token.text.match(/^\s*<([a-z-]+)/i);
-                    if (
-                        !tag_check ||
+                    if (!tag_check ||
                         !multi_parser.Utils.in_array(tag_check[1], inline_tags) &&
                         !multi_parser.Utils.in_array(tag_check[1], unformatted)
                     ) {
