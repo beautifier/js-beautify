@@ -1,5 +1,5 @@
 {
-    "indent_size": 4,
+    "indent_size": 2,
     "indent_char": " ",
     "indent_level": 0,
     "indent_with_tabs": false,

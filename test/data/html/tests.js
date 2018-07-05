@@ -25,1318 +25,1318 @@
 */
 
 exports.test_data = {
-    default_options: [
-        { name: "indent_size", value: "4" },
-        { name: "indent_char", value: "' '" },
-        { name: "indent_with_tabs", value: "false" },
-        { name: "preserve_newlines", value: "true" },
-        { name: "jslint_happy", value: "false" },
-        { name: "keep_array_indentation", value: "false" },
-        { name: "brace_style", value: "'collapse'" },
-        { name: "extra_liners", value: "['html', 'head', '/html']" }
+  default_options: [
+    { name: "indent_size", value: "4" },
+    { name: "indent_char", value: "' '" },
+    { name: "indent_with_tabs", value: "false" },
+    { name: "preserve_newlines", value: "true" },
+    { name: "jslint_happy", value: "false" },
+    { name: "keep_array_indentation", value: "false" },
+    { name: "brace_style", value: "'collapse'" },
+    { name: "extra_liners", value: "['html', 'head', '/html']" }
+  ],
+  groups: [{
+    name: "Handle inline and block elements differently",
+    description: "",
+    matrix: [{}],
+    tests: [{
+      fragment: true,
+      input: '<body><h1>Block</h1></body>',
+      output: [
+        '<body>',
+        '    <h1>Block</h1>',
+        '</body>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: '<body><i>Inline</i></body>'
+    }]
+  }, {
+    name: "End With Newline",
+    description: "",
+    matrix: [{
+        options: [
+          { name: "end_with_newline", value: "true" }
+        ],
+        eof: '\n'
+      }, {
+        options: [
+          { name: "end_with_newline", value: "false" }
+        ],
+        eof: ''
+      }
+
     ],
-    groups: [{
-        name: "Handle inline and block elements differently",
-        description: "",
-        matrix: [{}],
-        tests: [{
-            fragment: true,
-            input: '<body><h1>Block</h1></body>',
-            output: [
-                '<body>',
-                '    <h1>Block</h1>',
-                '</body>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: '<body><i>Inline</i></body>'
-        }]
-    }, {
-        name: "End With Newline",
-        description: "",
-        matrix: [{
-                options: [
-                    { name: "end_with_newline", value: "true" }
-                ],
-                eof: '\n'
-            }, {
-                options: [
-                    { name: "end_with_newline", value: "false" }
-                ],
-                eof: ''
-            }
-
-        ],
-        tests: [
-            { fragment: true, input: '', output: '{{eof}}' },
-            { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
-            // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
-            { fragment: true, input: '\n', output: '{{eof}}' }
-        ],
-    }, {
-        name: "Custom Extra Liners (empty)",
-        description: "",
-        matrix: [{
-                options: [
-                    { name: "extra_liners", value: "[]" }
-                ]
-            },
-
-        ],
-        tests: [{
-            fragment: true,
-            input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
-            output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
-        }],
-    }, {
-        name: "Custom Extra Liners (default)",
-        description: "",
-        matrix: [{
-                options: [
-                    { name: "extra_liners", value: "null" }
-                ]
-            },
-
-        ],
-        tests: [{
-            fragment: true,
-            input: '<html><head></head><body></body></html>',
-            output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>'
-        }],
-    }, {
-        name: "Custom Extra Liners (p, string)",
-        description: "",
-        matrix: [{
-                options: [
-                    { name: "extra_liners", value: "'p,/p'" }
-                ]
-            },
-
-        ],
-        tests: [{
-            fragment: true,
-            input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
-            output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
-        }],
-    }, {
-        name: "Custom Extra Liners (p)",
-        description: "",
-        matrix: [{
-                options: [
-                    { name: "extra_liners", value: "['p', '/p']" }
-                ]
-            },
-
-        ],
-        tests: [{
-            fragment: true,
-            input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
-            output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
-        }],
-    }, {
-        name: "Tests for script and style types (issue 453, 821)",
-        description: "Only format recognized script types",
-        tests: [{
-                input: '<script type="text/unknown"><div></div></script>',
-                output: [
-                    '<script type="text/unknown">',
-                    '    <div></div>',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="text/javascript"><div></div></script>',
-                output: [
-                    '<script type="text/javascript">',
-                    '    < div > < /div>',
-                    '</script>'
-                ]
-            }, {
-                input: '<script><div></div></script>',
-                output: [
-                    '<script>',
-                    '    < div > < /div>',
-                    '</script>'
-                ]
-            }, {
-                input: '<script>var foo = "bar";</script>',
-                output: [
-                    '<script>',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="text/javascript">var foo = "bar";</script>',
-                output: [
-                    '<script type="text/javascript">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/javascript">var foo = "bar";</script>',
-                output: [
-                    '<script type="application/javascript">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/javascript;version=1.8">var foo = "bar";</script>',
-                output: [
-                    '<script type="application/javascript;version=1.8">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/x-javascript">var foo = "bar";</script>',
-                output: [
-                    '<script type="application/x-javascript">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/ecmascript">var foo = "bar";</script>',
-                output: [
-                    '<script type="application/ecmascript">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
-                output: [
-                    '<script type="dojo/aspect">',
-                    '    this.domNode.style.display = "none";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="dojo/method">this.domNode.style.display="none";</script>',
-                output: [
-                    '<script type="dojo/method">',
-                    '    this.domNode.style.display = "none";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="text/javascript1.5">var foo = "bar";</script>',
-                output: [
-                    '<script type="text/javascript1.5">',
-                    '    var foo = "bar";',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/json">{"foo":"bar"}</script>',
-                output: [
-                    '<script type="application/json">',
-                    '    {',
-                    '        "foo": "bar"',
-                    '    }',
-                    '</script>'
-                ]
-            }, {
-                input: '<script type="application/ld+json">{"foo":"bar"}</script>',
-                output: [
-                    '<script type="application/ld+json">',
-                    '    {',
-                    '        "foo": "bar"',
-                    '    }',
-                    '</script>'
-                ]
-            }, {
-                input: '<style type="text/unknown"><tag></tag></style>',
-                output: [
-                    '<style type="text/unknown">',
-                    '    <tag></tag>',
-                    '</style>'
-                ]
-            }, {
-                input: '<style type="text/css"><tag></tag></style>',
-                output: [
-                    '<style type="text/css">',
-                    '    <tag></tag>',
-                    '</style>'
-                ]
-            }, {
-                input: '<style><tag></tag></style>',
-                output: [
-                    '<style>',
-                    '    <tag></tag>',
-                    '</style>'
-                ]
-            }, {
-                input: '<style>.selector {font-size:12px;}</style>',
-                output: [
-                    '<style>',
-                    '    .selector {',
-                    '        font-size: 12px;',
-                    '    }',
-                    '</style>'
-                ]
-            }, {
-                input: '<style type="text/css">.selector {font-size:12px;}</style>',
-                output: [
-                    '<style type="text/css">',
-                    '    .selector {',
-                    '        font-size: 12px;',
-                    '    }',
-                    '</style>'
-                ]
-            },
-
-        ],
-    }, {
-        name: "Attribute Wrap alignment with spaces",
-        description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
-        matrix: [{
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "indent_with_tabs", value: "true" }
-            ]
-        }],
-        tests: [{
-            fragment: true,
-            input: '<div><div a="1" b="2"><div>test</div></div></div>',
-            output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
-        }]
-    }, {
-        name: "Attribute Wrap de-indent",
-        description: "Tags de-indent when attributes are wrapped",
-        matrix: [{
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "indent_with_tabs", value: "false" }
-            ]
-        }],
-        tests: [{
-                fragment: true,
-                input: '<div a="1" b="2"><div>test</div></div>',
-                output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
-            },
-            {
-                fragment: true,
-                input: '<p>\n    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n</p>',
-                output: '<p>\n    <a href="/test/"\n       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n       target="_blank"><img src="test.jpg" /></a>\n</p>'
-            },
-            {
-                fragment: true,
-                input: '<p>\n    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>',
-                output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
-            }
+    tests: [
+      { fragment: true, input: '', output: '{{eof}}' },
+      { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
+      // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
+      { fragment: true, input: '\n', output: '{{eof}}' }
+    ],
+  }, {
+    name: "Custom Extra Liners (empty)",
+    description: "",
+    matrix: [{
+        options: [
+          { name: "extra_liners", value: "[]" }
         ]
-    }, {
-        name: "Attribute Wrap",
-        description: "Wraps attributes inside of html tags",
-        matrix: [{
-            options: [
-                { name: "wrap_attributes", value: "'force'" }
-            ],
-            indent_attr: '\n    ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: '\n    '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            indent_attr: '\n    ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: '\n    ',
-            indent_over80: '\n    '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force'" },
-                { name: "wrap_attributes_indent_size", value: "8" }
-            ],
-            indent_attr: '\n        ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: '\n        '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "80" },
-                { name: "wrap_attributes_indent_size", value: "0" }
-            ],
-            indent_attr: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: '\n    ',
-            indent_over80: '\n'
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "80" },
-                { name: "wrap_attributes_indent_size", value: "4" }
-            ],
-            indent_attr: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: '\n    ',
-            indent_over80: '\n    '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'auto'" },
-                { name: "wrap_line_length", value: "0" }
-            ],
-            indent_attr: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: ' '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" }
-            ],
-            indent_attr: '\n     ',
-            indent_attr_faligned: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: '\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            indent_attr: '\n     ',
-            indent_attr_faligned: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: '\n    ',
-            indent_over80: '\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'aligned-multiple'" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            indent_attr: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_attr_aligned: ' ',
-            indent_end_selfclosing: ' ',
-            indent_content80: '\n    ',
-            indent_over80: '\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'aligned-multiple'" },
-            ],
-            indent_attr: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: ' '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-aligned'" },
-                { name: "wrap_attributes_indent_size", value: "8" }
-            ],
-            indent_attr: '\n     ',
-            indent_attr_faligned: ' ',
-            indent_attr_first: ' ',
-            indent_end: '',
-            indent_end_selfclosing: ' ',
-            indent_content80: ' ',
-            indent_over80: '\n     '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-expand-multiline'" },
-                { name: "wrap_attributes_indent_size", value: "4" }
-            ],
-            indent_attr: '\n    ',
-            indent_attr_first: '\n    ',
-            indent_end: '\n',
-            indent_end_selfclosing: '\n',
-            indent_content80: ' ',
-            indent_over80: '\n    '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-expand-multiline'" },
-                { name: "wrap_attributes_indent_size", value: "4" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            indent_attr: '\n    ',
-            indent_attr_first: '\n    ',
-            indent_end: '\n',
-            indent_end_selfclosing: '\n',
-            indent_content80: '\n    ',
-            indent_over80: '\n    '
-        }, {
-            options: [
-                { name: "wrap_attributes", value: "'force-expand-multiline'" },
-                { name: "wrap_attributes_indent_size", value: "8" }
-            ],
-            indent_attr: '\n        ',
-            indent_attr_first: '\n        ',
-            indent_end: '\n',
-            indent_end_selfclosing: '\n',
-            indent_content80: ' ',
-            indent_over80: '\n        '
-        }],
-        tests: [{
-            fragment: true,
-            input: '<div  >This is some text</div>',
-            output: '<div>This is some text</div>'
-        }, {
-            fragment: true,
-            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
-            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
-            output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
-        }, {
-            fragment: true,
-            input: '<div attr="123"  >This is some text</div>',
-            output: '<div attr="123">This is some text</div>'
-        }, {
-            fragment: true,
-            input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
-            output: '<div{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end}}>This is some text</div>'
-        }, {
-            fragment: true,
-            input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
-            output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
-        }, {
-            fragment: true,
-            input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
-            output: '<img{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end_selfclosing}}/>'
-        }, {
-            fragment: true,
-            input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-            output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
-        }, {
-            fragment: true,
-            input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
-        }]
-    }, {
-        name: "Handlebars Indenting Off",
-        description: "Test handlebar behavior when indenting is off",
-        template: "^^^ $$$",
-        options: [
-            { name: "indent_handlebars", value: "false" }
-        ],
-        tests: [{
-                fragment: true,
-                input_: '{{#if 0}}\n' +
-                    '    <div>\n' +
-                    '    </div>\n' +
-                    '{{/if}}',
-                output: '{{#if 0}}\n' +
-                    '<div>\n' +
-                    '</div>\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                input_: '<div>\n' +
-                    '{{#each thing}}\n' +
-                    '    {{name}}\n' +
-                    '{{/each}}\n' +
-                    '</div>',
-                output: '<div>\n' +
-                    '    {{#each thing}} {{name}} {{/each}}\n' +
-                    '</div>'
-            }
+      },
 
-        ]
-    }, {
-        name: "Handlebars Indenting On",
-        description: "Test handlebar formatting",
-        template: "^^^ $$$",
-        matrix: [{
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{field}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{! comment}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{!-- comment--}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{pre{{field1}} {{field2}} {{field3}}post'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{! \n mult-line\ncomment  \n     with spacing\n}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" }
-            ],
-            content: '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}'
-        }, {
-            options: [
-                { name: "indent_handlebars", value: "true" },
-                { name: "wrap_line_length", value: "80" }
-            ],
-            content: 'content'
-        }],
-        tests: [
-            { fragment: true, unchanged: '{{page-title}}' },
-            { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
-            { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
-                fragment: true,
-                input_: '{{#if     words}}{{/if}}',
-                output: '{{#if words}}{{/if}}'
-            }, {
-                fragment: true,
-                input_: '{{#if     words}}^^^&content$$${{/if}}',
-                output: '{{#if words}}^^^&content$$${{/if}}'
-            }, {
-                fragment: true,
-                input_: '{{#if     words}}^^^&content$$${{/if}}',
-                output: '{{#if words}}^^^&content$$${{/if}}'
-            }, {
-                fragment: true,
-                unchanged: '{{#if 1}}\n' +
-                    '    <div>\n' +
-                    '    </div>\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                input_: '{{#if 1}}\n' +
-                    '<div>\n' +
-                    '</div>\n' +
-                    '{{/if}}',
-                output: '{{#if 1}}\n' +
-                    '    <div>\n' +
-                    '    </div>\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                unchanged: '<div>\n' +
-                    '    {{#if 1}}\n' +
-                    '    {{/if}}\n' +
-                    '</div>'
-            }, {
-                fragment: true,
-                input_: '<div>\n' +
-                    '{{#if 1}}\n' +
-                    '{{/if}}\n' +
-                    '</div>',
-                output: '<div>\n' +
-                    '    {{#if 1}}\n' +
-                    '    {{/if}}\n' +
-                    '</div>'
-            }, {
-                fragment: true,
-                input_: '{{#if}}\n' +
-                    '{{#each}}\n' +
-                    '{{#if}}\n' +
-                    '^^^&content$$$\n' +
-                    '{{/if}}\n' +
-                    '{{#if}}\n' +
-                    '^^^&content$$$\n' +
-                    '{{/if}}\n' +
-                    '{{/each}}\n' +
-                    '{{/if}}',
-                output: '{{#if}}\n' +
-                    '    {{#each}}\n' +
-                    '        {{#if}}\n' +
-                    '            ^^^&content$$$\n' +
-                    '        {{/if}}\n' +
-                    '        {{#if}}\n' +
-                    '            ^^^&content$$$\n' +
-                    '        {{/if}}\n' +
-                    '    {{/each}}\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                unchanged: '{{#if 1}}\n' +
-                    '    <div>\n' +
-                    '    </div>\n' +
-                    '{{/if}}'
-            },
-
-            // Test {{else}} aligned with {{#if}} and {{/if}}
-            {
-                fragment: true,
-                input_: '{{#if 1}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '    {{else}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '{{/if}}',
-                output: '{{#if 1}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '{{else}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                input_: '{{#if 1}}\n' +
-                    '    {{else}}\n' +
-                    '    {{/if}}',
-                output: '{{#if 1}}\n' +
-                    '{{else}}\n' +
-                    '{{/if}}'
-            }, {
-                fragment: true,
-                input_: '{{#if thing}}\n' +
-                    '{{#if otherthing}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '    {{else}}\n' +
-                    '^^^&content$$$\n' +
-                    '    {{/if}}\n' +
-                    '       {{else}}\n' +
-                    '^^^&content$$$\n' +
-                    '{{/if}}',
-                output: '{{#if thing}}\n' +
-                    '    {{#if otherthing}}\n' +
-                    '        ^^^&content$$$\n' +
-                    '    {{else}}\n' +
-                    '        ^^^&content$$$\n' +
-                    '    {{/if}}\n' +
-                    '{{else}}\n' +
-                    '    ^^^&content$$$\n' +
-                    '{{/if}}'
-            },
-            // Test {{}} inside of <> tags, which should be separated by spaces
-            // for readability, unless they are inside a string.
-            {
-                fragment: true,
-                input_: '<div{{somestyle}}></div>',
-                output: '<div {{somestyle}}></div>'
-            }, {
-                fragment: true,
-                input_: '<div{{#if test}}class="foo"{{/if}}>^^^&content$$$</div>',
-                output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
-            }, {
-                fragment: true,
-                input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
-                output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
-            }, {
-                fragment: true,
-                input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
-                output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
-            }, {
-                fragment: true,
-                unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
-            }, {
-                fragment: true,
-                unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
-            },
-
-            // Quotes found inside of Handlebars expressions inside of quoted
-            // strings themselves should not be considered string delimiters.
-            {
-                fragment: true,
-                unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
-            }, {
-                fragment: true,
-                unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
-            }, {
-                fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
-            }, {
-                fragment: true,
-                unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
-            }, {
-                fragment: true,
-                unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
-            }, {
-                fragment: true,
-                unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
-            }
-        ],
-    }, {
-        name: "Handlebars Else tag indenting",
-        description: "Handlebar Else tags should be newlined after formatted tags",
-        template: "^^^ $$$",
-        options: [
-            { name: "indent_handlebars", value: "true" }
-        ],
-        tests: [{
-            fragment: true,
-            input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
-            output: '{{#if test}}\n' +
-                '    <div></div>\n' +
-                '{{else}}\n' +
-                '    <div></div>\n' +
-                '{{/if}}'
-        }, {
-            fragment: true,
-            unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
-        }]
-    }, {
-        name: "Unclosed html elements",
-        description: "Unclosed elements should not indent",
-        options: [],
-        tests: [
-            { fragment: true, unchanged: '<source>\n<source>' },
-            { fragment: true, unchanged: '<br>\n<br>' },
-            { fragment: true, unchanged: '<input>\n<input>' },
-            { fragment: true, unchanged: '<meta>\n<meta>' },
-            { fragment: true, unchanged: '<link>\n<link>' },
-            { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
-        ]
-    }, {
-        name: "Unformatted tags",
-        description: "Unformatted tag behavior",
-        options: [],
-        tests: [{
-                fragment: true,
-                input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
-                output: [
-                    '<ol>',
-                    '    <li>b',
-                    '        <pre>c</pre>',
-                    '    </li>',
-                    '</ol>'
-                ]
-            },
-            { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
-            { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
-            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
-            { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
-            { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-            { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-            { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-            { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
-            { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' },
-        ]
-    }, {
-        name: "File starting with comment",
-        description: "Unformatted tag behavior",
-        options: [],
-        tests: [{
-            fragment: true,
-            unchanged: [
-                '<!--sample comment -->',
-                '',
-                '<html>',
-                '<body>',
-                '    <span>a span</span>',
-                '</body>',
-                '',
-                '</html>'
-            ]
-        }, ]
-    }, {
-        name: "Single line comment after closing tag",
-        description: "Keep single line comments as they are after closing tags",
-        options: [],
-        tests: [{
-            fragment: true,
-            input: [
-                '<div class="col">',
-                '    <div class="row">',
-                '        <div class="card">',
-                '',
-                '            <h1>Some heading</h1>',
-                '            <p>Some text for the card.</p>',
-                '            <img src="some/image.jpg" alt="">',
-                '',
-                '            </div>    <!-- /.card -->',
-                '    </div>',
-                '            <!-- /.row -->',
-                '</div> <!-- /.col -->'
-            ],
-            output: [
-                '<div class="col">',
-                '    <div class="row">',
-                '        <div class="card">',
-                '',
-                '            <h1>Some heading</h1>',
-                '            <p>Some text for the card.</p>',
-                '            <img src="some/image.jpg" alt="">',
-                '',
-                '        </div> <!-- /.card -->',
-                '    </div>',
-                '    <!-- /.row -->',
-                '</div> <!-- /.col -->'
-            ]
-        }, ]
-    }, {
-        name: "Regression Tests",
-        description: "Regression Tests",
-        options: [],
-        tests: [{
-                comment: '#1202',
-                fragment: true,
-                unchanged: '<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>'
-            },
-            { fragment: true, unchanged: '<a ">9</a">' },
-            { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
-            { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
-        ]
-    }, {
-        name: "Php formatting",
-        description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
-        options: [],
-        tests: [{
-            fragment: true,
-            input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
-            output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>',
-        }, {
-            fragment: true,
-            unchanged: [
-                '<?php',
-                'for($i = 1; $i <= 100; $i++;) {',
-                '    #count to 100!',
-                '    echo($i . "</br>");',
-                '}',
-                '?>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: [
-                '<?php ?>',
-                '<!DOCTYPE html>',
-                '',
-                '<html>',
-                '',
-                '<head></head>',
-                '',
-                '<body></body>',
-                '',
-                '</html>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: [
-                '<?= "A" ?>',
-                '<?= "B" ?>',
-                '<?= "C" ?>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: [
-                '<?php',
-                'echo "A";',
-                '?>',
-                '<span>Test</span>'
-            ]
-        }]
-    }, {
-        name: "Support simple language specific option inheritance/overriding",
-        description: "Support simple language specific option inheritance/overriding",
-        matrix: [{
-                options: [
-                    { name: "js", value: "{ 'indent_size': 3 }" },
-                    { name: "css", value: "{ 'indent_size': 5 }" }
-                ],
-                h: '    ',
-                c: '     ',
-                j: '   '
-            },
-            {
-                options: [
-                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
-                ],
-                h: '    ',
-                c: '     ',
-                j: '   '
-            },
-            {
-                options: [
-                    { name: "indent_size", value: "9" },
-                    { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
-                    { name: "js", value: "{ 'indent_size': 5 }" },
-                    { name: "css", value: "{ 'indent_size': 3 }" }
-                ],
-                h: '  ',
-                c: '     ',
-                j: '   '
-            }
-        ],
-        tests: [{
-            fragment: true,
-            unchanged: [
-                '<head>',
-                '{{h}}<script>',
-                '{{h}}{{h}}if (a == b) {',
-                '{{h}}{{h}}{{j}}test();',
-                '{{h}}{{h}}}',
-                '{{h}}</script>',
-                '{{h}}<style>',
-                '{{h}}{{h}}.selector {',
-                '{{h}}{{h}}{{c}}font-size: 12px;',
-                '{{h}}{{h}}}',
-                '{{h}}</style>',
-                '</head>',
-            ]
-        }, ]
-    }, {
-        name: "underscore.js  formatting",
-        description: "underscore.js templates (<% ... %>) treated as comments.",
-        options: [],
-        tests: [{
-            fragment: true,
-            unchanged: [
-                '<div class="col-sm-9">',
-                '    <textarea id="notes" class="form-control" rows="3">',
-                '        <%= notes %>',
-                '    </textarea>',
-                '</div>'
-            ]
-        }, ]
-    }, {
-        name: "Linewrap length",
-        description: "",
-        options: [{ name: "wrap_line_length", value: "80" }],
-        tests: [{
-            comment: "This test shows how line wrapping is still not correct.",
-            fragment: true,
-            input: [
-                '<body>',
-                '    <div>',
-                '        <div>',
-                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>',
-                '        </div>',
-                '    </div>',
-                '</body>'
-            ],
-            output: [
-                '<body>',
-                '    <div>',
-                '        <div>',
-                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>',
-                '                series</p>',
-                '        </div>',
-                '    </div>',
-                '</body>'
-            ]
-        }, {
-            fragment: true,
-            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
-            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
-            output: [
-                '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015',
-                '    0016 0017 0018 0019 0020</span>'
-            ]
-        }]
-    }, {
-        name: "Indent with tabs",
-        description: "Use one tab instead of several spaces for indentation",
-        template: "^^^ $$$",
-        options: [
-            { name: "indent_with_tabs", value: "true" }
-        ],
-        tests: [{
-            fragment: true,
-            input_: '<div>\n' +
-                '<div>\n' +
-                '</div>\n' +
-                '</div>',
-            output: '<div>\n' +
-                '\t<div>\n' +
-                '\t</div>\n' +
-                '</div>'
-        }]
-    }, {
-        name: "Indent without tabs",
-        description: "Use several spaces for indentation",
-        template: "^^^ $$$",
-        options: [
-            { name: "indent_with_tabs", value: "false" }
-        ],
-        tests: [{
-            fragment: true,
-            input_: '<div>\n' +
-                '<div>\n' +
-                '</div>\n' +
-                '</div>',
-            output: '<div>\n' +
-                '    <div>\n' +
-                '    </div>\n' +
-                '</div>'
-        }]
-    }, {
-        name: "Indent body inner html by default",
-        description: "",
-        tests: [{
-            fragment: true,
-            input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
-            output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
-        }]
-    }, {
-        name: "indent_body_inner_html set to false prevents indent of body inner html",
-        description: "",
-        options: [
-            { name: 'indent_body_inner_html', value: "false" }
-        ],
-        tests: [{
-            fragment: true,
-            unchanged: '<html>\n<body>\n<div></div>\n</body>\n\n</html>'
-        }]
-    }, {
-        name: "Indent head inner html by default",
-        description: "",
-        tests: [{
-            fragment: true,
-            input: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>',
-            output: '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>'
-        }]
-    }, {
-        name: "indent_head_inner_html set to false prevents indent of head inner html",
-        description: "",
-        options: [
-            { name: 'indent_head_inner_html', value: "false" }
-        ],
-        tests: [{
-            fragment: true,
-            unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
-        }]
-    }, {
-        name: "Inline tags formatting",
-        description: "",
-        template: "^^^ $$$",
-        tests: [{
-            fragment: true,
-            unchanged: '<div><span></span></div><span><div></div></span>'
-        }, {
-            fragment: true,
-            input: '<div><div><span><span>Nested spans</span></span></div></div>',
-            output: [
-                '<div>',
-                '    <div><span><span>Nested spans</span></span></div>',
-                '</div>'
-            ]
-        }, {
-            fragment: true,
-            input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
-            output: [
-                '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: '<div><span>All</span> on <span>one</span> line</div>'
-        }, {
-            fragment: true,
-            unchanged: '<span class="{{class_name}}">{{content}}</span>'
-        }, {
-            fragment: true,
-            unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
-        }]
-    }, {
-        name: "unformatted to prevent formatting changes",
-        description: "",
-        options: [
-            { name: 'unformatted', value: "['u']" }
-        ],
-        tests: [{
-            fragment: true,
-            unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
-        }, {
-            fragment: true,
-            unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
-        }, {
-            fragment: true,
-            unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
-        }, {
-            fragment: true,
-            unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
-        }, {
-            fragment: true,
-            unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
-        }]
-    }, {
-        name: "content_unformatted to prevent formatting content",
-        description: "",
-        options: [
-            { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
-        ],
-        tests: [{
-            fragment: true,
-            input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
-            output: [
-                '<html>',
-                '<body>',
-                '    <h1>A</h1>',
-                '    <script>if(1){f();}</script>',
-                '    <style>.a{display:none;}</style>',
-                '</body>',
-                '',
-                '</html>'
-            ]
-        }, {
-            fragment: true,
-            input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
-            output: [
-                '<div>',
-                '    <p>Beautify me</p>',
-                '</div>',
-                '<p><div>But not me</div></p>'
-            ]
-        }, {
-            fragment: true,
-            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
-            output: [
-                '<div>',
-                '    <p class="beauty-me">Beautify me</p>',
-                '</div>',
-                '<p><div',
-                '  class="iamalreadybeauty"',
-                '>But not me</div></p>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: '<div><span>blabla<div>something here</div></span></div>'
-        }, {
-            fragment: true,
-            unchanged: '<div><br /></div>'
-        }, {
-            fragment: true,
-            input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
-            output: [
-                '<div>',
-                '    <pre>var a=1; var b=a;</pre>',
-                '</div>'
-            ]
-        }, {
-            fragment: true,
-            input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
-            output: [
-                '<div>',
-                '    <pre>',
-                '        var a=1; var b=a;',
-                '    </pre>',
-                '</div>'
-            ]
-        }]
-    }, {
-        name: "default content_unformatted and inline element test",
-        description: "",
-        options: [],
-        tests: [{
-            fragment: true,
-            input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
-            output: [
-                '<html>',
-                '<body>',
-                '    <h1>A</h1>',
-                '    <script>',
-                '        if (1) {',
-                '            f();',
-                '        }',
-                '    </script>',
-                '    <style>',
-                '        .a {',
-                '            display: none;',
-                '        }',
-                '    </style>',
-                '</body>',
-                '',
-                '</html>'
-            ]
-        }, {
-            fragment: true,
-            input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
-            output: [
-                '<div>',
-                '    <p>Beautify me</p>',
-                '</div>',
-                '<p>',
-                '    <p>But not me</p>',
-                '</p>',
-            ]
-        }, {
-            fragment: true,
-            input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
-            output: [
-                '<div>',
-                '    <p class="beauty-me">Beautify me</p>',
-                '</div>',
-                '<p>',
-                '    <p class="iamalreadybeauty">But not me</p>',
-                '</p>'
-            ]
-        }, {
-            fragment: true,
-            unchanged: '<div><span>blabla<div>something here</div></span></div>'
-        }, {
-            fragment: true,
-            unchanged: '<div><br /></div>'
-        }, {
-            fragment: true,
-            input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
-            output: [
-                '<div>',
-                '    <pre>var a=1;',
-                'var b=a;</pre>',
-                '</div>'
-            ]
-        }, {
-            fragment: true,
-            input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
-            output: [
-                '<div>',
-                '    <pre>',
-                'var a=1;',
-                'var b=a;',
-                '</pre>',
-                '</div>'
-            ]
-        }, {
-            comment: "Test for #1041",
-            fragment: true,
-            input: [
-                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
-                '',
-                '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>',
-                '<p class="foo"><span class="bar">bar</span></p>'
-            ],
-            output: [
-                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
-                '',
-                '<aside>',
-                '    <p class="foo">foo <span class="bar">bar</span></p>',
-                '</aside>',
-                '<p class="foo"><span class="bar">bar</span></p>'
-            ]
-        }, {
-            comment: "Test for #1167",
-            fragment: true,
-            unchanged: [
-                '<span>',
-                '    <span><img src="images/off.svg" alt=""></span>',
-                '    <span><img src="images/on.svg" alt=""></span>',
-                '</span>'
-            ]
-        }, {
-            comment: "Test for #882",
-            fragment: true,
-            input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
-            output: [
-                '<tr>',
-                '    <th>',
-                '        <h3>Name</h3>',
-                '    </th>',
-                '    <td class="full-width"></td>',
-                '</tr>'
-            ]
-        }, {
-            comment: "Test for #1184",
-            fragment: true,
-            input: '<div><div></div>Connect</div>',
-            output: [
-                '<div>',
-                '    <div></div>Connect',
-                '</div>'
-            ]
-        }]
-    }, {
-        name: "New Test Suite"
+    ],
+    tests: [{
+      fragment: true,
+      input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
+      output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
     }],
+  }, {
+    name: "Custom Extra Liners (default)",
+    description: "",
+    matrix: [{
+        options: [
+          { name: "extra_liners", value: "null" }
+        ]
+      },
+
+    ],
+    tests: [{
+      fragment: true,
+      input: '<html><head></head><body></body></html>',
+      output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>'
+    }],
+  }, {
+    name: "Custom Extra Liners (p, string)",
+    description: "",
+    matrix: [{
+        options: [
+          { name: "extra_liners", value: "'p,/p'" }
+        ]
+      },
+
+    ],
+    tests: [{
+      fragment: true,
+      input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
+      output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
+    }],
+  }, {
+    name: "Custom Extra Liners (p)",
+    description: "",
+    matrix: [{
+        options: [
+          { name: "extra_liners", value: "['p', '/p']" }
+        ]
+      },
+
+    ],
+    tests: [{
+      fragment: true,
+      input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
+      output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
+    }],
+  }, {
+    name: "Tests for script and style types (issue 453, 821)",
+    description: "Only format recognized script types",
+    tests: [{
+        input: '<script type="text/unknown"><div></div></script>',
+        output: [
+          '<script type="text/unknown">',
+          '    <div></div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="text/javascript"><div></div></script>',
+        output: [
+          '<script type="text/javascript">',
+          '    < div > < /div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script><div></div></script>',
+        output: [
+          '<script>',
+          '    < div > < /div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script>var foo = "bar";</script>',
+        output: [
+          '<script>',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="text/javascript">var foo = "bar";</script>',
+        output: [
+          '<script type="text/javascript">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/javascript">var foo = "bar";</script>',
+        output: [
+          '<script type="application/javascript">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/javascript;version=1.8">var foo = "bar";</script>',
+        output: [
+          '<script type="application/javascript;version=1.8">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/x-javascript">var foo = "bar";</script>',
+        output: [
+          '<script type="application/x-javascript">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/ecmascript">var foo = "bar";</script>',
+        output: [
+          '<script type="application/ecmascript">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="dojo/aspect">this.domNode.style.display="none";</script>',
+        output: [
+          '<script type="dojo/aspect">',
+          '    this.domNode.style.display = "none";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="dojo/method">this.domNode.style.display="none";</script>',
+        output: [
+          '<script type="dojo/method">',
+          '    this.domNode.style.display = "none";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="text/javascript1.5">var foo = "bar";</script>',
+        output: [
+          '<script type="text/javascript1.5">',
+          '    var foo = "bar";',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/json">{"foo":"bar"}</script>',
+        output: [
+          '<script type="application/json">',
+          '    {',
+          '        "foo": "bar"',
+          '    }',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="application/ld+json">{"foo":"bar"}</script>',
+        output: [
+          '<script type="application/ld+json">',
+          '    {',
+          '        "foo": "bar"',
+          '    }',
+          '</script>'
+        ]
+      }, {
+        input: '<style type="text/unknown"><tag></tag></style>',
+        output: [
+          '<style type="text/unknown">',
+          '    <tag></tag>',
+          '</style>'
+        ]
+      }, {
+        input: '<style type="text/css"><tag></tag></style>',
+        output: [
+          '<style type="text/css">',
+          '    <tag></tag>',
+          '</style>'
+        ]
+      }, {
+        input: '<style><tag></tag></style>',
+        output: [
+          '<style>',
+          '    <tag></tag>',
+          '</style>'
+        ]
+      }, {
+        input: '<style>.selector {font-size:12px;}</style>',
+        output: [
+          '<style>',
+          '    .selector {',
+          '        font-size: 12px;',
+          '    }',
+          '</style>'
+        ]
+      }, {
+        input: '<style type="text/css">.selector {font-size:12px;}</style>',
+        output: [
+          '<style type="text/css">',
+          '    .selector {',
+          '        font-size: 12px;',
+          '    }',
+          '</style>'
+        ]
+      },
+
+    ],
+  }, {
+    name: "Attribute Wrap alignment with spaces",
+    description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "indent_with_tabs", value: "true" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      input: '<div><div a="1" b="2"><div>test</div></div></div>',
+      output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+    }]
+  }, {
+    name: "Attribute Wrap de-indent",
+    description: "Tags de-indent when attributes are wrapped",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "indent_with_tabs", value: "false" }
+      ]
+    }],
+    tests: [{
+        fragment: true,
+        input: '<div a="1" b="2"><div>test</div></div>',
+        output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
+      },
+      {
+        fragment: true,
+        input: '<p>\n    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n</p>',
+        output: '<p>\n    <a href="/test/"\n       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n       target="_blank"><img src="test.jpg" /></a>\n</p>'
+      },
+      {
+        fragment: true,
+        input: '<p>\n    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>',
+        output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
+      }
+    ]
+  }, {
+    name: "Attribute Wrap",
+    description: "Wraps attributes inside of html tags",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force'" }
+      ],
+      indent_attr: '\n    ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n    '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_line_length", value: "80" }
+      ],
+      indent_attr: '\n    ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: '\n    ',
+      indent_over80: '\n    '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_indent_size", value: "8" }
+      ],
+      indent_attr: '\n        ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n        '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'auto'" },
+        { name: "wrap_line_length", value: "80" },
+        { name: "wrap_attributes_indent_size", value: "0" }
+      ],
+      indent_attr: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: '\n    ',
+      indent_over80: '\n'
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'auto'" },
+        { name: "wrap_line_length", value: "80" },
+        { name: "wrap_attributes_indent_size", value: "4" }
+      ],
+      indent_attr: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: '\n    ',
+      indent_over80: '\n    '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'auto'" },
+        { name: "wrap_line_length", value: "0" }
+      ],
+      indent_attr: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: ' '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" }
+      ],
+      indent_attr: '\n     ',
+      indent_attr_faligned: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_line_length", value: "80" }
+      ],
+      indent_attr: '\n     ',
+      indent_attr_faligned: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: '\n    ',
+      indent_over80: '\n     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'aligned-multiple'" },
+        { name: "wrap_line_length", value: "80" }
+      ],
+      indent_attr: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_attr_aligned: ' ',
+      indent_end_selfclosing: ' ',
+      indent_content80: '\n    ',
+      indent_over80: '\n     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'aligned-multiple'" },
+      ],
+      indent_attr: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: ' '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_indent_size", value: "8" }
+      ],
+      indent_attr: '\n     ',
+      indent_attr_faligned: ' ',
+      indent_attr_first: ' ',
+      indent_end: '',
+      indent_end_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_indent_size", value: "4" }
+      ],
+      indent_attr: '\n    ',
+      indent_attr_first: '\n    ',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80: ' ',
+      indent_over80: '\n    '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_indent_size", value: "4" },
+        { name: "wrap_line_length", value: "80" }
+      ],
+      indent_attr: '\n    ',
+      indent_attr_first: '\n    ',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80: '\n    ',
+      indent_over80: '\n    '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_indent_size", value: "8" }
+      ],
+      indent_attr: '\n        ',
+      indent_attr_first: '\n        ',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80: ' ',
+      indent_over80: '\n        '
+    }],
+    tests: [{
+      fragment: true,
+      input: '<div  >This is some text</div>',
+      output: '<div>This is some text</div>'
+    }, {
+      fragment: true,
+      comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+      input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
+    }, {
+      fragment: true,
+      input: '<div attr="123"  >This is some text</div>',
+      output: '<div attr="123">This is some text</div>'
+    }, {
+      fragment: true,
+      input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+      output: '<div{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end}}>This is some text</div>'
+    }, {
+      fragment: true,
+      input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+      output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
+    }, {
+      fragment: true,
+      input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+      output: '<img{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end_selfclosing}}/>'
+    }, {
+      fragment: true,
+      input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+      output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
+    }, {
+      fragment: true,
+      input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+      output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+    }]
+  }, {
+    name: "Handlebars Indenting Off",
+    description: "Test handlebar behavior when indenting is off",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "false" }
+    ],
+    tests: [{
+        fragment: true,
+        input_: '{{#if 0}}\n' +
+          '    <div>\n' +
+          '    </div>\n' +
+          '{{/if}}',
+        output: '{{#if 0}}\n' +
+          '<div>\n' +
+          '</div>\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        input_: '<div>\n' +
+          '{{#each thing}}\n' +
+          '    {{name}}\n' +
+          '{{/each}}\n' +
+          '</div>',
+        output: '<div>\n' +
+          '    {{#each thing}} {{name}} {{/each}}\n' +
+          '</div>'
+      }
+
+    ]
+  }, {
+    name: "Handlebars Indenting On",
+    description: "Test handlebar formatting",
+    template: "^^^ $$$",
+    matrix: [{
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{field}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{! comment}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{!-- comment--}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{pre{{field1}} {{field2}} {{field3}}post'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{! \n mult-line\ncomment  \n     with spacing\n}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" },
+        { name: "wrap_line_length", value: "80" }
+      ],
+      content: 'content'
+    }],
+    tests: [
+      { fragment: true, unchanged: '{{page-title}}' },
+      { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
+      { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
+      { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
+        fragment: true,
+        input_: '{{#if     words}}{{/if}}',
+        output: '{{#if words}}{{/if}}'
+      }, {
+        fragment: true,
+        input_: '{{#if     words}}^^^&content$$${{/if}}',
+        output: '{{#if words}}^^^&content$$${{/if}}'
+      }, {
+        fragment: true,
+        input_: '{{#if     words}}^^^&content$$${{/if}}',
+        output: '{{#if words}}^^^&content$$${{/if}}'
+      }, {
+        fragment: true,
+        unchanged: '{{#if 1}}\n' +
+          '    <div>\n' +
+          '    </div>\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        input_: '{{#if 1}}\n' +
+          '<div>\n' +
+          '</div>\n' +
+          '{{/if}}',
+        output: '{{#if 1}}\n' +
+          '    <div>\n' +
+          '    </div>\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        unchanged: '<div>\n' +
+          '    {{#if 1}}\n' +
+          '    {{/if}}\n' +
+          '</div>'
+      }, {
+        fragment: true,
+        input_: '<div>\n' +
+          '{{#if 1}}\n' +
+          '{{/if}}\n' +
+          '</div>',
+        output: '<div>\n' +
+          '    {{#if 1}}\n' +
+          '    {{/if}}\n' +
+          '</div>'
+      }, {
+        fragment: true,
+        input_: '{{#if}}\n' +
+          '{{#each}}\n' +
+          '{{#if}}\n' +
+          '^^^&content$$$\n' +
+          '{{/if}}\n' +
+          '{{#if}}\n' +
+          '^^^&content$$$\n' +
+          '{{/if}}\n' +
+          '{{/each}}\n' +
+          '{{/if}}',
+        output: '{{#if}}\n' +
+          '    {{#each}}\n' +
+          '        {{#if}}\n' +
+          '            ^^^&content$$$\n' +
+          '        {{/if}}\n' +
+          '        {{#if}}\n' +
+          '            ^^^&content$$$\n' +
+          '        {{/if}}\n' +
+          '    {{/each}}\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        unchanged: '{{#if 1}}\n' +
+          '    <div>\n' +
+          '    </div>\n' +
+          '{{/if}}'
+      },
+
+      // Test {{else}} aligned with {{#if}} and {{/if}}
+      {
+        fragment: true,
+        input_: '{{#if 1}}\n' +
+          '    ^^^&content$$$\n' +
+          '    {{else}}\n' +
+          '    ^^^&content$$$\n' +
+          '{{/if}}',
+        output: '{{#if 1}}\n' +
+          '    ^^^&content$$$\n' +
+          '{{else}}\n' +
+          '    ^^^&content$$$\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        input_: '{{#if 1}}\n' +
+          '    {{else}}\n' +
+          '    {{/if}}',
+        output: '{{#if 1}}\n' +
+          '{{else}}\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        input_: '{{#if thing}}\n' +
+          '{{#if otherthing}}\n' +
+          '    ^^^&content$$$\n' +
+          '    {{else}}\n' +
+          '^^^&content$$$\n' +
+          '    {{/if}}\n' +
+          '       {{else}}\n' +
+          '^^^&content$$$\n' +
+          '{{/if}}',
+        output: '{{#if thing}}\n' +
+          '    {{#if otherthing}}\n' +
+          '        ^^^&content$$$\n' +
+          '    {{else}}\n' +
+          '        ^^^&content$$$\n' +
+          '    {{/if}}\n' +
+          '{{else}}\n' +
+          '    ^^^&content$$$\n' +
+          '{{/if}}'
+      },
+      // Test {{}} inside of <> tags, which should be separated by spaces
+      // for readability, unless they are inside a string.
+      {
+        fragment: true,
+        input_: '<div{{somestyle}}></div>',
+        output: '<div {{somestyle}}></div>'
+      }, {
+        fragment: true,
+        input_: '<div{{#if test}}class="foo"{{/if}}>^^^&content$$$</div>',
+        output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
+      }, {
+        fragment: true,
+        input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
+        output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
+      }, {
+        fragment: true,
+        input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
+        output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
+      }, {
+        fragment: true,
+        unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
+      }, {
+        fragment: true,
+        unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
+      },
+
+      // Quotes found inside of Handlebars expressions inside of quoted
+      // strings themselves should not be considered string delimiters.
+      {
+        fragment: true,
+        unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
+      }, {
+        fragment: true,
+        unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
+      }, {
+        fragment: true,
+        unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
+      }, {
+        fragment: true,
+        unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
+      }, {
+        fragment: true,
+        unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
+      }, {
+        fragment: true,
+        unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
+      }
+    ],
+  }, {
+    name: "Handlebars Else tag indenting",
+    description: "Handlebar Else tags should be newlined after formatted tags",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
+      output: '{{#if test}}\n' +
+        '    <div></div>\n' +
+        '{{else}}\n' +
+        '    <div></div>\n' +
+        '{{/if}}'
+    }, {
+      fragment: true,
+      unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
+    }]
+  }, {
+    name: "Unclosed html elements",
+    description: "Unclosed elements should not indent",
+    options: [],
+    tests: [
+      { fragment: true, unchanged: '<source>\n<source>' },
+      { fragment: true, unchanged: '<br>\n<br>' },
+      { fragment: true, unchanged: '<input>\n<input>' },
+      { fragment: true, unchanged: '<meta>\n<meta>' },
+      { fragment: true, unchanged: '<link>\n<link>' },
+      { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
+    ]
+  }, {
+    name: "Unformatted tags",
+    description: "Unformatted tag behavior",
+    options: [],
+    tests: [{
+        fragment: true,
+        input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
+        output: [
+          '<ol>',
+          '    <li>b',
+          '        <pre>c</pre>',
+          '    </li>',
+          '</ol>'
+        ]
+      },
+      { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+      { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
+      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
+      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
+      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
+      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' },
+    ]
+  }, {
+    name: "File starting with comment",
+    description: "Unformatted tag behavior",
+    options: [],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<!--sample comment -->',
+        '',
+        '<html>',
+        '<body>',
+        '    <span>a span</span>',
+        '</body>',
+        '',
+        '</html>'
+      ]
+    }, ]
+  }, {
+    name: "Single line comment after closing tag",
+    description: "Keep single line comments as they are after closing tags",
+    options: [],
+    tests: [{
+      fragment: true,
+      input: [
+        '<div class="col">',
+        '    <div class="row">',
+        '        <div class="card">',
+        '',
+        '            <h1>Some heading</h1>',
+        '            <p>Some text for the card.</p>',
+        '            <img src="some/image.jpg" alt="">',
+        '',
+        '            </div>    <!-- /.card -->',
+        '    </div>',
+        '            <!-- /.row -->',
+        '</div> <!-- /.col -->'
+      ],
+      output: [
+        '<div class="col">',
+        '    <div class="row">',
+        '        <div class="card">',
+        '',
+        '            <h1>Some heading</h1>',
+        '            <p>Some text for the card.</p>',
+        '            <img src="some/image.jpg" alt="">',
+        '',
+        '        </div> <!-- /.card -->',
+        '    </div>',
+        '    <!-- /.row -->',
+        '</div> <!-- /.col -->'
+      ]
+    }, ]
+  }, {
+    name: "Regression Tests",
+    description: "Regression Tests",
+    options: [],
+    tests: [{
+        comment: '#1202',
+        fragment: true,
+        unchanged: '<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>'
+      },
+      { fragment: true, unchanged: '<a ">9</a">' },
+      { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
+      { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
+    ]
+  }, {
+    name: "Php formatting",
+    description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
+    options: [],
+    tests: [{
+      fragment: true,
+      input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
+      output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>',
+    }, {
+      fragment: true,
+      unchanged: [
+        '<?php',
+        'for($i = 1; $i <= 100; $i++;) {',
+        '    #count to 100!',
+        '    echo($i . "</br>");',
+        '}',
+        '?>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: [
+        '<?php ?>',
+        '<!DOCTYPE html>',
+        '',
+        '<html>',
+        '',
+        '<head></head>',
+        '',
+        '<body></body>',
+        '',
+        '</html>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: [
+        '<?= "A" ?>',
+        '<?= "B" ?>',
+        '<?= "C" ?>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: [
+        '<?php',
+        'echo "A";',
+        '?>',
+        '<span>Test</span>'
+      ]
+    }]
+  }, {
+    name: "Support simple language specific option inheritance/overriding",
+    description: "Support simple language specific option inheritance/overriding",
+    matrix: [{
+        options: [
+          { name: "js", value: "{ 'indent_size': 3 }" },
+          { name: "css", value: "{ 'indent_size': 5 }" }
+        ],
+        h: '    ',
+        c: '     ',
+        j: '   '
+      },
+      {
+        options: [
+          { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }" }
+        ],
+        h: '    ',
+        c: '     ',
+        j: '   '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "html", value: "{ 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '  ',
+        c: '     ',
+        j: '   '
+      }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<head>',
+        '{{h}}<script>',
+        '{{h}}{{h}}if (a == b) {',
+        '{{h}}{{h}}{{j}}test();',
+        '{{h}}{{h}}}',
+        '{{h}}</script>',
+        '{{h}}<style>',
+        '{{h}}{{h}}.selector {',
+        '{{h}}{{h}}{{c}}font-size: 12px;',
+        '{{h}}{{h}}}',
+        '{{h}}</style>',
+        '</head>',
+      ]
+    }, ]
+  }, {
+    name: "underscore.js  formatting",
+    description: "underscore.js templates (<% ... %>) treated as comments.",
+    options: [],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<div class="col-sm-9">',
+        '    <textarea id="notes" class="form-control" rows="3">',
+        '        <%= notes %>',
+        '    </textarea>',
+        '</div>'
+      ]
+    }, ]
+  }, {
+    name: "Linewrap length",
+    description: "",
+    options: [{ name: "wrap_line_length", value: "80" }],
+    tests: [{
+      comment: "This test shows how line wrapping is still not correct.",
+      fragment: true,
+      input: [
+        '<body>',
+        '    <div>',
+        '        <div>',
+        '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>',
+        '        </div>',
+        '    </div>',
+        '</body>'
+      ],
+      output: [
+        '<body>',
+        '    <div>',
+        '        <div>',
+        '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>',
+        '                series</p>',
+        '        </div>',
+        '    </div>',
+        '</body>'
+      ]
+    }, {
+      fragment: true,
+      comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+      input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+      output: [
+        '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015',
+        '    0016 0017 0018 0019 0020</span>'
+      ]
+    }]
+  }, {
+    name: "Indent with tabs",
+    description: "Use one tab instead of several spaces for indentation",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_with_tabs", value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>\n' +
+        '<div>\n' +
+        '</div>\n' +
+        '</div>',
+      output: '<div>\n' +
+        '\t<div>\n' +
+        '\t</div>\n' +
+        '</div>'
+    }]
+  }, {
+    name: "Indent without tabs",
+    description: "Use several spaces for indentation",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_with_tabs", value: "false" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>\n' +
+        '<div>\n' +
+        '</div>\n' +
+        '</div>',
+      output: '<div>\n' +
+        '    <div>\n' +
+        '    </div>\n' +
+        '</div>'
+    }]
+  }, {
+    name: "Indent body inner html by default",
+    description: "",
+    tests: [{
+      fragment: true,
+      input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+      output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+    }]
+  }, {
+    name: "indent_body_inner_html set to false prevents indent of body inner html",
+    description: "",
+    options: [
+      { name: 'indent_body_inner_html', value: "false" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<html>\n<body>\n<div></div>\n</body>\n\n</html>'
+    }]
+  }, {
+    name: "Indent head inner html by default",
+    description: "",
+    tests: [{
+      fragment: true,
+      input: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>',
+      output: '<html>\n\n<head>\n    <meta>\n</head>\n\n</html>'
+    }]
+  }, {
+    name: "indent_head_inner_html set to false prevents indent of head inner html",
+    description: "",
+    options: [
+      { name: 'indent_head_inner_html', value: "false" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<html>\n\n<head>\n<meta>\n</head>\n\n</html>'
+    }]
+  }, {
+    name: "Inline tags formatting",
+    description: "",
+    template: "^^^ $$$",
+    tests: [{
+      fragment: true,
+      unchanged: '<div><span></span></div><span><div></div></span>'
+    }, {
+      fragment: true,
+      input: '<div><div><span><span>Nested spans</span></span></div></div>',
+      output: [
+        '<div>',
+        '    <div><span><span>Nested spans</span></span></div>',
+        '</div>'
+      ]
+    }, {
+      fragment: true,
+      input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
+      output: [
+        '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: '<div><span>All</span> on <span>one</span> line</div>'
+    }, {
+      fragment: true,
+      unchanged: '<span class="{{class_name}}">{{content}}</span>'
+    }, {
+      fragment: true,
+      unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
+    }]
+  }, {
+    name: "unformatted to prevent formatting changes",
+    description: "",
+    options: [
+      { name: 'unformatted', value: "['u']" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
+    }, {
+      fragment: true,
+      unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
+    }, {
+      fragment: true,
+      unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
+    }, {
+      fragment: true,
+      unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
+    }, {
+      fragment: true,
+      unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
+    }]
+  }, {
+    name: "content_unformatted to prevent formatting content",
+    description: "",
+    options: [
+      { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
+    ],
+    tests: [{
+      fragment: true,
+      input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+      output: [
+        '<html>',
+        '<body>',
+        '    <h1>A</h1>',
+        '    <script>if(1){f();}</script>',
+        '    <style>.a{display:none;}</style>',
+        '</body>',
+        '',
+        '</html>'
+      ]
+    }, {
+      fragment: true,
+      input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
+      output: [
+        '<div>',
+        '    <p>Beautify me</p>',
+        '</div>',
+        '<p><div>But not me</div></p>'
+      ]
+    }, {
+      fragment: true,
+      input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
+      output: [
+        '<div>',
+        '    <p class="beauty-me">Beautify me</p>',
+        '</div>',
+        '<p><div',
+        '  class="iamalreadybeauty"',
+        '>But not me</div></p>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: '<div><span>blabla<div>something here</div></span></div>'
+    }, {
+      fragment: true,
+      unchanged: '<div><br /></div>'
+    }, {
+      fragment: true,
+      input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+      output: [
+        '<div>',
+        '    <pre>var a=1; var b=a;</pre>',
+        '</div>'
+      ]
+    }, {
+      fragment: true,
+      input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+      output: [
+        '<div>',
+        '    <pre>',
+        '        var a=1; var b=a;',
+        '    </pre>',
+        '</div>'
+      ]
+    }]
+  }, {
+    name: "default content_unformatted and inline element test",
+    description: "",
+    options: [],
+    tests: [{
+      fragment: true,
+      input: '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
+      output: [
+        '<html>',
+        '<body>',
+        '    <h1>A</h1>',
+        '    <script>',
+        '        if (1) {',
+        '            f();',
+        '        }',
+        '    </script>',
+        '    <style>',
+        '        .a {',
+        '            display: none;',
+        '        }',
+        '    </style>',
+        '</body>',
+        '',
+        '</html>'
+      ]
+    }, {
+      fragment: true,
+      input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
+      output: [
+        '<div>',
+        '    <p>Beautify me</p>',
+        '</div>',
+        '<p>',
+        '    <p>But not me</p>',
+        '</p>',
+      ]
+    }, {
+      fragment: true,
+      input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
+      output: [
+        '<div>',
+        '    <p class="beauty-me">Beautify me</p>',
+        '</div>',
+        '<p>',
+        '    <p class="iamalreadybeauty">But not me</p>',
+        '</p>'
+      ]
+    }, {
+      fragment: true,
+      unchanged: '<div><span>blabla<div>something here</div></span></div>'
+    }, {
+      fragment: true,
+      unchanged: '<div><br /></div>'
+    }, {
+      fragment: true,
+      input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+      output: [
+        '<div>',
+        '    <pre>var a=1;',
+        'var b=a;</pre>',
+        '</div>'
+      ]
+    }, {
+      fragment: true,
+      input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
+      output: [
+        '<div>',
+        '    <pre>',
+        'var a=1;',
+        'var b=a;',
+        '</pre>',
+        '</div>'
+      ]
+    }, {
+      comment: "Test for #1041",
+      fragment: true,
+      input: [
+        '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+        '',
+        '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>',
+        '<p class="foo"><span class="bar">bar</span></p>'
+      ],
+      output: [
+        '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+        '',
+        '<aside>',
+        '    <p class="foo">foo <span class="bar">bar</span></p>',
+        '</aside>',
+        '<p class="foo"><span class="bar">bar</span></p>'
+      ]
+    }, {
+      comment: "Test for #1167",
+      fragment: true,
+      unchanged: [
+        '<span>',
+        '    <span><img src="images/off.svg" alt=""></span>',
+        '    <span><img src="images/on.svg" alt=""></span>',
+        '</span>'
+      ]
+    }, {
+      comment: "Test for #882",
+      fragment: true,
+      input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
+      output: [
+        '<tr>',
+        '    <th>',
+        '        <h3>Name</h3>',
+        '    </th>',
+        '    <td class="full-width"></td>',
+        '</tr>'
+      ]
+    }, {
+      comment: "Test for #1184",
+      fragment: true,
+      input: '<div><div></div>Connect</div>',
+      output: [
+        '<div>',
+        '    <div></div>Connect',
+        '</div>'
+      ]
+    }]
+  }, {
+    name: "New Test Suite"
+  }],
 };
