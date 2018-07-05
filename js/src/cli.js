@@ -41,9 +41,11 @@ var fs = require('fs'),
     beautify = require('../index'),
     mkdirp = require('mkdirp'),
     nopt = require('nopt');
-nopt.invalidHandler = function(key, val, types) {
+
+nopt.invalidHandler = function(key, val) {
     throw new Error(key + " was invalid with value \"" + val + "\"");
-}
+};
+
 nopt.typeDefs.brace_style = {
     type: "brace_style",
     validate: function(data, key, val) {
