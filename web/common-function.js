@@ -1,9 +1,27 @@
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
-  debug: window.location.href.match(/debug/),
+  beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
+  beautifier: null,
   beautify_in_progress: false,
   editor: null // codemirror editor
 };
+
+requirejs.config({
+  //By default load any module IDs from js/lib
+  baseUrl: 'js/lib',
+  paths: {
+    'beautifier': the.beautifier_file,
+  }
+});
+
+requirejs(['beautifier'],
+  function(beautifier) {
+    the.beautifier = beautifier;
+  });
+
+function any(a, b) {
+  return a || b;
+}
 
 function run_tests() {
   $.when($.getScript("js/test/sanitytest.js"),
@@ -12,9 +30,9 @@ function run_tests() {
       $.getScript("js/test/generated/beautify-html-tests.js"))
     .done(function() {
       var st = new SanityTest();
-      run_javascript_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
-      run_css_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
-      run_html_tests(st, Urlencoded, js_beautify, html_beautify, css_beautify);
+      run_javascript_tests(st, Urlencoded, the.beautifier.js, the.beautifier.html, the.beautifier.css);
+      run_css_tests(st, Urlencoded, the.beautifier.js, the.beautifier.html, the.beautifier.css);
+      run_html_tests(st, Urlencoded, the.beautifier.js, the.beautifier.html, the.beautifier.css);
       JavascriptObfuscator.run_tests(st);
       P_A_C_K_E_R.run_tests(st);
       Urlencoded.run_tests(st);
@@ -30,52 +48,48 @@ function run_tests() {
     });
 }
 
-function any(a, b) {
-  return a || b;
-}
-
 function read_settings_from_cookie() {
-  $('#tabsize').val(any($.cookie('tabsize'), '4'));
-  $('#brace-style').val(any($.cookie('brace-style'), 'collapse'));
-  $('#detect-packers').prop('checked', $.cookie('detect-packers') !== 'off');
-  $('#max-preserve-newlines').val(any($.cookie('max-preserve-newlines'), '5'));
-  $('#keep-array-indentation').prop('checked', $.cookie('keep-array-indentation') === 'on');
-  $('#break-chained-methods').prop('checked', $.cookie('break-chained-methods') === 'on');
-  $('#indent-scripts').val(any($.cookie('indent-scripts'), 'normal'));
-  $('#additional-options').val(any($.cookie('additional-options'), '{}'));
-  $('#space-before-conditional').prop('checked', $.cookie('space-before-conditional') !== 'off');
-  $('#wrap-line-length').val(any($.cookie('wrap-line-length'), '0'));
-  $('#unescape-strings').prop('checked', $.cookie('unescape-strings') === 'on');
-  $('#jslint-happy').prop('checked', $.cookie('jslint-happy') === 'on');
-  $('#end-with-newline').prop('checked', $.cookie('end-with-newline') === 'on');
-  $('#indent-inner-html').prop('checked', $.cookie('indent-inner-html') === 'on');
-  $('#comma-first').prop('checked', $.cookie('comma-first') === 'on');
-  $('#e4x').prop('checked', $.cookie('e4x') === 'on');
-  $('#language').val(any($.cookie('language'), 'auto'));
+  $('#tabsize').val(any(Cookies.get('tabsize'), '4'));
+  $('#brace-style').val(any(Cookies.get('brace-style'), 'collapse'));
+  $('#detect-packers').prop('checked', Cookies.get('detect-packers') !== 'off');
+  $('#max-preserve-newlines').val(any(Cookies.get('max-preserve-newlines'), '5'));
+  $('#keep-array-indentation').prop('checked', Cookies.get('keep-array-indentation') === 'on');
+  $('#break-chained-methods').prop('checked', Cookies.get('break-chained-methods') === 'on');
+  $('#indent-scripts').val(any(Cookies.get('indent-scripts'), 'normal'));
+  $('#additional-options').val(any(Cookies.get('additional-options'), '{}'));
+  $('#space-before-conditional').prop('checked', Cookies.get('space-before-conditional') !== 'off');
+  $('#wrap-line-length').val(any(Cookies.get('wrap-line-length'), '0'));
+  $('#unescape-strings').prop('checked', Cookies.get('unescape-strings') === 'on');
+  $('#jslint-happy').prop('checked', Cookies.get('jslint-happy') === 'on');
+  $('#end-with-newline').prop('checked', Cookies.get('end-with-newline') === 'on');
+  $('#indent-inner-html').prop('checked', Cookies.get('indent-inner-html') === 'on');
+  $('#comma-first').prop('checked', Cookies.get('comma-first') === 'on');
+  $('#e4x').prop('checked', Cookies.get('e4x') === 'on');
+  $('#language').val(any(Cookies.get('language'), 'auto'));
 }
 
 function store_settings_to_cookie() {
   var opts = {
     expires: 360
   };
-  $.cookie('tabsize', $('#tabsize').val(), opts);
-  $.cookie('brace-style', $('#brace-style').val(), opts);
-  $.cookie('detect-packers', $('#detect-packers').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('max-preserve-newlines', $('#max-preserve-newlines').val(), opts);
-  $.cookie('keep-array-indentation', $('#keep-array-indentation').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('break-chained-methods', $('#break-chained-methods').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off',
+  Cookies.set('tabsize', $('#tabsize').val(), opts);
+  Cookies.set('brace-style', $('#brace-style').val(), opts);
+  Cookies.set('detect-packers', $('#detect-packers').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('max-preserve-newlines', $('#max-preserve-newlines').val(), opts);
+  Cookies.set('keep-array-indentation', $('#keep-array-indentation').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('break-chained-methods', $('#break-chained-methods').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('space-before-conditional', $('#space-before-conditional').prop('checked') ? 'on' : 'off',
     opts);
-  $.cookie('unescape-strings', $('#unescape-strings').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('jslint-happy', $('#jslint-happy').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('end-with-newline', $('#end-with-newline').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('wrap-line-length', $('#wrap-line-length').val(), opts);
-  $.cookie('indent-scripts', $('#indent-scripts').val(), opts);
-  $.cookie('additional-options', $('#additional-options').val(), opts);
-  $.cookie('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('e4x', $('#e4x').prop('checked') ? 'on' : 'off', opts);
-  $.cookie('language', $('#language').val(), opts);
+  Cookies.set('unescape-strings', $('#unescape-strings').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('jslint-happy', $('#jslint-happy').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('end-with-newline', $('#end-with-newline').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('wrap-line-length', $('#wrap-line-length').val(), opts);
+  Cookies.set('indent-scripts', $('#indent-scripts').val(), opts);
+  Cookies.set('additional-options', $('#additional-options').val(), opts);
+  Cookies.set('indent-inner-html', $('#indent-inner-html').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('comma-first', $('#comma-first').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('e4x', $('#e4x').prop('checked') ? 'on' : 'off', opts);
+  Cookies.set('language', $('#language').val(), opts);
 
 }
 
@@ -165,14 +179,14 @@ function beautify() {
   $('#options-selected').val(selectedOptions);
 
   if (language === 'html' || (language === 'auto' && looks_like_html(source))) {
-    output = html_beautify(source, opts);
+    output = the.beautifier.html(source, opts);
   } else if (language === 'css') {
-    output = css_beautify(source, opts);
+    output = the.beautifier.css(source, opts);
   } else {
     if ($('#detect-packers').prop('checked')) {
       source = unpacker_filter(source);
     }
-    output = js_beautify(source, opts);
+    output = the.beautifier.js(source, opts);
   }
 
   if (the.editor) {
