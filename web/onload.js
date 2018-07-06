@@ -2,7 +2,7 @@ $(function () {
 
   read_settings_from_cookie();
 
-  $.getJSON( "./package.json", function(data) {
+  $.getJSON("./package.json", function(data) {
     $('#version-number').text('(v' + data.version + ')');
   });
 

@@ -16,6 +16,7 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * If working in the JavaScript implementation:
   * Run `./build js`
   * Run `./build static` to see changes served locally at `http://localhost:8080`
+  * To load a debug (human readable) version of the beautifier, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
   * Run `./build py`
 * Add tests to `/test/data/*/test.js`.
