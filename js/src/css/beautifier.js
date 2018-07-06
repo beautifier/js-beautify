@@ -253,6 +253,7 @@ function Beautifier(source_text, options) {
         var insideRule = false;
         var insidePropertyValue = false;
         var enteringConditionalGroup = false;
+        var insideAtExtend = false;
         var top_ch = '';
         var last_top_ch = '';
 
@@ -309,6 +310,10 @@ function Beautifier(source_text, options) {
                     }
 
                     variableOrRule = variableOrRule.replace(/\s$/, '');
+
+                    if (variableOrRule === 'extend') {
+                        insideAtExtend = true;
+                    }
 
                     // might be a nesting at-rule
                     if (variableOrRule in this.NESTED_AT_RULE) {
@@ -370,7 +375,7 @@ function Beautifier(source_text, options) {
                 eatWhitespace();
                 if ((insideRule || enteringConditionalGroup) &&
                     !(lookBack("&") || foundNestedPseudoClass()) &&
-                    !lookBack("(")) {
+                    !lookBack("(") && !insideAtExtend) {
                     // 'property: value' delimiter
                     // which could be in a conditional group query
                     print_string(':');
@@ -400,6 +405,7 @@ function Beautifier(source_text, options) {
                 print_string(eatString(ch));
             } else if (ch === ';') {
                 insidePropertyValue = false;
+                insideAtExtend = false;
                 print_string(ch);
                 eatWhitespace(true);
 

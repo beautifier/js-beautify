@@ -330,6 +330,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -340,6 +341,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -350,6 +352,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n        '
         }, {
             options: [
@@ -361,6 +364,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n'
         }, {
             options: [
@@ -372,6 +376,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -382,6 +387,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: ' '
         }, {
             options: [
@@ -392,6 +398,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -403,7 +410,30 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
             indent_over80: '\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'aligned-multiple'" },
+                { name: "wrap_line_length", value: "80" }
+            ],
+            indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_attr_aligned: ' ',
+            indent_end_selfclosing: ' ',
+            indent_content80: '\n    ',
+            indent_over80: '\n     '
+        }, {
+            options: [
+                { name: "wrap_attributes", value: "'aligned-multiple'" },
+            ],
+            indent_attr: ' ',
+            indent_attr_first: ' ',
+            indent_end: '',
+            indent_end_selfclosing: ' ',
+            indent_content80: ' ',
+            indent_over80: ' '
         }, {
             options: [
                 { name: "wrap_attributes", value: "'force-aligned'" },
@@ -414,6 +444,7 @@ exports.test_data = {
             indent_attr_first: ' ',
             indent_end: '',
             indent_end_selfclosing: ' ',
+            indent_content80: ' ',
             indent_over80: '\n     '
         }, {
             options: [
@@ -424,6 +455,7 @@ exports.test_data = {
             indent_attr_first: '\n    ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: ' ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -435,6 +467,7 @@ exports.test_data = {
             indent_attr_first: '\n    ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: '\n    ',
             indent_over80: '\n    '
         }, {
             options: [
@@ -445,12 +478,18 @@ exports.test_data = {
             indent_attr_first: '\n        ',
             indent_end: '\n',
             indent_end_selfclosing: '\n',
+            indent_content80: ' ',
             indent_over80: '\n        '
         }],
         tests: [{
             fragment: true,
             input: '<div  >This is some text</div>',
             output: '<div>This is some text</div>'
+        }, {
+            fragment: true,
+            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
         }, {
             fragment: true,
             input: '<div attr="123"  >This is some text</div>',
@@ -474,7 +513,7 @@ exports.test_data = {
         }, {
             fragment: true,
             input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+            output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
         }]
     }, {
         name: "Handlebars Indenting Off",
@@ -794,6 +833,41 @@ exports.test_data = {
             ]
         }, ]
     }, {
+        name: "Single line comment after closing tag",
+        description: "Keep single line comments as they are after closing tags",
+        options: [],
+        tests: [{
+            fragment: true,
+            input: [
+                '<div class="col">',
+                '    <div class="row">',
+                '        <div class="card">',
+                '',
+                '            <h1>Some heading</h1>',
+                '            <p>Some text for the card.</p>',
+                '            <img src="some/image.jpg" alt="">',
+                '',
+                '            </div>    <!-- /.card -->',
+                '    </div>',
+                '            <!-- /.row -->',
+                '</div> <!-- /.col -->'
+            ],
+            output: [
+                '<div class="col">',
+                '    <div class="row">',
+                '        <div class="card">',
+                '',
+                '            <h1>Some heading</h1>',
+                '            <p>Some text for the card.</p>',
+                '            <img src="some/image.jpg" alt="">',
+                '',
+                '        </div> <!-- /.card -->',
+                '    </div>',
+                '    <!-- /.row -->',
+                '</div> <!-- /.col -->'
+            ]
+        }, ]
+    }, {
         name: "Regression Tests",
         description: "Regression Tests",
         options: [],
@@ -917,6 +991,41 @@ exports.test_data = {
                 '</div>'
             ]
         }, ]
+    }, {
+        name: "Linewrap length",
+        description: "",
+        options: [{ name: "wrap_line_length", value: "80" }],
+        tests: [{
+            comment: "This test shows how line wrapping is still not correct.",
+            fragment: true,
+            input: [
+                '<body>',
+                '    <div>',
+                '        <div>',
+                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>',
+                '        </div>',
+                '    </div>',
+                '</body>'
+            ],
+            output: [
+                '<body>',
+                '    <div>',
+                '        <div>',
+                '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>',
+                '                series</p>',
+                '        </div>',
+                '    </div>',
+                '</body>'
+            ]
+        }, {
+            fragment: true,
+            comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
+            input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            output: [
+                '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015',
+                '    0016 0017 0018 0019 0020</span>'
+            ]
+        }]
     }, {
         name: "Indent with tabs",
         description: "Use one tab instead of several spaces for indentation",
@@ -1107,7 +1216,7 @@ exports.test_data = {
             ]
         }]
     }, {
-        name: "default content_unformatted",
+        name: "default content_unformatted and inline element test",
         description: "",
         options: [],
         tests: [{
@@ -1177,6 +1286,53 @@ exports.test_data = {
                 'var a=1;',
                 'var b=a;',
                 '</pre>',
+                '</div>'
+            ]
+        }, {
+            comment: "Test for #1041",
+            fragment: true,
+            input: [
+                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+                '',
+                '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>',
+                '<p class="foo"><span class="bar">bar</span></p>'
+            ],
+            output: [
+                '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
+                '',
+                '<aside>',
+                '    <p class="foo">foo <span class="bar">bar</span></p>',
+                '</aside>',
+                '<p class="foo"><span class="bar">bar</span></p>'
+            ]
+        }, {
+            comment: "Test for #1167",
+            fragment: true,
+            unchanged: [
+                '<span>',
+                '    <span><img src="images/off.svg" alt=""></span>',
+                '    <span><img src="images/on.svg" alt=""></span>',
+                '</span>'
+            ]
+        }, {
+            comment: "Test for #882",
+            fragment: true,
+            input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
+            output: [
+                '<tr>',
+                '    <th>',
+                '        <h3>Name</h3>',
+                '    </th>',
+                '    <td class="full-width"></td>',
+                '</tr>'
+            ]
+        }, {
+            comment: "Test for #1184",
+            fragment: true,
+            input: '<div><div></div>Connect</div>',
+            output: [
+                '<div>',
+                '    <div></div>Connect',
                 '</div>'
             ]
         }]

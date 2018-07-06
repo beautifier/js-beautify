@@ -69,6 +69,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         is_wrap_attributes_force,
         is_wrap_attributes_force_expand_multiline,
         is_wrap_attributes_force_aligned,
+        is_wrap_attributes_aligned_multiple,
         end_with_newline,
         extra_liners,
         eol;
@@ -115,6 +116,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     is_wrap_attributes_force = wrap_attributes.substr(0, 'force'.length) === 'force';
     is_wrap_attributes_force_expand_multiline = (wrap_attributes === 'force-expand-multiline');
     is_wrap_attributes_force_aligned = (wrap_attributes === 'force-aligned');
+    is_wrap_attributes_aligned_multiple = (wrap_attributes === 'aligned-multiple');
     end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
     extra_liners = (typeof options.extra_liners === 'object') && options.extra_liners ?
         options.extra_liners.concat() : (typeof options.extra_liners === 'string') ?
@@ -451,9 +453,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                     if (indentAttrs) {
                         has_wrapped_attrs = true;
 
-                        //indent attributes an auto, forced, or forced-align line-wrap
+                        //indent attributes an auto, forced, aligned or forced-align line-wrap
                         var alignment_size = wrap_attributes_indent_size;
-                        if (is_wrap_attributes_force_aligned) {
+                        if (is_wrap_attributes_force_aligned || is_wrap_attributes_aligned_multiple) {
                             alignment_size = content.indexOf(' ') + 1;
                         }
 
@@ -930,7 +932,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
                 case 'TK_TAG_SINGLE':
                     // Don't add a newline before elements that should remain unformatted.
                     var tag_check = token.text.match(/^\s*<([a-z-]+)/i);
-                    if (!tag_check ||
+                    if (token.tag_name === '!--' && multi_parser.last_token.is_closing_tag && token.text.indexOf('\n') === -1) {
+                        //Do nothing. Leave comments on same line.
+                    } else if (!tag_check ||
                         !multi_parser.Utils.in_array(tag_check[1], inline_tags) &&
                         !multi_parser.Utils.in_array(tag_check[1], unformatted)
                     ) {

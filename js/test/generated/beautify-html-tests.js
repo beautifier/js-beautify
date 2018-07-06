@@ -408,10 +408,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
+        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force';
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -446,11 +449,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    rel="stylesheet"\n' +
             '    type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
+        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = "\n    ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force';
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -485,11 +495,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    rel="stylesheet"\n' +
             '    type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n        ")
+        // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = "\n        ")
         reset_options();
         opts.wrap_attributes = 'force';
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -524,12 +537,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        rel="stylesheet"\n' +
             '        type="text/css">');
 
-        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n")
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = "\n    ", indent_over80 = "\n")
         reset_options();
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 80;
         opts.wrap_attributes_indent_size = 0;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
@@ -549,12 +569,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
             'rel="stylesheet" type="text/css">');
 
-        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n    ")
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = "\n    ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 80;
         opts.wrap_attributes_indent_size = 4;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
@@ -574,11 +601,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
             '    rel="stylesheet" type="text/css">');
 
-        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = " ")
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = " ")
         reset_options();
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 0;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
@@ -590,10 +620,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<root attr1="foo" attr2="bar" />');
         test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
+        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = "\n     ")
         reset_options();
         opts.wrap_attributes = 'force-aligned';
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -628,11 +661,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '      rel="stylesheet"\n' +
             '      type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
+        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = "\n    ", indent_over80 = "\n     ")
         reset_options();
         opts.wrap_attributes = 'force-aligned';
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -667,11 +707,63 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '      rel="stylesheet"\n' +
             '      type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_over80 = "\n     ")
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_attr_aligned = " ", indent_end_selfclosing = " ", indent_content80 = "\n    ", indent_over80 = "\n     ")
+        reset_options();
+        opts.wrap_attributes = 'aligned-multiple';
+        opts.wrap_line_length = 80;
+        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1="foo" attr2="bar" />');
+        test_fragment(
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+            //  -- output --
+            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '      rel="stylesheet" type="text/css">');
+
+        // Attribute Wrap - (indent_attr = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = " ")
+        reset_options();
+        opts.wrap_attributes = 'aligned-multiple';
+        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1="foo" attr2="bar" />');
+        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
+
+        // Attribute Wrap - (indent_attr = "\n     ", indent_attr_faligned = " ", indent_attr_first = " ", indent_end = "", indent_end_selfclosing = " ", indent_content80 = " ", indent_over80 = "\n     ")
         reset_options();
         opts.wrap_attributes = 'force-aligned';
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -706,11 +798,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '      rel="stylesheet"\n' +
             '      type="text/css">');
 
-        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n    ")
+        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_content80 = " ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 4;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -755,12 +850,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    type="text/css"\n' +
             '>');
 
-        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n    ")
+        // Attribute Wrap - (indent_attr = "\n    ", indent_attr_first = "\n    ", indent_end = "\n", indent_end_selfclosing = "\n", indent_content80 = "\n    ", indent_over80 = "\n    ")
         reset_options();
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 4;
         opts.wrap_line_length = 80;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -805,11 +907,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    type="text/css"\n' +
             '>');
 
-        // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = "\n        ", indent_end = "\n", indent_end_selfclosing = "\n", indent_over80 = "\n        ")
+        // Attribute Wrap - (indent_attr = "\n        ", indent_attr_first = "\n        ", indent_end = "\n", indent_end_selfclosing = "\n", indent_content80 = " ", indent_over80 = "\n        ")
         reset_options();
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 8;
         test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -2647,6 +2752,37 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Single line comment after closing tag
+        reset_options();
+        test_fragment(
+            '<div class="col">\n' +
+            '    <div class="row">\n' +
+            '        <div class="card">\n' +
+            '\n' +
+            '            <h1>Some heading</h1>\n' +
+            '            <p>Some text for the card.</p>\n' +
+            '            <img src="some/image.jpg" alt="">\n' +
+            '\n' +
+            '            </div>    <!-- /.card -->\n' +
+            '    </div>\n' +
+            '            <!-- /.row -->\n' +
+            '</div> <!-- /.col -->',
+            //  -- output --
+            '<div class="col">\n' +
+            '    <div class="row">\n' +
+            '        <div class="card">\n' +
+            '\n' +
+            '            <h1>Some heading</h1>\n' +
+            '            <p>Some text for the card.</p>\n' +
+            '            <img src="some/image.jpg" alt="">\n' +
+            '\n' +
+            '        </div> <!-- /.card -->\n' +
+            '    </div>\n' +
+            '    <!-- /.row -->\n' +
+            '</div> <!-- /.col -->');
+
+
+        //============================================================
         // Regression Tests
         reset_options();
         
@@ -2761,6 +2897,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <%= notes %>\n' +
             '    </textarea>\n' +
             '</div>');
+
+
+        //============================================================
+        // Linewrap length
+        reset_options();
+        opts.wrap_line_length = 80;
+        
+        // This test shows how line wrapping is still not correct.
+        test_fragment(
+            '<body>\n' +
+            '    <div>\n' +
+            '        <div>\n' +
+            '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a> series</p>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</body>',
+            //  -- output --
+            '<body>\n' +
+            '    <div>\n' +
+            '        <div>\n' +
+            '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>\n' +
+            '                series</p>\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '</body>');
+        
+        // This test shows how line wrapping is still not correct. Should wrap before 0015.
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
 
 
         //============================================================
@@ -2965,7 +3133,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // default content_unformatted
+        // default content_unformatted and inline element test
         reset_options();
         test_fragment(
             '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
@@ -3029,6 +3197,46 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'var a=1;\n' +
             'var b=a;\n' +
             '</pre>\n' +
+            '</div>');
+        
+        // Test for #1041
+        test_fragment(
+            '<p><span class="foo">foo <span class="bar">bar</span></span></p>\n' +
+            '\n' +
+            '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>\n' +
+            '<p class="foo"><span class="bar">bar</span></p>',
+            //  -- output --
+            '<p><span class="foo">foo <span class="bar">bar</span></span></p>\n' +
+            '\n' +
+            '<aside>\n' +
+            '    <p class="foo">foo <span class="bar">bar</span></p>\n' +
+            '</aside>\n' +
+            '<p class="foo"><span class="bar">bar</span></p>');
+        
+        // Test for #1167
+        test_fragment(
+            '<span>\n' +
+            '    <span><img src="images/off.svg" alt=""></span>\n' +
+            '    <span><img src="images/on.svg" alt=""></span>\n' +
+            '</span>');
+        
+        // Test for #882
+        test_fragment(
+            '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
+            //  -- output --
+            '<tr>\n' +
+            '    <th>\n' +
+            '        <h3>Name</h3>\n' +
+            '    </th>\n' +
+            '    <td class="full-width"></td>\n' +
+            '</tr>');
+        
+        // Test for #1184
+        test_fragment(
+            '<div><div></div>Connect</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <div></div>Connect\n' +
             '</div>');
 
 

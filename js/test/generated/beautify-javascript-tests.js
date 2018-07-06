@@ -1769,6 +1769,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    })();\n' +
             '}');
         
+        // Regression test #1228
+        bt('const module = await import("...")');
+        
         // ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})');
         
@@ -4899,6 +4902,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    */\n' +
             '}');
         bt('return ++i');
+        bt(
+            'obj.num++\n' +
+            'foo()\n' +
+            'bar()\n' +
+            '\n' +
+            'obj.num--\n' +
+            'foo()\n' +
+            'bar()');
         bt('return !!x');
         bt('return !x');
         bt('return [1,2]', 'return [1, 2]');
