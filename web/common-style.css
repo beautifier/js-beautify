@@ -66,6 +66,10 @@ table#options td {
   margin: 0 6px 6px 0;
 }
 
+#version-number {
+  font-size: .5em;
+}
+
 .uses li {
   padding-top: 3px;
   line-height: 150%;
