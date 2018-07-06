@@ -482,6 +482,23 @@ exports.test_data = {
           output: '.demoa1 {<o>\ttext-align: left; //demoa1 instructions for LESS note visibility only<o>}<new_rule>.demob {<o>\ttext-align: right;<o>}'
         },
         {
+          comment: "#1440",
+          input: [
+            '#search-text {',
+            '  width: 43%;',
+            '  // height: 100%;',
+            '  border: none;',
+            '}'
+          ],
+          output: [
+            '#search-text {',
+            '\twidth: 43%;',
+            '\t// height: 100%;',
+            '\tborder: none;',
+            '}'
+          ]
+        },
+        {
           input: '.demoa2 {<i>text-align:left;<i>}<i>//demob instructions for LESS note visibility only<i1>.demob {<i>text-align: right}',
           output: '.demoa2 {<o>\ttext-align: left;<o>}<new_rule>//demob instructions for LESS note visibility only<o>.demob {<o>\ttext-align: right\n}'
         },
