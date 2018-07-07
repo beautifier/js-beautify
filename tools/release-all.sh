@@ -10,12 +10,6 @@ case "$OSTYPE" in
     *)       PLATFORM="UNKNOWN" ;;
 esac
 
-generate_changelog()
-{
-    $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify || exit 1
-    git commit -am "Update Changelog for $NEW_VERSION"
-}
-
 release_python()
 {
     git clean -xfd || exit 1
@@ -31,7 +25,7 @@ release_python()
 release_node()
 {
       git clean -xfd || exit 1
-      ../build.sh js || exit 1
+      ./build js || exit 1
       npm version $NEW_VERSION
       unset NPM_TAG
       if [[ $NEW_VERSION =~ .*(rc|beta).* ]]; then
@@ -50,7 +44,7 @@ release_web()
       git fetch || exit 1
       git checkout -B gh-pages origin/gh-pages || exit 1
       git merge origin/master || exit 1
-      ../build.sh js || exit 1
+      ./build js || exit 1
       git add -f js/lib/ || exit 1
       git commit -m "Built files for $NEW_VERSION"
       git push || exit 1
@@ -89,7 +83,6 @@ main()
     git reset --hard
     git clean -xfd
 
-    generate_changelog
     update_readme_versions
     (release_python)
     release_node
