@@ -103,10 +103,13 @@ build_js()
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/html/beautifier.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/beautifier.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/tokenizer.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/index.js || exit 1
 
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/cli.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/index.js || exit 1
 
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-function.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/onload.js || exit 1
 
   $PROJECT_DIR/js/bin/css-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-style.css || exit 1
 
