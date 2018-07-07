@@ -1,5 +1,5 @@
 # Changelog
-## v1.8.0-rc1
+## v1.8.0-rc2
 
 ### Description
 Massive set of fixes and improvements.
