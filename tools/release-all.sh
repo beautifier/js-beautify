@@ -20,10 +20,10 @@ release_python()
 {
     git clean -xfd || exit 1
     echo "__version__ = '$NEW_VERSION'" > python/jsbeautifier/__version__.py
-    git commit -am "Python $NEW_VERSION"
+    git commit -am "Python $NEW_VERSION" || exit 1
     cd python
     # python setup.py register -r pypi
-    python setup.py sdist
+    python setup.py sdist || exit 1
     twine upload dist/*
     git push
 }
@@ -33,7 +33,11 @@ release_node()
       git clean -xfd || exit 1
       ./build.sh js || exit 1
       npm version $NEW_VERSION
-      npm publish .
+      unset NPM_TAG
+      if [[ $NEW_VERSION =~ .*(rc|beta).* ]]; then
+        NPM_TAG='--tag next'
+      fi
+      npm publish . $NPM_TAG
       git push
       git push --tags
 }
@@ -71,6 +75,7 @@ update_readme_versions()
     sedi -E 's/\((README\.md:.js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
     git add README.md
     git commit -m "Bump version numbers in README.md"
+    git push
 }
 
 main()
@@ -81,6 +86,8 @@ main()
     NEW_VERSION=$1
 
     git checkout master
+    git reset --hard
+    git clean -xfd
 
     generate_changelog
     update_readme_versions
