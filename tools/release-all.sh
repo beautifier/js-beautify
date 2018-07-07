@@ -12,10 +12,10 @@ esac
 
 release_python()
 {
-    cd $SCRIPT_DIR/../python
     git clean -xfd || exit 1
     echo "__version__ = '$NEW_VERSION'" > python/jsbeautifier/__version__.py
     git commit -am "Python $NEW_VERSION"
+    cd $SCRIPT_DIR/../python
     # python setup.py register -r pypi
     python setup.py sdist || exit 1
     python -m twine upload dist/* || exit 1
