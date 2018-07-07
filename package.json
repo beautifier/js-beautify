@@ -12,6 +12,13 @@
     "lib": "js/lib",
     "test": "js/test"
   },
+  "files": [
+    "js/bin/",
+    "js/lib/",
+    "js/lib/unpackers/",
+    "js/index.js",
+    "js/src/**/*"
+  ],
   "scripts": {},
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
   "homepage": "http://jsbeautifier.org/",

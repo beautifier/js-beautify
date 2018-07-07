@@ -1159,6 +1159,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -1559,6 +1573,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -2206,6 +2234,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {\n' +
             '\t\t\n' +
@@ -2733,6 +2775,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -3043,6 +3099,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -3589,6 +3659,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -4488,6 +4572,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n' +
             '\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {\n' +
             '\n' +
@@ -5130,6 +5228,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -5542,6 +5654,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -6201,6 +6327,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {\n' +
             '\t\t\n' +
@@ -6740,6 +6880,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}');
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -7062,6 +7216,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -7637,6 +7805,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +
@@ -8485,6 +8667,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}');
+        
+        // #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            //  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}');
         t(
             '.demoa2 {\n' +

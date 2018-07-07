@@ -54,7 +54,11 @@ build_js()
   generate_tests
 
   # generate lib files
-  ./node_modules/.bin/webpack --mode=none
+  ./node_modules/.bin/webpack
+
+  mkdir -p ./js/lib/unpackers
+  cp -r ./js/src/unpackers ./js/lib/
+  cp ./js/src/cli.js ./js/lib/
 
   # Wrap webkit output into an non-breaking form.
   # In an upcoming verion these will be replaced with standard webpack umd
@@ -69,6 +73,9 @@ build_js()
   cat ./tools/template/beautify-html.begin.js > ./js/lib/beautify-html.js
   cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
   cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
+
+  cp ./dist/beautifier.js ./js/lib/
+  cp ./dist/beautifier.min.js ./js/lib/
 
   # jshint
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
@@ -86,19 +93,25 @@ build_js()
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/generate-tests.js  || exit 1
 
   # beautify product code
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/javascriptobfuscator_unpacker.js  || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/myobfuscate_unpacker.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/p_a_c_k_e_r_unpacker.js  || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/urlencode_unpacker.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/unpackers/javascriptobfuscator_unpacker.js  || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/unpackers/myobfuscate_unpacker.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/unpackers/p_a_c_k_e_r_unpacker.js  || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/unpackers/urlencode_unpacker.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/css/index.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/css/beautifier.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/html/index.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/index.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/html/beautifier.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/beautifier.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/tokenizer.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/index.js || exit 1
 
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/cli.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/cli.js || exit 1
   $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/index.js || exit 1
 
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-function.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/onload.js || exit 1
+
+  $PROJECT_DIR/js/bin/css-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-style.css || exit 1
 
   # html not ready yet
   # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
