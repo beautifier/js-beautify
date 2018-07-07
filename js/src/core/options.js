@@ -27,22 +27,22 @@
 */
 
 function mergeOpts(allOptions, targetType) {
-    var finalOpts = {};
-    var name;
+  var finalOpts = {};
+  var name;
 
-    for (name in allOptions) {
-        if (name !== targetType) {
-            finalOpts[name] = allOptions[name];
-        }
+  for (name in allOptions) {
+    if (name !== targetType) {
+      finalOpts[name] = allOptions[name];
     }
+  }
 
-    //merge in the per type settings for the targetType
-    if (targetType in allOptions) {
-        for (name in allOptions[targetType]) {
-            finalOpts[name] = allOptions[targetType][name];
-        }
+  //merge in the per type settings for the targetType
+  if (targetType in allOptions) {
+    for (name in allOptions[targetType]) {
+      finalOpts[name] = allOptions[targetType][name];
     }
-    return finalOpts;
+  }
+  return finalOpts;
 }
 
 module.exports.mergeOpts = mergeOpts;
