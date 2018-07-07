@@ -1,5 +1,5 @@
 # Changelog
-## v1.8.0-rc1
+## v1.8.0-rc2
 
 ### Description
 Massive set of fixes and improvements.
@@ -204,7 +204,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 ## v1.6.4
 
 ### Description
-* Fixed JSX multi-line root element handling 
+* Fixed JSX multi-line root element handling
 * Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
 * Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
 * Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
@@ -371,7 +371,7 @@ Version jump due to release script tweaks
 ### Description
 * JSX support!
 * Alternative Newline Characters
-* CSS and JS comment formatting fixes 
+* CSS and JS comment formatting fixes
 * General bug fixing
 
 
@@ -474,12 +474,12 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 * Do not break "x++ + y"
 * function declaration inside array behaves the same as in expression
 * Close String literals at newline
-* Support handlebar syntax 
+* Support handlebar syntax
 * Check `<script>` "type"-attribute
 * Allow `<style>` and `<script>` tags to be unformatted
 * Port css nesting fix to python
 * Fix python six dependency
-* Initial very cursory support for ES6 module, export, and import 
+* Initial very cursory support for ES6 module, export, and import
 
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
