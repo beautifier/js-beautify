@@ -24,14 +24,14 @@ release_python()
     cd python
     # python setup.py register -r pypi
     python setup.py sdist || exit 1
-    twine upload dist/*
+    python -m twine upload dist/* || exit 1
     git push
 }
 
 release_node()
 {
       git clean -xfd || exit 1
-      ./build.sh js || exit 1
+      ../build.sh js || exit 1
       npm version $NEW_VERSION
       unset NPM_TAG
       if [[ $NEW_VERSION =~ .*(rc|beta).* ]]; then
@@ -50,7 +50,7 @@ release_web()
       git fetch || exit 1
       git checkout -B gh-pages origin/gh-pages || exit 1
       git merge origin/master || exit 1
-      ./build.sh js || exit 1
+      ../build.sh js || exit 1
       git add -f js/lib/ || exit 1
       git commit -m "Built files for $NEW_VERSION"
       git push || exit 1
