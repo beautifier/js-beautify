@@ -31,6 +31,7 @@ release_python()
 release_node()
 {
       git clean -xfd || exit 1
+      ./build.sh js || exit 1
       npm version $NEW_VERSION
       npm publish .
       git push
@@ -46,7 +47,7 @@ release_web()
       git checkout -B gh-pages origin/gh-pages || exit 1
       git merge origin/master || exit 1
       ./build.sh js || exit 1
-      git add --all . || exit 1
+      git add -f js/lib/ || exit 1
       git commit -m "Built files for $NEW_VERSION"
       git push || exit 1
       git checkout $ORIGINAL_BRANCH
