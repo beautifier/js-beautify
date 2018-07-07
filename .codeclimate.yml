@@ -9,7 +9,7 @@ ratings:
  - "**.py"
 exclude_paths:
 - test/resources/**
-- web/third-party/**
+- web/lib/**
 - js/lib/beautify.js
 - js/lib/beautify-css.js
 - js/lib/beautify-html.js

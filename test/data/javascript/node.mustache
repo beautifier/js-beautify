@@ -75,7 +75,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         sanitytest.expect(input, expected);
-        if (input.indexOf('\n') !== -1) {
+        if (input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
@@ -317,6 +317,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        test_fragment(null, '');
+
+        reset_options();
+        //============================================================
         opts.indent_size = 1;
         opts.indent_char = ' ';
         bt('{ one_char() }', "{\n one_char()\n}");
@@ -546,12 +550,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
         bt('createdAt = {\n    type: Date,\n    default: Date.now\n}');
         bt('switch (createdAt) {\n    case a:\n        Date,\n    default:\n        Date.now\n}');
-
-        reset_options();
-        //============================================================
-        opts.space_before_conditional = false;
-        bt('if(a) b()');
-
 
         reset_options();
         //============================================================

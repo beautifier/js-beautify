@@ -27,23 +27,23 @@
 */
 
 function Token(type, text, newlines, whitespace_before, parent) {
-    this.type = type;
-    this.text = text;
+  this.type = type;
+  this.text = text;
 
-    // comments_before are
-    // comments that have a new line before them
-    // and may or may not have a newline after
-    // this is a set of comments before
-    this.comments_before = /* inline comment*/ [];
+  // comments_before are
+  // comments that have a new line before them
+  // and may or may not have a newline after
+  // this is a set of comments before
+  this.comments_before = /* inline comment*/ [];
 
 
-    this.comments_after = []; // no new line before and newline after
-    this.newlines = newlines || 0;
-    this.wanted_newline = newlines > 0;
-    this.whitespace_before = whitespace_before || '';
-    this.parent = parent || null;
-    this.opened = null;
-    this.directives = null;
+  this.comments_after = []; // no new line before and newline after
+  this.newlines = newlines || 0;
+  this.wanted_newline = newlines > 0;
+  this.whitespace_before = whitespace_before || '';
+  this.parent = parent || null;
+  this.opened = null;
+  this.directives = null;
 }
 
 module.exports.Token = Token;

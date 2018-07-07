@@ -25,6 +25,8 @@
 
 class InputScanner:
     def __init__(self, input):
+        if input is None:
+            input = ''
         self.__input = input
         self.__input_length = len(self.__input)
         self.__position = 0

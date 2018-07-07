@@ -1,4 +1,44 @@
 # Changelog
+## v1.8.0-rc2
+
+### Description
+Massive set of fixes and improvements.
+
+Thanks to contributors: @cheerypick, @swan46, @MacKLess, @Elrendio, @madman-bob, @amanda-bot, @Hirse
+
+### Closed Issues
+* Commenting code and then beautifying removes line breaks ([#1440](https://github.com/beautify-web/js-beautify/issues/1440))
+* js-beautify is breaking code by adding space after import ([#1393](https://github.com/beautify-web/js-beautify/issues/1393))
+* python unpacker can not handle if radix given as [] and not as a number ([#1381](https://github.com/beautify-web/js-beautify/issues/1381))
+* unindent_chained_methods breaks indentation for if statements without brackets  ([#1378](https://github.com/beautify-web/js-beautify/issues/1378))
+* Add "Create Issue for Unexpected Output" button to website ([#1371](https://github.com/beautify-web/js-beautify/issues/1371))
+* Add combobox to control type of beautification ([#1370](https://github.com/beautify-web/js-beautify/issues/1370))
+* Add Options textbox to website for debugging ([#1369](https://github.com/beautify-web/js-beautify/issues/1369))
+* Python version fails to properly beautify packed code ([#1367](https://github.com/beautify-web/js-beautify/issues/1367))
+* How to keep comments on their own lines after formating ([#1348](https://github.com/beautify-web/js-beautify/issues/1348))
+* Beautification of Multiline PHP ([#1346](https://github.com/beautify-web/js-beautify/issues/1346))
+* Beautification of PHP with echo short tags ([#1339](https://github.com/beautify-web/js-beautify/issues/1339))
+* URGENT: @extend with :hover, :focus and so on... ([#1331](https://github.com/beautify-web/js-beautify/issues/1331))
+* JSBeautify options for programmatic use? ([#1327](https://github.com/beautify-web/js-beautify/issues/1327))
+* js-beautify: fix handling for --eol and --outfile ([#1315](https://github.com/beautify-web/js-beautify/pull/1315))
+* Note that `gsort` is GNU sort ([#1314](https://github.com/beautify-web/js-beautify/issues/1314))
+* `pip` doesn't use same version as `/usr/bin/env python` ([#1312](https://github.com/beautify-web/js-beautify/issues/1312))
+* Wrap and align html attributes when line reaches wrap-line-length ([#1285](https://github.com/beautify-web/js-beautify/issues/1285))
+* Javascript ++ Operator get wrong indent ([#1283](https://github.com/beautify-web/js-beautify/issues/1283))
+* Create beta channel for releases ([#1255](https://github.com/beautify-web/js-beautify/issues/1255))
+* await import(...) ([#1228](https://github.com/beautify-web/js-beautify/issues/1228))
+* The result of "Format document" is weird of certain HTML content. ([#1223](https://github.com/beautify-web/js-beautify/issues/1223))
+* (next_tag || "").match is not a function ([#1202](https://github.com/beautify-web/js-beautify/issues/1202))
+* `force-expand-multiline` doesn't work as expected ([#1186](https://github.com/beautify-web/js-beautify/issues/1186))
+* HTML text content formatted incorrectly ([#1184](https://github.com/beautify-web/js-beautify/issues/1184))
+* Nested span tags not indenting properly ([#1167](https://github.com/beautify-web/js-beautify/issues/1167))
+* SCSS Comment Issue ([#1165](https://github.com/beautify-web/js-beautify/issues/1165))
+* Less function parameters are wrapped unexpected ([#1156](https://github.com/beautify-web/js-beautify/issues/1156))
+* TypeError: Cannot read property 'replace' of undefined ([#1120](https://github.com/beautify-web/js-beautify/issues/1120))
+* HTML formatting wraps ending block tag for no reason with nested inline elements ([#1041](https://github.com/beautify-web/js-beautify/issues/1041))
+* not correctly joining lines for HTML ([#1033](https://github.com/beautify-web/js-beautify/issues/1033))
+
+
 ## v1.7.5
 
 ### Description
@@ -164,7 +204,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 ## v1.6.4
 
 ### Description
-* Fixed JSX multi-line root element handling 
+* Fixed JSX multi-line root element handling
 * Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
 * Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
 * Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
@@ -331,7 +371,7 @@ Version jump due to release script tweaks
 ### Description
 * JSX support!
 * Alternative Newline Characters
-* CSS and JS comment formatting fixes 
+* CSS and JS comment formatting fixes
 * General bug fixing
 
 
@@ -434,12 +474,12 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 * Do not break "x++ + y"
 * function declaration inside array behaves the same as in expression
 * Close String literals at newline
-* Support handlebar syntax 
+* Support handlebar syntax
 * Check `<script>` "type"-attribute
 * Allow `<style>` and `<script>` tags to be unformatted
 * Port css nesting fix to python
 * Fix python six dependency
-* Initial very cursory support for ES6 module, export, and import 
+* Initial very cursory support for ES6 module, export, and import
 
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
