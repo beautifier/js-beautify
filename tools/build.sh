@@ -81,7 +81,7 @@ build_js()
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 
   # beautify test and data
-  for f in $(find $PROJECT_DIR/js/test -name '*.js' -and -depth 1 | sort -n); do
+  for f in $(ls $PROJECT_DIR/js/test/*.js | sort -n); do
       $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
   done
 
@@ -94,7 +94,7 @@ build_js()
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
   done
 
-  for f in $(find $PROJECT_DIR/web -name '*.js' -and -depth 1 | sort -n); do
+  for f in $(ls $PROJECT_DIR/web/*.js | sort -n); do
     $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
   done
 
