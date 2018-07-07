@@ -71,7 +71,13 @@ function InputScanner(input) {
   this.test = function(pattern, index) {
     index = index || 0;
     pattern.lastIndex = _position + index;
-    return pattern.test(_input);
+
+        var pattern_match = pattern.exec(_input);
+        if (pattern_match && pattern_match.index === _position + index) {
+            return true;
+        } else {
+            return false;
+        }
   };
 
   this.testChar = function(pattern, index) {
