@@ -32,7 +32,9 @@ function InputScanner(input) {
   var _position = 0;
 
   this.back = function() {
-    _position -= 1;
+    if (_position > 0){
+      _position -= 1;
+    }
   };
 
   this.hasNext = function() {
@@ -59,6 +61,7 @@ function InputScanner(input) {
   };
 
   this.peekCharCode = function(index) {
+    // basically here for acorn
     var val = 0;
     index = index || 0;
     index += _position;
@@ -72,15 +75,16 @@ function InputScanner(input) {
     index = index || 0;
     pattern.lastIndex = _position + index;
 
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match && pattern_match.index === _position + index) {
-      return true;
+    if (index >= 0 && index < _input_length) {
+      var pattern_match = pattern.exec(_input);
+      return pattern_match && pattern_match.index === _position + index;
     } else {
       return false;
     }
   };
 
   this.testChar = function(pattern, index) {
+    // test one character regex match
     var val = this.peek(index);
     return val !== null && pattern.test(val);
   };
