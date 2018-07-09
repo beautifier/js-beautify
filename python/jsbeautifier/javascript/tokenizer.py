@@ -257,126 +257,126 @@ class Tokenizer:
 
         startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
+        xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+
+        def allowRegExOrXML(self):
+            return (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
+                (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
+                last_token.parent and last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
+                (last_token.type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
+                'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])
+
         self.has_char_escapes = False
 
-        if c == '`' or c == "'" or c == '"' or \
-            ( \
-                (c == '/') or \
-                (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1)) \
-            ) and ( \
-                (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
-                (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
-                            last_token.parent and last_token.parent.type == 'TK_RESERVED' and last_token.parent.text in ['if', 'while', 'for']) or \
-                (last_token.type in ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK', 'TK_END_BLOCK', 'TK_OPERATOR', \
-                                   'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'])):
-            sep = c
-            esc = False
-            esc1 = 0
-            esc2 = 0
-            resulting_string = c
-            in_char_class = False
+        isString = (c == '`' or c == "'" or c == '"')
+        isRegExp = (c == '/' and allowRegExOrXML(self))
+        isXML = (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1) and allowRegExOrXML(self))
 
-            if sep == '/':
-                # handle regexp
-                in_char_class = False
-                while self.input.hasNext() and \
-                        (esc or in_char_class or self.input.peek()!= sep) and \
-                        not self.input.testChar(self.acorn.newline):
-                    resulting_string += self.input.peek()
-                    if not esc:
-                        esc = self.input.peek() == '\\'
-                        if self.input.peek() == '[':
-                            in_char_class = True
-                        elif self.input.peek() == ']':
-                            in_char_class = False
+        sep = c
+        esc = False
+        esc1 = 0
+        esc2 = 0
+        resulting_string = c
+        in_char_class = False
+
+
+        if isString:
+            # handle string
+            def parse_string(self, resulting_string, delimiter, allow_unescaped_newlines = False, start_sub = None):
+                esc = False
+                while self.input.hasNext():
+                    current_char = self.input.peek()
+                    if not (esc or (current_char != delimiter and
+                            (allow_unescaped_newlines or not self.acorn.newline.match(current_char)))):
+                        break
+
+                    # Handle \r\n linebreaks after escapes or in template strings
+                    if (esc or allow_unescaped_newlines) and self.acorn.newline.match(current_char):
+                        if current_char == '\r' and self.input.peek(1) == '\n':
+                            self.input.next()
+                            current_char = self.input.peek()
+
+                        resulting_string += '\n'
                     else:
+                        resulting_string += current_char
+
+                    if esc:
+                        if current_char == 'x' or current_char == 'u':
+                            self.has_char_escapes = True
+
                         esc = False
+                    else:
+                        esc = current_char == '\\'
+
                     self.input.next()
 
-            elif self.opts.e4x and sep == '<':
-                # handle e4x xml literals
-                xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-                self.input.back()
-                xmlStr = ""
-                match = self.input.match(xmlRegExp)
-                if match:
-                    rootTag = match.group(2)
-                    rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
-                    isCurlyRoot = rootTag.startswith('{')
-                    depth = 0
-                    while (match):
-                        isEndTag = match.group(1)
-                        tagName = match.group(2)
-                        isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
-                        if not isSingletonTag and (
-                            tagName == rootTag or (isCurlyRoot and re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', tagName)))):
-                            if isEndTag:
-                                depth -= 1
-                            else:
-                                depth += 1
+                    if start_sub and resulting_string.endswith(start_sub):
+                        if delimiter == '`':
+                            resulting_string = parse_string(self, resulting_string, '}', allow_unescaped_newlines, '`')
+                        else:
+                            resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
 
-                        xmlStr += match.group(0)
-                        if depth <= 0:
-                            break
+                        if self.input.hasNext():
+                            resulting_string += self.input.next()
 
-                        match = self.input.match(xmlRegExp)
+                return resulting_string
 
-
-                    # if we didn't close correctly, keep unformatted.
-                    if not match:
-                        xmlStr += self.input.match(re.compile('[\s\S]*')).group(0)
-
-                    xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
-                    return xmlStr, 'TK_STRING'
-
+            if sep == '`':
+                resulting_string = parse_string(self, resulting_string, '`', True, '${')
             else:
-
-                # handle string
-                def parse_string(self, resulting_string, delimiter, allow_unescaped_newlines = False, start_sub = None):
-                    esc = False
-                    while self.input.hasNext():
-                        current_char = self.input.peek()
-                        if not (esc or (current_char != delimiter and
-                                (allow_unescaped_newlines or not self.acorn.newline.match(current_char)))):
-                            break
-
-                        # Handle \r\n linebreaks after escapes or in template strings
-                        if (esc or allow_unescaped_newlines) and self.acorn.newline.match(current_char):
-                            if current_char == '\r' and self.input.peek(1) == '\n':
-                                self.input.next()
-                                current_char = self.input.peek()
-
-                            resulting_string += '\n'
-                        else:
-                            resulting_string += current_char
-
-                        if esc:
-                            if current_char == 'x' or current_char == 'u':
-                                self.has_char_escapes = True
-
-                            esc = False
-                        else:
-                            esc = current_char == '\\'
-
-                        self.input.next()
-
-                        if start_sub and resulting_string.endswith(start_sub):
-                            if delimiter == '`':
-                                resulting_string = parse_string(self, resulting_string, '}', allow_unescaped_newlines, '`')
-                            else:
-                                resulting_string = parse_string(self, resulting_string, '`', allow_unescaped_newlines, '${')
-
-                            if self.input.hasNext():
-                                resulting_string += self.input.next()
-
-                    return resulting_string
-
-                if sep == '`':
-                    resulting_string = parse_string(self, resulting_string, '`', True, '${')
+                resulting_string = parse_string(self, resulting_string, sep)
+        elif isRegExp:
+            # handle regexp
+            in_char_class = False
+            while self.input.hasNext() and \
+                    (esc or in_char_class or self.input.peek()!= sep) and \
+                    not self.input.testChar(self.acorn.newline):
+                resulting_string += self.input.peek()
+                if not esc:
+                    esc = self.input.peek() == '\\'
+                    if self.input.peek() == '[':
+                        in_char_class = True
+                    elif self.input.peek() == ']':
+                        in_char_class = False
                 else:
-                    resulting_string = parse_string(self, resulting_string, sep)
+                    esc = False
+                self.input.next()
 
+        elif isXML:
+            # handle e4x xml literals
+            self.input.back()
+            xmlStr = ""
+            match = self.input.match(xmlRegExp)
+            if match:
+                rootTag = match.group(2)
+                rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
+                isCurlyRoot = rootTag.startswith('{')
+                depth = 0
+                while (match):
+                    isEndTag = match.group(1)
+                    tagName = match.group(2)
+                    isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
+                    if not isSingletonTag and (
+                        tagName == rootTag or (isCurlyRoot and re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', tagName)))):
+                        if isEndTag:
+                            depth -= 1
+                        else:
+                            depth += 1
 
+                    xmlStr += match.group(0)
+                    if depth <= 0:
+                        break
+
+                    match = self.input.match(xmlRegExp)
+
+                # if we didn't close correctly, keep unformatted.
+                if not match:
+                    xmlStr += self.input.match(re.compile('[\s\S]*')).group(0)
+
+                xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
+                return xmlStr, 'TK_STRING'
+
+        if isRegExp or isString:
             if self.has_char_escapes and self.opts.unescape_strings:
                 resulting_string = self.unescape_string(resulting_string)
 

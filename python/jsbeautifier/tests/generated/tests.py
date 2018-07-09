@@ -2015,6 +2015,11 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # 
+        self.reset_options();
+
+
+        #============================================================
         # e4x disabled
         self.reset_options();
         self.options.e4x = false

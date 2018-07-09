@@ -314,147 +314,147 @@ function Tokenizer(input_string, opts) {
 
     var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
 
-    if (c === '`' || c === "'" || c === '"' || // string
-      (
-        (c === '/') || // regexp
-        (opts.e4x && c === "<" && input.test(startXmlRegExp, -1)) // xml
-      ) && ( // regex and xml can only appear in specific locations during parsing
-        (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+    var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+
+    function allowRegExOrXML() {
+      // regex and xml can only appear in specific locations during parsing
+      return (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
         (last_token.type === 'TK_END_EXPR' && last_token.text === ')' &&
           last_token.parent && last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
         (in_array(last_token.type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
           'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
-        ]))
-      )) {
+        ]));
+    }
 
-      var sep = c,
-        esc = false,
-        has_char_escapes = false;
+    var isString = (c === '`' || c === "'" || c === '"');
+    var isRegExp = (c === '/') && allowRegExOrXML();
+    var isXML = (opts.e4x && c === "<" && input.test(startXmlRegExp, -1)) && allowRegExOrXML();
+    var sep = c,
+      esc = false,
+      has_char_escapes = false;
 
-      resulting_string = c;
+    resulting_string = c;
 
-      if (sep === '/') {
-        //
-        // handle regexp
-        //
-        var in_char_class = false;
-        while (input.hasNext() &&
-          ((esc || in_char_class || input.peek() !== sep) &&
-            !input.testChar(acorn.newline))) {
-          resulting_string += input.peek();
-          if (!esc) {
-            esc = input.peek() === '\\';
-            if (input.peek() === '[') {
-              in_char_class = true;
-            } else if (input.peek() === ']') {
-              in_char_class = false;
+
+    if (isString) {
+      // handle string
+      //
+      var parse_string = function(delimiter, allow_unescaped_newlines, start_sub) {
+        // Template strings can travers lines without escape characters.
+        // Other strings cannot
+        var current_char;
+        while (input.hasNext()) {
+          current_char = input.peek();
+          if (!(esc || (current_char !== delimiter &&
+              (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
+            break;
+          }
+
+          // Handle \r\n linebreaks after escapes or in template strings
+          if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
+            if (current_char === '\r' && input.peek(1) === '\n') {
+              input.next();
+              current_char = input.peek();
             }
+            resulting_string += '\n';
           } else {
+            resulting_string += current_char;
+          }
+
+          if (esc) {
+            if (current_char === 'x' || current_char === 'u') {
+              has_char_escapes = true;
+            }
             esc = false;
+          } else {
+            esc = current_char === '\\';
           }
+
           input.next();
-        }
-      } else if (opts.e4x && sep === '<') {
-        //
-        // handle e4x xml literals
-        //
 
-        var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-        input.back();
-        var xmlStr = '';
-        var match = input.match(startXmlRegExp);
-        if (match) {
-          // Trim root tag to attempt to
-          var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
-          var isCurlyRoot = rootTag.indexOf('{') === 0;
-          var depth = 0;
-          while (match) {
-            var isEndTag = !!match[1];
-            var tagName = match[2];
-            var isSingletonTag = (!!match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
-            if (!isSingletonTag &&
-              (tagName === rootTag || (isCurlyRoot && tagName.replace(/^{\s+/, '{').replace(/\s+}$/, '}')))) {
-              if (isEndTag) {
-                --depth;
-              } else {
-                ++depth;
-              }
+          if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
+            if (delimiter === '`') {
+              parse_string('}', allow_unescaped_newlines, '`');
+            } else {
+              parse_string('`', allow_unescaped_newlines, '${');
             }
-            xmlStr += match[0];
-            if (depth <= 0) {
-              break;
+
+            if (input.hasNext()) {
+              resulting_string += input.next();
             }
-            match = input.match(xmlRegExp);
           }
-          // if we didn't close correctly, keep unformatted.
-          if (!match) {
-            xmlStr += input.match(/[\s\S]*/g)[0];
-          }
-          xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
-          return [xmlStr, "TK_STRING"];
         }
+      };
+
+      if (sep === '`') {
+        parse_string('`', true, '${');
       } else {
-        //
-        // handle string
-        //
-        var parse_string = function(delimiter, allow_unescaped_newlines, start_sub) {
-          // Template strings can travers lines without escape characters.
-          // Other strings cannot
-          var current_char;
-          while (input.hasNext()) {
-            current_char = input.peek();
-            if (!(esc || (current_char !== delimiter &&
-                (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
-              break;
-            }
-
-            // Handle \r\n linebreaks after escapes or in template strings
-            if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
-              if (current_char === '\r' && input.peek(1) === '\n') {
-                input.next();
-                current_char = input.peek();
-              }
-              resulting_string += '\n';
-            } else {
-              resulting_string += current_char;
-            }
-
-            if (esc) {
-              if (current_char === 'x' || current_char === 'u') {
-                has_char_escapes = true;
-              }
-              esc = false;
-            } else {
-              esc = current_char === '\\';
-            }
-
-            input.next();
-
-            if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
-              if (delimiter === '`') {
-                parse_string('}', allow_unescaped_newlines, '`');
-              } else {
-                parse_string('`', allow_unescaped_newlines, '${');
-              }
-
-              if (input.hasNext()) {
-                resulting_string += input.next();
-              }
-            }
-          }
-        };
-
-        if (sep === '`') {
-          parse_string('`', true, '${');
-        } else {
-          parse_string(sep);
-        }
+        parse_string(sep);
       }
 
+    } else if (isRegExp) {
+      // handle regexp
+      //
+      var in_char_class = false;
+      while (input.hasNext() &&
+        ((esc || in_char_class || input.peek() !== sep) &&
+          !input.testChar(acorn.newline))) {
+        resulting_string += input.peek();
+        if (!esc) {
+          esc = input.peek() === '\\';
+          if (input.peek() === '[') {
+            in_char_class = true;
+          } else if (input.peek() === ']') {
+            in_char_class = false;
+          }
+        } else {
+          esc = false;
+        }
+        input.next();
+      }
+
+    } else if (isXML) {
+      // handle e4x xml literals
+      //
+      input.back();
+      var xmlStr = '';
+      var match = input.match(startXmlRegExp);
+      if (match) {
+        // Trim root tag to attempt to
+        var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
+        var isCurlyRoot = rootTag.indexOf('{') === 0;
+        var depth = 0;
+        while (match) {
+          var isEndTag = !!match[1];
+          var tagName = match[2];
+          var isSingletonTag = (!!match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
+          if (!isSingletonTag &&
+            (tagName === rootTag || (isCurlyRoot && tagName.replace(/^{\s+/, '{').replace(/\s+}$/, '}')))) {
+            if (isEndTag) {
+              --depth;
+            } else {
+              ++depth;
+            }
+          }
+          xmlStr += match[0];
+          if (depth <= 0) {
+            break;
+          }
+          match = input.match(xmlRegExp);
+        }
+        // if we didn't close correctly, keep unformatted.
+        if (!match) {
+          xmlStr += input.match(/[\s\S]*/g)[0];
+        }
+        xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
+        return [xmlStr, "TK_STRING"];
+      }
+    }
+
+    if (isRegExp || isString) {
       if (has_char_escapes && opts.unescape_strings) {
         resulting_string = unescape_string(resulting_string);
       }
-
       if (input.peek() === sep) {
         resulting_string += sep;
         input.next();

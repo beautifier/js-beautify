@@ -2187,6 +2187,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // 
+        reset_options();
+
+
+        //============================================================
         // e4x disabled
         reset_options();
         opts.e4x = false;
