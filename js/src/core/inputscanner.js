@@ -32,7 +32,7 @@ function InputScanner(input) {
   var _position = 0;
 
   this.back = function() {
-    if (_position > 0){
+    if (_position > 0) {
       _position -= 1;
     }
   };
@@ -73,11 +73,12 @@ function InputScanner(input) {
 
   this.test = function(pattern, index) {
     index = index || 0;
-    pattern.lastIndex = _position + index;
+    index += _position;
+    pattern.lastIndex = index;
 
     if (index >= 0 && index < _input_length) {
       var pattern_match = pattern.exec(_input);
-      return pattern_match && pattern_match.index === _position + index;
+      return pattern_match && pattern_match.index === index;
     } else {
       return false;
     }
