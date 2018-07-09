@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation files
@@ -514,22 +514,22 @@ function Beautifier(js_source_text, options) {
   }
 
   function start_of_statement() {
-    if (
-      (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD') ||
-      (last_type === 'TK_RESERVED' && flags.last_text === 'do') ||
-      (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline) ||
-      (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
-        !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length)) ||
-      (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional)) ||
-      (last_type === 'TK_WORD' && flags.mode === MODE.BlockStatement &&
-        !flags.in_case &&
-        !(current_token.text === '--' || current_token.text === '++') &&
-        last_last_text !== 'function' &&
-        current_token.type !== 'TK_WORD' && current_token.type !== 'TK_RESERVED') ||
-      (flags.mode === MODE.ObjectLiteral && (
-        (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set']))))
-    ) {
+    var start = false;
+    start = start || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === 'TK_WORD');
+    start = start || (last_type === 'TK_RESERVED' && flags.last_text === 'do');
+    start = start || (last_type === 'TK_RESERVED' && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline);
+    start = start || (last_type === 'TK_RESERVED' && flags.last_text === 'else' &&
+      !(current_token.type === 'TK_RESERVED' && current_token.text === 'if' && !current_token.comments_before.length));
+    start = start || (last_type === 'TK_END_EXPR' && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional));
+    start = start || (last_type === 'TK_WORD' && flags.mode === MODE.BlockStatement &&
+      !flags.in_case &&
+      !(current_token.text === '--' || current_token.text === '++') &&
+      last_last_text !== 'function' &&
+      current_token.type !== 'TK_WORD' && current_token.type !== 'TK_RESERVED');
+    start = start || (flags.mode === MODE.ObjectLiteral && (
+      (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set']))));
 
+    if (start) {
       set_mode(MODE.Statement);
       indent();
 

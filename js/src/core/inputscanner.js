@@ -3,7 +3,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -32,7 +32,9 @@ function InputScanner(input) {
   var _position = 0;
 
   this.back = function() {
-    _position -= 1;
+    if (_position > 0) {
+      _position -= 1;
+    }
   };
 
   this.hasNext = function() {
@@ -59,6 +61,7 @@ function InputScanner(input) {
   };
 
   this.peekCharCode = function(index) {
+    // basically here for acorn
     var val = 0;
     index = index || 0;
     index += _position;
@@ -70,17 +73,19 @@ function InputScanner(input) {
 
   this.test = function(pattern, index) {
     index = index || 0;
-    pattern.lastIndex = _position + index;
+    index += _position;
+    pattern.lastIndex = index;
 
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match && pattern_match.index === _position + index) {
-      return true;
+    if (index >= 0 && index < _input_length) {
+      var pattern_match = pattern.exec(_input);
+      return pattern_match && pattern_match.index === index;
     } else {
       return false;
     }
   };
 
   this.testChar = function(pattern, index) {
+    // test one character regex match
     var val = this.peek(index);
     return val !== null && pattern.test(val);
   };

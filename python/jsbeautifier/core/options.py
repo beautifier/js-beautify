@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+# Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -24,12 +24,17 @@
 
 import copy
 
-def mergeOpts(options, targetType):
+# merges child options up with the parent options object
+# Example: obj = {a: 1, b: {a: 2}}
+#          mergeOpts(obj, 'b')
+#
+#          Returns: {a: 2, b: {a: 2}}
+def mergeOpts(options, childFieldName):
     finalOpts = copy.copy(options)
 
-    local = getattr(finalOpts, targetType)
+    local = getattr(finalOpts, childFieldName)
     if (local):
-        delattr(finalOpts, targetType)
+        delattr(finalOpts, childFieldName)
         for key in local:
             setattr(finalOpts, key, local[key])
 
