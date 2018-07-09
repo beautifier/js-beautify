@@ -26,20 +26,25 @@
     SOFTWARE.
 */
 
-function mergeOpts(allOptions, targetType) {
+// merges child options up with the parent options object
+// Example: obj = {a: 1, b: {a: 2}}
+//          mergeOpts(obj, 'b')
+//
+//          Returns: {a: 2, b: {a: 2}}
+function mergeOpts(allOptions, childFieldName) {
   var finalOpts = {};
   var name;
 
   for (name in allOptions) {
-    if (name !== targetType) {
+    if (name !== childFieldName) {
       finalOpts[name] = allOptions[name];
     }
   }
 
-  //merge in the per type settings for the targetType
-  if (targetType in allOptions) {
-    for (name in allOptions[targetType]) {
-      finalOpts[name] = allOptions[targetType][name];
+  //merge in the per type settings for the childFieldName
+  if (childFieldName in allOptions) {
+    for (name in allOptions[childFieldName]) {
+      finalOpts[name] = allOptions[childFieldName][name];
     }
   }
   return finalOpts;

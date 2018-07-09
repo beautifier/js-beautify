@@ -24,12 +24,17 @@
 
 import copy
 
-def mergeOpts(options, targetType):
+# merges child options up with the parent options object
+# Example: obj = {a: 1, b: {a: 2}}
+#          mergeOpts(obj, 'b')
+#
+#          Returns: {a: 2, b: {a: 2}}
+def mergeOpts(options, childFieldName):
     finalOpts = copy.copy(options)
 
-    local = getattr(finalOpts, targetType)
+    local = getattr(finalOpts, childFieldName)
     if (local):
-        delattr(finalOpts, targetType)
+        delattr(finalOpts, childFieldName)
         for key in local:
             setattr(finalOpts, key, local[key])
 
