@@ -170,7 +170,7 @@ function beautify() {
     try {
       additional_options = JSON.parse(additional_options);
       opts = mergeObjects(opts, additional_options);
-    } catch {
+    } catch (e) {
       $('#additional-options-error').show();
     }
   }
@@ -223,45 +223,47 @@ function mergeObjects(allOptions, additionalOptions) {
 }
 
 function submitIssue() {
-  let url = 'https://github.com/beautify-web/js-beautify/issues/new?';
-  let body = `# Description
-> NOTE:
-> * Check the list of open issues before filing a new issue.
-> * Please update the expect output section to match how you would prefer the code to look.
+  var url = 'https://github.com/beautify-web/js-beautify/issues/new?';
+  var submit_body = [
+    '# Description',
+    '> NOTE:',
+    '> * Check the list of open issues before filing a new issue.',
+    '> * Please update the expect output section to match how you would prefer the code to look.',
+    '',
+    '# Input',
+    'The code looked like this before beautification:',
+    '```',
+    the.lastInput,
+    '```',
+    '',
+    '# Current Output',
+    'The  code actually looked like this after beautification:',
+    '```',
+    the.lastOutput,
+    '```',
+    '',
+    '# Expected Output',
+    'The code should have looked like this after beautification:',
+    '```',
+    '/*Adjust the code to look how you prefer the output to be.*/',
+    the.lastInput,
+    '```',
+    '',
+    '## Environment',
+    'Browser User Agent:',
+    navigator.userAgent,
+    '',
+    'Language Selected:',
+    the.language,
+    '',
+    '## Settings',
+    'Example:',
+    '```json',
+    the.lastOpts,
+    '```',
+    ''];
 
-# Input
-The code looked like this before beautification:
-\`\`\`
-${the.lastInput}
-\`\`\`
-
-# Current Output
-The  code actually looked like this after beautification:
-\`\`\`
-${the.lastOutput}
-\`\`\`
-
-# Expected Output
-The code should have looked like this after beautification:
-\`\`\`
-/*Adjust the code to look how you prefer the output to be.*/
-${the.lastInput}
-\`\`\`
-
-## Environment
-Browser User Agent:
-${navigator.userAgent}
-
-Language Selected:
-${the.language}
-
-## Settings
-Example:
-\`\`\`json
-${the.lastOpts}
-\`\`\`
-`
-  var encoded = encodeURIComponent(body);
+  var encoded = encodeURIComponent(submit_body.join('\n'));
   url += 'body=' + encoded;
 
   console.log(url);
