@@ -389,22 +389,22 @@ class Beautifier:
                 ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set']))
 
     def start_of_statement(self, current_token):
-        if (
-            (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and current_token.type == 'TK_WORD') \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do') \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline) \
-                or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' \
-                    and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' and not len(current_token.comments_before))) \
-                or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional)) \
-                or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
-                    and not self.flags.in_case
-                    and not (current_token.text == '--' or current_token.text == '++')
-                    and self.last_last_text != 'function'
-                    and current_token.type != 'TK_WORD' and current_token.type != 'TK_RESERVED') \
-                or (self.flags.mode == MODE.ObjectLiteral and \
-                    ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set'])))
-                ):
+        start = False
+        start = start or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['var', 'let', 'const'] and current_token.type == 'TK_WORD')
+        start = start or (self.last_type == 'TK_RESERVED' and self.flags.last_text== 'do')
+        start = start or (self.last_type == 'TK_RESERVED' and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline)
+        start = start or (self.last_type == 'TK_RESERVED' and self.flags.last_text == 'else' \
+            and not (current_token.type == 'TK_RESERVED' and current_token.text == 'if' and not len(current_token.comments_before)))
+        start = start or (self.last_type == 'TK_END_EXPR' and (self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional))
+        start = start or (self.last_type == 'TK_WORD' and self.flags.mode == MODE.BlockStatement \
+            and not self.flags.in_case
+            and not (current_token.text == '--' or current_token.text == '++')
+            and self.last_last_text != 'function'
+            and current_token.type != 'TK_WORD' and current_token.type != 'TK_RESERVED')
+        start = start or (self.flags.mode == MODE.ObjectLiteral and \
+            ((self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (self.last_type == 'TK_RESERVED' and self.flags.last_text in ['get', 'set'])))
 
+        if (start):
             self.set_mode(MODE.Statement)
             self.indent()
 
