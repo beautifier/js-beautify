@@ -258,7 +258,6 @@ class Tokenizer:
         startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
         xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-        self.input.back()
 
         def allowRegExOrXML(self):
             return (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
@@ -270,8 +269,8 @@ class Tokenizer:
         self.has_char_escapes = False
 
         isString = (c == '`' or c == "'" or c == '"')
-        isRegExp = (c == '/')
-        isXML = (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1))
+        isRegExp = (c == '/' and allowRegExOrXML(self))
+        isXML = (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1) and allowRegExOrXML(self))
 
         sep = c
         esc = False
@@ -345,6 +344,7 @@ class Tokenizer:
 
         elif isXML:
             # handle e4x xml literals
+            self.input.back()
             xmlStr = ""
             match = self.input.match(xmlRegExp)
             if match:
