@@ -261,7 +261,8 @@ function submitIssue() {
     '```json',
     the.lastOpts,
     '```',
-    ''];
+    ''
+  ];
 
   var encoded = encodeURIComponent(submit_body.join('\n'));
   url += 'body=' + encoded;
