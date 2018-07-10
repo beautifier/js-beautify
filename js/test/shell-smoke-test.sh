@@ -382,12 +382,13 @@ test_performance_html_beautify()
   echo ----------------------------------------
 }
 
+test_smoke_js_beautify || exit 1
+
 test_cli_common css-beautify
 test_cli_common html-beautify
 test_cli_common js-beautify
 
 test_cli_js_beautify
-test_smoke_js_beautify
 test_performance_js_beautify
 test_performance_html_beautify
 

@@ -322,12 +322,13 @@ test_perf_js_beautify()
 }
 
 main() {
+    test_smoke_js_beautify
+
     #test_cli_common css-beautify
     #test_cli_common html-beautify
     test_cli_common js-beautify
 
     test_cli_js_beautify
-    test_smoke_js_beautify
     test_perf_js_beautify
 
     echo ----------------------------------------

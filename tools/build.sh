@@ -27,6 +27,7 @@ build_full()
 {
   build_all
   build_alltest
+  beautify
 }
 
 build_all()
@@ -50,11 +51,13 @@ build_py()
 build_js()
 {
   echo Building javascript...
+  cd $PROJECT_DIR
+
   npm install || exit 1
   generate_tests
 
   # generate lib files
-  ./node_modules/.bin/webpack
+  $PROJECT_DIR/node_modules/.bin/webpack
 
   mkdir -p ./js/lib/unpackers
   cp -r ./js/src/unpackers ./js/lib/
@@ -79,9 +82,17 @@ build_js()
 
   # jshint
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
+}
 
-  # beautify test and data
+beautify()
+{
+  cd $PROJECT_DIR
+    # beautify test and data
   for f in $(ls $PROJECT_DIR/js/test/*.js | sort -n); do
+      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
+
+  for f in $(ls $PROJECT_DIR/js/test/core/*.js | sort -n); do
       $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
   done
 
@@ -105,6 +116,8 @@ build_js()
 
   # jshint again to make sure things haven't changed
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
+
+  build_js
 }
 
 generate_tests()
@@ -122,9 +135,10 @@ build_pytest()
 {
 	echo Testing python implementation...
 	generate_tests
-	cd python
+	pushd python
 	python --version
 	./jsbeautifier/tests/shell-smoke-test.sh || exit 1
+  popd
 }
 
 build_jstest()
@@ -132,6 +146,7 @@ build_jstest()
 	echo Testing javascript implementation...
 	generate_tests
 	node --version
+  ./node_modules/.bin/mocha --recursive js/test || exit 1
 	./js/test/shell-smoke-test.sh || exit 1
 }
 
