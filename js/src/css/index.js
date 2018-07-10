@@ -3,7 +3,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation files
@@ -29,8 +29,8 @@
 var Beautifier = require('./beautifier').Beautifier;
 
 function css_beautify(source_text, options) {
-    var beautifier = new Beautifier(source_text, options);
-    return beautifier.beautify();
+  var beautifier = new Beautifier(source_text, options);
+  return beautifier.beautify();
 }
 
 module.exports = css_beautify;

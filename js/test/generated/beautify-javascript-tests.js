@@ -6,7 +6,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -2184,6 +2184,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '       {children}\n' +
             '    </{a + b}>\n' +
             ');');
+
+
+        //============================================================
+        // 
+        reset_options();
 
 
         //============================================================

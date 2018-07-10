@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+# Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -32,7 +32,8 @@ class InputScanner:
         self.__position = 0
 
     def back(self):
-        self.__position -= 1
+        if self.__position > 0:
+            self.__position -= 1
 
     def hasNext(self):
         return self.__position < self.__input_length
@@ -54,6 +55,7 @@ class InputScanner:
         return val;
 
     def peekCharCode(self, index = 0):
+        # basically here for acorn
         val = 0
         index += self.__position;
         if index >= 0 and index < self.__input_length:
@@ -66,6 +68,7 @@ class InputScanner:
         return index >= 0 and index < self.__input_length and pattern.match(self.__input, index)
 
     def testChar(self, pattern, index = 0):
+        # test one character regex match
         val = self.peek(index)
         return val != None and pattern.match(val)
 

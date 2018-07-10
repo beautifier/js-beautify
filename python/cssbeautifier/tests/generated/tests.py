@@ -9,7 +9,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -1117,6 +1117,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -1517,6 +1531,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -2164,6 +2192,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {\n' +
             '\t\t\n' +
@@ -2691,6 +2733,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -3001,6 +3057,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -3547,6 +3617,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -4446,6 +4530,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {\n' +
             '\n' +
@@ -5088,6 +5186,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -5500,6 +5612,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -6159,6 +6285,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {\n' +
             '\t\t\n' +
@@ -6698,6 +6838,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '.demob {\n' +
             '\ttext-align: right;\n' +
             '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
+            '}')
         t(
             '.demoa2 {text-align:left;}//demob instructions for LESS note visibility only\n' +
             '.demob {text-align: right}',
@@ -7020,6 +7174,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.demob {\n' +
             '\ttext-align: right;\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -7595,6 +7763,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +
@@ -8443,6 +8625,20 @@ class CSSBeautifierTest(unittest.TestCase):
             '\ttext-align: right;\n' +
             '\n' +
             '\n' +
+            '}')
+        
+        # #1440
+        t(
+            '#search-text {\n' +
+            '  width: 43%;\n' +
+            '  // height: 100%;\n' +
+            '  border: none;\n' +
+            '}',
+            #  -- output --
+            '#search-text {\n' +
+            '\twidth: 43%;\n' +
+            '\t// height: 100%;\n' +
+            '\tborder: none;\n' +
             '}')
         t(
             '.demoa2 {\n' +

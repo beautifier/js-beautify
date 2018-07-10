@@ -47,6 +47,8 @@ main()
         echo "" >> CHANGELOG.md
         echo "" >> CHANGELOG.md
     done
+
+    git commit -am "Update Changelog"
 }
 
 (main $*)

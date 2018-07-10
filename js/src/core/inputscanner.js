@@ -3,7 +3,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -27,68 +27,79 @@
 */
 
 function InputScanner(input) {
-    var _input = input || '';
-    var _input_length = _input.length;
-    var _position = 0;
+  var _input = input || '';
+  var _input_length = _input.length;
+  var _position = 0;
 
-    this.back = function() {
-        _position -= 1;
-    };
+  this.back = function() {
+    if (_position > 0) {
+      _position -= 1;
+    }
+  };
 
-    this.hasNext = function() {
-        return _position < _input_length;
-    };
+  this.hasNext = function() {
+    return _position < _input_length;
+  };
 
-    this.next = function() {
-        var val = null;
-        if (this.hasNext()) {
-            val = _input.charAt(_position);
-            _position += 1;
-        }
-        return val;
-    };
+  this.next = function() {
+    var val = null;
+    if (this.hasNext()) {
+      val = _input.charAt(_position);
+      _position += 1;
+    }
+    return val;
+  };
 
-    this.peek = function(index) {
-        var val = null;
-        index = index || 0;
-        index += _position;
-        if (index >= 0 && index < _input_length) {
-            val = _input.charAt(index);
-        }
-        return val;
-    };
+  this.peek = function(index) {
+    var val = null;
+    index = index || 0;
+    index += _position;
+    if (index >= 0 && index < _input_length) {
+      val = _input.charAt(index);
+    }
+    return val;
+  };
 
-    this.peekCharCode = function(index) {
-        var val = 0;
-        index = index || 0;
-        index += _position;
-        if (index >= 0 && index < _input_length) {
-            val = _input.charCodeAt(index);
-        }
-        return val;
-    };
+  this.peekCharCode = function(index) {
+    // basically here for acorn
+    var val = 0;
+    index = index || 0;
+    index += _position;
+    if (index >= 0 && index < _input_length) {
+      val = _input.charCodeAt(index);
+    }
+    return val;
+  };
 
-    this.test = function(pattern, index) {
-        index = index || 0;
-        pattern.lastIndex = _position + index;
-        return pattern.test(_input);
-    };
+  this.test = function(pattern, index) {
+    index = index || 0;
+    index += _position;
+    pattern.lastIndex = index;
 
-    this.testChar = function(pattern, index) {
-        var val = this.peek(index);
-        return val !== null && pattern.test(val);
-    };
+    if (index >= 0 && index < _input_length) {
+      var pattern_match = pattern.exec(_input);
+      return pattern_match && pattern_match.index === index;
+    } else {
+      return false;
+    }
+  };
 
-    this.match = function(pattern) {
-        pattern.lastIndex = _position;
-        var pattern_match = pattern.exec(_input);
-        if (pattern_match && pattern_match.index === _position) {
-            _position += pattern_match[0].length;
-        } else {
-            pattern_match = null;
-        }
-        return pattern_match;
-    };
+  this.testChar = function(pattern, index) {
+    // test one character regex match
+    var val = this.peek(index);
+    return val !== null && pattern.test(val);
+  };
+
+  this.match = function(pattern) {
+    pattern.lastIndex = _position;
+    var pattern_match = pattern.exec(_input);
+    if (pattern_match && pattern_match.index === _position) {
+      _position += pattern_match[0].length;
+    } else {
+      pattern_match = null;
+    }
+    return pattern_match;
+  };
 }
 
 

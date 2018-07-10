@@ -3,7 +3,7 @@
 <!--
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -37,12 +37,16 @@
 
     <link rel="stylesheet" href="web/common-style.css"></style>
 
-    <script src="web/lib/jquery/jquery.js"></script>
-    <script src="web/lib/jquery/jquery.cookie.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"
+        integrity="sha256-9Nt2r+tJnSd2A2CRUvnjgsD+ES1ExvjbjBNqidm9doI="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"
+        integrity="sha256-0SGl1PJNDyJwcV5T+weg2zpEMrh7xvlwO4oXgvZCeZk="
+        crossorigin="anonymous"></script>
 
-    <script src="js/lib/beautify.js"></script>
-    <script src="js/lib/beautify-css.js"></script>
-    <script src="js/lib/beautify-html.js"></script>
     <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
     <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
     <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
@@ -50,7 +54,7 @@
     <script src="web/common-function.js"></script>
 </head>
 
-<h1>Online JavaScript Beautifier</h1>
+<h1>Online JavaScript Beautifier <span id="version-number"></span></h1>
 
 <body>
 

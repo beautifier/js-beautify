@@ -27,6 +27,7 @@ build_full()
 {
   build_all
   build_alltest
+  beautify
 }
 
 build_all()
@@ -50,11 +51,17 @@ build_py()
 build_js()
 {
   echo Building javascript...
+  cd $PROJECT_DIR
+
   npm install || exit 1
   generate_tests
 
   # generate lib files
-  ./node_modules/.bin/webpack --mode=none
+  $PROJECT_DIR/node_modules/.bin/webpack
+
+  mkdir -p ./js/lib/unpackers
+  cp -r ./js/src/unpackers ./js/lib/
+  cp ./js/src/cli.js ./js/lib/
 
   # Wrap webkit output into an non-breaking form.
   # In an upcoming verion these will be replaced with standard webpack umd
@@ -70,41 +77,47 @@ build_js()
   cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
   cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
 
+  cp ./dist/beautifier.js ./js/lib/
+  cp ./dist/beautifier.min.js ./js/lib/
+
   # jshint
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
+}
 
-  # beautify test and data
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/amd-beautify-tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-html-perf-tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-perf-tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/node-beautify-tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/sanitytest.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/css/tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/html/tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/javascript/inputlib.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/javascript/tests.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/generate-tests.js  || exit 1
+beautify()
+{
+  cd $PROJECT_DIR
+    # beautify test and data
+  for f in $(ls $PROJECT_DIR/js/test/*.js | sort -n); do
+      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
+
+  for f in $(ls $PROJECT_DIR/js/test/core/*.js | sort -n); do
+      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
+
+  for f in $(find $PROJECT_DIR/test/data -name '*.js' | sort -n); do
+      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
 
   # beautify product code
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/javascriptobfuscator_unpacker.js  || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/myobfuscate_unpacker.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/p_a_c_k_e_r_unpacker.js  || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/unpackers/urlencode_unpacker.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/css/index.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/html/index.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/index.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/beautifier.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/javascript/tokenizer.js || exit 1
+  for f in $(find $PROJECT_DIR/js/src -name '*.js' | sort -n); do
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
 
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/lib/cli.js || exit 1
-  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/index.js || exit 1
+  for f in $(ls $PROJECT_DIR/web/*.js | sort -n); do
+    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
+  done
 
+  $PROJECT_DIR/js/bin/css-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-style.css || exit 1
 
   # html not ready yet
   # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
 
   # jshint again to make sure things haven't changed
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
+
+  build_js
 }
 
 generate_tests()
@@ -122,9 +135,10 @@ build_pytest()
 {
 	echo Testing python implementation...
 	generate_tests
-	cd python
+	pushd python
 	python --version
 	./jsbeautifier/tests/shell-smoke-test.sh || exit 1
+  popd
 }
 
 build_jstest()
@@ -132,6 +146,7 @@ build_jstest()
 	echo Testing javascript implementation...
 	generate_tests
 	node --version
+  ./node_modules/.bin/mocha --recursive js/test || exit 1
 	./js/test/shell-smoke-test.sh || exit 1
 }
 
