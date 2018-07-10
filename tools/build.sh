@@ -4,57 +4,10 @@ REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
 
-build_help()
-{
-  echo "build.sh <action>"
-  echo "    full	    - build and test all implementations"
-  echo "    all       - build both implementations"
-  echo "    static    - serve static version of site locally"
-  echo "    js        - build javascript"
-  echo "    py        - build python"
-  echo "    alltest   - test both implementations, js and python"
-  echo "    pytest    - test python implementation"
-  echo "    jstest    - test javascript implementation"
-}
-
-build_ci()
-{
-  build_full
-  build_git_status
-}
-
-build_full()
-{
-  build_all
-  build_alltest
-  beautify
-}
-
-build_all()
-{
-  build_py
-  build_js
-}
-
-build_static()
-{
-  npm install || exit 1
-  ./node_modules/.bin/static
-}
-
-build_py()
-{
-	echo Building python module...
-	/usr/bin/env python -m pip install -e ./python || exit 1
-}
-
 build_js()
 {
   echo Building javascript...
   cd $PROJECT_DIR
-
-  npm install || exit 1
-  generate_tests
 
   # generate lib files
   $PROJECT_DIR/node_modules/.bin/webpack
@@ -84,7 +37,7 @@ build_js()
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 }
 
-beautify()
+build_beautify()
 {
   cd $PROJECT_DIR
     # beautify test and data
@@ -118,41 +71,6 @@ beautify()
   $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 
   build_js
-}
-
-generate_tests()
-{
-	node test/generate-tests.js || exit 1
-}
-
-build_alltest()
-{
-  build_jstest
-  build_pytest
-}
-
-build_pytest()
-{
-	echo Testing python implementation...
-	generate_tests
-	pushd python
-	python --version
-	./jsbeautifier/tests/shell-smoke-test.sh || exit 1
-  popd
-}
-
-build_jstest()
-{
-	echo Testing javascript implementation...
-	generate_tests
-	node --version
-  ./node_modules/.bin/mocha --recursive js/test || exit 1
-	./js/test/shell-smoke-test.sh || exit 1
-}
-
-build_git_status()
-{
-  $SCRIPT_DIR/git-status-clear.sh || exit 1
 }
 
 build_update-codemirror()
