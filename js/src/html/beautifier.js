@@ -100,7 +100,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     'span', 'strong', 'sub', 'sup', 'svg', 'template', 'textarea', 'time', 'u', 'var',
     'video', 'wbr', 'text',
     // prexisting - not sure of full effect of removing, leaving in
-    'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt',
+    'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt'
   ];
   unformatted = options.unformatted || [];
   content_unformatted = options.content_unformatted || [
@@ -189,7 +189,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           }
         }
         return false;
-      },
+      }
     };
 
     // Return true if the given text is composed entirely of whitespace.
