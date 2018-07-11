@@ -10,5 +10,4 @@ test/resources/underscore-min.js
 test/resources/underscore.js
 web/lib/**
 
-test/data/**
 web/google-analytics.js
