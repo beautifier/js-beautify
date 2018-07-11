@@ -19,8 +19,10 @@ environment:
 install:
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;c:\\MinGW\\bin;%PATH%"
   - pip --version
+  - copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+  - make --version
 
 # Post-install test scripts.
 test_script:
@@ -29,7 +31,7 @@ test_script:
   - npm --version
   - python --version
   # run tests
-  - bash -c "./build ci"
+  - bash -c "make ci"
 
 # Don't actually build.
 build: off
