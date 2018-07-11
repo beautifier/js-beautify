@@ -1,3 +1,4 @@
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue */
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
@@ -10,7 +11,7 @@ requirejs.config({
   //By default load any module IDs from js/lib
   baseUrl: 'js/lib',
   paths: {
-    'beautifier': the.beautifier_file,
+    'beautifier': the.beautifier_file
   }
 });
 
@@ -119,7 +120,7 @@ function unpacker_filter(source) {
   for (var i = 0; i < unpackers.length; i++) {
     if (unpackers[i].detect(source)) {
       unpacked = unpackers[i].unpack(source);
-      if (unpacked != source) {
+      if (unpacked !== source) {
         source = unpacker_filter(unpacked);
       }
     }
@@ -130,7 +131,9 @@ function unpacker_filter(source) {
 
 
 function beautify() {
-  if (the.beautify_in_progress) return;
+  if (the.beautify_in_progress) {
+    return;
+  }
 
   store_settings_to_cookie();
 
@@ -147,7 +150,7 @@ function beautify() {
   the.language = $('#language option:selected').text();
 
   opts.indent_size = $('#tabsize').val();
-  opts.indent_char = opts.indent_size == 1 ? '\t' : ' ';
+  opts.indent_char = opts.indent_size === 1 ? '\t' : ' ';
   opts.max_preserve_newlines = $('#max-preserve-newlines').val();
   opts.preserve_newlines = opts.max_preserve_newlines !== "-1";
   opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');

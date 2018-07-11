@@ -19,13 +19,13 @@ $(function() {
 
     the.editor.setValue(default_text);
     $('.CodeMirror').click(function() {
-      if (the.editor.getValue() == default_text) {
+      if (the.editor.getValue() === default_text) {
         the.editor.setValue('');
       }
     });
   } else {
     $('#source').val(default_text).bind('click focus', function() {
-      if ($(this).val() == default_text) {
+      if ($(this).val() === default_text) {
         $(this).val('');
       }
     }).bind('blur', function() {
@@ -37,10 +37,11 @@ $(function() {
 
 
   $(window).bind('keydown', function(e) {
-    if (e.ctrlKey && e.keyCode == 13) {
+    if (e.ctrlKey && e.keyCode === 13) {
       beautify();
     }
-  })
+  });
+
   $('.submit').click(beautify);
   $('select').change(beautify);
   $(':checkbox').change(beautify);

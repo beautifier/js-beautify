@@ -6,5 +6,6 @@
   "nocomma": true,
   "nonbsp": true,
   "nonew": true,
-  "unused": true
+  "unused": true,
+  "esversion": 3
 }
