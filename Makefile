@@ -1,6 +1,6 @@
 PROJECT_ROOT=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-BUILD_DIR=$(PROJECT_ROOT)/build
-SCRIPT_DIR=$(PROJECT_ROOT)/tools
+BUILD_DIR=$(PROJECT_ROOT)build
+SCRIPT_DIR=$(PROJECT_ROOT)tools
 SHELL=/bin/bash
 PYTHON=$(SCRIPT_DIR)/python
 NODE=$(SCRIPT_DIR)/node
