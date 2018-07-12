@@ -23,12 +23,13 @@ var dist_full = {
   resolve: {
     modules: [ path.resolve(__dirname, "js/src") ]
   },
+  devtool: 'source-map',
   output: {
     library: 'beautifier',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'js/lib')
   }
 };
 
@@ -38,12 +39,13 @@ var dist_prod = {
   resolve: {
     modules: [ path.resolve(__dirname, "js/src") ]
   },
+  devtool: 'source-map',
   output: {
     library: 'beautifier',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.min.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'js/lib')
   }
 };
 

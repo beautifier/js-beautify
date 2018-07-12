@@ -21,7 +21,7 @@ help:
 ci: all git-status-clear
 
 static: $(BUILD_DIR)/node
-	./node_modules/.bin/static
+	./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
 
 js: js/lib/*.js
 

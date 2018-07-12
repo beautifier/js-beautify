@@ -33,8 +33,6 @@ build_js()
   cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
   cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
 
-  cp ./dist/beautifier.js ./js/lib/
-  cp ./dist/beautifier.min.js ./js/lib/
 }
 
 build_beautify()
