@@ -20,27 +20,28 @@ help:
 
 ci: all git-status-clear
 
-static: $(BUILD_DIR)/node
-	./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
+static: js/lib/*.js
+	@./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
 
 js: js/lib/*.js
+	@echo Running unit tests...
+	./node_modules/.bin/mocha --recursive js/test && \
+	./js/test/node-src-index-tests.js
 
 py: python/dist/*
-
-generate-tests: $(BUILD_DIR)/tests
 
 jstest: depends generate-tests js
 	@echo Testing javascript implementation...
 	@$(NODE) --version && \
-		./node_modules/.bin/mocha --recursive js/test && \
 		./js/test/shell-smoke-test.sh
-
 
 pytest: depends generate-tests py
 	@echo Testing python implementation...
 	@cd python && \
 		$(PYTHON) --version && \
 		./jsbeautifier/tests/shell-smoke-test.sh
+
+generate-tests: $(BUILD_DIR)/generate
 
 beautify:
 	$(SCRIPT_DIR)/build.sh beautify
@@ -49,7 +50,7 @@ beautify:
 #######################################################
 
 # javascript bundle generation
-js/lib/*.js: $(BUILD_DIR)/node $(wildcard js/src/**/*) tools/template/* webpack.config.js
+js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/**/*) js/index.js tools/template/* webpack.config.js
 	$(SCRIPT_DIR)/build.sh js
 
 
@@ -59,16 +60,17 @@ python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifie
 	@cd python && \
 		$(PYTHON) setup.py sdist
 
-
 # Test generation
-$(BUILD_DIR)/tests: $(BUILD_DIR)/node test/generate-tests.js $(wildcard test/data/**/*)
+$(BUILD_DIR)/generate: $(BUILD_DIR)/node test/generate-tests.js $(wildcard test/data/**/*)
 	$(NODE) test/generate-tests.js
-	@touch $(BUILD_DIR)/tests
+	@touch $(BUILD_DIR)/generate
 
 
 # Handling dependencies
 #######################################################
 depends: $(BUILD_DIR)/node $(BUILD_DIR)/python
+	@$(NODE) --version
+	@$(PYTHON) --version
 
 # update dependencies information
 update: depends
@@ -77,10 +79,12 @@ update: depends
 # when we pull dependencies also pull docker image
 # without this images can get stale and out of sync from CI system
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
+	@$(NODE) --version
 	$(NPM) install
 	@touch $(BUILD_DIR)/node
 
 $(BUILD_DIR)/python: python/setup.py
+	@$(PYTHON) --version
 	$(PYTHON) -m pip install -e ./python
 	@touch $(BUILD_DIR)/python
 

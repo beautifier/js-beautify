@@ -26,9 +26,9 @@
   SOFTWARE.
 */
 
-var mergeOpts = require('core/options').mergeOpts;
-var acorn = require('core/acorn');
-var Output = require('core/output').Output;
+var mergeOpts = require('../core/options').mergeOpts;
+var acorn = require('../core/acorn');
+var Output = require('../core/output').Output;
 
 
 var lineBreak = acorn.lineBreak;

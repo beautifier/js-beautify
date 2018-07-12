@@ -6,9 +6,7 @@ var fs = require('fs'),
   SanityTest = require('./sanitytest'),
   Benchmark = require('benchmark'),
   Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
-  js_beautify = require('../index').js_beautify,
-  css_beautify = require('../index').css_beautify,
-  html_beautify = require('../index').html_beautify;
+  beautifier = require('../src/index');
 
 function node_beautifier_tests() {
   console.log('Testing performance...');
@@ -19,16 +17,16 @@ function node_beautifier_tests() {
   };
 
   //warm-up
-  js_beautify(data, options);
-  js_beautify(data_min, options);
+  beautifier.js(data, options);
+  beautifier.js(data_min, options);
 
   var suite = new Benchmark.Suite();
 
   suite.add("js-beautify (underscore)", function() {
-      js_beautify(data, options);
+      beautifier.js(data, options);
     })
     .add("js-beautify (underscore-min)", function() {
-      js_beautify(data_min, options);
+      beautifier.js(data_min, options);
     })
     // add listeners
     .on('cycle', function(event) {

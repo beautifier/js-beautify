@@ -26,9 +26,9 @@
     SOFTWARE.
 */
 
-var InputScanner = require('core/inputscanner').InputScanner;
-var Token = require('core/token').Token;
-var acorn = require('core/acorn');
+var InputScanner = require('../core/inputscanner').InputScanner;
+var Token = require('../core/token').Token;
+var acorn = require('../core/acorn');
 
 function trim(s) {
   return s.replace(/^\s+|\s+$/g, '');

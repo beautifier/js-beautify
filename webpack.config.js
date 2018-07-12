@@ -29,7 +29,9 @@ var dist_full = {
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.js',
-    path: path.resolve(__dirname, 'js/lib')
+    path: path.resolve(__dirname, 'js/lib'),
+    // Workaround for https://github.com/webpack/webpack/issues/6525
+    globalObject: "typeof self !== 'undefined' ? self : typeof windows !== 'undefined' ? window : typeof global !== 'undefined' ? global : this"
   }
 };
 
@@ -45,7 +47,9 @@ var dist_prod = {
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.min.js',
-    path: path.resolve(__dirname, 'js/lib')
+    path: path.resolve(__dirname, 'js/lib'),
+    // Workaround for https://github.com/webpack/webpack/issues/6525
+    globalObject: "typeof self !== 'undefined' ? self : typeof windows !== 'undefined' ? window : typeof global !== 'undefined' ? global : this"
   }
 };
 
