@@ -65,7 +65,7 @@ class InputScanner:
 
     def test(self, pattern, index = 0):
         index += self.__position
-        return index >= 0 and index < self.__input_length and pattern.match(self.__input, index)
+        return index >= 0 and index < self.__input_length and bool(pattern.match(self.__input, index))
 
     def testChar(self, pattern, index = 0):
         # test one character regex match
@@ -76,13 +76,13 @@ class InputScanner:
         pattern_match = None
         if self.hasNext():
             pattern_match = pattern.match(self.__input, self.__position)
-            if pattern_match:
+            if bool(pattern_match):
                 self.__position += len(pattern_match.group(0))
         return pattern_match
 
     def readWhile(self, pattern):
         val = ''
         pattern_match = self.match(pattern)
-        if pattern_match:
+        if bool(pattern_match):
             val = pattern_match.group(0)
         return val

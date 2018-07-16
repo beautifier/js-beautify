@@ -33,6 +33,9 @@ class Tokenizer:
     digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
 
+    startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+    xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
         # non-positionable operators - these do not follow operator position settings
@@ -230,7 +233,6 @@ class Tokenizer:
 
         if c == '/':
             comment = ''
-            inline_comment = True
             if self.input.peek() == '*': # peek /* .. */ comment
                 self.input.next()
                 comment_match = self.input.match(self.block_comment_pattern)
@@ -249,10 +251,6 @@ class Tokenizer:
                 comment = '//' + comment_match.group(0)
                 return comment, 'TK_COMMENT'
 
-        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-
-        xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-
         def allowRegExOrXML(self):
             return (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
                 (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
@@ -264,7 +262,7 @@ class Tokenizer:
 
         isString = (c == '`' or c == "'" or c == '"')
         isRegExp = (c == '/' and allowRegExOrXML(self))
-        isXML = (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1) and allowRegExOrXML(self))
+        isXML = (self.opts.e4x and c == "<" and self.input.test(self.startXmlRegExp, -1) and allowRegExOrXML(self))
 
         sep = c
         esc = False
@@ -281,11 +279,11 @@ class Tokenizer:
                 while self.input.hasNext():
                     current_char = self.input.peek()
                     if not (esc or (current_char != delimiter and
-                            (allow_unescaped_newlines or not self.acorn.newline.match(current_char)))):
+                            (allow_unescaped_newlines or not bool(self.acorn.newline.match(current_char))))):
                         break
 
                     # Handle \r\n linebreaks after escapes or in template strings
-                    if (esc or allow_unescaped_newlines) and self.acorn.newline.match(current_char):
+                    if (esc or allow_unescaped_newlines) and bool(self.acorn.newline.match(current_char)):
                         if current_char == '\r' and self.input.peek(1) == '\n':
                             self.input.next()
                             current_char = self.input.peek()
@@ -340,13 +338,13 @@ class Tokenizer:
             # handle e4x xml literals
             self.input.back()
             xmlStr = ""
-            match = self.input.match(xmlRegExp)
+            match = self.input.match(self.xmlRegExp)
             if match:
                 rootTag = match.group(2)
                 rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
                 isCurlyRoot = rootTag.startswith('{')
                 depth = 0
-                while (match):
+                while bool(match):
                     isEndTag = match.group(1)
                     tagName = match.group(2)
                     isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
@@ -361,7 +359,7 @@ class Tokenizer:
                     if depth <= 0:
                         break
 
-                    match = self.input.match(xmlRegExp)
+                    match = self.input.match(self.xmlRegExp)
 
                 # if we didn't close correctly, keep unformatted.
                 if not match:

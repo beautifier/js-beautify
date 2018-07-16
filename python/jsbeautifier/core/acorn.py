@@ -59,7 +59,7 @@ def isIdentifierStart(code):
     # if code < 123:
     #     return True # 97 through 123 are lowercase letters
     # return code >= 0xaa and _nonASCIIidentifierStart.match(six.unichr(code)) != None
-    return _identifierStart.match(six.unichr(code)) != None
+    return bool(_identifierStart.match(six.unichr(code)))
 
 # Test whether a given character is part of an identifier.
 def isIdentifierChar(code):
@@ -76,4 +76,4 @@ def isIdentifierChar(code):
     # if code < 123:
     #     return True
     # return code >= 0xaa and _nonASCIIidentifier.match(six.unichr(code)) != None
-    return _identifierChars.match(six.unichr(code)) != None
+    return bool(_identifierChars.match(six.unichr(code)))
