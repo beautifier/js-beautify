@@ -45,7 +45,9 @@ function in_array(what, arr) {
 
 function Tokenizer(input_string, opts) {
 
-  var whitespace = "\n\r\t ".split('');
+  var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
+  var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+
   var digit = /[0-9]/;
   var digit_bin = /[01]/;
   var digit_oct = /[01234567]/;
@@ -144,16 +146,9 @@ function Tokenizer(input_string, opts) {
 
   function tokenize_next() {
     var resulting_string;
-    var whitespace_on_this_line = [];
 
     n_newlines = 0;
     whitespace_before_token = '';
-
-    var c = input.next();
-
-    if (c === null) {
-      return ['', 'TK_EOF'];
-    }
 
     var last_token;
     if (tokens.length) {
@@ -163,26 +158,39 @@ function Tokenizer(input_string, opts) {
       last_token = new Token('TK_START_BLOCK', '{');
     }
 
-    while (in_array(c, whitespace)) {
-
-      if (acorn.newline.test(c)) {
-        if (!(c === '\n' && input.peek(-2) === '\r')) {
-          n_newlines += 1;
-          whitespace_on_this_line = [];
-        }
+    resulting_string = input.readWhile(whitespacePattern);
+    if (resulting_string !== '') {
+      if (resulting_string === ' ') {
+        whitespace_before_token = resulting_string;
       } else {
-        whitespace_on_this_line.push(c);
-      }
-
-      c = input.next();
-
-      if (c === null) {
-        return ['', 'TK_EOF'];
+        newlinePattern.lastIndex = 0;
+        var nextMatch = newlinePattern.exec(resulting_string);
+        while (nextMatch[2]) {
+          n_newlines += 1;
+          nextMatch = newlinePattern.exec(resulting_string);
+        }
+        whitespace_before_token = nextMatch[1];
       }
     }
 
-    if (whitespace_on_this_line.length) {
-      whitespace_before_token = whitespace_on_this_line.join('');
+    resulting_string = input.readWhile(acorn.identifier);
+    if (resulting_string !== '') {
+      if (!(last_token.type === 'TK_DOT' ||
+          (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['set', 'get']))) &&
+        in_array(resulting_string, reserved_words)) {
+        if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
+          return [resulting_string, 'TK_OPERATOR'];
+        }
+        return [resulting_string, 'TK_RESERVED'];
+      }
+
+      return [resulting_string, 'TK_WORD'];
+    }
+
+    var c = input.next();
+
+    if (c === null) {
+      return ['', 'TK_EOF'];
     }
 
     if (digit.test(c) || (c === '.' && input.testChar(digit))) {
@@ -239,28 +247,6 @@ function Tokenizer(input_string, opts) {
 
       if (allow_bigint && input.peek() === 'n') {
         c += input.next();
-      }
-
-      return [c, 'TK_WORD'];
-    }
-
-    if (acorn.isIdentifierStart(input.peekCharCode(-1))) {
-      if (input.hasNext()) {
-        while (acorn.isIdentifierChar(input.peekCharCode())) {
-          c += input.next();
-          if (!input.hasNext()) {
-            break;
-          }
-        }
-      }
-
-      if (!(last_token.type === 'TK_DOT' ||
-          (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['set', 'get']))) &&
-        in_array(c, reserved_words)) {
-        if (c === 'in' || c === 'of') { // hack for 'in' and 'of' operators
-          return [c, 'TK_OPERATOR'];
-        }
-        return [c, 'TK_RESERVED'];
       }
 
       return [c, 'TK_WORD'];

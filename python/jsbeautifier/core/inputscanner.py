@@ -44,27 +44,27 @@ class InputScanner:
             val = self.__input[self.__position]
             self.__position += 1
 
-        return val;
+        return val
 
     def peek(self, index = 0):
         val = None
-        index += self.__position;
+        index += self.__position
         if index >= 0 and index < self.__input_length:
-            val = self.__input[index];
+            val = self.__input[index]
 
-        return val;
+        return val
 
     def peekCharCode(self, index = 0):
         # basically here for acorn
         val = 0
-        index += self.__position;
+        index += self.__position
         if index >= 0 and index < self.__input_length:
             val = ord(self.__input[index])
 
         return val
 
     def test(self, pattern, index = 0):
-        index += self.__position;
+        index += self.__position
         return index >= 0 and index < self.__input_length and pattern.match(self.__input, index)
 
     def testChar(self, pattern, index = 0):
@@ -77,6 +77,12 @@ class InputScanner:
         if self.hasNext():
             pattern_match = pattern.match(self.__input, self.__position)
             if pattern_match:
-                self.__position += len(pattern_match.group(0));
-
+                self.__position += len(pattern_match.group(0))
         return pattern_match
+
+    def readWhile(self, pattern):
+        val = ''
+        pattern_match = self.match(pattern)
+        if pattern_match:
+            val = pattern_match.group(0)
+        return val

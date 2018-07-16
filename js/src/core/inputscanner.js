@@ -100,6 +100,16 @@ function InputScanner(input) {
     }
     return pattern_match;
   };
+
+  this.readWhile = function(pattern) {
+    var val = '';
+    var match = this.match(pattern);
+    if (match) {
+      val = match[0];
+    }
+    return val;
+  };
+
 }
 
 
