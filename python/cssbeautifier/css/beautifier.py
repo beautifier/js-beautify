@@ -5,6 +5,7 @@ import copy
 from .options import BeautifierOptions
 from jsbeautifier.core.options import mergeOpts
 from jsbeautifier.core.output import Output
+from jsbeautifier.core.inputscanner import InputScanner
 from jsbeautifier.__version__ import __version__
 
 #
@@ -32,6 +33,13 @@ from jsbeautifier.__version__ import __version__
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+whitespaceChar = re.compile("\s")
+whitespacePattern = re.compile("(?:\s|\n)+")
+block_comment_pattern = re.compile("\/\*(?:[\s\S]*?)((?:\*\/)|$)")
+comment_pattern = re.compile("\/\/(?:[^\n\r\u2028\u2029]*)")
+
+# WORD_RE = re.compile("[\w$\-_]")
 
 def default_options():
     return BeautifierOptions()
@@ -64,15 +72,10 @@ CSS beautifier (http://jsbeautifier.org/)
     else:
         return 0
 
-WHITE_RE = re.compile("^\s+$")
-WORD_RE = re.compile("[\w$\-_]")
-
 
 class Printer:
 
-    def __init__(self, beautifier, indent_char, indent_size, default_indent=""):
-        self.beautifier = beautifier
-        self.indentSize = indent_size
+    def __init__(self, indent_char, indent_size, default_indent=""):
         self.singleIndent = (indent_size) * indent_char
         self.indentLevel = 0
         self.nestedLevel = 0
@@ -116,7 +119,7 @@ class Beautifier:
         self.opts = opts
         self.indentSize = opts.indent_size
         self.indentChar = opts.indent_char
-        self.pos = -1
+        self.input = None
         self.ch = None
 
         if self.opts.indent_with_tabs:
@@ -150,97 +153,42 @@ class Beautifier:
         m = re.search("^[\t ]*", self.source_text)
         self.baseIndentString = m.group(0)
 
-    def next(self):
-        self.pos = self.pos + 1
-        if self.pos < len(self.source_text):
-            self.ch = self.source_text[self.pos]
-        else:
-            self.ch = ''
-        return self.ch
-
-    def peek(self,index=0):
-        result = ""
-        index += self.pos + 1
-        if index < len(self.source_text):
-            result = self.source_text[index]
-        return result
-
-    def peekIgnoreWhitespace(self,index=0):
-        start = self.pos
-        self.eatWhitespace()
-        result = self.peek(index)
-        self.pos = start - 1
-        self.next()
-        return result
-
     def eatString(self, endChars):
-        start = self.pos
-        while self.next():
+        result = ''
+        self.ch = self.input.next()
+        while self.ch:
+            result += self.ch
             if self.ch == "\\":
-                self.next()
-            elif self.ch in endChars:
+                result += self.input.next()
+            elif self.ch in endChars or self.ch == "\n":
                 break
-            elif self.ch == "\n":
-                break
-        return self.source_text[start:self.pos] + self.ch
-
-    def peekString(self, endChar):
-        start = self.pos
-        st = self.eatString(endChar)
-        self.pos = start - 1
-        self.next()
-        return st
+            self.ch = self.input.next()
+        return result
 
     # Skips any white space in the source text from the current position.
     # When allowAtLeastOneNewLine is true, will output new lines for each
     # newline character found; if the user has preserve_newlines off, only
     # the first newline will be output
     def eatWhitespace(self, allowAtLeastOneNewLine=False):
-        result = WHITE_RE.search(self.peek()) is not None
+        result = whitespaceChar.search(self.input.peek() or '') is not None
         isFirstNewLine = True
 
-        while WHITE_RE.search(self.peek()) is not None:
-            self.next()
+        while whitespaceChar.search(self.input.peek()  or '') is not None:
+            self.ch = self.input.next()
             if allowAtLeastOneNewLine and self.ch == "\n":
                 if self.opts.preserve_newlines or isFirstNewLine:
                     isFirstNewLine = False
                     self.output.add_new_line(True)
         return result
 
-    def skipWhitespace(self):
-        result = ''
-        if self.ch and WHITE_RE.search(self.ch):
-            result = self.ch
-
-        while WHITE_RE.search(self.next()) is not None:
-            result += self.ch
-        return result
-
-    def eatComment(self, singleLine):
-        start = self.pos
-        if not singleLine:
-            self.next()
-
-        while self.next():
-            if not singleLine and self.ch == "*" and self.peek() == "/":
-                self.next()
-                break
-            elif singleLine and self.peek() == "\n":
-                break
-        return self.source_text[start:self.pos] + self.ch
-
-    def lookBack(self, string):
-        past = self.source_text[self.pos - len(string):self.pos]
-        return past.lower() == string
-
     # Nested pseudo-class if we are insideRule
     # and the next special character found opens
     # a new block
     def foundNestedPseudoClass(self):
-        i = self.pos + 1
         openParen = 0
-        while i < len(self.source_text):
-            ch = self.source_text[i]
+        i = 1
+        ch = self.input.peek(i)
+        while ch:
             if ch == "{":
                 return True
             elif ch == "(":
@@ -253,42 +201,42 @@ class Beautifier:
             elif ch == ";" or ch == "}":
                 return False
             i += 1
+            ch = self.input.peek(i)
 
         return False
 
     def beautify(self):
-        printer = Printer(self, self.indentChar, self.indentSize, self.baseIndentString)
+        printer = Printer(self.indentChar, self.indentSize, self.baseIndentString)
         self.output = printer.output
-        output = self.output
+        self.input = InputScanner(self.source_text)
 
-        self.pos = -1
+        output = self.output
+        input = self.input
+
         self.ch = None
 
         insideRule = False
         insidePropertyValue = False
         enteringConditionalGroup = False
         insideAtExtend = False
-        top_ch = ''
-        last_top_ch = ''
         parenLevel = 0
 
         while True:
-            whitespace = self.skipWhitespace()
+            whitespace = input.readWhile(whitespacePattern)
             isAfterSpace = whitespace != ''
-            isAfterNewline = '\n' in whitespace
-            last_top_ch = top_ch
-            top_ch = self.ch
+            self.ch = input.next()
 
             if not self.ch:
                 break
-            elif self.ch == '/' and self.peek() == '*':
+            elif self.ch == '/' and input.peek() == '*':
                 # /* css comment */
                 # Always start block comments on a new line.
                 # This handles scenarios where a block comment immediately
                 # follows a property definition on the same line or where
                 # minified code is being beautified.
                 output.add_new_line()
-                printer.print_string(self.eatComment(False))
+                input.back()
+                printer.print_string(input.readWhile(block_comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -296,12 +244,13 @@ class Beautifier:
                 # Block comments are followed by a new line so they don't
                 # share a line with other properties
                 output.add_new_line()
-            elif self.ch == '/' and self.peek() == '/':
+            elif self.ch == '/' and input.peek() == '/':
                 # // single line comment
                 # Preserves the space before a comment
                 # on the same line as a rule
                 output.space_before_token = True
-                printer.print_string(self.eatComment(True))
+                input.back()
+                printer.print_string(input.readWhile(comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -309,16 +258,15 @@ class Beautifier:
                 printer.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
-                if self.peek() == '{':
-                    printer.print_string(self.eatString('}'))
+                if input.peek() == '{':
+                    printer.print_string(self.ch + self.eatString('}'))
                 else:
                     printer.print_string(self.ch)
                     # strip trailing space, if present, for hash property check
-                    variableOrRule = self.peekString(": ,;{}()[]/='\"")
+                    variableOrRule = input.peekUntilAfter(re.compile("[: ,;{}()[]/='\"]"))
 
                     if variableOrRule[-1] in ": ":
                         # wwe have a variable or pseudo-class, add it and insert one space before continuing
-                        self.next()
                         variableOrRule = self.eatString(": ")
                         if variableOrRule[-1].isspace():
                             variableOrRule = variableOrRule[:-1]
@@ -336,13 +284,11 @@ class Beautifier:
                         printer.nestedLevel += 1
                         if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                             enteringConditionalGroup = True
-            elif self.ch == '#' and self.peek() == '{':
+            elif self.ch == '#' and input.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
-                printer.print_string(self.eatString('}'))
+                printer.print_string(self.ch + self.eatString('}'))
             elif self.ch == '{':
-                if self.peekIgnoreWhitespace() == '}':
-                    self.eatWhitespace()
-                    self.next()
+                if input.match(re.compile("[\t\n ]*}")) is not None:
                     output.space_before_token = True
                     printer.print_string("{}")
                     self.eatWhitespace(True)
@@ -379,10 +325,9 @@ class Beautifier:
                 if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                     output.add_new_line(True)
             elif self.ch == ":":
-                self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
-                        not (self.lookBack('&') or self.foundNestedPseudoClass()) and \
-                        not self.lookBack('(') and not insideAtExtend:
+                        not (input.lookBack('&') or self.foundNestedPseudoClass()) and \
+                        not input.lookBack('(') and not insideAtExtend:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     printer.print_string(":")
@@ -395,18 +340,18 @@ class Beautifier:
                     # sass nested pseudo-class don't use a space
 
                     # preserve space before pseudoclasses/pseudoelements, as it means "in any child"
-                    if self.lookBack(' '):
+                    if input.lookBack(' '):
                         output.space_before_token = True
-                    if self.peek() == ":":
+                    if input.peek() == ":":
                         # pseudo-element
-                        self.next()
+                        self.ch = input.next()
                         printer.print_string("::")
                     else:
                         # pseudo-element
                         printer.print_string(":")
             elif self.ch == '"' or self.ch == '\'':
                 printer.preserveSingleSpace(isAfterSpace)
-                printer.print_string(self.eatString(self.ch))
+                printer.print_string(self.ch + self.eatString(self.ch))
             elif self.ch == ';':
                 insidePropertyValue = False
                 insideAtExtend = False
@@ -417,19 +362,20 @@ class Beautifier:
                 # line. Block comments are also affected, but
                 # a new line is always output before one inside
                 # that section
-                if self.peek() is not '/':
+                if input.peek() is not '/':
                     output.add_new_line()
             elif self.ch == '(':
                 # may be a url
-                if self.lookBack("url"):
+                if input.lookBack("url"):
                     printer.print_string(self.ch)
                     self.eatWhitespace()
-                    if self.next():
+                    self.ch = input.next()
+                    if self.ch:
                         if self.ch is not ')' and self.ch is not '"' \
                         and self.ch is not '\'':
-                            printer.print_string(self.eatString(')'))
+                            printer.print_string(self.ch + self.eatString(')'))
                         else:
-                            self.pos -= 1
+                            input.back()
                             parenLevel += 1
                 else:
                     parenLevel += 1
@@ -457,7 +403,7 @@ class Beautifier:
                     printer.print_string(self.ch)
                     self.eatWhitespace()
                     # squash extra whitespace
-                    if self.ch and WHITE_RE.search(self.ch):
+                    if self.ch and bool(whitespaceChar.search(self.ch)):
                         self.ch = ''
             elif self.ch == ']':
                 printer.print_string(self.ch)
@@ -468,7 +414,7 @@ class Beautifier:
                 # no whitespace before or after
                 self.eatWhitespace()
                 printer.print_string('=')
-                if WHITE_RE.search(self.ch):
+                if bool(whitespaceChar.search(self.ch)):
                     self.ch = ''
             elif self.ch == '!':  # !important
                 printer.print_string(' ')

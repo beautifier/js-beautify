@@ -68,7 +68,7 @@ class InputScanner:
         if self.hasNext():
             pattern_match = pattern.match(self.__input, self.__position)
             if bool(pattern_match):
-                self.__position += len(pattern_match.group(0))
+                self.__position = pattern_match.end(0)
         return pattern_match
 
     def readWhile(self, pattern):
@@ -77,3 +77,47 @@ class InputScanner:
         if bool(pattern_match):
             val = pattern_match.group(0)
         return val
+
+    def readUntil(self, pattern):
+        val = ''
+        pattern_match = None
+        match_index = self.__position
+        if self.hasNext():
+            pattern_match = pattern.search(self.__input, self.__position)
+            if bool(pattern_match):
+                match_index = pattern_match.start(0)
+            else:
+                match_index = self.__input_length
+
+            val = self.__input[self.__position:match_index]
+            self.__position = match_index
+
+        return val
+
+    def readUntilAfter(self, pattern):
+        val = ''
+        pattern_match = None
+        match_index = self.__position
+        if self.hasNext():
+            pattern_match = pattern.search(self.__input, self.__position)
+            if bool(pattern_match):
+                match_index = pattern_match.end(0)
+            else:
+                match_index = self.__input_length
+
+            val = self.__input[self.__position:match_index]
+            self.__position = match_index
+
+        return val
+
+    # css beautifier legacy helpers
+    def peekUntilAfter(self, pattern):
+        start = self.__position
+        val = self.readUntilAfter(pattern)
+        self.__position = start
+        return val
+
+    def lookBack(self, testVal):
+         start = self.__position - 1
+         return start >= len(testVal) and \
+            self.__input[start - len(testVal):start].lower() == testVal
