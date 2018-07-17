@@ -378,8 +378,7 @@ class Tokenizer:
                 if sep == '/':
                     # regexps may have modifiers /regexp/MOD, so fetch those too
                     # Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-                    while self.input.hasNext() and self.acorn.isIdentifierStart(self.input.peekCharCode()):
-                        resulting_string += self.input.next()
+                    resulting_string += self.input.readWhile(self.acorn.identifier)
 
             resulting_string = re.sub(self.acorn.allLineBreaks, '\n', resulting_string)
 

@@ -54,15 +54,6 @@ class InputScanner:
 
         return val
 
-    def peekCharCode(self, index = 0):
-        # basically here for acorn
-        val = 0
-        index += self.__position
-        if index >= 0 and index < self.__input_length:
-            val = ord(self.__input[index])
-
-        return val
-
     def test(self, pattern, index = 0):
         index += self.__position
         return index >= 0 and index < self.__input_length and bool(pattern.match(self.__input, index))

@@ -60,17 +60,6 @@ function InputScanner(input) {
     return val;
   };
 
-  this.peekCharCode = function(index) {
-    // basically here for acorn
-    var val = 0;
-    index = index || 0;
-    index += _position;
-    if (index >= 0 && index < _input_length) {
-      val = _input.charCodeAt(index);
-    }
-    return val;
-  };
-
   this.test = function(pattern, index) {
     index = index || 0;
     index += _position;
