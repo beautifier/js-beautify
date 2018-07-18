@@ -34,10 +34,8 @@ from jsbeautifier.__version__ import __version__
 # SOFTWARE.
 
 
-whitespaceChar = re.compile("\s")
-whitespacePattern = re.compile("(?:\s|\n)+")
-block_comment_pattern = re.compile("\/\*(?:[\s\S]*?)((?:\*\/)|$)")
-comment_pattern = re.compile("\/\/(?:[^\n\r\u2028\u2029]*)")
+whitespaceChar = re.compile(r"\s")
+whitespacePattern = re.compile(r"(?:\s|\n)+")
 
 # WORD_RE = re.compile("[\w$\-_]")
 
@@ -107,6 +105,8 @@ class Beautifier:
         import jsbeautifier.core.acorn as acorn
         self.lineBreak = acorn.lineBreak
         self.allLineBreaks = acorn.allLineBreaks
+        self.comment_pattern = re.compile(acorn.six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
+        self.block_comment_pattern = re.compile(r"\/\*(?:[\s\S]*?)((?:\*\/)|$)")
 
         if not source_text:
             source_text = ''
@@ -236,7 +236,7 @@ class Beautifier:
                 # minified code is being beautified.
                 output.add_new_line()
                 input.back()
-                printer.print_string(input.readWhile(block_comment_pattern))
+                printer.print_string(input.readWhile(self.block_comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -250,7 +250,7 @@ class Beautifier:
                 # on the same line as a rule
                 output.space_before_token = True
                 input.back()
-                printer.print_string(input.readWhile(comment_pattern))
+                printer.print_string(input.readWhile(self.comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -263,7 +263,7 @@ class Beautifier:
                 else:
                     printer.print_string(self.ch)
                     # strip trailing space, if present, for hash property check
-                    variableOrRule = input.peekUntilAfter(re.compile("[: ,;{}()[]/='\"]"))
+                    variableOrRule = input.peekUntilAfter(re.compile(r"[: ,;{}()[\]\/='\"]"))
 
                     if variableOrRule[-1] in ": ":
                         # wwe have a variable or pseudo-class, add it and insert one space before continuing
