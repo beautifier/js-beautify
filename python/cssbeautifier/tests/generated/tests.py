@@ -42,6 +42,9 @@ class CSSBeautifierTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        pass
+
+    def reset_options(self):
         false = False
         true = True
 
@@ -61,10 +64,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.preserve_newlines = false
         default_options.space_around_selector_separator = false
 
-        cls.default_options = default_options
-
-    def reset_options(self):
-        self.options = copy.copy(self.default_options)
+        self.options = copy.copy(default_options)
 
     def testGenerated(self):
         self.reset_options()
@@ -77,7 +77,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # End With Newline - (eof = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.end_with_newline = true
         test_fragment('', '\n')
         test_fragment('   .tabs{}', '   .tabs {}\n')
@@ -93,7 +93,7 @@ class CSSBeautifierTest(unittest.TestCase):
         test_fragment('\n')
 
         # End With Newline - (eof = "")
-        self.reset_options();
+        self.reset_options()
         self.options.end_with_newline = false
         test_fragment('')
         test_fragment('   .tabs{}', '   .tabs {}')
@@ -111,7 +111,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Empty braces
-        self.reset_options();
+        self.reset_options()
         t('.tabs{}', '.tabs {}')
         t('.tabs { }', '.tabs {}')
         t('.tabs    {    }', '.tabs {}')
@@ -126,7 +126,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # 
-        self.reset_options();
+        self.reset_options()
         t(
             '#cboxOverlay {\n' +
             '\tbackground: url(images/overlay.png) repeat 0 0;\n' +
@@ -143,7 +143,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Support simple language specific option inheritance/overriding - (c = "     ")
-        self.reset_options();
+        self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 4
         self.options.js = { 'indent_size': 3 }
@@ -154,7 +154,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Support simple language specific option inheritance/overriding - (c = "    ")
-        self.reset_options();
+        self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 4
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }
@@ -164,7 +164,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Support simple language specific option inheritance/overriding - (c = "   ")
-        self.reset_options();
+        self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 9
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 8 }, 'indent_size': 2}
@@ -178,7 +178,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Space Around Combinator - (space = " ")
-        self.reset_options();
+        self.reset_options()
         self.options.space_around_combinator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
@@ -214,7 +214,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Space Around Combinator - (space = "")
-        self.reset_options();
+        self.reset_options()
         self.options.space_around_combinator = false
         t('a>b{}', 'a>b {}')
         t('a~b{}', 'a~b {}')
@@ -250,7 +250,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Space Around Combinator - (space = " ")
-        self.reset_options();
+        self.reset_options()
         self.options.space_around_selector_separator = true
         t('a>b{}', 'a > b {}')
         t('a~b{}', 'a ~ b {}')
@@ -288,7 +288,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Selector Separator - (separator = " ", separator1 = " ")
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = " "
         t(
@@ -326,7 +326,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Selector Separator - (separator = " ", separator1 = " ")
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = "  "
         t(
@@ -364,7 +364,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Selector Separator - (separator = "\n", separator1 = "\n\t")
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = " "
         t(
@@ -402,7 +402,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Selector Separator - (separator = "\n", separator1 = "\n\t")
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = "  "
         t(
@@ -442,7 +442,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         t('.div {}\n\n.span {}')
         t(
@@ -456,7 +456,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         t('.div {}\n\n.span {}', '.div {}\n.span {}')
         t(
@@ -472,7 +472,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Preserve Newlines and newline_between_rules
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t(
@@ -582,7 +582,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Preserve Newlines and add tabs
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         t(
             '.tool-tip {\n' +
@@ -620,7 +620,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Newline Between Rules - (new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.newline_between_rules = true
         t(
             '.div {}\n' +
@@ -796,7 +796,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Newline Between Rules - (new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.newline_between_rules = false
         t(
             '.div {}\n' +
@@ -942,7 +942,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Functions braces
-        self.reset_options();
+        self.reset_options()
         t('.tabs(){}', '.tabs() {}')
         t('.tabs (){}', '.tabs () {}')
         t(
@@ -976,7 +976,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -1272,7 +1272,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n", new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -1932,7 +1932,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n", new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -2592,7 +2592,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -2888,7 +2888,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n", i1 = "\n", o = "\n", new_rule = "\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -3270,7 +3270,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n\n\n", new_rule = "\n\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -4182,7 +4182,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n\n\n", new_rule = "\n\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
@@ -5044,7 +5044,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -5352,7 +5352,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n", new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -6024,7 +6024,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n", new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -6696,7 +6696,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -7004,7 +7004,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n", i1 = "\n", o = "\n", new_rule = "\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -7416,7 +7416,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n\n\n", new_rule = "\n\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -8278,7 +8278,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '}')
 
         # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n\n\n", new_rule = "\n\n\n")
-        self.reset_options();
+        self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
@@ -9192,7 +9192,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Handle LESS property name interpolation
-        self.reset_options();
+        self.reset_options()
         t(
             'tag {\n' +
             '\t@{prop}: none;\n' +
@@ -9231,7 +9231,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Handle LESS property name interpolation, test #631
-        self.reset_options();
+        self.reset_options()
         t(
             '.generate-columns(@n, @i: 1) when (@i =< @n) {\n' +
             '\t.column-@{i} {\n' +
@@ -9252,7 +9252,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Handle LESS function parameters
-        self.reset_options();
+        self.reset_options()
         t(
             'div{.px2rem(width,12);}',
             #  -- output --
@@ -9268,7 +9268,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Psuedo-classes vs Variables
-        self.reset_options();
+        self.reset_options()
         t('@page :first {}')
         
         # Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.
@@ -9278,7 +9278,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # SASS/SCSS
-        self.reset_options();
+        self.reset_options()
         
         # Basic Interpolation
         t(
@@ -9306,7 +9306,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Proper handling of colon in selectors
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = false
         t('a :b {}')
         t('a ::b {}')
@@ -9332,7 +9332,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Regresssion Tests
-        self.reset_options();
+        self.reset_options()
         self.options.selector_separator_newline = false
         t(
             '@media(min-width:768px) {\n' +
@@ -9351,7 +9351,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Extend Tests
-        self.reset_options();
+        self.reset_options()
         t(
             '.btn-group-radios {\n' +
             '\t.btn:hover {\n' +
@@ -9372,7 +9372,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # Important 
-        self.reset_options();
+        self.reset_options()
         t(
             'a {\n' +
             '\tcolor: blue  !important;\n' +
@@ -9397,7 +9397,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         #============================================================
         # 
-        self.reset_options();
+        self.reset_options()
 
 
 
@@ -9415,7 +9415,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.reset_options()
         t = self.decodesto
 
-        self.reset_options();
+        self.reset_options()
         #============================================================
         t(None, "")
 
@@ -9432,7 +9432,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         t("a:before {\n" +
             "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
-            "}");
+            "}")
 
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
@@ -9526,18 +9526,18 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t&: hover {\n' +
             '\t\tcolor: green;\n' +
             '\t}\n' +
-            '}');
+            '}')
 
         # import
-        t('@import "test";');
+        t('@import "test";')
 
         # don't break nested pseudo-classes
         t("a:first-child{color:red;div:first-child{color:black;}}",
-            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
+            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}")
 
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",
-            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
+            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}")
 
         # nested modifiers (&:hover etc)
         t(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}")
@@ -9566,7 +9566,7 @@ class CSSBeautifierTest(unittest.TestCase):
                 cssbeautifier.beautify(expectation, self.options), expectation)
 
         # Everywhere we do newlines, they should be replaced with opts.eol
-        self.options.eol = '\r\\n';
+        self.options.eol = '\r\\n'
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)

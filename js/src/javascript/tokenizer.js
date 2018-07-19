@@ -448,9 +448,7 @@ function Tokenizer(input_string, opts) {
         if (sep === '/') {
           // regexps may have modifiers /regexp/MOD , so fetch those, too
           // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-          while (input.hasNext() && acorn.isIdentifierStart(input.peekCharCode())) {
-            resulting_string += input.next();
-          }
+          resulting_string += input.readWhile(acorn.identifier);
         }
       }
       return [resulting_string, 'TK_STRING'];

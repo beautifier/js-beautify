@@ -32,7 +32,7 @@ import copy
 def mergeOpts(options, childFieldName):
     finalOpts = copy.copy(options)
 
-    local = getattr(finalOpts, childFieldName)
+    local = getattr(finalOpts, childFieldName, None)
     if (local):
         delattr(finalOpts, childFieldName)
         for key in local:
