@@ -146,16 +146,6 @@ function InputScanner(input) {
       .toLowerCase() === testVal;
   };
 
-  /* html beautifier legacy helpers */
-  this.peekString = function(length) {
-    var val = null;
-    if (length > 0) {
-      val = _input.substr(_position, length);
-    }
-    return val;
-  };
-
-
 }
 
 
