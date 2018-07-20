@@ -1104,7 +1104,8 @@ exports.test_data = {
     template: "^^^ $$$",
     tests: [{
       fragment: true,
-      unchanged: '<div><span></span></div><span><div></div></span>'
+      input: '<div><span></span></div><span><div></div></span>',
+      output: '<div><span></span></div><span>\n    <div></div>\n</span>'
     }, {
       fragment: true,
       input: '<div><div><span><span>Nested spans</span></span></div></div>',
