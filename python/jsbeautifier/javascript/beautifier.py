@@ -503,7 +503,7 @@ class Beautifier:
 
         if self.flags.last_text == ';' or self.last_type == 'TK_START_BLOCK':
             self.print_newline()
-        elif self.last_type in ['TK_END_EXPR', 'TK_START_EXPR', 'TK_END_BLOCK'] or self.flags.last_text == '.':
+        elif self.last_type in ['TK_END_EXPR', 'TK_START_EXPR', 'TK_END_BLOCK', 'TK_COMMA'] or self.flags.last_text == '.':
             # do nothing on (( and )( and ][ and ]( and .(
             # TODO: Consider whether forcing this is required.  Review failing tests when removed.
             self.allow_wrap_or_preserved_newline(current_token, current_token.wanted_newline)
@@ -1059,6 +1059,9 @@ class Beautifier:
             space_before = self.last_type == 'TK_START_BLOCK'
             space_after = False
         elif current_token.text in ['--', '++', '!', '~'] or isUnary:
+            if self.last_type == 'TK_COMMA' or self.last_type == 'TK_START_EXPR':
+                self.allow_wrap_or_preserved_newline(current_token)
+
             space_before = False
             space_after = False
 
