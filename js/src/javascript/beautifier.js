@@ -668,7 +668,7 @@ function Beautifier(js_source_text, options) {
 
     if (flags.last_text === ';' || last_type === 'TK_START_BLOCK') {
       print_newline();
-    } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.') {
+    } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || flags.last_text === '.' || last_type === 'TK_COMMA') {
       // do nothing on (( and )( and ][ and ]( and .(
       // TODO: Consider whether forcing this is required.  Review failing tests when removed.
       allow_wrap_or_preserved_newline(current_token.wanted_newline);
@@ -1294,6 +1294,9 @@ function Beautifier(js_source_text, options) {
       space_after = false;
     } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
       // unary operators (and binary +/- pretending to be unary) special cases
+      if (last_type === 'TK_COMMA' || last_type === 'TK_START_EXPR') {
+        allow_wrap_or_preserved_newline();
+      }
 
       space_before = false;
       space_after = false;
