@@ -27,20 +27,20 @@
 */
 
 function OutputLine(parent) {
-  var _character_count = 0;
-  // use indent_count as a marker for lines that have preserved indentation
-  var _indent_count = -1;
+  this._character_count = 0;
+  // use indent_count as a marker for this._lines that have preserved indentation
+  this._indent_count = -1;
 
-  var _items = [];
+  this._items = [];
   var _empty = true;
 
   this.set_indent = function(level) {
-    _character_count = parent.baseIndentLength + level * parent.indent_length;
-    _indent_count = level;
+    this._character_count = parent.baseIndentLength + level * parent.indent_length;
+    this._indent_count = level;
   };
 
   this.get_character_count = function() {
-    return _character_count;
+    return this._character_count;
   };
 
   this.is_empty = function() {
@@ -49,50 +49,50 @@ function OutputLine(parent) {
 
   this.last = function() {
     if (!this._empty) {
-      return _items[_items.length - 1];
+      return this._items[this._items.length - 1];
     } else {
       return null;
     }
   };
 
   this.push = function(input) {
-    _items.push(input);
-    _character_count += input.length;
+    this._items.push(input);
+    this._character_count += input.length;
     _empty = false;
   };
 
   this.pop = function() {
     var item = null;
     if (!_empty) {
-      item = _items.pop();
-      _character_count -= item.length;
-      _empty = _items.length === 0;
+      item = this._items.pop();
+      this._character_count -= item.length;
+      _empty = this._items.length === 0;
     }
     return item;
   };
 
   this.remove_indent = function() {
-    if (_indent_count > 0) {
-      _indent_count -= 1;
-      _character_count -= parent.indent_length;
+    if (this._indent_count > 0) {
+      this._indent_count -= 1;
+      this._character_count -= parent.indent_length;
     }
   };
 
   this.trim = function() {
     while (this.last() === ' ') {
-      _items.pop();
-      _character_count -= 1;
+      this._items.pop();
+      this._character_count -= 1;
     }
-    _empty = _items.length === 0;
+    _empty = this._items.length === 0;
   };
 
   this.toString = function() {
     var result = '';
     if (!this._empty) {
-      if (_indent_count >= 0) {
-        result = parent.indent_cache[_indent_count];
+      if (this._indent_count >= 0) {
+        result = parent.indent_cache[this._indent_count];
       }
-      result += _items.join('');
+      result += this._items.join('');
     }
     return result;
   };
@@ -105,7 +105,7 @@ function Output(indent_string, baseIndentString) {
   this.indent_length = indent_string.length;
   this.raw = false;
 
-  var lines = [];
+  this._lines = [];
   this.baseIndentString = baseIndentString;
   this.indent_string = indent_string;
   this.previous_line = null;
@@ -115,7 +115,7 @@ function Output(indent_string, baseIndentString) {
   this.add_outputline = function() {
     this.previous_line = this.current_line;
     this.current_line = new OutputLine(this);
-    lines.push(this.current_line);
+    this._lines.push(this.current_line);
   };
 
   // initialize
@@ -123,7 +123,7 @@ function Output(indent_string, baseIndentString) {
 
 
   this.get_line_number = function() {
-    return lines.length;
+    return this._lines.length;
   };
 
   // Using object instead of string to allow for later expansion of info about each line
@@ -143,7 +143,7 @@ function Output(indent_string, baseIndentString) {
   };
 
   this.get_code = function(end_with_newline, eol) {
-    var sweet_code = lines.join('\n').replace(/[\r\n\t ]+$/, '');
+    var sweet_code = this._lines.join('\n').replace(/[\r\n\t ]+$/, '');
 
     if (end_with_newline) {
       sweet_code += '\n';
@@ -158,7 +158,7 @@ function Output(indent_string, baseIndentString) {
 
   this.set_indent = function(level) {
     // Never indent your first output indent at the start of the file
-    if (lines.length > 1) {
+    if (this._lines.length > 1) {
       while (level >= this.indent_cache.length) {
         this.indent_cache.push(this.indent_cache[this.indent_cache.length - 1] + this.indent_string);
       }
@@ -192,9 +192,9 @@ function Output(indent_string, baseIndentString) {
   };
 
   this.remove_indent = function(index) {
-    var output_length = lines.length;
+    var output_length = this._lines.length;
     while (index < output_length) {
-      lines[index].remove_indent();
+      this._lines[index].remove_indent();
       index++;
     }
   };
@@ -204,14 +204,14 @@ function Output(indent_string, baseIndentString) {
 
     this.current_line.trim(indent_string, baseIndentString);
 
-    while (eat_newlines && lines.length > 1 &&
+    while (eat_newlines && this._lines.length > 1 &&
       this.current_line.is_empty()) {
-      lines.pop();
-      this.current_line = lines[lines.length - 1];
+      this._lines.pop();
+      this.current_line = this._lines[this._lines.length - 1];
       this.current_line.trim();
     }
 
-    this.previous_line = lines.length > 1 ? lines[lines.length - 2] : null;
+    this.previous_line = this._lines.length > 1 ? this._lines[this._lines.length - 2] : null;
   };
 
   this.just_added_newline = function() {
@@ -220,11 +220,11 @@ function Output(indent_string, baseIndentString) {
 
   this.just_added_blankline = function() {
     if (this.just_added_newline()) {
-      if (lines.length === 1) {
+      if (this._lines.length === 1) {
         return true; // start of the file and newline = blank
       }
 
-      var line = lines[lines.length - 2];
+      var line = this._lines[this._lines.length - 2];
       return line.is_empty();
     }
     return false;
