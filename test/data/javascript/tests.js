@@ -2334,6 +2334,47 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1374 - Parameters starting with ! or [ merged into single line",
+          unchanged: [
+            'fn(',
+            '    1,',
+            '    !1,',
+            '    1,',
+            '    [1]',
+            ')'
+          ]
+        },
+        {
+          comment: "Issue 1288 - Negative numbers remove newlines in array",
+          unchanged: [
+            'var array = [',
+            '    -1,',
+            '    0,',
+            '    "a",',
+            '    -2,',
+            '    1,',
+            '    -3,',
+            '];'
+          ]
+        },
+        {
+          comment: "Issue 1229 - Negated expressions in array",
+          unchanged: [
+            'a = [',
+            '    true && 1,',
+            '    true && 1,',
+            '    true && 1',
+            ']',
+            'a = [',
+            '    !true && 1,',
+            '    !true && 1,',
+            '    !true && 1',
+            ']'
+          ]
+        },
+
+
+        {
           comment: "Issue #996 - Input ends with backslash throws exception",
           fragment: true,
           unchanged: [
