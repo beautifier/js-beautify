@@ -52,13 +52,20 @@ beautify:
 # javascript bundle generation
 js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/**/*) js/index.js tools/template/* webpack.config.js
 	$(SCRIPT_DIR)/build.sh js
+	$(NPM) pack && mv *.tgz build/
+	mkdir -p build/node_modules
+	rm -rf node_modules/js-beautify
+	cd build && \
+		$(NPM) install ./*.tgz
 
 
 # python package generation
 python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/*
 	@echo Building python module...
+	rm -f python/dist/*
 	@cd python && \
 		$(PYTHON) setup.py sdist
+	./build/python-rel/bin/pip install -U python/dist/*
 
 # Test generation
 $(BUILD_DIR)/generate: $(BUILD_DIR)/node test/generate-tests.js $(wildcard test/data/**/*)
@@ -83,10 +90,16 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	$(NPM) install
 	@touch $(BUILD_DIR)/node
 
-$(BUILD_DIR)/python: python/setup.py
+$(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
-	$(PYTHON) -m pip install -e ./python
+	./build/python-dev/bin/pip install -e ./python
 	@touch $(BUILD_DIR)/python
+
+$(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
+	virtualenv --version || pip install virtualenv
+	virtualenv build/python-dev
+	virtualenv build/python-rel
+	@touch $(BUILD_DIR)/virtualenv
 
 
 

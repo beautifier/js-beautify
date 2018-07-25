@@ -8,7 +8,7 @@ test_cli_common()
     echo ----------------------------------------
     echo Testing common cli behavior...
     CLI_SCRIPT_NAME=${1:?missing_param}
-    CLI_SCRIPT=$SCRIPT_DIR/../../$CLI_SCRIPT_NAME
+    CLI_SCRIPT=${2:-$SCRIPT_DIR/../../$CLI_SCRIPT_NAME}
     echo Script: $CLI_SCRIPT
 
     # should find the minimal help output
@@ -73,7 +73,7 @@ test_cli_js_beautify()
 {
     echo ----------------------------------------
     echo Testing js-beautify cli behavior...
-    CLI_SCRIPT=$SCRIPT_DIR/../../js-beautify
+    CLI_SCRIPT=${1:-$SCRIPT_DIR/../../js-beautify}
 
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js > /dev/null || {
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected succeed."
@@ -318,7 +318,7 @@ test_perf_js_beautify()
     echo ----------------------------------------
     echo Testing beautify performance...
   	# PYTHON=python $SCRIPT_DIR/../../js-beautify-profile || exit 1
-  	$SCRIPT_DIR/test-perf-jsbeautifier.py || exit 1
+  	$SCRIPT_DIR/../../test-perf-jsbeautifier.py || exit 1
 }
 
 main() {
@@ -326,9 +326,11 @@ main() {
 
     #test_cli_common css-beautify
     #test_cli_common html-beautify
-    test_cli_common js-beautify
+    test_cli_common js-beautify $SCRIPT_DIR/../../../build/python-dev/bin/js-beautify
+    test_cli_common js-beautify $SCRIPT_DIR/../../../build/python-rel/bin/js-beautify
 
-    test_cli_js_beautify
+
+    test_cli_js_beautify $SCRIPT_DIR/../../../build/python-dev/bin/js-beautify
     test_perf_js_beautify
 
     echo ----------------------------------------
