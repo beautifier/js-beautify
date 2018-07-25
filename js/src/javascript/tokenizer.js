@@ -466,11 +466,7 @@ function Tokenizer(input_string, opts) {
         return [trim(resulting_string) + '\n', 'TK_UNKNOWN'];
       }
 
-
-
-      // Spidermonkey-specific sharp variables for circular references
-      // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
-      // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
+      // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
       var sharp = '#';
       if (input.hasNext() && input.testChar(digit)) {
         do {
