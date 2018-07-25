@@ -16,3 +16,4 @@ dist/
 build/
 js/lib/
 .idea/
+.vscode/

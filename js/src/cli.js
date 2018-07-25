@@ -216,7 +216,7 @@ function set_file_editorconfig_opts(file, config) {
       if (eConfigs.max_line_length === "off") {
         config.wrap_line_length = 0;
       } else {
-        config.wrap_line_length = parseInt(eConfigs.max_line_length);
+        config.wrap_line_length = parseInt(eConfigs.max_line_length, 10);
       }
     }
 

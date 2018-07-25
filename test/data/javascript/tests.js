@@ -186,7 +186,7 @@ exports.test_data = {
         { fragment: true, input: '   return .5', output: '   return .5{{eof}}' },
         { fragment: true, input: '   \n\nreturn .5\n\n\n\n', output: '   return .5{{eof}}' },
         { fragment: true, input: '\n', output: '{{eof}}' }
-      ],
+      ]
     }, {
       name: "Support simple language specific option inheritance/overriding",
       description: "Support simple language specific option inheritance/overriding",
@@ -219,7 +219,7 @@ exports.test_data = {
           '{{j}}test();',
           '}'
         ]
-      }, ]
+      }]
     }, {
       name: "Brace style permutations",
       description: "",
@@ -279,7 +279,7 @@ exports.test_data = {
           oao: '\n    ',
           obc: '\n',
           oac: ' '
-        },
+        }
       ],
       tests: [{
           input: 'var a =<ibo>{<iao>a: 2<ibc>}<iac>;\nvar a =<ibo>{<iao>a: 2<ibc>}<iac>;',
@@ -309,7 +309,7 @@ exports.test_data = {
             'catch (d)<obo>{}<oac>' +
             'finally<obo>{<oao>e();<obc>}'
         }
-      ],
+      ]
     }, {
       name: "Comma-first option",
       description: "Put commas at the start of lines instead of the end",
@@ -403,8 +403,8 @@ exports.test_data = {
             '    }',
             ');'
           ]
-        },
-      ],
+        }
+      ]
     }, {
       name: "Unindent chained functions",
       description: "Don't indent chained functions if unindent_chained_functions is true",
@@ -416,7 +416,7 @@ exports.test_data = {
       tests: [{
           input: [
             'f().f().f()',
-            '    .f().f();',
+            '    .f().f();'
           ],
           output: [
             'f().f().f()',
@@ -477,40 +477,40 @@ exports.test_data = {
             '    .f();',
             '});'
           ]
-        },
+        }
 
-      ],
+      ]
     }, {
       name: "Space in parens tests",
       description: "put space inside parens",
       matrix: [{
         options: [
           { name: "space_in_paren", value: "false" },
-          { name: "space_in_empty_paren", value: "false" },
+          { name: "space_in_empty_paren", value: "false" }
         ],
         s: '',
-        e: '',
+        e: ''
       }, {
         options: [
           { name: "space_in_paren", value: "false" },
-          { name: "space_in_empty_paren", value: "true" },
+          { name: "space_in_empty_paren", value: "true" }
         ],
         s: '',
-        e: '',
+        e: ''
       }, {
         options: [
           { name: "space_in_paren", value: "true" },
-          { name: "space_in_empty_paren", value: "false" },
+          { name: "space_in_empty_paren", value: "false" }
         ],
         s: ' ',
-        e: '',
+        e: ''
       }, {
         options: [
           { name: "space_in_paren", value: "true" },
-          { name: "space_in_empty_paren", value: "true" },
+          { name: "space_in_empty_paren", value: "true" }
         ],
         s: ' ',
-        e: ' ',
+        e: ' '
       }],
       tests: [{
           input: 'if(p) foo(a,b);',
@@ -564,9 +564,9 @@ exports.test_data = {
             '        dest: "www/gui/build"',
             '    }{{s}}]',
             '}'
-          ],
-        },
-      ],
+          ]
+        }
+      ]
     }, {
       name: "operator_position option - ensure no neswlines if preserve_newlines is false",
       matrix: [{
@@ -589,7 +589,7 @@ exports.test_data = {
         unchanged: inputlib.operator_position.sanity
       }, {
         input: inputlib.operator_position.comprehensive,
-        output: inputlib.operator_position.sanity,
+        output: inputlib.operator_position.sanity
       }]
     }, {
       name: "operator_position option - set to 'before-newline' (default value)",
@@ -941,7 +941,7 @@ exports.test_data = {
             '            return <ListItem item={return <tag>{item}</tag>} key={item.id} />;',
             '        });',
             '    }',
-            '});',
+            '});'
           ]
         },
         {
@@ -962,7 +962,7 @@ exports.test_data = {
             '        return <div {someAttr}>Hello {this.props.name}</div>;',
             '    }',
             '});',
-            'React.render(<HelloMessage name="John" />, mountNode);',
+            'React.render(<HelloMessage name="John" />, mountNode);'
           ]
         },
         {
@@ -1127,7 +1127,7 @@ exports.test_data = {
             '        </Nav>',
             '    );',
             'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;',
-            'render(dropdown);',
+            'render(dropdown);'
           ],
           output: [
             'var content = (',
@@ -1143,7 +1143,7 @@ exports.test_data = {
             '        </Nav>',
             ');',
             'var qwer = <DropDown> A dropdown list <Menu> <MenuItem>Do Something</MenuItem> <MenuItem>Do Something Fun!</MenuItem> <MenuItem>Do Something Else</MenuItem> </Menu> </DropDown>;',
-            'render(dropdown);',
+            'render(dropdown);'
           ]
         },
         {
@@ -1314,12 +1314,12 @@ exports.test_data = {
         options: [
           { name: "space_before_conditional", value: "false" }
         ],
-        s: '',
+        s: ''
       }, {
         options: [
           { name: "space_before_conditional", value: "true" }
         ],
-        s: ' ',
+        s: ' '
       }],
       tests: [
         { unchanged: 'if{{s}}(a) b()' },
@@ -1338,7 +1338,7 @@ exports.test_data = {
           output: 'do\n    c();\nwhile{{s}}(a);'
         },
         { unchanged: 'return [];' },
-        { unchanged: 'return ();' },
+        { unchanged: 'return ();' }
       ]
     }, {
       name: "Beautify preserve formatting",
@@ -1646,7 +1646,7 @@ exports.test_data = {
             '    eleven: 11',
             '};'
           ]
-        },
+        }
       ]
     }, {
       name: "Comments and  tests",
@@ -1676,7 +1676,7 @@ exports.test_data = {
             '    if (i % 3) {',
             '        console.log(i);',
             '    }',
-            'console.log("done");',
+            'console.log("done");'
           ]
         },
         {
@@ -1686,7 +1686,7 @@ exports.test_data = {
             '    k: 0',
             '}',
             '// ...',
-            'foo(o)',
+            'foo(o)'
           ]
         },
         {
@@ -1695,7 +1695,7 @@ exports.test_data = {
             'Meteor.call("foo", bar, function(err, result) {',
             '    Session.set("baz", result.lorem)',
             '})',
-            '//blah blah',
+            '//blah blah'
           ]
         },
         {
@@ -1707,7 +1707,7 @@ exports.test_data = {
             '',
             'const foo = 5',
             '// comment',
-            'bar()',
+            'bar()'
           ]
         },
         {
@@ -1740,9 +1740,9 @@ exports.test_data = {
             '    // rounding up using integer arithmetic only',
             '    if (i % modulus)',
             '        i += modulus - (i % modulus);',
-            '// behavior of comments should be different for single statements vs block statements/expressions',
+            '// behavior of comments should be different for single statements vs block statements/expressions'
           ]
-        },
+        }
 
       ]
     }, {
@@ -1843,7 +1843,7 @@ exports.test_data = {
           output: 'var o2 = $.extend(a);\n\nfunction{{f}}() {\n    alert(x);\n}'
         },
         { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}' },
-        { unchanged: 'function* x() {\n    yield 1;\n}' },
+        { unchanged: 'function* x() {\n    yield 1;\n}' }
       ]
     }, {
       name: "Regression tests",
@@ -2334,6 +2334,47 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1374 - Parameters starting with ! or [ merged into single line",
+          unchanged: [
+            'fn(',
+            '    1,',
+            '    !1,',
+            '    1,',
+            '    [1]',
+            ')'
+          ]
+        },
+        {
+          comment: "Issue 1288 - Negative numbers remove newlines in array",
+          unchanged: [
+            'var array = [',
+            '    -1,',
+            '    0,',
+            '    "a",',
+            '    -2,',
+            '    1,',
+            '    -3,',
+            '];'
+          ]
+        },
+        {
+          comment: "Issue 1229 - Negated expressions in array",
+          unchanged: [
+            'a = [',
+            '    true && 1,',
+            '    true && 1,',
+            '    true && 1',
+            ']',
+            'a = [',
+            '    !true && 1,',
+            '    !true && 1,',
+            '    !true && 1',
+            ']'
+          ]
+        },
+
+
+        {
           comment: "Issue #996 - Input ends with backslash throws exception",
           fragment: true,
           unchanged: [
@@ -2420,7 +2461,7 @@ exports.test_data = {
         { unchanged: 'a |= 2;' },
         { unchanged: 'a **= 2;' },
         { unchanged: 'a <<= 2;' },
-        { unchanged: 'a >>= 2;' },
+        { unchanged: 'a >>= 2;' }
       ]
     }, {
       tests: [{
@@ -2534,7 +2575,7 @@ exports.test_data = {
         { input: 'a=.0n', output: 'a = .0 n' },
         { input: 'a=1.0n', output: 'a = 1.0 n' },
         { input: 'a=1e0n', output: 'a = 1e0 n' },
-        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' },
+        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' }
       ]
     }, {
       //Relies on the tab being four spaces as default for the tests
@@ -2797,7 +2838,7 @@ exports.test_data = {
             '        self.emit(eventName, event, meta);',
             '    });',
             '}',
-            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);',
+            '["logged_in", "logged_out", "signed_up", "updated_user"].forEach(bindAuthEvent);'
           ]
         },
         {
@@ -3284,9 +3325,9 @@ exports.test_data = {
         { unchanged: 'if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();' },
 
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
-        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
+        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
 
-      ],
+      ]
     }
   ],
   examples: [{

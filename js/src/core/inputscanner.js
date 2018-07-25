@@ -60,17 +60,6 @@ function InputScanner(input) {
     return val;
   };
 
-  this.peekCharCode = function(index) {
-    // basically here for acorn
-    var val = 0;
-    index = index || 0;
-    index += _position;
-    if (index >= 0 && index < _input_length) {
-      val = _input.charCodeAt(index);
-    }
-    return val;
-  };
-
   this.test = function(pattern, index) {
     index = index || 0;
     index += _position;
@@ -100,6 +89,63 @@ function InputScanner(input) {
     }
     return pattern_match;
   };
+
+  this.readWhile = function(pattern) {
+    var val = '';
+    var match = this.match(pattern);
+    if (match) {
+      val = match[0];
+    }
+    return val;
+  };
+
+  this.readUntil = function(pattern) {
+    var val = '';
+    var match_index = _position;
+    pattern.lastIndex = _position;
+    var pattern_match = pattern.exec(_input);
+    if (pattern_match) {
+      match_index = pattern_match.index;
+    } else {
+      match_index = _input_length;
+    }
+
+    val = _input.substring(_position, match_index);
+    _position = match_index;
+    return val;
+  };
+
+  this.readUntilAfter = function(pattern) {
+    var val = '';
+    var match_index = _position;
+    pattern.lastIndex = _position;
+    var pattern_match = pattern.exec(_input);
+    if (pattern_match) {
+      match_index = pattern_match.index + pattern_match[0].length;
+    } else {
+      match_index = _input_length;
+    }
+
+    val = _input.substring(_position, match_index);
+    _position = match_index;
+
+    return val;
+  };
+
+  /* css beautifier legacy helpers */
+  this.peekUntilAfter = function(pattern) {
+    var start = _position;
+    var val = this.readUntilAfter(pattern);
+    _position = start;
+    return val;
+  };
+
+  this.lookBack = function(testVal) {
+    var start = _position - 1;
+    return start >= testVal.length && _input.substring(start - testVal.length, start)
+      .toLowerCase() === testVal;
+  };
+
 }
 
 

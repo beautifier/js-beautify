@@ -26,9 +26,9 @@
   SOFTWARE.
 */
 
-var js_beautify = require('javascript/index');
-var css_beautify = require('css/index');
-var html_beautify = require('html/index');
+var js_beautify = require('./javascript/index');
+var css_beautify = require('./css/index');
+var html_beautify = require('./html/index');
 
 function style_html(html_source, options, js, css) {
   js = js || js_beautify;

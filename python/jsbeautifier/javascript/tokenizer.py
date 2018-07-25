@@ -28,11 +28,13 @@ from ..core.token import Token
 
 class Tokenizer:
 
-    whitespace = ["\n", "\r", "\t", " "]
     digit = re.compile('[0-9]')
     digit_bin = re.compile('[01]')
     digit_oct = re.compile('[01234567]')
     digit_hex = re.compile('[0123456789abcdefABCDEF]')
+
+    startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+    xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
@@ -46,6 +48,7 @@ class Tokenizer:
     def __init__ (self, input_string, opts, indent_string):
         import jsbeautifier.core.acorn as acorn
         self.acorn = acorn
+
         self.input = InputScanner(input_string)
         self.opts = opts
         self.indent_string = indent_string
@@ -60,6 +63,9 @@ class Tokenizer:
         self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
         self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
+
+        self.whitespacePattern = re.compile(self.acorn.six.u('[\n\r\u2028\u2029\t ]+'))
+        self.newlinePattern = re.compile(self.acorn.six.u('([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
 
     def tokenize(self):
         self.in_html_comment = False
@@ -119,14 +125,8 @@ class Tokenizer:
 
     def __tokenize_next(self):
 
-        whitespace_on_this_line = []
         self.n_newlines = 0
         self.whitespace_before_token = ''
-
-        c = self.input.next()
-
-        if c == None:
-            return '', 'TK_EOF'
 
         if len(self.tokens) > 0:
             last_token = self.tokens[-1]
@@ -134,22 +134,36 @@ class Tokenizer:
             # For the sake of tokenizing we can pretend that there was on open brace to start
             last_token = Token('TK_START_BLOCK', '{')
 
-        while c in self.whitespace:
-            if self.acorn.newline.match(c):
-                # treat \r\n as one newline
-                if not (c == '\n' and self.input.peek(-2) == '\r'):
-                    self.n_newlines += 1
-                    whitespace_on_this_line = []
+
+        resulting_string = self.input.readWhile(self.whitespacePattern)
+        if not resulting_string == '':
+            if resulting_string == ' ':
+                self.whitespace_before_token = resulting_string
             else:
-                whitespace_on_this_line.append(c)
+                for nextMatch in self.newlinePattern.findall(resulting_string):
+                    if nextMatch[1] != '':
+                        self.n_newlines += 1
+                    else:
+                        self.whitespace_before_token = nextMatch[0]
+                        break
 
-            c = self.input.next()
+        resulting_string = self.input.readWhile(self.acorn.identifier)
+        if not resulting_string == '':
+            if not (last_token.type == 'TK_DOT' \
+                        or (last_token.type == 'TK_RESERVED' and last_token.text in ['set', 'get'])) \
+                    and resulting_string in self.reserved_words:
+                if resulting_string == 'in' or resulting_string == 'of': # in and of are operators, need to hack
+                    return resulting_string, 'TK_OPERATOR'
 
-            if c == None:
-                return '', 'TK_EOF'
+                return resulting_string, 'TK_RESERVED'
 
-        if len(whitespace_on_this_line) != 0:
-            self.whitespace_before_token = ''.join(whitespace_on_this_line)
+            return resulting_string, 'TK_WORD'
+
+
+        c = self.input.next()
+
+        if c == None:
+            return '', 'TK_EOF'
 
         if self.digit.match(c) or (c == '.' and self.input.testChar(self.digit)):
             allow_decimal = True
@@ -202,23 +216,6 @@ class Tokenizer:
 
             return c, 'TK_WORD'
 
-        if self.acorn.isIdentifierStart(self.input.peekCharCode(-1)):
-            if self.input.hasNext():
-                while self.acorn.isIdentifierChar(self.input.peekCharCode()):
-                    c += self.input.next()
-                    if not self.input.hasNext():
-                        break
-
-            if not (last_token.type == 'TK_DOT' \
-                        or (last_token.type == 'TK_RESERVED' and last_token.text in ['set', 'get'])) \
-                    and c in self.reserved_words:
-                if c == 'in' or c == 'of': # in and of are operators, need to hack
-                    return c, 'TK_OPERATOR'
-
-                return c, 'TK_RESERVED'
-
-            return c, 'TK_WORD'
-
         if c in '([':
             return c, 'TK_START_EXPR'
 
@@ -236,7 +233,6 @@ class Tokenizer:
 
         if c == '/':
             comment = ''
-            inline_comment = True
             if self.input.peek() == '*': # peek /* .. */ comment
                 self.input.next()
                 comment_match = self.input.match(self.block_comment_pattern)
@@ -255,10 +251,6 @@ class Tokenizer:
                 comment = '//' + comment_match.group(0)
                 return comment, 'TK_COMMENT'
 
-        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-
-        xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-
         def allowRegExOrXML(self):
             return (last_token.type == 'TK_RESERVED' and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
                 (last_token.type == 'TK_END_EXPR' and last_token.text == ')' and \
@@ -270,7 +262,7 @@ class Tokenizer:
 
         isString = (c == '`' or c == "'" or c == '"')
         isRegExp = (c == '/' and allowRegExOrXML(self))
-        isXML = (self.opts.e4x and c == "<" and self.input.test(startXmlRegExp, -1) and allowRegExOrXML(self))
+        isXML = (self.opts.e4x and c == "<" and self.input.test(self.startXmlRegExp, -1) and allowRegExOrXML(self))
 
         sep = c
         esc = False
@@ -287,11 +279,11 @@ class Tokenizer:
                 while self.input.hasNext():
                     current_char = self.input.peek()
                     if not (esc or (current_char != delimiter and
-                            (allow_unescaped_newlines or not self.acorn.newline.match(current_char)))):
+                            (allow_unescaped_newlines or not bool(self.acorn.newline.match(current_char))))):
                         break
 
                     # Handle \r\n linebreaks after escapes or in template strings
-                    if (esc or allow_unescaped_newlines) and self.acorn.newline.match(current_char):
+                    if (esc or allow_unescaped_newlines) and bool(self.acorn.newline.match(current_char)):
                         if current_char == '\r' and self.input.peek(1) == '\n':
                             self.input.next()
                             current_char = self.input.peek()
@@ -346,13 +338,13 @@ class Tokenizer:
             # handle e4x xml literals
             self.input.back()
             xmlStr = ""
-            match = self.input.match(xmlRegExp)
+            match = self.input.match(self.xmlRegExp)
             if match:
                 rootTag = match.group(2)
                 rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
                 isCurlyRoot = rootTag.startswith('{')
                 depth = 0
-                while (match):
+                while bool(match):
                     isEndTag = match.group(1)
                     tagName = match.group(2)
                     isSingletonTag = (match.groups()[-1] != "") or (match.group(2)[0:8] == "![CDATA[")
@@ -367,7 +359,7 @@ class Tokenizer:
                     if depth <= 0:
                         break
 
-                    match = self.input.match(xmlRegExp)
+                    match = self.input.match(self.xmlRegExp)
 
                 # if we didn't close correctly, keep unformatted.
                 if not match:
@@ -386,8 +378,7 @@ class Tokenizer:
                 if sep == '/':
                     # regexps may have modifiers /regexp/MOD, so fetch those too
                     # Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-                    while self.input.hasNext() and self.acorn.isIdentifierStart(self.input.peekCharCode()):
-                        resulting_string += self.input.next()
+                    resulting_string += self.input.readWhile(self.acorn.identifier)
 
             resulting_string = re.sub(self.acorn.allLineBreaks, '\n', resulting_string)
 

@@ -14,7 +14,7 @@
   },
   "files": [
     "js/bin/",
-    "js/lib/",
+    "js/lib/*.js",
     "js/lib/unpackers/",
     "js/index.js",
     "js/src/**/*"

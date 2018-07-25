@@ -26,10 +26,10 @@
   SOFTWARE.
 */
 
-var mergeOpts = require('core/options').mergeOpts;
-var acorn = require('core/acorn');
-var Output = require('core/output').Output;
-
+var mergeOpts = require('../core/options').mergeOpts;
+var acorn = require('../core/acorn');
+var Output = require('../core/output').Output;
+var InputScanner = require('../core/inputscanner').InputScanner;
 
 var lineBreak = acorn.lineBreak;
 var allLineBreaks = acorn.allLineBreaks;
@@ -70,53 +70,28 @@ function Beautifier(source_text, options) {
   source_text = source_text.replace(allLineBreaks, '\n');
 
   // tokenizer
-  var whiteRe = /^\s+$/;
+  var whitespaceChar = /\s/;
+  var whitespacePattern = /(?:\s|\n)+/g;
+  var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
+  var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
 
-  var pos = -1,
-    ch;
+  var ch;
   var parenLevel = 0;
-
-  function next() {
-    ch = source_text.charAt(++pos);
-    return ch || '';
-  }
-
-  function peek(index) {
-    index = index || 0;
-    index += pos + 1;
-    var result = source_text.charAt(index) || '';
-    return result;
-  }
-
-  function peekIgnoreWhitespace(index) {
-    var prev_pos = pos;
-    eatWhitespace();
-    var result = peek(index);
-    pos = prev_pos - 1;
-    next();
-    return result;
-  }
+  var input;
 
   function eatString(endChars) {
-    var start = pos;
-    while (next()) {
+    var result = '';
+    ch = input.next();
+    while (ch) {
+      result += ch;
       if (ch === "\\") {
-        next();
-      } else if (endChars.indexOf(ch) !== -1) {
-        break;
-      } else if (ch === "\n") {
+        result += input.next();
+      } else if (endChars.indexOf(ch) !== -1 || ch === "\n") {
         break;
       }
+      ch = input.next();
     }
-    return source_text.substring(start, pos + 1);
-  }
-
-  function peekString(endChar) {
-    var prev_pos = pos;
-    var str = eatString(endChar);
-    pos = prev_pos - 1;
-    next();
-    return str;
+    return result;
   }
 
   // Skips any white space in the source text from the current position.
@@ -124,11 +99,11 @@ function Beautifier(source_text, options) {
   // newline character found; if the user has preserve_newlines off, only
   // the first newline will be output
   function eatWhitespace(allowAtLeastOneNewLine) {
-    var result = whiteRe.test(peek());
+    var result = whitespaceChar.test(input.peek());
     var isFirstNewLine = true;
 
-    while (whiteRe.test(peek())) {
-      next();
+    while (whitespaceChar.test(input.peek())) {
+      ch = input.next();
       if (allowAtLeastOneNewLine && ch === '\n') {
         if (preserve_newlines || isFirstNewLine) {
           isFirstNewLine = false;
@@ -139,47 +114,14 @@ function Beautifier(source_text, options) {
     return result;
   }
 
-  function skipWhitespace() {
-    var result = '';
-    if (ch && whiteRe.test(ch)) {
-      result = ch;
-    }
-    while (whiteRe.test(next())) {
-      result += ch;
-    }
-    return result;
-  }
-
-  function eatComment(singleLine) {
-    var start = pos;
-    if (!singleLine) {
-      next();
-    }
-    while (next()) {
-      if (!singleLine && ch === "*" && peek() === "/") {
-        next();
-        break;
-      } else if (singleLine && peek() === "\n") {
-        break;
-      }
-    }
-
-    return source_text.substring(start, pos) + ch;
-  }
-
-
-  function lookBack(str) {
-    return source_text.substring(pos - str.length, pos).toLowerCase() ===
-      str;
-  }
-
   // Nested pseudo-class if we are insideRule
   // and the next special character found opens
   // a new block
   function foundNestedPseudoClass() {
     var openParen = 0;
-    for (var i = pos + 1; i < source_text.length; i++) {
-      var ch = source_text.charAt(i);
+    var i = 1;
+    var ch = input.peek(i);
+    while (ch) {
       if (ch === "{") {
         return true;
       } else if (ch === '(') {
@@ -193,6 +135,8 @@ function Beautifier(source_text, options) {
       } else if (ch === ";" || ch === "}") {
         return false;
       }
+      i++;
+      ch = input.peek(i);
     }
     return false;
   }
@@ -243,10 +187,10 @@ function Beautifier(source_text, options) {
   this.beautify = function() {
     // reset
     output = new Output(singleIndent, baseIndentString);
+    input = new InputScanner(source_text);
     indentLevel = 0;
     nestedLevel = 0;
 
-    pos = -1;
     ch = null;
     parenLevel = 0;
 
@@ -254,25 +198,23 @@ function Beautifier(source_text, options) {
     var insidePropertyValue = false;
     var enteringConditionalGroup = false;
     var insideAtExtend = false;
-    var top_ch = '';
-    var last_top_ch = '';
 
     while (true) {
-      var whitespace = skipWhitespace();
+      var whitespace = input.readWhile(whitespacePattern);
       var isAfterSpace = whitespace !== '';
-      last_top_ch = top_ch;
-      top_ch = ch;
+      ch = input.next();
 
       if (!ch) {
         break;
-      } else if (ch === '/' && peek() === '*') {
+      } else if (ch === '/' && input.peek() === '*') {
         // /* css comment */
         // Always start block comments on a new line.
         // This handles scenarios where a block comment immediately
         // follows a property definition on the same line or where
         // minified code is being beautified.
         output.add_new_line();
-        print_string(eatComment(false));
+        input.back();
+        print_string(input.readWhile(block_comment_pattern));
 
         // Ensures any new lines following the comment are preserved
         eatWhitespace(true);
@@ -280,12 +222,13 @@ function Beautifier(source_text, options) {
         // Block comments are followed by a new line so they don't
         // share a line with other properties
         output.add_new_line();
-      } else if (ch === '/' && peek() === '/') {
+      } else if (ch === '/' && input.peek() === '/') {
         // // single line comment
         // Preserves the space before a comment
         // on the same line as a rule
         output.space_before_token = true;
-        print_string(eatComment(true));
+        input.back();
+        print_string(input.readWhile(comment_pattern));
 
         // Ensures any new lines following the comment are preserved
         eatWhitespace(true);
@@ -293,17 +236,16 @@ function Beautifier(source_text, options) {
         preserveSingleSpace(isAfterSpace);
 
         // deal with less propery mixins @{...}
-        if (peek() === '{') {
-          print_string(eatString('}'));
+        if (input.peek() === '{') {
+          print_string(ch + eatString('}'));
         } else {
           print_string(ch);
 
           // strip trailing space, if present, for hash property checks
-          var variableOrRule = peekString(": ,;{}()[]/='\"");
+          var variableOrRule = input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
 
           if (variableOrRule.match(/[ :]$/)) {
             // we have a variable or pseudo-class, add it and insert one space before continuing
-            next();
             variableOrRule = eatString(": ").replace(/\s$/, '');
             print_string(variableOrRule);
             output.space_before_token = true;
@@ -323,13 +265,11 @@ function Beautifier(source_text, options) {
             }
           }
         }
-      } else if (ch === '#' && peek() === '{') {
+      } else if (ch === '#' && input.peek() === '{') {
         preserveSingleSpace(isAfterSpace);
-        print_string(eatString('}'));
+        print_string(ch + eatString('}'));
       } else if (ch === '{') {
-        if (peekIgnoreWhitespace() === '}') {
-          eatWhitespace();
-          next();
+        if (input.match(/[\t\n ]*}/g)) {
           output.space_before_token = true;
           print_string("{}");
 
@@ -372,10 +312,9 @@ function Beautifier(source_text, options) {
           output.add_new_line(true);
         }
       } else if (ch === ":") {
-        eatWhitespace();
         if ((insideRule || enteringConditionalGroup) &&
-          !(lookBack("&") || foundNestedPseudoClass()) &&
-          !lookBack("(") && !insideAtExtend) {
+          !(input.lookBack("&") || foundNestedPseudoClass()) &&
+          !input.lookBack("(") && !insideAtExtend) {
           // 'property: value' delimiter
           // which could be in a conditional group query
           print_string(':');
@@ -388,12 +327,12 @@ function Beautifier(source_text, options) {
           // sass nested pseudo-class don't use a space
 
           // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
-          if (lookBack(" ")) {
+          if (input.lookBack(" ")) {
             output.space_before_token = true;
           }
-          if (peek() === ":") {
+          if (input.peek() === ":") {
             // pseudo-element
-            next();
+            ch = input.next();
             print_string("::");
           } else {
             // pseudo-class
@@ -402,7 +341,7 @@ function Beautifier(source_text, options) {
         }
       } else if (ch === '"' || ch === '\'') {
         preserveSingleSpace(isAfterSpace);
-        print_string(eatString(ch));
+        print_string(ch + eatString(ch));
       } else if (ch === ';') {
         insidePropertyValue = false;
         insideAtExtend = false;
@@ -413,18 +352,19 @@ function Beautifier(source_text, options) {
         // line. Block comments are also affected, but
         // a new line is always output before one inside
         // that section
-        if (peek() !== '/') {
+        if (input.peek() !== '/') {
           output.add_new_line();
         }
       } else if (ch === '(') { // may be a url
-        if (lookBack("url")) {
+        if (input.lookBack("url")) {
           print_string(ch);
           eatWhitespace();
-          if (next()) {
+          ch = input.next();
+          if (ch) {
             if (ch !== ')' && ch !== '"' && ch !== '\'') {
-              print_string(eatString(')'));
+              print_string(ch + eatString(')'));
             } else {
-              pos--;
+              input.back();
               parenLevel++;
             }
           }
@@ -456,7 +396,7 @@ function Beautifier(source_text, options) {
           print_string(ch);
           eatWhitespace();
           // squash extra whitespace
-          if (ch && whiteRe.test(ch)) {
+          if (ch && whitespaceChar.test(ch)) {
             ch = '';
           }
         }
@@ -468,7 +408,7 @@ function Beautifier(source_text, options) {
       } else if (ch === '=') { // no whitespace before or after
         eatWhitespace();
         print_string('=');
-        if (whiteRe.test(ch)) {
+        if (whitespaceChar.test(ch)) {
           ch = '';
         }
       } else if (ch === '!') { // !important

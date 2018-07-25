@@ -9,8 +9,11 @@ build_js()
   echo Building javascript...
   cd $PROJECT_DIR
 
+  # jshint
+  $PROJECT_DIR/node_modules/.bin/jshint . || exit 1
+
   # generate lib files
-  $PROJECT_DIR/node_modules/.bin/webpack
+  $PROJECT_DIR/node_modules/.bin/webpack || exit 1
 
   mkdir -p ./js/lib/unpackers
   cp -r ./js/src/unpackers ./js/lib/
@@ -30,11 +33,6 @@ build_js()
   cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
   cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
 
-  cp ./dist/beautifier.js ./js/lib/
-  cp ./dist/beautifier.min.js ./js/lib/
-
-  # jshint
-  $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 }
 
 build_beautify()
@@ -66,9 +64,6 @@ build_beautify()
 
   # html not ready yet
   # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
-
-  # jshint again to make sure things haven't changed
-  $PROJECT_DIR/node_modules/.bin/jshint 'js/src' 'test' || exit 1
 
   build_js
 }

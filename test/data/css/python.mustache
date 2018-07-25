@@ -39,6 +39,9 @@ class CSSBeautifierTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        pass
+
+    def reset_options(self):
         false = False
         true = True
 
@@ -52,10 +55,7 @@ class CSSBeautifierTest(unittest.TestCase):
 {{#default_options}}        default_options.{{name}} = {{&value}}
 {{/default_options}}
 
-        cls.default_options = default_options
-
-    def reset_options(self):
-        self.options = copy.copy(self.default_options)
+        self.options = copy.copy(default_options)
 
     def testGenerated(self):
         self.reset_options()
@@ -69,7 +69,7 @@ class CSSBeautifierTest(unittest.TestCase):
         #============================================================
     {{^matrix}}
         # {{&name}}
-        self.reset_options();
+        self.reset_options()
         {{#options}}
         self.options.{{name}} = {{&value}}
         {{/options}}
@@ -80,7 +80,7 @@ class CSSBeautifierTest(unittest.TestCase):
     {{/matrix}}
     {{#matrix}}
         # {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
-        self.reset_options();
+        self.reset_options()
         {{#options}}
         self.options.{{name}} = {{&value}}
         {{/options}}
@@ -105,7 +105,7 @@ class CSSBeautifierTest(unittest.TestCase):
         self.reset_options()
         t = self.decodesto
 
-        self.reset_options();
+        self.reset_options()
         #============================================================
         t(None, "")
 
@@ -122,7 +122,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
         t("a:before {\n" +
             "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
-            "}");
+            "}")
 
         # may not eat the space before "["
         t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
@@ -216,18 +216,18 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t&: hover {\n' +
             '\t\tcolor: green;\n' +
             '\t}\n' +
-            '}');
+            '}')
 
         # import
-        t('@import "test";');
+        t('@import "test";')
 
         # don't break nested pseudo-classes
         t("a:first-child{color:red;div:first-child{color:black;}}",
-            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}");
+            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}")
 
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",
-            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}");
+            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}")
 
         # nested modifiers (&:hover etc)
         t(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}")
@@ -256,7 +256,7 @@ class CSSBeautifierTest(unittest.TestCase):
                 cssbeautifier.beautify(expectation, self.options), expectation)
 
         # Everywhere we do newlines, they should be replaced with opts.eol
-        self.options.eol = '\r\\n';
+        self.options.eol = '\r\\n'
         expectation = expectation.replace('\n', '\r\n')
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
