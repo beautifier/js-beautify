@@ -65,7 +65,7 @@ python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifie
 	rm -f python/dist/*
 	@cd python && \
 		$(PYTHON) setup.py sdist
-	./build/python-rel/bin/pip install -U python/dist/*
+	$(SCRIPT_DIR)/python-rel pip install -U python/dist/*
 
 # Test generation
 $(BUILD_DIR)/generate: $(BUILD_DIR)/node test/generate-tests.js $(wildcard test/data/**/*)
@@ -92,8 +92,7 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 
 $(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
-	ls -alR ./build
-	./build/python-dev/bin/pip install -e ./python
+	$(SCRIPT_DIR)/python-dev pip install -e ./python
 	@touch $(BUILD_DIR)/python
 
 $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
