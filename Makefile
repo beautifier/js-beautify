@@ -92,6 +92,7 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 
 $(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
+	ls -alR ./build
 	./build/python-dev/bin/pip install -e ./python
 	@touch $(BUILD_DIR)/python
 
