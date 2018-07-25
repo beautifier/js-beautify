@@ -284,6 +284,8 @@ class Beautifier:
                         printer.nestedLevel += 1
                         if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                             enteringConditionalGroup = True
+                    elif not insideRule and parenLevel == 0 and variableOrRule[-1] == ":":
+                        insidePropertyValue = True
             elif self.ch == '#' and input.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString('}'))

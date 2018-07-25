@@ -589,6 +589,27 @@ exports.test_data = {
         { unchanged: '@page: first {}' }
       ]
     }, {
+      name: "Issue 1411 -- LESS Variable Assignment Spacing",
+      description: "",
+      tests: [{
+          unchanged: [
+            '@set: {',
+            '\tone: blue;',
+            '\ttwo: green;',
+            '\tthree: red;',
+            '}',
+            '.set {',
+            '\teach(@set, {',
+            '\t\t@{key}-@{index}: @value;',
+            '\t}',
+            // This is not optimal formatting, included to document current behavior.
+            '\t);',
+            '}'
+          ]
+        },
+        { unchanged: '@light-blue: @nice-blue + #111;' }
+      ]
+    }, {
       name: "SASS/SCSS",
       description: "",
       tests: [{

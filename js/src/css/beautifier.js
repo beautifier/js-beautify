@@ -195,6 +195,8 @@ function Beautifier(source_text, options) {
     parenLevel = 0;
 
     var insideRule = false;
+    // This is the value side of a property value pair (blue in the following ex)
+    // label { content: blue }
     var insidePropertyValue = false;
     var enteringConditionalGroup = false;
     var insideAtExtend = false;
@@ -263,6 +265,9 @@ function Beautifier(source_text, options) {
             if (variableOrRule in this.CONDITIONAL_GROUP_RULE) {
               enteringConditionalGroup = true;
             }
+            // might be less variable
+          } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
+            insidePropertyValue = true;
           }
         }
       } else if (ch === '#' && input.peek() === '{') {

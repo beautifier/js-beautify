@@ -9277,6 +9277,24 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Issue 1411 -- LESS Variable Assignment Spacing
+        self.reset_options()
+        t(
+            '@set: {\n' +
+            '\tone: blue;\n' +
+            '\ttwo: green;\n' +
+            '\tthree: red;\n' +
+            '}\n' +
+            '.set {\n' +
+            '\teach(@set, {\n' +
+            '\t\t@{key}-@{index}: @value;\n' +
+            '\t}\n' +
+            '\t);\n' +
+            '}')
+        t('@light-blue: @nice-blue + #111;')
+
+
+        #============================================================
         # SASS/SCSS
         self.reset_options()
         
