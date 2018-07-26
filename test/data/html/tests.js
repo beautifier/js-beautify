@@ -542,8 +542,18 @@ exports.test_data = {
         output: '<div>\n' +
           '    {{#each thing}} {{name}} {{/each}}\n' +
           '</div>'
+      },
+      {
+        fragment: true,
+        input_: [
+          '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}} ' +
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}} ' +
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
       }
-
     ]
   }, {
     name: "Handlebars Indenting On",
@@ -554,6 +564,11 @@ exports.test_data = {
         { name: "indent_handlebars", value: "true" }
       ],
       content: '{{field}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}'
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
@@ -593,6 +608,22 @@ exports.test_data = {
     }],
     tests: [
       { fragment: true, unchanged: '{{page-title}}' },
+      {
+        fragment: true,
+        unchanged: [
+          '{{page-title}}',
+          '{{a}}',
+          '{{value-title}}'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
       { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {

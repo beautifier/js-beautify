@@ -411,7 +411,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
           if (input_char === "'" || input_char === '"') {
             input_char += this.get_unformatted(input_char);
-            space = true;
+            if (tag_start_char !== '{') {
+              space = true;
+            }
           }
 
           if (token.is_unformatted) {
@@ -519,11 +521,14 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
-      } else if (indent_handlebars && tag_complete.charAt(0) === '{' && tag_check === 'else') {
+      } else if (indent_handlebars && tag_start_char === '{' && tag_check === 'else') {
         this.indent_to_tag('if');
         token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
         this.traverse_whitespace();
+      } else if (indent_handlebars && tag_start_char === '{' && tag_complete.charAt(2).search(/[#\^\/]/) === -1) {
+        token.type = 'TK_TAG_SINGLE';
+        token.is_closing_tag = true;
       } else if (token.is_unformatted || token.is_content_unformatted) {
         // do not reformat the "unformatted" or "content_unformatted" tags
         comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function

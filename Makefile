@@ -6,7 +6,7 @@ PYTHON=$(SCRIPT_DIR)/python
 NODE=$(SCRIPT_DIR)/node
 NPM=$(SCRIPT_DIR)/npm
 
-all: depends js beautify py package jstest pytest perf
+all: depends generate-tests js beautify py package jstest pytest perf
 
 help:
 	@echo "make <action>"
@@ -23,23 +23,23 @@ ci: all git-status-clear
 static: js/lib/*.js
 	@./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
 
-js: js/lib/*.js
+js: generate-tests js/lib/*.js
 	@echo Testing node beautify functionality...
 	./node_modules/.bin/mocha --recursive js/test && \
 		./js/test/node-src-index-tests.js
 
-py: $(BUILD_DIR)/python
+py: generate-tests $(BUILD_DIR)/python
 	@echo Testing python beautify functionality...
 	$(SCRIPT_DIR)/python-dev python python/js-beautify-test.py || exit 1
 
-jstest: depends generate-tests js package
+jstest: depends js package
 	@echo Testing javascript implementation...
 	@$(NODE) js/test/node-beautify-tests.js || exit 1
 	@$(NODE) js/test/amd-beautify-tests.js || exit 1
 	@$(NODE) --version && \
 		./js/test/shell-test.sh
 
-pytest: depends generate-tests py package
+pytest: depends py package
 	@echo Testing python implementation...
 	@cd python && \
 		$(PYTHON) --version && \
@@ -91,6 +91,7 @@ build/*.tgz: js/lib/*.js
 
 # Test generation
 $(BUILD_DIR)/generate: $(BUILD_DIR)/node test/generate-tests.js $(wildcard test/data/**/*)
+	@echo Generating tests...
 	$(NODE) test/generate-tests.js
 	@touch $(BUILD_DIR)/generate
 
