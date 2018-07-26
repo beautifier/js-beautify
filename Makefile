@@ -6,7 +6,7 @@ PYTHON=$(SCRIPT_DIR)/python
 NODE=$(SCRIPT_DIR)/node
 NPM=$(SCRIPT_DIR)/npm
 
-all: depends js beautify py package jstest pytest perf
+all: depends js beautify py package jstest pytest
 
 help:
 	@echo "make <action>"
@@ -51,11 +51,11 @@ package: js py build/*.tgz python/dist/*
 perf:
 	@echo ----------------------------------------
 	@echo Testing beautify performance...
+	$(SCRIPT_DIR)/python-dev python python/test-perf-jsbeautifier.py || exit 1
+	$(SCRIPT_DIR)/python-dev python python/test-perf-jsbeautifier.py || exit 1
 	$(NODE) js/test/node-beautify-perf-tests.js || exit 1
 	@echo Testing html-beautify performance...
 	$(NODE) js/test/node-beautify-html-perf-tests.js || exit 1
-	@echo Testing python beautify performance...
-	$(SCRIPT_DIR)/python-dev python python/test-perf-jsbeautifier.py || exit 1
 	@echo ----------------------------------------
 
 generate-tests: $(BUILD_DIR)/generate
