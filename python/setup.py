@@ -29,7 +29,11 @@ setup(name='jsbeautifier',
       author='Liam Newman, Einar Lielmanis, et al.',
       author_email='team@jsbeautifier.org',
       url='http://jsbeautifier.org',
-      scripts=['js-beautify'],
+      entry_points={
+          'console_scripts': [
+              'js-beautify = jsbeautifier:main'
+          ]
+      },
       packages=['jsbeautifier',
                 'jsbeautifier.tests', 'jsbeautifier.tests.generated',
                 'jsbeautifier.core',
