@@ -28,10 +28,8 @@ from ..core.token import Token
 
 class Tokenizer:
 
+    number_pattern = re.compile(r'0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?')
     digit = re.compile('[0-9]')
-    digit_bin = re.compile('[01]')
-    digit_oct = re.compile('[01234567]')
-    digit_hex = re.compile('[0123456789abcdefABCDEF]')
 
     startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
     xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
@@ -159,62 +157,14 @@ class Tokenizer:
 
             return resulting_string, 'TK_WORD'
 
+        resulting_string = self.input.readWhile(self.number_pattern)
+        if not resulting_string == '':
+            return resulting_string, 'TK_WORD'
 
         c = self.input.next()
 
         if c == None:
             return '', 'TK_EOF'
-
-        if self.digit.match(c) or (c == '.' and self.input.testChar(self.digit)):
-            allow_decimal = True
-            allow_e = True
-            allow_bigint = True
-            local_digit = self.digit
-
-            if c == '0' and self.input.testChar(re.compile('[XxOoBb]')):
-                # switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
-                allow_decimal = False
-                allow_e = False
-                if self.input.testChar(re.compile('[Bb]')):
-                    local_digit = self.digit_bin
-                elif self.input.testChar(re.compile('[Oo]')):
-                    local_digit = self.digit_oct
-                else:
-                    local_digit = self.digit_hex
-                c += self.input.next()
-            elif c == '.':
-                # Already have a decimal for this literal, don't allow another
-                allow_decimal = False
-                allow_bigint = False
-            else:
-                # we know this first loop will run.  It keeps the logic simpler.
-                c = ''
-                self.input.back()
-
-            # Add the digits
-            while self.input.testChar(local_digit):
-                c += self.input.next()
-
-                if allow_decimal and self.input.peek() == '.':
-                    c += self.input.next()
-                    allow_decimal = False
-                    allow_bigint = False
-
-                # a = 1.e-7 is valid, so we test for . then e in one loop
-                if allow_e and self.input.testChar(re.compile('[Ee]')):
-                    c += self.input.next()
-
-                    if self.input.testChar(re.compile('[+-]')):
-                        c += self.input.next()
-
-                    allow_e = False
-                    allow_decimal = False
-                    allow_bigint = False
-
-            if allow_bigint and self.input.peek() == 'n':
-                c += self.input.next()
-
-            return c, 'TK_WORD'
 
         if c in '([':
             return c, 'TK_START_EXPR'

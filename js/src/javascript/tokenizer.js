@@ -66,11 +66,10 @@ function Tokenizer(input_string, opts) {
 
   var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
   var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
+
 
   var digit = /[0-9]/;
-  var digit_bin = /[01]/;
-  var digit_oct = /[01234567]/;
-  var digit_hex = /[0123456789abcdefABCDEF]/;
 
   this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
   var punct = this.positionable_operators.concat(
@@ -206,70 +205,17 @@ function Tokenizer(input_string, opts) {
       return [resulting_string, TOKEN.WORD];
     }
 
+    resulting_string = input.readWhile(number_pattern);
+    if (resulting_string !== '') {
+      return [resulting_string, TOKEN.WORD];
+    }
+
     var c = input.next();
 
     if (c === null) {
       return ['', TOKEN.EOF];
     }
 
-    if (digit.test(c) || (c === '.' && input.testChar(digit))) {
-      var allow_decimal = true;
-      var allow_e = true;
-      var allow_bigint = true;
-      var local_digit = digit;
-
-      if (c === '0' && input.testChar(/[XxOoBb]/)) {
-        // switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
-        allow_decimal = false;
-        allow_e = false;
-        if (input.testChar(/[Bb]/)) {
-          local_digit = digit_bin;
-        } else if (input.testChar(/[Oo]/)) {
-          local_digit = digit_oct;
-        } else {
-          local_digit = digit_hex;
-        }
-        c += input.next();
-      } else if (c === '.') {
-        // Already have a decimal for this literal, don't allow another
-        allow_decimal = false;
-        allow_bigint = false;
-      } else {
-        // we know this first loop will run.  It keeps the logic simpler.
-        c = '';
-        input.back();
-      }
-
-      // Add the digits
-      while (input.testChar(local_digit)) {
-        c += input.next();
-
-        if (allow_decimal && input.peek() === '.') {
-          c += input.next();
-          allow_decimal = false;
-          allow_bigint = false;
-        }
-
-        // a = 1.e-7 is valid, so we test for . then e in one loop
-        if (allow_e && input.testChar(/[Ee]/)) {
-          c += input.next();
-
-          if (input.testChar(/[+-]/)) {
-            c += input.next();
-          }
-
-          allow_e = false;
-          allow_decimal = false;
-          allow_bigint = false;
-        }
-      }
-
-      if (allow_bigint && input.peek() === 'n') {
-        c += input.next();
-      }
-
-      return [c, TOKEN.WORD];
-    }
 
     if (c === '(' || c === '[') {
       return [c, TOKEN.START_EXPR];
