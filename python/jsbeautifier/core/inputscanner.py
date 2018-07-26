@@ -24,10 +24,10 @@
 
 
 class InputScanner:
-    def __init__(self, input):
-        if input is None:
-            input = ''
-        self.__input = input
+    def __init__(self, input_string):
+        if input_string is None:
+            input_string = ''
+        self.__input = input_string
         self.__input_length = len(self.__input)
         self.__position = 0
 

@@ -51,12 +51,12 @@ class OutputLine:
     def last(self):
         if not self.is_empty():
             return self.__items[-1]
-        else:
-            return None
 
-    def push(self, input):
-        self.__items.append(input)
-        self.__character_count += len(input)
+        return None
+
+    def push(self, item):
+        self.__items.append(item)
+        self.__character_count += len(item)
         self.__empty = False
 
     def pop(self):

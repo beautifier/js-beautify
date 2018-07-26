@@ -29,20 +29,20 @@ from ..core.token import Token
 
 class TokenTypes:
     START_EXPR = 'TK_START_EXPR'
-    END_EXPR = 'TK_END_EXPR',
-    START_BLOCK = 'TK_START_BLOCK',
-    END_BLOCK = 'TK_END_BLOCK',
-    WORD = 'TK_WORD',
-    RESERVED = 'TK_RESERVED',
-    SEMICOLON = 'TK_SEMICOLON',
-    STRING = 'TK_STRING',
-    EQUALS = 'TK_EQUALS',
-    OPERATOR = 'TK_OPERATOR',
-    COMMA = 'TK_COMMA',
-    BLOCK_COMMENT = 'TK_BLOCK_COMMENT',
-    COMMENT = 'TK_COMMENT',
-    DOT = 'TK_DOT',
-    UNKNOWN = 'TK_UNKNOWN',
+    END_EXPR = 'TK_END_EXPR'
+    START_BLOCK = 'TK_START_BLOCK'
+    END_BLOCK = 'TK_END_BLOCK'
+    WORD = 'TK_WORD'
+    RESERVED = 'TK_RESERVED'
+    SEMICOLON = 'TK_SEMICOLON'
+    STRING = 'TK_STRING'
+    EQUALS = 'TK_EQUALS'
+    OPERATOR = 'TK_OPERATOR'
+    COMMA = 'TK_COMMA'
+    BLOCK_COMMENT = 'TK_BLOCK_COMMENT'
+    COMMENT = 'TK_COMMENT'
+    DOT = 'TK_DOT'
+    UNKNOWN = 'TK_UNKNOWN'
     EOF = 'TK_EOF'
 
     def __init__(self):
@@ -156,10 +156,10 @@ class Tokenizer:
                 open_stack.append(open_token)
                 open_token = next
             elif (next.type == TOKEN.END_BLOCK or next.type == TOKEN.END_EXPR) and \
-                (open_token is not None and (
-                    (next.text == ']' and open_token.text == '[') or
-                    (next.text == ')' and open_token.text == '(') or
-                    (next.text == '}' and open_token.text == '{'))):
+                    (open_token is not None and (
+                            (next.text == ']' and open_token.text == '[') or
+                            (next.text == ')' and open_token.text == '(') or
+                            (next.text == '}' and open_token.text == '{'))):
                 next.parent = open_token.parent
                 next.opened = open_token
                 open_token = open_stack.pop()
@@ -194,7 +194,7 @@ class Tokenizer:
             last_token = Token(TOKEN.START_BLOCK, '{')
 
         resulting_string = self.input.readWhile(self.whitespacePattern)
-        if not resulting_string == '':
+        if resulting_string != '':
             if resulting_string == ' ':
                 self.whitespace_before_token = resulting_string
             else:
@@ -206,13 +206,12 @@ class Tokenizer:
                         break
 
         resulting_string = self.input.readWhile(self.acorn.identifier)
-        if not resulting_string == '':
-            if not (
-                last_token.type == TOKEN.DOT or (
+        if resulting_string != '':
+            if not (last_token.type == TOKEN.DOT or (
                     last_token.type == TOKEN.RESERVED and last_token.text in [
                         'set',
                         'get'])) and resulting_string in self.reserved_words:
-                if resulting_string == 'in' or resulting_string == 'of':  # in and of are operators, need to hack
+                if resulting_string in ['in', 'of']:  # in and of are operators, need to hack
                     return resulting_string, TOKEN.OPERATOR
 
                 return resulting_string, TOKEN.RESERVED
@@ -220,7 +219,7 @@ class Tokenizer:
             return resulting_string, TOKEN.WORD
 
         resulting_string = self.input.readWhile(self.number_pattern)
-        if not resulting_string == '':
+        if resulting_string != '':
             return resulting_string, TOKEN.WORD
 
         c = self.input.next()
@@ -294,11 +293,9 @@ class Tokenizer:
                 esc = False
                 while self.input.hasNext():
                     current_char = self.input.peek()
-                    if not (
-                        esc or (
-                            current_char != delimiter and (
-                                allow_unescaped_newlines or not bool(
-                                    self.acorn.newline.match(current_char))))):
+                    if not (esc or (current_char != delimiter and (
+                            allow_unescaped_newlines or not bool(
+                                self.acorn.newline.match(current_char))))):
                         break
 
                     # Handle \r\n linebreaks after escapes or in template

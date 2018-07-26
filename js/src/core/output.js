@@ -55,9 +55,9 @@ function OutputLine(parent) {
     }
   };
 
-  this.push = function(input) {
-    this._items.push(input);
-    this._character_count += input.length;
+  this.push = function(item) {
+    this._items.push(item);
+    this._character_count += item.length;
     _empty = false;
   };
 
