@@ -27,16 +27,16 @@ def detect(source):
     """Detects whether `source` is P.A.C.K.E.R. coded."""
     mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
     if(mystr > 0):
-       beginstr = source[:mystr]
+        beginstr = source[:mystr]
     if(mystr != -1):
-       """ Find endstr"""
-       if(source.split("')))", 1)[0] == source):
-          try:
-             endstr = source.split("}))", 1)[1]
-          except IndexError:
-             endstr = ''
-       else:
-          endstr = source.split("')))", 1)[1]
+        """ Find endstr"""
+        if(source.split("')))", 1)[0] == source):
+            try:
+                endstr = source.split("}))", 1)[1]
+            except IndexError:
+                endstr = ''
+        else:
+            endstr = source.split("')))", 1)[1]
     return (mystr != -1)
 
 
@@ -63,9 +63,10 @@ def unpack(source):
 
 def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
-    juicers = [ (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
-                (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\)"),
-              ]
+    juicers = [
+        (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
+        (r"}\('(.*)', *(\d+|\[\]), *(\d+), *'(.*)'\.split\('\|'\)"),
+    ]
     for juicer in juicers:
         args = re.search(juicer, source, re.DOTALL)
         if args:
@@ -80,7 +81,8 @@ def _filterargs(source):
                 raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
 
     # could not find a satisfying regex
-    raise UnpackingError('Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
+    raise UnpackingError(
+        'Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
 
 
 def _replacestrings(source):
@@ -106,7 +108,7 @@ class Unbaser(object):
     ALPHABET = {
         62: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         95: (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-              '[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
+             '[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
     }
 
     def __init__(self, base):
@@ -115,7 +117,7 @@ class Unbaser(object):
         # fill elements 37...61, if necessary
         if 36 < base < 62:
             if not hasattr(self.ALPHABET, self.ALPHABET[62][:base]):
-                      self.ALPHABET[base] = self.ALPHABET[62][:base]
+                self.ALPHABET[base] = self.ALPHABET[62][:base]
         # attrs = self.ALPHABET
         # print ', '.join("%s: %s" % item for item in attrs.items())
         # If base can be handled by int() builtin, let it do it for us
@@ -124,8 +126,9 @@ class Unbaser(object):
         else:
             # Build conversion dictionary cache
             try:
-                self.dictionary = dict((cipher, index) for
-                    index, cipher in enumerate(self.ALPHABET[base]))
+                self.dictionary = dict(
+                    (cipher, index) for index, cipher in enumerate(
+                        self.ALPHABET[base]))
             except KeyError:
                 raise TypeError('Unsupported base encoding.')
 

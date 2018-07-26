@@ -22,8 +22,16 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 class Token:
-    def __init__(self, type, text, newlines = 0, whitespace_before = '', mode = None, parent = None):
+    def __init__(
+            self,
+            type,
+            text,
+            newlines=0,
+            whitespace_before='',
+            mode=None,
+            parent=None):
         self.type = type
         self.text = text
         self.comments_before = []

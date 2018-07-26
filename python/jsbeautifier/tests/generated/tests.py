@@ -6250,7 +6250,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
     def decodesto(self, input, expectation=None):
-        if expectation == None:
+        if expectation is None:
             expectation = input
 
         self.assertMultiLineEqual(
@@ -6258,7 +6258,7 @@ class TestJSBeautifier(unittest.TestCase):
 
         # if the expected is different from input, run it again
         # expected output should be unchanged when run twice.
-        if not expectation == None:
+        if not expectation is None:
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
@@ -6281,7 +6281,7 @@ class TestJSBeautifier(unittest.TestCase):
         return self.wrapregex.sub('    \\1', text)
 
     def bt(self, input, expectation=None):
-        if expectation == None:
+        if expectation is None:
             expectation = input
 
         self.decodesto(input, expectation)

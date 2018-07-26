@@ -46,7 +46,7 @@ class InputScanner:
 
         return val
 
-    def peek(self, index = 0):
+    def peek(self, index=0):
         val = None
         index += self.__position
         if index >= 0 and index < self.__input_length:
@@ -54,14 +54,15 @@ class InputScanner:
 
         return val
 
-    def test(self, pattern, index = 0):
+    def test(self, pattern, index=0):
         index += self.__position
-        return index >= 0 and index < self.__input_length and bool(pattern.match(self.__input, index))
+        return index >= 0 and index < self.__input_length and bool(
+            pattern.match(self.__input, index))
 
-    def testChar(self, pattern, index = 0):
+    def testChar(self, pattern, index=0):
         # test one character regex match
         val = self.peek(index)
-        return val != None and pattern.match(val)
+        return val is not None and pattern.match(val)
 
     def match(self, pattern):
         pattern_match = None
@@ -118,6 +119,6 @@ class InputScanner:
         return val
 
     def lookBack(self, testVal):
-         start = self.__position - 1
-         return start >= len(testVal) and \
+        start = self.__position - 1
+        return start >= len(testVal) and \
             self.__input[start - len(testVal):start].lower() == testVal

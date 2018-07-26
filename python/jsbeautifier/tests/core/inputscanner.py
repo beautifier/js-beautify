@@ -1,6 +1,7 @@
 import unittest
 from ...core.inputscanner import InputScanner
 
+
 class TestInputScanner(unittest.TestCase):
 
     @classmethod

@@ -2,23 +2,28 @@ import re
 import unittest
 import jsbeautifier
 
+
 class TestJSBeautifierIndentation(unittest.TestCase):
     def test_tabs(self):
         test_fragment = self.decodesto
 
-        self.options.indent_with_tabs = 1;
-        test_fragment('{tabs()}', "{\n\ttabs()\n}");
+        self.options.indent_with_tabs = 1
+        test_fragment('{tabs()}', "{\n\ttabs()\n}")
 
     def test_function_indent(self):
         test_fragment = self.decodesto
 
-        self.options.indent_with_tabs = 1;
-        self.options.keep_function_indentation = 1;
-        test_fragment('var foo = function(){ bar() }();', "var foo = function() {\n\tbar()\n}();");
+        self.options.indent_with_tabs = 1
+        self.options.keep_function_indentation = 1
+        test_fragment(
+            'var foo = function(){ bar() }();',
+            "var foo = function() {\n\tbar()\n}();")
 
-        self.options.tabs = 1;
-        self.options.keep_function_indentation = 0;
-        test_fragment('var foo = function(){ baz() }();', "var foo = function() {\n\tbaz()\n}();");
+        self.options.tabs = 1
+        self.options.keep_function_indentation = 0
+        test_fragment(
+            'var foo = function(){ baz() }();',
+            "var foo = function() {\n\tbaz()\n}();")
 
     def decodesto(self, input, expectation=None):
         self.assertEqual(

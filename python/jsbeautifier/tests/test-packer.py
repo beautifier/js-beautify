@@ -9,15 +9,16 @@ fails = 0
 
 
 def test_str(str, expected):
-  global fails
-  res = jsbeautifier.beautify(str, opts)
-  if(res == expected):
-    print(".")
-    return True
-  else:
-    print("___got:" + res + "\n___expected:" + expected + "\n")
-    fails = fails + 1
-    return False
+    global fails
+    res = jsbeautifier.beautify(str, opts)
+    if(res == expected):
+        print(".")
+        return True
+    else:
+        print("___got:" + res + "\n___expected:" + expected + "\n")
+        fails = fails + 1
+        return False
+
 
 str = "eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('2 0=\"4 3!\";2 1=0.5(/b/6);a.9(\"8\").7=1;',12,12,'str|n|var|W3Schools|Visit|search|i|innerHTML|demo|getElementById|document|w3Schools'.split('|'),0,{}))"
 expected = "var str = \"Visit W3Schools!\";\nvar n = str.search(/w3Schools/i);\ndocument.getElementById(\"demo\").innerHTML = n;"
@@ -35,4 +36,4 @@ expected = "$(document).ready(function() {\n    $(\'.r8ce6\').html(52136);\n    
 res = test_str(str, expected)
 
 if (fails == 0):
-  print("OK")
+    print("OK")

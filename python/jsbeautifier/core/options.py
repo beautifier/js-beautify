@@ -29,6 +29,8 @@ import copy
 #          mergeOpts(obj, 'b')
 #
 #          Returns: {a: 2, b: {a: 2}}
+
+
 def mergeOpts(options, childFieldName):
     finalOpts = copy.copy(options)
 
