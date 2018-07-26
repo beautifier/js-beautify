@@ -306,32 +306,14 @@ test_cli_js_beautify()
     cleanup
 }
 
-test_smoke_js_beautify()
-{
-    echo ----------------------------------------
-    echo Testing beautify functionality...
-    $SCRIPT_DIR/../../../tools/python-dev python $SCRIPT_DIR/../../js-beautify-test.py || exit 1
-}
-
-test_perf_js_beautify()
-{
-    echo ----------------------------------------
-    echo Testing beautify performance...
-  	# PYTHON=python $SCRIPT_DIR/../../js-beautify-profile || exit 1
-  	$SCRIPT_DIR/../../../tools/python-dev python $SCRIPT_DIR/../../test-perf-jsbeautifier.py || exit 1
-}
 
 main() {
-    test_smoke_js_beautify
-
     #test_cli_common css-beautify
     #test_cli_common html-beautify
     test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-dev js-beautify"
     test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-rel js-beautify"
 
-
     test_cli_js_beautify "$SCRIPT_DIR/../../../tools/python-dev js-beautify"
-    test_perf_js_beautify
 
     echo ----------------------------------------
     echo $0 - PASSED.
