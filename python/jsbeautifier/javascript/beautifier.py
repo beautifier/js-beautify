@@ -74,7 +74,7 @@ OPERATOR_POSITION = {
     'after_newline': 'after-newline',
     'preserve_newline': 'preserve-newline'
 }
-OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION['before_newline'], OPERATOR_POSITION['preserve_newline']];
+OPERATOR_POSITION_BEFORE_OR_PRESERVE = [OPERATOR_POSITION['before_newline'], OPERATOR_POSITION['preserve_newline']]
 
 def sanitizeOperatorPosition(opPosition):
     if not opPosition:
@@ -158,7 +158,7 @@ class Beautifier:
 
         self.output = Output(self.indent_string, self.baseIndentString)
         # If testing the ignore directive, start with output disable set to true
-        self.output.raw = self.opts.test_output_raw;
+        self.output.raw = self.opts.test_output_raw
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
@@ -176,7 +176,7 @@ class Beautifier:
             self.opts.brace_style = 'collapse,preserve-inline'
 
         #split always returns at least one value
-        split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
+        split = re.compile(r"[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
         #preserve-inline in delimited string will trigger brace_preserve_inline
         #Everything else is considered a brace_style and the last one only will
         #have an effect
@@ -264,7 +264,7 @@ class Beautifier:
         import jsbeautifier.unpackers as unpackers
         try:
             return unpackers.run(source, evalcode)
-        except unpackers.UnpackingError as error:
+        except unpackers.UnpackingError:
             return source
 
     def is_special_word(self, s):
@@ -354,7 +354,7 @@ class Beautifier:
             s = current_token.text
 
         self.print_token_line_indentation(current_token)
-        self.output.add_token(s);
+        self.output.add_token(s)
 
 
     def indent(self):
@@ -375,7 +375,7 @@ class Beautifier:
 
         self.flags = BeautifierFlags(mode)
         self.flags.apply_base(self.previous_flags, self.output.just_added_newline())
-        self.flags.start_line_index = self.output.get_line_number();
+        self.flags.start_line_index = self.output.get_line_number()
 
     def restore_mode(self):
         if len(self.flag_store) > 0:
@@ -409,7 +409,7 @@ class Beautifier:
             self.set_mode(MODE.Statement)
             self.indent()
 
-            self.handle_whitespace_and_comments(current_token, True);
+            self.handle_whitespace_and_comments(current_token, True)
 
             # Issue #276:
             # If starting a new statement with [if, for, while, do], push to a new line.
@@ -643,7 +643,7 @@ class Beautifier:
         empty_braces = self.last_type == TOKEN.START_BLOCK
 
         if self.flags.inline_frame and not empty_braces: # try inline_frame (only set if opt.braces-preserve-inline) first
-            self.output.space_before_token = True;
+            self.output.space_before_token = True
         elif self.opts.brace_style == 'expand':
             if not empty_braces:
                 self.print_newline()

@@ -53,10 +53,10 @@ TOKEN = TokenTypes()
 class Tokenizer:
 
     number_pattern = re.compile(r'0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?')
-    digit = re.compile('[0-9]')
+    digit = re.compile(r'[0-9]')
 
-    startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-    xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+    startXmlRegExp = re.compile(r'<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+    xmlRegExp = re.compile(r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
     positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ')
     punct = (positionable_operators +
@@ -75,19 +75,19 @@ class Tokenizer:
         self.opts = opts
         self.indent_string = indent_string
         #  /* ... */ comment ends with nearest */ or end of file
-        self.block_comment_pattern = re.compile('([\s\S]*?)((?:\*\/)|$)')
+        self.block_comment_pattern = re.compile(r'([\s\S]*?)((?:\*\/)|$)')
 
         # comment ends just before nearest linefeed or end of file
-        self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
+        self.comment_pattern = re.compile(self.acorn.six.u(r'([^\n\r\u2028\u2029]*)'))
 
-        self.directives_block_pattern = re.compile('\/\* beautify( \w+[:]\w+)+ \*\/')
-        self.directive_pattern = re.compile(' (\w+)[:](\w+)')
-        self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
+        self.directives_block_pattern = re.compile(r'\/\* beautify( \w+[:]\w+)+ \*\/')
+        self.directive_pattern = re.compile(r' (\w+)[:](\w+)')
+        self.directives_end_ignore_pattern = re.compile(r'([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
-        self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
+        self.template_pattern = re.compile(r'((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
 
-        self.whitespacePattern = re.compile(self.acorn.six.u('[\n\r\u2028\u2029\t ]+'))
-        self.newlinePattern = re.compile(self.acorn.six.u('([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
+        self.whitespacePattern = re.compile(self.acorn.six.u(r'[\n\r\u2028\u2029\t ]+'))
+        self.newlinePattern = re.compile(self.acorn.six.u(r'([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
 
     def tokenize(self):
         self.in_html_comment = False
@@ -95,7 +95,7 @@ class Tokenizer:
 
         next = None
         last = None
-        open = None
+        open_token = None
         open_stack = []
         comments = []
 
@@ -117,16 +117,16 @@ class Tokenizer:
 
             if next.type == TOKEN.START_BLOCK or next.type == TOKEN.START_EXPR:
                 next.parent = last
-                open_stack.append(open)
-                open = next
+                open_stack.append(open_token)
+                open_token = next
             elif (next.type == TOKEN.END_BLOCK or next.type == TOKEN.END_EXPR) and \
-                (not open == None and ( \
-                    (next.text == ']' and open.text == '[') or \
-                    (next.text == ')' and open.text == '(') or \
-                    (next.text == '}' and open.text == '{'))):
-                next.parent = open.parent
-                next.opened = open
-                open = open_stack.pop()
+                (not open_token == None and ( \
+                    (next.text == ']' and open_token.text == '[') or \
+                    (next.text == ')' and open_token.text == '(') or \
+                    (next.text == '}' and open_token.text == '{'))):
+                next.parent = open_token.parent
+                next.opened = open_token
+                open_token = open_stack.pop()
 
             self.tokens.append(next)
             last = next
@@ -240,8 +240,6 @@ class Tokenizer:
 
         sep = c
         esc = False
-        esc1 = 0
-        esc2 = 0
         resulting_string = c
         in_char_class = False
 
@@ -337,7 +335,7 @@ class Tokenizer:
 
                 # if we didn't close correctly, keep unformatted.
                 if not match:
-                    xmlStr += self.input.match(re.compile('[\s\S]*')).group(0)
+                    xmlStr += self.input.match(re.compile(r'[\s\S]*')).group(0)
 
                 xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
                 return xmlStr, TOKEN.STRING
@@ -400,7 +398,7 @@ class Tokenizer:
                 return c, TOKEN.STRING
 
 
-        if c == '<' and self.input.match(re.compile('\!--')):
+        if c == '<' and self.input.match(re.compile(r'\!--')):
             c = '<!--'
             while self.input.hasNext() and not self.input.testChar(self.acorn.newline):
                 c += self.input.next()
@@ -459,9 +457,9 @@ class Tokenizer:
 
             input_scan.next()
             if input_scan.peek() == 'x':
-                matched = input_scan.match(re.compile('x([0-9A-Fa-f]{2})'))
+                matched = input_scan.match(re.compile(r'x([0-9A-Fa-f]{2})'))
             elif input_scan.peek() == 'u':
-                matched = input_scan.match(re.compile('u([0-9A-Fa-f]{4})'));
+                matched = input_scan.match(re.compile(r'u([0-9A-Fa-f]{4})'))
             else:
                 out += '\\'
                 if input_scan.hasNext():

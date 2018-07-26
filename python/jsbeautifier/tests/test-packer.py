@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import jsbeautifier
 
@@ -11,10 +12,10 @@ def test_str(str, expected):
   global fails
   res = jsbeautifier.beautify(str, opts)
   if(res == expected):
-    print "."
+    print(".")
     return True
   else:
-    print "___got:" + res + "\n___expected:" + expected + "\n"
+    print("___got:" + res + "\n___expected:" + expected + "\n")
     fails = fails + 1
     return False
 
@@ -24,7 +25,7 @@ expected = "var str = \"Visit W3Schools!\";\nvar n = str.search(/w3Schools/i);\n
 res = test_str(str, expected)
 
 str = "a=b;\r\nwhile(1){\ng=h;{return'\\w+'};break;eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('$(5).4(3(){$(\'.1\').0(2);$(\'.6\').0(d);$(\'.7\').0(b);$(\'.a\').0(8);$(\'.9\').0(c)});',14,14,'html|r5e57|8080|function|ready|document|r1655|rc15b|8888|r39b0|r6ae9|3128|65309|80'.split('|'),0,{}))c=abx;"
-expected = "a = b;\nwhile (1) {\n    g = h; {\n        return '\w+'\n    };\n    break;\n    $(document).ready(function() {\n        $('.r5e57').html(8080);\n        $('.r1655').html(80);\n        $('.rc15b').html(3128);\n        $('.r6ae9').html(8888);\n        $('.r39b0').html(65309)\n    });\n    c = abx;"
+expected = "a = b;\nwhile (1) {\n    g = h; {\n        return '\\w+'\n    };\n    break;\n    $(document).ready(function() {\n        $('.r5e57').html(8080);\n        $('.r1655').html(80);\n        $('.rc15b').html(3128);\n        $('.r6ae9').html(8888);\n        $('.r39b0').html(65309)\n    });\n    c = abx;"
 
 res = test_str(str, expected)
 
@@ -34,4 +35,4 @@ expected = "$(document).ready(function() {\n    $(\'.r8ce6\').html(52136);\n    
 res = test_str(str, expected)
 
 if (fails == 0):
-  print "OK"
+  print("OK")

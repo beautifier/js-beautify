@@ -42,7 +42,7 @@ class OutputLine:
 
     def set_indent(self, level):
         self.__character_count = self.__parent.baseIndentLength + level * self.__parent.indent_length
-        self.__indent_count = level;
+        self.__indent_count = level
 
     def last(self):
         if not self.is_empty():
@@ -71,7 +71,7 @@ class OutputLine:
 
     def trim(self):
         while self.last() == ' ':
-            item = self._items.pop()
+            self.__items.pop()
             self.__character_count -= 1
         self.__empty = len(self.__items) == 0
 

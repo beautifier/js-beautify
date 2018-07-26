@@ -102,7 +102,7 @@ def set_file_editorconfig_opts(filename, js_options):
             elif _ecoptions["end_of_line"] == "crlf":
                 js_options.eol = '\r\n'
 
-    except EditorConfigError as ex:
+    except EditorConfigError:
         # do not error on bad editor config
         print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
 
@@ -116,10 +116,10 @@ def beautify_file(file_name, opts = default_options() ):
 
             stream = sys.stdin
             input_string = ''.join(stream.readlines())
-        except Exception as ex:
+        except Exception:
             print("Must pipe input or define at least one file.\n", file=sys.stderr)
             usage(sys.stderr)
-            raise Exception()
+            raise
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())

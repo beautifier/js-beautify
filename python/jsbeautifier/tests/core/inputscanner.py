@@ -8,7 +8,7 @@ class TestInputScanner(unittest.TestCase):
         pass
 
     def test_new(self):
-        inputscanner = InputScanner()
+        inputscanner = InputScanner(None)
         self.assertEqual(inputscanner.hasNext(), False)
 
 
