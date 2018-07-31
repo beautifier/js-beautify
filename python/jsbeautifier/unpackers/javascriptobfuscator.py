@@ -20,13 +20,14 @@ import re
 
 PRIORITY = 1
 
+
 def smartsplit(code):
     """Split `code` at " symbol, only if it is not escaped."""
     strings = []
     pos = 0
     while pos < len(code):
         if code[pos] == '"':
-            word = '' # new word
+            word = ''  # new word
             pos += 1
             while pos < len(code):
                 if code[pos] == '"':
@@ -40,10 +41,12 @@ def smartsplit(code):
         pos += 1
     return strings
 
+
 def detect(code):
     """Detects if `code` is JavascriptObfuscator.com packed."""
     # prefer `is not` idiom, so that a true boolean is returned
     return (re.search(r'^var _0x[a-f0-9]+ ?\= ?\[', code) is not None)
+
 
 def unpack(code):
     """Unpacks JavascriptObfuscator.com packed code."""

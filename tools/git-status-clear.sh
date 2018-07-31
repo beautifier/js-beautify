@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "Post-build git status check..."
 echo "Ensuring no changes visible to git have been made to '$*' ..."
 

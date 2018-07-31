@@ -3,7 +3,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -26,9 +26,9 @@
   SOFTWARE.
 */
 
-var js_beautify = require('javascript/index');
-var css_beautify = require('css/index');
-var html_beautify = require('html/index');
+var js_beautify = require('./javascript/index');
+var css_beautify = require('./css/index');
+var html_beautify = require('./html/index');
 
 function style_html(html_source, options, js, css) {
   js = js || js_beautify;

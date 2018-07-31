@@ -6,7 +6,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -2187,6 +2187,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // 
+        reset_options();
+
+
+        //============================================================
         // e4x disabled
         reset_options();
         opts.e4x = false;
@@ -3435,6 +3440,39 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    (Math.random() * 0x1000000000).toString(36),\n' +
             '    new Date().getTime()\n' +
             '].join("-");');
+        
+        // Issue 1374 - Parameters starting with ! or [ merged into single line
+        bt(
+            'fn(\n' +
+            '    1,\n' +
+            '    !1,\n' +
+            '    1,\n' +
+            '    [1]\n' +
+            ')');
+        
+        // Issue 1288 - Negative numbers remove newlines in array
+        bt(
+            'var array = [\n' +
+            '    -1,\n' +
+            '    0,\n' +
+            '    "a",\n' +
+            '    -2,\n' +
+            '    1,\n' +
+            '    -3,\n' +
+            '];');
+        
+        // Issue 1229 - Negated expressions in array
+        bt(
+            'a = [\n' +
+            '    true && 1,\n' +
+            '    true && 1,\n' +
+            '    true && 1\n' +
+            ']\n' +
+            'a = [\n' +
+            '    !true && 1,\n' +
+            '    !true && 1,\n' +
+            '    !true && 1\n' +
+            ']');
         
         // Issue #996 - Input ends with backslash throws exception
         test_fragment(

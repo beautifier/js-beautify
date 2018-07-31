@@ -14,7 +14,7 @@ from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosit
 #
 # The MIT License (MIT)
 
-# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+# Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -66,9 +66,10 @@ def default_options():
     return BeautifierOptions()
 
 
-def beautify(string, opts = default_options() ):
+def beautify(string, opts=default_options()):
     b = Beautifier()
     return b.beautify(string, opts)
+
 
 def set_file_editorconfig_opts(filename, js_options):
     from editorconfig import get_properties, EditorConfigError
@@ -87,7 +88,8 @@ def set_file_editorconfig_opts(filename, js_options):
             if _ecoptions.get("max_line_length") == "off":
                 js_options.wrap_line_length = 0
             else:
-                js_options.wrap_line_length = int(_ecoptions["max_line_length"])
+                js_options.wrap_line_length = int(
+                    _ecoptions["max_line_length"])
 
         if _ecoptions.get("insert_final_newline") == 'true':
             js_options.end_with_newline = True
@@ -102,24 +104,26 @@ def set_file_editorconfig_opts(filename, js_options):
             elif _ecoptions["end_of_line"] == "crlf":
                 js_options.eol = '\r\n'
 
-    except EditorConfigError as ex:
+    except EditorConfigError:
         # do not error on bad editor config
         print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
 
 
-def beautify_file(file_name, opts = default_options() ):
+def beautify_file(file_name, opts=default_options()):
     input_string = ''
-    if file_name == '-': # stdin
+    if file_name == '-':  # stdin
         try:
             if sys.stdin.isatty():
                 raise Exception()
 
             stream = sys.stdin
             input_string = ''.join(stream.readlines())
-        except Exception as ex:
-            print("Must pipe input or define at least one file.\n", file=sys.stderr)
+        except Exception:
+            print(
+                "Must pipe input or define at least one file.\n",
+                file=sys.stderr)
             usage(sys.stderr)
-            raise Exception()
+            raise
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
@@ -189,19 +193,22 @@ def mkdir_p(path):
     try:
         if path:
             os.makedirs(path)
-    except OSError as exc: # Python >2.5
+    except OSError as exc:  # Python >2.5
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else:
             raise Exception()
 
 
-
-
 def isFileDifferent(filepath, expected):
     try:
-        return (''.join(io.open(filepath, 'rt', newline='').readlines()) != expected)
-    except:
+        return (
+            ''.join(
+                io.open(
+                    filepath,
+                    'rt',
+                    newline='').readlines()) != expected)
+    except BaseException:
         return True
 
 
@@ -211,11 +218,11 @@ def main():
 
     try:
         opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-            ['indent-size=','indent-char=','eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
-            'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-            'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
-            'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-            'e4x', 'end-with-newline','comma-first','operator-position=','wrap-line-length','editorconfig'])
+                                   ['indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
+                                    'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
+                                    'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+                                    'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
+                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -231,7 +238,7 @@ def main():
     for opt, arg in opts:
         if opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
-        if opt in ('--keep-function-indentation','-f'):
+        if opt in ('--keep-function-indentation', '-f'):
             js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
             outfile = arg
@@ -280,7 +287,6 @@ def main():
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
-
     if not file:
         file = '-'
 
@@ -325,10 +331,10 @@ def main():
                         f.write(pretty)
                     except TypeError:
                         # This is not pretty, but given how we did the version import
-                        # it is the only way to do this without having setup.py fail on a missing six dependency.
+                        # it is the only way to do this without having setup.py
+                        # fail on a missing six dependency.
                         six = __import__("six")
                         f.write(six.u(pretty))
-
 
     except Exception as ex:
         print(ex, file=sys.stderr)
@@ -336,3 +342,7 @@ def main():
 
     # Success
     return 0
+
+
+if __name__ == "__main__":
+    main()

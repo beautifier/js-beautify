@@ -1,7 +1,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -72,7 +72,7 @@ exports.test_data = {
       { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
       // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
       { fragment: true, input: '\n', output: '{{eof}}' }
-    ],
+    ]
   }, {
     name: "Custom Extra Liners (empty)",
     description: "",
@@ -80,14 +80,14 @@ exports.test_data = {
         options: [
           { name: "extra_liners", value: "[]" }
         ]
-      },
+      }
 
     ],
     tests: [{
       fragment: true,
       input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
       output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n        <p>x</p>\n    </div>\n</body>\n</html>'
-    }],
+    }]
   }, {
     name: "Custom Extra Liners (default)",
     description: "",
@@ -95,14 +95,14 @@ exports.test_data = {
         options: [
           { name: "extra_liners", value: "null" }
         ]
-      },
+      }
 
     ],
     tests: [{
       fragment: true,
       input: '<html><head></head><body></body></html>',
       output: '<html>\n\n<head></head>\n\n<body></body>\n\n</html>'
-    }],
+    }]
   }, {
     name: "Custom Extra Liners (p, string)",
     description: "",
@@ -110,14 +110,14 @@ exports.test_data = {
         options: [
           { name: "extra_liners", value: "'p,/p'" }
         ]
-      },
+      }
 
     ],
     tests: [{
       fragment: true,
       input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
       output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
-    }],
+    }]
   }, {
     name: "Custom Extra Liners (p)",
     description: "",
@@ -125,14 +125,14 @@ exports.test_data = {
         options: [
           { name: "extra_liners", value: "['p', '/p']" }
         ]
-      },
+      }
 
     ],
     tests: [{
       fragment: true,
       input: '<html><head><meta></head><body><div><p>x</p></div></body></html>',
       output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
-    }],
+    }]
   }, {
     name: "Tests for script and style types (issue 453, 821)",
     description: "Only format recognized script types",
@@ -277,9 +277,9 @@ exports.test_data = {
           '    }',
           '</style>'
         ]
-      },
+      }
 
-    ],
+    ]
   }, {
     name: "Attribute Wrap alignment with spaces",
     description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
@@ -426,7 +426,7 @@ exports.test_data = {
       indent_over80: '\n     '
     }, {
       options: [
-        { name: "wrap_attributes", value: "'aligned-multiple'" },
+        { name: "wrap_attributes", value: "'aligned-multiple'" }
       ],
       indent_attr: ' ',
       indent_attr_first: ' ',
@@ -542,8 +542,18 @@ exports.test_data = {
         output: '<div>\n' +
           '    {{#each thing}} {{name}} {{/each}}\n' +
           '</div>'
+      },
+      {
+        fragment: true,
+        input_: [
+          '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}} ' +
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}} ' +
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
       }
-
     ]
   }, {
     name: "Handlebars Indenting On",
@@ -558,12 +568,22 @@ exports.test_data = {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
+      content: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
       content: '{{! comment}}'
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
       content: '{{!-- comment--}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
+      content: '{{hello "world"}} {{!-- comment--}}'
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
@@ -593,6 +613,22 @@ exports.test_data = {
     }],
     tests: [
       { fragment: true, unchanged: '{{page-title}}' },
+      {
+        fragment: true,
+        unchanged: [
+          '{{page-title}}',
+          '{{a}}',
+          '{{value-title}}'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
       { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
@@ -758,7 +794,7 @@ exports.test_data = {
         fragment: true,
         unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
       }
-    ],
+    ]
   }, {
     name: "Handlebars Else tag indenting",
     description: "Handlebar Else tags should be newlined after formatted tags",
@@ -813,7 +849,7 @@ exports.test_data = {
       { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
       { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
       { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' },
+      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
     ]
   }, {
     name: "File starting with comment",
@@ -831,7 +867,7 @@ exports.test_data = {
         '',
         '</html>'
       ]
-    }, ]
+    }]
   }, {
     name: "Single line comment after closing tag",
     description: "Keep single line comments as they are after closing tags",
@@ -866,7 +902,7 @@ exports.test_data = {
         '    <!-- /.row -->',
         '</div> <!-- /.col -->'
       ]
-    }, ]
+    }]
   }, {
     name: "Regression Tests",
     description: "Regression Tests",
@@ -878,7 +914,7 @@ exports.test_data = {
       },
       { fragment: true, unchanged: '<a ">9</a">' },
       { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
-      { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
+      { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' }
     ]
   }, {
     name: "Php formatting",
@@ -887,7 +923,7 @@ exports.test_data = {
     tests: [{
       fragment: true,
       input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
-      output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>',
+      output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>'
     }, {
       fragment: true,
       unchanged: [
@@ -974,9 +1010,9 @@ exports.test_data = {
         '{{h}}{{h}}{{c}}font-size: 12px;',
         '{{h}}{{h}}}',
         '{{h}}</style>',
-        '</head>',
+        '</head>'
       ]
-    }, ]
+    }]
   }, {
     name: "underscore.js  formatting",
     description: "underscore.js templates (<% ... %>) treated as comments.",
@@ -990,7 +1026,7 @@ exports.test_data = {
         '    </textarea>',
         '</div>'
       ]
-    }, ]
+    }]
   }, {
     name: "Linewrap length",
     description: "",
@@ -1104,7 +1140,8 @@ exports.test_data = {
     template: "^^^ $$$",
     tests: [{
       fragment: true,
-      unchanged: '<div><span></span></div><span><div></div></span>'
+      input: '<div><span></span></div><span><div></div></span>',
+      output: '<div><span></span></div><span>\n    <div></div>\n</span>'
     }, {
       fragment: true,
       input: '<div><div><span><span>Nested spans</span></span></div></div>',
@@ -1249,7 +1286,7 @@ exports.test_data = {
         '</div>',
         '<p>',
         '    <p>But not me</p>',
-        '</p>',
+        '</p>'
       ]
     }, {
       fragment: true,
@@ -1338,5 +1375,5 @@ exports.test_data = {
     }]
   }, {
     name: "New Test Suite"
-  }],
+  }]
 };

@@ -3,14 +3,16 @@
 import sys
 import unittest
 
-#Speedup things...
+# Speedup things...
 try:
     import cProfile as profile
 except ImportError:
     import profile
 
+
 def run():
     sys.argv.append('discover')
     unittest.main()
+
 
 profile.run('run()')

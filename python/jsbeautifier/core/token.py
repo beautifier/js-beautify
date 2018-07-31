@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+# Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -22,8 +22,16 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 class Token:
-    def __init__(self, type, text, newlines = 0, whitespace_before = '', mode = None, parent = None):
+    def __init__(
+            self,
+            type,
+            text,
+            newlines=0,
+            whitespace_before='',
+            mode=None,
+            parent=None):
         self.type = type
         self.text = text
         self.comments_before = []

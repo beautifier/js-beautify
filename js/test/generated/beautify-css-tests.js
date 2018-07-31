@@ -6,7 +6,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -9316,6 +9316,24 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         // Assume the colon goes with the @name. If we're in LESS, this is required regardless of the at-string.
         t('@page:first {}', '@page: first {}');
         t('@page: first {}');
+
+
+        //============================================================
+        // Issue 1411 -- LESS Variable Assignment Spacing
+        reset_options();
+        t(
+            '@set: {\n' +
+            '\tone: blue;\n' +
+            '\ttwo: green;\n' +
+            '\tthree: red;\n' +
+            '}\n' +
+            '.set {\n' +
+            '\teach(@set, {\n' +
+            '\t\t@{key}-@{index}: @value;\n' +
+            '\t}\n' +
+            '\t);\n' +
+            '}');
+        t('@light-blue: @nice-blue + #111;');
 
 
         //============================================================

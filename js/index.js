@@ -1,7 +1,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -71,11 +71,12 @@ if (typeof define === "function" && define.amd) {
   });
 } else {
   (function(mod) {
-    var js_beautify = require('./lib/beautify');
-    var css_beautify = require('./lib/beautify-css');
-    var html_beautify = require('./lib/beautify-html');
+    var beautifier = require('./src/index');
+    beautifier.js_beautify = beautifier.js;
+    beautifier.css_beautify = beautifier.css;
+    beautifier.html_beautify = beautifier.html;
 
-    mod.exports = get_beautify(js_beautify, css_beautify, html_beautify);
+    mod.exports = get_beautify(beautifier, beautifier, beautifier);
 
   })(module);
 }

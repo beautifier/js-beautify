@@ -23,12 +23,15 @@ var dist_full = {
   resolve: {
     modules: [ path.resolve(__dirname, "js/src") ]
   },
+  devtool: 'source-map',
   output: {
     library: 'beautifier',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'js/lib'),
+    // Workaround for https://github.com/webpack/webpack/issues/6525
+    globalObject: "typeof self !== 'undefined' ? self : typeof windows !== 'undefined' ? window : typeof global !== 'undefined' ? global : this"
   }
 };
 
@@ -38,12 +41,15 @@ var dist_prod = {
   resolve: {
     modules: [ path.resolve(__dirname, "js/src") ]
   },
+  devtool: 'source-map',
   output: {
     library: 'beautifier',
     libraryTarget: 'umd',
     umdNamedDefine: true,
     filename: 'beautifier.min.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'js/lib'),
+    // Workaround for https://github.com/webpack/webpack/issues/6525
+    globalObject: "typeof self !== 'undefined' ? self : typeof windows !== 'undefined' ? window : typeof global !== 'undefined' ? global : this"
   }
 };
 

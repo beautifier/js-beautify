@@ -3,7 +3,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
@@ -216,7 +216,7 @@ function set_file_editorconfig_opts(file, config) {
       if (eConfigs.max_line_length === "off") {
         config.wrap_line_length = 0;
       } else {
-        config.wrap_line_length = parseInt(eConfigs.max_line_length);
+        config.wrap_line_length = parseInt(eConfigs.max_line_length, 10);
       }
     }
 
