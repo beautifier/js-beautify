@@ -27,13 +27,13 @@ release_node()
 {
     cd $SCRIPT_DIR/..
     git clean -xfd || exit 1
-    ./build js || exit 1
+    make js || exit 1
     npm version $NEW_VERSION
     unset NPM_TAG
     if [[ $NEW_VERSION =~ .*(rc|beta).* ]]; then
     NPM_TAG='--tag next'
     fi
-    npm publish . $NPM_TAG
+    npm publish . $NPM_TAG || exit 1
     git push
     git push --tags
 }
@@ -47,7 +47,7 @@ release_web()
     git fetch || exit 1
     git checkout -B gh-pages origin/gh-pages || exit 1
     git merge origin/master --no-edit || exit 1
-    ./build js || exit 1
+    make js || exit 1
     git add -f js/lib/ || exit 1
     git commit -m "Built files for $NEW_VERSION"
     git push || exit 1
