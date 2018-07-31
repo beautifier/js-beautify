@@ -24,7 +24,10 @@
 
 import re
 
-# Using object instead of string to allow for later expansion of info about each line
+# Using object instead of string to allow for later expansion of info
+# about each line
+
+
 class OutputLine:
     def __init__(self, parent):
         self.__parent = parent
@@ -41,20 +44,20 @@ class OutputLine:
         return self.__empty
 
     def set_indent(self, level):
-        self.__character_count = self.__parent.baseIndentLength + level * self.__parent.indent_length
-        self.__indent_count = level;
+        self.__character_count = self.__parent.baseIndentLength + \
+            level * self.__parent.indent_length
+        self.__indent_count = level
 
     def last(self):
         if not self.is_empty():
             return self.__items[-1]
-        else:
-            return None
 
-    def push(self, input):
-        self.__items.append(input)
-        self.__character_count += len(input)
+        return None
+
+    def push(self, item):
+        self.__items.append(item)
+        self.__character_count += len(item)
         self.__empty = False
-
 
     def pop(self):
         item = None
@@ -71,7 +74,7 @@ class OutputLine:
 
     def trim(self):
         while self.last() == ' ':
-            item = self._items.pop()
+            self.__items.pop()
             self.__character_count -= 1
         self.__empty = len(self.__items) == 0
 
@@ -85,11 +88,11 @@ class OutputLine:
 
 
 class Output:
-    def __init__(self, indent_string, baseIndentString = ''):
+    def __init__(self, indent_string, baseIndentString=''):
 
         self.indent_string = indent_string
         self.baseIndentString = baseIndentString
-        self.indent_cache = [ baseIndentString ]
+        self.indent_cache = [baseIndentString]
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.raw = False
@@ -134,8 +137,8 @@ class Output:
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
             while level >= len(self.indent_cache):
-                self.indent_cache.append(self.indent_cache[-1] + self.indent_string)
-
+                self.indent_cache.append(
+                    self.indent_cache[-1] + self.indent_string)
 
             self.current_line.set_indent(level)
             return True
@@ -159,10 +162,11 @@ class Output:
             self.current_line.push(' ')
         self.space_before_token = False
 
-    def trim(self, eat_newlines = False):
+    def trim(self, eat_newlines=False):
         self.current_line.trim()
 
-        while eat_newlines and len(self.lines) > 1 and self.current_line.is_empty():
+        while eat_newlines and len(
+                self.lines) > 1 and self.current_line.is_empty():
             self.lines.pop()
             self.current_line = self.lines[-1]
             self.current_line.trim()

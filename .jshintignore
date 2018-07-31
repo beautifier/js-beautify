@@ -9,5 +9,6 @@ tools/**
 test/resources/underscore-min.js
 test/resources/underscore.js
 web/lib/**
+build/**
 
 web/google-analytics.js

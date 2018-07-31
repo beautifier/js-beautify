@@ -13,6 +13,8 @@ INPUT = os.path.join(path[0], 'test-myobfuscate-input.js')
 OUTPUT = os.path.join(path[0], 'test-myobfuscate-output.js')
 
 # pylint: disable=R0904
+
+
 class TestMyObfuscate(unittest.TestCase):
     # pylint: disable=C0103
     """MyObfuscate obfuscator testcase."""
@@ -26,15 +28,16 @@ class TestMyObfuscate(unittest.TestCase):
 
     def test_detect(self):
         """Test detect() function."""
-        detected = lambda source: self.assertTrue(detect(source))
+        def detected(source): return self.assertTrue(detect(source))
 
         detected(self.input)
 
     def test_unpack(self):
         """Test unpack() function."""
-        check = lambda inp, out: self.assertEqual(unpack(inp), out)
+        def check(inp, out): return self.assertEqual(unpack(inp), out)
 
         check(self.input, self.output)
+
 
 if __name__ == '__main__':
     unittest.main()

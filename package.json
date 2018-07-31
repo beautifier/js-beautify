@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.8.0-rc2",
+  "version": "1.8.0-rc3",
   "description": "jsbeautifier.org for node",
   "main": "js/index.js",
   "bin": {
@@ -49,7 +49,7 @@
     "editorconfig": "^0.15.0",
     "mkdirp": "~0.5.0",
     "nopt": "~4.0.1",
-    "npm": "^6.1.0"
+    "npm": "^6.2.0"
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
@@ -58,7 +58,7 @@
     "mustache": "~2.3.0",
     "node-static": "^0.7.10",
     "requirejs": "^2.3.3",
-    "webpack": "^4.15.1",
+    "webpack": "^4.16.2",
     "webpack-command": "^0.4.1"
   }
 }

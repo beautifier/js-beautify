@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+REL_SCRIPT_DIR="`dirname \"$0\"`"
+SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
+PYTHON_ENV=python-dev
+
+if [ -d "$PROJECT_DIR/build/$PYTHON_ENV/Scripts" ]; then
+    RUN_FILE="$PROJECT_DIR/build/$PYTHON_ENV/Scripts/$1"
+else
+    RUN_FILE="$PROJECT_DIR/build/$PYTHON_ENV/bin/$1"
+fi
+
+shift
+
+$RUN_FILE $@

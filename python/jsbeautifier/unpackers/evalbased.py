@@ -18,15 +18,19 @@ from subprocess import PIPE, Popen
 
 PRIORITY = 3
 
+
 def detect(source):
     """Detects if source is likely to be eval() packed."""
     return source.strip().lower().startswith('eval(function(')
+
 
 def unpack(source):
     """Runs source and return resulting code."""
     return jseval('print %s;' % source[4:]) if detect(source) else source
 
 # In case of failure, we'll just return the original, without crashing on user.
+
+
 def jseval(script):
     """Run code in the JS interpreter and return output."""
     try:

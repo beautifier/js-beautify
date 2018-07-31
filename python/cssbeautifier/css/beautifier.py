@@ -39,6 +39,7 @@ whitespacePattern = re.compile(r"(?:\s|\n)+")
 
 # WORD_RE = re.compile("[\w$\-_]")
 
+
 def default_options():
     return BeautifierOptions()
 
@@ -88,7 +89,7 @@ class Printer:
         if self.indentLevel > 0:
             self.indentLevel -= 1
 
-    def preserveSingleSpace(self,isAfterSpace):
+    def preserveSingleSpace(self, isAfterSpace):
         if isAfterSpace:
             self.output.space_before_token = True
 
@@ -105,8 +106,10 @@ class Beautifier:
         import jsbeautifier.core.acorn as acorn
         self.lineBreak = acorn.lineBreak
         self.allLineBreaks = acorn.allLineBreaks
-        self.comment_pattern = re.compile(acorn.six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
-        self.block_comment_pattern = re.compile(r"\/\*(?:[\s\S]*?)((?:\*\/)|$)")
+        self.comment_pattern = re.compile(
+            acorn.six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
+        self.block_comment_pattern = re.compile(
+            r"\/\*(?:[\s\S]*?)((?:\*\/)|$)")
 
         if not source_text:
             source_text = ''
@@ -133,21 +136,22 @@ class Beautifier:
 
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
-        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
+        # HACK: newline parsing inconsistent. This brute force normalizes the
+        # input newlines.
         self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
-        self.NESTED_AT_RULE = [ \
-            "@page", \
-            "@font-face", \
-            "@keyframes", \
-            "@media", \
-            "@supports", \
+        self.NESTED_AT_RULE = [
+            "@page",
+            "@font-face",
+            "@keyframes",
+            "@media",
+            "@supports",
             "@document"]
-        self.CONDITIONAL_GROUP_RULE = [ \
-            "@media", \
-            "@supports", \
+        self.CONDITIONAL_GROUP_RULE = [
+            "@media",
+            "@supports",
             "@document"]
 
         m = re.search("^[\t ]*", self.source_text)
@@ -173,7 +177,7 @@ class Beautifier:
         result = whitespaceChar.search(self.input.peek() or '') is not None
         isFirstNewLine = True
 
-        while whitespaceChar.search(self.input.peek()  or '') is not None:
+        while whitespaceChar.search(self.input.peek() or '') is not None:
             self.ch = self.input.next()
             if allowAtLeastOneNewLine and self.ch == "\n":
                 if self.opts.preserve_newlines or isFirstNewLine:
@@ -206,7 +210,10 @@ class Beautifier:
         return False
 
     def beautify(self):
-        printer = Printer(self.indentChar, self.indentSize, self.baseIndentString)
+        printer = Printer(
+            self.indentChar,
+            self.indentSize,
+            self.baseIndentString)
         self.output = printer.output
         self.input = InputScanner(self.source_text)
 
@@ -236,7 +243,9 @@ class Beautifier:
                 # minified code is being beautified.
                 output.add_new_line()
                 input.back()
-                printer.print_string(input.readWhile(self.block_comment_pattern))
+                printer.print_string(
+                    input.readWhile(
+                        self.block_comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
@@ -263,10 +272,12 @@ class Beautifier:
                 else:
                     printer.print_string(self.ch)
                     # strip trailing space, if present, for hash property check
-                    variableOrRule = input.peekUntilAfter(re.compile(r"[: ,;{}()[\]\/='\"]"))
+                    variableOrRule = input.peekUntilAfter(
+                        re.compile(r"[: ,;{}()[\]\/='\"]"))
 
                     if variableOrRule[-1] in ": ":
-                        # wwe have a variable or pseudo-class, add it and insert one space before continuing
+                        # wwe have a variable or pseudo-class, add it and
+                        # insert one space before continuing
                         variableOrRule = self.eatString(": ")
                         if variableOrRule[-1].isspace():
                             variableOrRule = variableOrRule[:-1]
@@ -284,6 +295,8 @@ class Beautifier:
                         printer.nestedLevel += 1
                         if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                             enteringConditionalGroup = True
+                    elif not insideRule and parenLevel == 0 and variableOrRule[-1] == ":":
+                        insidePropertyValue = True
             elif self.ch == '#' and input.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString('}'))
@@ -303,7 +316,8 @@ class Beautifier:
                     self.eatWhitespace(True)
                     output.add_new_line()
 
-                    # when entering conditional groups, only rulesets are allowed
+                    # when entering conditional groups, only rulesets are
+                    # allowed
                     if enteringConditionalGroup:
                         enteringConditionalGroup = False
                         insideRule = printer.indentLevel > printer.nestedLevel
@@ -339,7 +353,8 @@ class Beautifier:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space
 
-                    # preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+                    # preserve space before pseudoclasses/pseudoelements, as it
+                    # means "in any child"
                     if input.lookBack(' '):
                         output.space_before_token = True
                     if input.peek() == ":":
@@ -372,7 +387,7 @@ class Beautifier:
                     self.ch = input.next()
                     if self.ch:
                         if self.ch is not ')' and self.ch is not '"' \
-                        and self.ch is not '\'':
+                                and self.ch is not '\'':
                             printer.print_string(self.ch + self.eatString(')'))
                         else:
                             input.back()
@@ -393,7 +408,7 @@ class Beautifier:
                 else:
                     output.space_before_token = True
             elif (self.ch == '>' or self.ch == '+' or self.ch == '~') and \
-                not insidePropertyValue and parenLevel < 1:
+                    not insidePropertyValue and parenLevel < 1:
                 # handle combinator spacing
                 if self.opts.space_around_combinator:
                     output.space_before_token = True

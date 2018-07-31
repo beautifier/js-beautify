@@ -1,6 +1,7 @@
 import unittest
 from ...core.inputscanner import InputScanner
 
+
 class TestInputScanner(unittest.TestCase):
 
     @classmethod
@@ -8,7 +9,7 @@ class TestInputScanner(unittest.TestCase):
         pass
 
     def test_new(self):
-        inputscanner = InputScanner()
+        inputscanner = InputScanner(None)
         self.assertEqual(inputscanner.hasNext(), False)
 
 

@@ -43,15 +43,33 @@ function in_array(what, arr) {
   return false;
 }
 
+var TOKEN = {
+  START_EXPR: 'TK_START_EXPR',
+  END_EXPR: 'TK_END_EXPR',
+  START_BLOCK: 'TK_START_BLOCK',
+  END_BLOCK: 'TK_END_BLOCK',
+  WORD: 'TK_WORD',
+  RESERVED: 'TK_RESERVED',
+  SEMICOLON: 'TK_SEMICOLON',
+  STRING: 'TK_STRING',
+  EQUALS: 'TK_EQUALS',
+  OPERATOR: 'TK_OPERATOR',
+  COMMA: 'TK_COMMA',
+  BLOCK_COMMENT: 'TK_BLOCK_COMMENT',
+  COMMENT: 'TK_COMMENT',
+  DOT: 'TK_DOT',
+  UNKNOWN: 'TK_UNKNOWN',
+  EOF: 'TK_EOF'
+};
+
 function Tokenizer(input_string, opts) {
 
   var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
   var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
+
 
   var digit = /[0-9]/;
-  var digit_bin = /[01]/;
-  var digit_oct = /[01234567]/;
-  var digit_hex = /[0123456789abcdefABCDEF]/;
 
   this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
   var punct = this.positionable_operators.concat(
@@ -88,11 +106,11 @@ function Tokenizer(input_string, opts) {
     var open_stack = [];
     var comments = [];
 
-    while (!(last && last.type === 'TK_EOF')) {
+    while (!(last && last.type === TOKEN.EOF)) {
       token_values = tokenize_next();
       next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-      while (next.type === 'TK_COMMENT' || next.type === 'TK_BLOCK_COMMENT' || next.type === 'TK_UNKNOWN') {
-        if (next.type === 'TK_BLOCK_COMMENT') {
+      while (next.type === TOKEN.COMMENT || next.type === TOKEN.BLOCK_COMMENT || next.type === TOKEN.UNKNOWN) {
+        if (next.type === TOKEN.BLOCK_COMMENT) {
           next.directives = token_values[2];
         }
         comments.push(next);
@@ -105,11 +123,11 @@ function Tokenizer(input_string, opts) {
         comments = [];
       }
 
-      if (next.type === 'TK_START_BLOCK' || next.type === 'TK_START_EXPR') {
+      if (next.type === TOKEN.START_BLOCK || next.type === TOKEN.START_EXPR) {
         next.parent = last;
         open_stack.push(open);
         open = next;
-      } else if ((next.type === 'TK_END_BLOCK' || next.type === 'TK_END_EXPR') &&
+      } else if ((next.type === TOKEN.END_BLOCK || next.type === TOKEN.END_EXPR) &&
         (open && (
           (next.text === ']' && open.text === '[') ||
           (next.text === ')' && open.text === '(') ||
@@ -155,7 +173,7 @@ function Tokenizer(input_string, opts) {
       last_token = tokens[tokens.length - 1];
     } else {
       // For the sake of tokenizing we can pretend that there was on open brace to start
-      last_token = new Token('TK_START_BLOCK', '{');
+      last_token = new Token(TOKEN.START_BLOCK, '{');
     }
 
     resulting_string = input.readWhile(whitespacePattern);
@@ -175,101 +193,48 @@ function Tokenizer(input_string, opts) {
 
     resulting_string = input.readWhile(acorn.identifier);
     if (resulting_string !== '') {
-      if (!(last_token.type === 'TK_DOT' ||
-          (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['set', 'get']))) &&
+      if (!(last_token.type === TOKEN.DOT ||
+          (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
         in_array(resulting_string, reserved_words)) {
         if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
-          return [resulting_string, 'TK_OPERATOR'];
+          return [resulting_string, TOKEN.OPERATOR];
         }
-        return [resulting_string, 'TK_RESERVED'];
+        return [resulting_string, TOKEN.RESERVED];
       }
 
-      return [resulting_string, 'TK_WORD'];
+      return [resulting_string, TOKEN.WORD];
+    }
+
+    resulting_string = input.readWhile(number_pattern);
+    if (resulting_string !== '') {
+      return [resulting_string, TOKEN.WORD];
     }
 
     var c = input.next();
 
     if (c === null) {
-      return ['', 'TK_EOF'];
+      return ['', TOKEN.EOF];
     }
 
-    if (digit.test(c) || (c === '.' && input.testChar(digit))) {
-      var allow_decimal = true;
-      var allow_e = true;
-      var allow_bigint = true;
-      var local_digit = digit;
-
-      if (c === '0' && input.testChar(/[XxOoBb]/)) {
-        // switch to hex/oct/bin number, no decimal or e, just hex/oct/bin digits
-        allow_decimal = false;
-        allow_e = false;
-        if (input.testChar(/[Bb]/)) {
-          local_digit = digit_bin;
-        } else if (input.testChar(/[Oo]/)) {
-          local_digit = digit_oct;
-        } else {
-          local_digit = digit_hex;
-        }
-        c += input.next();
-      } else if (c === '.') {
-        // Already have a decimal for this literal, don't allow another
-        allow_decimal = false;
-        allow_bigint = false;
-      } else {
-        // we know this first loop will run.  It keeps the logic simpler.
-        c = '';
-        input.back();
-      }
-
-      // Add the digits
-      while (input.testChar(local_digit)) {
-        c += input.next();
-
-        if (allow_decimal && input.peek() === '.') {
-          c += input.next();
-          allow_decimal = false;
-          allow_bigint = false;
-        }
-
-        // a = 1.e-7 is valid, so we test for . then e in one loop
-        if (allow_e && input.testChar(/[Ee]/)) {
-          c += input.next();
-
-          if (input.testChar(/[+-]/)) {
-            c += input.next();
-          }
-
-          allow_e = false;
-          allow_decimal = false;
-          allow_bigint = false;
-        }
-      }
-
-      if (allow_bigint && input.peek() === 'n') {
-        c += input.next();
-      }
-
-      return [c, 'TK_WORD'];
-    }
 
     if (c === '(' || c === '[') {
-      return [c, 'TK_START_EXPR'];
+      return [c, TOKEN.START_EXPR];
     }
 
     if (c === ')' || c === ']') {
-      return [c, 'TK_END_EXPR'];
+      return [c, TOKEN.END_EXPR];
     }
 
     if (c === '{') {
-      return [c, 'TK_START_BLOCK'];
+      return [c, TOKEN.START_BLOCK];
     }
 
     if (c === '}') {
-      return [c, 'TK_END_BLOCK'];
+      return [c, TOKEN.END_BLOCK];
     }
 
     if (c === ';') {
-      return [c, 'TK_SEMICOLON'];
+      return [c, TOKEN.SEMICOLON];
     }
 
     if (c === '/') {
@@ -286,14 +251,14 @@ function Tokenizer(input_string, opts) {
           comment += comment_match[0];
         }
         comment = comment.replace(acorn.allLineBreaks, '\n');
-        return [comment, 'TK_BLOCK_COMMENT', directives];
+        return [comment, TOKEN.BLOCK_COMMENT, directives];
       }
       // peek for comment // ...
       if (input.peek() === '/') {
         input.next();
         comment_match = input.match(comment_pattern);
         comment = '//' + comment_match[0];
-        return [comment, 'TK_COMMENT'];
+        return [comment, TOKEN.COMMENT];
       }
 
     }
@@ -304,11 +269,11 @@ function Tokenizer(input_string, opts) {
 
     function allowRegExOrXML() {
       // regex and xml can only appear in specific locations during parsing
-      return (last_token.type === 'TK_RESERVED' && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
-        (last_token.type === 'TK_END_EXPR' && last_token.text === ')' &&
-          last_token.parent && last_token.parent.type === 'TK_RESERVED' && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-        (in_array(last_token.type, ['TK_COMMENT', 'TK_START_EXPR', 'TK_START_BLOCK',
-          'TK_END_BLOCK', 'TK_OPERATOR', 'TK_EQUALS', 'TK_EOF', 'TK_SEMICOLON', 'TK_COMMA'
+      return (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+        (last_token.type === TOKEN.END_EXPR && last_token.text === ')' &&
+          last_token.parent && last_token.parent.type === TOKEN.RESERVED && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
+        (in_array(last_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
+          TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
         ]));
     }
 
@@ -433,7 +398,7 @@ function Tokenizer(input_string, opts) {
           xmlStr += input.match(/[\s\S]*/g)[0];
         }
         xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
-        return [xmlStr, "TK_STRING"];
+        return [xmlStr, TOKEN.STRING];
       }
     }
 
@@ -451,7 +416,7 @@ function Tokenizer(input_string, opts) {
           resulting_string += input.readWhile(acorn.identifier);
         }
       }
-      return [resulting_string, 'TK_STRING'];
+      return [resulting_string, TOKEN.STRING];
     }
 
     if (c === '#') {
@@ -463,14 +428,10 @@ function Tokenizer(input_string, opts) {
           c = input.next();
           resulting_string += c;
         }
-        return [trim(resulting_string) + '\n', 'TK_UNKNOWN'];
+        return [trim(resulting_string) + '\n', TOKEN.UNKNOWN];
       }
 
-
-
-      // Spidermonkey-specific sharp variables for circular references
-      // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
-      // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
+      // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
       var sharp = '#';
       if (input.hasNext() && input.testChar(digit)) {
         do {
@@ -488,7 +449,7 @@ function Tokenizer(input_string, opts) {
           input.next();
           input.next();
         }
-        return [sharp, 'TK_WORD'];
+        return [sharp, TOKEN.WORD];
       }
     }
 
@@ -498,7 +459,7 @@ function Tokenizer(input_string, opts) {
       if (template_match) {
         c = template_match[0];
         c = c.replace(acorn.allLineBreaks, '\n');
-        return [c, 'TK_STRING'];
+        return [c, TOKEN.STRING];
       }
     }
 
@@ -508,20 +469,20 @@ function Tokenizer(input_string, opts) {
         c += input.next();
       }
       in_html_comment = true;
-      return [c, 'TK_COMMENT'];
+      return [c, TOKEN.COMMENT];
     }
 
     if (c === '-' && in_html_comment && input.match(/->/g)) {
       in_html_comment = false;
-      return ['-->', 'TK_COMMENT'];
+      return ['-->', TOKEN.COMMENT];
     }
 
     if (c === '.') {
       if (input.peek() === '.' && input.peek(1) === '.') {
         c += input.next() + input.next();
-        return [c, 'TK_OPERATOR'];
+        return [c, TOKEN.OPERATOR];
       }
-      return [c, 'TK_DOT'];
+      return [c, TOKEN.DOT];
     }
 
     if (in_array(c, punct)) {
@@ -533,15 +494,15 @@ function Tokenizer(input_string, opts) {
       }
 
       if (c === ',') {
-        return [c, 'TK_COMMA'];
+        return [c, TOKEN.COMMA];
       } else if (c === '=') {
-        return [c, 'TK_EQUALS'];
+        return [c, TOKEN.EQUALS];
       } else {
-        return [c, 'TK_OPERATOR'];
+        return [c, TOKEN.OPERATOR];
       }
     }
 
-    return [c, 'TK_UNKNOWN'];
+    return [c, TOKEN.UNKNOWN];
   }
 
 
@@ -610,3 +571,4 @@ function Tokenizer(input_string, opts) {
 }
 
 module.exports.Tokenizer = Tokenizer;
+module.exports.TOKEN = TOKEN;
