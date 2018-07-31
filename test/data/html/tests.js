@@ -583,6 +583,11 @@ exports.test_data = {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
+      content: '{{hello "world"}} {{!-- comment--}}'
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
       content: '{pre{{field1}} {{field2}} {{field3}}post'
     }, {
       options: [
