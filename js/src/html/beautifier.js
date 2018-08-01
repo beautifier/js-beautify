@@ -533,7 +533,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         token.is_closing_tag = true;
       } else if (token.is_unformatted || token.is_content_unformatted) {
         // do not reformat the "unformatted" or "content_unformatted" tags
-        comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
+        comment = this.get_unformatted('</' + tag_check + '>'); //...delegate to get_unformatted function
         content.push(comment);
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
@@ -638,72 +638,34 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       return comment;
     };
 
-    function tokenMatcher(delimiter) {
-      var token = '';
+    this.get_unformatted = function(delimiter) { //function to return unformatted content in its entirety
+      var content = '';
+      var input_string = '';
+      var last_newline_index = -1;
 
-      var add = function(str) {
-        var newToken = token + str.toLowerCase();
-        token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length, delimiter.length);
-      };
-
-      var doesNotMatch = function() {
-        return token.indexOf(delimiter) === -1;
-      };
-
-      return {
-        add: add,
-        doesNotMatch: doesNotMatch
-      };
-    }
-
-    this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
-      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
-        return '';
+      if (delimiter === '"' || delimiter === "'") {
+        var string_pattern = delimiter === '"' ? /"|{{/g : /'|{{/g;
+        while (this.input.hasNext()) {
+          input_string = this.input.readUntilAfter(string_pattern);
+          content += input_string;
+          if (input_string[input_string.length - 1] === delimiter) {
+            break;
+          } else if (this.input.hasNext()) {
+            content += this.input.readUntilAfterString('}}');
+          }
+        }
+      } else {
+        content = this.input.readUntilAfterString(delimiter);
       }
-      var input_char = '';
-      var content = [];
-      var space = true;
 
-      var delimiterMatcher = tokenMatcher(delimiter);
+      last_newline_index = content.lastIndexOf('\n');
+      if (last_newline_index !== -1) {
+        this.line_char_count = content.length - last_newline_index;
+      } else {
+        this.line_char_count += content.length;
+      }
 
-      do {
-
-        if (!this.input.hasNext()) {
-          return content.join('');
-        }
-
-        input_char = this.input.next();
-
-        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
-          if (!space) {
-            this.line_char_count--;
-            continue;
-          }
-          if (input_char === '\n' || input_char === '\r') {
-            content.push('\n');
-            /*  Don't change tab indention for unformatted blocks.  If using code for html editing, this will greatly affect <pre> tags if they are specified in the 'unformatted array'
-            for (var i=0; i<this.indent_level; i++) {
-              content += this.indent_string;
-            }
-            space = false; //...and make sure other indentation is erased
-            */
-            this.line_char_count = 0;
-            continue;
-          }
-        }
-        content.push(input_char);
-        delimiterMatcher.add(input_char);
-        this.line_char_count++;
-        space = true;
-
-        if (indent_handlebars && input_char === '{' && content.length >= 2 && content[content.length - 2] === '{') {
-          // Handlebars expressions in strings should also be unformatted.
-          content.push(this.get_unformatted('}}'));
-          // Don't consider when stopping for delimiters.
-        }
-      } while (delimiterMatcher.doesNotMatch());
-
-      return content.join('');
+      return content;
     };
 
     this.get_token = function() { //initial handler for token-retrieval
