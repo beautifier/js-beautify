@@ -1235,6 +1235,9 @@ function Beautifier(js_source_text, options) {
     } else if (prefix === 'SPACE') {
       output.space_before_token = true;
     }
+    if (last_type === TOKEN.WORD || last_type === TOKEN.RESERVED) {
+      output.space_before_token = true;
+    }
     print_token();
     flags.last_word = current_token.text;
 
@@ -3721,8 +3724,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       } else if (peek === '<') {
         content.push(this.input.next());
         tag_start_char = '<';
-        tag_check = this.input.readUntil(/[\s>{]/g).toLowerCase();
+        tag_check = this.input.readUntil(/[\s>{]/g);
         content.push(tag_check);
+        tag_check = tag_check.toLowerCase();
         space = true;
       } else if (indent_handlebars && peek === '{' && peek1 === '{') {
         content.push(this.input.next());
@@ -3731,8 +3735,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           content.push(this.input.next());
         }
         tag_start_char = '{';
-        tag_check = this.input.readUntil(/[\s}]/g).toLowerCase();
+        tag_check = this.input.readUntil(/[\s}]/g);
         content.push(tag_check);
+        tag_check = tag_check.toLowerCase();
         space = false;
       }
 
@@ -3841,7 +3846,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             // When inside an angle-bracket tag, put spaces around
             // handlebars not inside of strings.
             if (input_char === '{' && this.input.peek() === '{') {
-              input_char += this.get_unformatted('}}');
+              input_char += this.get_unformatted(/}}/g);
               if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
                 input_char = ' ' + input_char;
               }
@@ -3867,9 +3872,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           return token;
         }
       }
-      var tag_complete = content.join('');
+      var tag_complete;
 
-      if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
+      if (tag_check === 'script' || tag_check === 'style') {
+        tag_complete = content.join('');
+      }
+
+      if ((content.length > 2 && content[content.length - 2] === '/') ||
         this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
@@ -3878,12 +3887,12 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
         this.traverse_whitespace();
-      } else if (indent_handlebars && tag_start_char === '{' && tag_complete.charAt(2).search(/[#\^\/]/) === -1) {
+      } else if (indent_handlebars && tag_start_char === '{' && (content.length < 2 || /[^#\^\/]/.test(content[2].charAt(0)))) {
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
       } else if (token.is_unformatted || token.is_content_unformatted) {
         // do not reformat the "unformatted" or "content_unformatted" tags
-        comment = this.get_unformatted('</' + tag_check + '>', tag_complete); //...delegate to get_unformatted function
+        comment = this.get_unformatted(new RegExp('</' + tag_check + '>', 'ig')); //...delegate to get_unformatted function
         content.push(comment);
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
@@ -3908,7 +3917,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           token.type = 'TK_TAG_END';
         } else { //otherwise it's a start-tag
           this.record_tag(tag_check, token); //push it on the tag stack
-          if (tag_check.toLowerCase() !== 'html') {
+          if (tag_check !== 'html') {
             this.indent_content = true;
           }
           token.type = 'TK_TAG_START';
@@ -3988,72 +3997,34 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       return comment;
     };
 
-    function tokenMatcher(delimiter) {
-      var token = '';
+    this.get_unformatted = function(delimiter) { //function to return unformatted content in its entirety
+      var content = '';
+      var input_string = '';
+      var last_newline_index = -1;
 
-      var add = function(str) {
-        var newToken = token + str.toLowerCase();
-        token = newToken.length <= delimiter.length ? newToken : newToken.substr(newToken.length - delimiter.length, delimiter.length);
-      };
-
-      var doesNotMatch = function() {
-        return token.indexOf(delimiter) === -1;
-      };
-
-      return {
-        add: add,
-        doesNotMatch: doesNotMatch
-      };
-    }
-
-    this.get_unformatted = function(delimiter, orig_tag) { //function to return unformatted content in its entirety
-      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) !== -1) {
-        return '';
+      if (delimiter === '"' || delimiter === "'") {
+        var string_pattern = delimiter === '"' ? /"|{{/g : /'|{{/g;
+        while (this.input.hasNext()) {
+          input_string = this.input.readUntilAfter(string_pattern);
+          content += input_string;
+          if (input_string[input_string.length - 1].match(/['"]/g)) {
+            break;
+          } else if (this.input.hasNext()) {
+            content += this.input.readUntilAfter(/}}/g);
+          }
+        }
+      } else {
+        content = this.input.readUntilAfter(delimiter);
       }
-      var input_char = '';
-      var content = [];
-      var space = true;
 
-      var delimiterMatcher = tokenMatcher(delimiter);
+      last_newline_index = content.lastIndexOf('\n');
+      if (last_newline_index !== -1) {
+        this.line_char_count = content.length - last_newline_index;
+      } else {
+        this.line_char_count += content.length;
+      }
 
-      do {
-
-        if (!this.input.hasNext()) {
-          return content.join('');
-        }
-
-        input_char = this.input.next();
-
-        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
-          if (!space) {
-            this.line_char_count--;
-            continue;
-          }
-          if (input_char === '\n' || input_char === '\r') {
-            content.push('\n');
-            /*  Don't change tab indention for unformatted blocks.  If using code for html editing, this will greatly affect <pre> tags if they are specified in the 'unformatted array'
-            for (var i=0; i<this.indent_level; i++) {
-              content += this.indent_string;
-            }
-            space = false; //...and make sure other indentation is erased
-            */
-            this.line_char_count = 0;
-            continue;
-          }
-        }
-        content.push(input_char);
-        delimiterMatcher.add(input_char);
-        this.line_char_count++;
-        space = true;
-
-        if (indent_handlebars && input_char === '{' && content.length >= 2 && content[content.length - 2] === '{') {
-          // Handlebars expressions in strings should also be unformatted.
-          content.push(this.get_unformatted('}}'));
-          // Don't consider when stopping for delimiters.
-        }
-      } while (delimiterMatcher.doesNotMatch());
-
-      return content.join('');
+      return content;
     };
 
     this.get_token = function() { //initial handler for token-retrieval
