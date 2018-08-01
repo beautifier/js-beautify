@@ -517,9 +517,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           return token;
         }
       }
-      var tag_complete = content.join('');
+      var tag_complete;
 
-      if (tag_complete.charAt(tag_complete.length - 2) === '/' ||
+      if (tag_check === 'script' || tag_check === 'style' || (indent_handlebars && tag_start_char === '{')) {
+        tag_complete = content.join('');
+      }
+
+      if ((content.length > 2 && content[content.length - 2] === '/') ||
         this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
