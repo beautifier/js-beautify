@@ -925,6 +925,9 @@ class Beautifier:
         elif prefix == 'SPACE':
             self.output.space_before_token = True
 
+        if self.last_type == TOKEN.WORD or self.last_type == TOKEN.RESERVED:
+            self.output.space_before_token = True
+
         self.print_token(current_token)
         self.flags.last_word = current_token.text
 
