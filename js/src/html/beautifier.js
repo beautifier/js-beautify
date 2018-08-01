@@ -369,8 +369,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       } else if (peek === '<') {
         content.push(this.input.next());
         tag_start_char = '<';
-        tag_check = this.input.readUntil(/[\s>{]/g).toLowerCase();
+        tag_check = this.input.readUntil(/[\s>{]/g);
         content.push(tag_check);
+        tag_check = tag_check.toLowerCase();
         space = true;
       } else if (indent_handlebars && peek === '{' && peek1 === '{') {
         content.push(this.input.next());
@@ -379,8 +380,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           content.push(this.input.next());
         }
         tag_start_char = '{';
-        tag_check = this.input.readUntil(/[\s}]/g).toLowerCase();
+        tag_check = this.input.readUntil(/[\s}]/g);
         content.push(tag_check);
+        tag_check = tag_check.toLowerCase();
         space = false;
       }
 
@@ -556,7 +558,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           token.type = 'TK_TAG_END';
         } else { //otherwise it's a start-tag
           this.record_tag(tag_check, token); //push it on the tag stack
-          if (tag_check.toLowerCase() !== 'html') {
+          if (tag_check !== 'html') {
             this.indent_content = true;
           }
           token.type = 'TK_TAG_START';
