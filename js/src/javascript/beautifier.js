@@ -1048,6 +1048,9 @@ function Beautifier(js_source_text, options) {
     } else if (prefix === 'SPACE') {
       output.space_before_token = true;
     }
+    if (last_type === TOKEN.WORD || last_type === TOKEN.RESERVED) {
+      output.space_before_token = true;
+    }
     print_token();
     flags.last_word = current_token.text;
 
