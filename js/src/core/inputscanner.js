@@ -132,22 +132,6 @@ function InputScanner(input_string) {
     return val;
   };
 
-  this.readUntilAfterString = function(literal) {
-    var val = '';
-    var match_index = _input.indexOf(literal, _position);
-
-    if (match_index !== -1) {
-      match_index = match_index + literal.length;
-    } else {
-      match_index = _input_length;
-    }
-
-    val = _input.substring(_position, match_index);
-    _position = match_index;
-
-    return val;
-  };
-
   /* css beautifier legacy helpers */
   this.peekUntilAfter = function(pattern) {
     var start = _position;

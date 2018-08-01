@@ -491,7 +491,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             // When inside an angle-bracket tag, put spaces around
             // handlebars not inside of strings.
             if (input_char === '{' && this.input.peek() === '{') {
-              input_char += this.get_unformatted('}}');
+              input_char += this.get_unformatted(/}}/g);
               if (content.length && content[content.length - 1] !== ' ' && content[content.length - 1] !== '<') {
                 input_char = ' ' + input_char;
               }
@@ -519,7 +519,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       }
       var tag_complete;
 
-      if (tag_check === 'script' || tag_check === 'style' || (indent_handlebars && tag_start_char === '{')) {
+      if (tag_check === 'script' || tag_check === 'style') {
         tag_complete = content.join('');
       }
 
@@ -532,12 +532,12 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
         this.traverse_whitespace();
-      } else if (indent_handlebars && tag_start_char === '{' && tag_complete.charAt(2).search(/[#\^\/]/) === -1) {
+      } else if (indent_handlebars && tag_start_char === '{' && (content.length < 2 || /[^#\^\/]/.test(content[2].charAt(0)))) {
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
       } else if (token.is_unformatted || token.is_content_unformatted) {
         // do not reformat the "unformatted" or "content_unformatted" tags
-        comment = this.get_unformatted('</' + tag_check + '>'); //...delegate to get_unformatted function
+        comment = this.get_unformatted(new RegExp('</' + tag_check + '>', 'ig')); //...delegate to get_unformatted function
         content.push(comment);
         token.type = 'TK_TAG_SINGLE';
         token.is_closing_tag = true;
@@ -652,14 +652,14 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         while (this.input.hasNext()) {
           input_string = this.input.readUntilAfter(string_pattern);
           content += input_string;
-          if (input_string[input_string.length - 1] === delimiter) {
+          if (input_string[input_string.length - 1].match(/['"]/g)) {
             break;
           } else if (this.input.hasNext()) {
-            content += this.input.readUntilAfterString('}}');
+            content += this.input.readUntilAfter(/}}/g);
           }
         }
       } else {
-        content = this.input.readUntilAfterString(delimiter);
+        content = this.input.readUntilAfter(delimiter);
       }
 
       last_newline_index = content.lastIndexOf('\n');
