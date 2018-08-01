@@ -583,7 +583,7 @@ exports.test_data = {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{hello "world"}} {{!-- comment--}}'
+      content: '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}'
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
@@ -751,16 +751,16 @@ exports.test_data = {
       // for readability, unless they are inside a string.
       {
         fragment: true,
-        input_: '<div{{somestyle}}></div>',
-        output: '<div {{somestyle}}></div>'
+        input_: '<div{{someStyle}}></div>',
+        output: '<div {{someStyle}}></div>'
       }, {
         fragment: true,
-        input_: '<div{{#if test}}class="foo"{{/if}}>^^^&content$$$</div>',
-        output: '<div {{#if test}} class="foo" {{/if}}>^^^&content$$$</div>'
+        input_: '<dIv{{#if test}}class="foo"{{/if}}>^^^&content$$$</dIv>',
+        output: '<dIv {{#if test}} class="foo" {{/if}}>^^^&content$$$</dIv>'
       }, {
         fragment: true,
-        input_: '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</div>',
-        output: '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</div>'
+        input_: '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</diV>',
+        output: '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</diV>'
       }, {
         fragment: true,
         input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',

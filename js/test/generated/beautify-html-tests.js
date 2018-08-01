@@ -1120,17 +1120,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{field}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{field}}</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{{field}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{field}}</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{{field}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{field}}</span>',
             //  -- output --
@@ -1271,17 +1271,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>',
             //  -- output --
@@ -1422,17 +1422,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{! comment}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{! comment}}</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{{! comment}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{! comment}}</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{{! comment}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
             //  -- output --
@@ -1573,17 +1573,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{!-- comment--}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{!-- comment--}}</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- comment--}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{!-- comment--}}</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- comment--}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- comment--}}</span>',
             //  -- output --
@@ -1597,7 +1597,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
-        // Handlebars Indenting On - (content = "{{hello "world"}} {{!-- comment--}}")
+        // Handlebars Indenting On - (content = "{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}")
         reset_options();
         opts.indent_handlebars = true;
         test_fragment('{{page-title}}');
@@ -1610,7 +1610,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         test_fragment('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{hello "world"}} {{!-- comment--}}{{/if}}');
+        test_fragment('{{#if 0}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
             '{{/if}}');
@@ -1619,13 +1619,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '{{#if words}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{hello "world"}} {{!-- comment--}}{{/if}}',
+            '{{#if     words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{hello "world"}} {{!-- comment--}}{{/if}}');
+            '{{#if words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
         test_fragment(
-            '{{#if     words}}{{hello "world"}} {{!-- comment--}}{{/if}}',
+            '{{#if     words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}',
             //  -- output --
-            '{{#if words}}{{hello "world"}} {{!-- comment--}}{{/if}}');
+            '{{#if words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
             '    <div>\n' +
@@ -1660,10 +1660,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
-            '{{hello "world"}} {{!-- comment--}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}\n' +
             '{{#if}}\n' +
-            '{{hello "world"}} {{!-- comment--}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}\n' +
             '{{/each}}\n' +
             '{{/if}}',
@@ -1671,10 +1671,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if}}\n' +
             '    {{#each}}\n' +
             '        {{#if}}\n' +
-            '            {{hello "world"}} {{!-- comment--}}\n' +
+            '            {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '        {{/if}}\n' +
             '        {{#if}}\n' +
-            '            {{hello "world"}} {{!-- comment--}}\n' +
+            '            {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
@@ -1685,15 +1685,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if 1}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{else}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
         test_fragment(
             '{{#if 1}}\n' +
@@ -1706,45 +1706,45 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
-            '{{hello "world"}} {{!-- comment--}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{/if}}\n' +
             '       {{else}}\n' +
-            '{{hello "world"}} {{!-- comment--}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}',
             //  -- output --
             '{{#if thing}}\n' +
             '    {{#if otherthing}}\n' +
-            '        {{hello "world"}} {{!-- comment--}}\n' +
+            '        {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
-            '        {{hello "world"}} {{!-- comment--}}\n' +
+            '        {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
-            '    {{hello "world"}} {{!-- comment--}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{hello "world"}} {{!-- comment--}}</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{hello "world"}} {{!-- comment--}}</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{hello "world"}} {{!-- comment--}}</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{hello "world"}} {{!-- comment--}}</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
         test_fragment(
-            '<span{{#if condition}}class="foo"{{/if}}>{{hello "world"}} {{!-- comment--}}</span>',
+            '<span{{#if condition}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{hello "world"}} {{!-- comment--}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{hello "world"}} {{!-- comment--}}{{/if}}">{{hello "world"}} {{!-- comment--}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{hello "world"}} {{!-- comment--}}{{/if}}">{{hello "world"}} {{!-- comment--}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{hello "world"}} {{!-- comment--}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{hello "world"}} {{!-- comment--}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{hello "world"}} {{!-- comment--}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{hello "world"}} {{!-- comment--}}{{/if}}\'></div>');
+            '<span {{#if condition}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>');
+        test_fragment('<div unformatted="{{#if}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
+        test_fragment('<div unformatted="{{#if  }}    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
+        test_fragment('<div class="{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
+        test_fragment('<div class="{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
+        test_fragment('<div class=\'{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
+        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
         test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
@@ -1875,17 +1875,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
             //  -- output --
@@ -2103,33 +2103,33 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{! \n' +
+            '<dIv{{#if test}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '}}</div>',
+            '}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{! \n' +
+            '<dIv {{#if test}} class="foo" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '}}</div>');
+            '}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '}}</div>',
+            '}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '}}</div>');
+            '}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
@@ -2393,33 +2393,33 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '--}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '--}}</div>',
+            '--}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '--}}</div>');
+            '--}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '--}}</div>',
+            '--}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            '--}}</div>');
+            '--}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
@@ -2740,45 +2740,45 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             ' {{/ component}}--}}\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            ' {{/ component}}--}}</div>',
+            ' {{/ component}}--}}</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            ' {{/ component}}--}}</div>');
+            ' {{/ component}}--}}</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            ' {{/ component}}--}}</div>',
+            ' {{/ component}}--}}</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
-            ' {{/ component}}--}}</div>');
+            ' {{/ component}}--}}</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
@@ -2996,17 +2996,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    content\n' +
             '{{/if}}');
         test_fragment(
-            '<div{{somestyle}}></div>',
+            '<div{{someStyle}}></div>',
             //  -- output --
-            '<div {{somestyle}}></div>');
+            '<div {{someStyle}}></div>');
         test_fragment(
-            '<div{{#if test}}class="foo"{{/if}}>content</div>',
+            '<dIv{{#if test}}class="foo"{{/if}}>content</dIv>',
             //  -- output --
-            '<div {{#if test}} class="foo" {{/if}}>content</div>');
+            '<dIv {{#if test}} class="foo" {{/if}}>content</dIv>');
         test_fragment(
-            '<div{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</div>',
+            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
             //  -- output --
-            '<div {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>content</div>');
+            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>content</diV>');
         test_fragment(
             '<span{{#if condition}}class="foo"{{/if}}>content</span>',
             //  -- output --
