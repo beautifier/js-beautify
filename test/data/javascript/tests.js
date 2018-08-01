@@ -2445,6 +2445,25 @@ exports.test_data = {
             '',
             '    .more()'
           ]
+        }, {
+          comment: "Issue #1107 - Missing space between words for label",
+          input: 'function f(a) {c: do if (x) {} else if (y) {} while(0); return 0;}',
+          output: [
+            'function f(a) {',
+            '    c: do',
+            '        if (x) {} else if (y) {}',
+            '    while (0);',
+            '    return 0;',
+            '}'
+          ]
+        }, {
+          input: 'function f(a) {c: if (x) {} else if (y) {} return 0;}',
+          output: [
+            'function f(a) {',
+            '    c: if (x) {} else if (y) {}',
+            '    return 0;',
+            '}'
+          ]
         }
       ]
     }, {
