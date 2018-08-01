@@ -3359,6 +3359,24 @@ class TestJSBeautifier(unittest.TestCase):
             '    .nothing() // comment\n' +
             '\n' +
             '    .more()')
+        
+        # Issue #1107 - Missing space between words for label
+        bt(
+            'function f(a) {c: do if (x) {} else if (y) {} while(0); return 0;}',
+            #  -- output --
+            'function f(a) {\n' +
+            '    c: do\n' +
+            '        if (x) {} else if (y) {}\n' +
+            '    while (0);\n' +
+            '    return 0;\n' +
+            '}')
+        bt(
+            'function f(a) {c: if (x) {} else if (y) {} return 0;}',
+            #  -- output --
+            'function f(a) {\n' +
+            '    c: if (x) {} else if (y) {}\n' +
+            '    return 0;\n' +
+            '}')
 
 
         #============================================================
