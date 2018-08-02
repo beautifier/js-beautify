@@ -7,6 +7,15 @@ If you find a bug, please report it, including environment and examples of curre
 ## How to Make Changes (Implement Fixes and New Features)
 Fixes and enhancements are totally welcome.  We prefer you to file an issue before filing a PR, as this gives us chance to discuss design details, but feel free to dive right in.
 
+### 0. Prereqisites for development
+
+* bash 
+* make
+* nodejs - v10.x (with npm)
+* python - v2.7.x or v3.x (with pip)
+
+If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help. 
+
 ### 1. Build and Test Locally
 This repository holds two mostly identical implementations of the beautifiers: a JavaScript implementation and a Python implementation.
 While developing, you may locally build and test the JavaScript or Python (or both). The HTML beautifier is only implemented in JavaScript.
