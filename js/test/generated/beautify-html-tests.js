@@ -3394,6 +3394,25 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div></div>\n' +
             '{{/if}}');
         test_fragment('{{#if test}}<span></span>{{else}}<span></span>{{/if}}');
+        test_fragment(
+            '<a class="navbar-brand">\n' +
+            '    {{#if connected}}\n' +
+            '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}\n' +
+            '        <i class="fa fa-sleep" style="color:yellow"></i>\n' +
+            '    {{else}}\n' +
+            '        <i class="fa fa-unlink" style="color:red"></i>\n' +
+            '    {{/if}}\n' +
+            '</a>',
+            //  -- output --
+            '<a class="navbar-brand">\n' +
+            '    {{#if connected}}\n' +
+            '        <i class="fa fa-link" style="color:green"></i>\n' +
+            '    {{else if sleep}}\n' +
+            '        <i class="fa fa-sleep" style="color:yellow"></i>\n' +
+            '    {{else}}\n' +
+            '        <i class="fa fa-unlink" style="color:red"></i>\n' +
+            '    {{/if}}\n' +
+            '</a>');
 
 
         //============================================================

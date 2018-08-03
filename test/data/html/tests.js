@@ -846,17 +846,41 @@ exports.test_data = {
       { name: "indent_handlebars", value: "true" }
     ],
     tests: [{
-      fragment: true,
-      input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
-      output: '{{#if test}}\n' +
-        '    <div></div>\n' +
-        '{{else}}\n' +
-        '    <div></div>\n' +
-        '{{/if}}'
-    }, {
-      fragment: true,
-      unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
-    }]
+        fragment: true,
+        input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
+        output: '{{#if test}}\n' +
+          '    <div></div>\n' +
+          '{{else}}\n' +
+          '    <div></div>\n' +
+          '{{/if}}'
+      }, {
+        fragment: true,
+        unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
+      },
+      // Else if handling
+      {
+        fragment: true,
+        input: ['<a class="navbar-brand">',
+          '    {{#if connected}}',
+          '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}',
+          '        <i class="fa fa-sleep" style="color:yellow"></i>',
+          '    {{else}}',
+          '        <i class="fa fa-unlink" style="color:red"></i>',
+          '    {{/if}}',
+          '</a>'
+        ],
+        output: ['<a class="navbar-brand">',
+          '    {{#if connected}}',
+          '        <i class="fa fa-link" style="color:green"></i>',
+          '    {{else if sleep}}',
+          '        <i class="fa fa-sleep" style="color:yellow"></i>',
+          '    {{else}}',
+          '        <i class="fa fa-unlink" style="color:red"></i>',
+          '    {{/if}}',
+          '</a>'
+        ]
+      }
+    ]
   }, {
     name: "Unclosed html elements",
     description: "Unclosed elements should not indent",
