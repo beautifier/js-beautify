@@ -705,6 +705,49 @@ exports.test_data = {
           '{{/if}}'
       },
 
+      // Issue #576 -- Indent Formatting with Handlebars
+      {
+        fragment: true,
+        input_: ['<div>',
+          '    <small>SMALL TEXT</small>',
+          '    <span>',
+          '        {{#if isOwner}}',
+          '    <span><i class="fa fa-close"></i></span>',
+          '        {{else}}',
+          '            <span><i class="fa fa-bolt"></i></span>',
+          '        {{/if}}',
+          '    </span>',
+          '    <strong>{{userName}}:&nbsp;</strong>{{text}}',
+          '</div>'
+        ],
+        output: ['<div>',
+          '    <small>SMALL TEXT</small>',
+          '    <span>',
+          '        {{#if isOwner}}',
+          '            <span><i class="fa fa-close"></i></span>',
+          '        {{else}}',
+          '            <span><i class="fa fa-bolt"></i></span>',
+          '        {{/if}}',
+          '    </span>',
+          '    <strong>{{userName}}:&nbsp;</strong>{{text}}',
+          '</div>'
+        ]
+      }, {
+        fragment: true,
+        unchanged: ['<div>',
+          '    <small>SMALL TEXT</small>',
+          '    <span>',
+          '        {{#if isOwner}}',
+          '            <span><i class="fa fa-close"></i></span>',
+          '        {{else}}',
+          '            <span><i class="fa fa-bolt"></i></span>',
+          '        {{/if}}',
+          '    </span>',
+          '    <strong>{{userName}}:&nbsp;</strong>{{text}}',
+          '</div>'
+        ]
+      },
+
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
         fragment: true,

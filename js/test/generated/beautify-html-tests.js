@@ -1080,6 +1080,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </div>\n' +
             '{{/if}}');
         test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
             '{{#if 1}}\n' +
             '    {{field}}\n' +
             '    {{else}}\n' +
@@ -1230,6 +1266,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
@@ -1382,6 +1454,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </div>\n' +
             '{{/if}}');
         test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
             '{{#if 1}}\n' +
             '    {{! comment}}\n' +
             '    {{else}}\n' +
@@ -1532,6 +1640,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {{!-- comment--}}\n' +
@@ -1684,6 +1828,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </div>\n' +
             '{{/if}}');
         test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
             '{{#if 1}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
@@ -1834,6 +2014,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
@@ -2022,6 +2238,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {{! \n' +
@@ -2312,6 +2564,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
@@ -2629,6 +2917,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
@@ -2955,6 +3279,42 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        test_fragment(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
         test_fragment(
             '{{#if 1}}\n' +
             '    content\n' +
