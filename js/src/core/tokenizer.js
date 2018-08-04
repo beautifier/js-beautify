@@ -28,6 +28,7 @@
 
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Token = require('../core/token').Token;
+var TokenStream = require('../core/tokenstream').TokenStream;
 
 var TOKEN = {
   RAW: 'TK_RAW',
@@ -38,28 +39,34 @@ function Tokenizer(input_string, opts) { // jshint unused:false
 
   this._input = null;
   this._tokens = null;
+  this._newline_count = 0;
+  this._whitespace_before_token = '';
+
+  this._whitespace_pattern = /[\n\r\u2028\u2029\t ]+/g;
+  this._newline_pattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+
 
   this.tokenize = function() {
     this._input = new InputScanner(input_string);
-    this._tokens = []; //new TokenStream();
+    this._tokens = new TokenStream();
 
     this.reset();
 
     var current, last;
     var open_token = null;
     var open_stack = [];
-    var comments = [];
+    var comments = new TokenStream();
 
     while (!(last && last.type === TOKEN.EOF)) {
       current = this.get_next_token();
       while (this.is_comment(current)) {
-        comments.push(current);
+        comments.add(current);
         current = this.get_next_token();
       }
 
-      if (comments.length) {
+      if (!comments.isEmpty()) {
         current.comments_before = comments;
-        comments = [];
+        comments = new TokenStream();
       }
 
       if (this.is_opening(current)) {
@@ -73,7 +80,7 @@ function Tokenizer(input_string, opts) { // jshint unused:false
         open_token = open_stack.pop();
       }
 
-      this._tokens.push(current);
+      this._tokens.add(current);
       last = current;
     }
 
@@ -83,11 +90,12 @@ function Tokenizer(input_string, opts) { // jshint unused:false
   this.reset = function() {};
 
   this.get_next_token = function() {
+    this.readWhitespace();
     var resulting_string = this._input.readWhile(/.+/g);
     if (resulting_string) {
-      return new Token(TOKEN.RAW, resulting_string, 0, '');
+      return this.create_token(TOKEN.RAW, resulting_string);
     } else {
-      return new Token(TOKEN.EOF, '', 0, '');
+      return this.create_token(TOKEN.EOF, '');
     }
   };
 
@@ -103,6 +111,31 @@ function Tokenizer(input_string, opts) { // jshint unused:false
   this.is_closing = function(current_token, open_token) { // jshint unused:false
     return false;
   };
+
+  this.create_token = function(type, text) {
+    var token = new Token(type, text, this._newline_count, this._whitespace_before_token);
+    this._newline_count = 0;
+    this._whitespace_before_token = '';
+    return token;
+  };
+
+  this.readWhitespace = function() {
+    var resulting_string = this._input.readWhile(this._whitespace_pattern);
+    if (resulting_string !== '') {
+      if (resulting_string === ' ') {
+        this._whitespace_before_token = resulting_string;
+      } else {
+        this._newline_pattern.lastIndex = 0;
+        var nextMatch = this._newline_pattern.exec(resulting_string);
+        while (nextMatch[2]) {
+          this._newline_count += 1;
+          nextMatch = this._newline_pattern.exec(resulting_string);
+        }
+        this._whitespace_before_token = nextMatch[1];
+      }
+    }
+  };
+
 }
 
 

@@ -102,8 +102,7 @@ function Beautifier(js_source_text, options) {
   js_source_text = js_source_text || '';
 
   var output;
-  var tokens = [],
-    token_pos;
+  var tokens;
   var tokenizer;
   var current_token;
   var last_type, last_last_text, indent_string;
@@ -282,9 +281,8 @@ function Beautifier(js_source_text, options) {
     var sweet_code;
     tokenizer = new Tokenizer(js_source_text, opt, indent_string);
     tokens = tokenizer.tokenize();
-    token_pos = 0;
 
-    current_token = get_token();
+    current_token = tokens.next();
     while (current_token) {
       handlers[current_token.type]();
 
@@ -292,8 +290,7 @@ function Beautifier(js_source_text, options) {
       last_type = current_token.type;
       flags.last_text = current_token.text;
 
-      token_pos += 1;
-      current_token = get_token();
+      current_token = tokens.next();
     }
 
     sweet_code = output.get_code(opt.end_with_newline, opt.eol);
@@ -306,11 +303,11 @@ function Beautifier(js_source_text, options) {
     var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
     var temp_token = current_token;
 
-    for (var h = 0; h < local_token.comments_before.length; h++) {
+    while (local_token.comments_before && local_token.comments_before.hasNext()) {
       // The cleanest handling of inline comments is to treat them as though they aren't there.
       // Just continue formatting and the behavior should be logical.
       // Also ignore unknown tokens.  Again, this should result in better behavior.
-      current_token = local_token.comments_before[h];
+      current_token = local_token.comments_before.next();
       handle_whitespace_and_comments(current_token, preserve_statement_flags);
       handlers[current_token.type](preserve_statement_flags);
     }
@@ -397,7 +394,7 @@ function Beautifier(js_source_text, options) {
   function print_newline(force_newline, preserve_statement_flags) {
     if (!preserve_statement_flags) {
       if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && (last_type !== TOKEN.OPERATOR || flags.last_text === '--' || flags.last_text === '++')) {
-        var next_token = get_token(1);
+        var next_token = tokens.peek();
         while (flags.mode === MODE.Statement &&
           !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
           !flags.do_block) {
@@ -505,7 +502,7 @@ function Beautifier(js_source_text, options) {
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'do');
     start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline);
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'else' &&
-      !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before.length));
+      !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before));
     start = start || (last_type === TOKEN.END_EXPR && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional));
     start = start || (last_type === TOKEN.WORD && flags.mode === MODE.BlockStatement &&
       !flags.in_case &&
@@ -560,11 +557,6 @@ function Beautifier(js_source_text, options) {
 
   function is_special_word(word) {
     return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async']);
-  }
-
-  function get_token(offset) {
-    var index = token_pos + (offset || 0);
-    return (index < 0 || index >= tokens.length) ? null : tokens[index];
   }
 
   function handle_start_expr() {
@@ -714,8 +706,8 @@ function Beautifier(js_source_text, options) {
     handle_whitespace_and_comments(current_token);
 
     // Check if this is should be treated as a ObjectLiteral
-    var next_token = get_token(1);
-    var second_token = get_token(2);
+    var next_token = tokens.peek();
+    var second_token = tokens.peek(1);
     if (second_token && (
         (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
         (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
@@ -742,7 +734,7 @@ function Beautifier(js_source_text, options) {
       set_mode(MODE.BlockStatement);
     }
 
-    var empty_braces = !next_token.comments_before.length && next_token.text === '}';
+    var empty_braces = !next_token.comments_before && next_token.text === '}';
     var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
       last_type === TOKEN.END_EXPR;
 
@@ -754,7 +746,7 @@ function Beautifier(js_source_text, options) {
       flags.inline_frame = true;
       do {
         index += 1;
-        check_token = get_token(index);
+        check_token = tokens.peek(index - 1);
         if (check_token.wanted_newline) {
           flags.inline_frame = false;
           break;
@@ -839,7 +831,7 @@ function Beautifier(js_source_text, options) {
       } else if (in_array(current_token.text, ['as', 'from']) && !flags.import_block) {
         current_token.type = TOKEN.WORD;
       } else if (flags.mode === MODE.ObjectLiteral) {
-        var next_token = get_token(1);
+        var next_token = tokens.peek();
         if (next_token.text === ':') {
           current_token.type = TOKEN.WORD;
         }
@@ -916,7 +908,7 @@ function Beautifier(js_source_text, options) {
         (output.just_added_newline() && !(in_array(flags.last_text, ['(', '[', '{', ':', '=', ',']) || last_type === TOKEN.OPERATOR))) {
         // make sure there is a nice clean space of at least one blank line
         // before a new function definition
-        if (!output.just_added_blankline() && !current_token.comments_before.length) {
+        if (!output.just_added_blankline() && !current_token.comments_before) {
           print_newline();
           print_newline(true);
         }
@@ -1062,7 +1054,7 @@ function Beautifier(js_source_text, options) {
       handle_whitespace_and_comments(current_token);
     }
 
-    var next_token = get_token(1);
+    var next_token = tokens.peek();
     while (flags.mode === MODE.Statement &&
       !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
       !flags.do_block) {
@@ -1242,7 +1234,7 @@ function Beautifier(js_source_text, options) {
           output.space_before_token = true;
 
           if (!isColon || isTernaryColon) {
-            if (get_token(1).wanted_newline) {
+            if (tokens.peek().wanted_newline) {
               print_newline(false, true);
             } else {
               allow_wrap_or_preserved_newline();
@@ -1275,7 +1267,7 @@ function Beautifier(js_source_text, options) {
     if (isGeneratorAsterisk) {
       allow_wrap_or_preserved_newline();
       space_before = false;
-      var next_token = get_token(1);
+      var next_token = tokens.peek();
       space_after = next_token && in_array(next_token.type, [TOKEN.WORD, TOKEN.RESERVED]);
     } else if (current_token.text === '...') {
       allow_wrap_or_preserved_newline();

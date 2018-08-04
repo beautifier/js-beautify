@@ -37,6 +37,10 @@ function TokenStream(parent_token) {
     this._position = 0;
   };
 
+  this.isEmpty = function() {
+    return this._tokens_length === 0;
+  };
+
   this.hasNext = function() {
     return this._position < this._tokens_length;
   };
@@ -46,6 +50,14 @@ function TokenStream(parent_token) {
     if (this.hasNext()) {
       val = this._tokens[this._position];
       this._position += 1;
+    }
+    return val;
+  };
+
+  this.last = function() {
+    var val = null;
+    if (!this.isEmpty()) {
+      val = this._tokens[this._tokens_length - 1];
     }
     return val;
   };
