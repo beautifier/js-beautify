@@ -28,12 +28,14 @@
 
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Token = require('../core/token').Token;
+var BaseTokenizer = require('../core/tokenizer').Tokenizer;
+var BASETOKEN = require('../core/tokenizer').TOKEN;
 var acorn = require('../core/acorn');
-
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
 }
+
 
 var TOKEN = {
   START_EXPR: 'TK_START_EXPR',
@@ -51,15 +53,15 @@ var TOKEN = {
   COMMENT: 'TK_COMMENT',
   DOT: 'TK_DOT',
   UNKNOWN: 'TK_UNKNOWN',
-  EOF: 'TK_EOF'
+  EOF: BASETOKEN.EOF
 };
 
 function Tokenizer(input_string, opts) {
+  BaseTokenizer.call(this, input_string, opts);
 
   var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
   var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
   var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
-
 
   var digit = /[0-9]/;
 
@@ -84,57 +86,37 @@ function Tokenizer(input_string, opts) {
 
   var template_pattern = /((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)/g;
 
-  var n_newlines, whitespace_before_token, in_html_comment, tokens;
-  var input;
+  var n_newlines, whitespace_before_token, in_html_comment, tokens, input;
 
-  this.tokenize = function() {
-    input = new InputScanner(input_string);
-    in_html_comment = false;
-    tokens = [];
-
-    var next, last;
-    var token_values;
-    var open = null;
-    var open_stack = [];
-    var comments = [];
-
-    while (!(last && last.type === TOKEN.EOF)) {
-      token_values = tokenize_next();
-      next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-      while (next.type === TOKEN.COMMENT || next.type === TOKEN.BLOCK_COMMENT || next.type === TOKEN.UNKNOWN) {
-        if (next.type === TOKEN.BLOCK_COMMENT) {
-          next.directives = token_values[2];
-        }
-        comments.push(next);
-        token_values = tokenize_next();
-        next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-      }
-
-      if (comments.length) {
-        next.comments_before = comments;
-        comments = [];
-      }
-
-      if (next.type === TOKEN.START_BLOCK || next.type === TOKEN.START_EXPR) {
-        next.parent = last;
-        open_stack.push(open);
-        open = next;
-      } else if ((next.type === TOKEN.END_BLOCK || next.type === TOKEN.END_EXPR) &&
-        (open && (
-          (next.text === ']' && open.text === '[') ||
-          (next.text === ')' && open.text === '(') ||
-          (next.text === '}' && open.text === '{')))) {
-        next.parent = open.parent;
-        next.opened = open;
-
-        open = open_stack.pop();
-      }
-
-      tokens.push(next);
-      last = next;
+  this.get_next_token = function() {
+    var token_values = tokenize_next();
+    var token = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
+    if (token.type === TOKEN.BLOCK_COMMENT) {
+      token.directives = token_values[2];
     }
+    return token;
+  };
 
-    return tokens;
+  this.is_comment = function(current_token) {
+    return current_token.type === TOKEN.COMMENT || current_token.type === TOKEN.BLOCK_COMMENT || current_token.type === TOKEN.UNKNOWN;
+  };
+
+  this.is_opening = function(current_token) {
+    return current_token.type === TOKEN.START_BLOCK || current_token.type === TOKEN.START_EXPR;
+  };
+
+  this.is_closing = function(current_token, open_token) {
+    return (current_token.type === TOKEN.END_BLOCK || current_token.type === TOKEN.END_EXPR) &&
+      (open_token && (
+        (current_token.text === ']' && open_token.text === '[') ||
+        (current_token.text === ')' && open_token.text === '(') ||
+        (current_token.text === '}' && open_token.text === '{')));
+  };
+
+  this.reset = function() {
+    in_html_comment = false;
+    input = this._input;
+    tokens = this._tokens;
   };
 
   function get_directives(text) {
