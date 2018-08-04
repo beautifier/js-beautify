@@ -28,9 +28,11 @@
 
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Token = require('../core/token').Token;
+var TokenFactory = require('../core/token').TokenFactory;
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var acorn = require('../core/acorn');
+var Directives = require('../core/directives').Directives;
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -59,8 +61,8 @@ var TOKEN = {
 function Tokenizer(input_string, opts) {
   BaseTokenizer.call(this, input_string, opts);
 
-  var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
-  var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  var directives_core = new Directives(/\/\*/, /\*\//);
+
   var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
 
   var digit = /[0-9]/;
@@ -75,27 +77,14 @@ function Tokenizer(input_string, opts) {
   var reserved_words = this.line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
 
   //  /* ... */ comment ends with nearest */ or end of file
-  var block_comment_pattern = /([\s\S]*?)((?:\*\/)|$)/g;
+  var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
 
   // comment ends just before nearest linefeed or end of file
-  var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
+  var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
 
-  var directives_block_pattern = /\/\* beautify( \w+[:]\w+)+ \*\//g;
-  var directive_pattern = / (\w+)[:](\w+)/g;
-  var directives_end_ignore_pattern = /([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)/g;
+  var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
 
-  var template_pattern = /((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)/g;
-
-  var n_newlines, whitespace_before_token, in_html_comment, tokens, input;
-
-  this.get_next_token = function() {
-    var token_values = tokenize_next();
-    var token = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-    if (token.type === TOKEN.BLOCK_COMMENT) {
-      token.directives = token_values[2];
-    }
-    return token;
-  };
+  var in_html_comment, tokens, input;
 
   this.is_comment = function(current_token) {
     return current_token.type === TOKEN.COMMENT || current_token.type === TOKEN.BLOCK_COMMENT || current_token.type === TOKEN.UNKNOWN;
@@ -119,28 +108,10 @@ function Tokenizer(input_string, opts) {
     tokens = this._tokens;
   };
 
-  function get_directives(text) {
-    if (!text.match(directives_block_pattern)) {
-      return null;
-    }
+  this.token_factory = new TokenFactory();
 
-    var directives = {};
-    directive_pattern.lastIndex = 0;
-    var directive_match = directive_pattern.exec(text);
-
-    while (directive_match) {
-      directives[directive_match[1]] = directive_match[2];
-      directive_match = directive_pattern.exec(text);
-    }
-
-    return directives;
-  }
-
-  function tokenize_next() {
+  this.get_next_token = function() {
     var resulting_string;
-
-    n_newlines = 0;
-    whitespace_before_token = '';
 
     var last_token;
     if (tokens.length) {
@@ -150,20 +121,7 @@ function Tokenizer(input_string, opts) {
       last_token = new Token(TOKEN.START_BLOCK, '{');
     }
 
-    resulting_string = input.readWhile(whitespacePattern);
-    if (resulting_string !== '') {
-      if (resulting_string === ' ') {
-        whitespace_before_token = resulting_string;
-      } else {
-        newlinePattern.lastIndex = 0;
-        var nextMatch = newlinePattern.exec(resulting_string);
-        while (nextMatch[2]) {
-          n_newlines += 1;
-          nextMatch = newlinePattern.exec(resulting_string);
-        }
-        whitespace_before_token = nextMatch[1];
-      }
-    }
+    this.token_factory.readWhitespace(input);
 
     resulting_string = input.readWhile(acorn.identifier);
     if (resulting_string !== '') {
@@ -171,68 +129,67 @@ function Tokenizer(input_string, opts) {
           (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
         in_array(resulting_string, reserved_words)) {
         if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
-          return [resulting_string, TOKEN.OPERATOR];
+          return this.token_factory.create(TOKEN.OPERATOR, resulting_string);
         }
-        return [resulting_string, TOKEN.RESERVED];
+        return this.token_factory.create(TOKEN.RESERVED, resulting_string);
       }
 
-      return [resulting_string, TOKEN.WORD];
+      return this.token_factory.create(TOKEN.WORD, resulting_string);
     }
 
     resulting_string = input.readWhile(number_pattern);
     if (resulting_string !== '') {
-      return [resulting_string, TOKEN.WORD];
+      return this.token_factory.create(TOKEN.WORD, resulting_string);
     }
 
     var c = input.next();
 
     if (c === null) {
-      return ['', TOKEN.EOF];
+      return this.token_factory.create(TOKEN.EOF, '');
     }
 
 
     if (c === '(' || c === '[') {
-      return [c, TOKEN.START_EXPR];
+      return this.token_factory.create(TOKEN.START_EXPR, c);
     }
 
     if (c === ')' || c === ']') {
-      return [c, TOKEN.END_EXPR];
+      return this.token_factory.create(TOKEN.END_EXPR, c);
     }
 
     if (c === '{') {
-      return [c, TOKEN.START_BLOCK];
+      return this.token_factory.create(TOKEN.START_BLOCK, c);
     }
 
     if (c === '}') {
-      return [c, TOKEN.END_BLOCK];
+      return this.token_factory.create(TOKEN.END_BLOCK, c);
     }
 
     if (c === ';') {
-      return [c, TOKEN.SEMICOLON];
+      return this.token_factory.create(TOKEN.SEMICOLON, c);
     }
 
     if (c === '/') {
+      var token;
       var comment = '';
-      var comment_match;
       // peek for comment /* ... */
       if (input.peek() === '*') {
-        input.next();
-        comment_match = input.match(block_comment_pattern);
-        comment = '/*' + comment_match[0];
-        var directives = get_directives(comment);
+        input.back();
+        comment = input.readWhile(block_comment_pattern);
+        var directives = directives_core.get_directives(comment);
         if (directives && directives.ignore === 'start') {
-          comment_match = input.match(directives_end_ignore_pattern);
-          comment += comment_match[0];
+          comment += directives_core.readIgnored(input);
         }
         comment = comment.replace(acorn.allLineBreaks, '\n');
-        return [comment, TOKEN.BLOCK_COMMENT, directives];
+        token = this.token_factory.create(TOKEN.BLOCK_COMMENT, comment);
+        token.directives = directives;
+        return token;
       }
       // peek for comment // ...
       if (input.peek() === '/') {
-        input.next();
-        comment_match = input.match(comment_pattern);
-        comment = '//' + comment_match[0];
-        return [comment, TOKEN.COMMENT];
+        input.back();
+        comment = input.readWhile(comment_pattern);
+        return this.token_factory.create(TOKEN.COMMENT, comment);
       }
 
     }
@@ -372,7 +329,7 @@ function Tokenizer(input_string, opts) {
           xmlStr += input.match(/[\s\S]*/g)[0];
         }
         xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
-        return [xmlStr, TOKEN.STRING];
+        return this.token_factory.create(TOKEN.STRING, xmlStr);
       }
     }
 
@@ -390,7 +347,7 @@ function Tokenizer(input_string, opts) {
           resulting_string += input.readWhile(acorn.identifier);
         }
       }
-      return [resulting_string, TOKEN.STRING];
+      return this.token_factory.create(TOKEN.STRING, resulting_string);
     }
 
     if (c === '#') {
@@ -402,7 +359,7 @@ function Tokenizer(input_string, opts) {
           c = input.next();
           resulting_string += c;
         }
-        return [resulting_string.trim() + '\n', TOKEN.UNKNOWN];
+        return this.token_factory.create(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
       }
 
       // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
@@ -423,7 +380,7 @@ function Tokenizer(input_string, opts) {
           input.next();
           input.next();
         }
-        return [sharp, TOKEN.WORD];
+        return this.token_factory.create(TOKEN.WORD, sharp);
       }
     }
 
@@ -433,7 +390,7 @@ function Tokenizer(input_string, opts) {
       if (template_match) {
         c = template_match[0];
         c = c.replace(acorn.allLineBreaks, '\n');
-        return [c, TOKEN.STRING];
+        return this.token_factory.create(TOKEN.STRING, c);
       }
     }
 
@@ -443,20 +400,20 @@ function Tokenizer(input_string, opts) {
         c += input.next();
       }
       in_html_comment = true;
-      return [c, TOKEN.COMMENT];
+      return this.token_factory.create(TOKEN.COMMENT, c);
     }
 
     if (c === '-' && in_html_comment && input.match(/->/g)) {
       in_html_comment = false;
-      return ['-->', TOKEN.COMMENT];
+      return this.token_factory.create(TOKEN.COMMENT, '-->');
     }
 
     if (c === '.') {
       if (input.peek() === '.' && input.peek(1) === '.') {
         c += input.next() + input.next();
-        return [c, TOKEN.OPERATOR];
+        return this.token_factory.create(TOKEN.OPERATOR, c);
       }
-      return [c, TOKEN.DOT];
+      return this.token_factory.create(TOKEN.DOT, c);
     }
 
     if (in_array(c, punct)) {
@@ -468,16 +425,16 @@ function Tokenizer(input_string, opts) {
       }
 
       if (c === ',') {
-        return [c, TOKEN.COMMA];
+        return this.token_factory.create(TOKEN.COMMA, c);
       } else if (c === '=') {
-        return [c, TOKEN.EQUALS];
+        return this.token_factory.create(TOKEN.EQUALS, c);
       } else {
-        return [c, TOKEN.OPERATOR];
+        return this.token_factory.create(TOKEN.OPERATOR, c);
       }
     }
 
-    return [c, TOKEN.UNKNOWN];
-  }
+    return this.token_factory.create(TOKEN.UNKNOWN, c);
+  };
 
 
   function unescape_string(s) {

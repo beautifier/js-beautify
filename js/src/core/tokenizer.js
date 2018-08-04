@@ -80,8 +80,7 @@ function Tokenizer(input_string, opts) { // jshint unused:false
     return this._tokens;
   };
 
-  this.reset = function() {
-  };
+  this.reset = function() {};
 
   this.get_next_token = function() {
     var resulting_string = this._input.readWhile(/.+/g);

@@ -46,4 +46,41 @@ function Token(type, text, newlines, whitespace_before, parent) {
   this.directives = null;
 }
 
+function TokenFactory() {
+  this.n_newlines = 0;
+  this.whitespace_before_token = '';
+
+  this.whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
+  this.newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+
+  this.create = function(type, text) {
+    var token = new Token(type, text, this.n_newlines, this.whitespace_before_token);
+    this.n_newlines = 0;
+    this.whitespace_before_token = '';
+    return token;
+  };
+
+  this.readWhitespace = function(input) {
+    var resulting_string = input.readWhile(this.whitespacePattern);
+    if (resulting_string !== '') {
+      if (resulting_string === ' ') {
+        this.whitespace_before_token = resulting_string;
+      } else {
+        this.newlinePattern.lastIndex = 0;
+        var nextMatch = this.newlinePattern.exec(resulting_string);
+        while (nextMatch[2]) {
+          this.n_newlines += 1;
+          nextMatch = this.newlinePattern.exec(resulting_string);
+        }
+        this.whitespace_before_token = nextMatch[1];
+      }
+    }
+  };
+}
+
+
+
+
+
 module.exports.Token = Token;
+module.exports.TokenFactory = TokenFactory;
