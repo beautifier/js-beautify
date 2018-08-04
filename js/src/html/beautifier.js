@@ -183,12 +183,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       ],
       extra_liners: extra_liners, //for tags that need a line of whitespace before them
       in_array: function(what, arr) {
-        for (var i = 0; i < arr.length; i++) {
-          if (what === arr[i]) {
-            return true;
-          }
-        }
-        return false;
+        return arr.indexOf(what) !== -1;
       }
     };
 

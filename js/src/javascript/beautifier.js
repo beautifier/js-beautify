@@ -51,26 +51,12 @@ function remove_redundant_indentation(output, frame) {
 }
 
 function in_array(what, arr) {
-  for (var i = 0; i < arr.length; i += 1) {
-    if (arr[i] === what) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '');
+  return arr.indexOf(what) !== -1;
 }
 
 function ltrim(s) {
   return s.replace(/^\s+/g, '');
 }
-
-// function rtrim(s) {
-//     return s.replace(/\s+$/g, '');
-// }
-
 
 function generateMapFromStrings(list) {
   var result = {};
@@ -550,7 +536,7 @@ function Beautifier(js_source_text, options) {
 
   function all_lines_start_with(lines, c) {
     for (var i = 0; i < lines.length; i++) {
-      var line = trim(lines[i]);
+      var line = lines[i].trim();
       if (line.charAt(0) !== c) {
         return false;
       }
