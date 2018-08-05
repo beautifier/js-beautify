@@ -94,7 +94,7 @@ class Tokenizer(BaseTokenizer):
                                       'as'])
 
     def __init__(self, input_string, opts, indent_string):
-        super().__init__(input_string)
+        BaseTokenizer.__init__(self, input_string)
 
         self.opts = opts
         self.indent_string = indent_string
@@ -132,12 +132,12 @@ class Tokenizer(BaseTokenizer):
                             (current_token.text == '}' and open_token.text == '{')))
 
     def get_next_token(self):
-        if len(self._tokens) > 0:
-            last_token = self._tokens[-1]
-        else:
+        if self._tokens.isEmpty():
             # For the sake of tokenizing we can pretend that there was on open
             # brace to start
             last_token = Token(TOKEN.START_BLOCK, '{')
+        else:
+            last_token = self._tokens.last()
 
         self.readWhitespace()
 
@@ -348,7 +348,7 @@ class Tokenizer(BaseTokenizer):
         if c == '#':
 
             # she-bang
-            if len(self._tokens) == 0 and self._input.peek() == '!':
+            if self._tokens.isEmpty() and self._input.peek() == '!':
                 resulting_string = c
                 while self._input.hasNext() and c != '\n':
                     c = self._input.next()

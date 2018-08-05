@@ -25,6 +25,7 @@
 import re
 from ..core.inputscanner import InputScanner
 from ..core.token import Token
+from ..core.tokenstream import TokenStream
 
 
 class TokenTypes:
@@ -34,9 +35,7 @@ class TokenTypes:
     def __init__(self):
         pass
 
-
 TOKEN = TokenTypes()
-
 
 class Tokenizer:
 
@@ -56,24 +55,24 @@ class Tokenizer:
 
     def tokenize(self):
         self._input.restart()
-        self._tokens = []
+        self._tokens = TokenStream()
 
         current = None
         last = Token(TOKEN.RAW,'')
         open_token = None
         open_stack = []
-        comments = []
+        comments = TokenStream()
 
         while last.type != TOKEN.EOF:
             current = self.get_next_token()
 
             while self.is_comment(current):
-                comments.append(current)
+                comments.add(current)
                 current = self.get_next_token()
 
-            if len(comments) > 0:
+            if not comments.isEmpty():
                 current.comments_before = comments
-                comments = []
+                comments = TokenStream()
 
             if self.is_opening(current):
                 current.parent = last
@@ -84,7 +83,7 @@ class Tokenizer:
                 current.opened = open_token
                 open_token = open_stack.pop()
 
-            self._tokens.append(current)
+            self._tokens.add(current)
             last = current
         return self._tokens
 

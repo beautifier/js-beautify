@@ -301,17 +301,20 @@ function Beautifier(js_source_text, options) {
   function handle_whitespace_and_comments(local_token, preserve_statement_flags) {
     var newlines = local_token.newlines;
     var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
-    var temp_token = current_token;
 
-    while (local_token.comments_before && local_token.comments_before.hasNext()) {
-      // The cleanest handling of inline comments is to treat them as though they aren't there.
-      // Just continue formatting and the behavior should be logical.
-      // Also ignore unknown tokens.  Again, this should result in better behavior.
+    if (local_token.comments_before) {
+      var temp_token = current_token;
       current_token = local_token.comments_before.next();
-      handle_whitespace_and_comments(current_token, preserve_statement_flags);
-      handlers[current_token.type](preserve_statement_flags);
+      while (current_token) {
+        // The cleanest handling of inline comments is to treat them as though they aren't there.
+        // Just continue formatting and the behavior should be logical.
+        // Also ignore unknown tokens.  Again, this should result in better behavior.
+        handle_whitespace_and_comments(current_token, preserve_statement_flags);
+        handlers[current_token.type](preserve_statement_flags);
+        current_token = local_token.comments_before.next();
+      }
+      current_token = temp_token;
     }
-    current_token = temp_token;
 
     if (keep_whitespace) {
       for (var i = 0; i < newlines; i += 1) {

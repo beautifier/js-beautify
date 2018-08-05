@@ -133,8 +133,7 @@ class Beautifier:
         self.flags = None
         self.previous_flags = None
         self.flag_store = []
-        self.tokens = []
-        self.token_pos = 0
+        self.tokens = None
 
         # force opts.space_after_anon_function to true if opts.jslint_happy
         if self.opts.jslint_happy:
@@ -227,17 +226,13 @@ class Beautifier:
 
         self.tokens = Tokenizer(
             input, self.opts, self.indent_string).tokenize()
-        self.token_pos = 0
 
-        current_token = self.get_token()
-        while current_token is not None:
+        for current_token in self.tokens:
             self.handlers[current_token.type](current_token)
 
             self.last_last_text = self.flags.last_text
             self.last_type = current_token.type
             self.flags.last_text = current_token.text
-            self.token_pos += 1
-            current_token = self.get_token()
 
         sweet_code = self.output.get_code(
             self.opts.end_with_newline, self.opts.eol)
@@ -348,7 +343,7 @@ class Beautifier:
         if not preserve_statement_flags:
             if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and (
                     self.last_type != TOKEN.OPERATOR or self.flags.last_text == '--' or self.flags.last_text == '++'):
-                next_token = self.get_token(1)
+                next_token = self.tokens.peek()
                 while (self.flags.mode == MODE.Statement and not (self.flags.if_block and next_token and next_token.type ==
                                                                   TOKEN.RESERVED and next_token.text == 'else') and not self.flags.do_block):
                     self.restore_mode()
@@ -471,13 +466,6 @@ class Beautifier:
             return True
         else:
             return False
-
-    def get_token(self, offset=0):
-        index = self.token_pos + offset
-        if index < 0 or index >= len(self.tokens):
-            return None
-        else:
-            return self.tokens[index]
 
     def handle_start_expr(self, current_token):
         if self.start_of_statement(current_token):
@@ -621,8 +609,8 @@ class Beautifier:
 
         # Check if this is a BlockStatement that should be treated as a
         # ObjectLiteral
-        next_token = self.get_token(1)
-        second_token = self.get_token(2)
+        next_token = self.tokens.peek()
+        second_token = self.tokens.peek(1)
         if second_token is not None and (
             (second_token.text in [
                 ':',
@@ -669,7 +657,7 @@ class Beautifier:
             do_loop = True
             while (do_loop):
                 index += 1
-                check_token = self.get_token(index)
+                check_token = self.tokens.peek(index - 1)
                 if check_token.newlines:
                     self.flags.inline_frame = False
 
@@ -746,7 +734,7 @@ class Beautifier:
             elif current_token.text in ['as', 'from'] and not self.flags.import_block:
                 current_token.type = TOKEN.WORD
             elif self.flags.mode == MODE.ObjectLiteral:
-                next_token = self.get_token(1)
+                next_token = self.tokens.peek()
                 if next_token.text == ':':
                     current_token.type = TOKEN.WORD
 
@@ -953,7 +941,7 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token)
 
-        next_token = self.get_token(1)
+        next_token = self.tokens.peek()
         while (self.flags.mode == MODE.Statement and not (self.flags.if_block and next_token and next_token.type ==
                                                           TOKEN.RESERVED and next_token.text == 'else') and not self.flags.do_block):
             self.restore_mode()
@@ -1120,7 +1108,7 @@ class Beautifier:
                 self.output.space_before_token = True
 
                 if (not isColon) or isTernaryColon:
-                    if self.get_token(1).newlines:
+                    if self.tokens.peek().newlines:
                         self.print_newline(preserve_statement_flags=True)
                     else:
                         self.allow_wrap_or_preserved_newline(current_token)
@@ -1149,7 +1137,7 @@ class Beautifier:
         if isGeneratorAsterisk:
             self.allow_wrap_or_preserved_newline(current_token)
             space_before = False
-            next_token = self.get_token(1)
+            next_token = self.tokens.peek()
             space_after = next_token and next_token.type in [
                 TOKEN.WORD, TOKEN.RESERVED]
         elif current_token.text == '...':

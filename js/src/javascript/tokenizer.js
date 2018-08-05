@@ -109,11 +109,11 @@ function Tokenizer(input_string, opts) {
     var resulting_string;
 
     var last_token;
-    if (!this._tokens.isEmpty()) {
-      last_token = this._tokens.last();
-    } else {
+    if (this._tokens.isEmpty()) {
       // For the sake of tokenizing we can pretend that there was on open brace to start
       last_token = new Token(TOKEN.START_BLOCK, '{');
+    } else {
+      last_token = this._tokens.last();
     }
 
     this.readWhitespace();
