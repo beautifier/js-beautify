@@ -31,6 +31,9 @@ class InputScanner:
         self.__input_length = len(self.__input)
         self.__position = 0
 
+    def restart(self):
+        self.__position = 0
+
     def back(self):
         if self.__position > 0:
             self.__position -= 1

@@ -35,9 +35,9 @@ var TOKEN = {
   EOF: 'TK_EOF'
 };
 
-function Tokenizer(input_string, opts) { // jshint unused:false
+function Tokenizer(input_string) { // jshint unused:false
 
-  this._input = null;
+  this._input = new InputScanner(input_string);
   this._tokens = null;
   this._newline_count = 0;
   this._whitespace_before_token = '';
@@ -47,17 +47,18 @@ function Tokenizer(input_string, opts) { // jshint unused:false
 
 
   this.tokenize = function() {
-    this._input = new InputScanner(input_string);
+    this._input.restart();
     this._tokens = new TokenStream();
 
     this.reset();
 
-    var current, last;
+    var current;
+    var last = new Token(TOKEN.RAW, '');
     var open_token = null;
     var open_stack = [];
     var comments = new TokenStream();
 
-    while (!(last && last.type === TOKEN.EOF)) {
+    while (last.type !== TOKEN.EOF) {
       current = this.get_next_token();
       while (this.is_comment(current)) {
         comments.add(current);

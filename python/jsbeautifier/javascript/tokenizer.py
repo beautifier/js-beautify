@@ -25,10 +25,12 @@
 import re
 from ..core.inputscanner import InputScanner
 from ..core.token import Token
+from ..core.tokenizer import TokenTypes as BaseTokenTypes
+from ..core.tokenizer import Tokenizer as BaseTokenizer
 from ..core.directives import Directives
 
 
-class TokenTypes:
+class TokenTypes(BaseTokenTypes):
     START_EXPR = 'TK_START_EXPR'
     END_EXPR = 'TK_END_EXPR'
     START_BLOCK = 'TK_START_BLOCK'
@@ -44,7 +46,6 @@ class TokenTypes:
     COMMENT = 'TK_COMMENT'
     DOT = 'TK_DOT'
     UNKNOWN = 'TK_UNKNOWN'
-    EOF = 'TK_EOF'
 
     def __init__(self):
         pass
@@ -53,7 +54,7 @@ class TokenTypes:
 TOKEN = TokenTypes()
 
 
-class Tokenizer:
+class Tokenizer(BaseTokenizer):
 
     number_pattern = re.compile(
         r'0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?')
@@ -93,12 +94,12 @@ class Tokenizer:
                                       'as'])
 
     def __init__(self, input_string, opts, indent_string):
-        import jsbeautifier.core.acorn as acorn
-        self.acorn = acorn
+        super().__init__(input_string)
 
-        self.input = InputScanner(input_string)
         self.opts = opts
         self.indent_string = indent_string
+        self.in_html_comment = False
+
         #  /* ... */ comment ends with nearest */ or end of file
         self.block_comment_pattern = re.compile(r'([\s\S]*?)((?:\*\/)|$)')
 
@@ -111,141 +112,92 @@ class Tokenizer:
         self.template_pattern = re.compile(
             r'((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
 
-        self.whitespacePattern = re.compile(
-            self.acorn.six.u(r'[\n\r\u2028\u2029\t ]+'))
-        self.newlinePattern = re.compile(
-            self.acorn.six.u(r'([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
-
-    def tokenize(self):
+    def reset(self):
         self.in_html_comment = False
-        self.tokens = []
 
-        next = None
-        last = None
-        open_token = None
-        open_stack = []
-        comments = []
+    def is_comment(self, current_token):
+        return current_token.type == TOKEN.COMMENT or \
+            current_token.type == TOKEN.BLOCK_COMMENT or \
+            current_token.type == TOKEN.UNKNOWN
 
-        while not (last is not None and last.type == TOKEN.EOF):
-            token_values = self.__tokenize_next()
-            next = Token(
-                token_values[1],
-                token_values[0],
-                self.n_newlines,
-                self.whitespace_before_token)
 
-            while next.type == TOKEN.COMMENT or next.type == TOKEN.BLOCK_COMMENT or next.type == TOKEN.UNKNOWN:
-                if next.type == TOKEN.BLOCK_COMMENT:
-                    next.directives = token_values[2]
+    def is_opening(self, current_token):
+        return current_token.type == TOKEN.START_BLOCK or current_token.type == TOKEN.START_EXPR
 
-                comments.append(next)
-                token_values = self.__tokenize_next()
-                next = Token(
-                    token_values[1],
-                    token_values[0],
-                    self.n_newlines,
-                    self.whitespace_before_token)
-
-            if len(comments) > 0:
-                next.comments_before = comments
-                comments = []
-
-            if next.type == TOKEN.START_BLOCK or next.type == TOKEN.START_EXPR:
-                next.parent = last
-                open_stack.append(open_token)
-                open_token = next
-            elif (next.type == TOKEN.END_BLOCK or next.type == TOKEN.END_EXPR) and \
+    def is_closing(self, current_token, open_token):
+        return (current_token.type == TOKEN.END_BLOCK or current_token.type == TOKEN.END_EXPR) and \
                     (open_token is not None and (
-                            (next.text == ']' and open_token.text == '[') or
-                            (next.text == ')' and open_token.text == '(') or
-                            (next.text == '}' and open_token.text == '{'))):
-                next.parent = open_token.parent
-                next.opened = open_token
-                open_token = open_stack.pop()
+                            (current_token.text == ']' and open_token.text == '[') or
+                            (current_token.text == ')' and open_token.text == '(') or
+                            (current_token.text == '}' and open_token.text == '{')))
 
-            self.tokens.append(next)
-            last = next
-        return self.tokens
-
-    def __tokenize_next(self):
-
-        self.n_newlines = 0
-        self.whitespace_before_token = ''
-
-        if len(self.tokens) > 0:
-            last_token = self.tokens[-1]
+    def get_next_token(self):
+        if len(self._tokens) > 0:
+            last_token = self._tokens[-1]
         else:
             # For the sake of tokenizing we can pretend that there was on open
             # brace to start
             last_token = Token(TOKEN.START_BLOCK, '{')
 
-        resulting_string = self.input.read(self.whitespacePattern)
-        if resulting_string != '':
-            if resulting_string == ' ':
-                self.whitespace_before_token = resulting_string
-            else:
-                for nextMatch in self.newlinePattern.findall(resulting_string):
-                    if nextMatch[1] != '':
-                        self.n_newlines += 1
-                    else:
-                        self.whitespace_before_token = nextMatch[0]
-                        break
+        self.readWhitespace()
 
-        resulting_string = self.input.read(self.acorn.identifier)
+        resulting_string = self._input.read(self.acorn.identifier)
         if resulting_string != '':
             if not (last_token.type == TOKEN.DOT or (
                     last_token.type == TOKEN.RESERVED and last_token.text in [
                         'set',
                         'get'])) and resulting_string in self.reserved_words:
                 if resulting_string in ['in', 'of']:  # in and of are operators, need to hack
-                    return resulting_string, TOKEN.OPERATOR
+                    return self.create_token(TOKEN.OPERATOR, resulting_string)
 
-                return resulting_string, TOKEN.RESERVED
+                return self.create_token(TOKEN.RESERVED, resulting_string)
 
-            return resulting_string, TOKEN.WORD
+            return self.create_token(TOKEN.WORD, resulting_string)
 
-        resulting_string = self.input.read(self.number_pattern)
+        resulting_string = self._input.read(self.number_pattern)
         if resulting_string != '':
-            return resulting_string, TOKEN.WORD
+            return self.create_token(TOKEN.WORD, resulting_string)
 
-        c = self.input.next()
+        c = self._input.next()
 
         if c is None:
-            return '', TOKEN.EOF
+            return self.create_token(TOKEN.EOF, '')
 
         if c in '([':
-            return c, TOKEN.START_EXPR
+            return self.create_token(TOKEN.START_EXPR, c)
 
         if c in ')]':
-            return c, TOKEN.END_EXPR
+            return self.create_token(TOKEN.END_EXPR, c)
 
         if c == '{':
-            return c, TOKEN.START_BLOCK
+            return self.create_token(TOKEN.START_BLOCK, c)
 
         if c == '}':
-            return c, TOKEN.END_BLOCK
+            return self.create_token(TOKEN.END_BLOCK, c)
 
         if c == ';':
-            return c, TOKEN.SEMICOLON
+            return self.create_token(TOKEN.SEMICOLON, c)
 
         if c == '/':
             comment = ''
-            if self.input.peek() == '*':  # peek /* .. */ comment
-                self.input.next()
-                comment_match = self.input.match(self.block_comment_pattern)
+            if self._input.peek() == '*':  # peek /* .. */ comment
+                self._input.next()
+                comment_match = self._input.match(self.block_comment_pattern)
                 comment = '/*' + comment_match.group(0)
 
                 directives = self.directives_core.get_directives(comment)
                 if directives and directives.get('ignore') == 'start':
-                    comment += self.directives_core.readIgnored(self.input)
+                    comment += self.directives_core.readIgnored(self._input)
                 comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
-                return comment, TOKEN.BLOCK_COMMENT, directives
+                token = self.create_token(TOKEN.BLOCK_COMMENT, comment)
+                token.directives = directives
+                return token
 
-            if self.input.peek() == '/':  # peek // comment
-                self.input.next()
-                comment_match = self.input.match(self.comment_pattern)
+            if self._input.peek() == '/':  # peek // comment
+                self._input.next()
+                comment_match = self._input.match(self.comment_pattern)
                 comment = '//' + comment_match.group(0)
-                return comment, TOKEN.COMMENT
+                return self.create_token(TOKEN.COMMENT, comment)
 
         def allowRegExOrXML(self):
             return (last_token.type == TOKEN.RESERVED and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
@@ -258,7 +210,7 @@ class Tokenizer:
 
         isString = (c == '`' or c == "'" or c == '"')
         isRegExp = (c == '/' and allowRegExOrXML(self))
-        isXML = (self.opts.e4x and c == "<" and self.input.test(
+        isXML = (self.opts.e4x and c == "<" and self._input.test(
             self.startXmlRegExp, -1) and allowRegExOrXML(self))
 
         sep = c
@@ -275,8 +227,8 @@ class Tokenizer:
                     allow_unescaped_newlines=False,
                     start_sub=None):
                 esc = False
-                while self.input.hasNext():
-                    current_char = self.input.peek()
+                while self._input.hasNext():
+                    current_char = self._input.peek()
                     if not (esc or (current_char != delimiter and (
                             allow_unescaped_newlines or not bool(
                                 self.acorn.newline.match(current_char))))):
@@ -286,9 +238,9 @@ class Tokenizer:
                     # strings
                     if (esc or allow_unescaped_newlines) and bool(
                             self.acorn.newline.match(current_char)):
-                        if current_char == '\r' and self.input.peek(1) == '\n':
-                            self.input.next()
-                            current_char = self.input.peek()
+                        if current_char == '\r' and self._input.peek(1) == '\n':
+                            self._input.next()
+                            current_char = self._input.peek()
 
                         resulting_string += '\n'
                     else:
@@ -302,7 +254,7 @@ class Tokenizer:
                     else:
                         esc = current_char == '\\'
 
-                    self.input.next()
+                    self._input.next()
 
                     if start_sub and resulting_string.endswith(start_sub):
                         if delimiter == '`':
@@ -312,8 +264,8 @@ class Tokenizer:
                             resulting_string = parse_string(
                                 self, resulting_string, '`', allow_unescaped_newlines, '${')
 
-                        if self.input.hasNext():
-                            resulting_string += self.input.next()
+                        if self._input.hasNext():
+                            resulting_string += self._input.next()
 
                 return resulting_string
 
@@ -325,25 +277,25 @@ class Tokenizer:
         elif isRegExp:
             # handle regexp
             in_char_class = False
-            while self.input.hasNext() and \
-                    (esc or in_char_class or self.input.peek() != sep) and \
-                    not self.input.testChar(self.acorn.newline):
-                resulting_string += self.input.peek()
+            while self._input.hasNext() and \
+                    (esc or in_char_class or self._input.peek() != sep) and \
+                    not self._input.testChar(self.acorn.newline):
+                resulting_string += self._input.peek()
                 if not esc:
-                    esc = self.input.peek() == '\\'
-                    if self.input.peek() == '[':
+                    esc = self._input.peek() == '\\'
+                    if self._input.peek() == '[':
                         in_char_class = True
-                    elif self.input.peek() == ']':
+                    elif self._input.peek() == ']':
                         in_char_class = False
                 else:
                     esc = False
-                self.input.next()
+                self._input.next()
 
         elif isXML:
             # handle e4x xml literals
-            self.input.back()
+            self._input.back()
             xmlStr = ""
-            match = self.input.match(self.xmlRegExp)
+            match = self._input.match(self.xmlRegExp)
             if match:
                 rootTag = match.group(2)
                 rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
@@ -365,109 +317,109 @@ class Tokenizer:
                     if depth <= 0:
                         break
 
-                    match = self.input.match(self.xmlRegExp)
+                    match = self._input.match(self.xmlRegExp)
 
                 # if we didn't close correctly, keep unformatted.
                 if not match:
-                    xmlStr += self.input.match(re.compile(r'[\s\S]*')).group(0)
+                    xmlStr += self._input.match(re.compile(r'[\s\S]*')).group(0)
 
                 xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
-                return xmlStr, TOKEN.STRING
+                return self.create_token(TOKEN.STRING, xmlStr)
 
         if isRegExp or isString:
             if self.has_char_escapes and self.opts.unescape_strings:
                 resulting_string = self.unescape_string(resulting_string)
 
-            if self.input.peek() == sep:
-                resulting_string += self.input.next()
+            if self._input.peek() == sep:
+                resulting_string += self._input.next()
 
                 if sep == '/':
                     # regexps may have modifiers /regexp/MOD, so fetch those too
                     # Only [gim] are valid, but if the user puts in garbage, do
                     # what we can to take it.
-                    resulting_string += self.input.read(
+                    resulting_string += self._input.read(
                         self.acorn.identifier)
 
             resulting_string = re.sub(
                 self.acorn.allLineBreaks, '\n', resulting_string)
 
-            return resulting_string, TOKEN.STRING
+            return self.create_token(TOKEN.STRING, resulting_string)
 
         if c == '#':
 
             # she-bang
-            if len(self.tokens) == 0 and self.input.peek() == '!':
+            if len(self._tokens) == 0 and self._input.peek() == '!':
                 resulting_string = c
-                while self.input.hasNext() and c != '\n':
-                    c = self.input.next()
+                while self._input.hasNext() and c != '\n':
+                    c = self._input.next()
                     resulting_string += c
-                return resulting_string.strip() + '\n', TOKEN.UNKNOWN
+                return self.create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
 
             # Spidermonkey-specific sharp variables for circular references
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp
             # around line 1935
             sharp = '#'
-            if self.input.hasNext() and self.input.testChar(self.digit):
+            if self._input.hasNext() and self._input.testChar(self.digit):
                 while True:
-                    c = self.input.next()
+                    c = self._input.next()
                     sharp += c
-                    if (not self.input.hasNext()) or c == '#' or c == '=':
+                    if (not self._input.hasNext()) or c == '#' or c == '=':
                         break
             if c == '#':
                 pass
-            elif self.input.peek() == '[' and self.input.peek(1) == ']':
+            elif self._input.peek() == '[' and self._input.peek(1) == ']':
                 sharp += '[]'
-                self.input.next()
-                self.input.next()
-            elif self.input.peek() == '{' and self.input.peek(1) == '}':
+                self._input.next()
+                self._input.next()
+            elif self._input.peek() == '{' and self._input.peek(1) == '}':
                 sharp += '{}'
-                self.input.next()
-                self.input.next()
-            return sharp, TOKEN.WORD
+                self._input.next()
+                self._input.next()
+            return self.create_token(TOKEN.WORD, sharp)
 
-        if c == '<' and self.input.peek() in ['?', '%']:
-            self.input.back()
-            template_match = self.input.match(self.template_pattern)
+        if c == '<' and self._input.peek() in ['?', '%']:
+            self._input.back()
+            template_match = self._input.match(self.template_pattern)
             if template_match:
                 c = template_match.group(0)
                 c = re.sub(self.acorn.allLineBreaks, '\n', c)
-                return c, TOKEN.STRING
+                return self.create_token(TOKEN.STRING, c)
 
-        if c == '<' and self.input.match(re.compile(r'\!--')):
+        if c == '<' and self._input.match(re.compile(r'\!--')):
             c = '<!--'
-            while self.input.hasNext() and not self.input.testChar(self.acorn.newline):
-                c += self.input.next()
+            while self._input.hasNext() and not self._input.testChar(self.acorn.newline):
+                c += self._input.next()
 
             self.in_html_comment = True
-            return c, TOKEN.COMMENT
+            return self.create_token(TOKEN.COMMENT, c)
 
-        if c == '-' and self.in_html_comment and self.input.match(
+        if c == '-' and self.in_html_comment and self._input.match(
                 re.compile('->')):
             self.in_html_comment = False
-            return '-->', TOKEN.COMMENT
+            return self.create_token(TOKEN.COMMENT, '-->')
 
         if c == '.':
-            if self.input.peek() == '.' and self.input.peek(1) == '.':
-                c += self.input.next() + self.input.next()
-                return c, TOKEN.OPERATOR
+            if self._input.peek() == '.' and self._input.peek(1) == '.':
+                c += self._input.next() + self._input.next()
+                return self.create_token(TOKEN.OPERATOR, c)
 
-            return c, TOKEN.DOT
+            return self.create_token(TOKEN.DOT, c)
 
         if c in self.punct:
-            while self.input.hasNext() and c + self.input.peek() in self.punct:
-                c += self.input.next()
-                if not self.input.hasNext():
+            while self._input.hasNext() and c + self._input.peek() in self.punct:
+                c += self._input.next()
+                if not self._input.hasNext():
                     break
 
             if c == ',':
-                return c, TOKEN.COMMA
+                return self.create_token(TOKEN.COMMA, c)
             if c == '=':
-                return c, TOKEN.EQUALS
+                return self.create_token(TOKEN.EQUALS, c)
 
-            return c, TOKEN.OPERATOR
+            return self.create_token(TOKEN.OPERATOR, c)
 
-        return c, TOKEN.UNKNOWN
+        return self.create_token(TOKEN.UNKNOWN, c)
 
     def unescape_string(self, s):
         # You think that a regex would work for this

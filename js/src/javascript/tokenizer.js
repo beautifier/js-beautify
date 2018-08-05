@@ -58,7 +58,7 @@ var TOKEN = {
 };
 
 function Tokenizer(input_string, opts) {
-  BaseTokenizer.call(this, input_string, opts);
+  BaseTokenizer.call(this, input_string);
 
   var directives_core = new Directives(/\/\*/, /\*\//);
 

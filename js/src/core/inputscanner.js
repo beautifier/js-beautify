@@ -31,6 +31,10 @@ function InputScanner(input_string) {
   var _input_length = _input.length;
   var _position = 0;
 
+  this.restart = function() {
+    _position = 0;
+  };
+
   this.back = function() {
     if (_position > 0) {
       _position -= 1;
