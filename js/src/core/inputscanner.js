@@ -90,7 +90,7 @@ function InputScanner(input_string) {
     return pattern_match;
   };
 
-  this.readWhile = function(pattern) {
+  this.read = function(pattern) {
     var val = '';
     var match = this.match(pattern);
     if (match) {

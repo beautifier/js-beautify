@@ -91,7 +91,7 @@ function Tokenizer(input_string, opts) { // jshint unused:false
 
   this.get_next_token = function() {
     this.readWhitespace();
-    var resulting_string = this._input.readWhile(/.+/g);
+    var resulting_string = this._input.read(/.+/g);
     if (resulting_string) {
       return this.create_token(TOKEN.RAW, resulting_string);
     } else {
@@ -120,7 +120,7 @@ function Tokenizer(input_string, opts) { // jshint unused:false
   };
 
   this.readWhitespace = function() {
-    var resulting_string = this._input.readWhile(this._whitespace_pattern);
+    var resulting_string = this._input.read(this._whitespace_pattern);
     if (resulting_string !== '') {
       if (resulting_string === ' ') {
         this._whitespace_before_token = resulting_string;

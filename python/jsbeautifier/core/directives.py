@@ -50,4 +50,4 @@ class Directives:
         return directives
 
     def readIgnored(self, input):
-        return input.readWhile(self.__directives_end_ignore_pattern)
+        return input.read(self.__directives_end_ignore_pattern)

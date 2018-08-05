@@ -72,7 +72,7 @@ class InputScanner:
                 self.__position = pattern_match.end(0)
         return pattern_match
 
-    def readWhile(self, pattern):
+    def read(self, pattern):
         val = ''
         pattern_match = self.match(pattern)
         if bool(pattern_match):

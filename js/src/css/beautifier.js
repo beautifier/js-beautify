@@ -202,7 +202,7 @@ function Beautifier(source_text, options) {
     var insideAtExtend = false;
 
     while (true) {
-      var whitespace = input.readWhile(whitespacePattern);
+      var whitespace = input.read(whitespacePattern);
       var isAfterSpace = whitespace !== '';
       ch = input.next();
 
@@ -216,7 +216,7 @@ function Beautifier(source_text, options) {
         // minified code is being beautified.
         output.add_new_line();
         input.back();
-        print_string(input.readWhile(block_comment_pattern));
+        print_string(input.read(block_comment_pattern));
 
         // Ensures any new lines following the comment are preserved
         eatWhitespace(true);
@@ -230,7 +230,7 @@ function Beautifier(source_text, options) {
         // on the same line as a rule
         output.space_before_token = true;
         input.back();
-        print_string(input.readWhile(comment_pattern));
+        print_string(input.read(comment_pattern));
 
         // Ensures any new lines following the comment are preserved
         eatWhitespace(true);

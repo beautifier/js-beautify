@@ -118,7 +118,7 @@ function Tokenizer(input_string, opts) {
 
     this.readWhitespace();
 
-    resulting_string = this._input.readWhile(acorn.identifier);
+    resulting_string = this._input.read(acorn.identifier);
     if (resulting_string !== '') {
       if (!(last_token.type === TOKEN.DOT ||
           (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
@@ -132,7 +132,7 @@ function Tokenizer(input_string, opts) {
       return this.create_token(TOKEN.WORD, resulting_string);
     }
 
-    resulting_string = this._input.readWhile(number_pattern);
+    resulting_string = this._input.read(number_pattern);
     if (resulting_string !== '') {
       return this.create_token(TOKEN.WORD, resulting_string);
     }
@@ -170,7 +170,7 @@ function Tokenizer(input_string, opts) {
       // peek for comment /* ... */
       if (this._input.peek() === '*') {
         this._input.back();
-        comment = this._input.readWhile(block_comment_pattern);
+        comment = this._input.read(block_comment_pattern);
         var directives = directives_core.get_directives(comment);
         if (directives && directives.ignore === 'start') {
           comment += directives_core.readIgnored(this._input);
@@ -183,7 +183,7 @@ function Tokenizer(input_string, opts) {
       // peek for comment // ...
       if (this._input.peek() === '/') {
         this._input.back();
-        comment = this._input.readWhile(comment_pattern);
+        comment = this._input.read(comment_pattern);
         return this.create_token(TOKEN.COMMENT, comment);
       }
 
@@ -291,7 +291,7 @@ function Tokenizer(input_string, opts) {
         if (sep === '/') {
           // regexps may have modifiers /regexp/MOD , so fetch those, too
           // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-          resulting_string += this._input.readWhile(acorn.identifier);
+          resulting_string += this._input.read(acorn.identifier);
         }
       }
       return this.create_token(TOKEN.STRING, resulting_string);

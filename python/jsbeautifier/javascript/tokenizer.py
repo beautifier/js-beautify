@@ -177,7 +177,7 @@ class Tokenizer:
             # brace to start
             last_token = Token(TOKEN.START_BLOCK, '{')
 
-        resulting_string = self.input.readWhile(self.whitespacePattern)
+        resulting_string = self.input.read(self.whitespacePattern)
         if resulting_string != '':
             if resulting_string == ' ':
                 self.whitespace_before_token = resulting_string
@@ -189,7 +189,7 @@ class Tokenizer:
                         self.whitespace_before_token = nextMatch[0]
                         break
 
-        resulting_string = self.input.readWhile(self.acorn.identifier)
+        resulting_string = self.input.read(self.acorn.identifier)
         if resulting_string != '':
             if not (last_token.type == TOKEN.DOT or (
                     last_token.type == TOKEN.RESERVED and last_token.text in [
@@ -202,7 +202,7 @@ class Tokenizer:
 
             return resulting_string, TOKEN.WORD
 
-        resulting_string = self.input.readWhile(self.number_pattern)
+        resulting_string = self.input.read(self.number_pattern)
         if resulting_string != '':
             return resulting_string, TOKEN.WORD
 
@@ -383,7 +383,7 @@ class Tokenizer:
                     # regexps may have modifiers /regexp/MOD, so fetch those too
                     # Only [gim] are valid, but if the user puts in garbage, do
                     # what we can to take it.
-                    resulting_string += self.input.readWhile(
+                    resulting_string += self.input.read(
                         self.acorn.identifier)
 
             resulting_string = re.sub(

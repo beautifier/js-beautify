@@ -53,7 +53,7 @@ function Directives(start_block_pattern, end_block_pattern) {
   };
 
   this.readIgnored = function(input) {
-    return input.readWhile(directives_end_ignore_pattern);
+    return input.read(directives_end_ignore_pattern);
 
   };
 }
