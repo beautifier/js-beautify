@@ -64,17 +64,19 @@ class Tokenizer:
     xmlRegExp = re.compile(
         r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
-    positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(
-        ' ')
-    punct = (positionable_operators +
+    positionable_operators = frozenset(
+        '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(
+        ' '))
+    punct = frozenset(positionable_operators) | frozenset(
              # non-positionable operators - these do not follow operator
              # position settings
              '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '))
 
     # Words which always should start on a new line
-    line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(
-        ',')
-    reserved_words = line_starters + ['do',
+    line_starters = frozenset(
+        ('continue,try,throw,return,var,let,const,if,switch,case,default,for,' +
+        'while,break,function,import,export').split(','))
+    reserved_words = frozenset(line_starters) | frozenset(['do',
                                       'in',
                                       'of',
                                       'else',
@@ -88,7 +90,7 @@ class Tokenizer:
                                       'async',
                                       'await',
                                       'from',
-                                      'as']
+                                      'as'])
 
     def __init__(self, input_string, opts, indent_string):
         import jsbeautifier.core.acorn as acorn

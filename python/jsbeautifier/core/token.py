@@ -34,7 +34,7 @@ class Token:
             parent=None):
         self.type = type
         self.text = text
-        self.comments_before = []
+        self.comments_before = None
         self.newlines = newlines
         self.wanted_newline = newlines > 0
         self.whitespace_before = whitespace_before
