@@ -26,7 +26,7 @@
   SOFTWARE.
 */
 
-function Token(type, text, newlines, whitespace_before, parent) {
+function Token(type, text, newlines, whitespace_before) {
   this.type = type;
   this.text = text;
 
@@ -39,9 +39,8 @@ function Token(type, text, newlines, whitespace_before, parent) {
 
   // this.comments_after =  new TokenStream(); // no new line before and newline after
   this.newlines = newlines || 0;
-  this.wanted_newline = newlines > 0;
   this.whitespace_before = whitespace_before || '';
-  this.parent = parent || null;
+  this.parent = null;
   this.opened = null;
   this.directives = null;
 }

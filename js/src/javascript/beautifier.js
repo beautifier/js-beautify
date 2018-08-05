@@ -363,7 +363,7 @@ function Beautifier(js_source_text, options) {
       return;
     }
 
-    var shouldPreserveOrForce = (opt.preserve_newlines && current_token.wanted_newline) || force_linewrap;
+    var shouldPreserveOrForce = (opt.preserve_newlines && current_token.newlines) || force_linewrap;
     var operatorLogicApplies = in_array(flags.last_text, tokenizer.positionable_operators) || in_array(current_token.text, tokenizer.positionable_operators);
 
     if (operatorLogicApplies) {
@@ -410,7 +410,7 @@ function Beautifier(js_source_text, options) {
 
   function print_token_line_indentation() {
     if (output.just_added_newline()) {
-      if (opt.keep_array_indentation && is_array(flags.mode) && current_token.wanted_newline) {
+      if (opt.keep_array_indentation && is_array(flags.mode) && current_token.newlines) {
         output.current_line.push(current_token.whitespace_before);
         output.space_before_token = false;
       } else if (output.set_indent(flags.indentation_level)) {
@@ -500,7 +500,7 @@ function Beautifier(js_source_text, options) {
     var start = false;
     start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD);
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'do');
-    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline);
+    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.newlines);
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'else' &&
       !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before));
     start = start || (last_type === TOKEN.END_EXPR && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional));
@@ -649,7 +649,7 @@ function Beautifier(js_source_text, options) {
     } else if (last_type === TOKEN.END_EXPR || last_type === TOKEN.START_EXPR || last_type === TOKEN.END_BLOCK || flags.last_text === '.' || last_type === TOKEN.COMMA) {
       // do nothing on (( and )( and ][ and ]( and .(
       // TODO: Consider whether forcing this is required.  Review failing tests when removed.
-      allow_wrap_or_preserved_newline(current_token.wanted_newline);
+      allow_wrap_or_preserved_newline(current_token.newlines);
     }
 
     set_mode(next_mode);
@@ -747,7 +747,7 @@ function Beautifier(js_source_text, options) {
       do {
         index += 1;
         check_token = tokens.peek(index - 1);
-        if (check_token.wanted_newline) {
+        if (check_token.newlines) {
           flags.inline_frame = false;
           break;
         }
@@ -756,7 +756,7 @@ function Beautifier(js_source_text, options) {
     }
 
     if ((opt.brace_style === "expand" ||
-        (opt.brace_style === "none" && current_token.wanted_newline)) &&
+        (opt.brace_style === "none" && current_token.newlines)) &&
       !flags.inline_frame) {
       if (last_type !== TOKEN.OPERATOR &&
         (empty_anonymous_function ||
@@ -843,7 +843,7 @@ function Beautifier(js_source_text, options) {
       if (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD) {
         flags.declaration_statement = true;
       }
-    } else if (current_token.wanted_newline && !is_expression(flags.mode) &&
+    } else if (current_token.newlines && !is_expression(flags.mode) &&
       (last_type !== TOKEN.OPERATOR || (flags.last_text === '--' || flags.last_text === '++')) &&
       last_type !== TOKEN.EQUALS &&
       (opt.preserve_newlines || !(last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
@@ -948,7 +948,7 @@ function Beautifier(js_source_text, options) {
       } else {
         if (opt.brace_style === "expand" ||
           opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.wanted_newline)) {
+          (opt.brace_style === "none" && current_token.newlines)) {
           prefix = 'NEWLINE';
         } else {
           prefix = 'SPACE';
@@ -991,7 +991,7 @@ function Beautifier(js_source_text, options) {
       if ((!(last_type === TOKEN.END_BLOCK && previous_flags.mode === MODE.BlockStatement) ||
           opt.brace_style === "expand" ||
           opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.wanted_newline)) &&
+          (opt.brace_style === "none" && current_token.newlines)) &&
         !flags.inline_frame) {
         print_newline();
       } else {
@@ -1234,7 +1234,7 @@ function Beautifier(js_source_text, options) {
           output.space_before_token = true;
 
           if (!isColon || isTernaryColon) {
-            if (tokens.peek().wanted_newline) {
+            if (tokens.peek().newlines) {
               print_newline(false, true);
             } else {
               allow_wrap_or_preserved_newline();
@@ -1284,7 +1284,7 @@ function Beautifier(js_source_text, options) {
 
       // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
       // if there is a newline between -- or ++ and anything else we should preserve it.
-      if (current_token.wanted_newline && (current_token.text === '--' || current_token.text === '++')) {
+      if (current_token.newlines && (current_token.text === '--' || current_token.text === '++')) {
         print_newline(false, true);
       }
 
@@ -1346,7 +1346,7 @@ function Beautifier(js_source_text, options) {
     }
 
     // inline block
-    if (!acorn.newline.test(current_token.text) && !current_token.wanted_newline) {
+    if (!acorn.newline.test(current_token.text) && !current_token.newlines) {
       output.space_before_token = true;
       print_token();
       output.space_before_token = true;
@@ -1388,7 +1388,7 @@ function Beautifier(js_source_text, options) {
   }
 
   function handle_comment(preserve_statement_flags) {
-    if (current_token.wanted_newline) {
+    if (current_token.newlines) {
       print_newline(false, preserve_statement_flags);
     } else {
       output.trim(true);

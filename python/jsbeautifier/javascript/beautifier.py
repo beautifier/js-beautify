@@ -318,7 +318,7 @@ class Beautifier:
             return
 
         shouldPreserveOrForce = (
-            self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap
+            self.opts.preserve_newlines and current_token.newlines) or force_linewrap
         operatorLogicApplies = self.flags.last_text in Tokenizer.positionable_operators or current_token.text in Tokenizer.positionable_operators
 
         if operatorLogicApplies:
@@ -360,7 +360,7 @@ class Beautifier:
         if self.output.just_added_newline():
             line = self.output.current_line
             if self.opts.keep_array_indentation and self.is_array(
-                    self.flags.mode) and current_token.wanted_newline:
+                    self.flags.mode) and current_token.newlines:
                 line.push(current_token.whitespace_before)
                 self.output.space_before_token = False
             elif self.output.set_indent(self.flags.indentation_level):
@@ -436,7 +436,7 @@ class Beautifier:
         start = start or (
             self.last_type == TOKEN.RESERVED and self.flags.last_text == 'do')
         start = start or (
-            self.last_type == TOKEN.RESERVED and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline)
+            self.last_type == TOKEN.RESERVED and self.flags.last_text in self._newline_restricted_tokens and not current_token.newlines)
         start = start or (
             self.last_type == TOKEN.RESERVED and self.flags.last_text == 'else' and not (
                 current_token.type == TOKEN.RESERVED and current_token.text == 'if' and \
@@ -568,7 +568,7 @@ class Beautifier:
             # TODO: Consider whether forcing this is required.  Review failing
             # tests when removed.
             self.allow_wrap_or_preserved_newline(
-                current_token, current_token.wanted_newline)
+                current_token, current_token.newlines)
 
         self.set_mode(next_mode)
         self.print_token(current_token)
@@ -670,7 +670,7 @@ class Beautifier:
             while (do_loop):
                 index += 1
                 check_token = self.get_token(index)
-                if check_token.wanted_newline:
+                if check_token.newlines:
                     self.flags.inline_frame = False
 
                 do_loop = (
@@ -678,7 +678,7 @@ class Beautifier:
          check_token.type == TOKEN.END_BLOCK and check_token.opened == current_token))
 
         if (self.opts.brace_style == 'expand' or (self.opts.brace_style ==
-                                                  'none' and current_token.wanted_newline)) and not self.flags.inline_frame:
+                                                  'none' and current_token.newlines)) and not self.flags.inline_frame:
             if self.last_type != TOKEN.OPERATOR and (
                 empty_anonymous_function or self.last_type == TOKEN.EQUALS or (
                     self.last_type == TOKEN.RESERVED and self.is_special_word(
@@ -756,7 +756,7 @@ class Beautifier:
                     'var', 'let', 'const'] and current_token.type == TOKEN.WORD:
                 self.flags.declaration_statement = True
 
-        elif current_token.wanted_newline and \
+        elif current_token.newlines and \
                 not self.is_expression(self.flags.mode) and \
                 (self.last_type != TOKEN.OPERATOR or (self.flags.last_text == '--' or self.flags.last_text == '++')) and \
                 self.last_type != TOKEN.EQUALS and \
@@ -855,7 +855,7 @@ class Beautifier:
                 prefix = 'NEWLINE'
             else:
                 if self.opts.brace_style in ['expand', 'end-expand'] or (
-                        self.opts.brace_style == 'none' and current_token.wanted_newline):
+                        self.opts.brace_style == 'none' and current_token.newlines):
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
@@ -892,7 +892,7 @@ class Beautifier:
             if ((not (self.last_type == TOKEN.END_BLOCK and self.previous_flags.mode == MODE.BlockStatement))
                 or self.opts.brace_style == 'expand'
                 or self.opts.brace_style == 'end-expand'
-                or (self.opts.brace_style == 'none' and current_token.wanted_newline)) \
+                or (self.opts.brace_style == 'none' and current_token.newlines)) \
                and not self.flags.inline_frame:
                 self.print_newline()
             else:
@@ -1120,7 +1120,7 @@ class Beautifier:
                 self.output.space_before_token = True
 
                 if (not isColon) or isTernaryColon:
-                    if self.get_token(1).wanted_newline:
+                    if self.get_token(1).newlines:
                         self.print_newline(preserve_statement_flags=True)
                     else:
                         self.allow_wrap_or_preserved_newline(current_token)
@@ -1166,7 +1166,7 @@ class Beautifier:
             # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
-            if current_token.wanted_newline and (
+            if current_token.newlines and (
                     current_token.text == '--' or current_token.text == '++'):
                 self.print_newline(preserve_statement_flags=True)
 
@@ -1231,7 +1231,7 @@ class Beautifier:
 
         # inline block
         if not self.acorn.newline.search(
-                current_token.text) and not current_token.wanted_newline:
+                current_token.text) and not current_token.newlines:
             self.output.space_before_token = True
             self.print_token(current_token)
             self.output.space_before_token = True
@@ -1268,11 +1268,11 @@ class Beautifier:
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
     def handle_comment(self, current_token, preserve_statement_flags):
-        if current_token.wanted_newline:
+        if current_token.newlines:
             self.print_newline(
                 preserve_statement_flags=preserve_statement_flags)
 
-        if not current_token.wanted_newline:
+        if not current_token.newlines:
             self.output.trim(True)
 
         self.output.space_before_token = True
