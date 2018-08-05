@@ -28,10 +28,12 @@
 
 
 function Directives(start_block_pattern, end_block_pattern) {
-  var directives_block_pattern = new RegExp(start_block_pattern.source + / beautify( \w+[:]\w+)+ /.source + end_block_pattern.source, 'g');
+  start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
+  end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
+  var directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
   var directive_pattern = / (\w+)[:](\w+)/g;
 
-  var directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern.source + '\\sbeautify\\signore:end\\s' + end_block_pattern.source + ')|$)', 'g');
+  var directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
 
   this.get_directives = function(text) {
     if (!text.match(directives_block_pattern)) {

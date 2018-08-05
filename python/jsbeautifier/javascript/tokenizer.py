@@ -25,6 +25,7 @@
 import re
 from ..core.inputscanner import InputScanner
 from ..core.token import Token
+from ..core.directives import Directives
 
 
 class TokenTypes:
@@ -103,11 +104,7 @@ class Tokenizer:
         self.comment_pattern = re.compile(
             self.acorn.six.u(r'([^\n\r\u2028\u2029]*)'))
 
-        self.directives_block_pattern = re.compile(
-            r'\/\* beautify( \w+[:]\w+)+ \*\/')
-        self.directive_pattern = re.compile(r' (\w+)[:](\w+)')
-        self.directives_end_ignore_pattern = re.compile(
-            r'([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
+        self.directives_core = Directives(r'/\*', r'\*/')
 
         self.template_pattern = re.compile(
             r'((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
@@ -167,19 +164,6 @@ class Tokenizer:
             self.tokens.append(next)
             last = next
         return self.tokens
-
-    def get_directives(self, text):
-        if not self.directives_block_pattern.match(text):
-            return None
-
-        directives = {}
-        directive_match = self.directive_pattern.search(text)
-        while directive_match:
-            directives[directive_match.group(1)] = directive_match.group(2)
-            directive_match = self.directive_pattern.search(
-                text, directive_match.end())
-
-        return directives
 
     def __tokenize_next(self):
 
@@ -249,11 +233,9 @@ class Tokenizer:
                 comment_match = self.input.match(self.block_comment_pattern)
                 comment = '/*' + comment_match.group(0)
 
-                directives = self.get_directives(comment)
+                directives = self.directives_core.get_directives(comment)
                 if directives and directives.get('ignore') == 'start':
-                    comment_match = self.input.match(
-                        self.directives_end_ignore_pattern)
-                    comment += comment_match.group(0)
+                    comment += self.directives_core.readIgnored(self.input)
                 comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
                 return comment, TOKEN.BLOCK_COMMENT, directives
 
