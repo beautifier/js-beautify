@@ -103,13 +103,17 @@ function InputScanner(input_string) {
     return val;
   };
 
-  this.readUntil = function(pattern) {
+  this.readUntil = function(pattern, include_match) {
     var val = '';
     var match_index = _position;
     pattern.lastIndex = _position;
     var pattern_match = pattern.exec(_input);
     if (pattern_match) {
-      match_index = pattern_match.index;
+      if (include_match) {
+        match_index = pattern_match.index + pattern_match[0].length;
+      } else {
+        match_index = pattern_match.index;
+      }
     } else {
       match_index = _input_length;
     }
@@ -120,20 +124,7 @@ function InputScanner(input_string) {
   };
 
   this.readUntilAfter = function(pattern) {
-    var val = '';
-    var match_index = _position;
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match) {
-      match_index = pattern_match.index + pattern_match[0].length;
-    } else {
-      match_index = _input_length;
-    }
-
-    val = _input.substring(_position, match_index);
-    _position = match_index;
-
-    return val;
+    return this.readUntil(pattern, true);
   };
 
   /* css beautifier legacy helpers */
