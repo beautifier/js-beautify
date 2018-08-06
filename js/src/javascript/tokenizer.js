@@ -67,6 +67,9 @@ function Tokenizer(input_string, opts) {
 
   var digit = /[0-9]/;
 
+  // Dot "." must be distinguished from "..." and decimal
+  var dot_pattern = /[^\d\.]/;
+
   this.positionable_operators = (
     ">>> === !== " +
     "<< && >= ** != == <= >> || " +
@@ -78,13 +81,14 @@ function Tokenizer(input_string, opts) {
     ">>>= " +
     "... >>= <<= === >>> !== **= " +
     "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
-    "= ! , ? > < : / ^ - + * & % ~ | .";
+    "= ! ? > < : / ^ - + * & % ~ |";
 
   var punct_pattern = new RegExp(punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&").replace(/ /g, '|'), 'g');
 
   // words which should always start on new line.
   this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
   var reserved_words = this.line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
+  var reserved_word_pattern = new RegExp('^(?:' + reserved_words.join('|') + ')$');
 
   //  /* ... */ comment ends with nearest */ or end of file
   var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
@@ -140,7 +144,7 @@ function Tokenizer(input_string, opts) {
     if (resulting_string !== '') {
       if (!(last_token.type === TOKEN.DOT ||
           (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
-        in_array(resulting_string, reserved_words)) {
+        reserved_word_pattern.test(resulting_string)) {
         if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
           return this.create_token(TOKEN.OPERATOR, resulting_string);
         }
@@ -170,7 +174,12 @@ function Tokenizer(input_string, opts) {
       token = this.create_token(TOKEN.END_BLOCK, c);
     } else if (c === ';') {
       token = this.create_token(TOKEN.SEMICOLON, c);
+    } else if (c === '.' && dot_pattern.test(this._input.peek(1))) {
+      token = this.create_token(TOKEN.DOT, c);
+    } else if (c === ',') {
+      token = this.create_token(TOKEN.COMMA, c);
     }
+
     if (token) {
       this._input.next();
     }
@@ -181,12 +190,8 @@ function Tokenizer(input_string, opts) {
     var resulting_string = this._input.read(punct_pattern);
 
     if (resulting_string !== '') {
-      if (resulting_string === ',') {
-        return this.create_token(TOKEN.COMMA, resulting_string);
-      } else if (resulting_string === '=') {
+      if (resulting_string === '=') {
         return this.create_token(TOKEN.EQUALS, resulting_string);
-      } else if (resulting_string === '.') {
-        return this.create_token(TOKEN.DOT, resulting_string);
       } else {
         return this.create_token(TOKEN.OPERATOR, resulting_string);
       }
@@ -232,19 +237,21 @@ function Tokenizer(input_string, opts) {
 
       this._input.back();
 
-    } else if (c === '<' && (this._input.peek(1) === '?' || this._input.peek(1) === '%')) {
-      resulting_string = this._input.read(template_pattern);
-      if (resulting_string) {
-        resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
-        return this.create_token(TOKEN.STRING, resulting_string);
+    } else if (c === '<') {
+      if (this._input.peek(1) === '?' || this._input.peek(1) === '%') {
+        resulting_string = this._input.read(template_pattern);
+        if (resulting_string) {
+          resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
+          return this.create_token(TOKEN.STRING, resulting_string);
+        }
+      } else if (this._input.match(/<\!--/g)) {
+        c = '<!--';
+        while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
+          c += this._input.next();
+        }
+        in_html_comment = true;
+        return this.create_token(TOKEN.COMMENT, c);
       }
-    } else if (c === '<' && this._input.match(/<\!--/g)) {
-      c = '<!--';
-      while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
-        c += this._input.next();
-      }
-      in_html_comment = true;
-      return this.create_token(TOKEN.COMMENT, c);
     } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
       in_html_comment = false;
       return this.create_token(TOKEN.COMMENT, '-->');

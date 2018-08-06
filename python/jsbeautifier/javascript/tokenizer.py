@@ -76,7 +76,7 @@ class Tokenizer(BaseTokenizer):
     line_starters = frozenset(
         ('continue,try,throw,return,var,let,const,if,switch,case,default,for,' +
         'while,break,function,import,export').split(','))
-    reserved_words = frozenset(line_starters) | frozenset(['do',
+    reserved_words = line_starters | frozenset(['do',
                                       'in',
                                       'of',
                                       'else',
@@ -91,6 +91,8 @@ class Tokenizer(BaseTokenizer):
                                       'await',
                                       'from',
                                       'as'])
+
+    reserved_word_pattern = re.compile(r'^(?:' + '|'.join(reserved_words) + r')$')
 
     def __init__(self, input_string, opts, indent_string):
         BaseTokenizer.__init__(self, input_string)
@@ -138,7 +140,7 @@ class Tokenizer(BaseTokenizer):
             if not (last_token.type == TOKEN.DOT or (
                     last_token.type == TOKEN.RESERVED and last_token.text in [
                         'set',
-                        'get'])) and resulting_string in self.reserved_words:
+                        'get'])) and self.reserved_word_pattern.match(resulting_string):
                 if resulting_string in ['in', 'of']:  # in and of are operators, need to hack
                     return self.create_token(TOKEN.OPERATOR, resulting_string)
 
