@@ -7,6 +7,15 @@ If you find a bug, please report it, including environment and examples of curre
 ## How to Make Changes (Implement Fixes and New Features)
 Fixes and enhancements are totally welcome.  We prefer you to file an issue before filing a PR, as this gives us chance to discuss design details, but feel free to dive right in.
 
+### 0. Prereqisites for development
+
+* bash 
+* make
+* nodejs - v10.x (with npm)
+* python - v2.7.x or v3.x (with pip)
+
+If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help. 
+
 ### 1. Build and Test Locally
 This repository holds two mostly identical implementations of the beautifiers: a JavaScript implementation and a Python implementation.
 While developing, you may locally build and test the JavaScript or Python (or both). The HTML beautifier is only implemented in JavaScript.
@@ -14,13 +23,12 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Familiarize yourself with the folder structure and code style before you dive in.
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
-  * Run `./build js`
-  * Run `./build static` to see changes served locally at `http://localhost:8080`
+  * Run `make static` to see changes served locally at `http://localhost:8080`
   * To load a debug (human readable) version of the beautifier, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
-  * Run `./build py`
+  * Run `make py`
 * Add tests to `/test/data/*/test.js`.
-* Run `./build jstest` or `./build pytest` to run style checks, and to generate and run tests.
+* Run `make jstest` or `make pytest` to run style checks, and to generate and run tests.
 * Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
 
 ### 2. Ensure Feature Parity
@@ -28,7 +36,7 @@ Any changes made to one implementation must be also made to the other implementa
 
 The implementations are already very similar and neither Python nor JavaScript are that hard to understand.  Take the plunge, it is easier than you think.  If you get stuck, go ahead and file a Pull Request and we can discuss how to move forward.
 
-* Run `./build` (with no parameters) to run style checks, and to generate and run tests on both implementations.
+* Run `make` (with no parameters) to run style checks, and to generate and run tests on both implementations.
 * Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
 
 ### 3. Update Documentation and Tools
@@ -37,7 +45,7 @@ Also, check if your change needs any tooling updates.  For example, the CDN URLs
 
 ### 4. Submit a Pull Request
 
-* Run `./build full` locally after commit but before creation of Pull Request.  You may start a Pull Request even if this reports errors, but the PR will not be merged until all errors are fixed.
+* Run `make ci` locally after commit but before creation of Pull Request.  You may start a Pull Request even if this reports errors, but the PR will not be merged until all errors are fixed.
 * Include description of changes. Include examples of input and expected output if possible.
 * Pull requests must pass build checks on all platforms before being merged. We use Travis CI and AppVeyor to run tests on Linux and Windows across multiple versions of Node.js and Python.
 
@@ -73,7 +81,7 @@ This project has been around for a while.  While some parts have improved signif
 into disrepair and were mothballed. All branches named `attic-*` are significantly out of date and kept for reference purposes only.
 
 ### PHP
-`attic-php` contains a PHP implmenetation of the beautifier. 
+`attic-php` contains a PHP implmenetation of the beautifier.
 If you're interested in using it feel free.
 If you plan to enhance it, please consider joining this project, and updating this version to match current functionality.
 
@@ -83,7 +91,7 @@ Take a look and feel free to resurrect them, but know it's pretty dusty back the
 
 ### Generic Eval Unpacker
 The `attic-genericeval` branch includes an unpacker that calls `eval` on whatever source is passed to it.
-This file may be useful when working with source that unpacks itself when `eval` is called on it, but is also very unsafe.  
+This file may be useful when working with source that unpacks itself when `eval` is called on it, but is also very unsafe.
 We have isolated it on this separate branch to keep it from hurting the other children.
 
 # How to publish a new version
@@ -107,9 +115,9 @@ To publish a release:
 * Close the Milestone for this release on github
 * Run `./tools/release-all.sh <version>`.
 
-This is script will: 
+This is script will:
 
-* Update README.md with correct cdn links 
+* Update README.md with correct cdn links
 * Update CHANGLOG.md with the milestone description and a list of closed issues
 * Publish the python version to PyPI
 * Publish the javascript version to npm
@@ -120,7 +128,7 @@ so if you publish a Python release, you publish a Node release as well.
 
 ## Publish to Beta Channel
 
-To publish a Beta or RC (Release Candidate), add `-beta1` or `-rc1` to the end of the version, incrementing the number on the end as needed. 
+To publish a Beta or RC (Release Candidate), add `-beta1` or `-rc1` to the end of the version, incrementing the number on the end as needed.
 
 
 

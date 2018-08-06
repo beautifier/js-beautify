@@ -71,11 +71,12 @@ if (typeof define === "function" && define.amd) {
   });
 } else {
   (function(mod) {
-    var js_beautify = require('./lib/beautify');
-    var css_beautify = require('./lib/beautify-css');
-    var html_beautify = require('./lib/beautify-html');
+    var beautifier = require('./src/index');
+    beautifier.js_beautify = beautifier.js;
+    beautifier.css_beautify = beautifier.css;
+    beautifier.html_beautify = beautifier.html;
 
-    mod.exports = get_beautify(js_beautify, css_beautify, html_beautify);
+    mod.exports = get_beautify(beautifier, beautifier, beautifier);
 
   })(module);
 }

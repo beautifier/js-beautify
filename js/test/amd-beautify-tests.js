@@ -15,7 +15,7 @@ requirejs.config({
 });
 
 function amd_beautifier_index_tests(name, test_runner) {
-  console.log('Testing ' + name + ' with node.js Require.js (index file)...');
+  console.log('Testing ' + name + ' with node.js Require.js (index)...');
   var results = new SanityTest();
   var beautify = requirejs('beautify/index');
 
@@ -27,11 +27,11 @@ function amd_beautifier_index_tests(name, test_runner) {
     beautify.css);
 
   console.log(results.results_raw());
-  return results;
+  return results.get_exitcode();
 }
 
-function amd_beautifier_tests(name, test_runner) {
-  console.log('Testing ' + name + ' with node.js Require.js (separate file)...');
+function amd_beautifier_bundle_tests(name, test_runner) {
+  console.log('Testing ' + name + ' with node.js Require.js (bundle)...');
   var results = new SanityTest();
   var js_beautify = requirejs('beautify-lib/beautify'),
     css_beautify = requirejs('beautify-lib/beautify-css'),
@@ -45,18 +45,19 @@ function amd_beautifier_tests(name, test_runner) {
     css_beautify.css_beautify);
 
   console.log(results.results_raw());
-  return results;
+  return results.get_exitcode();
 }
 
 
 
 if (require.main === module) {
-  process.exit(
-    amd_beautifier_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-    amd_beautifier_index_tests('js-beautifier', run_javascript_tests).get_exitcode() +
-    amd_beautifier_tests('cs-beautifier', run_css_tests).get_exitcode() +
-    amd_beautifier_index_tests('css-beautifier', run_css_tests).get_exitcode() +
-    amd_beautifier_tests('html-beautifier', run_html_tests).get_exitcode() +
-    amd_beautifier_index_tests('html-beautifier', run_html_tests).get_exitcode()
-  );
+  var exit = 0;
+  exit = exit || amd_beautifier_bundle_tests('js-beautifier', run_javascript_tests);
+  exit = exit || amd_beautifier_bundle_tests('cs-beautifier', run_css_tests);
+  exit = exit || amd_beautifier_bundle_tests('html-beautifier', run_html_tests);
+  exit = exit || amd_beautifier_index_tests('js-beautifier', run_javascript_tests);
+  exit = exit || amd_beautifier_index_tests('css-beautifier', run_css_tests);
+  exit = exit || amd_beautifier_index_tests('html-beautifier', run_html_tests);
+
+  process.exit(exit);
 }

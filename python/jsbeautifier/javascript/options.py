@@ -22,6 +22,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 class BeautifierOptions:
     def __init__(self):
         self.indent_size = 4
@@ -56,10 +57,9 @@ class BeautifierOptions:
         self.test_output_raw = False
         self.editorconfig = False
 
-
     def __repr__(self):
         return \
-"""indent_size = %d
+            """indent_size = %d
 indent_char = [%s]
 preserve_newlines = %s
 max_preserve_newlines = %d
@@ -72,17 +72,17 @@ keep_array_indentation = %s
 eval_code = %s
 wrap_line_length = %s
 unescape_strings = %s
-""" % ( self.indent_size,
-        self.indent_char,
-        self.preserve_newlines,
-        self.max_preserve_newlines,
-        self.space_in_paren,
-        self.jslint_happy,
-        self.space_after_anon_function,
-        self.indent_with_tabs,
-        self.brace_style,
-        self.keep_array_indentation,
-        self.eval_code,
-        self.wrap_line_length,
-        self.unescape_strings,
-        )
+""" % (self.indent_size,
+                self.indent_char,
+                self.preserve_newlines,
+                self.max_preserve_newlines,
+                self.space_in_paren,
+                self.jslint_happy,
+                self.space_after_anon_function,
+                self.indent_with_tabs,
+                self.brace_style,
+                self.keep_array_indentation,
+                self.eval_code,
+                self.wrap_line_length,
+                self.unescape_strings,
+       )

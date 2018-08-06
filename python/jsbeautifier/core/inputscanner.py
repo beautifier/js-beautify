@@ -24,10 +24,10 @@
 
 
 class InputScanner:
-    def __init__(self, input):
-        if input is None:
-            input = ''
-        self.__input = input
+    def __init__(self, input_string):
+        if input_string is None:
+            input_string = ''
+        self.__input = input_string
         self.__input_length = len(self.__input)
         self.__position = 0
 
@@ -44,39 +44,81 @@ class InputScanner:
             val = self.__input[self.__position]
             self.__position += 1
 
-        return val;
+        return val
 
-    def peek(self, index = 0):
+    def peek(self, index=0):
         val = None
-        index += self.__position;
+        index += self.__position
         if index >= 0 and index < self.__input_length:
-            val = self.__input[index];
-
-        return val;
-
-    def peekCharCode(self, index = 0):
-        # basically here for acorn
-        val = 0
-        index += self.__position;
-        if index >= 0 and index < self.__input_length:
-            val = ord(self.__input[index])
+            val = self.__input[index]
 
         return val
 
-    def test(self, pattern, index = 0):
-        index += self.__position;
-        return index >= 0 and index < self.__input_length and pattern.match(self.__input, index)
+    def test(self, pattern, index=0):
+        index += self.__position
+        return index >= 0 and index < self.__input_length and bool(
+            pattern.match(self.__input, index))
 
-    def testChar(self, pattern, index = 0):
+    def testChar(self, pattern, index=0):
         # test one character regex match
         val = self.peek(index)
-        return val != None and pattern.match(val)
+        return val is not None and pattern.match(val)
 
     def match(self, pattern):
         pattern_match = None
         if self.hasNext():
             pattern_match = pattern.match(self.__input, self.__position)
-            if pattern_match:
-                self.__position += len(pattern_match.group(0));
-
+            if bool(pattern_match):
+                self.__position = pattern_match.end(0)
         return pattern_match
+
+    def readWhile(self, pattern):
+        val = ''
+        pattern_match = self.match(pattern)
+        if bool(pattern_match):
+            val = pattern_match.group(0)
+        return val
+
+    def readUntil(self, pattern):
+        val = ''
+        pattern_match = None
+        match_index = self.__position
+        if self.hasNext():
+            pattern_match = pattern.search(self.__input, self.__position)
+            if bool(pattern_match):
+                match_index = pattern_match.start(0)
+            else:
+                match_index = self.__input_length
+
+            val = self.__input[self.__position:match_index]
+            self.__position = match_index
+
+        return val
+
+    def readUntilAfter(self, pattern):
+        val = ''
+        pattern_match = None
+        match_index = self.__position
+        if self.hasNext():
+            pattern_match = pattern.search(self.__input, self.__position)
+            if bool(pattern_match):
+                match_index = pattern_match.end(0)
+            else:
+                match_index = self.__input_length
+
+            val = self.__input[self.__position:match_index]
+            self.__position = match_index
+
+        return val
+
+    # css beautifier legacy helpers
+    def peekUntilAfter(self, pattern):
+        start = self.__position
+        val = self.readUntilAfter(pattern)
+        self.__position = start
+        return val
+
+    def lookBack(self, testVal):
+        start = self.__position - 1
+        return start >= len(testVal) and \
+            self.__input[start - len(testVal):start].lower() == testVal

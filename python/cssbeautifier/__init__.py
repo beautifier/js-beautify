@@ -106,17 +106,18 @@ Rarely needed options:
     else:
         return 0
 
+
 def main():
 
     argv = sys.argv[1:]
 
     try:
         opts, args = getopt.getopt(argv, "hvio:rs:c:e:tn",
-            ['help', 'usage', 'version', 'stdin', 'outfile=', 'replace',
-            'indent-size=', 'indent-char=', 'eol=', 'indent-with-tabs',
-            'preserve-newlines', 'disable-selector-separator-newline',
-            'end-with-newline', 'disable-newline-between-rules',
-            'space-around-combinator'])
+                                   ['help', 'usage', 'version', 'stdin', 'outfile=', 'replace',
+                                    'indent-size=', 'indent-char=', 'eol=', 'indent-with-tabs',
+                                    'preserve-newlines', 'disable-selector-separator-newline',
+                                    'end-with-newline', 'disable-newline-between-rules',
+                                    'space-around-combinator'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -160,7 +161,6 @@ def main():
         elif opt in ('--space-around-combinator'):
             css_options.space_around_combinator = True
 
-
     if not file:
         file = '-'
 
@@ -190,10 +190,10 @@ def main():
                         f.write(pretty)
                     except TypeError:
                         # This is not pretty, but given how we did the version import
-                        # it is the only way to do this without having setup.py fail on a missing six dependency.
+                        # it is the only way to do this without having setup.py
+                        # fail on a missing six dependency.
                         six = __import__("six")
                         f.write(six.u(pretty))
-
 
     except Exception as ex:
         print(ex, file=sys.stderr)

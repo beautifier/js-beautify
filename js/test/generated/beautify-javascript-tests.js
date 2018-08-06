@@ -3441,6 +3441,39 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    new Date().getTime()\n' +
             '].join("-");');
         
+        // Issue 1374 - Parameters starting with ! or [ merged into single line
+        bt(
+            'fn(\n' +
+            '    1,\n' +
+            '    !1,\n' +
+            '    1,\n' +
+            '    [1]\n' +
+            ')');
+        
+        // Issue 1288 - Negative numbers remove newlines in array
+        bt(
+            'var array = [\n' +
+            '    -1,\n' +
+            '    0,\n' +
+            '    "a",\n' +
+            '    -2,\n' +
+            '    1,\n' +
+            '    -3,\n' +
+            '];');
+        
+        // Issue 1229 - Negated expressions in array
+        bt(
+            'a = [\n' +
+            '    true && 1,\n' +
+            '    true && 1,\n' +
+            '    true && 1\n' +
+            ']\n' +
+            'a = [\n' +
+            '    !true && 1,\n' +
+            '    !true && 1,\n' +
+            '    !true && 1\n' +
+            ']');
+        
         // Issue #996 - Input ends with backslash throws exception
         test_fragment(
             'sd = 1;\n' +
@@ -3498,6 +3531,24 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    .nothing() // comment\n' +
             '\n' +
             '    .more()');
+        
+        // Issue #1107 - Missing space between words for label
+        bt(
+            'function f(a) {c: do if (x) {} else if (y) {} while(0); return 0;}',
+            //  -- output --
+            'function f(a) {\n' +
+            '    c: do\n' +
+            '        if (x) {} else if (y) {}\n' +
+            '    while (0);\n' +
+            '    return 0;\n' +
+            '}');
+        bt(
+            'function f(a) {c: if (x) {} else if (y) {} return 0;}',
+            //  -- output --
+            'function f(a) {\n' +
+            '    c: if (x) {} else if (y) {}\n' +
+            '    return 0;\n' +
+            '}');
 
 
         //============================================================

@@ -55,7 +55,7 @@ exports.test_data = {
         { fragment: true, input: '   .tabs{}', output: '   .tabs {}{{eof}}' },
         { fragment: true, input: '   \n\n.tabs{}\n\n\n\n', output: '   .tabs {}{{eof}}' },
         { fragment: true, input: '\n', output: '{{eof}}' }
-      ],
+      ]
     }, {
       name: "Empty braces",
       description: "",
@@ -65,14 +65,14 @@ exports.test_data = {
         { input: '.tabs    {    }', output: '.tabs {}' },
         // When we support preserving newlines this will need to change
         { input: '.tabs    \n{\n    \n  }', output: '.tabs {}' }
-      ],
+      ]
     }, {
       name: "",
       description: "",
       tests: [{
         input: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
         output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
-      }, ],
+      }]
     }, {
       name: "Support simple language specific option inheritance/overriding",
       description: "Support simple language specific option inheritance/overriding",
@@ -83,7 +83,7 @@ exports.test_data = {
             { name: "js", value: "{ 'indent_size': 3 }" },
             { name: "css", value: "{ 'indent_size': 5 }" }
           ],
-          c: '     ',
+          c: '     '
         },
         {
           options: [
@@ -217,18 +217,18 @@ exports.test_data = {
           { name: "preserve_newlines", value: "true" }
         ],
         separator_input: '\\n\\n',
-        separator_output: '\\n\\n',
+        separator_output: '\\n\\n'
       }, {
         options: [
           { name: "preserve_newlines", value: "false" }
         ],
         separator_input: '\\n\\n',
-        separator_output: '\\n',
+        separator_output: '\\n'
       }],
       tests: [
         { input: '.div {}{{separator_input}}.span {}', output: '.div {}{{separator_output}}.span {}' },
         { input: '#bla, #foo{\n\tcolor:black;{{separator_input}}\tfont-size: 12px;\n}', output: '#bla,\n#foo {\n\tcolor: black;{{separator_output}}\tfont-size: 12px;\n}' }
-      ],
+      ]
     },
     {
       name: "Preserve Newlines and newline_between_rules",
@@ -247,8 +247,8 @@ exports.test_data = {
         { unchanged: 'html {}\n\n/*this is a comment*/' },
         { unchanged: '.div {\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
         { unchanged: '.div {\n\n\n\ta: 1;\n\n\n\tb: 2;\n}\n\n\n\n.span {\n\ta: 1;\n}' },
-        { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' },
-      ],
+        { unchanged: '@media screen {\n\t.div {\n\t\ta: 1;\n\n\n\t\tb: 2;\n\t}\n\n\n\n\t.span {\n\t\ta: 1;\n\t}\n}\n\n.div {}\n\n.span {}' }
+      ]
     }, {
       name: "Preserve Newlines and add tabs",
       options: [{ name: "preserve_newlines", value: "true" }],
@@ -256,7 +256,7 @@ exports.test_data = {
       tests: [{
         input: '.tool-tip {\n\tposition: relative;\n\n\t\t\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\t\t\n\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}',
         output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\\n\\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
-      }],
+      }]
     }, {
       name: "Newline Between Rules",
       description: "",
@@ -285,8 +285,8 @@ exports.test_data = {
         { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
         { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}{{new_rule}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}' },
         { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-        { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-      ],
+        { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' }
+      ]
     }, {
       name: "Functions braces",
       description: "",
@@ -299,7 +299,7 @@ exports.test_data = {
         { input: '.tabs(   )   {    }', output: '.tabs() {}' },
         { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
         { unchanged: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
-      ],
+      ]
     },
     {
       name: "Comments",
@@ -542,9 +542,8 @@ exports.test_data = {
         {
           input: 'a:first-child{<i>color:red;<i>div:not(.peq){<i>color:black;<i>}<i>}<i>.div{<i>height:15px;<i>}',
           output: 'a:first-child {<o>\tcolor: red;<o>\tdiv:not(.peq) {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
-        },
-
-      ],
+        }
+      ]
     },
     {
       name: "Handle LESS property name interpolation",
@@ -558,8 +557,8 @@ exports.test_data = {
           unchanged: 'tag {\n\tdynamic-@{prop}: none;\n}'
         },
         { input: 'tag{dynamic-@{prop}:none;}', output: 'tag {\n\tdynamic-@{prop}: none;\n}' },
-        { input: 'tag{ dynamic-@{prop}: none;}', output: 'tag {\n\tdynamic-@{prop}: none;\n}' },
-      ],
+        { input: 'tag{ dynamic-@{prop}: none;}', output: 'tag {\n\tdynamic-@{prop}: none;\n}' }
+      ]
     }, {
       name: "Handle LESS property name interpolation, test #631",
       description: "",
@@ -569,7 +568,7 @@ exports.test_data = {
           input: '.generate-columns(@n,@i:1) when (@i =< @n){.column-@{i}{width:(@i * 100% / @n);}.generate-columns(@n,(@i + 1));}',
           output: '.generate-columns(@n, @i: 1) when (@i =< @n) {\n\t.column-@{i} {\n\t\twidth: (@i * 100% / @n);\n\t}\n\t.generate-columns(@n, (@i + 1));\n}'
         }
-      ],
+      ]
     }, {
       name: "Handle LESS function parameters",
       description: "",
@@ -577,7 +576,7 @@ exports.test_data = {
         { input: 'div{.px2rem(width,12);}', output: 'div {\n\t.px2rem(width, 12);\n}' },
         //mixin next to 'background: url("...")' should not add a linebreak after the comma
         { unchanged: 'div {\n\tbackground: url("//test.com/dummy.png");\n\t.px2rem(width, 12);\n}' }
-      ],
+      ]
     }, {
       name: "Psuedo-classes vs Variables",
       description: "",
@@ -588,7 +587,28 @@ exports.test_data = {
           output: '@page: first {}'
         },
         { unchanged: '@page: first {}' }
-      ],
+      ]
+    }, {
+      name: "Issue 1411 -- LESS Variable Assignment Spacing",
+      description: "",
+      tests: [{
+          unchanged: [
+            '@set: {',
+            '\tone: blue;',
+            '\ttwo: green;',
+            '\tthree: red;',
+            '}',
+            '.set {',
+            '\teach(@set, {',
+            '\t\t@{key}-@{index}: @value;',
+            '\t}',
+            // This is not optimal formatting, included to document current behavior.
+            '\t);',
+            '}'
+          ]
+        },
+        { unchanged: '@light-blue: @nice-blue + #111;' }
+      ]
     }, {
       name: "SASS/SCSS",
       description: "",
@@ -614,11 +634,11 @@ exports.test_data = {
             '\t&:not(:first-of-type) {',
             '\t\tbackground: red;',
             '\t}',
-            '}',
+            '}'
           ]
         }
 
-      ],
+      ]
     }, {
       name: "Proper handling of colon in selectors",
       description: "Space before a colon in a selector must be preserved, as it means pseudoclass/pseudoelement on any child",

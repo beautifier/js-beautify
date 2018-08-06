@@ -9,7 +9,7 @@ test_cli_common()
   echo ----------------------------------------
   echo Testing common cli behavior...
   CLI_SCRIPT_NAME=${1:?missing_param}.js
-  CLI_SCRIPT=$SCRIPT_DIR/../bin/$CLI_SCRIPT_NAME
+  CLI_SCRIPT=${2:-$SCRIPT_DIR/../bin/$CLI_SCRIPT_NAME}
   echo Script: $CLI_SCRIPT
 
   # should find the minimal help output
@@ -75,7 +75,7 @@ test_cli_js_beautify()
 {
   echo ----------------------------------------
   echo Testing js-beautify cli behavior...
-  CLI_SCRIPT=$SCRIPT_DIR/../bin/js-beautify.js
+  CLI_SCRIPT=${1:-$SCRIPT_DIR/../bin/js-beautify.js}
 
   $CLI_SCRIPT $SCRIPT_DIR/../bin/js-beautify.js > /dev/null || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected succeed."
@@ -357,40 +357,20 @@ test_cli_js_beautify()
   cleanup
 }
 
-test_smoke_js_beautify()
-{
-  echo ----------------------------------------
-  echo Testing js-beautify functionality...
-  node $SCRIPT_DIR/node-beautify-tests.js || exit 1
-  node $SCRIPT_DIR/amd-beautify-tests.js || exit 1
-}
 
 
-test_performance_js_beautify()
-{
-  echo ----------------------------------------
-  echo Testing js-beautify performance...
-  node $SCRIPT_DIR/node-beautify-perf-tests.js || exit 1
-  echo ----------------------------------------
-}
 
-test_performance_html_beautify()
-{
-  echo ----------------------------------------
-  echo Testing html-beautify performance...
-  node $SCRIPT_DIR/node-beautify-html-perf-tests.js || exit 1
-  echo ----------------------------------------
-}
-
-test_smoke_js_beautify || exit 1
 
 test_cli_common css-beautify
 test_cli_common html-beautify
 test_cli_common js-beautify
 
+test_cli_common css-beautify $SCRIPT_DIR/../../build/node_modules/.bin/css-beautify
+test_cli_common html-beautify $SCRIPT_DIR/../../build/node_modules/.bin/html-beautify
+test_cli_common js-beautify $SCRIPT_DIR/../../build/node_modules/.bin/js-beautify
+
+
 test_cli_js_beautify
-test_performance_js_beautify
-test_performance_html_beautify
 
 echo ----------------------------------------
 echo $0 - PASSED.

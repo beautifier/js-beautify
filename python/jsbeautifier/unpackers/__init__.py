@@ -12,10 +12,12 @@ from jsbeautifier.unpackers import evalbased
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
 BLACKLIST = ['jsbeautifier.unpackers.evalbased']
 
+
 class UnpackingError(Exception):
     """Badly packed source or general error. Argument is a
     meaningful description."""
     pass
+
 
 def getunpackers():
     """Scans the unpackers dir, finds unpackers and add them to UNPACKERS list.
@@ -35,9 +37,11 @@ def getunpackers():
             else:
                 unpackers.append(module)
 
-    return sorted(unpackers, key = lambda mod: mod.PRIORITY)
+    return sorted(unpackers, key=lambda mod: mod.PRIORITY)
+
 
 UNPACKERS = getunpackers()
+
 
 def run(source, evalcode=False):
     """Runs the applicable unpackers and return unpacked source as a string."""
@@ -46,6 +50,7 @@ def run(source, evalcode=False):
     if evalcode and evalbased.detect(source):
         source = evalbased.unpack(source)
     return source
+
 
 def filtercomments(source):
     """NOT USED: strips trailing comments and put them at the top."""

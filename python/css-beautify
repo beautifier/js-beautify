@@ -5,4 +5,3 @@
 import sys
 from cssbeautifier import main
 sys.exit(main())
-
