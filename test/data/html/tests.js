@@ -941,7 +941,7 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Single line comment after closing tag",
+    name: "Issue 1478 - Space handling inside self closing tag",
     description: "Properly indent following text after self closing tags regardless of space",
     options: [],
     tests: [{
@@ -960,7 +960,7 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Issue 1352 - Space handling inside self closing tag",
+    name: "Single line comment after closing tag",
     description: "Keep single line comments as they are after closing tags",
     options: [],
     tests: [{

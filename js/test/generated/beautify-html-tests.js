@@ -3569,7 +3569,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Single line comment after closing tag
+        // Issue 1478 - Space handling inside self closing tag
         reset_options();
         test_fragment(
             '<div>\n' +
@@ -3584,7 +3584,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Issue 1352 - Space handling inside self closing tag
+        // Single line comment after closing tag
         reset_options();
         test_fragment(
             '<div class="col">\n' +
