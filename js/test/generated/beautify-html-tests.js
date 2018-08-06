@@ -3572,6 +3572,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Single line comment after closing tag
         reset_options();
         test_fragment(
+            '<div>\n' +
+            '    <br/>\n' +
+            '    <br />\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <br />\n' +
+            '    <br />\n' +
+            '</div>');
+
+
+        //============================================================
+        // Issue 1352 - Space handling inside self closing tag
+        reset_options();
+        test_fragment(
             '<div class="col">\n' +
             '    <div class="row">\n' +
             '        <div class="card">\n' +

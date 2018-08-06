@@ -341,7 +341,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         space = false,
         first_attr = true,
         has_wrapped_attrs = false,
-        tag_readinging_finished = false,
+        tag_reading_finished = false,
         tag_start_char,
         tag_check = '',
         is_tag_closed = false;
@@ -356,7 +356,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         input_char = this.get_comment();
         tag_check = input_char.match(/^<([^\s>]+)/)[1];
         content = [input_char];
-        tag_readinging_finished = true;
+        tag_reading_finished = true;
 
       } else if (indent_handlebars && peek === '{' && peek1 === '{' && peek2 === '!') { //if we're in a comment, do something special
         // We treat all comments as literals, even more than preformatted tags
@@ -365,11 +365,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         input_char = this.get_comment();
         tag_check = input_char.match(/^{{([^\s}]+)/)[1];
         content = [input_char];
-        tag_readinging_finished = true;
+        tag_reading_finished = true;
       } else if (peek === '<') {
         content.push(this.input.next());
         tag_start_char = '<';
-        tag_check = this.input.readUntil(/[\s>{]/g);
+        tag_check = this.input.readWhile(/[^\s>{][^\s>{/]*/g);
         content.push(tag_check);
         tag_check = tag_check.toLowerCase();
         space = true;
@@ -400,7 +400,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       }
       this.line_char_count += content.join('').length;
 
-      if (!tag_readinging_finished) {
+      if (!tag_reading_finished) {
         while (this.input.hasNext()) {
           input_char = this.input.next();
 
