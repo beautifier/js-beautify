@@ -27,7 +27,6 @@
 */
 
 var InputScanner = require('../core/inputscanner').InputScanner;
-var Token = require('../core/token').Token;
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var acorn = require('../core/acorn');
@@ -54,6 +53,8 @@ var TOKEN = {
   COMMENT: 'TK_COMMENT',
   DOT: 'TK_DOT',
   UNKNOWN: 'TK_UNKNOWN',
+  START: BASETOKEN.START,
+  RAW: BASETOKEN.RAW,
   EOF: BASETOKEN.EOF
 };
 
@@ -66,10 +67,20 @@ function Tokenizer(input_string, opts) {
 
   var digit = /[0-9]/;
 
-  this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
-  var punct = this.positionable_operators.concat(
-    // non-positionable operators - these do not follow operator position settings
-    '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '));
+  this.positionable_operators = (
+    ">>> === !== " +
+    "<< && >= ** != == <= >> || " +
+    "< / - + > : & % ? ^ | *").split(' ');
+
+  // IMPORTANT: this must be sorted longest to shortest or tokenizing many not work.
+  // Also, you must update possitionable operators separately from punct
+  var punct =
+    ">>>= " +
+    "... >>= <<= === >>> !== **= " +
+    "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
+    "= ! , ? > < : / ^ - + * & % ~ | .";
+
+  var punct_pattern = new RegExp(punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&").replace(/ /g, '|'), 'g');
 
   // words which should always start on new line.
   this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -105,19 +116,26 @@ function Tokenizer(input_string, opts) {
     in_html_comment = false;
   };
 
-  this.get_next_token = function() {
-    var resulting_string;
-
-    var last_token;
-    if (this._tokens.isEmpty()) {
-      // For the sake of tokenizing we can pretend that there was on open brace to start
-      last_token = new Token(TOKEN.START_BLOCK, '{');
-    } else {
-      last_token = this._tokens.last();
-    }
-
+  this.get_next_token = function(last_token) {
     this.readWhitespace();
+    var token = null;
+    var c = this._input.peek();
 
+    token = token || this._read_singles(c);
+    token = token || this._read_word(last_token);
+    token = token || this._read_comment(c);
+    token = token || this._read_string(c);
+    token = token || this._read_regexp(c, last_token);
+    token = token || this._read_xml(c, last_token);
+    token = token || this._read_non_javascript(c);
+    token = token || this._read_punctuation();
+    token = token || this.create_token(TOKEN.UNKNOWN, this._input.next());
+
+    return token;
+  };
+
+  this._read_word = function(last_token) {
+    var resulting_string;
     resulting_string = this._input.read(acorn.identifier);
     if (resulting_string !== '') {
       if (!(last_token.type === TOKEN.DOT ||
@@ -136,40 +154,111 @@ function Tokenizer(input_string, opts) {
     if (resulting_string !== '') {
       return this.create_token(TOKEN.WORD, resulting_string);
     }
+  };
 
-    var c = this._input.next();
-
+  this._read_singles = function(c) {
+    var token = null;
     if (c === null) {
-      return this.create_token(TOKEN.EOF, '');
+      token = this.create_token(TOKEN.EOF, '');
+    } else if (c === '(' || c === '[') {
+      token = this.create_token(TOKEN.START_EXPR, c);
+    } else if (c === ')' || c === ']') {
+      token = this.create_token(TOKEN.END_EXPR, c);
+    } else if (c === '{') {
+      token = this.create_token(TOKEN.START_BLOCK, c);
+    } else if (c === '}') {
+      token = this.create_token(TOKEN.END_BLOCK, c);
+    } else if (c === ';') {
+      token = this.create_token(TOKEN.SEMICOLON, c);
+    }
+    if (token) {
+      this._input.next();
+    }
+    return token;
+  };
+
+  this._read_punctuation = function() {
+    var resulting_string = this._input.read(punct_pattern);
+
+    if (resulting_string !== '') {
+      if (resulting_string === ',') {
+        return this.create_token(TOKEN.COMMA, resulting_string);
+      } else if (resulting_string === '=') {
+        return this.create_token(TOKEN.EQUALS, resulting_string);
+      } else if (resulting_string === '.') {
+        return this.create_token(TOKEN.DOT, resulting_string);
+      } else {
+        return this.create_token(TOKEN.OPERATOR, resulting_string);
+      }
+    }
+  };
+
+  this._read_non_javascript = function(c) {
+    var resulting_string = '';
+
+    if (c === '#') {
+      c = this._input.next();
+
+      if (this._tokens.isEmpty() && this._input.peek() === '!') {
+        // shebang
+        resulting_string = c;
+        while (this._input.hasNext() && c !== '\n') {
+          c = this._input.next();
+          resulting_string += c;
+        }
+        return this.create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
+      }
+
+      // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
+      var sharp = '#';
+      if (this._input.hasNext() && this._input.testChar(digit)) {
+        do {
+          c = this._input.next();
+          sharp += c;
+        } while (this._input.hasNext() && c !== '#' && c !== '=');
+        if (c === '#') {
+          //
+        } else if (this._input.peek() === '[' && this._input.peek(1) === ']') {
+          sharp += '[]';
+          this._input.next();
+          this._input.next();
+        } else if (this._input.peek() === '{' && this._input.peek(1) === '}') {
+          sharp += '{}';
+          this._input.next();
+          this._input.next();
+        }
+        return this.create_token(TOKEN.WORD, sharp);
+      }
+
+      this._input.back();
+
+    } else if (c === '<' && (this._input.peek(1) === '?' || this._input.peek(1) === '%')) {
+      resulting_string = this._input.read(template_pattern);
+      if (resulting_string) {
+        resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
+        return this.create_token(TOKEN.STRING, resulting_string);
+      }
+    } else if (c === '<' && this._input.match(/<\!--/g)) {
+      c = '<!--';
+      while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
+        c += this._input.next();
+      }
+      in_html_comment = true;
+      return this.create_token(TOKEN.COMMENT, c);
+    } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
+      in_html_comment = false;
+      return this.create_token(TOKEN.COMMENT, '-->');
     }
 
+    return null;
+  };
 
-    if (c === '(' || c === '[') {
-      return this.create_token(TOKEN.START_EXPR, c);
-    }
-
-    if (c === ')' || c === ']') {
-      return this.create_token(TOKEN.END_EXPR, c);
-    }
-
-    if (c === '{') {
-      return this.create_token(TOKEN.START_BLOCK, c);
-    }
-
-    if (c === '}') {
-      return this.create_token(TOKEN.END_BLOCK, c);
-    }
-
-    if (c === ';') {
-      return this.create_token(TOKEN.SEMICOLON, c);
-    }
-
+  this._read_comment = function(c) {
+    var token = null;
     if (c === '/') {
-      var token;
       var comment = '';
-      // peek for comment /* ... */
-      if (this._input.peek() === '*') {
-        this._input.back();
+      if (this._input.peek(1) === '*') {
+        // peek for comment /* ... */
         comment = this._input.read(block_comment_pattern);
         var directives = directives_core.get_directives(comment);
         if (directives && directives.ignore === 'start') {
@@ -178,55 +267,60 @@ function Tokenizer(input_string, opts) {
         comment = comment.replace(acorn.allLineBreaks, '\n');
         token = this.create_token(TOKEN.BLOCK_COMMENT, comment);
         token.directives = directives;
-        return token;
-      }
-      // peek for comment // ...
-      if (this._input.peek() === '/') {
-        this._input.back();
+      } else if (this._input.peek(1) === '/') {
+        // peek for comment // ...
         comment = this._input.read(comment_pattern);
-        return this.create_token(TOKEN.COMMENT, comment);
+        token = this.create_token(TOKEN.COMMENT, comment);
       }
-
     }
+    return token;
+  };
 
-    var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+  this._read_string = function(c) {
+    if (c === '`' || c === "'" || c === '"') {
+      var resulting_string = this._input.next();
+      this.has_char_escapes = false;
 
-    var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-
-    function allowRegExOrXML() {
-      // regex and xml can only appear in specific locations during parsing
-      return (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
-        (last_token.type === TOKEN.END_EXPR && last_token.text === ')' &&
-          last_token.parent && last_token.parent.type === TOKEN.RESERVED && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-        (in_array(last_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
-          TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
-        ]));
-    }
-
-    var isString = (c === '`' || c === "'" || c === '"');
-    var isRegExp = (c === '/') && allowRegExOrXML();
-    var isXML = (opts.e4x && c === "<" && this._input.test(startXmlRegExp, -1)) && allowRegExOrXML();
-    var sep = c,
-      esc = false;
-
-    this.has_char_escapes = false;
-
-    resulting_string = c;
-
-
-    if (isString) {
-      if (sep === '`') {
-        resulting_string += this._read_string('`', true, '${');
+      if (c === '`') {
+        resulting_string += this._read_string_recursive('`', true, '${');
       } else {
-        resulting_string += this._read_string(sep);
+        resulting_string += this._read_string_recursive(c);
       }
 
-    } else if (isRegExp) {
+      if (this.has_char_escapes && opts.unescape_strings) {
+        resulting_string = unescape_string(resulting_string);
+      }
+      if (this._input.peek() === c) {
+        resulting_string += this._input.next();
+      }
+
+      return this.create_token(TOKEN.STRING, resulting_string);
+    }
+
+    return null;
+  };
+
+  this._allow_regexp_or_xml = function(last_token) {
+    // regex and xml can only appear in specific locations during parsing
+    return (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+      (last_token.type === TOKEN.END_EXPR && last_token.text === ')' &&
+        last_token.parent && last_token.parent.type === TOKEN.RESERVED && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
+      (in_array(last_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START,
+        TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
+      ]));
+  };
+
+  this._read_regexp = function(c, last_token) {
+
+    if (c === '/' && this._allow_regexp_or_xml(last_token)) {
       // handle regexp
       //
+      var resulting_string = this._input.next();
+      var esc = false;
+
       var in_char_class = false;
       while (this._input.hasNext() &&
-        ((esc || in_char_class || this._input.peek() !== sep) &&
+        ((esc || in_char_class || this._input.peek() !== c) &&
           !this._input.testChar(acorn.newline))) {
         resulting_string += this._input.peek();
         if (!esc) {
@@ -242,10 +336,27 @@ function Tokenizer(input_string, opts) {
         this._input.next();
       }
 
-    } else if (isXML) {
+      if (this._input.peek() === c) {
+        resulting_string += this._input.next();
+
+        // regexps may have modifiers /regexp/MOD , so fetch those, too
+        // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+        resulting_string += this._input.read(acorn.identifier);
+      }
+      return this.create_token(TOKEN.STRING, resulting_string);
+    }
+    return null;
+  };
+
+
+  var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+  var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+
+  this._read_xml = function(c, last_token) {
+
+    if (opts.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(last_token)) {
       // handle e4x xml literals
       //
-      this._input.back();
       var xmlStr = '';
       var match = this._input.match(startXmlRegExp);
       if (match) {
@@ -280,109 +391,8 @@ function Tokenizer(input_string, opts) {
       }
     }
 
-    if (isRegExp || isString) {
-      if (this.has_char_escapes && opts.unescape_strings) {
-        resulting_string = unescape_string(resulting_string);
-      }
-      if (this._input.peek() === sep) {
-        resulting_string += sep;
-        this._input.next();
-
-        if (sep === '/') {
-          // regexps may have modifiers /regexp/MOD , so fetch those, too
-          // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-          resulting_string += this._input.read(acorn.identifier);
-        }
-      }
-      return this.create_token(TOKEN.STRING, resulting_string);
-    }
-
-    if (c === '#') {
-
-      if (this._tokens.isEmpty() && this._input.peek() === '!') {
-        // shebang
-        resulting_string = c;
-        while (this._input.hasNext() && c !== '\n') {
-          c = this._input.next();
-          resulting_string += c;
-        }
-        return this.create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
-      }
-
-      // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
-      var sharp = '#';
-      if (this._input.hasNext() && this._input.testChar(digit)) {
-        do {
-          c = this._input.next();
-          sharp += c;
-        } while (this._input.hasNext() && c !== '#' && c !== '=');
-        if (c === '#') {
-          //
-        } else if (this._input.peek() === '[' && this._input.peek(1) === ']') {
-          sharp += '[]';
-          this._input.next();
-          this._input.next();
-        } else if (this._input.peek() === '{' && this._input.peek(1) === '}') {
-          sharp += '{}';
-          this._input.next();
-          this._input.next();
-        }
-        return this.create_token(TOKEN.WORD, sharp);
-      }
-    }
-
-    if (c === '<' && (this._input.peek() === '?' || this._input.peek() === '%')) {
-      this._input.back();
-      var template_match = this._input.match(template_pattern);
-      if (template_match) {
-        c = template_match[0];
-        c = c.replace(acorn.allLineBreaks, '\n');
-        return this.create_token(TOKEN.STRING, c);
-      }
-    }
-
-    if (c === '<' && this._input.match(/\!--/g)) {
-      c = '<!--';
-      while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
-        c += this._input.next();
-      }
-      in_html_comment = true;
-      return this.create_token(TOKEN.COMMENT, c);
-    }
-
-    if (c === '-' && in_html_comment && this._input.match(/->/g)) {
-      in_html_comment = false;
-      return this.create_token(TOKEN.COMMENT, '-->');
-    }
-
-    if (c === '.') {
-      if (this._input.peek() === '.' && this._input.peek(1) === '.') {
-        c += this._input.next() + this._input.next();
-        return this.create_token(TOKEN.OPERATOR, c);
-      }
-      return this.create_token(TOKEN.DOT, c);
-    }
-
-    if (in_array(c, punct)) {
-      while (this._input.hasNext() && in_array(c + this._input.peek(), punct)) {
-        c += this._input.next();
-        if (!this._input.hasNext()) {
-          break;
-        }
-      }
-
-      if (c === ',') {
-        return this.create_token(TOKEN.COMMA, c);
-      } else if (c === '=') {
-        return this.create_token(TOKEN.EQUALS, c);
-      } else {
-        return this.create_token(TOKEN.OPERATOR, c);
-      }
-    }
-
-    return this.create_token(TOKEN.UNKNOWN, c);
+    return null;
   };
-
 
   function unescape_string(s) {
     // You think that a regex would work for this
@@ -449,7 +459,7 @@ function Tokenizer(input_string, opts) {
 
   // handle string
   //
-  this._read_string = function(delimiter, allow_unescaped_newlines, start_sub) {
+  this._read_string_recursive = function(delimiter, allow_unescaped_newlines, start_sub) {
     // Template strings can travers lines without escape characters.
     // Other strings cannot
     var current_char;
@@ -486,9 +496,9 @@ function Tokenizer(input_string, opts) {
 
       if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
         if (delimiter === '`') {
-          resulting_string += this._read_string('}', allow_unescaped_newlines, '`');
+          resulting_string += this._read_string_recursive('}', allow_unescaped_newlines, '`');
         } else {
-          resulting_string += this._read_string('`', allow_unescaped_newlines, '${');
+          resulting_string += this._read_string_recursive('`', allow_unescaped_newlines, '${');
         }
 
         if (this._input.hasNext()) {

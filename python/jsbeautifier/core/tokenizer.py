@@ -29,6 +29,7 @@ from ..core.tokenstream import TokenStream
 
 
 class TokenTypes:
+    START = 'TK_START'
     RAW = 'TK_RAW'
     EOF = 'TK_EOF'
 
@@ -58,17 +59,17 @@ class Tokenizer:
         self._tokens = TokenStream()
 
         current = None
-        last = Token(TOKEN.RAW,'')
+        last = Token(TOKEN.START,'')
         open_token = None
         open_stack = []
         comments = TokenStream()
 
         while last.type != TOKEN.EOF:
-            current = self.get_next_token()
+            current = self.get_next_token(last)
 
             while self.is_comment(current):
                 comments.add(current)
-                current = self.get_next_token()
+                current = self.get_next_token(last)
 
             if not comments.isEmpty():
                 current.comments_before = comments
@@ -90,7 +91,7 @@ class Tokenizer:
     def reset(self):
         pass
 
-    def get_next_token(self):
+    def get_next_token(self, last_token):
         self.readWhitespace()
         resulting_string = self._input.read(re.compile(r'.+'))
         if resulting_string:

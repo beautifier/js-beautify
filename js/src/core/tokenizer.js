@@ -31,6 +31,7 @@ var Token = require('../core/token').Token;
 var TokenStream = require('../core/tokenstream').TokenStream;
 
 var TOKEN = {
+  START: 'TK_START',
   RAW: 'TK_RAW',
   EOF: 'TK_EOF'
 };
@@ -53,16 +54,16 @@ function Tokenizer(input_string) { // jshint unused:false
     this.reset();
 
     var current;
-    var last = new Token(TOKEN.RAW, '');
+    var last = new Token(TOKEN.START, '');
     var open_token = null;
     var open_stack = [];
     var comments = new TokenStream();
 
     while (last.type !== TOKEN.EOF) {
-      current = this.get_next_token();
+      current = this.get_next_token(last);
       while (this.is_comment(current)) {
         comments.add(current);
-        current = this.get_next_token();
+        current = this.get_next_token(last);
       }
 
       if (!comments.isEmpty()) {
@@ -90,7 +91,7 @@ function Tokenizer(input_string) { // jshint unused:false
 
   this.reset = function() {};
 
-  this.get_next_token = function() {
+  this.get_next_token = function(last_token) { // jshint unused:false
     this.readWhitespace();
     var resulting_string = this._input.read(/.+/g);
     if (resulting_string) {

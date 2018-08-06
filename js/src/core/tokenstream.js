@@ -54,14 +54,6 @@ function TokenStream(parent_token) {
     return val;
   };
 
-  this.last = function() {
-    var val = null;
-    if (!this.isEmpty()) {
-      val = this._tokens[this._tokens_length - 1];
-    }
-    return val;
-  };
-
   this.peek = function(index) {
     var val = null;
     index = index || 0;

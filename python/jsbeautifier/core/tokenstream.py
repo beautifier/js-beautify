@@ -51,13 +51,6 @@ class TokenStream:
         else:
             raise StopIteration
 
-    def last(self):
-        val = None
-        if not self.isEmpty():
-            val = self._tokens[-1]
-
-        return val
-
     def peek(self, index=0):
         val = None
         index += self._position

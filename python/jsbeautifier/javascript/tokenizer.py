@@ -24,7 +24,6 @@
 
 import re
 from ..core.inputscanner import InputScanner
-from ..core.token import Token
 from ..core.tokenizer import TokenTypes as BaseTokenTypes
 from ..core.tokenizer import Tokenizer as BaseTokenizer
 from ..core.directives import Directives
@@ -131,14 +130,7 @@ class Tokenizer(BaseTokenizer):
                             (current_token.text == ')' and open_token.text == '(') or
                             (current_token.text == '}' and open_token.text == '{')))
 
-    def get_next_token(self):
-        if self._tokens.isEmpty():
-            # For the sake of tokenizing we can pretend that there was on open
-            # brace to start
-            last_token = Token(TOKEN.START_BLOCK, '{')
-        else:
-            last_token = self._tokens.last()
-
+    def get_next_token(self, last_token):
         self.readWhitespace()
 
         resulting_string = self._input.read(self.acorn.identifier)
@@ -203,7 +195,7 @@ class Tokenizer(BaseTokenizer):
             return (last_token.type == TOKEN.RESERVED and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
                 (last_token.type == TOKEN.END_EXPR and last_token.text == ')' and
                  last_token.parent and last_token.parent.type == TOKEN.RESERVED and last_token.parent.text in ['if', 'while', 'for']) or \
-                (last_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.END_BLOCK, TOKEN.OPERATOR,
+                (last_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
                                      TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA])
 
         self.has_char_escapes = False
