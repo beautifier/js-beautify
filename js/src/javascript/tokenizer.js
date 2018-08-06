@@ -30,17 +30,9 @@ var InputScanner = require('../core/inputscanner').InputScanner;
 var Token = require('../core/token').Token;
 var acorn = require('../core/acorn');
 
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '');
-}
 
 function in_array(what, arr) {
-  for (var i = 0; i < arr.length; i += 1) {
-    if (arr[i] === what) {
-      return true;
-    }
-  }
-  return false;
+  return arr.indexOf(what) !== -1;
 }
 
 var TOKEN = {
@@ -428,7 +420,7 @@ function Tokenizer(input_string, opts) {
           c = input.next();
           resulting_string += c;
         }
-        return [trim(resulting_string) + '\n', TOKEN.UNKNOWN];
+        return [resulting_string.trim() + '\n', TOKEN.UNKNOWN];
       }
 
       // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
