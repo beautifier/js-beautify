@@ -32,45 +32,45 @@ function TokenStream(parent_token) {
   this._tokens_length = this._tokens.length;
   this._position = 0;
   this._parent_token = parent_token;
-
-  this.restart = function() {
-    this._position = 0;
-  };
-
-  this.isEmpty = function() {
-    return this._tokens_length === 0;
-  };
-
-  this.hasNext = function() {
-    return this._position < this._tokens_length;
-  };
-
-  this.next = function() {
-    var val = null;
-    if (this.hasNext()) {
-      val = this._tokens[this._position];
-      this._position += 1;
-    }
-    return val;
-  };
-
-  this.peek = function(index) {
-    var val = null;
-    index = index || 0;
-    index += this._position;
-    if (index >= 0 && index < this._tokens_length) {
-      val = this._tokens[index];
-    }
-    return val;
-  };
-
-  this.add = function(token) {
-    if (this._parent_token) {
-      token.parent = this._parent_token;
-    }
-    this._tokens.push(token);
-    this._tokens_length += 1;
-  };
 }
+
+TokenStream.prototype.restart = function() {
+  this._position = 0;
+};
+
+TokenStream.prototype.isEmpty = function() {
+  return this._tokens_length === 0;
+};
+
+TokenStream.prototype.hasNext = function() {
+  return this._position < this._tokens_length;
+};
+
+TokenStream.prototype.next = function() {
+  var val = null;
+  if (this.hasNext()) {
+    val = this._tokens[this._position];
+    this._position += 1;
+  }
+  return val;
+};
+
+TokenStream.prototype.peek = function(index) {
+  var val = null;
+  index = index || 0;
+  index += this._position;
+  if (index >= 0 && index < this._tokens_length) {
+    val = this._tokens[index];
+  }
+  return val;
+};
+
+TokenStream.prototype.add = function(token) {
+  if (this._parent_token) {
+    token.parent = this._parent_token;
+  }
+  this._tokens.push(token);
+  this._tokens_length += 1;
+};
 
 module.exports.TokenStream = TokenStream;

@@ -30,33 +30,32 @@
 function Directives(start_block_pattern, end_block_pattern) {
   start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
   end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
-  var directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
-  var directive_pattern = / (\w+)[:](\w+)/g;
+  this._directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
+  this._directive_pattern = / (\w+)[:](\w+)/g;
 
-  var directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
-
-  this.get_directives = function(text) {
-    if (!text.match(directives_block_pattern)) {
-      return null;
-    }
-
-    var directives = {};
-    directive_pattern.lastIndex = 0;
-    var directive_match = directive_pattern.exec(text);
-
-    while (directive_match) {
-      directives[directive_match[1]] = directive_match[2];
-      directive_match = directive_pattern.exec(text);
-    }
-
-    return directives;
-  };
-
-  this.readIgnored = function(input) {
-    return input.read(directives_end_ignore_pattern);
-
-  };
+  this._directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
 }
+
+Directives.prototype.get_directives = function(text) {
+  if (!text.match(this._directives_block_pattern)) {
+    return null;
+  }
+
+  var directives = {};
+  this._directive_pattern.lastIndex = 0;
+  var directive_match = this._directive_pattern.exec(text);
+
+  while (directive_match) {
+    directives[directive_match[1]] = directive_match[2];
+    directive_match = this._directive_pattern.exec(text);
+  }
+
+  return directives;
+};
+
+Directives.prototype.readIgnored = function(input) {
+  return input.read(this._directives_end_ignore_pattern);
+};
 
 
 module.exports.Directives = Directives;
