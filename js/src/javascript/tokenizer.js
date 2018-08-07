@@ -81,7 +81,10 @@ var punct =
   "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
   "= ! ? > < : / ^ - + * & % ~ |";
 
-var punct_pattern = new RegExp(punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&").replace(/ /g, '|'), 'g');
+punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
+punct = punct.replace(/ /g, '|');
+
+var punct_pattern = new RegExp(punct, 'g');
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -149,7 +152,7 @@ Tokenizer.prototype._read_word = function(last_token) {
   resulting_string = this._input.read(acorn.identifier);
   if (resulting_string !== '') {
     if (!(last_token.type === TOKEN.DOT ||
-        (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
+        (last_token.type === TOKEN.RESERVED && (last_token.text === 'set' || last_token.text === 'get'))) &&
       reserved_word_pattern.test(resulting_string)) {
       if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
         return this.create_token(TOKEN.OPERATOR, resulting_string);
