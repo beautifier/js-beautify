@@ -27,6 +27,7 @@ import re
 # Using object instead of string to allow for later expansion of info
 # about each line
 
+__all__ = ["Output"]
 
 class OutputLine:
     def __init__(self, parent):

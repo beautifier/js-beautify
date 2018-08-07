@@ -123,6 +123,26 @@ class Beautifier:
         import jsbeautifier.core.acorn as acorn
         self.acorn = acorn
         self.opts = copy.copy(opts)
+
+        self.handlers = {
+            TOKEN.START_EXPR: self.handle_start_expr,
+            TOKEN.END_EXPR: self.handle_end_expr,
+            TOKEN.START_BLOCK: self.handle_start_block,
+            TOKEN.END_BLOCK: self.handle_end_block,
+            TOKEN.WORD: self.handle_word,
+            TOKEN.RESERVED: self.handle_word,
+            TOKEN.SEMICOLON: self.handle_semicolon,
+            TOKEN.STRING: self.handle_string,
+            TOKEN.EQUALS: self.handle_equals,
+            TOKEN.OPERATOR: self.handle_operator,
+            TOKEN.COMMA: self.handle_comma,
+            TOKEN.BLOCK_COMMENT: self.handle_block_comment,
+            TOKEN.COMMENT: self.handle_comment,
+            TOKEN.DOT: self.handle_dot,
+            TOKEN.UNKNOWN: self.handle_unknown,
+            TOKEN.EOF: self.handle_eof
+        }
+
         self.blank_state()
 
     def blank_state(self, js_source_text=None):
@@ -204,25 +224,6 @@ class Beautifier:
         s = self.blank_state(s)
 
         input = self.unpack(s, self.opts.eval_code)
-
-        self.handlers = {
-            TOKEN.START_EXPR: self.handle_start_expr,
-            TOKEN.END_EXPR: self.handle_end_expr,
-            TOKEN.START_BLOCK: self.handle_start_block,
-            TOKEN.END_BLOCK: self.handle_end_block,
-            TOKEN.WORD: self.handle_word,
-            TOKEN.RESERVED: self.handle_word,
-            TOKEN.SEMICOLON: self.handle_semicolon,
-            TOKEN.STRING: self.handle_string,
-            TOKEN.EQUALS: self.handle_equals,
-            TOKEN.OPERATOR: self.handle_operator,
-            TOKEN.COMMA: self.handle_comma,
-            TOKEN.BLOCK_COMMENT: self.handle_block_comment,
-            TOKEN.COMMENT: self.handle_comment,
-            TOKEN.DOT: self.handle_dot,
-            TOKEN.UNKNOWN: self.handle_unknown,
-            TOKEN.EOF: self.handle_eof
-        }
 
         self.tokens = Tokenizer(
             input, self.opts, self.indent_string).tokenize()
