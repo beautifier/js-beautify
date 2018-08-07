@@ -364,7 +364,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       } else if (peek === '<') {
         content.push(this.input.next());
         tag_start_char = '<';
-        tag_check = this.input.readWhile(/[^\s>{][^\s>{/]*/g);
+        tag_check = this.input.read(/[^\s>{][^\s>{/]*/g);
         content.push(tag_check);
         tag_check = tag_check.toLowerCase();
         space = true;

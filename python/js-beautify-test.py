@@ -6,7 +6,9 @@ import unittest
 
 def run_tests():
     suite = unittest.TestLoader().discover(
-        'jsbeautifier.tests', pattern="test*.py")
+        'jsbeautifier', pattern="test*.py")
+    suite.addTests(unittest.TestLoader().discover(
+        'cssbeautifier', pattern="test*.py"))
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

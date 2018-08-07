@@ -31,6 +31,9 @@ class InputScanner:
         self.__input_length = len(self.__input)
         self.__position = 0
 
+    def restart(self):
+        self.__position = 0
+
     def back(self):
         if self.__position > 0:
             self.__position -= 1
@@ -72,21 +75,24 @@ class InputScanner:
                 self.__position = pattern_match.end(0)
         return pattern_match
 
-    def readWhile(self, pattern):
+    def read(self, pattern):
         val = ''
         pattern_match = self.match(pattern)
         if bool(pattern_match):
             val = pattern_match.group(0)
         return val
 
-    def readUntil(self, pattern):
+    def readUntil(self, pattern, include_match=False):
         val = ''
         pattern_match = None
         match_index = self.__position
         if self.hasNext():
             pattern_match = pattern.search(self.__input, self.__position)
             if bool(pattern_match):
-                match_index = pattern_match.start(0)
+                if include_match:
+                    match_index = pattern_match.end(0)
+                else:
+                    match_index = pattern_match.start(0)
             else:
                 match_index = self.__input_length
 
@@ -96,20 +102,7 @@ class InputScanner:
         return val
 
     def readUntilAfter(self, pattern):
-        val = ''
-        pattern_match = None
-        match_index = self.__position
-        if self.hasNext():
-            pattern_match = pattern.search(self.__input, self.__position)
-            if bool(pattern_match):
-                match_index = pattern_match.end(0)
-            else:
-                match_index = self.__input_length
-
-            val = self.__input[self.__position:match_index]
-            self.__position = match_index
-
-        return val
+        return self.readUntil(pattern, include_match=True)
 
     # css beautifier legacy helpers
     def peekUntilAfter(self, pattern):
