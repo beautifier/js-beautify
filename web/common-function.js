@@ -150,7 +150,7 @@ function beautify() {
   the.language = $('#language option:selected').text();
 
   opts.indent_size = $('#tabsize').val();
-  opts.indent_char = opts.indent_size === 1 ? '\t' : ' ';
+  opts.indent_char = parseInt(opts.indent_size, 10) === 1 ? '\t' : ' ';
   opts.max_preserve_newlines = $('#max-preserve-newlines').val();
   opts.preserve_newlines = opts.max_preserve_newlines !== "-1";
   opts.keep_array_indentation = $('#keep-array-indentation').prop('checked');

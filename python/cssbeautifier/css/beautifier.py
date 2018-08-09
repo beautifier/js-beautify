@@ -229,7 +229,7 @@ class Beautifier:
         parenLevel = 0
 
         while True:
-            whitespace = input.readWhile(whitespacePattern)
+            whitespace = input.read(whitespacePattern)
             isAfterSpace = whitespace != ''
             self.ch = input.next()
 
@@ -244,7 +244,7 @@ class Beautifier:
                 output.add_new_line()
                 input.back()
                 printer.print_string(
-                    input.readWhile(
+                    input.read(
                         self.block_comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
@@ -259,7 +259,7 @@ class Beautifier:
                 # on the same line as a rule
                 output.space_before_token = True
                 input.back()
-                printer.print_string(input.readWhile(self.comment_pattern))
+                printer.print_string(input.read(self.comment_pattern))
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)

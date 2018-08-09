@@ -27,6 +27,7 @@ import re
 # Using object instead of string to allow for later expansion of info
 # about each line
 
+__all__ = ["Output"]
 
 class OutputLine:
     def __init__(self, parent):
@@ -35,13 +36,12 @@ class OutputLine:
         self.__indent_count = -1
 
         self.__items = []
-        self.__empty = True
 
     def get_character_count(self):
         return self.__character_count
 
     def is_empty(self):
-        return self.__empty
+        return len(self.__items) == 0
 
     def set_indent(self, level):
         self.__character_count = self.__parent.baseIndentLength + \
@@ -57,14 +57,12 @@ class OutputLine:
     def push(self, item):
         self.__items.append(item)
         self.__character_count += len(item)
-        self.__empty = False
 
     def pop(self):
         item = None
         if not self.is_empty():
             item = self.__items.pop()
             self.__character_count -= len(item)
-            self.__empty = len(self.__items) == 0
         return item
 
     def remove_indent(self):
@@ -76,7 +74,6 @@ class OutputLine:
         while self.last() == ' ':
             self.__items.pop()
             self.__character_count -= 1
-        self.__empty = len(self.__items) == 0
 
     def toString(self):
         result = ''

@@ -492,6 +492,11 @@ exports.test_data = {
       output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
     }, {
       fragment: true,
+      comment: 'Issue 1222 -- P tags are formatting correctly',
+      input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+      output: '<p>Our forms for collecting address-related information follow a standard design.{{indent_content80}}Specific input elements will vary according to the form’s audience and purpose.</p>'
+    }, {
+      fragment: true,
       input: '<div attr="123"  >This is some text</div>',
       output: '<div attr="123">This is some text</div>'
     }, {
@@ -933,6 +938,25 @@ exports.test_data = {
         '</body>',
         '',
         '</html>'
+      ]
+    }]
+  }, {
+    name: "Issue 1478 - Space handling inside self closing tag",
+    description: "Properly indent following text after self closing tags regardless of space",
+    options: [],
+    tests: [{
+      fragment: true,
+      input: [
+        '<div>',
+        '    <br/>',
+        '    <br />',
+        '</div>'
+      ],
+      output: [
+        '<div>',
+        '    <br />',
+        '    <br />',
+        '</div>'
       ]
     }]
   }, {

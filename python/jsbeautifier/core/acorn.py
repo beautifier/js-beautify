@@ -23,6 +23,7 @@ six = __import__("six")
 # are only applied when a character is found to actually have a
 # code point above 128.
 
+# IMPORTANT: These strings must be run through six to handle \u chars
 _nonASCIIwhitespace = re.compile(
     six.u(r"[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]"))
 _baseASCIIidentifierStartChars = six.u(r"\x24\x40\x41-\x5a\x5f\x61-\x7a")
@@ -55,7 +56,7 @@ identifier = re.compile(
     "]*")
 
 # Whether a single character denotes a newline.
-
+# IMPORTANT: This string must be run through six to handle \u chars
 newline = re.compile(six.u(r"[\n\r\u2028\u2029]"))
 
 # Matches a whole line break (where CRLF is considered a single
@@ -63,6 +64,7 @@ newline = re.compile(six.u(r"[\n\r\u2028\u2029]"))
 
 # in javascript, these two differ
 # in python they are the same, different methods are called on them
+# IMPORTANT: This string must be run through six to handle \u chars
 lineBreak = re.compile(six.u(r"\r\n|[\n\r\u2028\u2029]"))
 allLineBreaks = lineBreak
 

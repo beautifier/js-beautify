@@ -415,6 +415,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -461,6 +464,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -503,6 +513,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -550,6 +563,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
@@ -582,6 +602,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
@@ -609,6 +636,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
@@ -627,6 +657,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -673,6 +706,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -719,6 +759,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
@@ -745,6 +792,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
@@ -764,6 +814,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -806,6 +859,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -863,6 +919,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015\n' +
             '    0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment(
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            //  -- output --
+            '<p>Our forms for collecting address-related information follow a standard design.\n' +
+            '    Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -915,6 +978,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // This test shows how line wrapping is still not correct. Should wrap before 0015.
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // Issue 1222 -- P tags are formatting correctly
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -3500,6 +3566,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</body>\n' +
             '\n' +
             '</html>');
+
+
+        //============================================================
+        // Issue 1478 - Space handling inside self closing tag
+        reset_options();
+        test_fragment(
+            '<div>\n' +
+            '    <br/>\n' +
+            '    <br />\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <br />\n' +
+            '    <br />\n' +
+            '</div>');
 
 
         //============================================================
