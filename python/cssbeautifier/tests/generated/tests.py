@@ -625,6 +625,19 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Issue #1338 -- Preserve Newlines within CSS rules
+        self.reset_options()
+        self.options.preserve_newlines = true
+        t(
+            'body {\n' +
+            '\tgrid-template-areas:\n' +
+            '\t\t"header header"\n' +
+            '\t\t"main   sidebar"\n' +
+            '\t\t"footer footer";\n' +
+            '}')
+
+
+        #============================================================
         # Newline Between Rules - (newline_between_rules = "true")
         self.reset_options()
         self.options.newline_between_rules = true
