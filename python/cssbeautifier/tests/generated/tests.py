@@ -287,6 +287,12 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Issue 1373 -- Correct spacing around [attribute~=value]
+        self.reset_options()
+        t('header>div[class~="div-all"]')
+
+
+        #============================================================
         # Selector Separator - (separator = " ", separator1 = " ")
         self.reset_options()
         self.options.selector_separator_newline = false

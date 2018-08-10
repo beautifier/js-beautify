@@ -329,6 +329,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Issue 1373 -- Correct spacing around [attribute~=value]
+        reset_options();
+        t('header>div[class~="div-all"]');
+
+
+        //============================================================
         // Selector Separator - (separator = " ", separator1 = " ")
         reset_options();
         opts.selector_separator_newline = false;
