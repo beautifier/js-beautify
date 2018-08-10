@@ -15,8 +15,8 @@
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
-as well as deobfuscate scripts processed by
-[javascriptobfuscator.com](http://javascriptobfuscator.com/).
+as well as partly deobfuscate scripts processed by the npm package
+[javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
 Open [jsbeautifier.org](http://jsbeautifier.org/) to try it out.  Options are available via the UI.
 
