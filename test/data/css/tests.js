@@ -168,6 +168,12 @@ exports.test_data = {
         }
       ]
     }, {
+      name: "Issue 1373 -- Correct spacing around [attribute~=value]",
+      description: "",
+      tests: [{
+        unchanged: 'header>div[class~="div-all"]'
+      }]
+    }, {
       name: 'Selector Separator',
       description: '',
       matrix: [{
