@@ -233,12 +233,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         //============================================================
         // Tests for script and style types (issue 453, 821)
         reset_options();
-        bth(
-            '<script type="text/unknown"><div></div></script>',
-            //  -- output --
-            '<script type="text/unknown">\n' +
-            '    <div></div>\n' +
-            '</script>');
+        bth('<script type="text/unknown"><div></div></script>');
+        bth('<script type="text/unknown">Blah Blah Blah</script>');
+        bth('<script type="text/unknown">    Blah Blah Blah   </script>', '<script type="text/unknown"> Blah Blah Blah   </script>');
         bth(
             '<script type="text/javascript"><div></div></script>',
             //  -- output --
@@ -321,12 +318,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        "foo": "bar"\n' +
             '    }\n' +
             '</script>');
-        bth(
-            '<style type="text/unknown"><tag></tag></style>',
-            //  -- output --
-            '<style type="text/unknown">\n' +
-            '    <tag></tag>\n' +
-            '</style>');
+        bth('<style type="text/unknown"><tag></tag></style>');
         bth(
             '<style type="text/css"><tag></tag></style>',
             //  -- output --
@@ -3898,18 +3890,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<u>  \n' +
             '\n' +
             '\n' +
-            '  Ignore extra whitespace  \n' +
+            '  Ignore extra """whitespace mostly  \n' +
+            '\n' +
+            '\n' +
+            '  </u>',
+            //  -- output --
+            '<u>\n' +
+            '\n' +
+            '\n' +
+            '  Ignore extra """whitespace mostly  \n' +
             '\n' +
             '\n' +
             '  </u>');
         test_fragment(
             '<u><div \n' +
-            '\n' +
-            'class="">Ignore whitespace in attributes</div></u>');
+            '\t\n' +
+            'class=""">Ignore whitespace in attributes\t</div></u>');
         test_fragment(
             '<u \n' +
             '\n' +
-            'class="">Ignore whitespace in attributes</u>');
+            '\t\t  class="">Ignore whitespace\n' +
+            'in\tattributes</u>',
+            //  -- output --
+            '<u\n' +
+            '\n' +
+            '\t\t  class="">Ignore whitespace\n' +
+            'in\tattributes</u>');
 
 
         //============================================================

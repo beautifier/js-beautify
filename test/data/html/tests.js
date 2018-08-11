@@ -137,12 +137,12 @@ exports.test_data = {
     name: "Tests for script and style types (issue 453, 821)",
     description: "Only format recognized script types",
     tests: [{
-        input: '<script type="text/unknown"><div></div></script>',
-        output: [
-          '<script type="text/unknown">',
-          '    <div></div>',
-          '</script>'
-        ]
+        unchanged: '<script type="text/unknown"><div></div></script>'
+      }, {
+        unchanged: '<script type="text/unknown">Blah Blah Blah</script>'
+      }, {
+        input: '<script type="text/unknown">    Blah Blah Blah   </script>',
+        output: '<script type="text/unknown"> Blah Blah Blah   </script>'
       }, {
         input: '<script type="text/javascript"><div></div></script>',
         output: [
@@ -239,12 +239,7 @@ exports.test_data = {
           '</script>'
         ]
       }, {
-        input: '<style type="text/unknown"><tag></tag></style>',
-        output: [
-          '<style type="text/unknown">',
-          '    <tag></tag>',
-          '</style>'
-        ]
+        unchanged: '<style type="text/unknown"><tag></tag></style>'
       }, {
         input: '<style type="text/css"><tag></tag></style>',
         output: [
@@ -1271,13 +1266,15 @@ exports.test_data = {
       unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
     }, {
       fragment: true,
-      unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
+      input_: '<u>  \n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>',
+      output: '<u>\n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>'
     }, {
       fragment: true,
-      unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
+      unchanged: '<u><div \n\t\nclass=""">Ignore whitespace in attributes\t</div></u>'
     }, {
       fragment: true,
-      unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
+      input_: '<u \n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>',
+      output: '<u\n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>'
     }]
   }, {
     name: "content_unformatted to prevent formatting content",
