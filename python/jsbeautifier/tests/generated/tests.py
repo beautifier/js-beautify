@@ -254,7 +254,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # End With Newline - (eof = "\n")
+        # End With Newline - (end_with_newline = "true")
         self.reset_options()
         self.options.end_with_newline = true
         test_fragment('', '\n')
@@ -270,7 +270,7 @@ class TestJSBeautifier(unittest.TestCase):
             '   return .5\n')
         test_fragment('\n')
 
-        # End With Newline - (eof = "")
+        # End With Newline - (end_with_newline = "false")
         self.reset_options()
         self.options.end_with_newline = false
         test_fragment('')
@@ -288,7 +288,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Support simple language specific option inheritance/overriding - (j = "   ")
+        # Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
         self.reset_options()
         self.options.js = { 'indent_size': 3 }
         self.options.css = { 'indent_size': 5 }
@@ -297,7 +297,7 @@ class TestJSBeautifier(unittest.TestCase):
             '   test();\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (j = "    ")
+        # Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         self.reset_options()
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }
         bt(
@@ -305,7 +305,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    test();\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (j = "    ")
+        # Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")
         self.reset_options()
         self.options.indent_size = 9
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}
@@ -318,7 +318,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt(
@@ -340,7 +340,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }')
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }')
 
-        # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt(
@@ -412,7 +412,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    e();\n' +
             '}')
 
-        # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse"")
         self.reset_options()
         self.options.brace_style = 'collapse'
         bt(
@@ -454,7 +454,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    e();\n' +
             '}')
 
-        # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse"")
         self.reset_options()
         self.options.brace_style = 'collapse'
         bt(
@@ -528,7 +528,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
+        # Comma-first option - (comma_first = "false")
         self.reset_options()
         self.options.comma_first = false
         bt(
@@ -660,7 +660,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             ');')
 
-        # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
+        # Comma-first option - (comma_first = "true")
         self.reset_options()
         self.options.comma_first = true
         bt(
@@ -797,7 +797,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Unindent chained functions - ()
+        # Unindent chained functions - (unindent_chained_methods = "true")
         self.reset_options()
         self.options.unindent_chained_methods = true
         bt(
@@ -853,7 +853,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Space in parens tests - (s = "", e = "")
+        # Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")
         self.reset_options()
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = false
@@ -903,7 +903,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }]\n' +
             '}')
 
-        # Space in parens tests - (s = "", e = "")
+        # Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")
         self.reset_options()
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = true
@@ -953,7 +953,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }]\n' +
             '}')
 
-        # Space in parens tests - (s = " ", e = "")
+        # Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")
         self.reset_options()
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = false
@@ -1003,7 +1003,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    } ]\n' +
             '}')
 
-        # Space in parens tests - (s = " ", e = " ")
+        # Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")
         self.reset_options()
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = true
@@ -1055,7 +1055,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'before-newline'
         self.options.preserve_newlines = false
@@ -1104,7 +1104,7 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'after-newline'
         self.options.preserve_newlines = false
@@ -1153,7 +1153,7 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         self.options.preserve_newlines = false
@@ -1204,7 +1204,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'before-newline' (default value)
+        # operator_position option - set to "before-newline" (default value)
         self.reset_options()
         
         # comprehensive, various newlines
@@ -1326,7 +1326,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'after_newline'
+        # operator_position option - set to "after_newline"
         self.reset_options()
         self.options.operator_position = 'after-newline'
         
@@ -1448,7 +1448,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'preserve-newline'
+        # operator_position option - set to "preserve-newline"
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         
@@ -2044,7 +2044,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Space before conditional - (s = "")
+        # Space before conditional - (space_before_conditional = "false")
         self.reset_options()
         self.options.space_before_conditional = false
         bt('if(a) b()')
@@ -2076,7 +2076,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('return [];')
         bt('return ();')
 
-        # Space before conditional - (s = " ")
+        # Space before conditional - (space_before_conditional = "true")
         self.reset_options()
         self.options.space_before_conditional = true
         bt('if (a) b()')
@@ -2513,7 +2513,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # jslint and space after anon function - (f = " ", c = "")
+        # jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")
         self.reset_options()
         self.options.jslint_happy = true
         self.options.space_after_anon_function = true
@@ -2605,7 +2605,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
 
-        # jslint and space after anon function - (f = " ", c = "")
+        # jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")
         self.reset_options()
         self.options.jslint_happy = true
         self.options.space_after_anon_function = false
@@ -2697,7 +2697,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
 
-        # jslint and space after anon function - (f = " ", c = "    ")
+        # jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")
         self.reset_options()
         self.options.jslint_happy = false
         self.options.space_after_anon_function = true
@@ -2789,7 +2789,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
 
-        # jslint and space after anon function - (f = "", c = "    ")
+        # jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")
         self.reset_options()
         self.options.jslint_happy = false
         self.options.space_after_anon_function = false
@@ -3502,7 +3502,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3546,7 +3546,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        # brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'expand,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3608,7 +3608,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        # brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'end-expand,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3656,7 +3656,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'none,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3700,7 +3700,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse-preserve-inline'
         bt('import { asdf } from "asdf";')

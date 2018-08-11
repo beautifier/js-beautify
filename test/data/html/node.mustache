@@ -53,7 +53,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_name = 'html-beautify';
     }
 
-    function test_html_beautifier(input)
+    function test_beautifier(input)
     {
         return html_beautify(input, opts);
     }
@@ -74,7 +74,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     function test_fragment(input, expected)
     {
         var success = true;
-        sanitytest.test_function(test_html_beautifier, test_name);
+        sanitytest.test_function(test_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
         success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
@@ -84,7 +84,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
-        sanitytest.test_function(test_html_beautifier, 'eol ' + test_name);
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
         opts.eol = '\r\n';
         expected = expected.replace(/[\n]/g, '\r\n');
         success = success && sanitytest.expect(input, expected);

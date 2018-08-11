@@ -76,7 +76,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # End With Newline - (eof = "\n")
+        # End With Newline - (end_with_newline = "true")
         self.reset_options()
         self.options.end_with_newline = true
         test_fragment('', '\n')
@@ -92,7 +92,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '   .tabs {}\n')
         test_fragment('\n')
 
-        # End With Newline - (eof = "")
+        # End With Newline - (end_with_newline = "false")
         self.reset_options()
         self.options.end_with_newline = false
         test_fragment('')
@@ -142,7 +142,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Support simple language specific option inheritance/overriding - (c = "     ")
+        # Support simple language specific option inheritance/overriding - (indent_char = "" "", indent_size = "4", js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
         self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 4
@@ -153,7 +153,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '     font-size: 12px;\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (c = "    ")
+        # Support simple language specific option inheritance/overriding - (indent_char = "" "", indent_size = "4", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 4
@@ -163,7 +163,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '    font-size: 12px;\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (c = "   ")
+        # Support simple language specific option inheritance/overriding - (indent_char = "" "", indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 8 }, "indent_size": 2}", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")
         self.reset_options()
         self.options.indent_char = ' '
         self.options.indent_size = 9
@@ -177,7 +177,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Space Around Combinator - (space = " ")
+        # Space Around Combinator - (space_around_combinator = "true")
         self.reset_options()
         self.options.space_around_combinator = true
         t('a>b{}', 'a > b {}')
@@ -213,7 +213,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\twidth: calc(100% + 45px);\n' +
             '}')
 
-        # Space Around Combinator - (space = "")
+        # Space Around Combinator - (space_around_combinator = "false")
         self.reset_options()
         self.options.space_around_combinator = false
         t('a>b{}', 'a>b {}')
@@ -249,7 +249,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\twidth: calc(100% + 45px);\n' +
             '}')
 
-        # Space Around Combinator - (space = " ")
+        # Space Around Combinator - (space_around_selector_separator = "true")
         self.reset_options()
         self.options.space_around_selector_separator = true
         t('a>b{}', 'a > b {}')
@@ -293,7 +293,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Selector Separator - (separator = " ", separator1 = " ")
+        # Selector Separator - (selector_separator_newline = "false", selector_separator = "" "")
         self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = " "
@@ -331,7 +331,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t}\n' +
             '}')
 
-        # Selector Separator - (separator = " ", separator1 = " ")
+        # Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "")
         self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = "  "
@@ -369,7 +369,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t}\n' +
             '}')
 
-        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = "" "")
         self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = " "
@@ -407,7 +407,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t}\n' +
             '}')
 
-        # Selector Separator - (separator = "\n", separator1 = "\n\t")
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "")
         self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = "  "
@@ -447,7 +447,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n\n")
+        # Preserve Newlines - (preserve_newlines = "true")
         self.reset_options()
         self.options.preserve_newlines = true
         t('.div {}\n\n.span {}')
@@ -461,7 +461,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tcolor: black;\n\n\tfont-size: 12px;\n' +
             '}')
 
-        # Preserve Newlines - (separator_input = "\n\n", separator_output = "\n")
+        # Preserve Newlines - (preserve_newlines = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         t('.div {}\n\n.span {}', '.div {}\n.span {}')
@@ -625,7 +625,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Newline Between Rules - (new_rule = "\n\n")
+        # Newline Between Rules - (newline_between_rules = "true")
         self.reset_options()
         self.options.newline_between_rules = true
         t(
@@ -801,7 +801,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Newline Between Rules - (new_rule = "\n")
+        # Newline Between Rules - (newline_between_rules = "false")
         self.reset_options()
         self.options.newline_between_rules = false
         t(
@@ -981,7 +981,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
@@ -1277,7 +1277,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n", new_rule = "\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
@@ -1937,7 +1937,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n", new_rule = "\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
@@ -2597,7 +2597,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
@@ -2893,7 +2893,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n", i1 = "\n", o = "\n", new_rule = "\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
@@ -3275,7 +3275,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n\n\n", new_rule = "\n\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
@@ -4187,7 +4187,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '}')
 
-        # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n\n\n", new_rule = "\n\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "false")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
@@ -5049,7 +5049,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '}')
 
-        # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
@@ -5357,7 +5357,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n", new_rule = "\n\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
@@ -6029,7 +6029,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n", new_rule = "\n\n")
+        # Comments - (preserve_newlines = "false", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
@@ -6701,7 +6701,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "", i1 = "\n", o = "\n", new_rule = "\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
@@ -7009,7 +7009,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n", i1 = "\n", o = "\n", new_rule = "\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
@@ -7421,7 +7421,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\theight: 15px;\n' +
             '}')
 
-        # Comments - (i = "\n\n\n", i1 = "\n\n\n", o = "\n\n\n", new_rule = "\n\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
@@ -8283,7 +8283,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '}')
 
-        # Comments - (i = "\n\t\t\n    \n", i1 = "\n\t\t\t\n   \n", o = "\n\n\n", new_rule = "\n\n\n")
+        # Comments - (preserve_newlines = "true", newline_between_rules = "true")
         self.reset_options()
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true

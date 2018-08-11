@@ -104,7 +104,7 @@ function set_formatters(data, test_method, comment_mark) {
         var item;
         for (var x = 0; x < context.options.length; x++) {
           item = context.options[x];
-          outputs.push(item.name + ' = "' + item.value.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/[']/g, "\\'") + '"');
+          outputs.push(item.name + ' = "' + item.value.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/[']/g, "\"") + '"');
         }
       }
       return render(outputs.join(', '));
