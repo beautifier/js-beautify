@@ -36,5 +36,6 @@ class Token:
         self.newlines = newlines
         self.whitespace_before = whitespace_before
         self.parent = None
+        self.previous = None
         self.opened = None
         self.directives = None

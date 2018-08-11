@@ -61,39 +61,41 @@ class Tokenizer:
         self._tokens = TokenStream()
 
         current = None
-        last = Token(TOKEN.START,'')
+        previous = Token(TOKEN.START,'')
         open_token = None
         open_stack = []
         comments = TokenStream()
 
-        while last.type != TOKEN.EOF:
-            current = self.get_next_token(last)
+        while previous.type != TOKEN.EOF:
+            current = self.get_next_token(previous, open_token)
 
             while self.is_comment(current):
                 comments.add(current)
-                current = self.get_next_token(last)
+                current = self.get_next_token(previous, open_token)
 
             if not comments.isEmpty():
                 current.comments_before = comments
                 comments = TokenStream()
 
             if self.is_opening(current):
-                current.parent = last
+                current.parent = open_token
                 open_stack.append(open_token)
                 open_token = current
             elif open_token is not None and self.is_closing(current, open_token):
-                current.parent = open_token.parent
                 current.opened = open_token
                 open_token = open_stack.pop()
+                current.parent = open_token
+
+            current.previous = previous
 
             self._tokens.add(current)
-            last = current
+            previous = current
         return self._tokens
 
     def reset(self):
         pass
 
-    def get_next_token(self, last_token):
+    def get_next_token(self, previous_token, open_token):
         self.readWhitespace()
         resulting_string = self._input.read(re.compile(r'.+'))
         if resulting_string:

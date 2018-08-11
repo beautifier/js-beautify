@@ -53,16 +53,16 @@ Tokenizer.prototype.tokenize = function() {
   this.reset();
 
   var current;
-  var last = new Token(TOKEN.START, '');
+  var previous = new Token(TOKEN.START, '');
   var open_token = null;
   var open_stack = [];
   var comments = new TokenStream();
 
-  while (last.type !== TOKEN.EOF) {
-    current = this.get_next_token(last);
+  while (previous.type !== TOKEN.EOF) {
+    current = this.get_next_token(previous, open_token);
     while (this.is_comment(current)) {
       comments.add(current);
-      current = this.get_next_token(last);
+      current = this.get_next_token(previous, open_token);
     }
 
     if (!comments.isEmpty()) {
@@ -70,19 +70,22 @@ Tokenizer.prototype.tokenize = function() {
       comments = new TokenStream();
     }
 
+    current.parent = open_token;
+
     if (this.is_opening(current)) {
-      current.parent = last;
+      current.opened = open_token;
       open_stack.push(open_token);
       open_token = current;
     } else if (open_token && this.is_closing(current, open_token)) {
-      current.parent = open_token.parent;
       current.opened = open_token;
-
       open_token = open_stack.pop();
+      current.parent = open_token;
     }
 
+    current.previous = previous;
+
     this._tokens.add(current);
-    last = current;
+    previous = current;
   }
 
   return this._tokens;
@@ -91,7 +94,7 @@ Tokenizer.prototype.tokenize = function() {
 
 Tokenizer.prototype.reset = function() {};
 
-Tokenizer.prototype.get_next_token = function(last_token) { // jshint unused:false
+Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
   this.readWhitespace();
   var resulting_string = this._input.read(/.+/g);
   if (resulting_string) {

@@ -129,17 +129,17 @@ Tokenizer.prototype.reset = function() {
   in_html_comment = false;
 };
 
-Tokenizer.prototype.get_next_token = function(last_token) {
+Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
   this.readWhitespace();
   var token = null;
   var c = this._input.peek();
 
   token = token || this._read_singles(c);
-  token = token || this._read_word(last_token);
+  token = token || this._read_word(previous_token);
   token = token || this._read_comment(c);
   token = token || this._read_string(c);
-  token = token || this._read_regexp(c, last_token);
-  token = token || this._read_xml(c, last_token);
+  token = token || this._read_regexp(c, previous_token);
+  token = token || this._read_xml(c, previous_token);
   token = token || this._read_non_javascript(c);
   token = token || this._read_punctuation();
   token = token || this.create_token(TOKEN.UNKNOWN, this._input.next());
@@ -147,12 +147,12 @@ Tokenizer.prototype.get_next_token = function(last_token) {
   return token;
 };
 
-Tokenizer.prototype._read_word = function(last_token) {
+Tokenizer.prototype._read_word = function(previous_token) {
   var resulting_string;
   resulting_string = this._input.read(acorn.identifier);
   if (resulting_string !== '') {
-    if (!(last_token.type === TOKEN.DOT ||
-        (last_token.type === TOKEN.RESERVED && (last_token.text === 'set' || last_token.text === 'get'))) &&
+    if (!(previous_token.type === TOKEN.DOT ||
+        (previous_token.type === TOKEN.RESERVED && (previous_token.text === 'set' || previous_token.text === 'get'))) &&
       reserved_word_pattern.test(resulting_string)) {
       if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
         return this.create_token(TOKEN.OPERATOR, resulting_string);
@@ -316,19 +316,19 @@ Tokenizer.prototype._read_string = function(c) {
   return null;
 };
 
-Tokenizer.prototype._allow_regexp_or_xml = function(last_token) {
+Tokenizer.prototype._allow_regexp_or_xml = function(previous_token) {
   // regex and xml can only appear in specific locations during parsing
-  return (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
-    (last_token.type === TOKEN.END_EXPR && last_token.text === ')' &&
-      last_token.parent && last_token.parent.type === TOKEN.RESERVED && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-    (in_array(last_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START,
+  return (previous_token.type === TOKEN.RESERVED && in_array(previous_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+    (previous_token.type === TOKEN.END_EXPR && previous_token.text === ')' &&
+      previous_token.opened.previous.type === TOKEN.RESERVED && in_array(previous_token.opened.previous.text, ['if', 'while', 'for'])) ||
+    (in_array(previous_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START,
       TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
     ]));
 };
 
-Tokenizer.prototype._read_regexp = function(c, last_token) {
+Tokenizer.prototype._read_regexp = function(c, previous_token) {
 
-  if (c === '/' && this._allow_regexp_or_xml(last_token)) {
+  if (c === '/' && this._allow_regexp_or_xml(previous_token)) {
     // handle regexp
     //
     var resulting_string = this._input.next();
@@ -368,9 +368,9 @@ Tokenizer.prototype._read_regexp = function(c, last_token) {
 var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
 var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
 
-Tokenizer.prototype._read_xml = function(c, last_token) {
+Tokenizer.prototype._read_xml = function(c, previous_token) {
 
-  if (this._opts.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(last_token)) {
+  if (this._opts.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(previous_token)) {
     // handle e4x xml literals
     //
     var xmlStr = '';

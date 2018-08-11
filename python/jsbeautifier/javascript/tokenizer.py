@@ -148,17 +148,17 @@ class Tokenizer(BaseTokenizer):
                             (current_token.text == ')' and open_token.text == '(') or
                             (current_token.text == '}' and open_token.text == '{')))
 
-    def get_next_token(self, last_token):
+    def get_next_token(self, previous_token, open_token):
         self.readWhitespace()
         token = None
         c = self._input.peek()
 
         token = token or self._read_singles(c)
-        token = token or self._read_word(last_token)
+        token = token or self._read_word(previous_token)
         token = token or self._read_comment(c)
         token = token or self._read_string(c)
-        token = token or self._read_regexp(c, last_token)
-        token = token or self._read_xml(c, last_token)
+        token = token or self._read_regexp(c, previous_token)
+        token = token or self._read_xml(c, previous_token)
         token = token or self._read_non_javascript(c)
         token = token or self._read_punctuation()
         token = token or self.create_token(TOKEN.UNKNOWN, self._input.next())
@@ -190,12 +190,12 @@ class Tokenizer(BaseTokenizer):
 
         return token
 
-    def _read_word(self, last_token):
+    def _read_word(self, previous_token):
         resulting_string = self._input.read(self.acorn.identifier)
         if resulting_string != '':
-            if not (last_token.type == TOKEN.DOT or (
-                    last_token.type == TOKEN.RESERVED and (
-                        last_token.text == 'set' or last_token.text == 'get')
+            if not (previous_token.type == TOKEN.DOT or (
+                    previous_token.type == TOKEN.RESERVED and (
+                        previous_token.text == 'set' or previous_token.text == 'get')
                         )) and reserved_word_pattern.match(resulting_string):
                 if resulting_string == 'in' or resulting_string == 'of':
                     # in and of are operators, need to hack
@@ -254,9 +254,9 @@ class Tokenizer(BaseTokenizer):
 
         return None
 
-    def _read_regexp(self, c, last_token):
+    def _read_regexp(self, c, previous_token):
 
-        if c == '/' and self.allowRegExOrXML(last_token):
+        if c == '/' and self.allowRegExOrXML(previous_token):
             # handle regexp
             resulting_string = self._input.next()
             esc = False
@@ -291,9 +291,9 @@ class Tokenizer(BaseTokenizer):
         return None
 
 
-    def _read_xml(self, c, last_token):
+    def _read_xml(self, c, previous_token):
         if self.opts.e4x and c == "<" and self._input.test(
-                startXmlRegExp) and self.allowRegExOrXML(last_token):
+                startXmlRegExp) and self.allowRegExOrXML(previous_token):
             # handle e4x xml literals
             xmlStr = ""
             match = self._input.match(xmlRegExp)
@@ -402,11 +402,11 @@ class Tokenizer(BaseTokenizer):
         return token
 
 
-    def allowRegExOrXML(self, last_token):
-        return (last_token.type == TOKEN.RESERVED and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
-            (last_token.type == TOKEN.END_EXPR and last_token.text == ')' and
-                last_token.parent and last_token.parent.type == TOKEN.RESERVED and last_token.parent.text in ['if', 'while', 'for']) or \
-            (last_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
+    def allowRegExOrXML(self, previous_token):
+        return (previous_token.type == TOKEN.RESERVED and previous_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
+            (previous_token.type == TOKEN.END_EXPR and previous_token.text == ')' and
+                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in ['if', 'while', 'for']) or \
+            (previous_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
                                     TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA])
 
     def parse_string(
