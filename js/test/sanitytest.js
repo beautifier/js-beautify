@@ -39,9 +39,11 @@ function SanityTest(func, name_of_test) {
     // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
     if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') === expected_value.join(', '))) {
       n_succeeded += 1;
+      return true;
     } else {
       n_failed += 1;
       failures.push([test_name, parameters, expected_value, result]);
+      return false;
     }
   };
 

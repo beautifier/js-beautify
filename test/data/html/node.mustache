@@ -50,6 +50,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'html-beautify';
     }
 
     function test_html_beautifier(input)
@@ -58,47 +59,62 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     }
 
     var sanitytest;
+    var test_name = '';
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
 
     // test the input on beautifier with the current flag settings
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
+        var success = true;
+        sanitytest.test_function(test_html_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
-        sanitytest.expect(input, expected);
+        success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected !== input) {
-            sanitytest.expect(expected, expected);
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
+        sanitytest.test_function(test_html_beautifier, 'eol ' + test_name);
         opts.eol = '\r\n';
         expected = expected.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
-        if (input && input.indexOf('\n') !== -1) {
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
             opts.eol = 'auto';
-            sanitytest.expect(input, expected);
+            success = success && sanitytest.expect(input, expected);
         }
         opts.eol = '\n';
+        return success;
     }
 
     // test html
     function bth(input, expectation)
     {
+        var success = true;
+
         var wrapped_input, wrapped_expectation, field_input, field_expectation;
 
         expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_html_beautifier, 'html_beautify');
-        test_fragment(input, expectation);
+        success = success && test_fragment(input, expectation);
 
         if (opts.indent_size === 4 && input) {
             wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
             wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            test_fragment(wrapped_input, wrapped_expectation);
+            success = success && test_fragment(wrapped_input, wrapped_expectation);
         }
+        return success;
     }
 
     function unicode_char(value) {
@@ -118,6 +134,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     {{^matrix}}
         // {{&name}}
         reset_options();
+        set_name('{{&name}}');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -129,6 +146,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         reset_options();
+        set_name('{{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -150,7 +168,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
+        set_name('end_with_newline = true');
         opts.end_with_newline = true;
+
         test_fragment('', '\n');
         test_fragment('<div></div>\n');
         test_fragment('<div></div>\n\n\n', '<div></div>\n');
@@ -162,10 +182,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</head>\n');
 
 
-        opts.end_with_newline = false;
+        reset_options();
+        //============================================================
+        set_name('Error cases');
         // error cases need love too
         bth('<img title="Bad food!" src="foo.jpg" alt="Evil" ">');
         bth("<!-- don't blow up if a comment is not complete"); // -->
+
+        reset_options();
+        //============================================================
+        set_name('Basic beautify');
 
         test_fragment(
             '<head>\n' +
@@ -262,6 +288,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div> content <img> content </div>');
         bth('Text <a href="#">Link</a> Text');
 
+        reset_options();
+        //============================================================
+        set_name('content_unformatted = ["script", "style"]');
         var content_unformatted = opts.content_unformatted;
         opts.content_unformatted = ['script', 'style'];
         bth('<script id="javascriptTemplate" type="text/x-kendo-template">\n' +
@@ -275,7 +304,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '  body {background-color:lightgrey}\n' +
             '  h1   {color:blue}\n' +
             '</style>');
-        opts.content_unformatted = content_unformatted;
+
+        reset_options();
+        //============================================================
+        set_name('inline = ["custom-element"]');
 
         inline_tags = opts.inline;
         opts.inline = ['custom-element'];
