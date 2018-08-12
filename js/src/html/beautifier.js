@@ -229,11 +229,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       return parser_token;
     };
 
-    this.indent_to_tag = function(tag) {
+    this.indent_to_tag = function(tag_list) {
       var temp_parent = this.tags;
 
       while (temp_parent) { //till we reach '' (the initial value);
-        if (temp_parent.tag === tag) { //if this is it use it
+        if (tag_list.indexOf(temp_parent.tag) !== -1) { //if this is it use it
           break;
         }
         temp_parent = temp_parent.parent;
@@ -297,7 +297,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         parser_token.type = 'TK_TAG_SINGLE';
         parser_token.is_closing_tag = true;
       } else if (indent_handlebars && tag_start_char === '{' && tag_check === 'else') {
-        this.indent_to_tag('if');
+        this.indent_to_tag(['if', 'unless']);
         parser_token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
       } else if (indent_handlebars && tag_start_char === '{' && (/[^#\^\/]/.test(raw_token.text.charAt(2)))) {

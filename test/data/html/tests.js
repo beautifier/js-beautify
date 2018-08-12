@@ -569,6 +569,30 @@ exports.test_data = {
           '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ]
+      },
+      {
+        input_: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '      {{translate "onText"}}',
+          '   {{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '   {{else if (eq callOn false)}}',
+          '{{translate "offText"}}',
+          '        {{/if}}'
+        ],
+        output: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '{{translate "onText"}}',
+          '{{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '{{else if (eq callOn false)}}',
+          '{{translate "offText"}}',
+          '{{/if}}'
+        ]
       }
     ]
   }, {
@@ -815,6 +839,31 @@ exports.test_data = {
           '{{else}}\n' +
           '    ^^^&content$$$\n' +
           '{{/if}}'
+      },
+      {
+        comment: 'ISSUE #800 and #1123: else if and #unless',
+        input_: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '      ^^^&content$$$',
+          '   {{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '   {{else if (eq callOn false)}}',
+          '^^^&content$$$',
+          '        {{/if}}'
+        ],
+        output: [
+          '{{#if callOn}}',
+          '    {{#unless callOn}}',
+          '        ^^^&content$$$',
+          '    {{else}}',
+          '        {{translate "offText"}}',
+          '    {{/unless callOn}}',
+          '{{else if (eq callOn false)}}',
+          '    ^^^&content$$$',
+          '{{/if}}'
+        ]
       },
       // Test {{}} inside of <> tags, which should be separated by spaces
       // for readability, unless they are inside a string.

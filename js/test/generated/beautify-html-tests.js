@@ -1074,6 +1074,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{translate "onText"}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{translate "offText"}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '{{translate "onText"}}\n' +
+            '{{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/if}}');
 
 
         //============================================================
@@ -1238,6 +1258,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{field}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    {{field}}\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{field}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{field}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{field}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    {{field}}\n' +
             '{{/if}}');
         test_fragment(
@@ -1428,6 +1470,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{/if}}');
         test_fragment(
             '<div{{someStyle}}></div>',
             //  -- output --
@@ -1614,6 +1678,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{! comment}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    {{! comment}}\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{! comment}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{! comment}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{! comment}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    {{! comment}}\n' +
             '{{/if}}');
         test_fragment(
@@ -1804,6 +1890,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{!-- comment--}}\n' +
             '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{!-- comment--}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{!-- comment--}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{!-- comment--}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '    {{!-- comment--}}\n' +
+            '{{/if}}');
         test_fragment(
             '<div{{someStyle}}></div>',
             //  -- output --
@@ -1992,6 +2100,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{/if}}');
         test_fragment(
             '<div{{someStyle}}></div>',
             //  -- output --
@@ -2178,6 +2308,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {pre{{field1}} {{field2}} {{field3}}post\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    {pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {pre{{field1}} {{field2}} {{field3}}post\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {pre{{field1}} {{field2}} {{field3}}post\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{/if}}');
         test_fragment(
@@ -2439,6 +2591,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    {{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -2766,6 +2956,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '--}}\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    {{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3156,6 +3384,56 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}\n' +
             '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '    {{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{/if}}');
         test_fragment(
             '<div{{someStyle}}></div>',
             //  -- output --
@@ -3447,6 +3725,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        content\n' +
             '    {{/if}}\n' +
             '{{else}}\n' +
+            '    content\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      content\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            'content\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        content\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
             '    content\n' +
             '{{/if}}');
         test_fragment(
