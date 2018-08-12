@@ -592,7 +592,7 @@ exports.test_data = {
         output: inputlib.operator_position.sanity
       }]
     }, {
-      name: "operator_position option - set to 'before-newline' (default value)",
+      name: 'operator_position option - set to "before-newline" (default value)',
       tests: [{
         comment: 'comprehensive, various newlines',
         input: inputlib.operator_position.comprehensive,
@@ -660,7 +660,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "operator_position option - set to 'after_newline'",
+      name: 'operator_position option - set to "after_newline"',
       options: [{
         name: "operator_position",
         value: "'after-newline'"
@@ -731,7 +731,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "operator_position option - set to 'preserve-newline'",
+      name: 'operator_position option - set to "preserve-newline"',
       options: [{
         name: "operator_position",
         value: "'preserve-newline'"

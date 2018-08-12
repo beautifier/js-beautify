@@ -27,126 +27,120 @@
 */
 
 function InputScanner(input_string) {
-  var _input = input_string || '';
-  var _input_length = _input.length;
-  var _position = 0;
+  this._input = input_string || '';
+  this._input_length = this._input.length;
+  this._position = 0;
+}
 
-  this.back = function() {
-    if (_position > 0) {
-      _position -= 1;
-    }
-  };
+InputScanner.prototype.restart = function() {
+  this._position = 0;
+};
 
-  this.hasNext = function() {
-    return _position < _input_length;
-  };
+InputScanner.prototype.back = function() {
+  if (this._position > 0) {
+    this._position -= 1;
+  }
+};
 
-  this.next = function() {
-    var val = null;
-    if (this.hasNext()) {
-      val = _input.charAt(_position);
-      _position += 1;
-    }
-    return val;
-  };
+InputScanner.prototype.hasNext = function() {
+  return this._position < this._input_length;
+};
 
-  this.peek = function(index) {
-    var val = null;
-    index = index || 0;
-    index += _position;
-    if (index >= 0 && index < _input_length) {
-      val = _input.charAt(index);
-    }
-    return val;
-  };
+InputScanner.prototype.next = function() {
+  var val = null;
+  if (this.hasNext()) {
+    val = this._input.charAt(this._position);
+    this._position += 1;
+  }
+  return val;
+};
 
-  this.test = function(pattern, index) {
-    index = index || 0;
-    index += _position;
-    pattern.lastIndex = index;
+InputScanner.prototype.peek = function(index) {
+  var val = null;
+  index = index || 0;
+  index += this._position;
+  if (index >= 0 && index < this._input_length) {
+    val = this._input.charAt(index);
+  }
+  return val;
+};
 
-    if (index >= 0 && index < _input_length) {
-      var pattern_match = pattern.exec(_input);
-      return pattern_match && pattern_match.index === index;
-    } else {
-      return false;
-    }
-  };
+InputScanner.prototype.test = function(pattern, index) {
+  index = index || 0;
+  index += this._position;
+  pattern.lastIndex = index;
 
-  this.testChar = function(pattern, index) {
-    // test one character regex match
-    var val = this.peek(index);
-    return val !== null && pattern.test(val);
-  };
+  if (index >= 0 && index < this._input_length) {
+    var pattern_match = pattern.exec(this._input);
+    return pattern_match && pattern_match.index === index;
+  } else {
+    return false;
+  }
+};
 
-  this.match = function(pattern) {
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match && pattern_match.index === _position) {
-      _position += pattern_match[0].length;
-    } else {
-      pattern_match = null;
-    }
-    return pattern_match;
-  };
+InputScanner.prototype.testChar = function(pattern, index) {
+  // test one character regex match
+  var val = this.peek(index);
+  return val !== null && pattern.test(val);
+};
 
-  this.readWhile = function(pattern) {
-    var val = '';
-    var match = this.match(pattern);
-    if (match) {
-      val = match[0];
-    }
-    return val;
-  };
+InputScanner.prototype.match = function(pattern) {
+  pattern.lastIndex = this._position;
+  var pattern_match = pattern.exec(this._input);
+  if (pattern_match && pattern_match.index === this._position) {
+    this._position += pattern_match[0].length;
+  } else {
+    pattern_match = null;
+  }
+  return pattern_match;
+};
 
-  this.readUntil = function(pattern) {
-    var val = '';
-    var match_index = _position;
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match) {
-      match_index = pattern_match.index;
-    } else {
-      match_index = _input_length;
-    }
+InputScanner.prototype.read = function(pattern) {
+  var val = '';
+  var match = this.match(pattern);
+  if (match) {
+    val = match[0];
+  }
+  return val;
+};
 
-    val = _input.substring(_position, match_index);
-    _position = match_index;
-    return val;
-  };
-
-  this.readUntilAfter = function(pattern) {
-    var val = '';
-    var match_index = _position;
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match) {
+InputScanner.prototype.readUntil = function(pattern, include_match) {
+  var val = '';
+  var match_index = this._position;
+  pattern.lastIndex = this._position;
+  var pattern_match = pattern.exec(this._input);
+  if (pattern_match) {
+    if (include_match) {
       match_index = pattern_match.index + pattern_match[0].length;
     } else {
-      match_index = _input_length;
+      match_index = pattern_match.index;
     }
+  } else {
+    match_index = this._input_length;
+  }
 
-    val = _input.substring(_position, match_index);
-    _position = match_index;
+  val = this._input.substring(this._position, match_index);
+  this._position = match_index;
+  return val;
+};
 
-    return val;
-  };
+InputScanner.prototype.readUntilAfter = function(pattern) {
+  return this.readUntil(pattern, true);
+};
 
-  /* css beautifier legacy helpers */
-  this.peekUntilAfter = function(pattern) {
-    var start = _position;
-    var val = this.readUntilAfter(pattern);
-    _position = start;
-    return val;
-  };
+/* css beautifier legacy helpers */
+InputScanner.prototype.peekUntilAfter = function(pattern) {
+  var start = this._position;
+  var val = this.readUntilAfter(pattern);
+  this._position = start;
+  return val;
+};
 
-  this.lookBack = function(testVal) {
-    var start = _position - 1;
-    return start >= testVal.length && _input.substring(start - testVal.length, start)
-      .toLowerCase() === testVal;
-  };
-
-}
+InputScanner.prototype.lookBack = function(testVal) {
+  var start = this._position - 1;
+  return start >= testVal.length && this._input.substring(start - testVal.length, start)
+    .toLowerCase() === testVal;
+};
 
 
 module.exports.InputScanner = InputScanner;

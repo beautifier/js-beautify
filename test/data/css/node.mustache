@@ -50,49 +50,66 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'css-beautify';
     }
 
-    function test_css_beautifier(input)
+    function test_beautifier(input)
     {
         return css_beautify(input, opts);
     }
 
     var sanitytest;
+    var test_name = '';
+
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
 
     // test the input on beautifier with the current flag settings
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
+        var success = true;
+        sanitytest.test_function(test_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
-        sanitytest.expect(input, expected);
+        success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected !== input) {
-            sanitytest.expect(expected, expected);
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
-        opts.eol = '\r\\n';
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
+        opts.eol = '\r\n';
         expected = expected.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
-        if (input && input.indexOf('\n') !== -1) {
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
             opts.eol = 'auto';
-            sanitytest.expect(input, expected);
+            success = success && sanitytest.expect(input, expected);
         }
         opts.eol = '\n';
+        return success;
     }
 
     // test css
     function t(input, expectation)
     {
+        var success = true;
         var wrapped_input, wrapped_expectation;
 
         expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_css_beautifier, 'css_beautify');
-        test_fragment(input, expectation);
+        success = success && test_fragment(input, expectation);
+
+        return success;
     }
 
     function unicode_char(value) {
@@ -112,6 +129,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     {{^matrix}}
         // {{&name}}
         reset_options();
+        set_name('{{&name}}');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -123,6 +141,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         reset_options();
+        set_name('{{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}

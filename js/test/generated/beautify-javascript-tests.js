@@ -58,57 +58,71 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'js-beautify';
     }
 
-    function test_js_beautifier(input)
+    function test_beautifier(input)
     {
         return js_beautify(input, opts);
     }
 
     var sanitytest;
+    var test_name = '';
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
 
     // test the input on beautifier with the current flag settings
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
+        var success = true;
+        sanitytest.test_function(test_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
-        sanitytest.expect(input, expected);
+        success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected !== input) {
-            sanitytest.expect(expected, expected);
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
-        opts.eol = '\r\\n';
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
+        opts.eol = '\r\n';
         expected = expected.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
-        if (input && input.indexOf('\n') !== -1) {
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
             opts.eol = 'auto';
-            sanitytest.expect(input, expected);
+            success = success && sanitytest.expect(input, expected);
         }
         opts.eol = '\n';
+        return success;
     }
-
 
 
     // test the input on beautifier with the current flag settings
     // test both the input as well as { input } wrapping
     function bt(input, expectation)
     {
+        var success = true;
+
         var wrapped_input, wrapped_expectation;
 
         expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_js_beautifier, 'js_beautify');
-        test_fragment(input, expectation);
+        success = success && test_fragment(input, expectation);
 
         // If we set raw, input should be unchanged
         opts.test_output_raw = true;
         if (!opts.end_with_newline) {
-            test_fragment(input, input);
+            success = success && test_fragment(input, input);
         }
         opts.test_output_raw = false;
 
@@ -125,16 +139,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         if (current_indent_size === 4 && input) {
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
-            test_fragment(wrapped_input, wrapped_expectation);
+            success = success && test_fragment(wrapped_input, wrapped_expectation);
 
             // If we set raw, input should be unchanged
             opts.test_output_raw = true;
             if (!opts.end_with_newline) {
-                test_fragment(wrapped_input, wrapped_input);
+                success = success && test_fragment(wrapped_input, wrapped_input);
             }
             opts.test_output_raw = false;
         }
-
+        return success;
     }
 
     // run all tests for the given brace style ("collapse", "expand", "end-expand", or "none").
@@ -296,6 +310,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Unicode Support
         reset_options();
+        set_name('Unicode Support');
         bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
         bt(
             'var ' + unicode_char(228) + 'x = {\n' +
@@ -306,6 +321,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Test template and continuation strings
         reset_options();
+        set_name('Test template and continuation strings');
         bt('`This is a ${template} string.`');
         bt(
             '`This\n' +
@@ -345,6 +361,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // ES7 Decorators
         reset_options();
+        set_name('ES7 Decorators');
         bt('@foo');
         bt('@foo(bar)');
         bt(
@@ -356,6 +373,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // ES7 exponential
         reset_options();
+        set_name('ES7 exponential');
         bt('x ** 2');
         bt('x ** -2');
 
@@ -363,6 +381,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Spread operator
         reset_options();
+        set_name('Spread operator');
         opts.brace_style = "collapse,preserve-inline";
         bt('const m = { ...item, c: 3 };');
         bt(
@@ -378,6 +397,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Object literal shorthand functions
         reset_options();
+        set_name('Object literal shorthand functions');
         bt(
             'return {\n' +
             '    foo() {\n' +
@@ -426,8 +446,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // End With Newline - (eof = "\n")
+        // End With Newline - (end_with_newline = "true")
         reset_options();
+        set_name('End With Newline - (end_with_newline = "true")');
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('   return .5', '   return .5\n');
@@ -442,8 +463,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '   return .5\n');
         test_fragment('\n');
 
-        // End With Newline - (eof = "")
+        // End With Newline - (end_with_newline = "false")
         reset_options();
+        set_name('End With Newline - (end_with_newline = "false")');
         opts.end_with_newline = false;
         test_fragment('');
         test_fragment('   return .5');
@@ -460,8 +482,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Support simple language specific option inheritance/overriding - (j = "   ")
+        // Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
         reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")');
         opts.js = { 'indent_size': 3 };
         opts.css = { 'indent_size': 5 };
         bt(
@@ -469,16 +492,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '   test();\n' +
             '}');
 
-        // Support simple language specific option inheritance/overriding - (j = "    ")
+        // Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")');
         opts.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } };
         bt(
             'if (a == b) {\n' +
             '    test();\n' +
             '}');
 
-        // Support simple language specific option inheritance/overriding - (j = "    ")
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")
         reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")');
         opts.indent_size = 9;
         opts.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2};
         opts.js = { 'indent_size': 4 };
@@ -490,8 +515,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt(
             'var a ={a: 2};\n' +
@@ -512,8 +538,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }');
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }');
 
-        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt(
             'var a =\n' +
@@ -584,8 +611,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    e();\n' +
             '}');
 
-        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse"")');
         opts.brace_style = 'collapse';
         bt(
             'var a ={a: 2};\n' +
@@ -626,8 +654,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    e();\n' +
             '}');
 
-        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse"")');
         opts.brace_style = 'collapse';
         bt(
             'var a =\n' +
@@ -700,8 +729,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
+        // Comma-first option - (comma_first = "false")
         reset_options();
+        set_name('Comma-first option - (comma_first = "false")');
         opts.comma_first = false;
         bt(
             '{a:1, b:2}',
@@ -832,8 +862,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }\n' +
             ');');
 
-        // Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
+        // Comma-first option - (comma_first = "true")
         reset_options();
+        set_name('Comma-first option - (comma_first = "true")');
         opts.comma_first = true;
         bt(
             '{a:1, b:2}',
@@ -969,8 +1000,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Unindent chained functions - ()
+        // Unindent chained functions - (unindent_chained_methods = "true")
         reset_options();
+        set_name('Unindent chained functions - (unindent_chained_methods = "true")');
         opts.unindent_chained_methods = true;
         bt(
             'f().f().f()\n' +
@@ -1025,8 +1057,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Space in parens tests - (s = "", e = "")
+        // Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")');
         opts.space_in_paren = false;
         opts.space_in_empty_paren = false;
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);');
@@ -1075,8 +1108,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }]\n' +
             '}');
 
-        // Space in parens tests - (s = "", e = "")
+        // Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")');
         opts.space_in_paren = false;
         opts.space_in_empty_paren = true;
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);');
@@ -1125,8 +1159,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }]\n' +
             '}');
 
-        // Space in parens tests - (s = " ", e = "")
+        // Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")');
         opts.space_in_paren = true;
         opts.space_in_empty_paren = false;
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );');
@@ -1175,8 +1210,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    } ]\n' +
             '}');
 
-        // Space in parens tests - (s = " ", e = " ")
+        // Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")');
         opts.space_in_paren = true;
         opts.space_in_empty_paren = true;
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );');
@@ -1227,8 +1263,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")');
         opts.operator_position = 'before-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1276,8 +1313,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")');
         opts.operator_position = 'after-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1325,8 +1363,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")');
         opts.operator_position = 'preserve-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1376,8 +1415,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'before-newline' (default value)
+        // operator_position option - set to "before-newline" (default value)
         reset_options();
+        set_name('operator_position option - set to "before-newline" (default value)');
         
         // comprehensive, various newlines
         bt(
@@ -1498,8 +1538,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'after_newline'
+        // operator_position option - set to "after_newline"
         reset_options();
+        set_name('operator_position option - set to "after_newline"');
         opts.operator_position = 'after-newline';
         
         // comprehensive, various newlines
@@ -1620,8 +1661,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'preserve-newline'
+        // operator_position option - set to "preserve-newline"
         reset_options();
+        set_name('operator_position option - set to "preserve-newline"');
         opts.operator_position = 'preserve-newline';
         
         // comprehensive, various newlines
@@ -1730,6 +1772,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Yield tests
         reset_options();
+        set_name('Yield tests');
         bt('yield /foo\\//;');
         bt('result = yield pgClient.query_(queryString);');
         bt('yield [1, 2]');
@@ -1746,6 +1789,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Async / await tests
         reset_options();
+        set_name('Async / await tests');
         bt('async function foo() {}');
         bt('let w = async function foo() {}');
         bt(
@@ -1817,6 +1861,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // e4x - Test that e4x literals passed through when e4x-option is enabled
         reset_options();
+        set_name('e4x - Test that e4x literals passed through when e4x-option is enabled');
         opts.e4x = true;
         bt(
             'xml=<a b="c"><d/><e>\n' +
@@ -2189,11 +2234,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // 
         reset_options();
+        set_name('');
 
 
         //============================================================
         // e4x disabled
         reset_options();
+        set_name('e4x disabled');
         opts.e4x = false;
         bt(
             'xml=<a b="c"><d/><e>\n' +
@@ -2206,6 +2253,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Multiple braces
         reset_options();
+        set_name('Multiple braces');
         bt(
             '{{}/z/}',
             //  -- output --
@@ -2216,8 +2264,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Space before conditional - (s = "")
+        // Space before conditional - (space_before_conditional = "false")
         reset_options();
+        set_name('Space before conditional - (space_before_conditional = "false")');
         opts.space_before_conditional = false;
         bt('if(a) b()');
         bt('while(a) b()');
@@ -2248,8 +2297,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return [];');
         bt('return ();');
 
-        // Space before conditional - (s = " ")
+        // Space before conditional - (space_before_conditional = "true")
         reset_options();
+        set_name('Space before conditional - (space_before_conditional = "true")');
         opts.space_before_conditional = true;
         bt('if (a) b()');
         bt('while (a) b()');
@@ -2284,6 +2334,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Beautify preserve formatting
         reset_options();
+        set_name('Beautify preserve formatting');
         bt(
             '/* beautify preserve:start */\n' +
             '/* beautify preserve:end */');
@@ -2589,6 +2640,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Comments and  tests
         reset_options();
+        set_name('Comments and  tests');
         
         // #913
         bt(
@@ -2672,6 +2724,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Template Formatting
         reset_options();
+        set_name('Template Formatting');
         bt('<?=$view["name"]; ?>');
         bt('a = <?= external() ?>;');
         bt(
@@ -2685,8 +2738,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // jslint and space after anon function - (f = " ", c = "")
+        // jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")');
         opts.jslint_happy = true;
         opts.space_after_anon_function = true;
         bt(
@@ -2777,8 +2831,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
 
-        // jslint and space after anon function - (f = " ", c = "")
+        // jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")');
         opts.jslint_happy = true;
         opts.space_after_anon_function = false;
         bt(
@@ -2869,8 +2924,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
 
-        // jslint and space after anon function - (f = " ", c = "    ")
+        // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")');
         opts.jslint_happy = false;
         opts.space_after_anon_function = true;
         bt(
@@ -2961,8 +3017,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
 
-        // jslint and space after anon function - (f = "", c = "    ")
+        // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")');
         opts.jslint_happy = false;
         opts.space_after_anon_function = false;
         bt(
@@ -3058,6 +3115,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Regression tests
         reset_options();
+        set_name('Regression tests');
         
         // Issue 241
         bt(
@@ -3554,6 +3612,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Test non-positionable-ops
         reset_options();
+        set_name('Test non-positionable-ops');
         bt('a += 2;');
         bt('a -= 2;');
         bt('a *= 2;');
@@ -3570,6 +3629,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // 
         reset_options();
+        set_name('');
         
         // exponent literals
         bt('a = 1e10');
@@ -3674,8 +3734,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3718,8 +3779,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        // brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")');
         opts.brace_style = 'expand,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3780,8 +3842,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        // brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")');
         opts.brace_style = 'end-expand,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3828,8 +3891,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")');
         opts.brace_style = 'none,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3872,8 +3936,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")');
         opts.brace_style = 'collapse-preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3920,6 +3985,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Destructured and related
         reset_options();
+        set_name('Destructured and related');
         opts.brace_style = 'collapse,preserve-inline';
         
         // Issue 382 - import destructured 
@@ -4055,6 +4121,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Old tests
         reset_options();
+        set_name('Old tests');
         bt('');
         test_fragment('   return .5');
         test_fragment(
