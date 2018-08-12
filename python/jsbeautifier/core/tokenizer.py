@@ -77,16 +77,19 @@ class Tokenizer:
                 current.comments_before = comments
                 comments = TokenStream()
 
+            current.parent = open_token
+
             if self.is_opening(current):
-                current.parent = open_token
                 open_stack.append(open_token)
                 open_token = current
             elif open_token is not None and self.is_closing(current, open_token):
                 current.opened = open_token
+                open_token.closed = current
                 open_token = open_stack.pop()
                 current.parent = open_token
 
             current.previous = previous
+            previous.next = current
 
             self._tokens.add(current)
             previous = current
