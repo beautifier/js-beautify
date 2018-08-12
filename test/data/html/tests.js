@@ -1011,6 +1011,42 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "ISSUE #575 and #994 Ignore directive works in html",
+    description: "",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<!-- beautify ignore:start -->',
+        '@{',
+        '',
+        '    ViewBag.Title = "Dashboard";',
+        '    string firstName = string.Empty;',
+        '    string userId = ViewBag.UserId;',
+        '',
+        '    if( !string.IsNullOrEmpty(ViewBag.FirstName ) ) {',
+        '',
+        '         firstName = "<h2>Hi " + ViewBag.FirstName + "</h2>";',
+        '',
+        '    }',
+        '',
+        '}',
+        '<!-- beautify ignore:end -->',
+        '',
+        '<header class="layout-header">',
+        '',
+        '    <h2 id="logo"><a href="/">Logo</a></h2>',
+        '',
+        '    <ul class="social">',
+        '',
+        '        <li class="facebook"><a href="#">Facebook</a></li>',
+        '        <li class="twitter"><a href="#">Twitter</a></li>',
+        '',
+        '    </ul>',
+        '',
+        '</header>'
+      ]
+    }]
+  }, {
     name: "Issue 1478 - Space handling inside self closing tag",
     description: "Properly indent following text after self closing tags regardless of space",
     options: [],

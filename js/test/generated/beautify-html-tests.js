@@ -3902,6 +3902,41 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // ISSUE #575 and #994 Ignore directive works in html
+        reset_options();
+        set_name('ISSUE #575 and #994 Ignore directive works in html');
+        bth(
+            '<!-- beautify ignore:start -->\n' +
+            '@{\n' +
+            '\n' +
+            '    ViewBag.Title = "Dashboard";\n' +
+            '    string firstName = string.Empty;\n' +
+            '    string userId = ViewBag.UserId;\n' +
+            '\n' +
+            '    if( !string.IsNullOrEmpty(ViewBag.FirstName ) ) {\n' +
+            '\n' +
+            '         firstName = "<h2>Hi " + ViewBag.FirstName + "</h2>";\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '}\n' +
+            '<!-- beautify ignore:end -->\n' +
+            '\n' +
+            '<header class="layout-header">\n' +
+            '\n' +
+            '    <h2 id="logo"><a href="/">Logo</a></h2>\n' +
+            '\n' +
+            '    <ul class="social">\n' +
+            '\n' +
+            '        <li class="facebook"><a href="#">Facebook</a></li>\n' +
+            '        <li class="twitter"><a href="#">Twitter</a></li>\n' +
+            '\n' +
+            '    </ul>\n' +
+            '\n' +
+            '</header>');
+
+
+        //============================================================
         // Issue 1478 - Space handling inside self closing tag
         reset_options();
         set_name('Issue 1478 - Space handling inside self closing tag');
