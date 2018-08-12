@@ -303,20 +303,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       } else if (indent_handlebars && tag_start_char === '{' && (/[^#\^\/]/.test(raw_token.text.charAt(2)))) {
         parser_token.type = 'TK_TAG_SINGLE';
         parser_token.is_closing_tag = true;
-      } else if (parser_token.is_unformatted || parser_token.is_content_unformatted) {
-        // do not reformat the "unformatted" or "content_unformatted" tags
-        if (this._tokens.peek().type === TOKEN.TEXT) {
-          this.add_raw_token(content, this._tokens.next());
-        }
-
-        if (this._tokens.peek().type === TOKEN.TAG_OPEN) {
-          this.add_raw_token(content, this._tokens.next());
-          if (this._tokens.peek().type === TOKEN.TAG_CLOSE) {
-            this.add_raw_token(content, this._tokens.next());
-          }
-        }
-        parser_token.type = 'TK_TAG_SINGLE';
-        parser_token.is_closing_tag = true;
       } else if (tag_check.charAt(0) === '!') { //peek for <! comment
         // for comments content is already correct.
         parser_token.type = 'TK_TAG_SINGLE';
