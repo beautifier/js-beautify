@@ -1011,7 +1011,7 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "ISSUE #575 and #994 Ignore directive works in html",
+    name: "ISSUE #545 and #944 Ignore directive works in html",
     description: "",
     options: [],
     tests: [{
