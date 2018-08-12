@@ -273,26 +273,12 @@ function remove_redundant_indentation(output, frame) {
 }
 
 function in_array(what, arr) {
-  for (var i = 0; i < arr.length; i += 1) {
-    if (arr[i] === what) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '');
+  return arr.indexOf(what) !== -1;
 }
 
 function ltrim(s) {
   return s.replace(/^\s+/g, '');
 }
-
-// function rtrim(s) {
-//     return s.replace(/\s+$/g, '');
-// }
-
 
 function generateMapFromStrings(list) {
   var result = {};
@@ -338,8 +324,7 @@ function Beautifier(js_source_text, options) {
   js_source_text = js_source_text || '';
 
   var output;
-  var tokens = [],
-    token_pos;
+  var tokens;
   var tokenizer;
   var current_token;
   var last_type, last_last_text, indent_string;
@@ -518,9 +503,8 @@ function Beautifier(js_source_text, options) {
     var sweet_code;
     tokenizer = new Tokenizer(js_source_text, opt, indent_string);
     tokens = tokenizer.tokenize();
-    token_pos = 0;
 
-    current_token = get_token();
+    current_token = tokens.next();
     while (current_token) {
       handlers[current_token.type]();
 
@@ -528,8 +512,7 @@ function Beautifier(js_source_text, options) {
       last_type = current_token.type;
       flags.last_text = current_token.text;
 
-      token_pos += 1;
-      current_token = get_token();
+      current_token = tokens.next();
     }
 
     sweet_code = output.get_code(opt.end_with_newline, opt.eol);
@@ -540,17 +523,20 @@ function Beautifier(js_source_text, options) {
   function handle_whitespace_and_comments(local_token, preserve_statement_flags) {
     var newlines = local_token.newlines;
     var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
-    var temp_token = current_token;
 
-    for (var h = 0; h < local_token.comments_before.length; h++) {
-      // The cleanest handling of inline comments is to treat them as though they aren't there.
-      // Just continue formatting and the behavior should be logical.
-      // Also ignore unknown tokens.  Again, this should result in better behavior.
-      current_token = local_token.comments_before[h];
-      handle_whitespace_and_comments(current_token, preserve_statement_flags);
-      handlers[current_token.type](preserve_statement_flags);
+    if (local_token.comments_before) {
+      var temp_token = current_token;
+      current_token = local_token.comments_before.next();
+      while (current_token) {
+        // The cleanest handling of inline comments is to treat them as though they aren't there.
+        // Just continue formatting and the behavior should be logical.
+        // Also ignore unknown tokens.  Again, this should result in better behavior.
+        handle_whitespace_and_comments(current_token, preserve_statement_flags);
+        handlers[current_token.type](preserve_statement_flags);
+        current_token = local_token.comments_before.next();
+      }
+      current_token = temp_token;
     }
-    current_token = temp_token;
 
     if (keep_whitespace) {
       for (var i = 0; i < newlines; i += 1) {
@@ -602,7 +588,7 @@ function Beautifier(js_source_text, options) {
       return;
     }
 
-    var shouldPreserveOrForce = (opt.preserve_newlines && current_token.wanted_newline) || force_linewrap;
+    var shouldPreserveOrForce = (opt.preserve_newlines && current_token.newlines) || force_linewrap;
     var operatorLogicApplies = in_array(flags.last_text, tokenizer.positionable_operators) || in_array(current_token.text, tokenizer.positionable_operators);
 
     if (operatorLogicApplies) {
@@ -633,7 +619,7 @@ function Beautifier(js_source_text, options) {
   function print_newline(force_newline, preserve_statement_flags) {
     if (!preserve_statement_flags) {
       if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && (last_type !== TOKEN.OPERATOR || flags.last_text === '--' || flags.last_text === '++')) {
-        var next_token = get_token(1);
+        var next_token = tokens.peek();
         while (flags.mode === MODE.Statement &&
           !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
           !flags.do_block) {
@@ -649,7 +635,7 @@ function Beautifier(js_source_text, options) {
 
   function print_token_line_indentation() {
     if (output.just_added_newline()) {
-      if (opt.keep_array_indentation && is_array(flags.mode) && current_token.wanted_newline) {
+      if (opt.keep_array_indentation && is_array(flags.mode) && current_token.newlines) {
         output.current_line.push(current_token.whitespace_before);
         output.space_before_token = false;
       } else if (output.set_indent(flags.indentation_level)) {
@@ -739,9 +725,9 @@ function Beautifier(js_source_text, options) {
     var start = false;
     start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD);
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'do');
-    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.wanted_newline);
+    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.newlines);
     start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'else' &&
-      !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before.length));
+      !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before));
     start = start || (last_type === TOKEN.END_EXPR && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional));
     start = start || (last_type === TOKEN.WORD && flags.mode === MODE.BlockStatement &&
       !flags.in_case &&
@@ -772,7 +758,7 @@ function Beautifier(js_source_text, options) {
 
   function all_lines_start_with(lines, c) {
     for (var i = 0; i < lines.length; i++) {
-      var line = trim(lines[i]);
+      var line = lines[i].trim();
       if (line.charAt(0) !== c) {
         return false;
       }
@@ -796,11 +782,6 @@ function Beautifier(js_source_text, options) {
 
   function is_special_word(word) {
     return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async']);
-  }
-
-  function get_token(offset) {
-    var index = token_pos + (offset || 0);
-    return (index < 0 || index >= tokens.length) ? null : tokens[index];
   }
 
   function handle_start_expr() {
@@ -893,7 +874,7 @@ function Beautifier(js_source_text, options) {
     } else if (last_type === TOKEN.END_EXPR || last_type === TOKEN.START_EXPR || last_type === TOKEN.END_BLOCK || flags.last_text === '.' || last_type === TOKEN.COMMA) {
       // do nothing on (( and )( and ][ and ]( and .(
       // TODO: Consider whether forcing this is required.  Review failing tests when removed.
-      allow_wrap_or_preserved_newline(current_token.wanted_newline);
+      allow_wrap_or_preserved_newline(current_token.newlines);
     }
 
     set_mode(next_mode);
@@ -950,8 +931,8 @@ function Beautifier(js_source_text, options) {
     handle_whitespace_and_comments(current_token);
 
     // Check if this is should be treated as a ObjectLiteral
-    var next_token = get_token(1);
-    var second_token = get_token(2);
+    var next_token = tokens.peek();
+    var second_token = tokens.peek(1);
     if (second_token && (
         (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
         (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
@@ -978,7 +959,7 @@ function Beautifier(js_source_text, options) {
       set_mode(MODE.BlockStatement);
     }
 
-    var empty_braces = !next_token.comments_before.length && next_token.text === '}';
+    var empty_braces = !next_token.comments_before && next_token.text === '}';
     var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
       last_type === TOKEN.END_EXPR;
 
@@ -990,8 +971,8 @@ function Beautifier(js_source_text, options) {
       flags.inline_frame = true;
       do {
         index += 1;
-        check_token = get_token(index);
-        if (check_token.wanted_newline) {
+        check_token = tokens.peek(index - 1);
+        if (check_token.newlines) {
           flags.inline_frame = false;
           break;
         }
@@ -1000,7 +981,7 @@ function Beautifier(js_source_text, options) {
     }
 
     if ((opt.brace_style === "expand" ||
-        (opt.brace_style === "none" && current_token.wanted_newline)) &&
+        (opt.brace_style === "none" && current_token.newlines)) &&
       !flags.inline_frame) {
       if (last_type !== TOKEN.OPERATOR &&
         (empty_anonymous_function ||
@@ -1075,7 +1056,7 @@ function Beautifier(js_source_text, options) {
       } else if (in_array(current_token.text, ['as', 'from']) && !flags.import_block) {
         current_token.type = TOKEN.WORD;
       } else if (flags.mode === MODE.ObjectLiteral) {
-        var next_token = get_token(1);
+        var next_token = tokens.peek();
         if (next_token.text === ':') {
           current_token.type = TOKEN.WORD;
         }
@@ -1087,7 +1068,7 @@ function Beautifier(js_source_text, options) {
       if (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD) {
         flags.declaration_statement = true;
       }
-    } else if (current_token.wanted_newline && !is_expression(flags.mode) &&
+    } else if (current_token.newlines && !is_expression(flags.mode) &&
       (last_type !== TOKEN.OPERATOR || (flags.last_text === '--' || flags.last_text === '++')) &&
       last_type !== TOKEN.EQUALS &&
       (opt.preserve_newlines || !(last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
@@ -1152,7 +1133,7 @@ function Beautifier(js_source_text, options) {
         (output.just_added_newline() && !(in_array(flags.last_text, ['(', '[', '{', ':', '=', ',']) || last_type === TOKEN.OPERATOR))) {
         // make sure there is a nice clean space of at least one blank line
         // before a new function definition
-        if (!output.just_added_blankline() && !current_token.comments_before.length) {
+        if (!output.just_added_blankline() && !current_token.comments_before) {
           print_newline();
           print_newline(true);
         }
@@ -1192,7 +1173,7 @@ function Beautifier(js_source_text, options) {
       } else {
         if (opt.brace_style === "expand" ||
           opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.wanted_newline)) {
+          (opt.brace_style === "none" && current_token.newlines)) {
           prefix = 'NEWLINE';
         } else {
           prefix = 'SPACE';
@@ -1235,7 +1216,7 @@ function Beautifier(js_source_text, options) {
       if ((!(last_type === TOKEN.END_BLOCK && previous_flags.mode === MODE.BlockStatement) ||
           opt.brace_style === "expand" ||
           opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.wanted_newline)) &&
+          (opt.brace_style === "none" && current_token.newlines)) &&
         !flags.inline_frame) {
         print_newline();
       } else {
@@ -1298,7 +1279,7 @@ function Beautifier(js_source_text, options) {
       handle_whitespace_and_comments(current_token);
     }
 
-    var next_token = get_token(1);
+    var next_token = tokens.peek();
     while (flags.mode === MODE.Statement &&
       !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
       !flags.do_block) {
@@ -1478,7 +1459,7 @@ function Beautifier(js_source_text, options) {
           output.space_before_token = true;
 
           if (!isColon || isTernaryColon) {
-            if (get_token(1).wanted_newline) {
+            if (tokens.peek().newlines) {
               print_newline(false, true);
             } else {
               allow_wrap_or_preserved_newline();
@@ -1511,7 +1492,7 @@ function Beautifier(js_source_text, options) {
     if (isGeneratorAsterisk) {
       allow_wrap_or_preserved_newline();
       space_before = false;
-      var next_token = get_token(1);
+      var next_token = tokens.peek();
       space_after = next_token && in_array(next_token.type, [TOKEN.WORD, TOKEN.RESERVED]);
     } else if (current_token.text === '...') {
       allow_wrap_or_preserved_newline();
@@ -1528,7 +1509,7 @@ function Beautifier(js_source_text, options) {
 
       // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
       // if there is a newline between -- or ++ and anything else we should preserve it.
-      if (current_token.wanted_newline && (current_token.text === '--' || current_token.text === '++')) {
+      if (current_token.newlines && (current_token.text === '--' || current_token.text === '++')) {
         print_newline(false, true);
       }
 
@@ -1590,7 +1571,7 @@ function Beautifier(js_source_text, options) {
     }
 
     // inline block
-    if (!acorn.newline.test(current_token.text) && !current_token.wanted_newline) {
+    if (!acorn.newline.test(current_token.text) && !current_token.newlines) {
       output.space_before_token = true;
       print_token();
       output.space_before_token = true;
@@ -1632,7 +1613,7 @@ function Beautifier(js_source_text, options) {
   }
 
   function handle_comment(preserve_statement_flags) {
-    if (current_token.wanted_newline) {
+    if (current_token.newlines) {
       print_newline(false, preserve_statement_flags);
     } else {
       output.trim(true);
@@ -1851,76 +1832,74 @@ exports.isIdentifierChar = function(code) {
 */
 
 function OutputLine(parent) {
+  this._parent = parent;
   this._character_count = 0;
   // use indent_count as a marker for this._lines that have preserved indentation
   this._indent_count = -1;
 
   this._items = [];
-  var _empty = true;
-
-  this.set_indent = function(level) {
-    this._character_count = parent.baseIndentLength + level * parent.indent_length;
-    this._indent_count = level;
-  };
-
-  this.get_character_count = function() {
-    return this._character_count;
-  };
-
-  this.is_empty = function() {
-    return _empty;
-  };
-
-  this.last = function() {
-    if (!this._empty) {
-      return this._items[this._items.length - 1];
-    } else {
-      return null;
-    }
-  };
-
-  this.push = function(item) {
-    this._items.push(item);
-    this._character_count += item.length;
-    _empty = false;
-  };
-
-  this.pop = function() {
-    var item = null;
-    if (!_empty) {
-      item = this._items.pop();
-      this._character_count -= item.length;
-      _empty = this._items.length === 0;
-    }
-    return item;
-  };
-
-  this.remove_indent = function() {
-    if (this._indent_count > 0) {
-      this._indent_count -= 1;
-      this._character_count -= parent.indent_length;
-    }
-  };
-
-  this.trim = function() {
-    while (this.last() === ' ') {
-      this._items.pop();
-      this._character_count -= 1;
-    }
-    _empty = this._items.length === 0;
-  };
-
-  this.toString = function() {
-    var result = '';
-    if (!this._empty) {
-      if (this._indent_count >= 0) {
-        result = parent.indent_cache[this._indent_count];
-      }
-      result += this._items.join('');
-    }
-    return result;
-  };
 }
+
+OutputLine.prototype.set_indent = function(level) {
+  this._character_count = this._parent.baseIndentLength + level * this._parent.indent_length;
+  this._indent_count = level;
+};
+
+OutputLine.prototype.get_character_count = function() {
+  return this._character_count;
+};
+
+OutputLine.prototype.is_empty = function() {
+  return this._items.length === 0;
+};
+
+OutputLine.prototype.last = function() {
+  if (!this.is_empty()) {
+    return this._items[this._items.length - 1];
+  } else {
+    return null;
+  }
+};
+
+OutputLine.prototype.push = function(item) {
+  this._items.push(item);
+  this._character_count += item.length;
+};
+
+OutputLine.prototype.pop = function() {
+  var item = null;
+  if (!this.is_empty()) {
+    item = this._items.pop();
+    this._character_count -= item.length;
+  }
+  return item;
+};
+
+OutputLine.prototype.remove_indent = function() {
+  if (this._indent_count > 0) {
+    this._indent_count -= 1;
+    this._character_count -= this._parent.indent_length;
+  }
+};
+
+OutputLine.prototype.trim = function() {
+  while (this.last() === ' ') {
+    this._items.pop();
+    this._character_count -= 1;
+  }
+};
+
+OutputLine.prototype.toString = function() {
+  var result = '';
+  if (!this.is_empty()) {
+    if (this._indent_count >= 0) {
+      result = this._parent.indent_cache[this._indent_count];
+    }
+    result += this._items.join('');
+  }
+  return result;
+};
+
 
 function Output(indent_string, baseIndentString) {
   baseIndentString = baseIndentString || '';
@@ -1935,125 +1914,124 @@ function Output(indent_string, baseIndentString) {
   this.previous_line = null;
   this.current_line = null;
   this.space_before_token = false;
-
-  this.add_outputline = function() {
-    this.previous_line = this.current_line;
-    this.current_line = new OutputLine(this);
-    this._lines.push(this.current_line);
-  };
-
   // initialize
   this.add_outputline();
+}
 
+Output.prototype.add_outputline = function() {
+  this.previous_line = this.current_line;
+  this.current_line = new OutputLine(this);
+  this._lines.push(this.current_line);
+};
 
-  this.get_line_number = function() {
-    return this._lines.length;
-  };
+Output.prototype.get_line_number = function() {
+  return this._lines.length;
+};
 
-  // Using object instead of string to allow for later expansion of info about each line
-  this.add_new_line = function(force_newline) {
-    if (this.get_line_number() === 1 && this.just_added_newline()) {
-      return false; // no newline on start of file
-    }
+// Using object instead of string to allow for later expansion of info about each line
+Output.prototype.add_new_line = function(force_newline) {
+  if (this.get_line_number() === 1 && this.just_added_newline()) {
+    return false; // no newline on start of file
+  }
 
-    if (force_newline || !this.just_added_newline()) {
-      if (!this.raw) {
-        this.add_outputline();
-      }
-      return true;
-    }
-
-    return false;
-  };
-
-  this.get_code = function(end_with_newline, eol) {
-    var sweet_code = this._lines.join('\n').replace(/[\r\n\t ]+$/, '');
-
-    if (end_with_newline) {
-      sweet_code += '\n';
-    }
-
-    if (eol !== '\n') {
-      sweet_code = sweet_code.replace(/[\n]/g, eol);
-    }
-
-    return sweet_code;
-  };
-
-  this.set_indent = function(level) {
-    // Never indent your first output indent at the start of the file
-    if (this._lines.length > 1) {
-      while (level >= this.indent_cache.length) {
-        this.indent_cache.push(this.indent_cache[this.indent_cache.length - 1] + this.indent_string);
-      }
-
-      this.current_line.set_indent(level);
-      return true;
-    }
-    this.current_line.set_indent(0);
-    return false;
-  };
-
-  this.add_raw_token = function(token) {
-    for (var x = 0; x < token.newlines; x++) {
+  if (force_newline || !this.just_added_newline()) {
+    if (!this.raw) {
       this.add_outputline();
     }
-    this.current_line.push(token.whitespace_before);
-    this.current_line.push(token.text);
-    this.space_before_token = false;
-  };
+    return true;
+  }
 
-  this.add_token = function(printable_token) {
-    this.add_space_before_token();
-    this.current_line.push(printable_token);
-  };
+  return false;
+};
 
-  this.add_space_before_token = function() {
-    if (this.space_before_token && !this.just_added_newline()) {
-      this.current_line.push(' ');
-    }
-    this.space_before_token = false;
-  };
+Output.prototype.get_code = function(end_with_newline, eol) {
+  var sweet_code = this._lines.join('\n').replace(/[\r\n\t ]+$/, '');
 
-  this.remove_indent = function(index) {
-    var output_length = this._lines.length;
-    while (index < output_length) {
-      this._lines[index].remove_indent();
-      index++;
-    }
-  };
+  if (end_with_newline) {
+    sweet_code += '\n';
+  }
 
-  this.trim = function(eat_newlines) {
-    eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
+  if (eol !== '\n') {
+    sweet_code = sweet_code.replace(/[\n]/g, eol);
+  }
 
-    this.current_line.trim(indent_string, baseIndentString);
+  return sweet_code;
+};
 
-    while (eat_newlines && this._lines.length > 1 &&
-      this.current_line.is_empty()) {
-      this._lines.pop();
-      this.current_line = this._lines[this._lines.length - 1];
-      this.current_line.trim();
+Output.prototype.set_indent = function(level) {
+  // Never indent your first output indent at the start of the file
+  if (this._lines.length > 1) {
+    while (level >= this.indent_cache.length) {
+      this.indent_cache.push(this.indent_cache[this.indent_cache.length - 1] + this.indent_string);
     }
 
-    this.previous_line = this._lines.length > 1 ? this._lines[this._lines.length - 2] : null;
-  };
+    this.current_line.set_indent(level);
+    return true;
+  }
+  this.current_line.set_indent(0);
+  return false;
+};
 
-  this.just_added_newline = function() {
-    return this.current_line.is_empty();
-  };
+Output.prototype.add_raw_token = function(token) {
+  for (var x = 0; x < token.newlines; x++) {
+    this.add_outputline();
+  }
+  this.current_line.push(token.whitespace_before);
+  this.current_line.push(token.text);
+  this.space_before_token = false;
+};
 
-  this.just_added_blankline = function() {
-    if (this.just_added_newline()) {
-      if (this._lines.length === 1) {
-        return true; // start of the file and newline = blank
-      }
+Output.prototype.add_token = function(printable_token) {
+  this.add_space_before_token();
+  this.current_line.push(printable_token);
+};
 
-      var line = this._lines[this._lines.length - 2];
-      return line.is_empty();
+Output.prototype.add_space_before_token = function() {
+  if (this.space_before_token && !this.just_added_newline()) {
+    this.current_line.push(' ');
+  }
+  this.space_before_token = false;
+};
+
+Output.prototype.remove_indent = function(index) {
+  var output_length = this._lines.length;
+  while (index < output_length) {
+    this._lines[index].remove_indent();
+    index++;
+  }
+};
+
+Output.prototype.trim = function(eat_newlines) {
+  eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
+
+  this.current_line.trim(this.indent_string, this.baseIndentString);
+
+  while (eat_newlines && this._lines.length > 1 &&
+    this.current_line.is_empty()) {
+    this._lines.pop();
+    this.current_line = this._lines[this._lines.length - 1];
+    this.current_line.trim();
+  }
+
+  this.previous_line = this._lines.length > 1 ? this._lines[this._lines.length - 2] : null;
+};
+
+Output.prototype.just_added_newline = function() {
+  return this.current_line.is_empty();
+};
+
+Output.prototype.just_added_blankline = function() {
+  if (this.just_added_newline()) {
+    if (this._lines.length === 1) {
+      return true; // start of the file and newline = blank
     }
-    return false;
-  };
-}
+
+    var line = this._lines[this._lines.length - 2];
+    return line.is_empty();
+  }
+  return false;
+};
+
 
 module.exports.Output = Output;
 
@@ -2090,21 +2068,15 @@ module.exports.Output = Output;
 */
 
 var InputScanner = __webpack_require__(6).InputScanner;
-var Token = __webpack_require__(7).Token;
+var BaseTokenizer = __webpack_require__(7).Tokenizer;
+var BASETOKEN = __webpack_require__(7).TOKEN;
 var acorn = __webpack_require__(3);
-
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '');
-}
+var Directives = __webpack_require__(10).Directives;
 
 function in_array(what, arr) {
-  for (var i = 0; i < arr.length; i += 1) {
-    if (arr[i] === what) {
-      return true;
-    }
-  }
-  return false;
+  return arr.indexOf(what) !== -1;
 }
+
 
 var TOKEN = {
   START_EXPR: 'TK_START_EXPR',
@@ -2122,516 +2094,480 @@ var TOKEN = {
   COMMENT: 'TK_COMMENT',
   DOT: 'TK_DOT',
   UNKNOWN: 'TK_UNKNOWN',
-  EOF: 'TK_EOF'
+  START: BASETOKEN.START,
+  RAW: BASETOKEN.RAW,
+  EOF: BASETOKEN.EOF
 };
 
-function Tokenizer(input_string, opts) {
 
-  var whitespacePattern = /[\n\r\u2028\u2029\t ]+/g;
-  var newlinePattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
-  var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
+var directives_core = new Directives(/\/\*/, /\*\//);
 
+var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
 
-  var digit = /[0-9]/;
+var digit = /[0-9]/;
 
-  this.positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(' ');
-  var punct = this.positionable_operators.concat(
-    // non-positionable operators - these do not follow operator position settings
-    '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '));
+// Dot "." must be distinguished from "..." and decimal
+var dot_pattern = /[^\d\.]/;
 
-  // words which should always start on new line.
-  this.line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
-  var reserved_words = this.line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
+var positionable_operators = (
+  ">>> === !== " +
+  "<< && >= ** != == <= >> || " +
+  "< / - + > : & % ? ^ | *").split(' ');
 
-  //  /* ... */ comment ends with nearest */ or end of file
-  var block_comment_pattern = /([\s\S]*?)((?:\*\/)|$)/g;
+// IMPORTANT: this must be sorted longest to shortest or tokenizing many not work.
+// Also, you must update possitionable operators separately from punct
+var punct =
+  ">>>= " +
+  "... >>= <<= === >>> !== **= " +
+  "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
+  "= ! ? > < : / ^ - + * & % ~ |";
 
-  // comment ends just before nearest linefeed or end of file
-  var comment_pattern = /([^\n\r\u2028\u2029]*)/g;
+punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
+punct = punct.replace(/ /g, '|');
 
-  var directives_block_pattern = /\/\* beautify( \w+[:]\w+)+ \*\//g;
-  var directive_pattern = / (\w+)[:](\w+)/g;
-  var directives_end_ignore_pattern = /([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)/g;
+var punct_pattern = new RegExp(punct, 'g');
 
-  var template_pattern = /((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)/g;
+// words which should always start on new line.
+var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
+var reserved_words = line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
+var reserved_word_pattern = new RegExp('^(?:' + reserved_words.join('|') + ')$');
 
-  var n_newlines, whitespace_before_token, in_html_comment, tokens;
-  var input;
+//  /* ... */ comment ends with nearest */ or end of file
+var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
 
-  this.tokenize = function() {
-    input = new InputScanner(input_string);
-    in_html_comment = false;
-    tokens = [];
+// comment ends just before nearest linefeed or end of file
+var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
 
-    var next, last;
-    var token_values;
-    var open = null;
-    var open_stack = [];
-    var comments = [];
+var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
 
-    while (!(last && last.type === TOKEN.EOF)) {
-      token_values = tokenize_next();
-      next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
-      while (next.type === TOKEN.COMMENT || next.type === TOKEN.BLOCK_COMMENT || next.type === TOKEN.UNKNOWN) {
-        if (next.type === TOKEN.BLOCK_COMMENT) {
-          next.directives = token_values[2];
-        }
-        comments.push(next);
-        token_values = tokenize_next();
-        next = new Token(token_values[1], token_values[0], n_newlines, whitespace_before_token);
+var in_html_comment;
+
+var Tokenizer = function(input_string, opts) {
+  BaseTokenizer.call(this, input_string);
+  this._opts = opts;
+  this.positionable_operators = positionable_operators;
+  this.line_starters = line_starters;
+};
+Tokenizer.prototype = new BaseTokenizer();
+
+Tokenizer.prototype.is_comment = function(current_token) {
+  return current_token.type === TOKEN.COMMENT || current_token.type === TOKEN.BLOCK_COMMENT || current_token.type === TOKEN.UNKNOWN;
+};
+
+Tokenizer.prototype.is_opening = function(current_token) {
+  return current_token.type === TOKEN.START_BLOCK || current_token.type === TOKEN.START_EXPR;
+};
+
+Tokenizer.prototype.is_closing = function(current_token, open_token) {
+  return (current_token.type === TOKEN.END_BLOCK || current_token.type === TOKEN.END_EXPR) &&
+    (open_token && (
+      (current_token.text === ']' && open_token.text === '[') ||
+      (current_token.text === ')' && open_token.text === '(') ||
+      (current_token.text === '}' && open_token.text === '{')));
+};
+
+Tokenizer.prototype.reset = function() {
+  in_html_comment = false;
+};
+
+Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
+  this.readWhitespace();
+  var token = null;
+  var c = this._input.peek();
+
+  token = token || this._read_singles(c);
+  token = token || this._read_word(previous_token);
+  token = token || this._read_comment(c);
+  token = token || this._read_string(c);
+  token = token || this._read_regexp(c, previous_token);
+  token = token || this._read_xml(c, previous_token);
+  token = token || this._read_non_javascript(c);
+  token = token || this._read_punctuation();
+  token = token || this.create_token(TOKEN.UNKNOWN, this._input.next());
+
+  return token;
+};
+
+Tokenizer.prototype._read_word = function(previous_token) {
+  var resulting_string;
+  resulting_string = this._input.read(acorn.identifier);
+  if (resulting_string !== '') {
+    if (!(previous_token.type === TOKEN.DOT ||
+        (previous_token.type === TOKEN.RESERVED && (previous_token.text === 'set' || previous_token.text === 'get'))) &&
+      reserved_word_pattern.test(resulting_string)) {
+      if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
+        return this.create_token(TOKEN.OPERATOR, resulting_string);
       }
-
-      if (comments.length) {
-        next.comments_before = comments;
-        comments = [];
-      }
-
-      if (next.type === TOKEN.START_BLOCK || next.type === TOKEN.START_EXPR) {
-        next.parent = last;
-        open_stack.push(open);
-        open = next;
-      } else if ((next.type === TOKEN.END_BLOCK || next.type === TOKEN.END_EXPR) &&
-        (open && (
-          (next.text === ']' && open.text === '[') ||
-          (next.text === ')' && open.text === '(') ||
-          (next.text === '}' && open.text === '{')))) {
-        next.parent = open.parent;
-        next.opened = open;
-
-        open = open_stack.pop();
-      }
-
-      tokens.push(next);
-      last = next;
+      return this.create_token(TOKEN.RESERVED, resulting_string);
     }
 
-    return tokens;
-  };
-
-  function get_directives(text) {
-    if (!text.match(directives_block_pattern)) {
-      return null;
-    }
-
-    var directives = {};
-    directive_pattern.lastIndex = 0;
-    var directive_match = directive_pattern.exec(text);
-
-    while (directive_match) {
-      directives[directive_match[1]] = directive_match[2];
-      directive_match = directive_pattern.exec(text);
-    }
-
-    return directives;
+    return this.create_token(TOKEN.WORD, resulting_string);
   }
 
-  function tokenize_next() {
-    var resulting_string;
+  resulting_string = this._input.read(number_pattern);
+  if (resulting_string !== '') {
+    return this.create_token(TOKEN.WORD, resulting_string);
+  }
+};
 
-    n_newlines = 0;
-    whitespace_before_token = '';
+Tokenizer.prototype._read_singles = function(c) {
+  var token = null;
+  if (c === null) {
+    token = this.create_token(TOKEN.EOF, '');
+  } else if (c === '(' || c === '[') {
+    token = this.create_token(TOKEN.START_EXPR, c);
+  } else if (c === ')' || c === ']') {
+    token = this.create_token(TOKEN.END_EXPR, c);
+  } else if (c === '{') {
+    token = this.create_token(TOKEN.START_BLOCK, c);
+  } else if (c === '}') {
+    token = this.create_token(TOKEN.END_BLOCK, c);
+  } else if (c === ';') {
+    token = this.create_token(TOKEN.SEMICOLON, c);
+  } else if (c === '.' && dot_pattern.test(this._input.peek(1))) {
+    token = this.create_token(TOKEN.DOT, c);
+  } else if (c === ',') {
+    token = this.create_token(TOKEN.COMMA, c);
+  }
 
-    var last_token;
-    if (tokens.length) {
-      last_token = tokens[tokens.length - 1];
+  if (token) {
+    this._input.next();
+  }
+  return token;
+};
+
+Tokenizer.prototype._read_punctuation = function() {
+  var resulting_string = this._input.read(punct_pattern);
+
+  if (resulting_string !== '') {
+    if (resulting_string === '=') {
+      return this.create_token(TOKEN.EQUALS, resulting_string);
     } else {
-      // For the sake of tokenizing we can pretend that there was on open brace to start
-      last_token = new Token(TOKEN.START_BLOCK, '{');
+      return this.create_token(TOKEN.OPERATOR, resulting_string);
     }
+  }
+};
 
-    resulting_string = input.readWhile(whitespacePattern);
-    if (resulting_string !== '') {
-      if (resulting_string === ' ') {
-        whitespace_before_token = resulting_string;
-      } else {
-        newlinePattern.lastIndex = 0;
-        var nextMatch = newlinePattern.exec(resulting_string);
-        while (nextMatch[2]) {
-          n_newlines += 1;
-          nextMatch = newlinePattern.exec(resulting_string);
-        }
-        whitespace_before_token = nextMatch[1];
+Tokenizer.prototype._read_non_javascript = function(c) {
+  var resulting_string = '';
+
+  if (c === '#') {
+    c = this._input.next();
+
+    if (this._tokens.isEmpty() && this._input.peek() === '!') {
+      // shebang
+      resulting_string = c;
+      while (this._input.hasNext() && c !== '\n') {
+        c = this._input.next();
+        resulting_string += c;
       }
+      return this.create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
     }
 
-    resulting_string = input.readWhile(acorn.identifier);
-    if (resulting_string !== '') {
-      if (!(last_token.type === TOKEN.DOT ||
-          (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['set', 'get']))) &&
-        in_array(resulting_string, reserved_words)) {
-        if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
-          return [resulting_string, TOKEN.OPERATOR];
-        }
-        return [resulting_string, TOKEN.RESERVED];
+    // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
+    var sharp = '#';
+    if (this._input.hasNext() && this._input.testChar(digit)) {
+      do {
+        c = this._input.next();
+        sharp += c;
+      } while (this._input.hasNext() && c !== '#' && c !== '=');
+      if (c === '#') {
+        //
+      } else if (this._input.peek() === '[' && this._input.peek(1) === ']') {
+        sharp += '[]';
+        this._input.next();
+        this._input.next();
+      } else if (this._input.peek() === '{' && this._input.peek(1) === '}') {
+        sharp += '{}';
+        this._input.next();
+        this._input.next();
       }
-
-      return [resulting_string, TOKEN.WORD];
+      return this.create_token(TOKEN.WORD, sharp);
     }
 
-    resulting_string = input.readWhile(number_pattern);
-    if (resulting_string !== '') {
-      return [resulting_string, TOKEN.WORD];
-    }
+    this._input.back();
 
-    var c = input.next();
-
-    if (c === null) {
-      return ['', TOKEN.EOF];
-    }
-
-
-    if (c === '(' || c === '[') {
-      return [c, TOKEN.START_EXPR];
-    }
-
-    if (c === ')' || c === ']') {
-      return [c, TOKEN.END_EXPR];
-    }
-
-    if (c === '{') {
-      return [c, TOKEN.START_BLOCK];
-    }
-
-    if (c === '}') {
-      return [c, TOKEN.END_BLOCK];
-    }
-
-    if (c === ';') {
-      return [c, TOKEN.SEMICOLON];
-    }
-
-    if (c === '/') {
-      var comment = '';
-      var comment_match;
-      // peek for comment /* ... */
-      if (input.peek() === '*') {
-        input.next();
-        comment_match = input.match(block_comment_pattern);
-        comment = '/*' + comment_match[0];
-        var directives = get_directives(comment);
-        if (directives && directives.ignore === 'start') {
-          comment_match = input.match(directives_end_ignore_pattern);
-          comment += comment_match[0];
-        }
-        comment = comment.replace(acorn.allLineBreaks, '\n');
-        return [comment, TOKEN.BLOCK_COMMENT, directives];
+  } else if (c === '<') {
+    if (this._input.peek(1) === '?' || this._input.peek(1) === '%') {
+      resulting_string = this._input.read(template_pattern);
+      if (resulting_string) {
+        resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
+        return this.create_token(TOKEN.STRING, resulting_string);
       }
-      // peek for comment // ...
-      if (input.peek() === '/') {
-        input.next();
-        comment_match = input.match(comment_pattern);
-        comment = '//' + comment_match[0];
-        return [comment, TOKEN.COMMENT];
-      }
-
-    }
-
-    var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-
-    var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-
-    function allowRegExOrXML() {
-      // regex and xml can only appear in specific locations during parsing
-      return (last_token.type === TOKEN.RESERVED && in_array(last_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
-        (last_token.type === TOKEN.END_EXPR && last_token.text === ')' &&
-          last_token.parent && last_token.parent.type === TOKEN.RESERVED && in_array(last_token.parent.text, ['if', 'while', 'for'])) ||
-        (in_array(last_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
-          TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
-        ]));
-    }
-
-    var isString = (c === '`' || c === "'" || c === '"');
-    var isRegExp = (c === '/') && allowRegExOrXML();
-    var isXML = (opts.e4x && c === "<" && input.test(startXmlRegExp, -1)) && allowRegExOrXML();
-    var sep = c,
-      esc = false,
-      has_char_escapes = false;
-
-    resulting_string = c;
-
-
-    if (isString) {
-      // handle string
-      //
-      var parse_string = function(delimiter, allow_unescaped_newlines, start_sub) {
-        // Template strings can travers lines without escape characters.
-        // Other strings cannot
-        var current_char;
-        while (input.hasNext()) {
-          current_char = input.peek();
-          if (!(esc || (current_char !== delimiter &&
-              (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
-            break;
-          }
-
-          // Handle \r\n linebreaks after escapes or in template strings
-          if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
-            if (current_char === '\r' && input.peek(1) === '\n') {
-              input.next();
-              current_char = input.peek();
-            }
-            resulting_string += '\n';
-          } else {
-            resulting_string += current_char;
-          }
-
-          if (esc) {
-            if (current_char === 'x' || current_char === 'u') {
-              has_char_escapes = true;
-            }
-            esc = false;
-          } else {
-            esc = current_char === '\\';
-          }
-
-          input.next();
-
-          if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
-            if (delimiter === '`') {
-              parse_string('}', allow_unescaped_newlines, '`');
-            } else {
-              parse_string('`', allow_unescaped_newlines, '${');
-            }
-
-            if (input.hasNext()) {
-              resulting_string += input.next();
-            }
-          }
-        }
-      };
-
-      if (sep === '`') {
-        parse_string('`', true, '${');
-      } else {
-        parse_string(sep);
-      }
-
-    } else if (isRegExp) {
-      // handle regexp
-      //
-      var in_char_class = false;
-      while (input.hasNext() &&
-        ((esc || in_char_class || input.peek() !== sep) &&
-          !input.testChar(acorn.newline))) {
-        resulting_string += input.peek();
-        if (!esc) {
-          esc = input.peek() === '\\';
-          if (input.peek() === '[') {
-            in_char_class = true;
-          } else if (input.peek() === ']') {
-            in_char_class = false;
-          }
-        } else {
-          esc = false;
-        }
-        input.next();
-      }
-
-    } else if (isXML) {
-      // handle e4x xml literals
-      //
-      input.back();
-      var xmlStr = '';
-      var match = input.match(startXmlRegExp);
-      if (match) {
-        // Trim root tag to attempt to
-        var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
-        var isCurlyRoot = rootTag.indexOf('{') === 0;
-        var depth = 0;
-        while (match) {
-          var isEndTag = !!match[1];
-          var tagName = match[2];
-          var isSingletonTag = (!!match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
-          if (!isSingletonTag &&
-            (tagName === rootTag || (isCurlyRoot && tagName.replace(/^{\s+/, '{').replace(/\s+}$/, '}')))) {
-            if (isEndTag) {
-              --depth;
-            } else {
-              ++depth;
-            }
-          }
-          xmlStr += match[0];
-          if (depth <= 0) {
-            break;
-          }
-          match = input.match(xmlRegExp);
-        }
-        // if we didn't close correctly, keep unformatted.
-        if (!match) {
-          xmlStr += input.match(/[\s\S]*/g)[0];
-        }
-        xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
-        return [xmlStr, TOKEN.STRING];
-      }
-    }
-
-    if (isRegExp || isString) {
-      if (has_char_escapes && opts.unescape_strings) {
-        resulting_string = unescape_string(resulting_string);
-      }
-      if (input.peek() === sep) {
-        resulting_string += sep;
-        input.next();
-
-        if (sep === '/') {
-          // regexps may have modifiers /regexp/MOD , so fetch those, too
-          // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
-          resulting_string += input.readWhile(acorn.identifier);
-        }
-      }
-      return [resulting_string, TOKEN.STRING];
-    }
-
-    if (c === '#') {
-
-      if (tokens.length === 0 && input.peek() === '!') {
-        // shebang
-        resulting_string = c;
-        while (input.hasNext() && c !== '\n') {
-          c = input.next();
-          resulting_string += c;
-        }
-        return [trim(resulting_string) + '\n', TOKEN.UNKNOWN];
-      }
-
-      // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
-      var sharp = '#';
-      if (input.hasNext() && input.testChar(digit)) {
-        do {
-          c = input.next();
-          sharp += c;
-        } while (input.hasNext() && c !== '#' && c !== '=');
-        if (c === '#') {
-          //
-        } else if (input.peek() === '[' && input.peek(1) === ']') {
-          sharp += '[]';
-          input.next();
-          input.next();
-        } else if (input.peek() === '{' && input.peek(1) === '}') {
-          sharp += '{}';
-          input.next();
-          input.next();
-        }
-        return [sharp, TOKEN.WORD];
-      }
-    }
-
-    if (c === '<' && (input.peek() === '?' || input.peek() === '%')) {
-      input.back();
-      var template_match = input.match(template_pattern);
-      if (template_match) {
-        c = template_match[0];
-        c = c.replace(acorn.allLineBreaks, '\n');
-        return [c, TOKEN.STRING];
-      }
-    }
-
-    if (c === '<' && input.match(/\!--/g)) {
+    } else if (this._input.match(/<\!--/g)) {
       c = '<!--';
-      while (input.hasNext() && !input.testChar(acorn.newline)) {
-        c += input.next();
+      while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
+        c += this._input.next();
       }
       in_html_comment = true;
-      return [c, TOKEN.COMMENT];
+      return this.create_token(TOKEN.COMMENT, c);
     }
+  } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
+    in_html_comment = false;
+    return this.create_token(TOKEN.COMMENT, '-->');
+  }
 
-    if (c === '-' && in_html_comment && input.match(/->/g)) {
-      in_html_comment = false;
-      return ['-->', TOKEN.COMMENT];
-    }
+  return null;
+};
 
-    if (c === '.') {
-      if (input.peek() === '.' && input.peek(1) === '.') {
-        c += input.next() + input.next();
-        return [c, TOKEN.OPERATOR];
+Tokenizer.prototype._read_comment = function(c) {
+  var token = null;
+  if (c === '/') {
+    var comment = '';
+    if (this._input.peek(1) === '*') {
+      // peek for comment /* ... */
+      comment = this._input.read(block_comment_pattern);
+      var directives = directives_core.get_directives(comment);
+      if (directives && directives.ignore === 'start') {
+        comment += directives_core.readIgnored(this._input);
       }
-      return [c, TOKEN.DOT];
+      comment = comment.replace(acorn.allLineBreaks, '\n');
+      token = this.create_token(TOKEN.BLOCK_COMMENT, comment);
+      token.directives = directives;
+    } else if (this._input.peek(1) === '/') {
+      // peek for comment // ...
+      comment = this._input.read(comment_pattern);
+      token = this.create_token(TOKEN.COMMENT, comment);
+    }
+  }
+  return token;
+};
+
+Tokenizer.prototype._read_string = function(c) {
+  if (c === '`' || c === "'" || c === '"') {
+    var resulting_string = this._input.next();
+    this.has_char_escapes = false;
+
+    if (c === '`') {
+      resulting_string += this._read_string_recursive('`', true, '${');
+    } else {
+      resulting_string += this._read_string_recursive(c);
     }
 
-    if (in_array(c, punct)) {
-      while (input.hasNext() && in_array(c + input.peek(), punct)) {
-        c += input.next();
-        if (!input.hasNext()) {
+    if (this.has_char_escapes && this._opts.unescape_strings) {
+      resulting_string = unescape_string(resulting_string);
+    }
+    if (this._input.peek() === c) {
+      resulting_string += this._input.next();
+    }
+
+    return this.create_token(TOKEN.STRING, resulting_string);
+  }
+
+  return null;
+};
+
+Tokenizer.prototype._allow_regexp_or_xml = function(previous_token) {
+  // regex and xml can only appear in specific locations during parsing
+  return (previous_token.type === TOKEN.RESERVED && in_array(previous_token.text, ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'])) ||
+    (previous_token.type === TOKEN.END_EXPR && previous_token.text === ')' &&
+      previous_token.opened.previous.type === TOKEN.RESERVED && in_array(previous_token.opened.previous.text, ['if', 'while', 'for'])) ||
+    (in_array(previous_token.type, [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START,
+      TOKEN.END_BLOCK, TOKEN.OPERATOR, TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA
+    ]));
+};
+
+Tokenizer.prototype._read_regexp = function(c, previous_token) {
+
+  if (c === '/' && this._allow_regexp_or_xml(previous_token)) {
+    // handle regexp
+    //
+    var resulting_string = this._input.next();
+    var esc = false;
+
+    var in_char_class = false;
+    while (this._input.hasNext() &&
+      ((esc || in_char_class || this._input.peek() !== c) &&
+        !this._input.testChar(acorn.newline))) {
+      resulting_string += this._input.peek();
+      if (!esc) {
+        esc = this._input.peek() === '\\';
+        if (this._input.peek() === '[') {
+          in_char_class = true;
+        } else if (this._input.peek() === ']') {
+          in_char_class = false;
+        }
+      } else {
+        esc = false;
+      }
+      this._input.next();
+    }
+
+    if (this._input.peek() === c) {
+      resulting_string += this._input.next();
+
+      // regexps may have modifiers /regexp/MOD , so fetch those, too
+      // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
+      resulting_string += this._input.read(acorn.identifier);
+    }
+    return this.create_token(TOKEN.STRING, resulting_string);
+  }
+  return null;
+};
+
+
+var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
+
+Tokenizer.prototype._read_xml = function(c, previous_token) {
+
+  if (this._opts.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(previous_token)) {
+    // handle e4x xml literals
+    //
+    var xmlStr = '';
+    var match = this._input.match(startXmlRegExp);
+    if (match) {
+      // Trim root tag to attempt to
+      var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
+      var isCurlyRoot = rootTag.indexOf('{') === 0;
+      var depth = 0;
+      while (match) {
+        var isEndTag = !!match[1];
+        var tagName = match[2];
+        var isSingletonTag = (!!match[match.length - 1]) || (tagName.slice(0, 8) === "![CDATA[");
+        if (!isSingletonTag &&
+          (tagName === rootTag || (isCurlyRoot && tagName.replace(/^{\s+/, '{').replace(/\s+}$/, '}')))) {
+          if (isEndTag) {
+            --depth;
+          } else {
+            ++depth;
+          }
+        }
+        xmlStr += match[0];
+        if (depth <= 0) {
           break;
         }
+        match = this._input.match(xmlRegExp);
       }
+      // if we didn't close correctly, keep unformatted.
+      if (!match) {
+        xmlStr += this._input.match(/[\s\S]*/g)[0];
+      }
+      xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
+      return this.create_token(TOKEN.STRING, xmlStr);
+    }
+  }
 
-      if (c === ',') {
-        return [c, TOKEN.COMMA];
-      } else if (c === '=') {
-        return [c, TOKEN.EQUALS];
+  return null;
+};
+
+function unescape_string(s) {
+  // You think that a regex would work for this
+  // return s.replace(/\\x([0-9a-f]{2})/gi, function(match, val) {
+  //         return String.fromCharCode(parseInt(val, 16));
+  //     })
+  // However, dealing with '\xff', '\\xff', '\\\xff' makes this more fun.
+  var out = '',
+    escaped = 0;
+
+  var input_scan = new InputScanner(s);
+  var matched = null;
+
+  while (input_scan.hasNext()) {
+    // Keep any whitespace, non-slash characters
+    // also keep slash pairs.
+    matched = input_scan.match(/([\s]|[^\\]|\\\\)+/g);
+
+    if (matched) {
+      out += matched[0];
+    }
+
+    if (input_scan.peek() === '\\') {
+      input_scan.next();
+      if (input_scan.peek() === 'x') {
+        matched = input_scan.match(/x([0-9A-Fa-f]{2})/g);
+      } else if (input_scan.peek() === 'u') {
+        matched = input_scan.match(/u([0-9A-Fa-f]{4})/g);
       } else {
-        return [c, TOKEN.OPERATOR];
+        out += '\\';
+        if (input_scan.hasNext()) {
+          out += input_scan.next();
+        }
+        continue;
+      }
+
+      // If there's some error decoding, return the original string
+      if (!matched) {
+        return s;
+      }
+
+      escaped = parseInt(matched[1], 16);
+
+      if (escaped > 0x7e && escaped <= 0xff && matched[0].indexOf('x') === 0) {
+        // we bail out on \x7f..\xff,
+        // leaving whole string escaped,
+        // as it's probably completely binary
+        return s;
+      } else if (escaped >= 0x00 && escaped < 0x20) {
+        // leave 0x00...0x1f escaped
+        out += '\\' + matched[0];
+        continue;
+      } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
+        // single-quote, apostrophe, backslash - escape these
+        out += '\\' + String.fromCharCode(escaped);
+      } else {
+        out += String.fromCharCode(escaped);
       }
     }
-
-    return [c, TOKEN.UNKNOWN];
   }
 
-
-  function unescape_string(s) {
-    // You think that a regex would work for this
-    // return s.replace(/\\x([0-9a-f]{2})/gi, function(match, val) {
-    //         return String.fromCharCode(parseInt(val, 16));
-    //     })
-    // However, dealing with '\xff', '\\xff', '\\\xff' makes this more fun.
-    var out = '',
-      escaped = 0;
-
-    var input_scan = new InputScanner(s);
-    var matched = null;
-
-    while (input_scan.hasNext()) {
-      // Keep any whitespace, non-slash characters
-      // also keep slash pairs.
-      matched = input_scan.match(/([\s]|[^\\]|\\\\)+/g);
-
-      if (matched) {
-        out += matched[0];
-      }
-
-      if (input_scan.peek() === '\\') {
-        input_scan.next();
-        if (input_scan.peek() === 'x') {
-          matched = input_scan.match(/x([0-9A-Fa-f]{2})/g);
-        } else if (input_scan.peek() === 'u') {
-          matched = input_scan.match(/u([0-9A-Fa-f]{4})/g);
-        } else {
-          out += '\\';
-          if (input_scan.hasNext()) {
-            out += input_scan.next();
-          }
-          continue;
-        }
-
-        // If there's some error decoding, return the original string
-        if (!matched) {
-          return s;
-        }
-
-        escaped = parseInt(matched[1], 16);
-
-        if (escaped > 0x7e && escaped <= 0xff && matched[0].indexOf('x') === 0) {
-          // we bail out on \x7f..\xff,
-          // leaving whole string escaped,
-          // as it's probably completely binary
-          return s;
-        } else if (escaped >= 0x00 && escaped < 0x20) {
-          // leave 0x00...0x1f escaped
-          out += '\\' + matched[0];
-          continue;
-        } else if (escaped === 0x22 || escaped === 0x27 || escaped === 0x5c) {
-          // single-quote, apostrophe, backslash - escape these
-          out += '\\' + String.fromCharCode(escaped);
-        } else {
-          out += String.fromCharCode(escaped);
-        }
-      }
-    }
-
-    return out;
-  }
+  return out;
 }
+
+// handle string
+//
+Tokenizer.prototype._read_string_recursive = function(delimiter, allow_unescaped_newlines, start_sub) {
+  // Template strings can travers lines without escape characters.
+  // Other strings cannot
+  var current_char;
+  var resulting_string = '';
+  var esc = false;
+  while (this._input.hasNext()) {
+    current_char = this._input.peek();
+    if (!(esc || (current_char !== delimiter &&
+        (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
+      break;
+    }
+
+    // Handle \r\n linebreaks after escapes or in template strings
+    if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
+      if (current_char === '\r' && this._input.peek(1) === '\n') {
+        this._input.next();
+        current_char = this._input.peek();
+      }
+      resulting_string += '\n';
+    } else {
+      resulting_string += current_char;
+    }
+
+    if (esc) {
+      if (current_char === 'x' || current_char === 'u') {
+        this.has_char_escapes = true;
+      }
+      esc = false;
+    } else {
+      esc = current_char === '\\';
+    }
+
+    this._input.next();
+
+    if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
+      if (delimiter === '`') {
+        resulting_string += this._read_string_recursive('}', allow_unescaped_newlines, '`');
+      } else {
+        resulting_string += this._read_string_recursive('`', allow_unescaped_newlines, '${');
+      }
+
+      if (this._input.hasNext()) {
+        resulting_string += this._input.next();
+      }
+    }
+  }
+
+  return resulting_string;
+};
+
+
 
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
@@ -2669,132 +2605,278 @@ module.exports.TOKEN = TOKEN;
 */
 
 function InputScanner(input_string) {
-  var _input = input_string || '';
-  var _input_length = _input.length;
-  var _position = 0;
+  this._input = input_string || '';
+  this._input_length = this._input.length;
+  this._position = 0;
+}
 
-  this.back = function() {
-    if (_position > 0) {
-      _position -= 1;
-    }
-  };
+InputScanner.prototype.restart = function() {
+  this._position = 0;
+};
 
-  this.hasNext = function() {
-    return _position < _input_length;
-  };
+InputScanner.prototype.back = function() {
+  if (this._position > 0) {
+    this._position -= 1;
+  }
+};
 
-  this.next = function() {
-    var val = null;
-    if (this.hasNext()) {
-      val = _input.charAt(_position);
-      _position += 1;
-    }
-    return val;
-  };
+InputScanner.prototype.hasNext = function() {
+  return this._position < this._input_length;
+};
 
-  this.peek = function(index) {
-    var val = null;
-    index = index || 0;
-    index += _position;
-    if (index >= 0 && index < _input_length) {
-      val = _input.charAt(index);
-    }
-    return val;
-  };
+InputScanner.prototype.next = function() {
+  var val = null;
+  if (this.hasNext()) {
+    val = this._input.charAt(this._position);
+    this._position += 1;
+  }
+  return val;
+};
 
-  this.test = function(pattern, index) {
-    index = index || 0;
-    index += _position;
-    pattern.lastIndex = index;
+InputScanner.prototype.peek = function(index) {
+  var val = null;
+  index = index || 0;
+  index += this._position;
+  if (index >= 0 && index < this._input_length) {
+    val = this._input.charAt(index);
+  }
+  return val;
+};
 
-    if (index >= 0 && index < _input_length) {
-      var pattern_match = pattern.exec(_input);
-      return pattern_match && pattern_match.index === index;
-    } else {
-      return false;
-    }
-  };
+InputScanner.prototype.test = function(pattern, index) {
+  index = index || 0;
+  index += this._position;
+  pattern.lastIndex = index;
 
-  this.testChar = function(pattern, index) {
-    // test one character regex match
-    var val = this.peek(index);
-    return val !== null && pattern.test(val);
-  };
+  if (index >= 0 && index < this._input_length) {
+    var pattern_match = pattern.exec(this._input);
+    return pattern_match && pattern_match.index === index;
+  } else {
+    return false;
+  }
+};
 
-  this.match = function(pattern) {
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match && pattern_match.index === _position) {
-      _position += pattern_match[0].length;
-    } else {
-      pattern_match = null;
-    }
-    return pattern_match;
-  };
+InputScanner.prototype.testChar = function(pattern, index) {
+  // test one character regex match
+  var val = this.peek(index);
+  return val !== null && pattern.test(val);
+};
 
-  this.readWhile = function(pattern) {
-    var val = '';
-    var match = this.match(pattern);
-    if (match) {
-      val = match[0];
-    }
-    return val;
-  };
+InputScanner.prototype.match = function(pattern) {
+  pattern.lastIndex = this._position;
+  var pattern_match = pattern.exec(this._input);
+  if (pattern_match && pattern_match.index === this._position) {
+    this._position += pattern_match[0].length;
+  } else {
+    pattern_match = null;
+  }
+  return pattern_match;
+};
 
-  this.readUntil = function(pattern) {
-    var val = '';
-    var match_index = _position;
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match) {
-      match_index = pattern_match.index;
-    } else {
-      match_index = _input_length;
-    }
+InputScanner.prototype.read = function(pattern) {
+  var val = '';
+  var match = this.match(pattern);
+  if (match) {
+    val = match[0];
+  }
+  return val;
+};
 
-    val = _input.substring(_position, match_index);
-    _position = match_index;
-    return val;
-  };
-
-  this.readUntilAfter = function(pattern) {
-    var val = '';
-    var match_index = _position;
-    pattern.lastIndex = _position;
-    var pattern_match = pattern.exec(_input);
-    if (pattern_match) {
+InputScanner.prototype.readUntil = function(pattern, include_match) {
+  var val = '';
+  var match_index = this._position;
+  pattern.lastIndex = this._position;
+  var pattern_match = pattern.exec(this._input);
+  if (pattern_match) {
+    if (include_match) {
       match_index = pattern_match.index + pattern_match[0].length;
     } else {
-      match_index = _input_length;
+      match_index = pattern_match.index;
     }
+  } else {
+    match_index = this._input_length;
+  }
 
-    val = _input.substring(_position, match_index);
-    _position = match_index;
+  val = this._input.substring(this._position, match_index);
+  this._position = match_index;
+  return val;
+};
 
-    return val;
-  };
+InputScanner.prototype.readUntilAfter = function(pattern) {
+  return this.readUntil(pattern, true);
+};
 
-  /* css beautifier legacy helpers */
-  this.peekUntilAfter = function(pattern) {
-    var start = _position;
-    var val = this.readUntilAfter(pattern);
-    _position = start;
-    return val;
-  };
+/* css beautifier legacy helpers */
+InputScanner.prototype.peekUntilAfter = function(pattern) {
+  var start = this._position;
+  var val = this.readUntilAfter(pattern);
+  this._position = start;
+  return val;
+};
 
-  this.lookBack = function(testVal) {
-    var start = _position - 1;
-    return start >= testVal.length && _input.substring(start - testVal.length, start)
-      .toLowerCase() === testVal;
-  };
-
-}
+InputScanner.prototype.lookBack = function(testVal) {
+  var start = this._position - 1;
+  return start >= testVal.length && this._input.substring(start - testVal.length, start)
+    .toLowerCase() === testVal;
+};
 
 
 module.exports.InputScanner = InputScanner;
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*
+
+    The MIT License (MIT)
+
+    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
+
+var InputScanner = __webpack_require__(6).InputScanner;
+var Token = __webpack_require__(8).Token;
+var TokenStream = __webpack_require__(9).TokenStream;
+
+var TOKEN = {
+  START: 'TK_START',
+  RAW: 'TK_RAW',
+  EOF: 'TK_EOF'
+};
+
+var Tokenizer = function(input_string) { // jshint unused:false
+  this._input = new InputScanner(input_string);
+  this._tokens = null;
+  this._newline_count = 0;
+  this._whitespace_before_token = '';
+
+  this._whitespace_pattern = /[\n\r\u2028\u2029\t ]+/g;
+  this._newline_pattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+};
+
+Tokenizer.prototype.tokenize = function() {
+  this._input.restart();
+  this._tokens = new TokenStream();
+
+  this.reset();
+
+  var current;
+  var previous = new Token(TOKEN.START, '');
+  var open_token = null;
+  var open_stack = [];
+  var comments = new TokenStream();
+
+  while (previous.type !== TOKEN.EOF) {
+    current = this.get_next_token(previous, open_token);
+    while (this.is_comment(current)) {
+      comments.add(current);
+      current = this.get_next_token(previous, open_token);
+    }
+
+    if (!comments.isEmpty()) {
+      current.comments_before = comments;
+      comments = new TokenStream();
+    }
+
+    current.parent = open_token;
+
+    if (this.is_opening(current)) {
+      current.opened = open_token;
+      open_stack.push(open_token);
+      open_token = current;
+    } else if (open_token && this.is_closing(current, open_token)) {
+      current.opened = open_token;
+      open_token = open_stack.pop();
+      current.parent = open_token;
+    }
+
+    current.previous = previous;
+
+    this._tokens.add(current);
+    previous = current;
+  }
+
+  return this._tokens;
+};
+
+
+Tokenizer.prototype.reset = function() {};
+
+Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
+  this.readWhitespace();
+  var resulting_string = this._input.read(/.+/g);
+  if (resulting_string) {
+    return this.create_token(TOKEN.RAW, resulting_string);
+  } else {
+    return this.create_token(TOKEN.EOF, '');
+  }
+};
+
+
+Tokenizer.prototype.is_comment = function(current_token) { // jshint unused:false
+  return false;
+};
+
+Tokenizer.prototype.is_opening = function(current_token) { // jshint unused:false
+  return false;
+};
+
+Tokenizer.prototype.is_closing = function(current_token, open_token) { // jshint unused:false
+  return false;
+};
+
+Tokenizer.prototype.create_token = function(type, text) {
+  var token = new Token(type, text, this._newline_count, this._whitespace_before_token);
+  this._newline_count = 0;
+  this._whitespace_before_token = '';
+  return token;
+};
+
+Tokenizer.prototype.readWhitespace = function() {
+  var resulting_string = this._input.read(this._whitespace_pattern);
+  if (resulting_string !== '') {
+    if (resulting_string === ' ') {
+      this._whitespace_before_token = resulting_string;
+    } else {
+      this._newline_pattern.lastIndex = 0;
+      var nextMatch = this._newline_pattern.exec(resulting_string);
+      while (nextMatch[2]) {
+        this._newline_count += 1;
+        nextMatch = this._newline_pattern.exec(resulting_string);
+      }
+      this._whitespace_before_token = nextMatch[1];
+    }
+  }
+};
+
+
+
+module.exports.Tokenizer = Tokenizer;
+module.exports.TOKEN = TOKEN;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
 /*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
@@ -2825,7 +2907,7 @@ module.exports.InputScanner = InputScanner;
   SOFTWARE.
 */
 
-function Token(type, text, newlines, whitespace_before, parent) {
+function Token(type, text, newlines, whitespace_before) {
   this.type = type;
   this.text = text;
 
@@ -2833,19 +2915,167 @@ function Token(type, text, newlines, whitespace_before, parent) {
   // comments that have a new line before them
   // and may or may not have a newline after
   // this is a set of comments before
-  this.comments_before = /* inline comment*/ [];
+  this.comments_before = null; /* inline comment*/
 
 
-  this.comments_after = []; // no new line before and newline after
+  // this.comments_after =  new TokenStream(); // no new line before and newline after
   this.newlines = newlines || 0;
-  this.wanted_newline = newlines > 0;
   this.whitespace_before = whitespace_before || '';
-  this.parent = parent || null;
+  this.parent = null;
+  this.previous = null;
   this.opened = null;
   this.directives = null;
 }
 
+
 module.exports.Token = Token;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*
+
+    The MIT License (MIT)
+
+    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
+
+function TokenStream(parent_token) {
+  // private
+  this._tokens = [];
+  this._tokens_length = this._tokens.length;
+  this._position = 0;
+  this._parent_token = parent_token;
+}
+
+TokenStream.prototype.restart = function() {
+  this._position = 0;
+};
+
+TokenStream.prototype.isEmpty = function() {
+  return this._tokens_length === 0;
+};
+
+TokenStream.prototype.hasNext = function() {
+  return this._position < this._tokens_length;
+};
+
+TokenStream.prototype.next = function() {
+  var val = null;
+  if (this.hasNext()) {
+    val = this._tokens[this._position];
+    this._position += 1;
+  }
+  return val;
+};
+
+TokenStream.prototype.peek = function(index) {
+  var val = null;
+  index = index || 0;
+  index += this._position;
+  if (index >= 0 && index < this._tokens_length) {
+    val = this._tokens[index];
+  }
+  return val;
+};
+
+TokenStream.prototype.add = function(token) {
+  if (this._parent_token) {
+    token.parent = this._parent_token;
+  }
+  this._tokens.push(token);
+  this._tokens_length += 1;
+};
+
+module.exports.TokenStream = TokenStream;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*
+
+    The MIT License (MIT)
+
+    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
+
+
+function Directives(start_block_pattern, end_block_pattern) {
+  start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
+  end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
+  this._directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
+  this._directive_pattern = / (\w+)[:](\w+)/g;
+
+  this._directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
+}
+
+Directives.prototype.get_directives = function(text) {
+  if (!text.match(this._directives_block_pattern)) {
+    return null;
+  }
+
+  var directives = {};
+  this._directive_pattern.lastIndex = 0;
+  var directive_match = this._directive_pattern.exec(text);
+
+  while (directive_match) {
+    directives[directive_match[1]] = directive_match[2];
+    directive_match = this._directive_pattern.exec(text);
+  }
+
+  return directives;
+};
+
+Directives.prototype.readIgnored = function(input) {
+  return input.read(this._directives_end_ignore_pattern);
+};
+
+
+module.exports.Directives = Directives;
 
 /***/ })
 /******/ ]);
