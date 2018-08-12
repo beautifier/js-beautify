@@ -29,6 +29,7 @@
 var mergeOpts = require('../core/options').mergeOpts;
 var acorn = require('../core/acorn');
 var InputScanner = require('../core/inputscanner').InputScanner;
+var Output = require('../core/output').Output;
 var Tokenizer = require('../html/tokenizer').Tokenizer;
 var TOKEN = require('../html/tokenizer').TOKEN;
 
@@ -594,6 +595,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       for (var i = 0; i < this.indent_size; i++) {
         this.indent_string += this.indent_character;
       }
+
+      this._output = new Output('', this.indent_string); // jshint unused:false
 
       this.add_text_item = function(text) {
         if (text) {
