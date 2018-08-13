@@ -268,6 +268,7 @@ function Beautifier(source_text, options) {
             // might be less variable
           } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
             insidePropertyValue = true;
+            indent();
           }
         }
       } else if (ch === '#' && input.peek() === '{') {
@@ -285,6 +286,10 @@ function Beautifier(source_text, options) {
             output.add_new_line(true);
           }
         } else {
+          if (insidePropertyValue) {
+            insidePropertyValue = false;
+            outdent();
+          }
           indent();
           output.space_before_token = true;
           print_string(ch);
@@ -303,9 +308,12 @@ function Beautifier(source_text, options) {
       } else if (ch === '}') {
         outdent();
         output.add_new_line();
+        if (insidePropertyValue) {
+          outdent();
+          insidePropertyValue = false;
+        }
         print_string(ch);
         insideRule = false;
-        insidePropertyValue = false;
         if (nestedLevel) {
           nestedLevel--;
         }
@@ -326,6 +334,8 @@ function Beautifier(source_text, options) {
           if (!insidePropertyValue) {
             insidePropertyValue = true;
             output.space_before_token = true;
+            eatWhitespace(true);
+            indent();
           }
         } else {
           // sass/less parent reference don't use a space
@@ -347,8 +357,12 @@ function Beautifier(source_text, options) {
       } else if (ch === '"' || ch === '\'') {
         preserveSingleSpace(isAfterSpace);
         print_string(ch + eatString(ch));
+        eatWhitespace(true);
       } else if (ch === ';') {
-        insidePropertyValue = false;
+        if (insidePropertyValue) {
+          outdent();
+          insidePropertyValue = false;
+        }
         insideAtExtend = false;
         print_string(ch);
         eatWhitespace(true);

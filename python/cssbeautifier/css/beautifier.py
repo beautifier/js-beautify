@@ -297,6 +297,7 @@ class Beautifier:
                             enteringConditionalGroup = True
                     elif not insideRule and parenLevel == 0 and variableOrRule[-1] == ":":
                         insidePropertyValue = True
+                        printer.indent()
             elif self.ch == '#' and input.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString('}'))
@@ -310,6 +311,9 @@ class Beautifier:
                     if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                         output.add_new_line(True)
                 else:
+                    if insidePropertyValue:
+                        insidePropertyValue = False
+                        printer.outdent()
                     printer.indent()
                     output.space_before_token = True
                     printer.print_string(self.ch)
@@ -327,9 +331,11 @@ class Beautifier:
             elif self.ch == '}':
                 printer.outdent()
                 output.add_new_line()
+                if insidePropertyValue:
+                    printer.outdent()
+                    insidePropertyValue = False
                 printer.print_string(self.ch)
                 insideRule = False
-                insidePropertyValue = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
 
@@ -348,6 +354,8 @@ class Beautifier:
                     if not insidePropertyValue:
                         insidePropertyValue = True
                         output.space_before_token = True
+                        self.eatWhitespace(True)
+                        printer.indent()
 
                 else:
                     # sass/less parent reference don't use a space
@@ -367,8 +375,11 @@ class Beautifier:
             elif self.ch == '"' or self.ch == '\'':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString(self.ch))
+                self.eatWhitespace(True)
             elif self.ch == ';':
-                insidePropertyValue = False
+                if insidePropertyValue:
+                    printer.outdent()
+                    insidePropertyValue = False
                 insideAtExtend = False
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)

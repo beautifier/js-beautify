@@ -264,6 +264,13 @@ exports.test_data = {
         output: '.tool-tip {\n\tposition: relative;\n\n\n\t.tool-tip-content {\n\t\t&>* {\n\t\t\tmargin-top: 0;\n\t\t}\n\\n\\n\t\t.mixin-box-shadow(.2rem .2rem .5rem rgba(0, 0, 0, .15));\n\t\tpadding: 1rem;\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t}\n}'
       }]
     }, {
+      name: "Issue #1338 -- Preserve Newlines within CSS rules",
+      options: [{ name: "preserve_newlines", value: "true" }],
+      description: "",
+      tests: [{
+        unchanged: 'body {\n\tgrid-template-areas:\n\t\t"header header"\n\t\t"main   sidebar"\n\t\t"footer footer";\n}'
+      }]
+    }, {
       name: "Newline Between Rules",
       description: "",
       matrix: [{
