@@ -285,8 +285,10 @@ function Beautifier(source_text, options) {
           eatWhitespace(true);
           output.add_new_line();
 
-          if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
-            output.add_new_line(true);
+          if (newline_between_rules && !output.just_added_blankline()) {
+            if (input.peek() !== '}') {
+              output.add_new_line(true);
+            }
           }
         } else {
           if (insidePropertyValue) {
@@ -326,8 +328,10 @@ function Beautifier(source_text, options) {
         eatWhitespace(true);
         output.add_new_line();
 
-        if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
-          output.add_new_line(true);
+        if (newline_between_rules && !output.just_added_blankline()) {
+          if (input.peek() !== '}') {
+            output.add_new_line(true);
+          }
         }
       } else if (ch === ":") {
         if ((insideRule || enteringConditionalGroup) &&

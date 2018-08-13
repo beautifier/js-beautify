@@ -311,8 +311,9 @@ class Beautifier:
                     self.eatWhitespace(True)
                     output.add_new_line()
 
-                    if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
-                        output.add_new_line(True)
+                    if self.opts.newline_between_rules and not output.just_added_blankline():
+                        if input.peek() != '}':
+                            output.add_new_line(True)
                 else:
                     if insidePropertyValue:
                         insidePropertyValue = False
@@ -347,8 +348,9 @@ class Beautifier:
                 self.eatWhitespace(True)
                 output.add_new_line()
 
-                if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
-                    output.add_new_line(True)
+                if self.opts.newline_between_rules and not output.just_added_blankline():
+                    if input.peek() != '}':
+                        output.add_new_line(True)
             elif self.ch == ":":
                 if (insideRule or enteringConditionalGroup) and \
                         not (input.lookBack('&') or self.foundNestedPseudoClass()) and \

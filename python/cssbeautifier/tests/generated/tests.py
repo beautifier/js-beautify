@@ -739,6 +739,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -776,10 +777,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue"\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
@@ -813,6 +816,25 @@ class CSSBeautifierTest(unittest.TestCase):
             '.div {\n' +
             '\theight: 15px;\n' +
             '}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t}\n' +
+            '\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {}\n' +
+            '\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '\n' +
+            '.list-group-condensed {}')
 
         # Newline Between Rules - (newline_between_rules = "false")
         self.reset_options()
@@ -957,6 +979,23 @@ class CSSBeautifierTest(unittest.TestCase):
             '.div {\n' +
             '\theight: 15px;\n' +
             '}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t}\n' +
+            '\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {}\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '.list-group-condensed {}')
 
 
         #============================================================
@@ -5312,6 +5351,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -5334,10 +5374,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue";\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
@@ -5889,6 +5931,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -5958,10 +6001,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue";\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
@@ -6561,6 +6606,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -6630,10 +6676,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue";\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
@@ -6964,6 +7012,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -6986,10 +7035,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue";\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
@@ -7345,6 +7396,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo@2x.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -7382,10 +7434,12 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t#foo:hover {\n' +
             '\t\tbackground-image: url(foo.png);\n' +
             '\t}\n' +
+            '\n' +
             '\t@media screen and (min-device-pixel-ratio: 2) {\n' +
             '\t\t@font-face {\n' +
             '\t\t\tfont-family: "Helvetica Neue";\n' +
             '\t\t}\n' +
+            '\n' +
             '\t\t#foo:hover {\n' +
             '\t\t\tbackground-image: url(foo@2x.png);\n' +
             '\t\t}\n' +
