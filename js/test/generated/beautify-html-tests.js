@@ -462,6 +462,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '    attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1=12345\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
+            '    attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -515,6 +531,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '    attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1=12345\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
+            '    attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -559,6 +591,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '        attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '        attr0\n' +
+            '        attr1=12345\n' +
+            '        data-attr2="hello    t here"\n' +
+            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
+            '        attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -600,6 +648,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
+            'data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
+            '    is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12 attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -640,6 +701,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
+            '    data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
+            '    is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12 attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -665,6 +739,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12 attr2="bar" />');
         test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""force-aligned"")
@@ -702,6 +784,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
+            '      attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1=12345\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
             '      attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
@@ -756,6 +854,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
             '      attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1=12345\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
+            '      attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -796,6 +910,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
+            '     data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
+            '    is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12 attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -820,6 +947,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo" attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12 attr2="bar" />');
         test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""force-aligned"", wrap_attributes_indent_size = "8")
@@ -858,6 +993,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1="foo"\n' +
+            '      attr2="bar" />');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '     attr0\n' +
+            '     attr1=12345\n' +
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root attr1=foo12\n' +
             '      attr2="bar" />');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
@@ -909,6 +1060,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root\n' +
             '    attr1="foo"\n' +
+            '    attr2="bar"\n' +
+            '/>');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1=12345\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root\n' +
+            '    attr1=foo12\n' +
             '    attr2="bar"\n' +
             '/>');
         test_fragment(
@@ -975,6 +1146,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="foo"\n' +
             '    attr2="bar"\n' +
             '/>');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '    attr0\n' +
+            '    attr1=12345\n' +
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root\n' +
+            '    attr1=foo12\n' +
+            '    attr2="bar"\n' +
+            '/>');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
@@ -1027,6 +1218,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root\n' +
             '        attr1="foo"\n' +
+            '        attr2="bar"\n' +
+            '/>');
+        
+        // Issue #1094 - Beautify correctly without quotes and with extra spaces
+        test_fragment(
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            //  -- output --
+            '<div\n' +
+            '        lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '        attr0\n' +
+            '        attr1=12345\n' +
+            '        data-attr2="hello    t here"\n' +
+            '        heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '>This is some text</div>');
+        test_fragment(
+            '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+            //  -- output --
+            '<?xml version="1.0" encoding="UTF-8" ?>\n' +
+            '<root\n' +
+            '        attr1=foo12\n' +
             '        attr2="bar"\n' +
             '/>');
         test_fragment(

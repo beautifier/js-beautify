@@ -176,7 +176,7 @@ Tokenizer.prototype._read_open_close = function(c, open_token) { // jshint unuse
   var resulting_string = null;
   if (open_token && open_token.text[0] === '<' && (c === '>' || (c === '/' && this._input.peek(1) === '>'))) {
     resulting_string = this._input.next();
-    if (this._input.peek() === '>') {
+    if (c === '/') { //  for close tag "/>"
       resulting_string += this._input.next();
     }
     return this.create_token(TOKEN.TAG_CLOSE, resulting_string);

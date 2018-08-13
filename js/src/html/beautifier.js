@@ -466,30 +466,23 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
             continue;
           }
 
+          space = raw_token.newlines || raw_token.whitespace_before !== '';
           if (tag_start_char === '<') {
             if (raw_token.type === TOKEN.ATTRIBUTE) {
               space = true;
               attr_count += 1;
-
-              if (raw_token.type === TOKEN.EQUALS) { //no space before =
-                space = false;
-              } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
-                space = false;
-              }
-            } else if (raw_token.type === TOKEN.TEXT) {
-              space = true;
+            } else if (raw_token.type === TOKEN.EQUALS) { //no space before =
+              space = false;
+            } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
+              space = false;
             } else if (raw_token.type === TOKEN.TAG_CLOSE) {
               space = raw_token.text[0] === '/'; // space before />, no space before >
-            } else {
-              space = raw_token.newlines || raw_token.whitespace_before !== '';
+              if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs) {
+                space = false;
+                this.print_newline(false);
+                this.print_indentation();
+              }
             }
-
-            if (is_wrap_attributes_force_expand_multiline && has_wrapped_attrs && raw_token.type === TOKEN.TAG_CLOSE) {
-              space = false;
-              this.print_newline(false);
-              this.print_indentation();
-            }
-
           }
 
           if (space) {
