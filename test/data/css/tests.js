@@ -728,6 +728,33 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Import Tests",
+      description: "Test for '@import'",
+      options: [],
+      tests: [{
+        input: [
+          '@import "custom.css";.rule{}',
+          'a, p {}'
+        ],
+        output: [
+          '@import "custom.css";',
+          '.rule {}',
+          'a,',
+          'p {}'
+        ]
+      }, {
+        input: [
+          '@import url("bluish.css") projection,tv;.rule{}',
+          'a, p {}'
+        ],
+        output: [
+          '@import url("bluish.css") projection, tv;',
+          '.rule {}',
+          'a,',
+          'p {}'
+        ]
+      }]
+    }, {
       name: "Important ",
       description: "Spacing of !important",
       options: [],

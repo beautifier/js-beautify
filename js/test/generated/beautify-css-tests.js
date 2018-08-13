@@ -9513,6 +9513,28 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Import Tests
+        reset_options();
+        set_name('Import Tests');
+        t(
+            '@import "custom.css";.rule{}\n' +
+            'a, p {}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}');
+        t(
+            '@import url("bluish.css") projection,tv;.rule{}\n' +
+            'a, p {}',
+            //  -- output --
+            '@import url("bluish.css") projection, tv;\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}');
+
+
+        //============================================================
         // Important 
         reset_options();
         set_name('Important ');

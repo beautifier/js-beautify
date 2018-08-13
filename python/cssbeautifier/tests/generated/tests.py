@@ -9408,6 +9408,27 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Import Tests
+        self.reset_options()
+        t(
+            '@import "custom.css";.rule{}\n' +
+            'a, p {}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}')
+        t(
+            '@import url("bluish.css") projection,tv;.rule{}\n' +
+            'a, p {}',
+            #  -- output --
+            '@import url("bluish.css") projection, tv;\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}')
+
+
+        #============================================================
         # Important 
         self.reset_options()
         t(
