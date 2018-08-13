@@ -302,16 +302,21 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         alignment_size = wrap_attributes_indent_size,
         alignment_string = '';
 
+      var tag_check_match;
       tag_start_char = raw_token.text[0];
+
       if (tag_start_char === '<') {
-        tag_check = raw_token.text.match(/^<([^\s>]*)/)[1];
+        tag_check_match = raw_token.text.match(/^<([^\s>]*)/);
+        tag_check = tag_check_match ? tag_check_match[1] : '';
       } else {
-        tag_check = raw_token.text.match(/^{{\#?([^\s}]+)/)[1];
+        tag_check_match = raw_token.text.match(/^{{\#?([^\s}]+)/);
+        tag_check = tag_check_match ? tag_check_match[1] : '';
       }
       tag_check = tag_check.toLowerCase();
 
       if (raw_token.type === TOKEN.COMMENT) {
         tag_reading_finished = true;
+
       } else if (raw_token.type === TOKEN.TAG_OPEN) {
         space = tag_start_char === '<' || this._tokens.peek().type !== TOKEN.TAG_CLOSE;
       } else {
@@ -319,12 +324,13 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       }
 
       parser_token.is_closing_tag = tag_check.charAt(0) === '/';
-      parser_token.is_single_tag = this.Utils.in_array(tag_check, this.Utils.single_token) ||
+      parser_token.is_single_tag = raw_token.type === TOKEN.COMMENT ||
+        this.Utils.in_array(tag_check, this.Utils.single_token) ||
         (raw_token.closed && raw_token.closed.text === '/>');
       parser_token.tag_name = parser_token.is_closing_tag ? tag_check.substr(1) : tag_check;
       parser_token.is_inline_tag = this.Utils.in_array(parser_token.tag_name, inline_tags) || tag_start_char === '{';
-      parser_token.is_unformatted = this.Utils.in_array(tag_check, unformatted);
-      parser_token.is_content_unformatted = this.Utils.in_array(tag_check, content_unformatted);
+      parser_token.is_unformatted = !tag_reading_finished && this.Utils.in_array(tag_check, unformatted);
+      parser_token.is_content_unformatted = !tag_reading_finished && this.Utils.in_array(tag_check, content_unformatted);
 
       if (parser_token.is_unformatted || parser_token.is_content_unformatted) {
         parser_token.type = 'TK_TAG_SINGLE';
@@ -345,7 +351,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         this.indent_to_tag(['if', 'unless']);
         parser_token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
-      } else if (indent_handlebars && tag_start_char === '{' && (/[^#\^\/]/.test(raw_token.text.charAt(2)))) {
+      } else if (indent_handlebars && tag_start_char === '{' && (raw_token.text.length < 3 || (/[^#\^\/]/.test(raw_token.text.charAt(2))))) {
         parser_token.type = 'TK_TAG_SINGLE';
         parser_token.is_single_tag = true;
         parser_token.is_closing_tag = true;
@@ -398,7 +404,8 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           if ((parser_token.start_tag_token && parser_token.start_tag_token.multiline_content) ||
             !(parser_token.is_inline_tag ||
               (this.last_tag_token.is_inline_tag) ||
-              (this.last_token === this.last_tag_token && this.last_tag_token.is_opening_tag && parser_token.is_closing_tag && this.last_tag_token.tag_name === parser_token.tag_name) ||
+              (this.last_token === this.last_tag_token && this.last_tag_token.is_opening_tag &&
+                parser_token.is_closing_tag && this.last_tag_token.tag_name === parser_token.tag_name) ||
               (this.last_token.type === 'TK_CONTENT')
             )) {
             this.print_newline(false);
@@ -542,7 +549,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           this.add_raw_token(this._tokens.next());
         }
 
-        if (this._tokens.peek().type === TOKEN.TAG_OPEN) {
+        if (this._tokens.peek().type === TOKEN.TAG_OPEN && this._tokens.peek().text.indexOf('</') === 0) {
           this.add_raw_token(this._tokens.next());
           if (this._tokens.peek().type === TOKEN.TAG_CLOSE) {
             this.add_raw_token(this._tokens.next());

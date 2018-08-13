@@ -1101,16 +1101,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{field}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{field}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{field}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{field}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{field}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -1311,16 +1327,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{value-title}}');
+        bth(
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -1521,16 +1553,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! comment}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! comment}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{! comment}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{! comment}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{! comment}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -1731,16 +1779,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- comment--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- comment--}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{!-- comment--}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{!-- comment--}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{!-- comment--}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -1941,16 +2005,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -2151,16 +2231,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -2361,16 +2457,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment(
             '{{#if 0}}{{! \n' +
             ' mult-line\n' +
@@ -2726,16 +2854,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment(
             '{{#if 0}}{{!-- \n' +
             ' mult-line\n' +
@@ -3091,16 +3251,60 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Indenting On - (indent_handlebars = "true")');
         opts.indent_handlebars = true;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment(
             '{{#if 0}}{{!-- \n' +
             ' mult-line\n' +
@@ -3568,16 +3772,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Handlebars Indenting On - (indent_handlebars = "true", wrap_line_length = "80")');
         opts.indent_handlebars = true;
         opts.wrap_line_length = 80;
-        test_fragment('{{page-title}}');
-        test_fragment(
+        bth('{{page-title}}');
+        bth(
             '{{page-title}}\n' +
             '{{a}}\n' +
             '{{value-title}}');
-        test_fragment(
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            'content\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            'content');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            'content\n' +
+            '{{value-title}}');
+        bth(
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            'content\n' +
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
-        test_fragment('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{/if}}');
         test_fragment('{{#if 0}}content{{/if}}');
         test_fragment(
             '{{#if 0}}\n' +
@@ -3902,9 +4122,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // ISSUE #575 and #994 Ignore directive works in html
+        // ISSUE #545 and #944 Ignore directive works in html
         reset_options();
-        set_name('ISSUE #575 and #994 Ignore directive works in html');
+        set_name('ISSUE #545 and #944 Ignore directive works in html');
         bth(
             '<!-- beautify ignore:start -->\n' +
             '@{\n' +
@@ -4316,7 +4536,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // content_unformatted to prevent formatting content
         reset_options();
         set_name('content_unformatted to prevent formatting content');
-        opts.content_unformatted = ['script', 'style', 'p', 'span', 'br'];
+        opts.content_unformatted = ['?php', 'script', 'style', 'p', 'span', 'br'];
         test_fragment(
             '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
             //  -- output --
@@ -4350,7 +4570,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '>But not me</div></p>');
         test_fragment('<div><span>blabla<div>something here</div></span></div>');
         test_fragment('<div><br /></div>');
-        test_fragment(
+        bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',
             //  -- output --
@@ -4358,7 +4578,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <pre>var a=1;\n' +
             '        var b=a;</pre>\n' +
             '</div>');
-        test_fragment(
+        bth(
+            '<?php\n' +
+            '/**\n' +
+            ' * Comment\n' +
+            ' */\n' +
+            '\n' +
+            '?>\n' +
+            '<div class="">\n' +
+            '\n' +
+            '</div>');
+        bth(
             '<div><pre>\n' +
             'var a=1;\n' +
             'var b=a;\n' +
@@ -4395,7 +4625,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</body>\n' +
             '\n' +
             '</html>');
-        test_fragment(
+        bth(
             '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
             //  -- output --
             '<div>\n' +

@@ -662,9 +662,8 @@ exports.test_data = {
       indent_over80: '\n    '
     }],
     tests: [
-      { fragment: true, unchanged: '{{page-title}}' },
+      { unchanged: '{{page-title}}' },
       {
-        fragment: true,
         unchanged: [
           '{{page-title}}',
           '{{a}}',
@@ -672,14 +671,34 @@ exports.test_data = {
         ]
       },
       {
-        fragment: true,
+        unchanged: [
+          '{{textarea value=someContent}}',
+          '',
+          '^^^&content$$$',
+          '{{#if condition}}',
+          '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>',
+          '{{/if}}',
+          '^^^&content$$$'
+        ]
+      },
+      {
+        comment: "error case",
+        unchanged: [
+          '{{page-title}}',
+          '{{ myHelper someValue}}',
+          '^^^&content$$$',
+          '{{value-title}}'
+        ]
+      },
+      {
         unchanged: [
           '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '^^^&content$$$',
           '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ]
       },
-      { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
+      { unchanged: '{{#if 0}}{{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
         fragment: true,
@@ -1394,7 +1413,7 @@ exports.test_data = {
     name: "content_unformatted to prevent formatting content",
     description: "",
     options: [
-      { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
+      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br']" }
     ],
     tests: [{
       fragment: true,
@@ -1436,7 +1455,6 @@ exports.test_data = {
       fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
@@ -1445,7 +1463,18 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
+      unchanged: [
+        '<?php',
+        '/**',
+        ' * Comment',
+        ' */',
+        '',
+        '?>',
+        '<div class="">',
+        '',
+        '</div>'
+      ]
+    }, {
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
@@ -1482,7 +1511,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
       output: [
         '<div>',
