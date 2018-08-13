@@ -1393,6 +1393,195 @@ exports.test_data = {
       unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
     }]
   }, {
+    name: "Preserve newlines false",
+    description: "",
+    options: [
+      { name: 'indent_size', value: "2" },
+      { name: 'preserve_newlines', value: "false" }
+    ],
+    tests: [{
+      input: '<div>\n\tfoo\n</div>',
+      output: '<div> foo </div>'
+    }, {
+      input_: '<div>Should not</div>\n\n\n' +
+        '<div>preserve newlines</div>',
+      output: '<div>Should not</div>\n' +
+        '<div>preserve newlines</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '    <ul>',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true",
+    description: "",
+    options: [
+      { name: 'indent_size', value: "1" },
+      { name: 'indent_char', value: '"\t"' },
+      { name: 'preserve_newlines', value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<div>\n\tfoo\n</div>'
+    }]
+  }, {
+    name: "Preserve newlines true with zero max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'max_preserve_newlines', value: "0" },
+      { name: 'indent_size', value: "2" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>Should</div>\n\n\n' +
+        '<div>preserve zero newlines</div>',
+      output: '<div>Should</div>\n' +
+        '<div>preserve zero newlines</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '    <ul>',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true with 1 max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'indent_size', value: "2" },
+      { name: 'max_preserve_newlines', value: "1" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>Should</div>\n\n\n' +
+        '<div>preserve one newline</div>',
+      output: '<div>Should</div>\n\n' +
+        '<div>preserve one newline</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true with null max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'indent_size', value: "2" },
+      { name: 'max_preserve_newlines', value: "null" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<div>Should</div>\n\n\n' +
+        '<div>preserve zero newlines</div>'
+    }, {
+      unchanged: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
     name: "unformatted to prevent formatting changes",
     description: "",
     options: [

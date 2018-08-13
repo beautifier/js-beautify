@@ -4705,6 +4705,197 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Preserve newlines false
+        reset_options();
+        set_name('Preserve newlines false');
+        opts.indent_size = 2;
+        opts.preserve_newlines = false;
+        bth(
+            '<div>\n' +
+            '\tfoo\n' +
+            '</div>',
+            //  -- output --
+            '<div> foo </div>');
+        bth(
+            '<div>Should not</div>\n' +
+            '\n' +
+            '\n' +
+            '<div>preserve newlines</div>',
+            //  -- output --
+            '<div>Should not</div>\n' +
+            '<div>preserve newlines</div>');
+        bth(
+            '<header>\n' +
+            '  <h1>\n' +
+            '\n' +
+            '\n' +
+            '    <ul>\n' +
+            '\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '\n' +
+            '\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>',
+            //  -- output --
+            '<header>\n' +
+            '  <h1>\n' +
+            '    <ul>\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>');
+
+
+        //============================================================
+        // Preserve newlines true
+        reset_options();
+        set_name('Preserve newlines true');
+        opts.indent_size = 1;
+        opts.indent_char = "	";
+        opts.preserve_newlines = true;
+        test_fragment(
+            '<div>\n' +
+            '\tfoo\n' +
+            '</div>');
+
+
+        //============================================================
+        // Preserve newlines true with zero max newline
+        reset_options();
+        set_name('Preserve newlines true with zero max newline');
+        opts.preserve_newlines = true;
+        opts.max_preserve_newlines = 0;
+        opts.indent_size = 2;
+        test_fragment(
+            '<div>Should</div>\n' +
+            '\n' +
+            '\n' +
+            '<div>preserve zero newlines</div>',
+            //  -- output --
+            '<div>Should</div>\n' +
+            '<div>preserve zero newlines</div>');
+        bth(
+            '<header>\n' +
+            '  <h1>\n' +
+            '\n' +
+            '\n' +
+            '    <ul>\n' +
+            '\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '\n' +
+            '\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>',
+            //  -- output --
+            '<header>\n' +
+            '  <h1>\n' +
+            '    <ul>\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>');
+
+
+        //============================================================
+        // Preserve newlines true with 1 max newline
+        reset_options();
+        set_name('Preserve newlines true with 1 max newline');
+        opts.preserve_newlines = true;
+        opts.indent_size = 2;
+        opts.max_preserve_newlines = 1;
+        test_fragment(
+            '<div>Should</div>\n' +
+            '\n' +
+            '\n' +
+            '<div>preserve one newline</div>',
+            //  -- output --
+            '<div>Should</div>\n' +
+            '\n' +
+            '<div>preserve one newline</div>');
+        bth(
+            '<header>\n' +
+            '  <h1>\n' +
+            '\n' +
+            '\n' +
+            '    <ul>\n' +
+            '\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '\n' +
+            '\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>',
+            //  -- output --
+            '<header>\n' +
+            '  <h1>\n' +
+            '\n' +
+            '    <ul>\n' +
+            '\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>');
+
+
+        //============================================================
+        // Preserve newlines true with null max newline
+        reset_options();
+        set_name('Preserve newlines true with null max newline');
+        opts.preserve_newlines = true;
+        opts.indent_size = 2;
+        opts.max_preserve_newlines = null;
+        test_fragment(
+            '<div>Should</div>\n' +
+            '\n' +
+            '\n' +
+            '<div>preserve zero newlines</div>');
+        bth(
+            '<header>\n' +
+            '  <h1>\n' +
+            '\n' +
+            '\n' +
+            '    <ul>\n' +
+            '\n' +
+            '      <li class="menuactive menuparent">\n' +
+            '        <a>\n' +
+            '          <span>Anita Koppe</span>\n' +
+            '        </a>\n' +
+            '\n' +
+            '\n' +
+            '      </li>\n' +
+            '    </ul>\n' +
+            '  </h1>\n' +
+            '</header>');
+
+
+        //============================================================
         // unformatted to prevent formatting changes
         reset_options();
         set_name('unformatted to prevent formatting changes');
@@ -5191,43 +5382,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
-        set_name('preserve newline tests');
 
-        opts.indent_size = 1;
-        opts.indent_char = '\t';
-        opts.preserve_newlines = false;
-        bth('<div>\n\tfoo\n</div>', '<div> foo </div>');
-
-        opts.preserve_newlines = true;
-        bth('<div>\n\tfoo\n</div>');
-
-
-
-        // test preserve_newlines and max_preserve_newlines
-        opts.preserve_newlines = false;
-        bth('<div>Should not</div>\n\n\n' +
-            '<div>preserve newlines</div>',
-            '<div>Should not</div>\n' +
-            '<div>preserve newlines</div>');
-
-        opts.preserve_newlines = true;
-        opts.max_preserve_newlines  = 0;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve zero newlines</div>',
-            '<div>Should</div>\n' +
-            '<div>preserve zero newlines</div>');
-
-        opts.max_preserve_newlines  = 1;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>',
-            '<div>Should</div>\n\n' +
-            '<div>preserve one newline</div>');
-
-        opts.max_preserve_newlines  = null;
-        bth('<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>',
-            '<div>Should</div>\n\n\n' +
-            '<div>preserve one newline</div>');
     }
 
     beautifier_tests();
