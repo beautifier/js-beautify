@@ -4001,7 +4001,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Handlebars Else tag indenting');
         opts.indent_handlebars = true;
-        test_fragment(
+        bth(
             '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
             //  -- output --
             '{{#if test}}\n' +
@@ -4009,8 +4009,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    <div></div>\n' +
             '{{/if}}');
-        test_fragment('{{#if test}}<span></span>{{else}}<span></span>{{/if}}');
-        test_fragment(
+        bth('{{#if test}}<span></span>{{else}}<span></span>{{/if}}');
+        bth(
             '<a class="navbar-brand">\n' +
             '    {{#if connected}}\n' +
             '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}\n' +
@@ -4035,22 +4035,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Unclosed html elements
         reset_options();
         set_name('Unclosed html elements');
-        test_fragment(
+        bth(
             '<source>\n' +
             '<source>');
-        test_fragment(
+        bth(
             '<br>\n' +
             '<br>');
-        test_fragment(
+        bth(
             '<input>\n' +
             '<input>');
-        test_fragment(
+        bth(
             '<meta>\n' +
             '<meta>');
-        test_fragment(
+        bth(
             '<link>\n' +
             '<link>');
-        test_fragment(
+        bth(
             '<colgroup>\n' +
             '    <col>\n' +
             '    <col>\n' +
@@ -4110,7 +4110,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // File starting with comment
         reset_options();
         set_name('File starting with comment');
-        test_fragment(
+        bth(
             '<!--sample comment -->\n' +
             '\n' +
             '<html>\n' +
@@ -4160,7 +4160,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Issue 1478 - Space handling inside self closing tag
         reset_options();
         set_name('Issue 1478 - Space handling inside self closing tag');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <br/>\n' +
             '    <br />\n' +
@@ -4176,7 +4176,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Single line comment after closing tag
         reset_options();
         set_name('Single line comment after closing tag');
-        test_fragment(
+        bth(
             '<div class="col">\n' +
             '    <div class="row">\n' +
             '        <div class="card">\n' +
@@ -4223,13 +4223,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Php formatting
         reset_options();
         set_name('Php formatting');
-        test_fragment(
+        bth(
             '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
             //  -- output --
             '<h1 class="content-page-header">\n' +
             '    <?=$view["name"]; ?>\n' +
             '</h1>');
-        test_fragment(
+        bth(
             '<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
             '    #count to 100!\n' +
@@ -4247,11 +4247,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<body></body>\n' +
             '\n' +
             '</html>');
-        test_fragment(
+        bth(
             '<?= "A" ?>\n' +
             '<?= "B" ?>\n' +
             '<?= "C" ?>');
-        test_fragment(
+        bth(
             '<?php\n' +
             'echo "A";\n' +
             '?>\n' +

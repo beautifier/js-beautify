@@ -940,7 +940,6 @@ exports.test_data = {
       { name: "indent_handlebars", value: "true" }
     ],
     tests: [{
-        fragment: true,
         input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
         output: '{{#if test}}\n' +
           '    <div></div>\n' +
@@ -948,12 +947,10 @@ exports.test_data = {
           '    <div></div>\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
       },
       // Else if handling
       {
-        fragment: true,
         input: ['<a class="navbar-brand">',
           '    {{#if connected}}',
           '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}',
@@ -980,12 +977,12 @@ exports.test_data = {
     description: "Unclosed elements should not indent",
     options: [],
     tests: [
-      { fragment: true, unchanged: '<source>\n<source>' },
-      { fragment: true, unchanged: '<br>\n<br>' },
-      { fragment: true, unchanged: '<input>\n<input>' },
-      { fragment: true, unchanged: '<meta>\n<meta>' },
-      { fragment: true, unchanged: '<link>\n<link>' },
-      { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
+      { unchanged: '<source>\n<source>' },
+      { unchanged: '<br>\n<br>' },
+      { unchanged: '<input>\n<input>' },
+      { unchanged: '<meta>\n<meta>' },
+      { unchanged: '<link>\n<link>' },
+      { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
     ]
   }, {
     name: "Unformatted tags",
@@ -1017,7 +1014,6 @@ exports.test_data = {
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<!--sample comment -->',
         '',
@@ -1070,7 +1066,6 @@ exports.test_data = {
     description: "Properly indent following text after self closing tags regardless of space",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div>',
         '    <br/>',
@@ -1089,7 +1084,6 @@ exports.test_data = {
     description: "Keep single line comments as they are after closing tags",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div class="col">',
         '    <div class="row">',
@@ -1141,11 +1135,9 @@ exports.test_data = {
     description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
       output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>'
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'for($i = 1; $i <= 100; $i++;) {',
@@ -1169,14 +1161,12 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?= "A" ?>',
         '<?= "B" ?>',
         '<?= "C" ?>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'echo "A";',
@@ -1238,7 +1228,6 @@ exports.test_data = {
     description: "underscore.js templates (<% ... %>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<div class="col-sm-9">',
         '    <textarea id="notes" class="form-control" rows="3">',
