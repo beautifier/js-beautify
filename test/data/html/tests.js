@@ -662,9 +662,8 @@ exports.test_data = {
       indent_over80: '\n    '
     }],
     tests: [
-      { fragment: true, unchanged: '{{page-title}}' },
+      { unchanged: '{{page-title}}' },
       {
-        fragment: true,
         unchanged: [
           '{{page-title}}',
           '{{a}}',
@@ -672,14 +671,34 @@ exports.test_data = {
         ]
       },
       {
-        fragment: true,
+        unchanged: [
+          '{{textarea value=someContent}}',
+          '',
+          '^^^&content$$$',
+          '{{#if condition}}',
+          '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>',
+          '{{/if}}',
+          '^^^&content$$$'
+        ]
+      },
+      {
+        comment: "error case",
+        unchanged: [
+          '{{page-title}}',
+          '{{ myHelper someValue}}',
+          '^^^&content$$$',
+          '{{value-title}}'
+        ]
+      },
+      {
         unchanged: [
           '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '^^^&content$$$',
           '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ]
       },
-      { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
+      { unchanged: '{{#if 0}}{{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
       { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
         fragment: true,
@@ -921,7 +940,6 @@ exports.test_data = {
       { name: "indent_handlebars", value: "true" }
     ],
     tests: [{
-        fragment: true,
         input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
         output: '{{#if test}}\n' +
           '    <div></div>\n' +
@@ -929,12 +947,10 @@ exports.test_data = {
           '    <div></div>\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
       },
       // Else if handling
       {
-        fragment: true,
         input: ['<a class="navbar-brand">',
           '    {{#if connected}}',
           '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}',
@@ -961,12 +977,12 @@ exports.test_data = {
     description: "Unclosed elements should not indent",
     options: [],
     tests: [
-      { fragment: true, unchanged: '<source>\n<source>' },
-      { fragment: true, unchanged: '<br>\n<br>' },
-      { fragment: true, unchanged: '<input>\n<input>' },
-      { fragment: true, unchanged: '<meta>\n<meta>' },
-      { fragment: true, unchanged: '<link>\n<link>' },
-      { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
+      { unchanged: '<source>\n<source>' },
+      { unchanged: '<br>\n<br>' },
+      { unchanged: '<input>\n<input>' },
+      { unchanged: '<meta>\n<meta>' },
+      { unchanged: '<link>\n<link>' },
+      { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
     ]
   }, {
     name: "Unformatted tags",
@@ -998,7 +1014,6 @@ exports.test_data = {
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<!--sample comment -->',
         '',
@@ -1011,11 +1026,46 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "ISSUE #545 and #944 Ignore directive works in html",
+    description: "",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<!-- beautify ignore:start -->',
+        '@{',
+        '',
+        '    ViewBag.Title = "Dashboard";',
+        '    string firstName = string.Empty;',
+        '    string userId = ViewBag.UserId;',
+        '',
+        '    if( !string.IsNullOrEmpty(ViewBag.FirstName ) ) {',
+        '',
+        '         firstName = "<h2>Hi " + ViewBag.FirstName + "</h2>";',
+        '',
+        '    }',
+        '',
+        '}',
+        '<!-- beautify ignore:end -->',
+        '',
+        '<header class="layout-header">',
+        '',
+        '    <h2 id="logo"><a href="/">Logo</a></h2>',
+        '',
+        '    <ul class="social">',
+        '',
+        '        <li class="facebook"><a href="#">Facebook</a></li>',
+        '        <li class="twitter"><a href="#">Twitter</a></li>',
+        '',
+        '    </ul>',
+        '',
+        '</header>'
+      ]
+    }]
+  }, {
     name: "Issue 1478 - Space handling inside self closing tag",
     description: "Properly indent following text after self closing tags regardless of space",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div>',
         '    <br/>',
@@ -1034,7 +1084,6 @@ exports.test_data = {
     description: "Keep single line comments as they are after closing tags",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div class="col">',
         '    <div class="row">',
@@ -1086,11 +1135,9 @@ exports.test_data = {
     description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
       output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>'
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'for($i = 1; $i <= 100; $i++;) {',
@@ -1114,14 +1161,12 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?= "A" ?>',
         '<?= "B" ?>',
         '<?= "C" ?>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'echo "A";',
@@ -1183,7 +1228,6 @@ exports.test_data = {
     description: "underscore.js templates (<% ... %>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<div class="col-sm-9">',
         '    <textarea id="notes" class="form-control" rows="3">',
@@ -1337,20 +1381,15 @@ exports.test_data = {
       { name: 'unformatted', value: "['u']" }
     ],
     tests: [{
-      fragment: true,
       unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
     }, {
-      fragment: true,
       unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
     }, {
-      fragment: true,
       input_: '<u>  \n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>',
       output: '<u>\n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>'
     }, {
-      fragment: true,
       unchanged: '<u><div \n\t\nclass=""">Ignore whitespace in attributes\t</div></u>'
     }, {
-      fragment: true,
       input_: '<u \n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>',
       output: '<u\n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>'
     }]
@@ -1358,7 +1397,7 @@ exports.test_data = {
     name: "content_unformatted to prevent formatting content",
     description: "",
     options: [
-      { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
+      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br']" }
     ],
     tests: [{
       fragment: true,
@@ -1374,7 +1413,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
       output: [
         '<div>',
@@ -1383,7 +1421,6 @@ exports.test_data = {
         '<p><div>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
       output: [
         '<div>',
@@ -1394,13 +1431,10 @@ exports.test_data = {
         '>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
@@ -1409,7 +1443,18 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
+      unchanged: [
+        '<?php',
+        '/**',
+        ' * Comment',
+        ' */',
+        '',
+        '?>',
+        '<div class="">',
+        '',
+        '</div>'
+      ]
+    }, {
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
@@ -1446,7 +1491,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
       output: [
         '<div>',
@@ -1457,7 +1501,6 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
       output: [
         '<div>',
@@ -1468,13 +1511,10 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
@@ -1483,7 +1523,6 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
@@ -1495,7 +1534,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1041",
-      fragment: true,
       input: [
         '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
         '',
@@ -1512,7 +1550,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1167",
-      fragment: true,
       unchanged: [
         '<span>',
         '    <span><img src="images/off.svg" alt=""></span>',
@@ -1533,7 +1570,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1184",
-      fragment: true,
       input: '<div><div></div>Connect</div>',
       output: [
         '<div>',
@@ -1542,7 +1578,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1383",
-      fragment: true,
       input: [
         '<p class="newListItem">',
         '  <svg height="40" width="40">',

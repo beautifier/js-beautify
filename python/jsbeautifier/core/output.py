@@ -34,6 +34,7 @@ class OutputLine:
         self.__parent = parent
         self.__character_count = 0
         self.__indent_count = -1
+        self.__alignment_count = 0
 
         self.__items = []
 
@@ -44,9 +45,14 @@ class OutputLine:
         return len(self.__items) == 0
 
     def set_indent(self, level):
-        self.__character_count = self.__parent.baseIndentLength + \
-            level * self.__parent.indent_length
         self.__indent_count = level
+        self.__character_count = self.__parent.baseIndentLength + \
+            + self.__alignment_count + self.__indent_count * self.__parent.indent_length
+
+    def set_alignment(self, level):
+        self.__alignment_count = level
+        self.__character_count = self.__parent.baseIndentLength + \
+            + self.__alignment_count + self.__indent_count * self.__parent.indent_length
 
     def last(self):
         if not self.is_empty():
@@ -79,7 +85,9 @@ class OutputLine:
         result = ''
         if not self.is_empty():
             if self.__indent_count >= 0:
-                result = self.__parent.indent_cache[self.__indent_count]
+                result = self.__parent._indent_cache[self.__indent_count]
+            if self.__alignment_count >= 0:
+                result += self.__parent._alignment_cache[self.__alignment_count]
             result += ''.join(self.__items)
         return result
 
@@ -89,7 +97,8 @@ class Output:
 
         self.indent_string = indent_string
         self.baseIndentString = baseIndentString
-        self.indent_cache = [baseIndentString]
+        self._indent_cache = [baseIndentString]
+        self._alignment_cache = ['']
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.raw = False
@@ -133,13 +142,25 @@ class Output:
     def set_indent(self, level):
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
-            while level >= len(self.indent_cache):
-                self.indent_cache.append(
-                    self.indent_cache[-1] + self.indent_string)
+            while level >= len(self._indent_cache):
+                self._indent_cache.append(
+                    self._indent_cache[-1] + self.indent_string)
 
             self.current_line.set_indent(level)
             return True
         self.current_line.set_indent(0)
+        return False
+
+    def set_alignment(self, level):
+        # Never indent your first output indent at the start of the file
+        if len(self.lines) > 1:
+            while level >= len(self._alignment_cache):
+                self._alignment_cache.append(
+                    self._alignment_cache[-1] + ' ')
+
+            self.current_line.set_alignment(level)
+            return True
+        self.current_line.set_alignment(0)
         return False
 
     def add_raw_token(self, token):

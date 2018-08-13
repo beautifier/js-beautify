@@ -73,16 +73,17 @@ Tokenizer.prototype.tokenize = function() {
     current.parent = open_token;
 
     if (this.is_opening(current)) {
-      current.opened = open_token;
       open_stack.push(open_token);
       open_token = current;
     } else if (open_token && this.is_closing(current, open_token)) {
       current.opened = open_token;
+      open_token.closed = current;
       open_token = open_stack.pop();
       current.parent = open_token;
     }
 
     current.previous = previous;
+    previous.next = current;
 
     this._tokens.add(current);
     previous = current;
