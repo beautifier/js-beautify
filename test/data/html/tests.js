@@ -1381,20 +1381,15 @@ exports.test_data = {
       { name: 'unformatted', value: "['u']" }
     ],
     tests: [{
-      fragment: true,
       unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
     }, {
-      fragment: true,
       unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
     }, {
-      fragment: true,
       input_: '<u>  \n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>',
       output: '<u>\n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>'
     }, {
-      fragment: true,
       unchanged: '<u><div \n\t\nclass=""">Ignore whitespace in attributes\t</div></u>'
     }, {
-      fragment: true,
       input_: '<u \n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>',
       output: '<u\n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>'
     }]
@@ -1418,7 +1413,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
       output: [
         '<div>',
@@ -1427,7 +1421,6 @@ exports.test_data = {
         '<p><div>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
       output: [
         '<div>',
@@ -1438,10 +1431,8 @@ exports.test_data = {
         '>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
@@ -1510,7 +1501,6 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
       output: [
         '<div>',
@@ -1521,13 +1511,10 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
@@ -1536,7 +1523,6 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
@@ -1548,7 +1534,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1041",
-      fragment: true,
       input: [
         '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
         '',
@@ -1565,7 +1550,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1167",
-      fragment: true,
       unchanged: [
         '<span>',
         '    <span><img src="images/off.svg" alt=""></span>',
@@ -1586,7 +1570,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1184",
-      fragment: true,
       input: '<div><div></div>Connect</div>',
       output: [
         '<div>',
@@ -1595,7 +1578,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1383",
-      fragment: true,
       input: [
         '<p class="newListItem">',
         '  <svg height="40" width="40">',

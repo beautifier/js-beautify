@@ -4322,7 +4322,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // underscore.js  formatting
         reset_options();
         set_name('underscore.js  formatting');
-        test_fragment(
+        bth(
             '<div class="col-sm-9">\n' +
             '    <textarea id="notes" class="form-control" rows="3">\n' +
             '        <%= notes %>\n' +
@@ -4498,9 +4498,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('unformatted to prevent formatting changes');
         opts.unformatted = ['u'];
-        test_fragment('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
-        test_fragment('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
-        test_fragment(
+        bth('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
+        bth('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
+        bth(
             '<u>  \n' +
             '\n' +
             '\n' +
@@ -4516,11 +4516,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '\n' +
             '  </u>');
-        test_fragment(
+        bth(
             '<u><div \n' +
             '\t\n' +
             'class=""">Ignore whitespace in attributes\t</div></u>');
-        test_fragment(
+        bth(
             '<u \n' +
             '\n' +
             '\t\t  class="">Ignore whitespace\n' +
@@ -4548,14 +4548,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</body>\n' +
             '\n' +
             '</html>');
-        test_fragment(
+        bth(
             '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
             //  -- output --
             '<div>\n' +
             '    <p>Beautify me</p>\n' +
             '</div>\n' +
             '<p><div>But not me</div></p>');
-        test_fragment(
+        bth(
             '<div><p\n' +
             '  class="beauty-me"\n' +
             '>Beautify me</p></div><p><div\n' +
@@ -4568,8 +4568,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p><div\n' +
             '  class="iamalreadybeauty"\n' +
             '>But not me</div></p>');
-        test_fragment('<div><span>blabla<div>something here</div></span></div>');
-        test_fragment('<div><br /></div>');
+        bth('<div><span>blabla<div>something here</div></span></div>');
+        bth('<div><br /></div>');
         bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',
@@ -4634,7 +4634,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>\n' +
             '    <p>But not me</p>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<div><p\n' +
             '  class="beauty-me"\n' +
             '>Beautify me</p></div><p><p\n' +
@@ -4647,9 +4647,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>\n' +
             '    <p class="iamalreadybeauty">But not me</p>\n' +
             '</p>');
-        test_fragment('<div><span>blabla<div>something here</div></span></div>');
-        test_fragment('<div><br /></div>');
-        test_fragment(
+        bth('<div><span>blabla<div>something here</div></span></div>');
+        bth('<div><br /></div>');
+        bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',
             //  -- output --
@@ -4657,7 +4657,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <pre>var a=1;\n' +
             'var b=a;</pre>\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div><pre>\n' +
             'var a=1;\n' +
             'var b=a;\n' +
@@ -4671,7 +4671,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</div>');
         
         // Test for #1041
-        test_fragment(
+        bth(
             '<p><span class="foo">foo <span class="bar">bar</span></span></p>\n' +
             '\n' +
             '<aside><p class="foo">foo <span class="bar">bar</span></p></aside>\n' +
@@ -4685,7 +4685,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p class="foo"><span class="bar">bar</span></p>');
         
         // Test for #1167
-        test_fragment(
+        bth(
             '<span>\n' +
             '    <span><img src="images/off.svg" alt=""></span>\n' +
             '    <span><img src="images/on.svg" alt=""></span>\n' +
@@ -4703,7 +4703,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</tr>');
         
         // Test for #1184
-        test_fragment(
+        bth(
             '<div><div></div>Connect</div>',
             //  -- output --
             '<div>\n' +
@@ -4711,7 +4711,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</div>');
         
         // Test for #1383
-        test_fragment(
+        bth(
             '<p class="newListItem">\n' +
             '  <svg height="40" width="40">\n' +
             '              <circle cx="20" cy="20" r="18" stroke="black" stroke-width="0" fill="#bddffa" />\n' +
