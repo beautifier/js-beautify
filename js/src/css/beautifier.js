@@ -200,6 +200,7 @@ function Beautifier(source_text, options) {
     var insidePropertyValue = false;
     var enteringConditionalGroup = false;
     var insideAtExtend = false;
+    var insideAtImport = false;
 
     while (true) {
       var whitespace = input.read(whitespacePattern);
@@ -257,6 +258,8 @@ function Beautifier(source_text, options) {
 
           if (variableOrRule === 'extend') {
             insideAtExtend = true;
+          } else if (variableOrRule === 'import') {
+            insideAtImport = true;
           }
 
           // might be a nesting at-rule
@@ -308,6 +311,8 @@ function Beautifier(source_text, options) {
       } else if (ch === '}') {
         outdent();
         output.add_new_line();
+        insideAtImport = false;
+        insideAtExtend = false;
         if (insidePropertyValue) {
           outdent();
           insidePropertyValue = false;
@@ -364,6 +369,7 @@ function Beautifier(source_text, options) {
           insidePropertyValue = false;
         }
         insideAtExtend = false;
+        insideAtImport = false;
         print_string(ch);
         eatWhitespace(true);
 
@@ -399,7 +405,7 @@ function Beautifier(source_text, options) {
       } else if (ch === ',') {
         print_string(ch);
         eatWhitespace(true);
-        if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1) {
+        if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
           output.add_new_line();
         } else {
           output.space_before_token = true;

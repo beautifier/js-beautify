@@ -226,6 +226,7 @@ class Beautifier:
         insidePropertyValue = False
         enteringConditionalGroup = False
         insideAtExtend = False
+        insideAtImport = False
         parenLevel = 0
 
         while True:
@@ -289,6 +290,8 @@ class Beautifier:
 
                     if variableOrRule == "extend":
                         insideAtExtend = True
+                    elif variableOrRule == "import":
+                        insideAtImport = True
 
                     # might be a nesting at-rule
                     if variableOrRule in self.NESTED_AT_RULE:
@@ -331,6 +334,8 @@ class Beautifier:
             elif self.ch == '}':
                 printer.outdent()
                 output.add_new_line()
+                insideAtExtend = False
+                insideAtImport = False
                 if insidePropertyValue:
                     printer.outdent()
                     insidePropertyValue = False
@@ -381,6 +386,7 @@ class Beautifier:
                     printer.outdent()
                     insidePropertyValue = False
                 insideAtExtend = False
+                insideAtImport = False
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
 
@@ -414,7 +420,7 @@ class Beautifier:
             elif self.ch == ',':
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
-                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1:
+                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1 and not insideAtImport:
                     output.add_new_line()
                 else:
                     output.space_before_token = True
