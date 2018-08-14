@@ -244,17 +244,19 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
     resulting_string = this._input.readUntil(/}}/g);
-    if (resulting_string) {
-      return this.create_token(TOKEN.TEXT, resulting_string);
-    }
   } else if (previous_token.type === TOKEN.TAG_CLOSE && (previous_token.opened.text[0] === '<')) {
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (tag_name === 'script' || tag_name === 'style' ||
       this._opts.content_unformatted.indexOf(tag_name) !== -1 ||
       this._opts.unformatted.indexOf(tag_name) !== -1) {
-      return this.create_token(TOKEN.TEXT, this._input.readUntil(new RegExp('</' + tag_name + '\\s*?>', 'ig')));
+      resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '\\s*?>', 'ig'));
     }
   }
+
+  if (resulting_string) {
+    return this.create_token(TOKEN.TEXT, resulting_string);
+  }
+
   return null;
 };
 

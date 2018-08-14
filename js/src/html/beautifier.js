@@ -40,13 +40,13 @@ var allLineBreaks = acorn.allLineBreaks;
 //     return s.replace(/^\s+|\s+$/g, '');
 // }
 
-function ltrim(s) {
-  return s.replace(/^\s+/g, '');
-}
+// function ltrim(s) {
+//   return s.replace(/^\s+/g, '');
+// }
 
-function rtrim(s) {
-  return s.replace(/\s+$/g, '');
-}
+// function rtrim(s) {
+//   return s.replace(/\s+$/g, '');
+// }
 
 function Beautifier(html_source, options, js_beautify, css_beautify) {
   //Wrapper function to invoke all the necessary constructors and deal with the output.
@@ -169,6 +169,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       text: '',
       type: '',
       tag_name: '',
+      tag_complete: true,
       is_opening_tag: false,
       is_closing_tag: false,
       is_inline_tag: false
@@ -279,28 +280,27 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
     this.get_tag_open = function(raw_token) { //function to get a full tag and parse its type
       var parser_token = {
-          parent: this.tags.parser_token,
-          text: '',
-          type: '',
-          tag_name: '',
-          is_inline_tag: false,
-          is_unformatted: false,
-          is_content_unformatted: false,
-          is_single_tag: false,
-          is_opening_tag: false,
-          is_closing_tag: false,
-          multiline_content: false,
-          custom_beautifier: false,
-          start_tag_token: null,
-          attr_count: 0,
-          has_wrapped_attrs: false,
-          alignment_size: wrap_attributes_indent_size,
-          alignment_string: '',
-          tag_complete:false,
-          space: false,
-          tag_start_char: '',
-          tag_check: ''
-        };
+        parent: this.tags.parser_token,
+        text: '',
+        type: '',
+        tag_name: '',
+        is_inline_tag: false,
+        is_unformatted: false,
+        is_content_unformatted: false,
+        is_single_tag: false,
+        is_opening_tag: false,
+        is_closing_tag: false,
+        multiline_content: false,
+        custom_beautifier: false,
+        start_tag_token: null,
+        attr_count: 0,
+        has_wrapped_attrs: false,
+        alignment_size: wrap_attributes_indent_size,
+        tag_complete: false,
+        space: false,
+        tag_start_char: '',
+        tag_check: ''
+      };
 
       var tag_check_match;
       parser_token.tag_start_char = raw_token.text[0];
@@ -316,11 +316,6 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
       if (raw_token.type === TOKEN.COMMENT) {
         parser_token.tag_complete = true;
-
-      } else if (raw_token.type === TOKEN.TAG_OPEN) {
-        parser_token.space = parser_token.tag_start_char === '<' || this._tokens.peek().type !== TOKEN.TAG_CLOSE;
-      } else {
-        throw "Unhandled token!";
       }
 
       parser_token.is_closing_tag = parser_token.tag_check.charAt(0) === '/';
@@ -336,7 +331,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
       if (this.Utils.in_array(parser_token.tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
         this.print_newline(false);
-        if (this.output.length && this.output[this.output.length - 2] !== '\n') {
+        if (!this._output.just_added_blankline()) {
           this.print_newline(true);
         }
       }
@@ -364,14 +359,11 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         this.indent_content = true;
         // Don't add a newline if opening {{#if}} tag is on the current line
         var foundIfOnCurrentLine = false;
-        for (var lastCheckedOutput = this.output.length - 1; lastCheckedOutput >= 0; lastCheckedOutput--) {
-          if (this.output[lastCheckedOutput] === '\n') {
+        var items = this._output.current_line._items;
+        for (var lastCheckedOutput = items.length - 1; lastCheckedOutput >= 0; lastCheckedOutput--) {
+          if (items[lastCheckedOutput].match(/{{#if/)) {
+            foundIfOnCurrentLine = true;
             break;
-          } else {
-            if (this.output[lastCheckedOutput].match(/{{#if/)) {
-              foundIfOnCurrentLine = true;
-              break;
-            }
           }
         }
         if (!foundIfOnCurrentLine) {
@@ -424,47 +416,9 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
           this.print_newline(false);
         }
       }
-
-      //indent attributes an auto, forced, aligned or forced-align line-wrap
-      if (is_wrap_attributes_force_aligned || is_wrap_attributes_aligned_multiple) {
-        parser_token.alignment_size = raw_token.text.length + 1;
-      }
-
-      // only ever further indent with spaces since we're trying to align characters
-      parser_token.alignment_string = Array(parser_token.alignment_size + 1).join(' ');
-
       this.last_tag_token = parser_token;
-      this.print_indentation();
 
       return parser_token;
-    };
-
-    this.get_tag_until_close = function(raw_token, parser_token) {
-
-      if (parser_token.is_unformatted || parser_token.is_content_unformatted) {
-        if (this._tokens.peek().type === TOKEN.TEXT) {
-          this.add_raw_token(this._tokens.next());
-        }
-
-        if (this._tokens.peek().type === TOKEN.TAG_OPEN && this._tokens.peek().text.indexOf('</') === 0) {
-          this.add_raw_token(this._tokens.next());
-          if (this._tokens.peek().type === TOKEN.TAG_CLOSE) {
-            this.add_raw_token(this._tokens.next());
-          }
-        }
-      }
-
-      if (this.indent_content) {
-        if (parser_token.tag_start_char === '{' ||
-          ((this.indent_body_inner_html || parser_token.tag_name !== 'body') &&
-            (this.indent_head_inner_html || parser_token.tag_name !== 'head'))) {
-
-          this.indent();
-        }
-
-        this.indent_content = false;
-      }
-
     };
 
     this.get_full_indent = function(level) {
@@ -485,63 +439,42 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
 
       this.input = new InputScanner(source_text); //gets the input for the Parser
       this._tokens = tokens;
-      this.output = [];
       this.indent_character = indent_character;
       this.indent_string = '';
       this.indent_size = indent_size;
       this.brace_style = brace_style;
       this.indent_level = 0;
+      this.alignment_size = 0;
       this.wrap_line_length = wrap_line_length;
-      this.line_char_count = 0; //count to see if wrap_line_length was exceeded
 
       for (var i = 0; i < this.indent_size; i++) {
         this.indent_string += this.indent_character;
       }
 
-      this._output = new Output('', this.indent_string); // jshint unused:false
-
-      this.add_text_item = function(text) {
-        if (text) {
-          this.output.push(text);
-          this.line_char_count += text.length;
-        }
-      };
+      this._output = new Output(this.indent_string, ''); // jshint unused:false
 
       this.add_raw_token = function(token) {
-        for (var x = 0; x < token.newlines; x++) {
-          this.print_newline(true);
-        }
-        this.add_text_item(token.whitespace_before);
-        this.add_multiline_item(token.text);
-      };
-
-      this.add_multiline_item = function(text) {
-        if (text) {
-          this.add_text_item(text);
-          var last_newline_index = text.lastIndexOf('\n');
-          if (last_newline_index !== -1) {
-            this.line_char_count = text.length - last_newline_index;
-          }
-        }
+        this._output.add_raw_token(token);
       };
 
       this.traverse_whitespace = function(raw_token) {
         if (raw_token.whitespace_before || raw_token.newlines) {
-          if (this.output.length) {
+          var newlines = 0;
 
-            var newlines = 0;
+          if (raw_token.type !== TOKEN.TEXT && raw_token.previous.type !== TOKEN.TEXT) {
+            newlines = raw_token.newlines ? 1 : 0;
+          }
 
-            if (raw_token.type !== TOKEN.TEXT && raw_token.previous.type !== TOKEN.TEXT) {
-              newlines = raw_token.newlines ? 1 : 0;
-            }
+          if (preserve_newlines) {
+            newlines = raw_token.newlines < max_preserve_newlines + 1 ? raw_token.newlines : max_preserve_newlines + 1;
+          }
 
-            if (preserve_newlines) {
-              newlines = raw_token.newlines < max_preserve_newlines + 1 ? raw_token.newlines : max_preserve_newlines + 1;
-            }
-
+          if (newlines) {
             for (var n = 0; n < newlines; n++) {
               this.print_newline(n > 0);
             }
+          } else {
+            this._output.space_before_token = true;
             this.print_space_or_wrap(raw_token.text);
           }
           return true;
@@ -553,75 +486,31 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
       // at the wrap_line_length, append a newline/indentation.
       // return true if a newline was added, false if a space was added
       this.print_space_or_wrap = function(text) {
-        if (this.output && this.output.length) {
-          if (this.line_char_count + text.length + 1 >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
-            this.print_newline(false);
-            this.print_indentation();
+        if (this._output.current_line.get_character_count() + text.length + 1 >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
+          if (this._output.add_new_line()) {
             return true;
-          } else {
-            var previous = this.output[this.output.length - 1];
-            if (!this.Utils.in_array(previous[previous.length - 1], this.Utils.whitespace)) {
-              this.line_char_count++;
-              this.output[this.output.length - 1] += ' ';
-            }
           }
         }
         return false;
       };
 
       this.print_newline = function(force) {
-        if (!this.output || !this.output.length) {
-          return;
-        }
-        var previous = this.output[this.output.length - 1];
-        var previous_rtrim = rtrim(previous);
-
-        if (force || (previous_rtrim !== '')) { //we might want the extra line
-          this.line_char_count = 0;
-          if (previous !== '\n') {
-            this.output[this.output.length - 1] = previous_rtrim;
-          }
-          this.output.push('\n');
-        }
-      };
-
-      this.print_indentation = function() {
-        if (this.output && this.output.length) {
-          var previous = this.output[this.output.length - 1];
-          if (previous === '\n') {
-            this.add_text_item(this.get_full_indent());
-          }
-        }
+        this._output.add_new_line(force);
       };
 
       this.print_token = function(text) {
-        // Avoid printing initial whitespace.
-        if (text || text !== '') {
-          if (this.output.length) {
-            this.print_indentation(this.output);
-            var previous = this.output[this.output.length - 1];
-            if (this.Utils.in_array(previous[previous.length - 1], this.Utils.whitespace)) {
-              text = ltrim(text);
-            }
-          } else {
-            text = ltrim(text);
+        if (text) {
+          if (this._output.current_line.is_empty()) {
+            this._output.set_indent(this.indent_level);
+            this._output.set_alignment(this.alignment_size);
           }
+
+          this._output.add_token(text);
         }
-        this.line_char_count += text.length;
-        this.print_token_raw(text);
       };
 
       this.print_token_raw = function(text) {
-        if (text && text !== '') {
-          if (text.length > 1 && text.charAt(text.length - 1) === '\n') {
-            // unformatted tags can grab newlines as their last character
-            this.output.push(text.slice(0, -1));
-            this.print_newline(false);
-          } else {
-            this.output.push(text);
-          }
-        }
-
+        this._output.current_line.push_raw(text);
       };
 
       this.indent = function() {
@@ -648,147 +537,166 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     raw_token = multi_parser._tokens.next();
     while (raw_token.type !== TOKEN.EOF) {
 
-      if (multi_parser.last_tag_token.type && !multi_parser.last_tag_token.tag_complete) {
-        parser_token.space = raw_token.newlines || raw_token.whitespace_before !== '';
-        if (!multi_parser.last_tag_token.is_unformatted) {
-          if (parser_token.tag_start_char === '<') {
+      if (raw_token.type === TOKEN.TAG_CLOSE) {
+        multi_parser.alignment_size = 0;
+        multi_parser.last_tag_token.tag_complete = true;
+
+        multi_parser._output.space_before_token = raw_token.newlines || raw_token.whitespace_before !== '';
+        if (multi_parser.last_tag_token.is_unformatted) {
+          multi_parser.add_raw_token(raw_token);
+        } else {
+          if (multi_parser.last_tag_token.tag_start_char === '<') {
+            multi_parser._output.space_before_token = raw_token.text[0] === '/'; // space before />, no space before >
+            if (is_wrap_attributes_force_expand_multiline && parser_token.has_wrapped_attrs) {
+              multi_parser.print_newline(false);
+            }
+          }
+          multi_parser.print_token(raw_token.text);
+        }
+
+        if (multi_parser.indent_content &&
+          !(multi_parser.last_tag_token.is_unformatted || multi_parser.last_tag_token.is_content_unformatted)) {
+          if (parser_token.tag_start_char === '{' ||
+            ((multi_parser.indent_body_inner_html || parser_token.tag_name !== 'body') &&
+              (multi_parser.indent_head_inner_html || parser_token.tag_name !== 'head'))) {
+
+            multi_parser.indent();
+          }
+
+          multi_parser.indent_content = false;
+        }
+      } else if ((raw_token.type === TOKEN.ATTRIBUTE || raw_token.type === TOKEN.EQUALS || raw_token.type === TOKEN.VALUE) ||
+        (raw_token.type === TOKEN.TEXT && !multi_parser.last_tag_token.tag_complete)) {
+        multi_parser._output.space_before_token = raw_token.newlines || raw_token.whitespace_before !== '';
+        if (multi_parser.last_tag_token.is_unformatted) {
+          multi_parser.add_raw_token(raw_token);
+        } else {
+          if (multi_parser.last_tag_token.tag_start_char === '<') {
             if (raw_token.type === TOKEN.ATTRIBUTE) {
-              parser_token.space = true;
-              parser_token.attr_count += 1;
+              multi_parser._output.space_before_token = true;
+              multi_parser.last_tag_token.attr_count += 1;
             } else if (raw_token.type === TOKEN.EQUALS) { //no space before =
-              parser_token.space = false;
+              multi_parser._output.space_before_token = false;
             } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
-              parser_token.space = false;
-            } else if (raw_token.type === TOKEN.TAG_CLOSE) {
-              parser_token.space = raw_token.text[0] === '/'; // space before />, no space before >
-              if (is_wrap_attributes_force_expand_multiline && parser_token.has_wrapped_attrs) {
-                parser_token.space = false;
-                multi_parser.print_newline(false);
-                multi_parser.print_indentation();
-              }
+              multi_parser._output.space_before_token = false;
             }
           }
 
-          if (parser_token.space) {
-            parser_token.space = false;
-            if (parser_token.tag_start_char === '{') {
-              multi_parser.output[multi_parser.output.length - 1] += ' ';
-              multi_parser.line_char_count++;
-            } else {
-              var wrapped = multi_parser.print_space_or_wrap(raw_token.text);
-              if (raw_token.type === TOKEN.ATTRIBUTE) {
-                var indentAttrs = wrapped && !is_wrap_attributes_force;
+          if (multi_parser._output.space_before_token && multi_parser.last_tag_token.tag_start_char === '<') {
+            var wrapped = multi_parser.print_space_or_wrap(raw_token.text);
+            if (raw_token.type === TOKEN.ATTRIBUTE) {
+              var indentAttrs = wrapped && !is_wrap_attributes_force;
 
-                if (is_wrap_attributes_force) {
-                  var force_first_attr_wrap = false;
-                  if (is_wrap_attributes_force_expand_multiline && parser_token.attr_count === 1) {
-                    var is_only_attribute = true;
-                    var peek_index = 0;
-                    var peek_token;
-                    do {
-                      peek_token = multi_parser._tokens.peek(peek_index);
-                      if (peek_token.type === TOKEN.ATTRIBUTE) {
-                        is_only_attribute = false;
-                        break;
-                      }
-                      peek_index += 1;
-                    } while (peek_index < 4 && peek_token.type !== TOKEN.EOF && peek_token.type !== TOKEN.TAG_CLOSE);
+              if (is_wrap_attributes_force) {
+                var force_first_attr_wrap = false;
+                if (is_wrap_attributes_force_expand_multiline && parser_token.attr_count === 1) {
+                  var is_only_attribute = true;
+                  var peek_index = 0;
+                  var peek_token;
+                  do {
+                    peek_token = multi_parser._tokens.peek(peek_index);
+                    if (peek_token.type === TOKEN.ATTRIBUTE) {
+                      is_only_attribute = false;
+                      break;
+                    }
+                    peek_index += 1;
+                  } while (peek_index < 4 && peek_token.type !== TOKEN.EOF && peek_token.type !== TOKEN.TAG_CLOSE);
 
-                    force_first_attr_wrap = !is_only_attribute;
-                  }
-
-                  if (parser_token.attr_count > 1 || force_first_attr_wrap) {
-                    multi_parser.print_newline(false);
-                    multi_parser.print_indentation();
-                    indentAttrs = true;
-                  }
+                  force_first_attr_wrap = !is_only_attribute;
                 }
-                if (indentAttrs) {
-                  parser_token.has_wrapped_attrs = true;
-                  multi_parser.output.push(parser_token.alignment_string);
-                  multi_parser.line_char_count += parser_token.alignment_size;
+
+                if (parser_token.attr_count > 1 || force_first_attr_wrap) {
+                  multi_parser.print_newline(false);
+                  indentAttrs = true;
                 }
+              }
+              if (indentAttrs) {
+                parser_token.has_wrapped_attrs = true;
               }
             }
           }
           multi_parser.print_token(raw_token.text);
-        } else {
-          multi_parser.add_raw_token(raw_token);
-          if (raw_token.type === TOKEN.TAG_CLOSE) {
-            multi_parser.last_tag_token.tag_complete = true;
-          }
-        }
-
-        if (raw_token.type === TOKEN.TAG_CLOSE || multi_parser._tokens.peek().type === TOKEN.EOF) {
-          multi_parser.get_tag_until_close(raw_token, parser_token);
-          multi_parser.last_tag_token.tag_complete = true;
-        }
-      } else if (multi_parser.last_token.type === 'TK_TAG_SCRIPT' || multi_parser.last_token.type === 'TK_TAG_STYLE') { //check if we need to format javascript
-        parser_token = { text: raw_token.text, type: 'TK_CONTENT' };
-        if (parser_token.text !== '') {
-          multi_parser.print_newline(false);
-          var text = parser_token.text,
-            _beautifier,
-            script_indent_level = 1;
-          if (multi_parser.last_token.type === 'TK_TAG_SCRIPT') {
-            _beautifier = typeof js_beautify === 'function' && js_beautify;
-          } else if (multi_parser.last_token.type === 'TK_TAG_STYLE') {
-            _beautifier = typeof css_beautify === 'function' && css_beautify;
-          }
-
-          if (options.indent_scripts === "keep") {
-            script_indent_level = 0;
-          } else if (options.indent_scripts === "separate") {
-            script_indent_level = -multi_parser.indent_level;
-          }
-
-          var indentation = multi_parser.get_full_indent(script_indent_level);
-          if (_beautifier) {
-
-            // call the Beautifier if avaliable
-            var Child_options = function() {
-              this.eol = '\n';
-            };
-            Child_options.prototype = options;
-            var child_options = new Child_options();
-            text = _beautifier(text.replace(/^\s*/, indentation), child_options);
-          } else {
-            // simply indent the string otherwise
-            var white = text.match(/^\s*/)[0];
-            var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
-            var reindent = multi_parser.get_full_indent(script_indent_level - _level);
-            text = text.replace(/^\s*/, indentation)
-              .replace(/\r\n|\r|\n/g, '\n' + reindent)
-              .replace(/\s+$/, '');
-          }
-          if (text) {
-            multi_parser.print_token_raw(text);
-            multi_parser.print_newline(true);
-          }
         }
       } else if (raw_token.type === TOKEN.TEXT) {
         parser_token = { text: raw_token.text, type: 'TK_CONTENT' };
-        multi_parser.traverse_whitespace(raw_token);
-        multi_parser.print_token(raw_token.text);
+        if (multi_parser.last_token.type === 'TK_TAG_SCRIPT' || multi_parser.last_token.type === 'TK_TAG_STYLE') { //check if we need to format javascript
+          if (raw_token.text !== '') {
+            multi_parser.print_newline(false);
+            var text = raw_token.text,
+              _beautifier,
+              script_indent_level = 1;
+            if (multi_parser.last_token.type === 'TK_TAG_SCRIPT') {
+              _beautifier = typeof js_beautify === 'function' && js_beautify;
+            } else if (multi_parser.last_token.type === 'TK_TAG_STYLE') {
+              _beautifier = typeof css_beautify === 'function' && css_beautify;
+            }
+
+            if (options.indent_scripts === "keep") {
+              script_indent_level = 0;
+            } else if (options.indent_scripts === "separate") {
+              script_indent_level = -multi_parser.indent_level;
+            }
+
+            var indentation = multi_parser.get_full_indent(script_indent_level);
+            if (_beautifier) {
+
+              // call the Beautifier if avaliable
+              var Child_options = function() {
+                this.eol = '\n';
+              };
+              Child_options.prototype = options;
+              var child_options = new Child_options();
+              text = _beautifier(indentation + text, child_options);
+            } else {
+              // simply indent the string otherwise
+              var white = text.match(/^\s*/)[0];
+              var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
+              var reindent = multi_parser.get_full_indent(script_indent_level - _level);
+              text = (indentation + text.trim())
+                .replace(/\r\n|\r|\n/g, '\n' + reindent);
+            }
+            if (text) {
+              multi_parser.print_token_raw(text);
+              multi_parser.print_newline(true);
+            }
+          }
+        } else if (multi_parser.last_tag_token.is_unformatted || multi_parser.last_tag_token.is_content_unformatted) {
+          multi_parser.add_raw_token(raw_token);
+        } else {
+          multi_parser.traverse_whitespace(raw_token);
+          multi_parser.print_token(raw_token.text);
+        }
       } else if (raw_token.type === TOKEN.TAG_OPEN || raw_token.type === TOKEN.COMMENT) {
+        var previous = multi_parser.last_tag_token;
         parser_token = multi_parser.get_tag_open(raw_token);
-        multi_parser.print_token(raw_token.text);
+
+        if ((previous.is_unformatted || previous.is_content_unformatted) &&
+          raw_token.type === TOKEN.TAG_OPEN && raw_token.text.indexOf('</') === 0) {
+          multi_parser.add_raw_token(raw_token);
+        } else {
+          multi_parser.print_token(raw_token.text);
+        }
+
+        //indent attributes an auto, forced, aligned or forced-align line-wrap
+        if (is_wrap_attributes_force_aligned || is_wrap_attributes_aligned_multiple) {
+          parser_token.alignment_size = raw_token.text.length + 1;
+        }
+
+
+        if (!parser_token.tag_complete && !parser_token.is_unformatted) {
+          multi_parser.alignment_size = parser_token.alignment_size;
+        }
+
+      } else {
+        // This should never happen, but if it does. Print the raw token
+        multi_parser._output.add_raw_token(token);
       }
 
       multi_parser.last_token = parser_token;
 
       raw_token = multi_parser._tokens.next();
     }
-    var sweet_code = multi_parser.output.join('').replace(/[\r\n\t ]+$/, '');
-
-    // establish end_with_newline
-    if (end_with_newline) {
-      sweet_code += '\n';
-    }
-
-    if (eol !== '\n') {
-      sweet_code = sweet_code.replace(/[\n]/g, eol);
-    }
+    var sweet_code = multi_parser._output.get_code(end_with_newline, eol);
 
     return sweet_code;
   };
