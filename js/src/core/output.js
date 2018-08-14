@@ -102,10 +102,10 @@ OutputLine.prototype.toString = function() {
   var result = '';
   if (!this.is_empty()) {
     if (this._indent_count >= 0) {
-      result = this._parent._indent_cache[this._indent_count];
+      result = this._parent.get_indent_string(this._indent_count);
     }
     if (this._alignment_count >= 0) {
-      result += this._parent._alignment_cache[this._alignment_count];
+      result += this._parent.get_alignment_string(this._alignment_count);
     }
     result += this._items.join('');
   }
@@ -141,6 +141,23 @@ Output.prototype.get_line_number = function() {
   return this._lines.length;
 };
 
+Output.prototype.get_indent_string = function(level) {
+  while (level >= this._indent_cache.length) {
+    this._indent_cache.push(this._indent_cache[this._indent_cache.length - 1] + this.indent_string);
+  }
+
+  return this._indent_cache[level];
+};
+
+Output.prototype.get_alignment_string = function(level) {
+  while (level >= this._alignment_cache.length) {
+    this._alignment_cache.push(this._alignment_cache[this._alignment_cache.length - 1] + ' ');
+  }
+
+  return this._alignment_cache[level];
+};
+
+
 // Using object instead of string to allow for later expansion of info about each line
 Output.prototype.add_new_line = function(force_newline) {
   if (this.get_line_number() === 1 && this.just_added_newline()) {
@@ -174,10 +191,6 @@ Output.prototype.get_code = function(end_with_newline, eol) {
 Output.prototype.set_indent = function(level) {
   // Never indent your first output indent at the start of the file
   if (this._lines.length > 1) {
-    while (level >= this._indent_cache.length) {
-      this._indent_cache.push(this._indent_cache[this._indent_cache.length - 1] + this.indent_string);
-    }
-
     this.current_line.set_indent(level);
     return true;
   }
@@ -188,10 +201,6 @@ Output.prototype.set_indent = function(level) {
 Output.prototype.set_alignment = function(level) {
   // Never indent your first output indent at the start of the file
   if (this._lines.length > 1) {
-    while (level >= this._alignment_cache.length) {
-      this._alignment_cache.push(this._alignment_cache[this._alignment_cache.length - 1] + ' ');
-    }
-
     this.current_line.set_alignment(level);
     return true;
   }

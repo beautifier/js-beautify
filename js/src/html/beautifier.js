@@ -151,7 +151,7 @@ Printer.prototype.get_full_indent = function(level) {
     return '';
   }
 
-  return Array(level + 1).join(this.indent_string);
+  return this._output.get_indent_string(level);
 };
 
 
