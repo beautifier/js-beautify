@@ -396,14 +396,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap de-indent - (wrap_attributes = ""force-aligned"", indent_with_tabs = "false")');
         opts.wrap_attributes = 'force-aligned';
         opts.indent_with_tabs = false;
-        test_fragment(
+        bth(
             '<div a="1" b="2"><div>test</div></div>',
             //  -- output --
             '<div a="1"\n' +
             '     b="2">\n' +
             '    <div>test</div>\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n' +
             '</p>',
@@ -413,7 +413,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n' +
             '       target="_blank"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
             '</p>',
@@ -430,12 +430,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Attribute Wrap - (wrap_attributes = ""force"")');
         opts.wrap_attributes = 'force';
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -490,7 +490,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force"", wrap_line_length = "80")');
         opts.wrap_attributes = 'force';
         opts.wrap_line_length = 80;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -504,7 +504,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -559,12 +559,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force"", wrap_attributes_indent_size = "8")');
         opts.wrap_attributes = 'force';
         opts.wrap_attributes_indent_size = 8;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -620,7 +620,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 80;
         opts.wrap_attributes_indent_size = 0;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -634,7 +634,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
@@ -673,7 +673,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 80;
         opts.wrap_attributes_indent_size = 4;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -687,7 +687,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
@@ -725,12 +725,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""auto"", wrap_line_length = "0")');
         opts.wrap_attributes = 'auto';
         opts.wrap_line_length = 0;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
@@ -753,12 +753,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Attribute Wrap - (wrap_attributes = ""force-aligned"")');
         opts.wrap_attributes = 'force-aligned';
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -813,7 +813,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force-aligned"", wrap_line_length = "80")');
         opts.wrap_attributes = 'force-aligned';
         opts.wrap_line_length = 80;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -827,7 +827,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -882,7 +882,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""aligned-multiple"", wrap_line_length = "80")');
         opts.wrap_attributes = 'aligned-multiple';
         opts.wrap_line_length = 80;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -896,7 +896,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
@@ -933,12 +933,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Attribute Wrap - (wrap_attributes = ""aligned-multiple"")');
         opts.wrap_attributes = 'aligned-multiple';
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
@@ -962,12 +962,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force-aligned"", wrap_attributes_indent_size = "8")');
         opts.wrap_attributes = 'force-aligned';
         opts.wrap_attributes_indent_size = 8;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -1022,12 +1022,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_indent_size = "4")');
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 4;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -1097,7 +1097,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 4;
         opts.wrap_line_length = 80;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
@@ -1111,7 +1111,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<p>Our forms for collecting address-related information follow a standard\n' +
             '    design. Specific input elements will vary according to the form’s audience\n' +
             '    and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -1180,12 +1180,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Attribute Wrap - (wrap_attributes = ""force-expand-multiline"", wrap_attributes_indent_size = "8")');
         opts.wrap_attributes = 'force-expand-multiline';
         opts.wrap_attributes_indent_size = 8;
-        test_fragment('<div  >This is some text</div>', '<div>This is some text</div>');
+        bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
-        test_fragment('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
+        bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
@@ -1338,28 +1338,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{field}}{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{{field}}{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{field}}{{/if}}',
             //  -- output --
             '{{#if words}}{{field}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{field}}{{/if}}',
             //  -- output --
             '{{#if words}}{{field}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -1369,12 +1369,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -1384,7 +1384,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -1406,12 +1406,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1435,7 +1435,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1447,7 +1447,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{field}}\n' +
             '    {{else}}\n' +
@@ -1459,7 +1459,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{field}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -1467,7 +1467,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{field}}\n' +
@@ -1509,30 +1509,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {{field}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{field}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{field}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{field}}</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{{field}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{field}}{{/if}}">{{field}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{field}}{{/if}}">{{field}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{field}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{field}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{{field}}{{/if}}">{{field}}</div>');
+        bth('<div unformatted="{{#if  }}    {{field}}{{/if}}">{{field}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{field}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{field}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{field}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{field}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -1564,28 +1564,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}',
             //  -- output --
             '{{#if words}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}',
             //  -- output --
             '{{#if words}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -1595,12 +1595,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -1610,7 +1610,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -1632,12 +1632,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1661,7 +1661,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1673,7 +1673,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '    {{else}}\n' +
@@ -1685,7 +1685,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -1693,7 +1693,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
@@ -1735,30 +1735,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
+        bth('<div unformatted="{{#if  }}    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -1790,28 +1790,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{! comment}}{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{{! comment}}{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{! comment}}{{/if}}',
             //  -- output --
             '{{#if words}}{{! comment}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{! comment}}{{/if}}',
             //  -- output --
             '{{#if words}}{{! comment}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -1821,12 +1821,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -1836,7 +1836,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -1858,12 +1858,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1887,7 +1887,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -1899,7 +1899,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{! comment}}\n' +
             '    {{else}}\n' +
@@ -1911,7 +1911,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{! comment}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -1919,7 +1919,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{! comment}}\n' +
@@ -1961,30 +1961,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {{! comment}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{! comment}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{! comment}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{{! comment}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{! comment}}{{/if}}">{{! comment}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{! comment}}{{/if}}">{{! comment}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{! comment}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{! comment}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{! comment}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{! comment}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{{! comment}}{{/if}}">{{! comment}}</div>');
+        bth('<div unformatted="{{#if  }}    {{! comment}}{{/if}}">{{! comment}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{! comment}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{! comment}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{! comment}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{! comment}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -2016,28 +2016,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{!-- comment--}}{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{{!-- comment--}}{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- comment--}}{{/if}}',
             //  -- output --
             '{{#if words}}{{!-- comment--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- comment--}}{{/if}}',
             //  -- output --
             '{{#if words}}{{!-- comment--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -2047,12 +2047,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -2062,7 +2062,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -2084,12 +2084,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2113,7 +2113,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2125,7 +2125,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{!-- comment--}}\n' +
             '    {{else}}\n' +
@@ -2137,7 +2137,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{!-- comment--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -2145,7 +2145,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{!-- comment--}}\n' +
@@ -2187,30 +2187,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {{!-- comment--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{!-- comment--}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{!-- comment--}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- comment--}}</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{{!-- comment--}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{!-- comment--}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{!-- comment--}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
+        bth('<div unformatted="{{#if  }}    {{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{!-- comment--}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{!-- comment--}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -2242,28 +2242,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}',
             //  -- output --
             '{{#if words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}',
             //  -- output --
             '{{#if words}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -2273,12 +2273,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -2288,7 +2288,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -2310,12 +2310,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2339,7 +2339,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2351,7 +2351,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
@@ -2363,7 +2363,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -2371,7 +2371,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
@@ -2413,30 +2413,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>');
-        test_fragment('<div unformatted="{{#if}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
-        test_fragment('<div unformatted="{{#if  }}    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
+        bth('<div unformatted="{{#if  }}    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -2468,28 +2468,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}',
             //  -- output --
             '{{#if words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}',
             //  -- output --
             '{{#if words}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -2499,12 +2499,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -2514,7 +2514,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -2536,12 +2536,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2565,7 +2565,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2577,7 +2577,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '    {{else}}\n' +
@@ -2589,7 +2589,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -2597,7 +2597,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
@@ -2639,30 +2639,30 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>');
-        test_fragment('<div unformatted="{{#if}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
-        test_fragment('<div unformatted="{{#if  }}    {pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
+        bth('<div unformatted="{{#if  }}    {pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
+        bth('<div class="{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -2710,20 +2710,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -2735,7 +2735,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -2747,12 +2747,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -2762,12 +2762,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -2777,7 +2777,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -2815,12 +2815,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2844,7 +2844,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -2856,7 +2856,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{! \n' +
             ' mult-line\n' +
@@ -2884,7 +2884,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -2892,7 +2892,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{! \n' +
@@ -2974,11 +2974,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -2990,7 +2990,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3002,7 +3002,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3014,7 +3014,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</span>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3024,7 +3024,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</div>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if  }}    {{! \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3034,32 +3034,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs "value"}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs \'value\'}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs "value"}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}\'></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs \'value\'}}{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -3107,20 +3107,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3132,7 +3132,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3144,12 +3144,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -3159,12 +3159,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -3174,7 +3174,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -3212,12 +3212,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -3241,7 +3241,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -3253,7 +3253,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
             ' mult-line\n' +
@@ -3281,7 +3281,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -3289,7 +3289,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{!-- \n' +
@@ -3371,11 +3371,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3387,7 +3387,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3399,7 +3399,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3411,7 +3411,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</span>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3421,7 +3421,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</div>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if  }}    {{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
@@ -3431,32 +3431,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs "value"}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs \'value\'}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs "value"}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}\'></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs \'value\'}}{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true")
         reset_options();
@@ -3516,7 +3516,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3525,14 +3525,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3550,7 +3550,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3568,12 +3568,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -3583,12 +3583,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -3598,7 +3598,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -3648,12 +3648,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -3677,7 +3677,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -3689,7 +3689,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
             ' mult-line\n' +
@@ -3729,7 +3729,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -3737,7 +3737,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    {{!-- \n' +
@@ -3849,11 +3849,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3871,7 +3871,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3889,7 +3889,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3907,7 +3907,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</span>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3923,7 +3923,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</div>');
-        test_fragment(
+        bth(
             '<div unformatted="{{#if  }}    {{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3939,7 +3939,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs "value"}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3948,7 +3948,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class="{{#if thingIs \'value\'}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3957,7 +3957,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}"></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs "value"}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3966,7 +3966,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}\'></div>');
-        test_fragment(
+        bth(
             '<div class=\'{{#if thingIs \'value\'}}{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
@@ -3975,8 +3975,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
         // Handlebars Indenting On - (indent_handlebars = "true", wrap_line_length = "80")
         reset_options();
@@ -4009,28 +4009,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
         bth('{{#if 0}}{{/if}}');
-        test_fragment('{{#if 0}}content{{/if}}');
-        test_fragment(
+        bth('{{#if 0}}content{{/if}}');
+        bth(
             '{{#if 0}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}{{/if}}',
             //  -- output --
             '{{#if words}}{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}content{{/if}}',
             //  -- output --
             '{{#if words}}content{{/if}}');
-        test_fragment(
+        bth(
             '{{#if     words}}content{{/if}}',
             //  -- output --
             '{{#if words}}content{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '<div>\n' +
             '</div>\n' +
@@ -4040,12 +4040,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '{{#if 1}}\n' +
             '{{/if}}\n' +
@@ -4055,7 +4055,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{#if 1}}\n' +
             '    {{/if}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if}}\n' +
             '{{#each}}\n' +
             '{{#if}}\n' +
@@ -4077,12 +4077,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        {{/if}}\n' +
             '    {{/each}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    <div>\n' +
             '    </div>\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -4106,7 +4106,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<div>\n' +
             '    <small>SMALL TEXT</small>\n' +
             '    <span>\n' +
@@ -4118,7 +4118,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    content\n' +
             '    {{else}}\n' +
@@ -4130,7 +4130,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    content\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if 1}}\n' +
             '    {{else}}\n' +
             '    {{/if}}',
@@ -4138,7 +4138,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#if 1}}\n' +
             '{{else}}\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '{{#if thing}}\n' +
             '{{#if otherthing}}\n' +
             '    content\n' +
@@ -4180,31 +4180,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else if (eq callOn false)}}\n' +
             '    content\n' +
             '{{/if}}');
-        test_fragment(
+        bth(
             '<div{{someStyle}}></div>',
             //  -- output --
             '<div {{someStyle}}></div>');
-        test_fragment(
+        bth(
             '<dIv{{#if test}}class="foo"{{/if}}>content</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>content</dIv>');
-        test_fragment(
+        bth(
             '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
             //  -- output --
             '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}"\n' +
             '    {{/if}}>content</diV>');
-        test_fragment(
+        bth(
             '<span{{#if condition}}class="foo"{{/if}}>content</span>',
             //  -- output --
             '<span {{#if condition}} class="foo" {{/if}}>content</span>');
-        test_fragment('<div unformatted="{{#if}}content{{/if}}">content</div>');
-        test_fragment('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
-        test_fragment('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
-        test_fragment('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
-        test_fragment('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
-        test_fragment('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
-        test_fragment('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
-        test_fragment('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+        bth('<div unformatted="{{#if}}content{{/if}}">content</div>');
+        bth('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
+        bth('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}content{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}content{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}content{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
 
         //============================================================
@@ -4421,10 +4421,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         set_name('Regression Tests');
         
         // #1202
-        test_fragment('<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>');
+        bth('<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>');
         test_fragment('<a ">9</a">');
-        test_fragment('<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>');
-        test_fragment('<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>');
+        bth('<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>');
+        bth('<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>');
         
         // #1304
         bth('<label>Every</label><input class="scheduler__minutes-input" type="text">');
@@ -4681,27 +4681,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Inline tags formatting
         reset_options();
         set_name('Inline tags formatting');
-        test_fragment(
+        bth(
             '<div><span></span></div><span><div></div></span>',
             //  -- output --
             '<div><span></span></div><span>\n' +
             '    <div></div>\n' +
             '</span>');
-        test_fragment(
+        bth(
             '<div><div><span><span>Nested spans</span></span></div></div>',
             //  -- output --
             '<div>\n' +
             '    <div><span><span>Nested spans</span></span></div>\n' +
             '</div>');
-        test_fragment(
+        bth(
             '<p>Should remove <span><span \n' +
             '\n' +
             'class="some-class">attribute</span></span> newlines</p>',
             //  -- output --
             '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>');
-        test_fragment('<div><span>All</span> on <span>one</span> line</div>');
-        test_fragment('<span class="{{class_name}}">{{content}}</span>');
-        test_fragment('{{#if 1}}<span>{{content}}</span>{{/if}}');
+        bth('<div><span>All</span> on <span>one</span> line</div>');
+        bth('<span class="{{class_name}}">{{content}}</span>');
+        bth('{{#if 1}}<span>{{content}}</span>{{/if}}');
 
 
         //============================================================
@@ -4775,7 +4775,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.preserve_newlines = true;
         opts.max_preserve_newlines = 0;
         opts.indent_size = 2;
-        test_fragment(
+        bth(
             '<div>Should</div>\n' +
             '\n' +
             '\n' +
@@ -4821,7 +4821,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.preserve_newlines = true;
         opts.indent_size = 2;
         opts.max_preserve_newlines = 1;
-        test_fragment(
+        bth(
             '<div>Should</div>\n' +
             '\n' +
             '\n' +
@@ -4871,7 +4871,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.preserve_newlines = true;
         opts.indent_size = 2;
         opts.max_preserve_newlines = null;
-        test_fragment(
+        bth(
             '<div>Should</div>\n' +
             '\n' +
             '\n' +
@@ -5094,7 +5094,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</span>');
         
         // Test for #882
-        test_fragment(
+        bth(
             '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
             //  -- output --
             '<tr>\n' +

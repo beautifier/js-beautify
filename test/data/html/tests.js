@@ -299,17 +299,14 @@ exports.test_data = {
       ]
     }],
     tests: [{
-        fragment: true,
         input: '<div a="1" b="2"><div>test</div></div>',
         output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
       },
       {
-        fragment: true,
         input: '<p>\n    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n</p>',
         output: '<p>\n    <a href="/test/"\n       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n       target="_blank"><img src="test.jpg" /></a>\n</p>'
       },
       {
-        fragment: true,
         input: '<p>\n    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>',
         output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
       }
@@ -491,7 +488,6 @@ exports.test_data = {
       indent_over80: '\n        '
     }],
     tests: [{
-        fragment: true,
         input: '<div  >This is some text</div>',
         output: '<div>This is some text</div>'
       }, {
@@ -504,7 +500,6 @@ exports.test_data = {
         input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
         output: '<p>Our forms for collecting address-related information follow a standard{{indent_content80}}design. Specific input elements will vary according to the form’s audience{{indent_content80}}and purpose.</p>'
       }, {
-        fragment: true,
         input: '<div attr="123"  >This is some text</div>',
         output: '<div attr="123">This is some text</div>'
       }, {
@@ -717,27 +712,22 @@ exports.test_data = {
         ]
       },
       { unchanged: '{{#if 0}}{{/if}}' },
-      { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
-      { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
-        fragment: true,
+      { unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
+      { unchanged: '{{#if 0}}\n{{/if}}' }, {
         input_: '{{#if     words}}{{/if}}',
         output: '{{#if words}}{{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if     words}}^^^&content$$${{/if}}',
         output: '{{#if words}}^^^&content$$${{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if     words}}^^^&content$$${{/if}}',
         output: '{{#if words}}^^^&content$$${{/if}}'
       }, {
-        fragment: true,
         unchanged: '{{#if 1}}\n' +
           '    <div>\n' +
           '    </div>\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if 1}}\n' +
           '<div>\n' +
           '</div>\n' +
@@ -747,13 +737,11 @@ exports.test_data = {
           '    </div>\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         unchanged: '<div>\n' +
           '    {{#if 1}}\n' +
           '    {{/if}}\n' +
           '</div>'
       }, {
-        fragment: true,
         input_: '<div>\n' +
           '{{#if 1}}\n' +
           '{{/if}}\n' +
@@ -763,7 +751,6 @@ exports.test_data = {
           '    {{/if}}\n' +
           '</div>'
       }, {
-        fragment: true,
         input_: '{{#if}}\n' +
           '{{#each}}\n' +
           '{{#if}}\n' +
@@ -785,7 +772,6 @@ exports.test_data = {
           '    {{/each}}\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         unchanged: '{{#if 1}}\n' +
           '    <div>\n' +
           '    </div>\n' +
@@ -794,8 +780,8 @@ exports.test_data = {
 
       // Issue #576 -- Indent Formatting with Handlebars
       {
-        fragment: true,
-        input_: ['<div>',
+        input_: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -807,7 +793,8 @@ exports.test_data = {
           '    <strong>{{userName}}:&nbsp;</strong>{{text}}',
           '</div>'
         ],
-        output: ['<div>',
+        output: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -820,8 +807,8 @@ exports.test_data = {
           '</div>'
         ]
       }, {
-        fragment: true,
-        unchanged: ['<div>',
+        unchanged: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -837,7 +824,6 @@ exports.test_data = {
 
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
-        fragment: true,
         input_: '{{#if 1}}\n' +
           '    ^^^&content$$$\n' +
           '    {{else}}\n' +
@@ -849,7 +835,6 @@ exports.test_data = {
           '    ^^^&content$$$\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if 1}}\n' +
           '    {{else}}\n' +
           '    {{/if}}',
@@ -857,7 +842,6 @@ exports.test_data = {
           '{{else}}\n' +
           '{{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if thing}}\n' +
           '{{#if otherthing}}\n' +
           '    ^^^&content$$$\n' +
@@ -905,48 +889,36 @@ exports.test_data = {
       // Test {{}} inside of <> tags, which should be separated by spaces
       // for readability, unless they are inside a string.
       {
-        fragment: true,
         input_: '<div{{someStyle}}></div>',
         output: '<div {{someStyle}}></div>'
       }, {
-        fragment: true,
         input_: '<dIv{{#if test}}class="foo"{{/if}}>^^^&content$$$</dIv>',
         output: '<dIv {{#if test}} class="foo" {{/if}}>^^^&content$$$</dIv>'
       }, {
-        fragment: true,
         input_: '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</diV>',
         output: '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}"^^^&indent_over80$$${{/if}}>^^^&content$$$</diV>'
       }, {
-        fragment: true,
         input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
         output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
       }, {
-        fragment: true,
         unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
       }, {
-        fragment: true,
         unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
       },
 
       // Quotes found inside of Handlebars expressions inside of quoted
       // strings themselves should not be considered string delimiters.
       {
-        fragment: true,
         unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
       }, {
-        fragment: true,
         unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
       }, {
-        fragment: true,
         unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
       }, {
-        fragment: true,
         unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
       }, {
-        fragment: true,
         unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
       }, {
-        fragment: true,
         unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
       }
     ]
@@ -1137,12 +1109,11 @@ exports.test_data = {
     options: [],
     tests: [{
         comment: '#1202',
-        fragment: true,
         unchanged: '<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>'
       },
       { fragment: true, unchanged: '<a ">9</a">' },
-      { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
-      { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
+      { unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
+      { unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
       {
         comment: '#1304',
         unchanged: '<label>Every</label><input class="scheduler__minutes-input" type="text">'
@@ -1365,11 +1336,9 @@ exports.test_data = {
     description: "",
     template: "^^^ $$$",
     tests: [{
-      fragment: true,
       input: '<div><span></span></div><span><div></div></span>',
       output: '<div><span></span></div><span>\n    <div></div>\n</span>'
     }, {
-      fragment: true,
       input: '<div><div><span><span>Nested spans</span></span></div></div>',
       output: [
         '<div>',
@@ -1377,19 +1346,15 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
       input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
       output: [
         '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>All</span> on <span>one</span> line</div>'
     }, {
-      fragment: true,
       unchanged: '<span class="{{class_name}}">{{content}}</span>'
     }, {
-      fragment: true,
       unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
     }]
   }, {
@@ -1461,7 +1426,6 @@ exports.test_data = {
       { name: 'indent_size', value: "2" }
     ],
     tests: [{
-      fragment: true,
       input_: '<div>Should</div>\n\n\n' +
         '<div>preserve zero newlines</div>',
       output: '<div>Should</div>\n' +
@@ -1508,7 +1472,6 @@ exports.test_data = {
       { name: 'max_preserve_newlines', value: "1" }
     ],
     tests: [{
-      fragment: true,
       input_: '<div>Should</div>\n\n\n' +
         '<div>preserve one newline</div>',
       output: '<div>Should</div>\n\n' +
@@ -1558,7 +1521,6 @@ exports.test_data = {
       { name: 'max_preserve_newlines', value: "null" }
     ],
     tests: [{
-      fragment: true,
       unchanged: '<div>Should</div>\n\n\n' +
         '<div>preserve zero newlines</div>'
     }, {
@@ -1765,7 +1727,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #882",
-      fragment: true,
       input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
       output: [
         '<tr>',
