@@ -226,6 +226,7 @@ class Beautifier:
         insidePropertyValue = False
         enteringConditionalGroup = False
         insideAtExtend = False
+        insideAtImport = False
         parenLevel = 0
 
         while True:
@@ -289,6 +290,8 @@ class Beautifier:
 
                     if variableOrRule == "extend":
                         insideAtExtend = True
+                    elif variableOrRule == "import":
+                        insideAtImport = True
 
                     # might be a nesting at-rule
                     if variableOrRule in self.NESTED_AT_RULE:
@@ -297,6 +300,7 @@ class Beautifier:
                             enteringConditionalGroup = True
                     elif not insideRule and parenLevel == 0 and variableOrRule[-1] == ":":
                         insidePropertyValue = True
+                        printer.indent()
             elif self.ch == '#' and input.peek() == '{':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString('}'))
@@ -310,6 +314,9 @@ class Beautifier:
                     if self.opts.newline_between_rules and printer.indentLevel == 0 and not output.just_added_blankline():
                         output.add_new_line(True)
                 else:
+                    if insidePropertyValue:
+                        insidePropertyValue = False
+                        printer.outdent()
                     printer.indent()
                     output.space_before_token = True
                     printer.print_string(self.ch)
@@ -327,9 +334,13 @@ class Beautifier:
             elif self.ch == '}':
                 printer.outdent()
                 output.add_new_line()
+                insideAtExtend = False
+                insideAtImport = False
+                if insidePropertyValue:
+                    printer.outdent()
+                    insidePropertyValue = False
                 printer.print_string(self.ch)
                 insideRule = False
-                insidePropertyValue = False
                 if printer.nestedLevel:
                     printer.nestedLevel -= 1
 
@@ -348,6 +359,8 @@ class Beautifier:
                     if not insidePropertyValue:
                         insidePropertyValue = True
                         output.space_before_token = True
+                        self.eatWhitespace(True)
+                        printer.indent()
 
                 else:
                     # sass/less parent reference don't use a space
@@ -367,9 +380,13 @@ class Beautifier:
             elif self.ch == '"' or self.ch == '\'':
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString(self.ch))
+                self.eatWhitespace(True)
             elif self.ch == ';':
-                insidePropertyValue = False
+                if insidePropertyValue:
+                    printer.outdent()
+                    insidePropertyValue = False
                 insideAtExtend = False
+                insideAtImport = False
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
 
@@ -403,7 +420,7 @@ class Beautifier:
             elif self.ch == ',':
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
-                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1:
+                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1 and not insideAtImport:
                     output.add_new_line()
                 else:
                     output.space_before_token = True

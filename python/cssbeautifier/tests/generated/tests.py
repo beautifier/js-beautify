@@ -625,6 +625,19 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Issue #1338 -- Preserve Newlines within CSS rules
+        self.reset_options()
+        self.options.preserve_newlines = true
+        t(
+            'body {\n' +
+            '\tgrid-template-areas:\n' +
+            '\t\t"header header"\n' +
+            '\t\t"main   sidebar"\n' +
+            '\t\t"footer footer";\n' +
+            '}')
+
+
+        #============================================================
         # Newline Between Rules - (newline_between_rules = "true")
         self.reset_options()
         self.options.newline_between_rules = true
@@ -9392,6 +9405,27 @@ class CSSBeautifierTest(unittest.TestCase):
             '.item-warning-wrong {\n' +
             '\t@extend btn-warning: hover;\n' +
             '}')
+
+
+        #============================================================
+        # Import Tests
+        self.reset_options()
+        t(
+            '@import "custom.css";.rule{}\n' +
+            'a, p {}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}')
+        t(
+            '@import url("bluish.css") projection,tv;.rule{}\n' +
+            'a, p {}',
+            #  -- output --
+            '@import url("bluish.css") projection, tv;\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}')
 
 
         #============================================================

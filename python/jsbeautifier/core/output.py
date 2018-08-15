@@ -85,9 +85,9 @@ class OutputLine:
         result = ''
         if not self.is_empty():
             if self.__indent_count >= 0:
-                result = self.__parent._indent_cache[self.__indent_count]
+                result = self.__parent.get_indent_string(self.__indent_count)
             if self.__alignment_count >= 0:
-                result += self.__parent._alignment_cache[self.__alignment_count]
+                result += self.__parent.get_alignment_string(self.__alignment_count)
             result += ''.join(self.__items)
         return result
 
@@ -116,6 +116,20 @@ class Output:
     def get_line_number(self):
         return len(self.lines)
 
+    def get_indent_string(self, level):
+        while level >= len(self._indent_cache):
+            self._indent_cache.append(
+                self._indent_cache[-1] + self.indent_string)
+
+        return self._indent_cache[level]
+
+    def get_alignment_string(self, level):
+        while level >= len(self._alignment_cache):
+            self._alignment_cache.append(
+                self._alignment_cache[-1] + ' ')
+
+        return self._alignment_cache[level]
+
     def add_new_line(self, force_newline=False):
         if len(self.lines) == 1 and self.just_added_newline():
             # no newline on start of file
@@ -142,10 +156,6 @@ class Output:
     def set_indent(self, level):
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
-            while level >= len(self._indent_cache):
-                self._indent_cache.append(
-                    self._indent_cache[-1] + self.indent_string)
-
             self.current_line.set_indent(level)
             return True
         self.current_line.set_indent(0)
@@ -154,10 +164,6 @@ class Output:
     def set_alignment(self, level):
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
-            while level >= len(self._alignment_cache):
-                self._alignment_cache.append(
-                    self._alignment_cache[-1] + ' ')
-
             self.current_line.set_alignment(level)
             return True
         self.current_line.set_alignment(0)

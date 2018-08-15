@@ -703,6 +703,20 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Issue #1338 -- Preserve Newlines within CSS rules
+        reset_options();
+        set_name('Issue #1338 -- Preserve Newlines within CSS rules');
+        opts.preserve_newlines = true;
+        t(
+            'body {\n' +
+            '\tgrid-template-areas:\n' +
+            '\t\t"header header"\n' +
+            '\t\t"main   sidebar"\n' +
+            '\t\t"footer footer";\n' +
+            '}');
+
+
+        //============================================================
         // Newline Between Rules - (newline_between_rules = "true")
         reset_options();
         set_name('Newline Between Rules - (newline_between_rules = "true")');
@@ -9496,6 +9510,28 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.item-warning-wrong {\n' +
             '\t@extend btn-warning: hover;\n' +
             '}');
+
+
+        //============================================================
+        // Import Tests
+        reset_options();
+        set_name('Import Tests');
+        t(
+            '@import "custom.css";.rule{}\n' +
+            'a, p {}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}');
+        t(
+            '@import url("bluish.css") projection,tv;.rule{}\n' +
+            'a, p {}',
+            //  -- output --
+            '@import url("bluish.css") projection, tv;\n' +
+            '.rule {}\n' +
+            'a,\n' +
+            'p {}');
 
 
         //============================================================

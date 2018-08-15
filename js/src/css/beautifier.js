@@ -200,6 +200,7 @@ function Beautifier(source_text, options) {
     var insidePropertyValue = false;
     var enteringConditionalGroup = false;
     var insideAtExtend = false;
+    var insideAtImport = false;
 
     while (true) {
       var whitespace = input.read(whitespacePattern);
@@ -257,6 +258,8 @@ function Beautifier(source_text, options) {
 
           if (variableOrRule === 'extend') {
             insideAtExtend = true;
+          } else if (variableOrRule === 'import') {
+            insideAtImport = true;
           }
 
           // might be a nesting at-rule
@@ -268,6 +271,7 @@ function Beautifier(source_text, options) {
             // might be less variable
           } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
             insidePropertyValue = true;
+            indent();
           }
         }
       } else if (ch === '#' && input.peek() === '{') {
@@ -285,6 +289,10 @@ function Beautifier(source_text, options) {
             output.add_new_line(true);
           }
         } else {
+          if (insidePropertyValue) {
+            insidePropertyValue = false;
+            outdent();
+          }
           indent();
           output.space_before_token = true;
           print_string(ch);
@@ -303,9 +311,14 @@ function Beautifier(source_text, options) {
       } else if (ch === '}') {
         outdent();
         output.add_new_line();
+        insideAtImport = false;
+        insideAtExtend = false;
+        if (insidePropertyValue) {
+          outdent();
+          insidePropertyValue = false;
+        }
         print_string(ch);
         insideRule = false;
-        insidePropertyValue = false;
         if (nestedLevel) {
           nestedLevel--;
         }
@@ -326,6 +339,8 @@ function Beautifier(source_text, options) {
           if (!insidePropertyValue) {
             insidePropertyValue = true;
             output.space_before_token = true;
+            eatWhitespace(true);
+            indent();
           }
         } else {
           // sass/less parent reference don't use a space
@@ -347,9 +362,14 @@ function Beautifier(source_text, options) {
       } else if (ch === '"' || ch === '\'') {
         preserveSingleSpace(isAfterSpace);
         print_string(ch + eatString(ch));
+        eatWhitespace(true);
       } else if (ch === ';') {
-        insidePropertyValue = false;
+        if (insidePropertyValue) {
+          outdent();
+          insidePropertyValue = false;
+        }
         insideAtExtend = false;
+        insideAtImport = false;
         print_string(ch);
         eatWhitespace(true);
 
@@ -385,7 +405,7 @@ function Beautifier(source_text, options) {
       } else if (ch === ',') {
         print_string(ch);
         eatWhitespace(true);
-        if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1) {
+        if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
           output.add_new_line();
         } else {
           output.space_before_token = true;
