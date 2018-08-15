@@ -221,18 +221,21 @@ class Beautifier:
         input = self.input
 
         self.ch = None
+        parenLevel = 0
 
         insideRule = False
         insidePropertyValue = False
         enteringConditionalGroup = False
         insideAtExtend = False
         insideAtImport = False
-        parenLevel = 0
+        topCharacter = self.ch
 
         while True:
             whitespace = input.read(whitespacePattern)
             isAfterSpace = whitespace != ''
+            previous_ch = topCharacter
             self.ch = input.next()
+            topCharacter = self.ch
 
             if not self.ch:
                 break
@@ -305,36 +308,32 @@ class Beautifier:
                 printer.preserveSingleSpace(isAfterSpace)
                 printer.print_string(self.ch + self.eatString('}'))
             elif self.ch == '{':
-                if input.match(re.compile("[\t\n ]*}")) is not None:
-                    output.space_before_token = True
-                    printer.print_string("{}")
-                    self.eatWhitespace(True)
-                    output.add_new_line()
+                if insidePropertyValue:
+                    insidePropertyValue = False
+                    printer.outdent()
+                printer.indent()
+                output.space_before_token = True
+                printer.print_string(self.ch)
 
-                    if self.opts.newline_between_rules and not output.just_added_blankline():
-                        if input.peek() != '}':
-                            output.add_new_line(True)
+                # when entering conditional groups, only rulesets are
+                # allowed
+                if enteringConditionalGroup:
+                    enteringConditionalGroup = False
+                    insideRule = printer.indentLevel > printer.nestedLevel
                 else:
-                    if insidePropertyValue:
-                        insidePropertyValue = False
-                        printer.outdent()
-                    printer.indent()
-                    output.space_before_token = True
-                    printer.print_string(self.ch)
-                    self.eatWhitespace(True)
-                    output.add_new_line()
+                    # otherwise, declarations are also allowed
+                    insideRule = printer.indentLevel >= printer.nestedLevel
 
-                    # when entering conditional groups, only rulesets are
-                    # allowed
-                    if enteringConditionalGroup:
-                        enteringConditionalGroup = False
-                        insideRule = printer.indentLevel > printer.nestedLevel
-                    else:
-                        # otherwise, declarations are also allowed
-                        insideRule = printer.indentLevel >= printer.nestedLevel
+                if self.opts.newline_between_rules and insideRule:
+                    if output.previous_line and not output.previous_line.is_empty() and output.previous_line.get_items()[-1] != '{':
+                        output.ensure_empty_line_above('/')
+                self.eatWhitespace(True)
+                output.add_new_line()
             elif self.ch == '}':
                 printer.outdent()
                 output.add_new_line()
+                if previous_ch == '{':
+                    output.trim(True)
                 insideAtExtend = False
                 insideAtImport = False
                 if insidePropertyValue:

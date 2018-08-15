@@ -277,28 +277,28 @@ exports.test_data = {
         options: [
           { name: "newline_between_rules", value: "true" }
         ],
-        new_rule: '\n\n'
+        new_rule: '\n'
       }, {
         options: [
           { name: "newline_between_rules", value: "false" }
         ],
-        new_rule: '\n'
+        new_rule: ''
       }],
       tests: [
-        { input: '.div {}\n.span {}', output: '.div {}{{new_rule}}.span {}' },
-        { input: '.div{}\n   \n.span{}', output: '.div {}{{new_rule}}.span {}' },
-        { input: '.div {}    \n  \n.span { } \n', output: '.div {}{{new_rule}}.span {}' },
-        { input: '.div {\n    \n} \n  .span {\n }  ', output: '.div {}{{new_rule}}.span {}' },
+        { input: '.div {}\n.span {}', output: '.div {}\n{{new_rule}}.span {}' },
+        { input: '.div{}\n   \n.span{}', output: '.div {}\n{{new_rule}}.span {}' },
+        { input: '.div {}    \n  \n.span { } \n', output: '.div {}\n{{new_rule}}.span {}' },
+        { input: '.div {\n    \n} \n  .span {\n }  ', output: '.div {}\n{{new_rule}}.span {}' },
         {
           input: '.selector1 {\n\tmargin: 0; /* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n.div{height:15px;}',
-          output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}{{new_rule}}.div {\n\theight: 15px;\n}'
+          output: '.selector1 {\n\tmargin: 0;\n\t/* This is a comment including an url http://domain.com/path/to/file.ext */\n}\n{{new_rule}}.div {\n\theight: 15px;\n}'
         },
-        { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-        { input: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-        { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}{{new_rule}}\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-        { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}{{new_rule}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}{{new_rule}}\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}{{new_rule}}\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}' },
-        { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
-        { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}{{new_rule}}.div {\n\theight: 15px;\n}' },
+        { input: '.tabs{width:10px;//end of line comment\nheight:10px;//another\n}\n.div{height:15px;}', output: '.tabs {\n\twidth: 10px; //end of line comment\n\theight: 10px; //another\n}\n{{new_rule}}.div {\n\theight: 15px;\n}' },
+        { input: '#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '#foo {\n\tbackground-image: url(foo@2x.png);\n{{new_rule}}\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n{{new_rule}}.div {\n\theight: 15px;\n}' },
+        { input: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n.div{height:15px;}', output: '@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n{{new_rule}}\t@font-face {\n\t\tfont-family: "Bitstream Vera Serif Bold";\n\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n\t}\n}\n{{new_rule}}.div {\n\theight: 15px;\n}' },
+        { input: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}', output: '@font-face {\n\tfont-family: "Bitstream Vera Serif Bold";\n\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n}\n{{new_rule}}@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n{{new_rule}}\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: "Helvetica Neue"\n\t\t}\n{{new_rule}}\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}' },
+        { input: 'a:first-child{color:red;div:first-child{color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n{{new_rule}}\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}\n{{new_rule}}.div {\n\theight: 15px;\n}' },
+        { input: 'a:first-child{color:red;div:not(.peq){color:black;}}\n.div{height:15px;}', output: 'a:first-child {\n\tcolor: red;\n{{new_rule}}\tdiv:not(.peq) {\n\t\tcolor: black;\n\t}\n}\n{{new_rule}}.div {\n\theight: 15px;\n}' },
         {
           input_: [
             '.list-group {',
@@ -314,8 +314,169 @@ exports.test_data = {
           ],
           output: [
             '.list-group {',
-            '\t.list-group-item {}{{new_rule}}\t.list-group-icon {}',
-            '}{{new_rule}}.list-group-condensed {}'
+            '\t.list-group-item {}',
+            '{{new_rule}}\t.list-group-icon {}',
+            '}',
+            '{{new_rule}}.list-group-condensed {}'
+          ]
+        },
+        {
+          input_: [
+            '.list-group {',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            '\t.list-group-icon {',
+            '\t}',
+            '\t.list-group-icon {',
+            '\t}',
+            '}',
+            '.list-group-condensed {',
+            '}'
+          ],
+          output: [
+            '.list-group {',
+            '\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\t.list-group-icon {}',
+            '{{new_rule}}\t.list-group-icon {}',
+            '}',
+            '{{new_rule}}.list-group-condensed {}'
+          ]
+        },
+        {
+          input_: [
+            '.list-group {',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            '\t//this is my pre-comment',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            '\t//this is a comment',
+            '\t.list-group-icon {',
+            '\t}',
+            '\t//this is also a comment',
+            '\t.list-group-icon {',
+            '\t}',
+            '}',
+            '.list-group-condensed {',
+            '}'
+          ],
+          output: [
+            '.list-group {',
+            '\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\t//this is my pre-comment',
+            '\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\t//this is a comment',
+            '\t.list-group-icon {}',
+            '{{new_rule}}\t//this is also a comment',
+            '\t.list-group-icon {}',
+            '}',
+            '{{new_rule}}.list-group-condensed {}'
+          ]
+        },
+        {
+          input_: [
+            '.list-group {',
+            '\tcolor: #38a0e5;',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            '\tcolor: #38a0e5;',
+            '\t.list-group-item {',
+            '\t\ta:1',
+            '\t}',
+            'color: #38a0e5;',
+            '\t.list-group-icon {',
+            '\t}',
+            '\tcolor: #38a0e5;',
+            '\t.list-group-icon {',
+            '\t}',
+            '}',
+            'color: #38a0e5;',
+            '.list-group-condensed {',
+            '}'
+          ],
+          output: [
+            '.list-group {',
+            '\tcolor: #38a0e5;',
+            '{{new_rule}}\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\tcolor: #38a0e5;',
+            '{{new_rule}}\t.list-group-item {',
+            '\t\ta: 1',
+            '\t}',
+            '{{new_rule}}\tcolor: #38a0e5;',
+            '{{new_rule}}\t.list-group-icon {}',
+            '{{new_rule}}\tcolor: #38a0e5;',
+            '{{new_rule}}\t.list-group-icon {}',
+            '}',
+            '{{new_rule}}color: #38a0e5;',
+            '{{new_rule}}.list-group-condensed {}'
+          ]
+        },
+        {
+          input_: [
+            '.preloader {',
+            '\theight: 20px;',
+            '\t.line {',
+            '\t\twidth: 1px;',
+            '\t\theight: 12px;',
+            '\t\tbackground: #38a0e5;',
+            '\t\tmargin: 0 1px;',
+            '\t\tdisplay: inline-block;',
+            '\t\t&.line-1 {',
+            '\t\t\tanimation-delay: 800ms;',
+            '\t\t}',
+            '\t\t&.line-2 {',
+            '\t\t\tanimation-delay: 600ms;',
+            '\t\t}',
+            '\t}',
+            '\tdiv {',
+            '\t\tcolor: #38a0e5;',
+            '\t\tfont-family: "Arial", sans-serif;',
+            '\t\tfont-size: 10px;',
+            '\t\tmargin: 5px 0;',
+            '\t}',
+            '}'
+          ],
+          output: [
+            '.preloader {',
+            '\theight: 20px;',
+            '{{new_rule}}\t.line {',
+            '\t\twidth: 1px;',
+            '\t\theight: 12px;',
+            '\t\tbackground: #38a0e5;',
+            '\t\tmargin: 0 1px;',
+            '\t\tdisplay: inline-block;',
+            '{{new_rule}}\t\t&.line-1 {',
+            '\t\t\tanimation-delay: 800ms;',
+            '\t\t}',
+            '{{new_rule}}\t\t&.line-2 {',
+            '\t\t\tanimation-delay: 600ms;',
+            '\t\t}',
+            '\t}',
+            '{{new_rule}}\tdiv {',
+            '\t\tcolor: #38a0e5;',
+            '\t\tfont-family: "Arial", sans-serif;',
+            '\t\tfont-size: 10px;',
+            '\t\tmargin: 5px 0;',
+            '\t}',
+            '}'
           ]
         }
       ]
@@ -557,7 +718,7 @@ exports.test_data = {
         },
         {
           input: '#foo {<i>background-image: url(foo@2x.png);<i>\t@font-face {<i>\t\tfont-family: "Bitstream Vera Serif Bold";<i>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<i>\t}<i>}<i>.div{<i>height:15px;<i>}',
-          output: '#foo {<o>\tbackground-image: url(foo@2x.png);<o>\t@font-face {<o>\t\tfont-family: "Bitstream Vera Serif Bold";<o>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+          output: '#foo {<o>\tbackground-image: url(foo@2x.png);<new_rule>\t@font-face {<o>\t\tfont-family: "Bitstream Vera Serif Bold";<o>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
         },
         {
           input: '@media screen {<i>\t#foo:hover {<i>\t\tbackground-image: url(foo@2x.png);<i>\t}<i>\t@font-face {<i>\t\tfont-family: "Bitstream Vera Serif Bold";<i>\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");<i>\t}<i>}<i>.div{<i>height:15px;<i>}',
@@ -569,11 +730,11 @@ exports.test_data = {
         },
         {
           input: 'a:first-child{<i>color:red;<i>div:first-child{<i>color:black;<i>}<i>}<i>.div{<i>height:15px;<i>}',
-          output: 'a:first-child {<o>\tcolor: red;<o>\tdiv:first-child {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+          output: 'a:first-child {<o>\tcolor: red;<new_rule>\tdiv:first-child {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
         },
         {
           input: 'a:first-child{<i>color:red;<i>div:not(.peq){<i>color:black;<i>}<i>}<i>.div{<i>height:15px;<i>}',
-          output: 'a:first-child {<o>\tcolor: red;<o>\tdiv:not(.peq) {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
+          output: 'a:first-child {<o>\tcolor: red;<new_rule>\tdiv:not(.peq) {<o>\t\tcolor: black;<o>\t}<o>}<new_rule>.div {<o>\theight: 15px;<o>}'
         }
       ]
     },

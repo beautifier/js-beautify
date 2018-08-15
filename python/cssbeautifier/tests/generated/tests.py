@@ -714,6 +714,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -794,6 +795,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -808,6 +810,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -835,6 +838,170 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '\n' +
             '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\t.list-group-icon {}\n' +
+            '\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '\n' +
+            '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t//this is my pre-comment\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t//this is a comment\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\t//this is also a comment\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\t//this is my pre-comment\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\t//this is a comment\n' +
+            '\t.list-group-icon {}\n' +
+            '\n' +
+            '\t//this is also a comment\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '\n' +
+            '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            'color: #38a0e5;\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            'color: #38a0e5;\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\n' +
+            '\t.list-group-icon {}\n' +
+            '\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '\n' +
+            'color: #38a0e5;\n' +
+            '\n' +
+            '.list-group-condensed {}')
+        t(
+            '.preloader {\n' +
+            '\theight: 20px;\n' +
+            '\t.line {\n' +
+            '\t\twidth: 1px;\n' +
+            '\t\theight: 12px;\n' +
+            '\t\tbackground: #38a0e5;\n' +
+            '\t\tmargin: 0 1px;\n' +
+            '\t\tdisplay: inline-block;\n' +
+            '\t\t&.line-1 {\n' +
+            '\t\t\tanimation-delay: 800ms;\n' +
+            '\t\t}\n' +
+            '\t\t&.line-2 {\n' +
+            '\t\t\tanimation-delay: 600ms;\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '\tdiv {\n' +
+            '\t\tcolor: #38a0e5;\n' +
+            '\t\tfont-family: "Arial", sans-serif;\n' +
+            '\t\tfont-size: 10px;\n' +
+            '\t\tmargin: 5px 0;\n' +
+            '\t}\n' +
+            '}',
+            #  -- output --
+            '.preloader {\n' +
+            '\theight: 20px;\n' +
+            '\n' +
+            '\t.line {\n' +
+            '\t\twidth: 1px;\n' +
+            '\t\theight: 12px;\n' +
+            '\t\tbackground: #38a0e5;\n' +
+            '\t\tmargin: 0 1px;\n' +
+            '\t\tdisplay: inline-block;\n' +
+            '\n' +
+            '\t\t&.line-1 {\n' +
+            '\t\t\tanimation-delay: 800ms;\n' +
+            '\t\t}\n' +
+            '\n' +
+            '\t\t&.line-2 {\n' +
+            '\t\t\tanimation-delay: 600ms;\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '\n' +
+            '\tdiv {\n' +
+            '\t\tcolor: #38a0e5;\n' +
+            '\t\tfont-family: "Arial", sans-serif;\n' +
+            '\t\tfont-size: 10px;\n' +
+            '\t\tmargin: 5px 0;\n' +
+            '\t}\n' +
+            '}')
 
         # Newline Between Rules - (newline_between_rules = "false")
         self.reset_options()
@@ -996,6 +1163,126 @@ class CSSBeautifierTest(unittest.TestCase):
             '\t.list-group-icon {}\n' +
             '}\n' +
             '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\t.list-group-icon {}\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t//this is my pre-comment\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\t//this is a comment\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\t//this is also a comment\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\t//this is my pre-comment\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\t//this is a comment\n' +
+            '\t.list-group-icon {}\n' +
+            '\t//this is also a comment\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            '.list-group-condensed {}')
+        t(
+            '.list-group {\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta:1\n' +
+            '\t}\n' +
+            'color: #38a0e5;\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-icon {\n' +
+            '\t}\n' +
+            '}\n' +
+            'color: #38a0e5;\n' +
+            '.list-group-condensed {\n' +
+            '}',
+            #  -- output --
+            '.list-group {\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-item {\n' +
+            '\t\ta: 1\n' +
+            '\t}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-icon {}\n' +
+            '\tcolor: #38a0e5;\n' +
+            '\t.list-group-icon {}\n' +
+            '}\n' +
+            'color: #38a0e5;\n' +
+            '.list-group-condensed {}')
+        t(
+            '.preloader {\n' +
+            '\theight: 20px;\n' +
+            '\t.line {\n' +
+            '\t\twidth: 1px;\n' +
+            '\t\theight: 12px;\n' +
+            '\t\tbackground: #38a0e5;\n' +
+            '\t\tmargin: 0 1px;\n' +
+            '\t\tdisplay: inline-block;\n' +
+            '\t\t&.line-1 {\n' +
+            '\t\t\tanimation-delay: 800ms;\n' +
+            '\t\t}\n' +
+            '\t\t&.line-2 {\n' +
+            '\t\t\tanimation-delay: 600ms;\n' +
+            '\t\t}\n' +
+            '\t}\n' +
+            '\tdiv {\n' +
+            '\t\tcolor: #38a0e5;\n' +
+            '\t\tfont-family: "Arial", sans-serif;\n' +
+            '\t\tfont-size: 10px;\n' +
+            '\t\tmargin: 5px 0;\n' +
+            '\t}\n' +
+            '}')
 
 
         #============================================================
@@ -5335,6 +5622,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -5390,6 +5678,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -5403,6 +5692,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -5882,6 +6172,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -6041,6 +6332,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -6078,6 +6370,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -6557,6 +6850,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -6716,6 +7010,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -6753,6 +7048,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -6996,6 +7292,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -7051,6 +7348,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -7064,6 +7362,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -7369,6 +7668,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '#foo {\n' +
             '\tbackground-image: url(foo@2x.png);\n' +
+            '\n' +
             '\t@font-face {\n' +
             '\t\tfont-family: "Bitstream Vera Serif Bold";\n' +
             '\t\tsrc: url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf");\n' +
@@ -7458,6 +7758,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:first-child {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
@@ -7479,6 +7780,7 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             'a:first-child {\n' +
             '\tcolor: red;\n' +
+            '\n' +
             '\tdiv:not(.peq) {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
