@@ -47,13 +47,9 @@ class OutputLine:
     def is_empty(self):
         return len(self.__items) == 0
 
-    def set_indent(self, level):
-        self.__indent_count = level
-        self.__character_count = self.__parent.baseIndentLength + \
-            + self.__alignment_count + self.__indent_count * self.__parent.indent_length
-
-    def set_alignment(self, level):
-        self.__alignment_count = level
+    def set_indent(self, indent=0, alignment=0):
+        self.__indent_count = indent
+        self.__alignment_count = alignment
         self.__character_count = self.__parent.baseIndentLength + \
             + self.__alignment_count + self.__indent_count * self.__parent.indent_length
 
@@ -94,14 +90,29 @@ class OutputLine:
             result += ''.join(self.__items)
         return result
 
+class IndentCache:
+    def __init__(self, base_string, level_string):
+        self.__cache = [base_string]
+        self.__level_string = level_string
+
+
+    def __ensure_cache(self, level):
+        while level >= len(self.__cache):
+            self.__cache.append(
+                self.__cache[-1] + self.__level_string)
+
+    def get_level_string(self, level):
+        self.__ensure_cache(level)
+        return self.__cache[level]
+
 
 class Output:
     def __init__(self, indent_string, baseIndentString=''):
 
         self.indent_string = indent_string
         self.baseIndentString = baseIndentString
-        self._indent_cache = [baseIndentString]
-        self._alignment_cache = ['']
+        self.__indent_cache = IndentCache(baseIndentString, indent_string)
+        self.__alignment_cache = IndentCache('', ' ')
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.raw = False
@@ -120,18 +131,11 @@ class Output:
         return len(self.lines)
 
     def get_indent_string(self, level):
-        while level >= len(self._indent_cache):
-            self._indent_cache.append(
-                self._indent_cache[-1] + self.indent_string)
-
-        return self._indent_cache[level]
+        return self.__indent_cache.get_level_string(level)
 
     def get_alignment_string(self, level):
-        while level >= len(self._alignment_cache):
-            self._alignment_cache.append(
-                self._alignment_cache[-1] + ' ')
+        return self.__alignment_cache.get_level_string(level)
 
-        return self._alignment_cache[level]
 
     def add_new_line(self, force_newline=False):
         if len(self.lines) == 1 and self.just_added_newline():
@@ -156,20 +160,12 @@ class Output:
 
         return sweet_code
 
-    def set_indent(self, level):
+    def set_indent(self, indent=0, alignment=0):
         # Never indent your first output indent at the start of the file
         if len(self.lines) > 1:
-            self.current_line.set_indent(level)
+            self.current_line.set_indent(indent, alignment)
             return True
-        self.current_line.set_indent(0)
-        return False
-
-    def set_alignment(self, level):
-        # Never indent your first output indent at the start of the file
-        if len(self.lines) > 1:
-            self.current_line.set_alignment(level)
-            return True
-        self.current_line.set_alignment(0)
+        self.current_line.set_indent()
         return False
 
     def add_raw_token(self, token):

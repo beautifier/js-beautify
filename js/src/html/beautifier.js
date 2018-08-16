@@ -123,8 +123,7 @@ Printer.prototype.print_newline = function(force) {
 Printer.prototype.print_token = function(text) {
   if (text) {
     if (this._output.current_line.is_empty()) {
-      this._output.set_indent(this.indent_level);
-      this._output.set_alignment(this.alignment_size);
+      this._output.set_indent(this.indent_level, this.alignment_size);
     }
 
     this._output.add_token(text);

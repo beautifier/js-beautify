@@ -36,13 +36,9 @@ function OutputLine(parent) {
   this._items = [];
 }
 
-OutputLine.prototype.set_indent = function(level) {
-  this._indent_count = level;
-  this._character_count = this._parent.baseIndentLength + this._alignment_count + this._indent_count * this._parent.indent_length;
-};
-
-OutputLine.prototype.set_alignment = function(level) {
-  this._alignment_count = level;
+OutputLine.prototype.set_indent = function(indent, alignment) {
+  this._indent_count = indent || 0;
+  this._alignment_count = alignment || 0;
   this._character_count = this._parent.baseIndentLength + this._alignment_count + this._indent_count * this._parent.indent_length;
 };
 
@@ -112,11 +108,27 @@ OutputLine.prototype.toString = function() {
   return result;
 };
 
+function IndentCache(base_string, level_string) {
+  this.__cache = [base_string];
+  this.__level_string = level_string;
+}
+
+IndentCache.prototype.__ensure_cache = function(level) {
+  while (level >= this.__cache.length) {
+    this.__cache.push(this.__cache[this.__cache.length - 1] + this.__level_string);
+  }
+};
+
+IndentCache.prototype.get_level_string = function(level) {
+  this.__ensure_cache(level);
+  return this.__cache[level];
+};
+
 
 function Output(indent_string, baseIndentString) {
   baseIndentString = baseIndentString || '';
-  this._indent_cache = [baseIndentString];
-  this._alignment_cache = [''];
+  this.__indent_cache = new IndentCache(baseIndentString, indent_string);
+  this.__alignment_cache = new IndentCache('', ' ');
   this.baseIndentLength = baseIndentString.length;
   this.indent_length = indent_string.length;
   this.raw = false;
@@ -142,19 +154,11 @@ Output.prototype.get_line_number = function() {
 };
 
 Output.prototype.get_indent_string = function(level) {
-  while (level >= this._indent_cache.length) {
-    this._indent_cache.push(this._indent_cache[this._indent_cache.length - 1] + this.indent_string);
-  }
-
-  return this._indent_cache[level];
+  return this.__indent_cache.get_level_string(level);
 };
 
 Output.prototype.get_alignment_string = function(level) {
-  while (level >= this._alignment_cache.length) {
-    this._alignment_cache.push(this._alignment_cache[this._alignment_cache.length - 1] + ' ');
-  }
-
-  return this._alignment_cache[level];
+  return this.__alignment_cache.get_level_string(level);
 };
 
 
@@ -188,23 +192,16 @@ Output.prototype.get_code = function(end_with_newline, eol) {
   return sweet_code;
 };
 
-Output.prototype.set_indent = function(level) {
-  // Never indent your first output indent at the start of the file
-  if (this._lines.length > 1) {
-    this.current_line.set_indent(level);
-    return true;
-  }
-  this.current_line.set_indent(0);
-  return false;
-};
+Output.prototype.set_indent = function(indent, alignment) {
+  indent = indent || 0;
+  alignment = alignment || 0;
 
-Output.prototype.set_alignment = function(level) {
   // Never indent your first output indent at the start of the file
   if (this._lines.length > 1) {
-    this.current_line.set_alignment(level);
+    this.current_line.set_indent(indent, alignment);
     return true;
   }
-  this.current_line.set_alignment(0);
+  this.current_line.set_indent();
   return false;
 };
 
