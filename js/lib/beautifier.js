@@ -2039,6 +2039,20 @@ Output.prototype.just_added_blankline = function() {
   return false;
 };
 
+Output.prototype.ensure_empty_line_above = function(commentPattern) {
+  var index = this._lines.length - 2;
+  while (index >= 1) {
+    var potentialEmptyLine = this._lines[index];
+    if (potentialEmptyLine.is_empty()) {
+      break;
+    } else if (potentialEmptyLine._items[0].indexOf(commentPattern) !== 0) {
+      this._lines.splice(index + 1, 0, new OutputLine(this));
+      this.previous_line = this._lines[this._lines.length - 2];
+      break;
+    }
+    index--;
+  }
+};
 
 module.exports.Output = Output;
 
@@ -3335,11 +3349,14 @@ function Beautifier(source_text, options) {
     var enteringConditionalGroup = false;
     var insideAtExtend = false;
     var insideAtImport = false;
+    var topCharacter = ch;
 
     while (true) {
       var whitespace = input.read(whitespacePattern);
       var isAfterSpace = whitespace !== '';
+      var previous_ch = topCharacter;
       ch = input.next();
+      topCharacter = ch;
 
       if (!ch) {
         break;
@@ -3412,39 +3429,35 @@ function Beautifier(source_text, options) {
         preserveSingleSpace(isAfterSpace);
         print_string(ch + eatString('}'));
       } else if (ch === '{') {
-        if (input.match(/[\t\n ]*}/g)) {
-          output.space_before_token = true;
-          print_string("{}");
+        if (insidePropertyValue) {
+          insidePropertyValue = false;
+          outdent();
+        }
+        indent();
+        output.space_before_token = true;
+        print_string(ch);
 
-          eatWhitespace(true);
-          output.add_new_line();
-
-          if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
-            output.add_new_line(true);
-          }
+        // when entering conditional groups, only rulesets are allowed
+        if (enteringConditionalGroup) {
+          enteringConditionalGroup = false;
+          insideRule = (indentLevel > nestedLevel);
         } else {
-          if (insidePropertyValue) {
-            insidePropertyValue = false;
-            outdent();
-          }
-          indent();
-          output.space_before_token = true;
-          print_string(ch);
-          eatWhitespace(true);
-          output.add_new_line();
-
-          // when entering conditional groups, only rulesets are allowed
-          if (enteringConditionalGroup) {
-            enteringConditionalGroup = false;
-            insideRule = (indentLevel > nestedLevel);
-          } else {
-            // otherwise, declarations are also allowed
-            insideRule = (indentLevel >= nestedLevel);
+          // otherwise, declarations are also allowed
+          insideRule = (indentLevel >= nestedLevel);
+        }
+        if (newline_between_rules && insideRule) {
+          if (output.previous_line && output.previous_line._items[output.previous_line._items.length - 1] !== '{') {
+            output.ensure_empty_line_above('/');
           }
         }
+        eatWhitespace(true);
+        output.add_new_line();
       } else if (ch === '}') {
         outdent();
         output.add_new_line();
+        if (previous_ch === '{') {
+          output.trim(true);
+        }
         insideAtImport = false;
         insideAtExtend = false;
         if (insidePropertyValue) {
@@ -3460,8 +3473,10 @@ function Beautifier(source_text, options) {
         eatWhitespace(true);
         output.add_new_line();
 
-        if (newline_between_rules && indentLevel === 0 && !output.just_added_blankline()) {
-          output.add_new_line(true);
+        if (newline_between_rules && !output.just_added_blankline()) {
+          if (input.peek() !== '}') {
+            output.add_new_line(true);
+          }
         }
       } else if (ch === ":") {
         if ((insideRule || enteringConditionalGroup) &&

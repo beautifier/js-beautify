@@ -572,6 +572,20 @@ Output.prototype.just_added_blankline = function() {
   return false;
 };
 
+Output.prototype.ensure_empty_line_above = function(commentPattern) {
+  var index = this._lines.length - 2;
+  while (index >= 1) {
+    var potentialEmptyLine = this._lines[index];
+    if (potentialEmptyLine.is_empty()) {
+      break;
+    } else if (potentialEmptyLine._items[0].indexOf(commentPattern) !== 0) {
+      this._lines.splice(index + 1, 0, new OutputLine(this));
+      this.previous_line = this._lines[this._lines.length - 2];
+      break;
+    }
+    index--;
+  }
+};
 
 module.exports.Output = Output;
 
