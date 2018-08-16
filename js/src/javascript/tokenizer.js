@@ -109,15 +109,15 @@ var Tokenizer = function(input_string, opts) {
 };
 Tokenizer.prototype = new BaseTokenizer();
 
-Tokenizer.prototype.is_comment = function(current_token) {
+Tokenizer.prototype._is_comment = function(current_token) {
   return current_token.type === TOKEN.COMMENT || current_token.type === TOKEN.BLOCK_COMMENT || current_token.type === TOKEN.UNKNOWN;
 };
 
-Tokenizer.prototype.is_opening = function(current_token) {
+Tokenizer.prototype._is_opening = function(current_token) {
   return current_token.type === TOKEN.START_BLOCK || current_token.type === TOKEN.START_EXPR;
 };
 
-Tokenizer.prototype.is_closing = function(current_token, open_token) {
+Tokenizer.prototype._is_closing = function(current_token, open_token) {
   return (current_token.type === TOKEN.END_BLOCK || current_token.type === TOKEN.END_EXPR) &&
     (open_token && (
       (current_token.text === ']' && open_token.text === '[') ||
@@ -125,12 +125,12 @@ Tokenizer.prototype.is_closing = function(current_token, open_token) {
       (current_token.text === '}' && open_token.text === '{')));
 };
 
-Tokenizer.prototype.reset = function() {
+Tokenizer.prototype._reset = function() {
   in_html_comment = false;
 };
 
-Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this.readWhitespace();
+Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
+  this._readWhitespace();
   var token = null;
   var c = this._input.peek();
 
@@ -142,7 +142,7 @@ Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // j
   token = token || this._read_xml(c, previous_token);
   token = token || this._read_non_javascript(c);
   token = token || this._read_punctuation();
-  token = token || this.create_token(TOKEN.UNKNOWN, this._input.next());
+  token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
 };
@@ -155,38 +155,38 @@ Tokenizer.prototype._read_word = function(previous_token) {
         (previous_token.type === TOKEN.RESERVED && (previous_token.text === 'set' || previous_token.text === 'get'))) &&
       reserved_word_pattern.test(resulting_string)) {
       if (resulting_string === 'in' || resulting_string === 'of') { // hack for 'in' and 'of' operators
-        return this.create_token(TOKEN.OPERATOR, resulting_string);
+        return this._create_token(TOKEN.OPERATOR, resulting_string);
       }
-      return this.create_token(TOKEN.RESERVED, resulting_string);
+      return this._create_token(TOKEN.RESERVED, resulting_string);
     }
 
-    return this.create_token(TOKEN.WORD, resulting_string);
+    return this._create_token(TOKEN.WORD, resulting_string);
   }
 
   resulting_string = this._input.read(number_pattern);
   if (resulting_string !== '') {
-    return this.create_token(TOKEN.WORD, resulting_string);
+    return this._create_token(TOKEN.WORD, resulting_string);
   }
 };
 
 Tokenizer.prototype._read_singles = function(c) {
   var token = null;
   if (c === null) {
-    token = this.create_token(TOKEN.EOF, '');
+    token = this._create_token(TOKEN.EOF, '');
   } else if (c === '(' || c === '[') {
-    token = this.create_token(TOKEN.START_EXPR, c);
+    token = this._create_token(TOKEN.START_EXPR, c);
   } else if (c === ')' || c === ']') {
-    token = this.create_token(TOKEN.END_EXPR, c);
+    token = this._create_token(TOKEN.END_EXPR, c);
   } else if (c === '{') {
-    token = this.create_token(TOKEN.START_BLOCK, c);
+    token = this._create_token(TOKEN.START_BLOCK, c);
   } else if (c === '}') {
-    token = this.create_token(TOKEN.END_BLOCK, c);
+    token = this._create_token(TOKEN.END_BLOCK, c);
   } else if (c === ';') {
-    token = this.create_token(TOKEN.SEMICOLON, c);
+    token = this._create_token(TOKEN.SEMICOLON, c);
   } else if (c === '.' && dot_pattern.test(this._input.peek(1))) {
-    token = this.create_token(TOKEN.DOT, c);
+    token = this._create_token(TOKEN.DOT, c);
   } else if (c === ',') {
-    token = this.create_token(TOKEN.COMMA, c);
+    token = this._create_token(TOKEN.COMMA, c);
   }
 
   if (token) {
@@ -200,9 +200,9 @@ Tokenizer.prototype._read_punctuation = function() {
 
   if (resulting_string !== '') {
     if (resulting_string === '=') {
-      return this.create_token(TOKEN.EQUALS, resulting_string);
+      return this._create_token(TOKEN.EQUALS, resulting_string);
     } else {
-      return this.create_token(TOKEN.OPERATOR, resulting_string);
+      return this._create_token(TOKEN.OPERATOR, resulting_string);
     }
   }
 };
@@ -213,14 +213,14 @@ Tokenizer.prototype._read_non_javascript = function(c) {
   if (c === '#') {
     c = this._input.next();
 
-    if (this._tokens.isEmpty() && this._input.peek() === '!') {
+    if (this._is_first_token() && this._input.peek() === '!') {
       // shebang
       resulting_string = c;
       while (this._input.hasNext() && c !== '\n') {
         c = this._input.next();
         resulting_string += c;
       }
-      return this.create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
+      return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
     }
 
     // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
@@ -241,7 +241,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
         this._input.next();
         this._input.next();
       }
-      return this.create_token(TOKEN.WORD, sharp);
+      return this._create_token(TOKEN.WORD, sharp);
     }
 
     this._input.back();
@@ -251,7 +251,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
       resulting_string = this._input.read(template_pattern);
       if (resulting_string) {
         resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
-        return this.create_token(TOKEN.STRING, resulting_string);
+        return this._create_token(TOKEN.STRING, resulting_string);
       }
     } else if (this._input.match(/<\!--/g)) {
       c = '<!--';
@@ -259,11 +259,11 @@ Tokenizer.prototype._read_non_javascript = function(c) {
         c += this._input.next();
       }
       in_html_comment = true;
-      return this.create_token(TOKEN.COMMENT, c);
+      return this._create_token(TOKEN.COMMENT, c);
     }
   } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
     in_html_comment = false;
-    return this.create_token(TOKEN.COMMENT, '-->');
+    return this._create_token(TOKEN.COMMENT, '-->');
   }
 
   return null;
@@ -281,12 +281,12 @@ Tokenizer.prototype._read_comment = function(c) {
         comment += directives_core.readIgnored(this._input);
       }
       comment = comment.replace(acorn.allLineBreaks, '\n');
-      token = this.create_token(TOKEN.BLOCK_COMMENT, comment);
+      token = this._create_token(TOKEN.BLOCK_COMMENT, comment);
       token.directives = directives;
     } else if (this._input.peek(1) === '/') {
       // peek for comment // ...
       comment = this._input.read(comment_pattern);
-      token = this.create_token(TOKEN.COMMENT, comment);
+      token = this._create_token(TOKEN.COMMENT, comment);
     }
   }
   return token;
@@ -310,7 +310,7 @@ Tokenizer.prototype._read_string = function(c) {
       resulting_string += this._input.next();
     }
 
-    return this.create_token(TOKEN.STRING, resulting_string);
+    return this._create_token(TOKEN.STRING, resulting_string);
   }
 
   return null;
@@ -359,7 +359,7 @@ Tokenizer.prototype._read_regexp = function(c, previous_token) {
       // Only [gim] are valid, but if the user puts in garbage, do what we can to take it.
       resulting_string += this._input.read(acorn.identifier);
     }
-    return this.create_token(TOKEN.STRING, resulting_string);
+    return this._create_token(TOKEN.STRING, resulting_string);
   }
   return null;
 };
@@ -403,7 +403,7 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
         xmlStr += this._input.match(/[\s\S]*/g)[0];
       }
       xmlStr = xmlStr.replace(acorn.allLineBreaks, '\n');
-      return this.create_token(TOKEN.STRING, xmlStr);
+      return this._create_token(TOKEN.STRING, xmlStr);
     }
   }
 

@@ -38,8 +38,8 @@ class OutputLine:
 
         self.__items = []
 
-    def get_items(self):
-        return self.__items[:]
+    def item(self, index):
+        return self.__items[index]
 
     def get_character_count(self):
         return self.__character_count
@@ -109,26 +109,25 @@ class IndentCache:
 class Output:
     def __init__(self, indent_string, baseIndentString=''):
 
-        self.indent_string = indent_string
-        self.baseIndentString = baseIndentString
         self.__indent_cache = IndentCache(baseIndentString, indent_string)
         self.__alignment_cache = IndentCache('', ' ')
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.raw = False
-        self.lines = []
+        self.__lines = []
         self.previous_line = None
         self.current_line = None
         self.space_before_token = False
-        self.add_outputline()
 
-    def add_outputline(self):
+        self.__add_outputline()
+
+    def __add_outputline(self):
         self.previous_line = self.current_line
         self.current_line = OutputLine(self)
-        self.lines.append(self.current_line)
+        self.__lines.append(self.current_line)
 
     def get_line_number(self):
-        return len(self.lines)
+        return len(self.__lines)
 
     def get_indent_string(self, level):
         return self.__indent_cache.get_level_string(level)
@@ -136,20 +135,24 @@ class Output:
     def get_alignment_string(self, level):
         return self.__alignment_cache.get_level_string(level)
 
+    def is_empty(self):
+        return self.previous_line is None and self.current_line.is_empty()
 
     def add_new_line(self, force_newline=False):
-        if len(self.lines) == 1 and self.just_added_newline():
-            # no newline on start of file
+        # never newline at the start of file
+        # otherwise, newline only if we didn't just add one or we're forced
+        if self.is_empty() or \
+                (not force_newline and self.just_added_newline()):
             return False
 
-        if force_newline or not self.just_added_newline():
-            if not self.raw:
-                self.add_outputline()
-            return True
-        return False
+        # if raw output is enabled, don't print additional newlines,
+        # but still return True as though you had
+        if not self.raw:
+            self.__add_outputline()
+        return True
 
     def get_code(self, end_with_newline, eol):
-        sweet_code = "\n".join(line.toString() for line in self.lines)
+        sweet_code = "\n".join(line.toString() for line in self.__lines)
         sweet_code = re.sub('[\r\n\t ]+$', '', sweet_code)
 
         if end_with_newline:
@@ -162,7 +165,7 @@ class Output:
 
     def set_indent(self, indent=0, alignment=0):
         # Never indent your first output indent at the start of the file
-        if len(self.lines) > 1:
+        if len(self.__lines) > 1:
             self.current_line.set_indent(indent, alignment)
             return True
         self.current_line.set_indent()
@@ -170,7 +173,7 @@ class Output:
 
     def add_raw_token(self, token):
         for _ in range(token.newlines):
-            self.add_outputline()
+            self.__add_outputline()
 
         self.current_line.push(token.whitespace_before)
         self.current_line.push(token.text)
@@ -185,17 +188,22 @@ class Output:
             self.current_line.push(' ')
         self.space_before_token = False
 
+    def remove_indent(self, index):
+        while index < len(self.__lines):
+            self.__lines[index].remove_indent()
+            index += 1
+
     def trim(self, eat_newlines=False):
         self.current_line.trim()
 
         while eat_newlines and len(
-                self.lines) > 1 and self.current_line.is_empty():
-            self.lines.pop()
-            self.current_line = self.lines[-1]
+                self.__lines) > 1 and self.current_line.is_empty():
+            self.__lines.pop()
+            self.current_line = self.__lines[-1]
             self.current_line.trim()
 
-        if len(self.lines) > 1:
-            self.previous_line = self.lines[-2]
+        if len(self.__lines) > 1:
+            self.previous_line = self.__lines[-2]
         else:
             self.previous_line = None
 
@@ -203,23 +211,17 @@ class Output:
         return self.current_line.is_empty()
 
     def just_added_blankline(self):
-        if self.just_added_newline():
-            if len(self.lines) == 1:
-                return True
+        return self.is_empty() or \
+            (self.current_line.is_empty() and self.previous_line.is_empty())
 
-            line = self.lines[-2]
-            return line.is_empty()
-
-        return False
-
-    def ensure_empty_line_above(self, commentPattern):
-        index = len(self.lines)-2
+    def ensure_empty_line_above(self, comment_pattern):
+        index = len(self.__lines) - 2
         while index >= 1:
-            potentialEmptyLine = self.lines[index]
+            potentialEmptyLine = self.__lines[index]
             if potentialEmptyLine.is_empty():
                 break
-            elif not potentialEmptyLine.get_items()[0].startswith(commentPattern):
-                self.lines.insert(index +1, OutputLine(self))
-                self.previous_line = self.lines[-2]
+            elif not potentialEmptyLine.item(0).startswith(comment_pattern):
+                self.__lines.insert(index +1, OutputLine(self))
+                self.previous_line = self.__lines[-2]
                 break
-            index -=1
+            index -= 1

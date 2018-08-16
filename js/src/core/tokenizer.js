@@ -38,9 +38,9 @@ var TOKEN = {
 
 var Tokenizer = function(input_string) { // jshint unused:false
   this._input = new InputScanner(input_string);
-  this._tokens = null;
-  this._newline_count = 0;
-  this._whitespace_before_token = '';
+  this.__tokens = null;
+  this.__newline_count = 0;
+  this.__whitespace_before_token = '';
 
   this._whitespace_pattern = /[\n\r\u2028\u2029\t ]+/g;
   this._newline_pattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
@@ -48,9 +48,9 @@ var Tokenizer = function(input_string) { // jshint unused:false
 
 Tokenizer.prototype.tokenize = function() {
   this._input.restart();
-  this._tokens = new TokenStream();
+  this.__tokens = new TokenStream();
 
-  this.reset();
+  this._reset();
 
   var current;
   var previous = new Token(TOKEN.START, '');
@@ -59,10 +59,10 @@ Tokenizer.prototype.tokenize = function() {
   var comments = new TokenStream();
 
   while (previous.type !== TOKEN.EOF) {
-    current = this.get_next_token(previous, open_token);
-    while (this.is_comment(current)) {
+    current = this._get_next_token(previous, open_token);
+    while (this._is_comment(current)) {
       comments.add(current);
-      current = this.get_next_token(previous, open_token);
+      current = this._get_next_token(previous, open_token);
     }
 
     if (!comments.isEmpty()) {
@@ -72,10 +72,10 @@ Tokenizer.prototype.tokenize = function() {
 
     current.parent = open_token;
 
-    if (this.is_opening(current)) {
+    if (this._is_opening(current)) {
       open_stack.push(open_token);
       open_token = current;
-    } else if (open_token && this.is_closing(current, open_token)) {
+    } else if (open_token && this._is_closing(current, open_token)) {
       current.opened = open_token;
       open_token.closed = current;
       open_token = open_stack.pop();
@@ -85,59 +85,62 @@ Tokenizer.prototype.tokenize = function() {
     current.previous = previous;
     previous.next = current;
 
-    this._tokens.add(current);
+    this.__tokens.add(current);
     previous = current;
   }
 
-  return this._tokens;
+  return this.__tokens;
 };
 
 
-Tokenizer.prototype.reset = function() {};
+Tokenizer.prototype._is_first_token = function() {
+  return this.__tokens.isEmpty();
+};
 
-Tokenizer.prototype.get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this.readWhitespace();
+Tokenizer.prototype._reset = function() {};
+
+Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
+  this._readWhitespace();
   var resulting_string = this._input.read(/.+/g);
   if (resulting_string) {
-    return this.create_token(TOKEN.RAW, resulting_string);
+    return this._create_token(TOKEN.RAW, resulting_string);
   } else {
-    return this.create_token(TOKEN.EOF, '');
+    return this._create_token(TOKEN.EOF, '');
   }
 };
 
-
-Tokenizer.prototype.is_comment = function(current_token) { // jshint unused:false
+Tokenizer.prototype._is_comment = function(current_token) { // jshint unused:false
   return false;
 };
 
-Tokenizer.prototype.is_opening = function(current_token) { // jshint unused:false
+Tokenizer.prototype._is_opening = function(current_token) { // jshint unused:false
   return false;
 };
 
-Tokenizer.prototype.is_closing = function(current_token, open_token) { // jshint unused:false
+Tokenizer.prototype._is_closing = function(current_token, open_token) { // jshint unused:false
   return false;
 };
 
-Tokenizer.prototype.create_token = function(type, text) {
-  var token = new Token(type, text, this._newline_count, this._whitespace_before_token);
-  this._newline_count = 0;
-  this._whitespace_before_token = '';
+Tokenizer.prototype._create_token = function(type, text) {
+  var token = new Token(type, text, this.__newline_count, this.__whitespace_before_token);
+  this.__newline_count = 0;
+  this.__whitespace_before_token = '';
   return token;
 };
 
-Tokenizer.prototype.readWhitespace = function() {
+Tokenizer.prototype._readWhitespace = function() {
   var resulting_string = this._input.read(this._whitespace_pattern);
   if (resulting_string !== '') {
     if (resulting_string === ' ') {
-      this._whitespace_before_token = resulting_string;
+      this.__whitespace_before_token = resulting_string;
     } else {
       this._newline_pattern.lastIndex = 0;
       var nextMatch = this._newline_pattern.exec(resulting_string);
       while (nextMatch[2]) {
-        this._newline_count += 1;
+        this.__newline_count += 1;
         nextMatch = this._newline_pattern.exec(resulting_string);
       }
-      this._whitespace_before_token = nextMatch[1];
+      this.__whitespace_before_token = nextMatch[1];
     }
   }
 };

@@ -107,15 +107,13 @@ def remove_redundant_indentation(output, frame):
     #           after wrap points are calculated
     # These issues are minor compared to ugly indentation.
 
-    if frame.multiline_frame or frame.mode == MODE.ForInitializer or frame.mode == MODE.Conditional:
+    if frame.multiline_frame or \
+            frame.mode == MODE.ForInitializer or \
+            frame.mode == MODE.Conditional:
         return
 
     # remove one indent from each line inside this section
-    index = frame.start_line_index
-    while index < len(output.lines):
-        output.lines[index].remove_indent()
-        index += 1
-
+    output.remove_indent(frame.start_line_index)
 
 class Beautifier:
 

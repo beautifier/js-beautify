@@ -67,8 +67,8 @@ var Printer = function(indent_character, indent_size, wrap_line_length, max_pres
 
 };
 
-Printer.prototype.get_current_line_items = function() {
-  return this._output.current_line._items;
+Printer.prototype.current_line_has_match = function(pattern) {
+  return this._output.current_line.has_match(pattern);
 };
 
 Printer.prototype.set_space_before_token = function(value) {
@@ -459,14 +459,7 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
         parser_token.type = 'TK_TAG_HANDLEBARS_ELSE';
         this.indent_content = true;
         // Don't add a newline if opening {{#if}} tag is on the current line
-        var foundIfOnCurrentLine = false;
-        var items = printer.get_current_line_items();
-        for (var lastCheckedOutput = items.length - 1; lastCheckedOutput >= 0; lastCheckedOutput--) {
-          if (items[lastCheckedOutput].match(/{{#if/)) {
-            foundIfOnCurrentLine = true;
-            break;
-          }
-        }
+        var foundIfOnCurrentLine = printer.current_line_has_match(/{{#if/);
         if (!foundIfOnCurrentLine) {
           printer.print_newline(false);
         }

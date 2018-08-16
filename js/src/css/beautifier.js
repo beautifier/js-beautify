@@ -298,7 +298,7 @@ function Beautifier(source_text, options) {
           insideRule = (indentLevel >= nestedLevel);
         }
         if (newline_between_rules && insideRule) {
-          if (output.previous_line && output.previous_line._items[output.previous_line._items.length - 1] !== '{') {
+          if (output.previous_line && output.previous_line.item(-1) !== '{') {
             output.ensure_empty_line_above('/');
           }
         }
