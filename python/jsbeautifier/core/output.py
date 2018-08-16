@@ -38,6 +38,9 @@ class OutputLine:
 
         self.__items = []
 
+    def get_items(self):
+        return self.__items[:]
+
     def get_character_count(self):
         return self.__character_count
 
@@ -212,3 +215,15 @@ class Output:
             return line.is_empty()
 
         return False
+
+    def ensure_empty_line_above(self, commentPattern):
+        index = len(self.lines)-2
+        while index >= 1:
+            potentialEmptyLine = self.lines[index]
+            if potentialEmptyLine.is_empty():
+                break
+            elif not potentialEmptyLine.get_items()[0].startswith(commentPattern):
+                self.lines.insert(index +1, OutputLine(self))
+                self.previous_line = self.lines[-2]
+                break
+            index -=1
