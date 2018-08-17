@@ -51,7 +51,8 @@ class OutputLine:
         self.__indent_count = indent
         self.__alignment_count = alignment
         self.__character_count = self.__parent.baseIndentLength + \
-            + self.__alignment_count + self.__indent_count * self.__parent.indent_length
+            self.__alignment_count + \
+            self.__indent_count * self.__parent.indent_length
 
     def last(self):
         if not self.is_empty():
@@ -86,7 +87,8 @@ class OutputLine:
             if self.__indent_count >= 0:
                 result = self.__parent.get_indent_string(self.__indent_count)
             if self.__alignment_count >= 0:
-                result += self.__parent.get_alignment_string(self.__alignment_count)
+                result += self.__parent.get_alignment_string(
+                    self.__alignment_count)
             result += ''.join(self.__items)
         return result
 
@@ -94,7 +96,6 @@ class IndentCache:
     def __init__(self, base_string, level_string):
         self.__cache = [base_string]
         self.__level_string = level_string
-
 
     def __ensure_cache(self, level):
         while level >= len(self.__cache):
@@ -214,13 +215,14 @@ class Output:
         return self.is_empty() or \
             (self.current_line.is_empty() and self.previous_line.is_empty())
 
-    def ensure_empty_line_above(self, comment_pattern):
+    def ensure_empty_line_above(self, starts_with, ends_with):
         index = len(self.__lines) - 2
-        while index >= 1:
+        while index >= 0:
             potentialEmptyLine = self.__lines[index]
             if potentialEmptyLine.is_empty():
                 break
-            elif not potentialEmptyLine.item(0).startswith(comment_pattern):
+            elif not potentialEmptyLine.item(0).startswith(starts_with) and \
+                    potentialEmptyLine.item(-1) != ends_with:
                 self.__lines.insert(index +1, OutputLine(self))
                 self.previous_line = self.__lines[-2]
                 break

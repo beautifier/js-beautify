@@ -293,13 +293,25 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Selector Separator - (selector_separator_newline = "false", selector_separator = "" "")
+        # Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "true")
         self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = " "
+        self.options.newline_between_rules = true
         t(
             '#bla, #foo{color:green}',
             #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '\n' +
             '#bla, #foo {\n' +
             '\tcolor: green\n' +
             '}')
@@ -309,11 +321,26 @@ class CSSBeautifierTest(unittest.TestCase):
             '@media print {\n' +
             '\t.tab {}\n' +
             '}')
+        
+        # This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             #  -- output --
             '@media print {\n' +
             '\t.tab, .bat {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}')
         t(
             '#bla, #foo{color:black}',
@@ -322,6 +349,80 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tcolor: black\n' +
             '}')
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            #  -- output --
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}')
+
+        # Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "false")
+        self.reset_options()
+        self.options.selector_separator_newline = false
+        self.options.selector_separator = " "
+        self.options.newline_between_rules = false
+        t(
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '@media print {.tab{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t.tab, .bat {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}')
+        t(
+            '#bla, #foo{color:black}',
+            #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: black\n' +
+            '}')
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             #  -- output --
             'a:first-child, a:first-child {\n' +
@@ -329,15 +430,32 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tdiv:first-child, div:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}')
 
-        # Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "")
+        # Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "", newline_between_rules = "false")
         self.reset_options()
         self.options.selector_separator_newline = false
         self.options.selector_separator = "  "
+        self.options.newline_between_rules = false
         t(
             '#bla, #foo{color:green}',
             #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
             '#bla, #foo {\n' +
             '\tcolor: green\n' +
             '}')
@@ -347,11 +465,25 @@ class CSSBeautifierTest(unittest.TestCase):
             '@media print {\n' +
             '\t.tab {}\n' +
             '}')
+        
+        # This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             #  -- output --
             '@media print {\n' +
             '\t.tab, .bat {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}')
         t(
             '#bla, #foo{color:black}',
@@ -360,6 +492,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tcolor: black\n' +
             '}')
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             #  -- output --
             'a:first-child, a:first-child {\n' +
@@ -367,15 +500,33 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tdiv:first-child, div:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}')
 
-        # Selector Separator - (selector_separator_newline = "true", selector_separator = "" "")
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "true")
         self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = " "
+        self.options.newline_between_rules = true
         t(
             '#bla, #foo{color:green}',
             #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '\n' +
             '#bla,\n#foo {\n' +
             '\tcolor: green\n' +
             '}')
@@ -385,12 +536,101 @@ class CSSBeautifierTest(unittest.TestCase):
             '@media print {\n' +
             '\t.tab {}\n' +
             '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t.tab,\n\t.bat {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}')
+        t(
+            '#bla, #foo{color:black}',
+            #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: black\n' +
+            '}')
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            #  -- output --
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}')
+
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "false")
+        self.reset_options()
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = " "
+        self.options.newline_between_rules = false
+        t(
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '@media print {.tab{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}')
+        
+        # This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             #  -- output --
             '@media print {\n' +
             '\t.tab,\n\t.bat {}\n' +
             '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}')
         t(
             '#bla, #foo{color:black}',
             #  -- output --
@@ -398,6 +638,7 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tcolor: black\n' +
             '}')
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             #  -- output --
             'a:first-child,\na:first-child {\n' +
@@ -405,15 +646,32 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tdiv:first-child,\n\tdiv:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}')
 
-        # Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "")
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", newline_between_rules = "false")
         self.reset_options()
         self.options.selector_separator_newline = true
         self.options.selector_separator = "  "
+        self.options.newline_between_rules = false
         t(
             '#bla, #foo{color:green}',
             #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
             '#bla,\n#foo {\n' +
             '\tcolor: green\n' +
             '}')
@@ -423,11 +681,25 @@ class CSSBeautifierTest(unittest.TestCase):
             '@media print {\n' +
             '\t.tab {}\n' +
             '}')
+        
+        # This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             #  -- output --
             '@media print {\n' +
             '\t.tab,\n\t.bat {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}')
         t(
             '#bla, #foo{color:black}',
@@ -436,8 +708,15 @@ class CSSBeautifierTest(unittest.TestCase):
             '\tcolor: black\n' +
             '}')
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             #  -- output --
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
             'a:first-child,\na:first-child {\n' +
             '\tcolor: red;\n' +
             '\tdiv:first-child,\n\tdiv:hover {\n' +
@@ -1326,6 +1605,11 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}')
+        t(
             '.tabs{/* test */}',
             #  -- output --
             '.tabs {\n' +
@@ -1621,6 +1905,14 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = false
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '\n' +
@@ -2282,6 +2574,14 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}')
+        t(
             '.tabs{\n' +
             '\t\t\n' +
             '    \n' +
@@ -2942,6 +3242,11 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}')
+        t(
             '.tabs{/* test */}',
             #  -- output --
             '.tabs {\n' +
@@ -3237,6 +3542,12 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = true
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '/* test */\n' +
@@ -3620,6 +3931,16 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}')
+        t(
             '.tabs{\n' +
             '\t\t\n' +
             '    \n' +
@@ -4532,6 +4853,16 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = false
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}')
+        t(
             '.tabs{\n' +
             '\n' +
             '\n' +
@@ -5393,6 +5724,12 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}')
         t(
             '.tabs{/* test */}',
             #  -- output --
@@ -5708,6 +6045,15 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}')
+        t(
             '.tabs{\n' +
             '\n' +
             '\n' +
@@ -6385,6 +6731,15 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = false
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '\t\t\n' +
@@ -7064,6 +7419,12 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
         t(
+            '@import "custom.css";.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}')
+        t(
             '.tabs{/* test */}',
             #  -- output --
             '.tabs {\n' +
@@ -7377,6 +7738,13 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '/* test */\n' +
@@ -7795,6 +8163,16 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '\n' +
@@ -8657,6 +9035,16 @@ class CSSBeautifierTest(unittest.TestCase):
         self.options.preserve_newlines = true
         self.options.newline_between_rules = true
         t('/* header comment newlines on */')
+        t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            #  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}')
         t(
             '.tabs{\n' +
             '\t\t\n' +

@@ -299,7 +299,7 @@ function Beautifier(source_text, options) {
         }
         if (newline_between_rules && insideRule) {
           if (output.previous_line && output.previous_line.item(-1) !== '{') {
-            output.ensure_empty_line_above('/');
+            output.ensure_empty_line_above('/', ',');
           }
         }
         eatWhitespace(true);

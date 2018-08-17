@@ -82,7 +82,8 @@ class Tokenizer:
             if self._is_opening(current):
                 open_stack.append(open_token)
                 open_token = current
-            elif open_token is not None and self._is_closing(current, open_token):
+            elif open_token is not None and \
+                    self._is_closing(current, open_token):
                 current.opened = open_token
                 open_token.closed = current
                 open_token = open_stack.pop()
@@ -119,20 +120,20 @@ class Tokenizer:
         return False
 
     def _create_token(self, token_type, text):
-        token = Token(token_type, text, self.__newline_count, self.__whitespace_before_token)
+        token = Token(token_type, text,
+                self.__newline_count, self.__whitespace_before_token)
         self.__newline_count = 0
         self.__whitespace_before_token = ''
         return token
 
     def _readWhitespace(self):
         resulting_string = self._input.read(self._whitespace_pattern)
-        if resulting_string != '':
-            if resulting_string == ' ':
-                self.__whitespace_before_token = resulting_string
-            else:
-                for nextMatch in self._newline_pattern.findall(resulting_string):
-                    if nextMatch[1] != '':
-                        self.__newline_count += 1
-                    else:
-                        self.__whitespace_before_token = nextMatch[0]
-                        break
+        if resulting_string == ' ':
+            self.__whitespace_before_token = resulting_string
+        elif resulting_string != '':
+            for nextMatch in self._newline_pattern.findall(resulting_string):
+                if nextMatch[1] == '':
+                    self.__whitespace_before_token = nextMatch[0]
+                    break
+
+                self.__newline_count += 1

@@ -277,13 +277,14 @@ Output.prototype.just_added_blankline = function() {
     (this.current_line.is_empty() && this.previous_line.is_empty());
 };
 
-Output.prototype.ensure_empty_line_above = function(comment_pattern) {
+Output.prototype.ensure_empty_line_above = function(starts_with, ends_with) {
   var index = this.__lines.length - 2;
-  while (index >= 1) {
+  while (index >= 0) {
     var potentialEmptyLine = this.__lines[index];
     if (potentialEmptyLine.is_empty()) {
       break;
-    } else if (potentialEmptyLine.item(0).indexOf(comment_pattern) !== 0) {
+    } else if (potentialEmptyLine.item(0).indexOf(starts_with) !== 0 &&
+      potentialEmptyLine.item(-1) !== ends_with) {
       this.__lines.splice(index + 1, 0, new OutputLine(this));
       this.previous_line = this.__lines[this.__lines.length - 2];
       break;

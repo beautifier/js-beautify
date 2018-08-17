@@ -115,6 +115,7 @@ def remove_redundant_indentation(output, frame):
     # remove one indent from each line inside this section
     output.remove_indent(frame.start_line_index)
 
+
 class Beautifier:
 
     def __init__(self, opts=default_options()):

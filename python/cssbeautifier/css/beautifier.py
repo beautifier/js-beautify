@@ -326,7 +326,7 @@ class Beautifier:
 
                 if self.opts.newline_between_rules and insideRule:
                     if output.previous_line and not output.previous_line.is_empty() and output.previous_line.item(-1) != '{':
-                        output.ensure_empty_line_above('/')
+                        output.ensure_empty_line_above('/', ',')
                 self.eatWhitespace(True)
                 output.add_new_line()
             elif self.ch == '}':

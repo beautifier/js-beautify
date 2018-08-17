@@ -130,18 +130,16 @@ Tokenizer.prototype._create_token = function(type, text) {
 
 Tokenizer.prototype._readWhitespace = function() {
   var resulting_string = this._input.read(this._whitespace_pattern);
-  if (resulting_string !== '') {
-    if (resulting_string === ' ') {
-      this.__whitespace_before_token = resulting_string;
-    } else {
-      this._newline_pattern.lastIndex = 0;
-      var nextMatch = this._newline_pattern.exec(resulting_string);
-      while (nextMatch[2]) {
-        this.__newline_count += 1;
-        nextMatch = this._newline_pattern.exec(resulting_string);
-      }
-      this.__whitespace_before_token = nextMatch[1];
+  if (resulting_string === ' ') {
+    this.__whitespace_before_token = resulting_string;
+  } else if (resulting_string !== '') {
+    this._newline_pattern.lastIndex = 0;
+    var nextMatch = this._newline_pattern.exec(resulting_string);
+    while (nextMatch[2]) {
+      this.__newline_count += 1;
+      nextMatch = this._newline_pattern.exec(resulting_string);
     }
+    this.__whitespace_before_token = nextMatch[1];
   }
 };
 
