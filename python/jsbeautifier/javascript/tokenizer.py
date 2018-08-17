@@ -401,13 +401,14 @@ class Tokenizer(BaseTokenizer):
 
         return token
 
-
+    __regexTokens = { TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
+        TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
+        TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA }
     def allowRegExOrXML(self, previous_token):
-        return (previous_token.type == TOKEN.RESERVED and previous_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
+        return (previous_token.type == TOKEN.RESERVED and previous_token.text in {'return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'}) or \
             (previous_token.type == TOKEN.END_EXPR and previous_token.text == ')' and
-                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in ['if', 'while', 'for']) or \
-            (previous_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
-                                    TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA])
+                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in {'if', 'while', 'for'}) or \
+            (previous_token.type in self.__regexTokens )
 
     def parse_string(
             self,

@@ -117,7 +117,8 @@ class Beautifier:
         opts = mergeOpts(opts, 'css')
 
         # Continue to accept deprecated option
-        opts.space_around_combinator = opts.space_around_combinator or opts.space_around_selector_separator
+        opts.space_around_combinator = opts.space_around_combinator or \
+                opts.space_around_selector_separator
 
         self.opts = opts
         self.indentSize = opts.indent_size
@@ -142,17 +143,17 @@ class Beautifier:
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
-        self.NESTED_AT_RULE = [
+        self.NESTED_AT_RULE = {
             "@page",
             "@font-face",
             "@keyframes",
             "@media",
             "@supports",
-            "@document"]
-        self.CONDITIONAL_GROUP_RULE = [
+            "@document"}
+        self.CONDITIONAL_GROUP_RULE = {
             "@media",
             "@supports",
-            "@document"]
+            "@document"}
 
         m = re.search("^[\t ]*", self.source_text)
         self.baseIndentString = m.group(0)
@@ -275,7 +276,7 @@ class Beautifier:
                     printer.print_string(self.ch + self.eatString('}'))
                 else:
                     printer.print_string(self.ch)
-                    # strip trailing space, if present, for hash property check
+                    # strip trailing space, for hash property check
                     variableOrRule = input.peekUntilAfter(
                         re.compile(r"[: ,;{}()[\]\/='\"]"))
 
@@ -301,7 +302,8 @@ class Beautifier:
                         printer.nestedLevel += 1
                         if variableOrRule in self.CONDITIONAL_GROUP_RULE:
                             enteringConditionalGroup = True
-                    elif not insideRule and parenLevel == 0 and variableOrRule[-1] == ":":
+                    elif not insideRule and parenLevel == 0 and \
+                            variableOrRule[-1] == ":":
                         insidePropertyValue = True
                         printer.indent()
             elif self.ch == '#' and input.peek() == '{':
@@ -325,7 +327,9 @@ class Beautifier:
                     insideRule = printer.indentLevel >= printer.nestedLevel
 
                 if self.opts.newline_between_rules and insideRule:
-                    if output.previous_line and not output.previous_line.is_empty() and output.previous_line.item(-1) != '{':
+                    if output.previous_line and \
+                            not output.previous_line.is_empty() and \
+                            output.previous_line.item(-1) != '{':
                         output.ensure_empty_line_above('/', ',')
                 self.eatWhitespace(True)
                 output.add_new_line()
@@ -347,12 +351,14 @@ class Beautifier:
                 self.eatWhitespace(True)
                 output.add_new_line()
 
-                if self.opts.newline_between_rules and not output.just_added_blankline():
+                if self.opts.newline_between_rules and \
+                         not output.just_added_blankline():
                     if input.peek() != '}':
                         output.add_new_line(True)
             elif self.ch == ":":
                 if (insideRule or enteringConditionalGroup) and \
-                        not (input.lookBack('&') or self.foundNestedPseudoClass()) and \
+                        not (input.lookBack('&') or \
+                                self.foundNestedPseudoClass()) and \
                         not input.lookBack('(') and not insideAtExtend:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
@@ -367,8 +373,8 @@ class Beautifier:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space
 
-                    # preserve space before pseudoclasses/pseudoelements, as it
-                    # means "in any child"
+                    # preserve space before pseudoclasses/pseudoelements,
+                    # as it means "in any child"
                     if input.lookBack(' '):
                         output.space_before_token = True
                     if input.peek() == ":":
@@ -403,13 +409,11 @@ class Beautifier:
                     printer.print_string(self.ch)
                     self.eatWhitespace()
                     self.ch = input.next()
-                    if self.ch:
-                        if self.ch is not ')' and self.ch is not '"' \
-                                and self.ch is not '\'':
-                            printer.print_string(self.ch + self.eatString(')'))
-                        else:
+                    if self.ch in {')', '"', '\''}:
                             input.back()
                             parenLevel += 1
+                    elif self.ch is not None:
+                        printer.print_string(self.ch + self.eatString(')'))
                 else:
                     parenLevel += 1
                     printer.preserveSingleSpace(isAfterSpace)
@@ -421,7 +425,9 @@ class Beautifier:
             elif self.ch == ',':
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
-                if self.opts.selector_separator_newline and not insidePropertyValue and parenLevel < 1 and not insideAtImport:
+                if self.opts.selector_separator_newline and \
+                    not insidePropertyValue and parenLevel < 1 and \
+                    not insideAtImport:
                     output.add_new_line()
                 else:
                     output.space_before_token = True

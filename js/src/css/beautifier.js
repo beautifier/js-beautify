@@ -386,13 +386,11 @@ function Beautifier(source_text, options) {
           print_string(ch);
           eatWhitespace();
           ch = input.next();
-          if (ch) {
-            if (ch !== ')' && ch !== '"' && ch !== '\'') {
-              print_string(ch + eatString(')'));
-            } else {
-              input.back();
-              parenLevel++;
-            }
+          if (ch === ')' || ch === '"' || ch !== '\'') {
+            input.back();
+            parenLevel++;
+          } else if (ch) {
+            print_string(ch + eatString(')'));
           }
         } else {
           parenLevel++;
