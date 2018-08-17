@@ -4488,6 +4488,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        }\n' +
             '    </style>\n' +
             '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
 
         // Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         reset_options();
@@ -4506,6 +4511,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        }\n' +
             '    </style>\n' +
             '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
 
         // Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")
         reset_options();
@@ -4527,6 +4537,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    }\n' +
             '  </style>\n' +
             '</head>');
+        test_fragment(
+            '<body>\n' +
+            '  <script src="one.js"></script> <!-- one -->\n' +
+            '  <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
 
 
         //============================================================

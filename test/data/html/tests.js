@@ -1196,22 +1196,32 @@ exports.test_data = {
       }
     ],
     tests: [{
-      fragment: true,
-      unchanged: [
-        '<head>',
-        '{{h}}<script>',
-        '{{h}}{{h}}if (a == b) {',
-        '{{h}}{{h}}{{j}}test();',
-        '{{h}}{{h}}}',
-        '{{h}}</script>',
-        '{{h}}<style>',
-        '{{h}}{{h}}.selector {',
-        '{{h}}{{h}}{{c}}font-size: 12px;',
-        '{{h}}{{h}}}',
-        '{{h}}</style>',
-        '</head>'
-      ]
-    }]
+        fragment: true,
+        unchanged: [
+          '<head>',
+          '{{h}}<script>',
+          '{{h}}{{h}}if (a == b) {',
+          '{{h}}{{h}}{{j}}test();',
+          '{{h}}{{h}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{h}}{{h}}.selector {',
+          '{{h}}{{h}}{{c}}font-size: 12px;',
+          '{{h}}{{h}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<body>',
+          '{{h}}<script src="one.js"></script> <!-- one -->',
+          '{{h}}<script src="two.js"></script> <!-- two-->',
+          '</body>'
+        ]
+      }
+    ]
   }, {
     name: "underscore.js  formatting",
     description: "underscore.js templates (<% ... %>) treated as comments.",
