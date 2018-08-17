@@ -27,30 +27,30 @@
 */
 
 function InputScanner(input_string) {
-  this._input = input_string || '';
-  this._input_length = this._input.length;
-  this._position = 0;
+  this.__input = input_string || '';
+  this.__input_length = this.__input.length;
+  this.__position = 0;
 }
 
 InputScanner.prototype.restart = function() {
-  this._position = 0;
+  this.__position = 0;
 };
 
 InputScanner.prototype.back = function() {
-  if (this._position > 0) {
-    this._position -= 1;
+  if (this.__position > 0) {
+    this.__position -= 1;
   }
 };
 
 InputScanner.prototype.hasNext = function() {
-  return this._position < this._input_length;
+  return this.__position < this.__input_length;
 };
 
 InputScanner.prototype.next = function() {
   var val = null;
   if (this.hasNext()) {
-    val = this._input.charAt(this._position);
-    this._position += 1;
+    val = this.__input.charAt(this.__position);
+    this.__position += 1;
   }
   return val;
 };
@@ -58,20 +58,20 @@ InputScanner.prototype.next = function() {
 InputScanner.prototype.peek = function(index) {
   var val = null;
   index = index || 0;
-  index += this._position;
-  if (index >= 0 && index < this._input_length) {
-    val = this._input.charAt(index);
+  index += this.__position;
+  if (index >= 0 && index < this.__input_length) {
+    val = this.__input.charAt(index);
   }
   return val;
 };
 
 InputScanner.prototype.test = function(pattern, index) {
   index = index || 0;
-  index += this._position;
+  index += this.__position;
   pattern.lastIndex = index;
 
-  if (index >= 0 && index < this._input_length) {
-    var pattern_match = pattern.exec(this._input);
+  if (index >= 0 && index < this.__input_length) {
+    var pattern_match = pattern.exec(this.__input);
     return pattern_match && pattern_match.index === index;
   } else {
     return false;
@@ -85,10 +85,10 @@ InputScanner.prototype.testChar = function(pattern, index) {
 };
 
 InputScanner.prototype.match = function(pattern) {
-  pattern.lastIndex = this._position;
-  var pattern_match = pattern.exec(this._input);
-  if (pattern_match && pattern_match.index === this._position) {
-    this._position += pattern_match[0].length;
+  pattern.lastIndex = this.__position;
+  var pattern_match = pattern.exec(this.__input);
+  if (pattern_match && pattern_match.index === this.__position) {
+    this.__position += pattern_match[0].length;
   } else {
     pattern_match = null;
   }
@@ -106,9 +106,9 @@ InputScanner.prototype.read = function(pattern) {
 
 InputScanner.prototype.readUntil = function(pattern, include_match) {
   var val = '';
-  var match_index = this._position;
-  pattern.lastIndex = this._position;
-  var pattern_match = pattern.exec(this._input);
+  var match_index = this.__position;
+  pattern.lastIndex = this.__position;
+  var pattern_match = pattern.exec(this.__input);
   if (pattern_match) {
     if (include_match) {
       match_index = pattern_match.index + pattern_match[0].length;
@@ -116,11 +116,11 @@ InputScanner.prototype.readUntil = function(pattern, include_match) {
       match_index = pattern_match.index;
     }
   } else {
-    match_index = this._input_length;
+    match_index = this.__input_length;
   }
 
-  val = this._input.substring(this._position, match_index);
-  this._position = match_index;
+  val = this.__input.substring(this.__position, match_index);
+  this.__position = match_index;
   return val;
 };
 
@@ -130,15 +130,15 @@ InputScanner.prototype.readUntilAfter = function(pattern) {
 
 /* css beautifier legacy helpers */
 InputScanner.prototype.peekUntilAfter = function(pattern) {
-  var start = this._position;
+  var start = this.__position;
   var val = this.readUntilAfter(pattern);
-  this._position = start;
+  this.__position = start;
   return val;
 };
 
 InputScanner.prototype.lookBack = function(testVal) {
-  var start = this._position - 1;
-  return start >= testVal.length && this._input.substring(start - testVal.length, start)
+  var start = this.__position - 1;
+  return start >= testVal.length && this.__input.substring(start - testVal.length, start)
     .toLowerCase() === testVal;
 };
 

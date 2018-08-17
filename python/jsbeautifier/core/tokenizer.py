@@ -47,9 +47,9 @@ class Tokenizer:
         self.acorn = acorn
 
         self._input = InputScanner(input_string)
-        self._tokens = None
-        self._newline_count = 0
-        self._whitespace_before_token = ''
+        self.__tokens = None
+        self.__newline_count = 0
+        self.__whitespace_before_token = ''
 
         self._whitespace_pattern = re.compile(
             self.acorn.six.u(r'[\n\r\u2028\u2029\t ]+'))
@@ -58,7 +58,7 @@ class Tokenizer:
 
     def tokenize(self):
         self._input.restart()
-        self._tokens = TokenStream()
+        self.__tokens = TokenStream()
 
         current = None
         previous = Token(TOKEN.START,'')
@@ -67,11 +67,11 @@ class Tokenizer:
         comments = TokenStream()
 
         while previous.type != TOKEN.EOF:
-            current = self.get_next_token(previous, open_token)
+            current = self._get_next_token(previous, open_token)
 
-            while self.is_comment(current):
+            while self._is_comment(current):
                 comments.add(current)
-                current = self.get_next_token(previous, open_token)
+                current = self._get_next_token(previous, open_token)
 
             if not comments.isEmpty():
                 current.comments_before = comments
@@ -79,10 +79,11 @@ class Tokenizer:
 
             current.parent = open_token
 
-            if self.is_opening(current):
+            if self._is_opening(current):
                 open_stack.append(open_token)
                 open_token = current
-            elif open_token is not None and self.is_closing(current, open_token):
+            elif open_token is not None and \
+                    self._is_closing(current, open_token):
                 current.opened = open_token
                 open_token.closed = current
                 open_token = open_stack.pop()
@@ -91,45 +92,48 @@ class Tokenizer:
             current.previous = previous
             previous.next = current
 
-            self._tokens.add(current)
+            self.__tokens.add(current)
             previous = current
-        return self._tokens
+        return self.__tokens
 
-    def reset(self):
+    def _is_first_token(self):
+        return self.__tokens.isEmpty()
+
+    def _reset(self):
         pass
 
-    def get_next_token(self, previous_token, open_token):
-        self.readWhitespace()
+    def _get_next_token(self, previous_token, open_token):
+        self._readWhitespace()
         resulting_string = self._input.read(re.compile(r'.+'))
         if resulting_string:
-            return self.create_token(TOKEN.RAW, resulting_string)
+            return self._create_token(TOKEN.RAW, resulting_string)
         else:
-            return self.create_token(TOKEN.EOF, '')
+            return self._create_token(TOKEN.EOF, '')
 
-    def is_comment(self, current_token):
+    def _is_comment(self, current_token):
         return False
 
-    def is_opening(self, current_token):
+    def _is_opening(self, current_token):
         return False
 
-    def is_closing(self, current_token, open_token):
+    def _is_closing(self, current_token, open_token):
         return False
 
-    def create_token(self, token_type, text):
-        token = Token(token_type, text, self._newline_count, self._whitespace_before_token)
-        self._newline_count = 0
-        self._whitespace_before_token = ''
+    def _create_token(self, token_type, text):
+        token = Token(token_type, text,
+                self.__newline_count, self.__whitespace_before_token)
+        self.__newline_count = 0
+        self.__whitespace_before_token = ''
         return token
 
-    def readWhitespace(self):
+    def _readWhitespace(self):
         resulting_string = self._input.read(self._whitespace_pattern)
-        if resulting_string != '':
-            if resulting_string == ' ':
-                self._whitespace_before_token = resulting_string
-            else:
-                for nextMatch in self._newline_pattern.findall(resulting_string):
-                    if nextMatch[1] != '':
-                        self._newline_count += 1
-                    else:
-                        self._whitespace_before_token = nextMatch[0]
-                        break
+        if resulting_string == ' ':
+            self.__whitespace_before_token = resulting_string
+        elif resulting_string != '':
+            for nextMatch in self._newline_pattern.findall(resulting_string):
+                if nextMatch[1] == '':
+                    self.__whitespace_before_token = nextMatch[0]
+                    break
+
+                self.__newline_count += 1

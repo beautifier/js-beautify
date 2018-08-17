@@ -8,10 +8,10 @@ ratings:
  - "**.js"
  - "**.py"
 exclude_paths:
-- test/resources/**
+- webpack.config.js
+- "**/resources/**"
+- js/test/**
+- test/data/**
 - web/lib/**
-- js/lib/beautify.js
-- js/lib/beautify-css.js
-- js/lib/beautify-html.js
 - tools/template/*
 - "**/generated/*"

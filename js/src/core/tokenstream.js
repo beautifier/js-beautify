@@ -28,29 +28,29 @@
 
 function TokenStream(parent_token) {
   // private
-  this._tokens = [];
-  this._tokens_length = this._tokens.length;
-  this._position = 0;
-  this._parent_token = parent_token;
+  this.__tokens = [];
+  this.__tokens_length = this.__tokens.length;
+  this.__position = 0;
+  this.__parent_token = parent_token;
 }
 
 TokenStream.prototype.restart = function() {
-  this._position = 0;
+  this.__position = 0;
 };
 
 TokenStream.prototype.isEmpty = function() {
-  return this._tokens_length === 0;
+  return this.__tokens_length === 0;
 };
 
 TokenStream.prototype.hasNext = function() {
-  return this._position < this._tokens_length;
+  return this.__position < this.__tokens_length;
 };
 
 TokenStream.prototype.next = function() {
   var val = null;
   if (this.hasNext()) {
-    val = this._tokens[this._position];
-    this._position += 1;
+    val = this.__tokens[this.__position];
+    this.__position += 1;
   }
   return val;
 };
@@ -58,19 +58,19 @@ TokenStream.prototype.next = function() {
 TokenStream.prototype.peek = function(index) {
   var val = null;
   index = index || 0;
-  index += this._position;
-  if (index >= 0 && index < this._tokens_length) {
-    val = this._tokens[index];
+  index += this.__position;
+  if (index >= 0 && index < this.__tokens_length) {
+    val = this.__tokens[index];
   }
   return val;
 };
 
 TokenStream.prototype.add = function(token) {
-  if (this._parent_token) {
-    token.parent = this._parent_token;
+  if (this.__parent_token) {
+    token.parent = this.__parent_token;
   }
-  this._tokens.push(token);
-  this._tokens_length += 1;
+  this.__tokens.push(token);
+  this.__tokens_length += 1;
 };
 
 module.exports.TokenStream = TokenStream;

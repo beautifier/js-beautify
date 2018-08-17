@@ -298,8 +298,8 @@ function Beautifier(source_text, options) {
           insideRule = (indentLevel >= nestedLevel);
         }
         if (newline_between_rules && insideRule) {
-          if (output.previous_line && output.previous_line._items[output.previous_line._items.length - 1] !== '{') {
-            output.ensure_empty_line_above('/');
+          if (output.previous_line && output.previous_line.item(-1) !== '{') {
+            output.ensure_empty_line_above('/', ',');
           }
         }
         eatWhitespace(true);
@@ -386,13 +386,11 @@ function Beautifier(source_text, options) {
           print_string(ch);
           eatWhitespace();
           ch = input.next();
-          if (ch) {
-            if (ch !== ')' && ch !== '"' && ch !== '\'') {
-              print_string(ch + eatString(')'));
-            } else {
-              input.back();
-              parenLevel++;
-            }
+          if (ch === ')' || ch === '"' || ch !== '\'') {
+            input.back();
+            parenLevel++;
+          } else if (ch) {
+            print_string(ch + eatString(')'));
           }
         } else {
           parenLevel++;

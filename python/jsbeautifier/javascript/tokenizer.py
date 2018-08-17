@@ -129,27 +129,27 @@ class Tokenizer(BaseTokenizer):
 
 
 
-    def reset(self):
+    def _reset(self):
         self.in_html_comment = False
 
-    def is_comment(self, current_token):
+    def _is_comment(self, current_token):
         return current_token.type == TOKEN.COMMENT or \
             current_token.type == TOKEN.BLOCK_COMMENT or \
             current_token.type == TOKEN.UNKNOWN
 
 
-    def is_opening(self, current_token):
+    def _is_opening(self, current_token):
         return current_token.type == TOKEN.START_BLOCK or current_token.type == TOKEN.START_EXPR
 
-    def is_closing(self, current_token, open_token):
+    def _is_closing(self, current_token, open_token):
         return (current_token.type == TOKEN.END_BLOCK or current_token.type == TOKEN.END_EXPR) and \
                     (open_token is not None and (
                             (current_token.text == ']' and open_token.text == '[') or
                             (current_token.text == ')' and open_token.text == '(') or
                             (current_token.text == '}' and open_token.text == '{')))
 
-    def get_next_token(self, previous_token, open_token):
-        self.readWhitespace()
+    def _get_next_token(self, previous_token, open_token):
+        self._readWhitespace()
         token = None
         c = self._input.peek()
 
@@ -161,7 +161,7 @@ class Tokenizer(BaseTokenizer):
         token = token or self._read_xml(c, previous_token)
         token = token or self._read_non_javascript(c)
         token = token or self._read_punctuation()
-        token = token or self.create_token(TOKEN.UNKNOWN, self._input.next())
+        token = token or self._create_token(TOKEN.UNKNOWN, self._input.next())
 
         return token
 
@@ -169,21 +169,21 @@ class Tokenizer(BaseTokenizer):
         token = None
 
         if c is None:
-            token = self.create_token(TOKEN.EOF, '')
+            token = self._create_token(TOKEN.EOF, '')
         elif c == '(' or c == '[':
-            token = self.create_token(TOKEN.START_EXPR, c)
+            token = self._create_token(TOKEN.START_EXPR, c)
         elif c == ')' or c == ']':
-            token = self.create_token(TOKEN.END_EXPR, c)
+            token = self._create_token(TOKEN.END_EXPR, c)
         elif c == '{':
-            token = self.create_token(TOKEN.START_BLOCK, c)
+            token = self._create_token(TOKEN.START_BLOCK, c)
         elif c == '}':
-            token = self.create_token(TOKEN.END_BLOCK, c)
+            token = self._create_token(TOKEN.END_BLOCK, c)
         elif c == ';':
-            token = self.create_token(TOKEN.SEMICOLON, c)
+            token = self._create_token(TOKEN.SEMICOLON, c)
         elif c == '.' and bool(dot_pattern.match(self._input.peek(1))):
-            token = self.create_token(TOKEN.DOT, c)
+            token = self._create_token(TOKEN.DOT, c)
         elif c == ',':
-            token = self.create_token(TOKEN.COMMA, c)
+            token = self._create_token(TOKEN.COMMA, c)
 
         if token is not None:
             self._input.next()
@@ -199,15 +199,15 @@ class Tokenizer(BaseTokenizer):
                         )) and reserved_word_pattern.match(resulting_string):
                 if resulting_string == 'in' or resulting_string == 'of':
                     # in and of are operators, need to hack
-                    return self.create_token(TOKEN.OPERATOR, resulting_string)
+                    return self._create_token(TOKEN.OPERATOR, resulting_string)
 
-                return self.create_token(TOKEN.RESERVED, resulting_string)
+                return self._create_token(TOKEN.RESERVED, resulting_string)
 
-            return self.create_token(TOKEN.WORD, resulting_string)
+            return self._create_token(TOKEN.WORD, resulting_string)
 
         resulting_string = self._input.read(number_pattern)
         if resulting_string != '':
-            return self.create_token(TOKEN.WORD, resulting_string)
+            return self._create_token(TOKEN.WORD, resulting_string)
 
     def _read_comment(self, c):
         token = None
@@ -220,12 +220,12 @@ class Tokenizer(BaseTokenizer):
                 if directives and directives.get('ignore') == 'start':
                     comment += directives_core.readIgnored(self._input)
                 comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
-                token = self.create_token(TOKEN.BLOCK_COMMENT, comment)
+                token = self._create_token(TOKEN.BLOCK_COMMENT, comment)
                 token.directives = directives
 
             elif self._input.peek(1) == '/':  # peek // comment
                 comment = self._input.read(self.comment_pattern)
-                token = self.create_token(TOKEN.COMMENT, comment)
+                token = self._create_token(TOKEN.COMMENT, comment)
 
         return token
 
@@ -250,7 +250,7 @@ class Tokenizer(BaseTokenizer):
             resulting_string = re.sub(
                 self.acorn.allLineBreaks, '\n', resulting_string)
 
-            return self.create_token(TOKEN.STRING, resulting_string)
+            return self._create_token(TOKEN.STRING, resulting_string)
 
         return None
 
@@ -286,7 +286,7 @@ class Tokenizer(BaseTokenizer):
                     resulting_string += self._input.read(
                         self.acorn.identifier)
 
-            return self.create_token(TOKEN.STRING, resulting_string)
+            return self._create_token(TOKEN.STRING, resulting_string)
 
         return None
 
@@ -325,7 +325,7 @@ class Tokenizer(BaseTokenizer):
                     xmlStr += self._input.match(re.compile(r'[\s\S]*')).group(0)
 
                 xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
-                return self.create_token(TOKEN.STRING, xmlStr)
+                return self._create_token(TOKEN.STRING, xmlStr)
 
         return None
 
@@ -335,12 +335,12 @@ class Tokenizer(BaseTokenizer):
         if c == '#':
             c = self._input.next()
             # she-bang
-            if self._tokens.isEmpty() and self._input.peek() == '!':
+            if self._is_first_token() and self._input.peek() == '!':
                 resulting_string = c
                 while self._input.hasNext() and c != '\n':
                     c = self._input.next()
                     resulting_string += c
-                return self.create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+                return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
 
             # Spidermonkey-specific sharp variables for circular references
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
@@ -364,7 +364,7 @@ class Tokenizer(BaseTokenizer):
                     self._input.next()
                     self._input.next()
 
-                return self.create_token(TOKEN.WORD, sharp)
+                return self._create_token(TOKEN.WORD, sharp)
 
             self._input.back()
 
@@ -373,7 +373,7 @@ class Tokenizer(BaseTokenizer):
                 resulting_string = self._input.read(template_pattern)
                 if resulting_string:
                     resulting_string = re.sub(self.acorn.allLineBreaks, '\n', resulting_string)
-                    return self.create_token(TOKEN.STRING, resulting_string)
+                    return self._create_token(TOKEN.STRING, resulting_string)
 
             elif self._input.match(re.compile(r'<\!--')):
                 c = '<!--'
@@ -381,12 +381,12 @@ class Tokenizer(BaseTokenizer):
                     c += self._input.next()
 
                 self.in_html_comment = True
-                return self.create_token(TOKEN.COMMENT, c)
+                return self._create_token(TOKEN.COMMENT, c)
 
         elif c == '-' and self.in_html_comment and self._input.match(
                 re.compile('-->')):
             self.in_html_comment = False
-            return self.create_token(TOKEN.COMMENT, '-->')
+            return self._create_token(TOKEN.COMMENT, '-->')
 
         return None
 
@@ -395,19 +395,20 @@ class Tokenizer(BaseTokenizer):
         resulting_string = self._input.read(punct_pattern)
         if resulting_string != '':
             if resulting_string == '=':
-                token = self.create_token(TOKEN.EQUALS, resulting_string)
+                token = self._create_token(TOKEN.EQUALS, resulting_string)
             else:
-                token = self.create_token(TOKEN.OPERATOR, resulting_string)
+                token = self._create_token(TOKEN.OPERATOR, resulting_string)
 
         return token
 
-
+    __regexTokens = { TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
+        TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
+        TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA }
     def allowRegExOrXML(self, previous_token):
-        return (previous_token.type == TOKEN.RESERVED and previous_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
+        return (previous_token.type == TOKEN.RESERVED and previous_token.text in {'return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'}) or \
             (previous_token.type == TOKEN.END_EXPR and previous_token.text == ')' and
-                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in ['if', 'while', 'for']) or \
-            (previous_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
-                                    TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA])
+                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in {'if', 'while', 'for'}) or \
+            (previous_token.type in self.__regexTokens )
 
     def parse_string(
             self,
