@@ -179,40 +179,83 @@ exports.test_data = {
       matrix: [{
         options: [
           { name: 'selector_separator_newline', value: 'false' },
-          { name: 'selector_separator', value: '" "' }
+          { name: 'selector_separator', value: '" "' },
+          { name: "newline_between_rules", value: "true" }
         ],
         separator: ' ',
-        separator1: ' '
+        separator1: ' ',
+        new_rule: '\n',
+        first_nested_rule: ''
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'false' },
-          { name: 'selector_separator', value: '"  "' }
+          { name: 'selector_separator', value: '" "' },
+          { name: "newline_between_rules", value: "false" }
+        ],
+        separator: ' ',
+        separator1: ' ',
+        new_rule: '',
+        first_nested_rule: ''
+      }, {
+        options: [
+          { name: 'selector_separator_newline', value: 'false' },
+          { name: 'selector_separator', value: '"  "' },
+          { name: "newline_between_rules", value: "false" }
         ],
         // BUG: #713
         separator: ' ',
-        separator1: ' '
+        separator1: ' ',
+        new_rule: '',
+        first_nested_rule: ''
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '" "' }
+          { name: 'selector_separator', value: '" "' },
+          { name: "newline_between_rules", value: "true" }
         ],
         separator: '\\n',
-        separator1: '\\n\\t'
+        separator1: '\\n\\t',
+        new_rule: '\n',
+        first_nested_rule: '\n' // bug #1489
       }, {
         options: [
           { name: 'selector_separator_newline', value: 'true' },
-          { name: 'selector_separator', value: '"  "' }
+          { name: 'selector_separator', value: '" "' },
+          { name: "newline_between_rules", value: "false" }
         ],
         separator: '\\n',
-        separator1: '\\n\\t'
+        separator1: '\\n\\t',
+        new_rule: '',
+        first_nested_rule: ''
+      }, {
+        options: [
+          { name: 'selector_separator_newline', value: 'true' },
+          { name: 'selector_separator', value: '"  "' },
+          { name: "newline_between_rules", value: "false" }
+        ],
+        separator: '\\n',
+        separator1: '\\n\\t',
+        new_rule: '',
+        new_rule_bug: ''
       }],
       tests: [
         { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}' },
+        { input: '#bla, #foo{color:green}\n#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n\tcolor: green\n}{{new_rule}}\n#bla,{{separator}}#foo {\n\tcolor: green\n}' },
         { input: '@media print {.tab{}}', output: '@media print {\n\t.tab {}\n}' },
-        { input: '@media print {.tab,.bat{}}', output: '@media print {\n\t.tab,{{separator1}}.bat {}\n}' },
+
+        {
+          comment: 'This is bug #1489',
+          input: '@media print {.tab,.bat{}}',
+          output: '@media print {\n{{first_nested_rule}}\t.tab,{{separator1}}.bat {}\n}'
+        },
+        {
+          comment: 'This is bug #1489',
+          input: '@media print {// comment\n//comment 2\n.bat{}}',
+          output: '@media print {\n{{new_rule}}\t// comment\n\t//comment 2\n\t.bat {}\n}'
+        },
         { input: '#bla, #foo{color:black}', output: '#bla,{{separator}}#foo {\n\tcolor: black\n}' }, {
-          input: 'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
-          output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'
+          input: 'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\na:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+          output: 'a:first-child,{{separator}}a:first-child {\n\tcolor: red;{{new_rule}}\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}\n{{new_rule}}a:first-child,{{separator}}a:first-child {\n\tcolor: red;{{new_rule}}\n\tdiv:first-child,{{separator1}}div:hover {\n\t\tcolor: black;\n\t}\n}'
         }
       ]
     }, {
@@ -627,6 +670,14 @@ exports.test_data = {
       }],
       tests: [
         { unchanged: '/* header comment newlines on */' },
+        {
+          input: [
+            '@import "custom.css";<i>.rule{}'
+          ],
+          output: [
+            '@import "custom.css";<new_rule>.rule {}'
+          ]
+        },
         { input: '.tabs{<i>/* test */<i>}', output: '.tabs {<o>\t/* test */<o>}' },
         {
           comment: '#1185',

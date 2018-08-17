@@ -363,14 +363,26 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
-        // Selector Separator - (selector_separator_newline = "false", selector_separator = "" "")
+        // Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "true")
         reset_options();
-        set_name('Selector Separator - (selector_separator_newline = "false", selector_separator = "" "")');
+        set_name('Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "true")');
         opts.selector_separator_newline = false;
         opts.selector_separator = " ";
+        opts.newline_between_rules = true;
         t(
             '#bla, #foo{color:green}',
             //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '\n' +
             '#bla, #foo {\n' +
             '\tcolor: green\n' +
             '}');
@@ -380,11 +392,26 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {\n' +
             '\t.tab {}\n' +
             '}');
+        
+        // This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
             '\t.tab, .bat {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}');
         t(
             '#bla, #foo{color:black}',
@@ -393,6 +420,81 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tcolor: black\n' +
             '}');
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
+
+        // Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "false")
+        reset_options();
+        set_name('Selector Separator - (selector_separator_newline = "false", selector_separator = "" "", newline_between_rules = "false")');
+        opts.selector_separator_newline = false;
+        opts.selector_separator = " ";
+        opts.newline_between_rules = false;
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab, .bat {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
             'a:first-child, a:first-child {\n' +
@@ -400,16 +502,33 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tdiv:first-child, div:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}');
 
-        // Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "")
+        // Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "", newline_between_rules = "false")
         reset_options();
-        set_name('Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "")');
+        set_name('Selector Separator - (selector_separator_newline = "false", selector_separator = ""  "", newline_between_rules = "false")');
         opts.selector_separator_newline = false;
         opts.selector_separator = "  ";
+        opts.newline_between_rules = false;
         t(
             '#bla, #foo{color:green}',
             //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla, #foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
             '#bla, #foo {\n' +
             '\tcolor: green\n' +
             '}');
@@ -419,11 +538,25 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {\n' +
             '\t.tab {}\n' +
             '}');
+        
+        // This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
             '\t.tab, .bat {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}');
         t(
             '#bla, #foo{color:black}',
@@ -432,6 +565,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tcolor: black\n' +
             '}');
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
             'a:first-child, a:first-child {\n' +
@@ -439,16 +573,34 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tdiv:first-child, div:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child, a:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child, div:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}');
 
-        // Selector Separator - (selector_separator_newline = "true", selector_separator = "" "")
+        // Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "true")
         reset_options();
-        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = "" "")');
+        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "true")');
         opts.selector_separator_newline = true;
         opts.selector_separator = " ";
+        opts.newline_between_rules = true;
         t(
             '#bla, #foo{color:green}',
             //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '\n' +
             '#bla,\n#foo {\n' +
             '\tcolor: green\n' +
             '}');
@@ -458,12 +610,102 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {\n' +
             '\t.tab {}\n' +
             '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t.tab,\n\t.bat {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
+            '\n' +
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}');
+
+        // Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "false")
+        reset_options();
+        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = "" "", newline_between_rules = "false")');
+        opts.selector_separator_newline = true;
+        opts.selector_separator = " ";
+        opts.newline_between_rules = false;
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t.tab {}\n' +
+            '}');
+        
+        // This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
             '\t.tab,\n\t.bat {}\n' +
             '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
+            '}');
         t(
             '#bla, #foo{color:black}',
             //  -- output --
@@ -471,6 +713,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tcolor: black\n' +
             '}');
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
             'a:first-child,\na:first-child {\n' +
@@ -478,16 +721,33 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tdiv:first-child,\n\tdiv:hover {\n' +
             '\t\tcolor: black;\n' +
             '\t}\n' +
+            '}\n' +
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
             '}');
 
-        // Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "")
+        // Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", newline_between_rules = "false")
         reset_options();
-        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "")');
+        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", newline_between_rules = "false")');
         opts.selector_separator_newline = true;
         opts.selector_separator = "  ";
+        opts.newline_between_rules = false;
         t(
             '#bla, #foo{color:green}',
             //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo {\n' +
+            '\tcolor: green\n' +
+            '}\n' +
             '#bla,\n#foo {\n' +
             '\tcolor: green\n' +
             '}');
@@ -497,11 +757,25 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '@media print {\n' +
             '\t.tab {}\n' +
             '}');
+        
+        // This is bug #1489
         t(
             '@media print {.tab,.bat{}}',
             //  -- output --
             '@media print {\n' +
             '\t.tab,\n\t.bat {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print {\n' +
+            '\t// comment\n' +
+            '\t//comment 2\n' +
+            '\t.bat {}\n' +
             '}');
         t(
             '#bla, #foo{color:black}',
@@ -510,8 +784,15 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\tcolor: black\n' +
             '}');
         t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
             'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
             //  -- output --
+            'a:first-child,\na:first-child {\n' +
+            '\tcolor: red;\n' +
+            '\tdiv:first-child,\n\tdiv:hover {\n' +
+            '\t\tcolor: black;\n' +
+            '\t}\n' +
+            '}\n' +
             'a:first-child,\na:first-child {\n' +
             '\tcolor: red;\n' +
             '\tdiv:first-child,\n\tdiv:hover {\n' +
@@ -1409,6 +1690,11 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}');
+        t(
             '.tabs{/* test */}',
             //  -- output --
             '.tabs {\n' +
@@ -1705,6 +1991,14 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = false;
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '\n' +
@@ -2367,6 +2661,14 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}');
+        t(
             '.tabs{\n' +
             '\t\t\n' +
             '    \n' +
@@ -3028,6 +3330,11 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}');
+        t(
             '.tabs{/* test */}',
             //  -- output --
             '.tabs {\n' +
@@ -3324,6 +3631,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = true;
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '/* test */\n' +
@@ -3708,6 +4021,16 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}');
+        t(
             '.tabs{\n' +
             '\t\t\n' +
             '    \n' +
@@ -4621,6 +4944,16 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = false;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}');
+        t(
             '.tabs{\n' +
             '\n' +
             '\n' +
@@ -5483,6 +5816,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = false;
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}');
         t(
             '.tabs{/* test */}',
             //  -- output --
@@ -5799,6 +6138,15 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}');
+        t(
             '.tabs{\n' +
             '\n' +
             '\n' +
@@ -6477,6 +6825,15 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = false;
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '\t\t\n' +
@@ -7157,6 +7514,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
         t(
+            '@import "custom.css";.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}');
+        t(
             '.tabs{/* test */}',
             //  -- output --
             '.tabs {\n' +
@@ -7471,6 +7834,13 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = true;
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '/* test */\n' +
@@ -7890,6 +8260,16 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = true;
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '\n' +
@@ -8753,6 +9133,16 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         opts.preserve_newlines = true;
         opts.newline_between_rules = true;
         t('/* header comment newlines on */');
+        t(
+            '@import "custom.css";\n' +
+            '\t\t\n' +
+            '    \n' +
+            '.rule{}',
+            //  -- output --
+            '@import "custom.css";\n' +
+            '\n' +
+            '\n' +
+            '.rule {}');
         t(
             '.tabs{\n' +
             '\t\t\n' +

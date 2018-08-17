@@ -45,9 +45,7 @@ function remove_redundant_indentation(output, frame) {
   }
 
   // remove one indent from each line inside this section
-  var start_index = frame.start_line_index;
-
-  output.remove_indent(start_index);
+  output.remove_indent(frame.start_line_index);
 }
 
 function in_array(what, arr) {
