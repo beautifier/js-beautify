@@ -118,7 +118,7 @@ class Beautifier:
 
         # Continue to accept deprecated option
         opts.space_around_combinator = opts.space_around_combinator or \
-                opts.space_around_selector_separator
+            opts.space_around_selector_separator
 
         self.opts = opts
         self.indentSize = opts.indent_size
@@ -352,13 +352,13 @@ class Beautifier:
                 output.add_new_line()
 
                 if self.opts.newline_between_rules and \
-                         not output.just_added_blankline():
+                        not output.just_added_blankline():
                     if input.peek() != '}':
                         output.add_new_line(True)
             elif self.ch == ":":
                 if (insideRule or enteringConditionalGroup) and \
-                        not (input.lookBack('&') or \
-                                self.foundNestedPseudoClass()) and \
+                        not (input.lookBack('&') or
+                             self.foundNestedPseudoClass()) and \
                         not input.lookBack('(') and not insideAtExtend:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
@@ -410,8 +410,8 @@ class Beautifier:
                     self.eatWhitespace()
                     self.ch = input.next()
                     if self.ch in {')', '"', '\''}:
-                            input.back()
-                            parenLevel += 1
+                        input.back()
+                        parenLevel += 1
                     elif self.ch is not None:
                         printer.print_string(self.ch + self.eatString(')'))
                 else:
@@ -426,8 +426,8 @@ class Beautifier:
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
                 if self.opts.selector_separator_newline and \
-                    not insidePropertyValue and parenLevel < 1 and \
-                    not insideAtImport:
+                        not insidePropertyValue and parenLevel < 1 and \
+                        not insideAtImport:
                     output.add_new_line()
                 else:
                     output.space_before_token = True
