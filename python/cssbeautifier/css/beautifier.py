@@ -114,6 +114,8 @@ class Beautifier:
         if not source_text:
             source_text = ''
 
+        self.__source_text = source_text
+
         opts = mergeOpts(opts, 'css')
 
         # Continue to accept deprecated option
@@ -130,16 +132,8 @@ class Beautifier:
             self.indentChar = "\t"
             self.indentSize = 1
 
-        if self.opts.eol == 'auto':
-            self.opts.eol = '\n'
-            if self.lineBreak.search(source_text or ''):
-                self.opts.eol = self.lineBreak.search(source_text).group()
-
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
-        # HACK: newline parsing inconsistent. This brute force normalizes the
-        # input newlines.
-        self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -154,9 +148,6 @@ class Beautifier:
             "@media",
             "@supports",
             "@document"}
-
-        m = re.search("^[\t ]*", self.source_text)
-        self.baseIndentString = m.group(0)
 
     def eatString(self, endChars):
         result = ''
@@ -211,12 +202,30 @@ class Beautifier:
         return False
 
     def beautify(self):
+        if self.opts.disabled:
+            return self.__source_text
+
+        source_text = self.__source_text
+
+        if self.opts.eol == 'auto':
+            self.opts.eol = '\n'
+            if self.lineBreak.search(source_text or ''):
+                self.opts.eol = self.lineBreak.search(source_text).group()
+
+
+        # HACK: newline parsing inconsistent. This brute force normalizes the
+        # input newlines.
+        source_text = re.sub(self.allLineBreaks, '\n', source_text)
+
+        m = re.search("^[\t ]*", source_text)
+        self.baseIndentString = m.group(0)
+
         printer = Printer(
             self.indentChar,
             self.indentSize,
             self.baseIndentString)
         self.output = printer.output
-        self.input = InputScanner(self.source_text)
+        self.input = InputScanner(source_text)
 
         output = self.output
         input = self.input

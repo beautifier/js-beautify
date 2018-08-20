@@ -192,7 +192,7 @@ class Beautifier:
         self.set_mode(MODE.BlockStatement)
         return js_source_text
 
-    def beautify(self, s, opts=None):
+    def beautify(self, source_text='', opts=None):
         if opts is not None:
             opts = mergeOpts(opts, 'js')
             self.opts = copy.copy(opts)
@@ -220,9 +220,13 @@ class Beautifier:
                         'opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
                 self.opts.brace_style = bs
 
-        s = self.blank_state(s)
+        source_text = source_text or ''
+        if self.opts.disabled:
+            return source_text
 
-        input = self.unpack(s, self.opts.eval_code)
+        source_text = self.blank_state(source_text)
+
+        input = self.unpack(source_text, self.opts.eval_code)
 
         self.tokens = Tokenizer(
             input, self.opts, self.indent_string).tokenize()

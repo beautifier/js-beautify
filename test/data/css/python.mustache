@@ -258,6 +258,12 @@ class CSSBeautifierTest(unittest.TestCase):
         # Everywhere we do newlines, they should be replaced with opts.eol
         self.options.eol = '\r\\n'
         expectation = expectation.replace('\n', '\r\n')
+        self.options.disabled = True
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), input or '')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+        self.options.disabled = False;
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
         if input and input.find('\n') != -1:

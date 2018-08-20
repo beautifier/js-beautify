@@ -236,9 +236,9 @@ function get_array(input, default_list) {
   return result;
 }
 
-function Beautifier(html_source, options, js_beautify, css_beautify) {
+function Beautifier(source_text, options, js_beautify, css_beautify) {
   //Wrapper function to invoke all the necessary constructors and deal with the output.
-  html_source = html_source || '';
+  this._source_text = source_text || '';
   options = options || {};
   this._js_beautify = js_beautify;
   this._css_beautify = css_beautify;
@@ -278,17 +278,10 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
     this._options.indent_size = 1;
   }
 
-  if (this._options.eol === 'auto') {
-    this._options.eol = '\n';
-    if (html_source && lineBreak.test(html_source)) {
-      this._options.eol = html_source.match(lineBreak)[0];
-    }
-  }
+  // Support passing the source text back with no change
+  this._options.disabled = (options.disabled === undefined) ? false : options.disabled;
 
   this._options.eol = this._options.eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
-
-  // HACK: newline parsing inconsistent. This brute force normalizes the input.
-  html_source = html_source.replace(allLineBreaks, '\n');
 
   this._options.inline_tags = get_array(options.inline, [
     // https://www.w3.org/TR/html5/dom.html#phrasing-content
@@ -329,11 +322,27 @@ function Beautifier(html_source, options, js_beautify, css_beautify) {
   this._is_wrap_attributes_force_expand_multiline = (this._options.wrap_attributes === 'force-expand-multiline');
   this._is_wrap_attributes_force_aligned = (this._options.wrap_attributes === 'force-aligned');
   this._is_wrap_attributes_aligned_multiple = (this._options.wrap_attributes === 'aligned-multiple');
-
-  this._source_text = html_source;
 }
 
 Beautifier.prototype.beautify = function() {
+
+  // if disabled, return the input unchanged.
+  if (this._options.disabled) {
+    return this._source_text;
+  }
+
+  var source_text = this._source_text;
+  var eol = this._options.eol;
+  if (this._options.eol === 'auto') {
+    eol = '\n';
+    if (source_text && lineBreak.test(source_text)) {
+      eol = source_text.match(lineBreak)[0];
+    }
+  }
+
+  // HACK: newline parsing inconsistent. This brute force normalizes the input.
+  source_text = source_text.replace(allLineBreaks, '\n');
+
   this._tag_stack = new TagFrame();
   last_token = {
     text: '',
@@ -352,7 +361,7 @@ Beautifier.prototype.beautify = function() {
 
   printer = new Printer(this._options.indent_character, this._options.indent_size,
     this._options.wrap_line_length, this._options.max_preserve_newlines, this._options.preserve_newlines);
-  var tokens = new Tokenizer(this._source_text, this._options).tokenize();
+  var tokens = new Tokenizer(source_text, this._options).tokenize();
 
   var parser_token = null;
   raw_token = tokens.next();
@@ -377,7 +386,7 @@ Beautifier.prototype.beautify = function() {
 
     raw_token = tokens.next();
   }
-  var sweet_code = printer._output.get_code(this._options.end_with_newline, this._options.eol);
+  var sweet_code = printer._output.get_code(this._options.end_with_newline, eol);
 
   return sweet_code;
 };
@@ -491,6 +500,11 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
       }
 
       var indentation = printer.get_full_indent(script_indent_level);
+
+      // if there is at least one empty line at the end of this text, strip it
+      // we'll be adding one back after the text but before the containing tag.
+      text = text.replace(/\n[ \t]*$/, '');
+
       if (_beautifier) {
 
         // call the Beautifier if avaliable

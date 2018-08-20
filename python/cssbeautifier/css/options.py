@@ -35,6 +35,7 @@ class BeautifierOptions:
         self.newline_between_rules = True
         self.space_around_combinator = False
         self.eol = 'auto'
+        self.disabled = False
 
         self.css = None
         self.js = None

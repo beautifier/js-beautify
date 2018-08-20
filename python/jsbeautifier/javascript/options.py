@@ -48,12 +48,13 @@ class BeautifierOptions:
         self.end_with_newline = False
         self.comma_first = False
         self.operator_position = 'before-newline'
+        self.disabled = False
 
         self.css = None
         self.js = None
         self.html = None
 
-        # For testing of beautify ignore:start directive
+        # For testing of beautify preserve:start directive
         self.test_output_raw = False
         self.editorconfig = False
 

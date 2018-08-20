@@ -94,8 +94,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Everywhere we do newlines, they should be replaced with opts.eol
         sanitytest.test_function(test_beautifier, 'eol ' + test_name);
-        opts.eol = '\r\n';
+        opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
+        opts.disabled = true;
+        success = success && sanitytest.expect(input, input || '');
+        success = success && sanitytest.expect('\n\n' + expected, '\n\n' + expected);
+        opts.disabled = false;
         success = success && sanitytest.expect(input, expected);
         if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
@@ -4489,6 +4493,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </style>\n' +
             '</head>');
         test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '        if (a == b) {\n' +
+            '           test();\n' +
+            '        }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '        .selector {\n' +
+            '             font-size: 12px;\n' +
+            '        }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
             '<body>\n' +
             '    <script src="one.js"></script> <!-- one -->\n' +
             '    <script src="two.js"></script> <!-- two-->\n' +
@@ -4512,9 +4542,188 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </style>\n' +
             '</head>');
         test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '        if (a == b) {\n' +
+            '           test();\n' +
+            '        }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '        .selector {\n' +
+            '             font-size: 12px;\n' +
+            '        }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
             '<body>\n' +
             '    <script src="one.js"></script> <!-- one -->\n' +
             '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")
+        reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")');
+        opts.indent_size = 9;
+        opts.js = { 'indent_size': 5 };
+        opts.css = { 'indent_size': 3 };
+        test_fragment(
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            '                       test();\n' +
+            '                  }\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            '                     font-size: 12px;\n' +
+            '                  }\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            '                       test();\n' +
+            '                  }\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            '                     font-size: 12px;\n' +
+            '                  }\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '         <script src="one.js"></script> <!-- one -->\n' +
+            '         <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5, "disabled": true }", css = "{ "indent_size": 3 }")
+        reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5, "disabled": true }", css = "{ "indent_size": 3 }")');
+        opts.indent_size = 9;
+        opts.js = { 'indent_size': 5, 'disabled': true };
+        opts.css = { 'indent_size': 3 };
+        test_fragment(
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            '                       test();\n' +
+            '                  }\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            '                     font-size: 12px;\n' +
+            '                  }\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            '                     font-size: 12px;\n' +
+            '                  }\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '         <script src="one.js"></script> <!-- one -->\n' +
+            '         <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3, "disabled": true }")
+        reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3, "disabled": true }")');
+        opts.indent_size = 9;
+        opts.js = { 'indent_size': 5 };
+        opts.css = { 'indent_size': 3, 'disabled': true };
+        test_fragment(
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            '                       test();\n' +
+            '                  }\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            '                     font-size: 12px;\n' +
+            '                  }\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '         <script>\n' +
+            '                  if (a == b) {\n' +
+            '                       test();\n' +
+            '                  }\n' +
+            '         </script>\n' +
+            '         <style>\n' +
+            '                  .selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '         </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '         <script src="one.js"></script> <!-- one -->\n' +
+            '         <script src="two.js"></script> <!-- two-->\n' +
             '</body>');
 
         // Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")
@@ -4530,6 +4739,84 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    if (a == b) {\n' +
             '       test();\n' +
             '    }\n' +
+            '  </script>\n' +
+            '  <style>\n' +
+            '    .selector {\n' +
+            '         font-size: 12px;\n' +
+            '    }\n' +
+            '  </style>\n' +
+            '</head>');
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '  <script>\n' +
+            '    if (a == b) {\n' +
+            '       test();\n' +
+            '    }\n' +
+            '  </script>\n' +
+            '  <style>\n' +
+            '    .selector {\n' +
+            '         font-size: 12px;\n' +
+            '    }\n' +
+            '  </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '  <script src="one.js"></script> <!-- one -->\n' +
+            '  <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3, "disabled": true }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")
+        reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3, "disabled": true }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 5 }", css = "{ "indent_size": 3 }")');
+        opts.indent_size = 9;
+        opts.html = { 'js': { 'indent_size': 3, 'disabled': true }, 'css': { 'indent_size': 5 }, 'indent_size': 2};
+        opts.js = { 'indent_size': 5 };
+        opts.css = { 'indent_size': 3 };
+        test_fragment(
+            '<head>\n' +
+            '  <script>\n' +
+            '    if (a == b) {\n' +
+            '       test();\n' +
+            '    }\n' +
+            '  </script>\n' +
+            '  <style>\n' +
+            '    .selector {\n' +
+            '         font-size: 12px;\n' +
+            '    }\n' +
+            '  </style>\n' +
+            '</head>');
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '  <script>\n' +
+            '    if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
             '  </script>\n' +
             '  <style>\n' +
             '    .selector {\n' +
