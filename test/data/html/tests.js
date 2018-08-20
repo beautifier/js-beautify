@@ -1173,7 +1173,11 @@ exports.test_data = {
         ],
         h: '    ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '    ',
+        dhj: '    ',
+        dc: '     ',
+        dj: '   '
       },
       {
         options: [
@@ -1181,7 +1185,53 @@ exports.test_data = {
         ],
         h: '    ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '    ',
+        dhj: '    ',
+        dc: '     ',
+        dj: '   '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '         ',
+        dhj: '         ',
+        dc: '   ',
+        dj: '     '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5, 'disabled': true }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '         ',
+        dhj: '',
+        dc: '   ',
+        dj: ''
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3, 'disabled': true }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '',
+        dhj: '         ',
+        dc: '',
+        dj: '     '
       },
       {
         options: [
@@ -1192,26 +1242,85 @@ exports.test_data = {
         ],
         h: '  ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '  ',
+        dhj: '  ',
+        dc: '     ',
+        dj: '   '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "html", value: "{ 'js': { 'indent_size': 3, 'disabled': true }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '  ',
+        c: '     ',
+        j: '   ',
+        dhc: '  ',
+        dhj: '',
+        dc: '     ',
+        dj: ''
       }
     ],
     tests: [{
-      fragment: true,
-      unchanged: [
-        '<head>',
-        '{{h}}<script>',
-        '{{h}}{{h}}if (a == b) {',
-        '{{h}}{{h}}{{j}}test();',
-        '{{h}}{{h}}}',
-        '{{h}}</script>',
-        '{{h}}<style>',
-        '{{h}}{{h}}.selector {',
-        '{{h}}{{h}}{{c}}font-size: 12px;',
-        '{{h}}{{h}}}',
-        '{{h}}</style>',
-        '</head>'
-      ]
-    }]
+        fragment: true,
+        unchanged: [
+          '<head>',
+          '{{h}}<script>',
+          '{{h}}{{h}}if (a == b) {',
+          '{{h}}{{h}}{{j}}test();',
+          '{{h}}{{h}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{h}}{{h}}.selector {',
+          '{{h}}{{h}}{{c}}font-size: 12px;',
+          '{{h}}{{h}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      }, {
+        fragment: true,
+        input: [
+          '<head>',
+          '<script>',
+          'if (a == b) {',
+          'test();',
+          '}',
+          '</script>',
+          '<style>',
+          '.selector {',
+          'font-size: 12px;',
+          '}',
+          '</style>',
+          '</head>'
+        ],
+        output: [
+          '<head>',
+          '{{h}}<script>',
+          '{{h}}{{h}}if (a == b) {',
+          '{{dhj}}{{dhj}}{{dj}}test();',
+          '{{dhj}}{{dhj}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{h}}{{h}}.selector {',
+          '{{dhc}}{{dhc}}{{dc}}font-size: 12px;',
+          '{{dhc}}{{dhc}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<body>',
+          '{{h}}<script src="one.js"></script> <!-- one -->',
+          '{{h}}<script src="two.js"></script> <!-- two-->',
+          '</body>'
+        ]
+      }
+    ]
   }, {
     name: "underscore.js  formatting",
     description: "underscore.js templates (<% ... %>) treated as comments.",

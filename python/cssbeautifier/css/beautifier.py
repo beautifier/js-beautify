@@ -114,11 +114,13 @@ class Beautifier:
         if not source_text:
             source_text = ''
 
+        self.__source_text = source_text
+
         opts = mergeOpts(opts, 'css')
 
         # Continue to accept deprecated option
         opts.space_around_combinator = opts.space_around_combinator or \
-                opts.space_around_selector_separator
+            opts.space_around_selector_separator
 
         self.opts = opts
         self.indentSize = opts.indent_size
@@ -130,16 +132,8 @@ class Beautifier:
             self.indentChar = "\t"
             self.indentSize = 1
 
-        if self.opts.eol == 'auto':
-            self.opts.eol = '\n'
-            if self.lineBreak.search(source_text or ''):
-                self.opts.eol = self.lineBreak.search(source_text).group()
-
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
-        # HACK: newline parsing inconsistent. This brute force normalizes the
-        # input newlines.
-        self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -154,9 +148,6 @@ class Beautifier:
             "@media",
             "@supports",
             "@document"}
-
-        m = re.search("^[\t ]*", self.source_text)
-        self.baseIndentString = m.group(0)
 
     def eatString(self, endChars):
         result = ''
@@ -211,12 +202,30 @@ class Beautifier:
         return False
 
     def beautify(self):
+        if self.opts.disabled:
+            return self.__source_text
+
+        source_text = self.__source_text
+
+        if self.opts.eol == 'auto':
+            self.opts.eol = '\n'
+            if self.lineBreak.search(source_text or ''):
+                self.opts.eol = self.lineBreak.search(source_text).group()
+
+
+        # HACK: newline parsing inconsistent. This brute force normalizes the
+        # input newlines.
+        source_text = re.sub(self.allLineBreaks, '\n', source_text)
+
+        m = re.search("^[\t ]*", source_text)
+        self.baseIndentString = m.group(0)
+
         printer = Printer(
             self.indentChar,
             self.indentSize,
             self.baseIndentString)
         self.output = printer.output
-        self.input = InputScanner(self.source_text)
+        self.input = InputScanner(source_text)
 
         output = self.output
         input = self.input
@@ -352,13 +361,13 @@ class Beautifier:
                 output.add_new_line()
 
                 if self.opts.newline_between_rules and \
-                         not output.just_added_blankline():
+                        not output.just_added_blankline():
                     if input.peek() != '}':
                         output.add_new_line(True)
             elif self.ch == ":":
                 if (insideRule or enteringConditionalGroup) and \
-                        not (input.lookBack('&') or \
-                                self.foundNestedPseudoClass()) and \
+                        not (input.lookBack('&') or
+                             self.foundNestedPseudoClass()) and \
                         not input.lookBack('(') and not insideAtExtend:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
@@ -410,8 +419,8 @@ class Beautifier:
                     self.eatWhitespace()
                     self.ch = input.next()
                     if self.ch in {')', '"', '\''}:
-                            input.back()
-                            parenLevel += 1
+                        input.back()
+                        parenLevel += 1
                     elif self.ch is not None:
                         printer.print_string(self.ch + self.eatString(')'))
                 else:
@@ -426,8 +435,8 @@ class Beautifier:
                 printer.print_string(self.ch)
                 self.eatWhitespace(True)
                 if self.opts.selector_separator_newline and \
-                    not insidePropertyValue and parenLevel < 1 and \
-                    not insideAtImport:
+                        not insidePropertyValue and parenLevel < 1 and \
+                        not insideAtImport:
                     output.add_new_line()
                 else:
                     output.space_before_token = True

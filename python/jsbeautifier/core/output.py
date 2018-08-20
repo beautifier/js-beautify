@@ -29,6 +29,7 @@ import re
 
 __all__ = ["Output"]
 
+
 class OutputLine:
     def __init__(self, parent):
         self.__parent = parent
@@ -91,6 +92,7 @@ class OutputLine:
                     self.__alignment_count)
             result += ''.join(self.__items)
         return result
+
 
 class IndentCache:
     def __init__(self, base_string, level_string):
@@ -223,7 +225,7 @@ class Output:
                 break
             elif not potentialEmptyLine.item(0).startswith(starts_with) and \
                     potentialEmptyLine.item(-1) != ends_with:
-                self.__lines.insert(index +1, OutputLine(self))
+                self.__lines.insert(index + 1, OutputLine(self))
                 self.previous_line = self.__lines[-2]
                 break
             index -= 1

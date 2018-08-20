@@ -85,8 +85,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         // Everywhere we do newlines, they should be replaced with opts.eol
         sanitytest.test_function(test_beautifier, 'eol ' + test_name);
-        opts.eol = '\r\n';
+        opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
+        opts.disabled = true;
+        success = success && sanitytest.expect(input, input || '');
+        success = success && sanitytest.expect('\n\n' + expected, '\n\n' + expected);
+        opts.disabled = false;
         success = success && sanitytest.expect(input, expected);
         if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
