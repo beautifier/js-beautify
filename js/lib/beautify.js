@@ -316,21 +316,19 @@ var MODE = {
   Expression: 'Expression' //'(EXPRESSION)'
 };
 
-function Beautifier(js_source_text, options) {
+function Beautifier(source_text, options) {
   "use strict";
   options = options || {};
-  js_source_text = js_source_text || '';
+  this._source_text = source_text || '';
 
   var output;
   var tokens;
   var tokenizer;
   var current_token;
-  var last_type, last_last_text, indent_string;
+  var last_type, last_last_text;
   var flags, previous_flags, flag_store;
-  var prefix;
 
   var handlers, opt;
-  var baseIndentString = '';
 
   handlers = {};
   handlers[TOKEN.START_EXPR] = handle_start_expr;
@@ -435,7 +433,10 @@ function Beautifier(js_source_text, options) {
   opt.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
   opt.operator_position = sanitizeOperatorPosition(options.operator_position);
 
-  // For testing of beautify ignore:start directive
+  // Support passing the source text back with no change
+  opt.disabled = (options.disabled === undefined) ? false : options.disabled;
+
+  // For testing of beautify preserve:start directive
   opt.test_output_raw = (options.test_output_raw === undefined) ? false : options.test_output_raw;
 
   // force opt.space_after_anon_function to true if opt.jslint_happy
@@ -448,59 +449,65 @@ function Beautifier(js_source_text, options) {
     opt.indent_size = 1;
   }
 
-  if (opt.eol === 'auto') {
-    opt.eol = '\n';
-    if (js_source_text && acorn.lineBreak.test(js_source_text || '')) {
-      opt.eol = js_source_text.match(acorn.lineBreak)[0];
-    }
-  }
-
   opt.eol = opt.eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
 
-  //----------------------------------
-  indent_string = '';
-  while (opt.indent_size > 0) {
-    indent_string += opt.indent_char;
-    opt.indent_size -= 1;
-  }
+  this._reset = function(source_text) {
+    var baseIndentString = '';
 
-  var preindent_index = 0;
-  if (js_source_text && js_source_text.length) {
-    while ((js_source_text.charAt(preindent_index) === ' ' ||
-        js_source_text.charAt(preindent_index) === '\t')) {
-      preindent_index += 1;
+    var indent_string = new Array(opt.indent_size + 1).join(opt.indent_char);
+
+    var preindent_index = 0;
+    if (source_text && source_text.length) {
+      while ((source_text.charAt(preindent_index) === ' ' ||
+          source_text.charAt(preindent_index) === '\t')) {
+        preindent_index += 1;
+      }
+      baseIndentString = source_text.substring(0, preindent_index);
+      source_text = source_text.substring(preindent_index);
     }
-    baseIndentString = js_source_text.substring(0, preindent_index);
-    js_source_text = js_source_text.substring(preindent_index);
-  }
 
-  last_type = TOKEN.START_BLOCK; // last token type
-  last_last_text = ''; // pre-last token text
-  output = new Output(indent_string, baseIndentString);
+    last_type = TOKEN.START_BLOCK; // last token type
+    last_last_text = ''; // pre-last token text
+    output = new Output(indent_string, baseIndentString);
 
-  // If testing the ignore directive, start with output disable set to true
-  output.raw = opt.test_output_raw;
+    // If testing the ignore directive, start with output disable set to true
+    output.raw = opt.test_output_raw;
 
 
-  // Stack of parsing/formatting states, including MODE.
-  // We tokenize, parse, and output in an almost purely a forward-only stream of token input
-  // and formatted output.  This makes the beautifier less accurate than full parsers
-  // but also far more tolerant of syntax errors.
-  //
-  // For example, the default mode is MODE.BlockStatement. If we see a '{' we push a new frame of type
-  // MODE.BlockStatement on the the stack, even though it could be object literal.  If we later
-  // encounter a ":", we'll switch to to MODE.ObjectLiteral.  If we then see a ";",
-  // most full parsers would die, but the beautifier gracefully falls back to
-  // MODE.BlockStatement and continues on.
-  flag_store = [];
-  set_mode(MODE.BlockStatement);
+    // Stack of parsing/formatting states, including MODE.
+    // We tokenize, parse, and output in an almost purely a forward-only stream of token input
+    // and formatted output.  This makes the beautifier less accurate than full parsers
+    // but also far more tolerant of syntax errors.
+    //
+    // For example, the default mode is MODE.BlockStatement. If we see a '{' we push a new frame of type
+    // MODE.BlockStatement on the the stack, even though it could be object literal.  If we later
+    // encounter a ":", we'll switch to to MODE.ObjectLiteral.  If we then see a ";",
+    // most full parsers would die, but the beautifier gracefully falls back to
+    // MODE.BlockStatement and continues on.
+    flag_store = [];
+    set_mode(MODE.BlockStatement);
+    tokenizer = new Tokenizer(source_text, opt, indent_string);
+    tokens = tokenizer.tokenize();
+    return source_text;
+  };
 
   this.beautify = function() {
 
-    /*jshint onevar:true */
+    // if disabled, return the input unchanged.
+    if (opt.disabled) {
+      return this._source_text;
+    }
+
     var sweet_code;
-    tokenizer = new Tokenizer(js_source_text, opt, indent_string);
-    tokens = tokenizer.tokenize();
+    var source_text = this._reset(this._source_text);
+
+    var eol = opt.eol;
+    if (opt.eol === 'auto') {
+      eol = '\n';
+      if (source_text && acorn.lineBreak.test(source_text || '')) {
+        eol = source_text.match(acorn.lineBreak)[0];
+      }
+    }
 
     current_token = tokens.next();
     while (current_token) {
@@ -513,7 +520,7 @@ function Beautifier(js_source_text, options) {
       current_token = tokens.next();
     }
 
-    sweet_code = output.get_code(opt.end_with_newline, opt.eol);
+    sweet_code = output.get_code(opt.end_with_newline, eol);
 
     return sweet_code;
   };
@@ -1160,7 +1167,7 @@ function Beautifier(js_source_text, options) {
       return;
     }
 
-    prefix = 'NONE';
+    var prefix = 'NONE';
 
     if (last_type === TOKEN.END_BLOCK) {
 

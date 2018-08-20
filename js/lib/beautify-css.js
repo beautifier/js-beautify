@@ -826,12 +826,13 @@ var lineBreak = acorn.lineBreak;
 var allLineBreaks = acorn.allLineBreaks;
 
 function Beautifier(source_text, options) {
-  source_text = source_text || '';
+  this._source_text = source_text || '';
   options = options || {};
 
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
   options = mergeOpts(options, 'css');
+  this._options = {};
 
   var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
   var indentCharacter = options.indent_char || ' ';
@@ -843,22 +844,15 @@ function Beautifier(source_text, options) {
   space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
   var eol = options.eol ? options.eol : 'auto';
 
+  // Support passing the source text back with no change
+  this._options.disabled = (options.disabled === undefined) ? false : options.disabled;
+
   if (options.indent_with_tabs) {
     indentCharacter = '\t';
     indentSize = 1;
   }
 
-  if (eol === 'auto') {
-    eol = '\n';
-    if (source_text && lineBreak.test(source_text || '')) {
-      eol = source_text.match(lineBreak)[0];
-    }
-  }
-
   eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
-
-  // HACK: newline parsing inconsistent. This brute force normalizes the input.
-  source_text = source_text.replace(allLineBreaks, '\n');
 
   // tokenizer
   var whitespaceChar = /\s/;
@@ -932,20 +926,6 @@ function Beautifier(source_text, options) {
     return false;
   }
 
-  // printer
-  var baseIndentString = '';
-  var preindent_index = 0;
-  if (source_text && source_text.length) {
-    while ((source_text.charAt(preindent_index) === ' ' ||
-        source_text.charAt(preindent_index) === '\t')) {
-      preindent_index += 1;
-    }
-    baseIndentString = source_text.substring(0, preindent_index);
-    source_text = source_text.substring(preindent_index);
-  }
-
-
-  var singleIndent = new Array(indentSize + 1).join(indentCharacter);
   var indentLevel;
   var nestedLevel;
   var output;
@@ -976,7 +956,35 @@ function Beautifier(source_text, options) {
   /*_____________________--------------------_____________________*/
 
   this.beautify = function() {
+    if (this._options.disabled) {
+      return this._source_text;
+    }
+
+    var source_text = this._source_text;
+    if (eol === 'auto') {
+      eol = '\n';
+      if (source_text && lineBreak.test(source_text || '')) {
+        eol = source_text.match(lineBreak)[0];
+      }
+    }
+
+
+    // HACK: newline parsing inconsistent. This brute force normalizes the input.
+    source_text = source_text.replace(allLineBreaks, '\n');
+
     // reset
+    var singleIndent = new Array(indentSize + 1).join(indentCharacter);
+    var baseIndentString = '';
+    var preindent_index = 0;
+    if (source_text && source_text.length) {
+      while ((source_text.charAt(preindent_index) === ' ' ||
+          source_text.charAt(preindent_index) === '\t')) {
+        preindent_index += 1;
+      }
+      baseIndentString = source_text.substring(0, preindent_index);
+      source_text = source_text.substring(preindent_index);
+    }
+
     output = new Output(singleIndent, baseIndentString);
     input = new InputScanner(source_text);
     indentLevel = 0;
