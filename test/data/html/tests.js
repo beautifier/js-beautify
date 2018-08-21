@@ -974,7 +974,7 @@ exports.test_data = {
       { unchanged: '<link>\n<link>' },
       { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' },
       { input: '<source>\n    <source>', output: '<source>\n<source>' },
-      { input: '<br>\n    <br>' , output: '<br>\n<br>' },
+      { input: '<br>\n    <br>', output: '<br>\n<br>' },
       { input: '<input>\n    <input>', output: '<input>\n<input>' },
       { input: '<meta>\n    <meta>', output: '<meta>\n<meta>' },
       { input: '<link>\n    <link>', output: '<link>\n<link>' },

@@ -88,13 +88,13 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_raw_content(previous_token, open_token);
   token = token || this._read_comment(c);
-  token = token || this._read_open_close(c, open_token);
+  token = token || this._read_open(c, open_token);
+  token = token || this._read_close(c, open_token);
   token = token || this._read_content_word();
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
 };
-
 
 Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
   var token = null;
@@ -171,38 +171,48 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
   return token;
 };
 
-Tokenizer.prototype._read_open_close = function(c, open_token) { // jshint unused:false
+Tokenizer.prototype._read_open = function(c, open_token) {
   var resulting_string = null;
-  if (open_token && open_token.text[0] === '<' && (c === '>' || (c === '/' && this._input.peek(1) === '>'))) {
-    resulting_string = this._input.next();
-    if (c === '/') { //  for close tag "/>"
-      resulting_string += this._input.next();
-    }
-    return this._create_token(TOKEN.TAG_CLOSE, resulting_string);
-  } else if (open_token && open_token.text[0] === '{' && c === '}' && this._input.peek(1) === '}') {
-    this._input.next();
-    this._input.next();
-    return this._create_token(TOKEN.TAG_CLOSE, '}}');
-  } else if (!open_token) {
+  var token = null;
+  if (!open_token) {
     if (c === '<') {
-      resulting_string = this._input.next();
-      resulting_string += this._input.read(/[^\s>{][^\s>{/]*/g);
-      return this._create_token(TOKEN.TAG_OPEN, resulting_string);
+      resulting_string = this._input.read(/<(?:[^\s>{][^\s>{/]*)?/g);
+      token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     } else if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
-      this._input.next();
-      this._input.next();
-      resulting_string = '{{';
-      resulting_string += this._input.readUntil(/[\s}]/g);
-      return this._create_token(TOKEN.TAG_OPEN, resulting_string);
+      resulting_string = this._input.readUntil(/[\s}]/g);
+      token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
-  return null;
+  return token;
 };
 
-Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) { // jshint unused:false
+Tokenizer.prototype._read_close = function(c, open_token) {
+  var resulting_string = null;
+  var token = null;
+  if (open_token) {
+    if (open_token.text[0] === '<' && (c === '>' || (c === '/' && this._input.peek(1) === '>'))) {
+      resulting_string = this._input.next();
+      if (c === '/') { //  for close tag "/>"
+        resulting_string += this._input.next();
+      }
+      token = this._create_token(TOKEN.TAG_CLOSE, resulting_string);
+    } else if (open_token.text[0] === '{' && c === '}' && this._input.peek(1) === '}') {
+      this._input.next();
+      this._input.next();
+      token = this._create_token(TOKEN.TAG_CLOSE, '}}');
+    }
+  }
+
+  return token;
+};
+
+Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
+  var token = null;
+  var resulting_string = '';
   if (open_token && open_token.text[0] === '<') {
+
     if (c === '=') {
-      return this._create_token(TOKEN.EQUALS, this._input.next());
+      token = this._create_token(TOKEN.EQUALS, this._input.next());
     } else if (c === '"' || c === "'") {
       var content = this._input.next();
       var input_string = '';
@@ -217,26 +227,24 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) { 
         }
       }
 
-      return this._create_token(TOKEN.VALUE, content);
-    }
-
-    var resulting_string = '';
-
-    if (c === '{' && this._input.peek(1) === '{') {
-      resulting_string = this._input.readUntilAfter(/}}/g);
+      token = this._create_token(TOKEN.VALUE, content);
     } else {
-      resulting_string = this._input.readUntil(/[\s=\/>]/g);
-    }
-
-    if (resulting_string) {
-      if (previous_token.type === TOKEN.EQUALS) {
-        return this._create_token(TOKEN.VALUE, resulting_string);
+      if (c === '{' && this._input.peek(1) === '{') {
+        resulting_string = this._input.readUntilAfter(/}}/g);
       } else {
-        return this._create_token(TOKEN.ATTRIBUTE, resulting_string);
+        resulting_string = this._input.readUntil(/[\s=\/>]/g);
+      }
+
+      if (resulting_string) {
+        if (previous_token.type === TOKEN.EQUALS) {
+          token = this._create_token(TOKEN.VALUE, resulting_string);
+        } else {
+          token = this._create_token(TOKEN.ATTRIBUTE, resulting_string);
+        }
       }
     }
   }
-  return null;
+  return token;
 };
 
 Tokenizer.prototype._is_content_unformatted = function(tag_name) {
@@ -244,9 +252,9 @@ Tokenizer.prototype._is_content_unformatted = function(tag_name) {
   // script and style tags should always be read as unformatted content
   // finally content_unformatted and unformatted element contents are unformatted
   return this._options.void_elements.indexOf(tag_name) === -1 &&
-      (tag_name === 'script' || tag_name === 'style' ||
-        this._options.content_unformatted.indexOf(tag_name) !== -1 ||
-        this._options.unformatted.indexOf(tag_name) !== -1);
+    (tag_name === 'script' || tag_name === 'style' ||
+      this._options.content_unformatted.indexOf(tag_name) !== -1 ||
+      this._options.unformatted.indexOf(tag_name) !== -1);
 };
 
 
@@ -269,7 +277,7 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
 };
 
 Tokenizer.prototype._read_content_word = function() {
-  // if we get here and we see handlebars treat them as a
+  // if we get here and we see handlebars treat them as plain text
   var resulting_string = this._input.readUntil(this._word_pattern);
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
