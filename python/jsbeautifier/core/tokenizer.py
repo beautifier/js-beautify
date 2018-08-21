@@ -42,11 +42,12 @@ TOKEN = TokenTypes()
 
 class Tokenizer:
 
-    def __init__(self, input_string):
+    def __init__(self, input_string, options):
         import jsbeautifier.core.acorn as acorn
         self.acorn = acorn
 
         self._input = InputScanner(input_string)
+        self._options = options
         self.__tokens = None
         self.__newline_count = 0
         self.__whitespace_before_token = ''

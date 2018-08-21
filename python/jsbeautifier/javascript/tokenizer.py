@@ -115,9 +115,8 @@ class Tokenizer(BaseTokenizer):
     line_starters = line_starters
 
     def __init__(self, input_string, opts, indent_string):
-        BaseTokenizer.__init__(self, input_string)
+        BaseTokenizer.__init__(self, input_string, opts)
 
-        self.opts = opts
         self.indent_string = indent_string
         self.in_html_comment = False
         self.has_char_escapes = False
@@ -241,7 +240,7 @@ class Tokenizer(BaseTokenizer):
             else:
                 resulting_string = self.parse_string(resulting_string, c)
 
-            if self.has_char_escapes and self.opts.unescape_strings:
+            if self.has_char_escapes and self._options.unescape_strings:
                 resulting_string = self.unescape_string(resulting_string)
 
             if self._input.peek() == c :
@@ -292,7 +291,7 @@ class Tokenizer(BaseTokenizer):
 
 
     def _read_xml(self, c, previous_token):
-        if self.opts.e4x and c == "<" and self._input.test(
+        if self._options.e4x and c == "<" and self._input.test(
                 startXmlRegExp) and self.allowRegExOrXML(previous_token):
             # handle e4x xml literals
             xmlStr = ""

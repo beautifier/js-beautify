@@ -47,14 +47,13 @@ var TOKEN = {
 
 var directives_core = new Directives(/<\!--/, /-->/);
 
-var Tokenizer = function(input_string, opts) {
-  BaseTokenizer.call(this, input_string);
-  this._opts = opts || {};
+var Tokenizer = function(input_string, options) {
+  BaseTokenizer.call(this, input_string, options);
   this._current_tag_name = '';
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word_pattern = this._opts.indent_handlebars ? /[\s<]|{{/g : /[\s<]/g;
+  this._word_pattern = this._options.indent_handlebars ? /[\s<]|{{/g : /[\s<]/g;
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -103,7 +102,7 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
     var peek1 = this._input.peek(1);
     var peek2 = this._input.peek(2);
     if ((c === '<' && (peek1 === '!' || peek1 === '?' || peek1 === '%')) ||
-      this._opts.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
+      this._options.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
       //if we're in a comment, do something special
       // We treat all comments as literals, even more than preformatted tags
       // we just look for the appropriate close tag
@@ -189,7 +188,7 @@ Tokenizer.prototype._read_open_close = function(c, open_token) { // jshint unuse
       resulting_string = this._input.next();
       resulting_string += this._input.read(/[^\s>{][^\s>{/]*/g);
       return this._create_token(TOKEN.TAG_OPEN, resulting_string);
-    } else if (this._opts.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
+    } else if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
       this._input.next();
       this._input.next();
       resulting_string = '{{';
@@ -240,15 +239,24 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) { 
   return null;
 };
 
+Tokenizer.prototype._is_content_unformatted = function(tag_name) {
+  // void_elements have no content and so cannot have unformatted content
+  // script and style tags should always be read as unformatted content
+  // finally content_unformatted and unformatted element contents are unformatted
+  return this._options.void_elements.indexOf(tag_name) === -1 &&
+      (tag_name === 'script' || tag_name === 'style' ||
+        this._options.content_unformatted.indexOf(tag_name) !== -1 ||
+        this._options.unformatted.indexOf(tag_name) !== -1);
+};
+
+
 Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { // jshint unused:false
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
     resulting_string = this._input.readUntil(/}}/g);
   } else if (previous_token.type === TOKEN.TAG_CLOSE && (previous_token.opened.text[0] === '<')) {
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
-    if (tag_name === 'script' || tag_name === 'style' ||
-      this._opts.content_unformatted.indexOf(tag_name) !== -1 ||
-      this._opts.unformatted.indexOf(tag_name) !== -1) {
+    if (this._is_content_unformatted(tag_name)) {
       resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '\\s*?>', 'ig'));
     }
   }

@@ -4270,6 +4270,46 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <col>\n' +
             '    <col>\n' +
             '</colgroup>');
+        bth(
+            '<source>\n' +
+            '    <source>',
+            //  -- output --
+            '<source>\n' +
+            '<source>');
+        bth(
+            '<br>\n' +
+            '    <br>',
+            //  -- output --
+            '<br>\n' +
+            '<br>');
+        bth(
+            '<input>\n' +
+            '    <input>',
+            //  -- output --
+            '<input>\n' +
+            '<input>');
+        bth(
+            '<meta>\n' +
+            '    <meta>',
+            //  -- output --
+            '<meta>\n' +
+            '<meta>');
+        bth(
+            '<link>\n' +
+            '    <link>',
+            //  -- output --
+            '<link>\n' +
+            '<link>');
+        bth(
+            '<colgroup>\n' +
+            '        <col>\n' +
+            '        <col>\n' +
+            '</colgroup>',
+            //  -- output --
+            '<colgroup>\n' +
+            '    <col>\n' +
+            '    <col>\n' +
+            '</colgroup>');
 
 
         //============================================================
@@ -5240,7 +5280,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // content_unformatted to prevent formatting content
         reset_options();
         set_name('content_unformatted to prevent formatting content');
-        opts.content_unformatted = ['?php', 'script', 'style', 'p', 'span', 'br'];
+        opts.content_unformatted = ['?php', 'script', 'style', 'p', 'span', 'br', 'meta'];
         test_fragment(
             '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
             //  -- output --
@@ -5274,6 +5314,28 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '>But not me</div></p>');
         bth('<div><span>blabla<div>something here</div></span></div>');
         bth('<div><br /></div>');
+        bth('<div><br></div>');
+        bth(
+            '<div>\n' +
+            '<br>\n' +
+            '<br />\n' +
+            '<br></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <br>\n' +
+            '    <br />\n' +
+            '    <br></div>');
+        bth(
+            '<div>\n' +
+            '<meta>\n' +
+            '<meta />\n' +
+            '<meta></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <meta>\n' +
+            '    <meta />\n' +
+            '    <meta>\n' +
+            '</div>');
         bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',

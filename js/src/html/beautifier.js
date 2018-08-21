@@ -38,7 +38,7 @@ var allLineBreaks = acorn.allLineBreaks;
 var Printer = function(indent_character, indent_size, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
 
   this.indent_character = indent_character;
-  this.indent_string = '';
+  this.indent_string = indent_character;
   this.indent_size = indent_size;
   this.indent_level = 0;
   this.alignment_size = 0;
@@ -46,8 +46,8 @@ var Printer = function(indent_character, indent_size, wrap_line_length, max_pres
   this.max_preserve_newlines = max_preserve_newlines;
   this.preserve_newlines = preserve_newlines;
 
-  for (var i = 0; i < this.indent_size; i++) {
-    this.indent_string += this.indent_character;
+  if (this.indent_size > 1) {
+    this.indent_string = new Array(this.indent_size + 1).join(this.indent_character);
   }
 
   this._output = new Output(this.indent_string, '');
@@ -606,20 +606,19 @@ Beautifier.prototype._get_tag_open = function(parent, raw_token) { //function to
   parser_token.is_start_tag = parser_token.tag_check.charAt(0) !== '/';
   parser_token.tag_name = !parser_token.is_start_tag ? parser_token.tag_check.substr(1) : parser_token.tag_check;
   parser_token.is_end_tag = !parser_token.is_start_tag ||
-    (raw_token.closed && raw_token.closed.text === '/>');
+    (raw_token.closed && raw_token.closed.text === '/>') ||
+    in_array(parser_token.tag_check, this._options.void_elements);
 
   // handlebars tags that don't start with # or ^ are single_tags, and so also start and end.
   parser_token.is_end_tag = parser_token.is_end_tag ||
     (parser_token.tag_start_char === '{' && (parser_token.text.length < 3 || (/[^#\^]/.test(parser_token.text.charAt(2)))));
 
-  parser_token.is_unformatted = !parser_token.tag_complete && in_array(parser_token.tag_check, this._options.unformatted);
-  parser_token.is_content_unformatted = !parser_token.tag_complete && in_array(parser_token.tag_check, this._options.content_unformatted);
-  parser_token.is_inline_tag = in_array(parser_token.tag_name, this._options.inline_tags) || parser_token.tag_start_char === '{';
+  parser_token.is_single_tag = parser_token.tag_complete ||
+    (parser_token.is_start_tag && parser_token.is_end_tag);
 
-  parser_token.is_single_tag = raw_token.type === TOKEN.COMMENT ||
-    in_array(parser_token.tag_check, this._options.void_elements) ||
-    (parser_token.is_start_tag && parser_token.is_end_tag) ||
-    (parser_token.is_unformatted || parser_token.is_content_unformatted);
+  parser_token.is_unformatted = !parser_token.tag_complete && in_array(parser_token.tag_check, this._options.unformatted);
+  parser_token.is_content_unformatted = !parser_token.is_single_tag && in_array(parser_token.tag_check, this._options.content_unformatted);
+  parser_token.is_inline_tag = in_array(parser_token.tag_name, this._options.inline_tags) || parser_token.tag_start_char === '{';
 
   if (parser_token.is_single_tag) {
     parser_token.type = 'TK_TAG_SINGLE';
@@ -631,6 +630,7 @@ Beautifier.prototype._get_tag_open = function(parent, raw_token) { //function to
     parser_token.type = 'TK_TAG_START';
 
     if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
+      !(parser_token.is_unformatted || parser_token.is_content_unformatted) &&
       uses_beautifier(parser_token.tag_check, raw_token)) {
       parser_token.custom_beautifier = true;
       if (parser_token.tag_name === 'script') {
@@ -673,7 +673,10 @@ Beautifier.prototype._set_tag_position = function(printer, parser_token, last_ta
     } else if (!parser_token.is_inline_tag && !parser_token.is_unformatted) {
       printer.print_newline(false);
     }
-
+  } else if (parser_token.is_unformatted || parser_token.is_content_unformatted) {
+    if (!parser_token.is_inline_tag && !parser_token.is_unformatted) {
+      printer.print_newline(false);
+    }
   } else if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending
     if ((parser_token.start_tag_token && parser_token.start_tag_token.multiline_content) ||
       !(parser_token.is_inline_tag ||
@@ -684,12 +687,9 @@ Beautifier.prototype._set_tag_position = function(printer, parser_token, last_ta
       )) {
       printer.print_newline(false);
     }
-  } else if (parser_token.custom_beautifier) {
-    printer.print_newline(false);
   } else { // it's a start-tag
-    if (parser_token.tag_check !== 'html') {
-      parser_token.indent_content = true;
-    }
+    parser_token.indent_content = parser_token.tag_check !== 'html' &&
+      !parser_token.custom_beautifier;
 
     if (!parser_token.is_inline_tag && last_token.type !== 'TK_CONTENT') {
       if (parser_token.parent) {
