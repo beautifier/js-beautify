@@ -495,6 +495,11 @@ exports.test_data = {
         input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
         output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
       }, {
+        comment: "issue #869",
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013{{indent_content80}}0014&nbsp;0015 0016 0017 0018 0019 0020</span>'
+      }, {
         fragment: true,
         comment: 'Issue 1222 -- P tags are formatting correctly',
         input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
@@ -1993,6 +1998,11 @@ exports.test_data = {
         '    <p class="foo">foo <span class="bar">bar</span></p>',
         '</aside>',
         '<p class="foo"><span class="bar">bar</span></p>'
+      ]
+    }, {
+      comment: "Test for #869 - not exactly what the user wants but no longer horrible",
+      unchanged: [
+        '<div><input type="checkbox" id="j" name="j" value="foo">&nbsp;<label for="j">Foo</label></div>'
       ]
     }, {
       comment: "Test for #1167",

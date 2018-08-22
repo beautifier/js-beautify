@@ -437,6 +437,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
@@ -500,6 +503,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -566,6 +576,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
@@ -631,6 +644,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
             '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
@@ -684,6 +704,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
             '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
@@ -732,6 +759,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
@@ -759,6 +789,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force-aligned';
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -823,6 +856,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -893,6 +933,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
             '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
@@ -940,6 +987,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
@@ -968,6 +1018,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -1028,6 +1081,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 4;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -1108,6 +1164,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
         
+        // issue #869
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
+            '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
             '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
@@ -1186,6 +1249,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #869
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -5562,6 +5628,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <p class="foo">foo <span class="bar">bar</span></p>\n' +
             '</aside>\n' +
             '<p class="foo"><span class="bar">bar</span></p>');
+        
+        // Test for #869 - not exactly what the user wants but no longer horrible
+        bth('<div><input type="checkbox" id="j" name="j" value="foo">&nbsp;<label for="j">Foo</label></div>');
         
         // Test for #1167
         bth(
