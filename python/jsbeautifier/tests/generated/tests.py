@@ -5154,6 +5154,12 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options()
         #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        test_fragment(None, '\n')
+
+        self.reset_options()
+        #============================================================
         self.options.indent_size = 1
         self.options.indent_char = ' '
         bt('{ one_char() }', "{\n one_char()\n}")

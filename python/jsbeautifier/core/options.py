@@ -41,3 +41,13 @@ def mergeOpts(options, childFieldName):
             setattr(finalOpts, key, local[key])
 
     return finalOpts
+
+def normalizeOpts(options):
+    convertedOpts = copy.copy(options)
+
+    for key in options.__dict__:
+        if '-' in key:
+            delattr(convertedOpts, key)
+            setattr(convertedOpts, key.replace('-', '_'), getattr(options, key, None))
+
+    return convertedOpts

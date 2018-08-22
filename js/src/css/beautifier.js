@@ -27,6 +27,7 @@
 */
 
 var mergeOpts = require('../core/options').mergeOpts;
+var normalizeOpts = require('../core/options').normalizeOpts;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
@@ -41,6 +42,7 @@ function Beautifier(source_text, options) {
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
   options = mergeOpts(options, 'css');
+  options = normalizeOpts(options);
   this._options = {};
 
   var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
