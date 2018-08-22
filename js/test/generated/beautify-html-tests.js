@@ -5593,6 +5593,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         reset_options();
         //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
+
+        reset_options();
+        //============================================================
         set_name('end_with_newline = true');
         opts.end_with_newline = true;
 

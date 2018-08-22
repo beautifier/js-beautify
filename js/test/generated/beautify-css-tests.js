@@ -10328,6 +10328,12 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
         reset_options();
         //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
+
+        reset_options();
+        //============================================================
         // test basic css beautifier
         t(".tabs {}");
         t(".tabs{color:red;}", ".tabs {\n\tcolor: red;\n}");

@@ -27,6 +27,7 @@
 */
 
 var mergeOpts = require('../core/options').mergeOpts;
+var normalizeOpts = require('../core/options').normalizeOpts;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var Tokenizer = require('./tokenizer').Tokenizer;
@@ -164,6 +165,7 @@ function Beautifier(source_text, options) {
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
   options = mergeOpts(options, 'js');
+  options = normalizeOpts(options);
 
   opt = {};
 

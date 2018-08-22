@@ -5398,6 +5398,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
+
+        reset_options();
+        //============================================================
         opts.indent_size = 1;
         opts.indent_char = ' ';
         bt('{ one_char() }', "{\n one_char()\n}");
