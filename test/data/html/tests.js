@@ -36,6 +36,13 @@ exports.test_data = {
     { name: "extra_liners", value: "['html', 'head', '/html']" }
   ],
   groups: [{
+    name: "Unicode Support",
+    description: "",
+    tests: [{
+      input_: "<p>Hello' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>",
+      output: "<p>Hello ' + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>"
+    }]
+  }, {
     name: "Handle inline and block elements differently",
     description: "",
     matrix: [{}],

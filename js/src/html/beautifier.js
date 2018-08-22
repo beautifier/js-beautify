@@ -369,7 +369,7 @@ Beautifier.prototype.beautify = function() {
       parser_token = this._handle_text(printer, raw_token, last_tag_token);
     } else {
       // This should never happen, but if it does. Print the raw token
-      printer.add_raw_token(token);
+      printer.add_raw_token(raw_token);
     }
 
     last_token = parser_token;

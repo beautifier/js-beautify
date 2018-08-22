@@ -144,6 +144,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Unicode Support
+        reset_options();
+        set_name('Unicode Support');
+        bth(
+            '<p>Hello' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>',
+            //  -- output --
+            '<p>Hello ' + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>');
+
+
+        //============================================================
         // Handle inline and block elements differently - ()
         reset_options();
         set_name('Handle inline and block elements differently - ()');
