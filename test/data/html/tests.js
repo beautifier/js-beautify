@@ -542,6 +542,44 @@ exports.test_data = {
       }
     ]
   }, {
+    name: "Issue #1335 -- <button> Bug with force-expand-multiline formatting",
+    description: "",
+    template: "^^^ $$$",
+    options: [
+      { name: "wrap_attributes", value: "'force-expand-multiline'" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<button',
+        '    class="my-class"',
+        '    id="id1"',
+        '>',
+        '    Button 1',
+        '</button>',
+        '',
+        '<button',
+        '    class="my-class"',
+        '    id="id2"',
+        '>',
+        '    Button 2',
+        '</button>'
+      ]
+    }, {
+      input_: [
+        '<button>',
+        '    <span>foo</span>',
+        '<p>bar</p>',
+        '</button>'
+      ],
+      output: [
+        '<button>',
+        '    <span>foo</span>',
+        '    <p>bar</p>',
+        '</button>'
+      ]
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
