@@ -972,8 +972,108 @@ exports.test_data = {
       { unchanged: '<input>\n<input>' },
       { unchanged: '<meta>\n<meta>' },
       { unchanged: '<link>\n<link>' },
-      { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
+      { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' },
+      { input: '<source>\n    <source>', output: '<source>\n<source>' },
+      { input: '<br>\n    <br>', output: '<br>\n<br>' },
+      { input: '<input>\n    <input>', output: '<input>\n<input>' },
+      { input: '<meta>\n    <meta>', output: '<meta>\n<meta>' },
+      { input: '<link>\n    <link>', output: '<link>\n<link>' },
+      { input: '<colgroup>\n        <col>\n        <col>\n</colgroup>', output: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
     ]
+  }, {
+    name: "Optional html elements",
+    description: "Optional elements should not indent",
+    options: [],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<li>test content',
+        '<li>test content',
+        '<li>test content'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<dl>',
+        '    <dt>',
+        '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '</dl>'
+      ]
+    }, {
+      unchanged: [
+        '<select>',
+        '    <optgroup>',
+        '        test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '</select>'
+      ]
+    }, {
+      unchanged: [
+        '<table>',
+        '    <thead>',
+        '        <tr>',
+        '            <th>Function',
+        '            <th>Control Unit',
+        '            <th>Central Station',
+        '    <tbody>',
+        '        <tr>',
+        '            <td>Headlights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Interior Lights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Electric locomotive operating sounds',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Engineer’s cab lighting',
+        '            <td>',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Station Announcements - Swiss',
+        '            <td>',
+        '            <td>✔',
+        '</table>'
+      ]
+    }]
   }, {
     name: "Unformatted tags",
     description: "Unformatted tag behavior",
@@ -1675,7 +1775,7 @@ exports.test_data = {
     name: "content_unformatted to prevent formatting content",
     description: "",
     options: [
-      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br']" }
+      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br', 'meta']" }
     ],
     tests: [{
       fragment: true,
@@ -1712,6 +1812,36 @@ exports.test_data = {
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
       unchanged: '<div><br /></div>'
+    }, {
+      unchanged: '<div><br></div>'
+    }, {
+      input: [
+        '<div>',
+        '<br>',
+        '<br />',
+        '<br></div>'
+      ],
+      output: [
+        '<div>',
+        '    <br>',
+        '    <br />',
+        '    <br></div>'
+      ]
+
+    }, {
+      input: [
+        '<div>',
+        '<meta>',
+        '<meta />',
+        '<meta></div>'
+      ],
+      output: [
+        '<div>',
+        '    <meta>',
+        '    <meta />',
+        '    <meta>',
+        '</div>'
+      ]
     }, {
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [

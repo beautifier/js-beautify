@@ -36,8 +36,9 @@ var TOKEN = {
   EOF: 'TK_EOF'
 };
 
-var Tokenizer = function(input_string) { // jshint unused:false
+var Tokenizer = function(input_string, options) {
   this._input = new InputScanner(input_string);
+  this._options = options || {};
   this.__tokens = null;
   this.__newline_count = 0;
   this.__whitespace_before_token = '';
