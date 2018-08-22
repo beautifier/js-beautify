@@ -1255,6 +1255,37 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Issue #1335 -- <button> Bug with force-expand-multiline formatting
+        reset_options();
+        set_name('Issue #1335 -- <button> Bug with force-expand-multiline formatting');
+        opts.wrap_attributes = 'force-expand-multiline';
+        test_fragment(
+            '<button\n' +
+            '    class="my-class"\n' +
+            '    id="id1"\n' +
+            '>\n' +
+            '    Button 1\n' +
+            '</button>\n' +
+            '\n' +
+            '<button\n' +
+            '    class="my-class"\n' +
+            '    id="id2"\n' +
+            '>\n' +
+            '    Button 2\n' +
+            '</button>');
+        bth(
+            '<button>\n' +
+            '    <span>foo</span>\n' +
+            '<p>bar</p>\n' +
+            '</button>',
+            //  -- output --
+            '<button>\n' +
+            '    <span>foo</span>\n' +
+            '    <p>bar</p>\n' +
+            '</button>');
+
+
+        //============================================================
         // Handlebars Indenting Off
         reset_options();
         set_name('Handlebars Indenting Off');
