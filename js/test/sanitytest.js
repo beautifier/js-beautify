@@ -10,8 +10,8 @@
 // output_somewhere(t.results()); // good for <pre>, html safe-ish
 // alert(t.results_raw());        // html unescaped
 
-
 function SanityTest(func, name_of_test) {
+  'use strict';
 
   var test_func = func || function(x) {
     return x;

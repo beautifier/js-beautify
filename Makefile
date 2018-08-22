@@ -67,7 +67,7 @@ beautify:
 #######################################################
 
 # javascript bundle generation
-js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/**/*) js/index.js tools/template/* webpack.config.js
+js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/**/*) $(wildcard web/*.js) js/index.js tools/template/* webpack.config.js
 	$(SCRIPT_DIR)/build.sh js
 
 

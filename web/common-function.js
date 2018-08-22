@@ -1,3 +1,4 @@
+/*jshint strict:false, node:false */
 /*exported run_tests, read_settings_from_cookie, beautify, submitIssue */
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
@@ -19,6 +20,7 @@ requirejs(['beautifier'],
   function(beautifier) {
     the.beautifier = beautifier;
   });
+
 
 function any(a, b) {
   return a || b;
