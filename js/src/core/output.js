@@ -1,4 +1,4 @@
-/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*jshint node:true */
 /*
 
   The MIT License (MIT)
@@ -25,6 +25,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+
+'use strict';
 
 function OutputLine(parent) {
   this.__parent = parent;

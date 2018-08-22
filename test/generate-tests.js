@@ -26,6 +26,8 @@
   SOFTWARE.
 */
 
+'use strict';
+
 var fs = require('fs');
 var mustache = require('mustache');
 var path = require('path');
