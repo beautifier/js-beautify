@@ -184,7 +184,7 @@ TagFrame.prototype.record_tag = function(tag, parser_token, indent_level) { //fu
   this.parser_token = parser_token;
 };
 
-TagFrame.prototype.retrieve_tag = function(tag, printer) { //function to retrieve the opening tag to the corresponding closer
+TagFrame.prototype.try_pop = function(tag, printer) { //function to retrieve the opening tag to the corresponding closer
   var parser_token = null;
   var temp_parent = this;
 
@@ -299,11 +299,8 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
     // https://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
     'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen',
     'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr',
-    // NOTE: Optional tags - are not understood.
-    // https://www.w3.org/TR/html5/syntax.html#optional-tags
-    // The rules for optional tags are too complex for a simple list
-    // Also, the content of these tags should still be indented in many cases.
-    // 'li' is a good exmple.
+    // NOTE: Optional tags are too complex for a simple list
+    // they are hard coded in _do_optional_end_element
 
     // Doctype and xml elements
     '!doctype', '?xml',
@@ -610,7 +607,7 @@ var TagOpenParserToken = function(parent, raw_token) {
 
     // handlebars tags that don't start with # or ^ are single_tags, and so also start and end.
     this.is_end_tag = this.is_end_tag ||
-    (this.tag_start_char === '{' && (this.text.length < 3 || (/[^#\^]/.test(this.text.charAt(2)))));
+      (this.tag_start_char === '{' && (this.text.length < 3 || (/[^#\^]/.test(this.text.charAt(2)))));
   }
 };
 
@@ -636,8 +633,12 @@ Beautifier.prototype._set_tag_position = function(printer, parser_token, last_ta
 
   if (!parser_token.is_empty_element) {
     if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending
-      parser_token.start_tag_token = this._tag_stack.retrieve_tag(parser_token.tag_name, printer); //remove it and all ancestors
+      parser_token.start_tag_token = this._tag_stack.try_pop(parser_token.tag_name, printer); //remove it and all ancestors
     } else { // it's a start-tag
+      // check if this tag is starting an element that has optional end element
+      // and do an ending needed
+      this._do_optional_end_element(parser_token, printer);
+
       this._tag_stack.record_tag(parser_token.tag_name, parser_token, printer.indent_level); //push it on the tag stack
 
       if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
@@ -698,6 +699,84 @@ Beautifier.prototype._set_tag_position = function(printer, parser_token, last_ta
       printer.print_newline(false);
     }
   }
+};
+
+
+Beautifier.prototype._do_optional_end_element = function(parser_token, printer) {
+  // NOTE: cases of "if there is no more content in the parent element"
+  // are handled automatically by the beautifier.
+  // It assumes parent or ancestor close tag closes all children.
+  // https://www.w3.org/TR/html5/syntax.html#optional-tags
+  if (parser_token.is_empty_element || !parser_token.is_start_tag || !parser_token.parent) {
+    return;
+
+  } else if (parser_token.tag_name === 'body') {
+    // A head element’s end tag may be omitted if the head element is not immediately followed by a space character or a comment.
+    this._tag_stack.try_pop('head', printer);
+
+  } else if (parser_token.parent.tag_name === 'body') {
+    // TODO: A body element’s end tag may be omitted if the body element is not immediately followed by a comment.
+
+  } else if (parser_token.tag_name === 'li') {
+    // An li element’s end tag may be omitted if the li element is immediately followed by another li element or if there is no more content in the parent element.
+    this._tag_stack.try_pop('li', printer);
+
+  } else if (parser_token.tag_name === 'dd' || parser_token.tag_name === 'dt') {
+    // A dd element’s end tag may be omitted if the dd element is immediately followed by another dd element or a dt element, or if there is no more content in the parent element.
+    // A dt element’s end tag may be omitted if the dt element is immediately followed by another dt element or a dd element.
+    this._tag_stack.try_pop('dt', printer);
+    this._tag_stack.try_pop('dd', printer);
+
+  } else if (parser_token.parent.tag_name === 'rp' || parser_token.parent.tag_name === 'rt') {
+    // An rt element’s end tag may be omitted if the rt element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
+    // An rp element’s end tag may be omitted if the rp element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('rt', printer);
+    this._tag_stack.try_pop('rp', printer);
+
+  } else if (parser_token.tag_name === 'optgroup') {
+    // An optgroup element’s end tag may be omitted if the optgroup element is immediately followed by another optgroup element, or if there is no more content in the parent element.
+    // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('optgroup', printer);
+    this._tag_stack.try_pop('option', printer);
+
+  } else if (parser_token.tag_name === 'option') {
+    // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('option', printer);
+
+  } else if (parser_token.parent.tag_name === 'colgroup') {
+    // TODO: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
+
+  } else if (parser_token.parent.tag_name === 'caption') {
+    // TODO: A caption element’s end tag may be omitted if the caption element is not immediately followed by a space character or a comment.
+
+  } else if (parser_token.tag_name === 'tbody' || parser_token.tag_name === 'tfoot') {
+    // A thead element’s end tag may be omitted if the thead element is immediately followed by a tbody or tfoot element.
+    // A tbody element’s end tag may be omitted if the tbody element is immediately followed by a tbody or tfoot element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('thead', printer);
+    this._tag_stack.try_pop('tbody', printer);
+
+  } else if (parser_token.tag_name === 'tfoot') {
+    // TODO: A tfoot element’s end tag may be omitted if there is no more content in the parent element.
+
+  } else if (parser_token.tag_name === 'tr') {
+    // A tr element’s end tag may be omitted if the tr element is immediately followed by another tr element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('tr', printer);
+
+  } else if (parser_token.tag_name === 'th' || parser_token.tag_name === 'td') {
+    // A td element’s end tag may be omitted if the td element is immediately followed by a td or th element, or if there is no more content in the parent element.
+    // A th element’s end tag may be omitted if the th element is immediately followed by a td or th element, or if there is no more content in the parent element.
+    this._tag_stack.try_pop('td', printer);
+    this._tag_stack.try_pop('th', printer);
+  }
+
+  // Start element omission not handled currently
+  // A head element’s start tag may be omitted if the element is empty, or if the first thing inside the head element is an element.
+  // A tbody element’s start tag may be omitted if the first thing inside the tbody element is a tr element, and if the element is not immediately preceded by a tbody, thead, or tfoot element whose end tag has been omitted. (It can’t be omitted if the element is empty.)
+  // A colgroup element’s start tag may be omitted if the first thing inside the colgroup element is a col element, and if the element is not immediately preceded by another colgroup element whose end tag has been omitted. (It can’t be omitted if the element is empty.)
+
+  // Fix up the parent of the parser token
+  parser_token.parent = this._tag_stack.parser_token;
+
 };
 
 module.exports.Beautifier = Beautifier;

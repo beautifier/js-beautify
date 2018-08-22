@@ -4313,6 +4313,88 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Optional html elements
+        reset_options();
+        set_name('Optional html elements');
+        test_fragment(
+            '<li>test content\n' +
+            '<li>test content\n' +
+            '<li>test content');
+        bth(
+            '<ol>\n' +
+            '    <li>test content\n' +
+            '    <li>test content\n' +
+            '    <li>test content\n' +
+            '</ol>');
+        bth(
+            '<ol>\n' +
+            '    <li>\n' +
+            '        test content\n' +
+            '    <li>\n' +
+            '        test content\n' +
+            '    <li>\n' +
+            '        test content\n' +
+            '</ol>');
+        bth(
+            '<dl>\n' +
+            '    <dt>\n' +
+            '        test content\n' +
+            '    <dt>\n' +
+            '        test content\n' +
+            '    <dd>\n' +
+            '        test content\n' +
+            '    <dd>\n' +
+            '        test content\n' +
+            '</dl>');
+        bth(
+            '<select>\n' +
+            '    <optgroup>\n' +
+            '        test content\n' +
+            '    <optgroup>\n' +
+            '        test content\n' +
+            '        <option>\n' +
+            '            test content\n' +
+            '        <option>\n' +
+            '            test content\n' +
+            '    <optgroup>\n' +
+            '        test content\n' +
+            '        <option>\n' +
+            '            test content\n' +
+            '        <option>\n' +
+            '            test content\n' +
+            '</select>');
+        bth(
+            '<table>\n' +
+            '    <thead>\n' +
+            '        <tr>\n' +
+            '            <th>Function\n' +
+            '            <th>Control Unit\n' +
+            '            <th>Central Station\n' +
+            '    <tbody>\n' +
+            '        <tr>\n' +
+            '            <td>Headlights\n' +
+            '            <td>✔\n' +
+            '            <td>✔\n' +
+            '        <tr>\n' +
+            '            <td>Interior Lights\n' +
+            '            <td>✔\n' +
+            '            <td>✔\n' +
+            '        <tr>\n' +
+            '            <td>Electric locomotive operating sounds\n' +
+            '            <td>✔\n' +
+            '            <td>✔\n' +
+            '        <tr>\n' +
+            '            <td>Engineer’s cab lighting\n' +
+            '            <td>\n' +
+            '            <td>✔\n' +
+            '        <tr>\n' +
+            '            <td>Station Announcements - Swiss\n' +
+            '            <td>\n' +
+            '            <td>✔\n' +
+            '</table>');
+
+
+        //============================================================
         // Unformatted tags
         reset_options();
         set_name('Unformatted tags');

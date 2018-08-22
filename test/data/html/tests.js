@@ -981,6 +981,100 @@ exports.test_data = {
       { input: '<colgroup>\n        <col>\n        <col>\n</colgroup>', output: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
     ]
   }, {
+    name: "Optional html elements",
+    description: "Optional elements should not indent",
+    options: [],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<li>test content',
+        '<li>test content',
+        '<li>test content'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<dl>',
+        '    <dt>',
+        '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '</dl>'
+      ]
+    }, {
+      unchanged: [
+        '<select>',
+        '    <optgroup>',
+        '        test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '</select>'
+      ]
+    }, {
+      unchanged: [
+        '<table>',
+        '    <thead>',
+        '        <tr>',
+        '            <th>Function',
+        '            <th>Control Unit',
+        '            <th>Central Station',
+        '    <tbody>',
+        '        <tr>',
+        '            <td>Headlights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Interior Lights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Electric locomotive operating sounds',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Engineer’s cab lighting',
+        '            <td>',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Station Announcements - Swiss',
+        '            <td>',
+        '            <td>✔',
+        '</table>'
+      ]
+    }]
+  }, {
     name: "Unformatted tags",
     description: "Unformatted tag behavior",
     options: [],
