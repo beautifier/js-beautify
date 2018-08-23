@@ -1368,59 +1368,64 @@ function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
 }
 
-
-function TagFrame(parent, tag, parser_token, indent_level) {
+function TagFrame(parent, parser_token, indent_level) {
   this.parent = parent || null;
-  this.tag = tag || '';
+  this.tag = parser_token ? parser_token.tag_name : '';
   this.indent_level = indent_level || 0;
   this.parser_token = parser_token || null;
 }
 
-TagFrame.prototype.record_tag = function(tag, parser_token, indent_level) { //function to record a tag and its parent in this.tags Object
-  var new_parent = new TagFrame(this.parent, this.tag, this.parser_token, this.indent_level);
-  this.parent = new_parent;
-  this.tag = tag;
-  this.indent_level = indent_level;
-  this.parser_token = parser_token;
+function TagStack(printer) {
+  this._printer = printer;
+  this._current_frame = null;
+}
+
+TagStack.prototype.get_parser_token = function() {
+  return this._current_frame ? this._current_frame.parser_token : null;
 };
 
-TagFrame.prototype.try_pop = function(tag, printer) { //function to retrieve the opening tag to the corresponding closer
+TagStack.prototype.record_tag = function(parser_token) { //function to record a tag and its parent in this.tags Object
+  var new_frame = new TagFrame(this._current_frame, parser_token, this._printer.indent_level);
+  this._current_frame = new_frame;
+};
+
+TagStack.prototype._try_pop_frame = function(frame) { //function to retrieve the opening tag to the corresponding closer
   var parser_token = null;
-  var temp_parent = this;
 
-  while (temp_parent) { //till we reach '' (the initial value);
-    if (temp_parent.tag === tag) { //if this is it use it
-      break;
-    }
-    temp_parent = temp_parent.parent;
-  }
-
-
-  if (temp_parent) {
-    parser_token = temp_parent.parser_token;
-    printer.indent_level = temp_parent.indent_level;
-    temp_parent = temp_parent.parent ? temp_parent.parent : temp_parent;
-    this.parent = temp_parent.parent;
-    this.tag = temp_parent.tag;
-    this.indent_level = temp_parent.indent_level;
-    this.parser_token = temp_parent.parser_token;
+  if (frame) {
+    parser_token = frame.parser_token;
+    this._printer.indent_level = frame.indent_level;
+    this._current_frame = frame.parent;
   }
 
   return parser_token;
 };
 
-TagFrame.prototype.indent_to_tag = function(tag_list, printer) {
-  var temp_parent = this;
+TagStack.prototype._get_frame = function(tag_list, stop_list) { //function to retrieve the opening tag to the corresponding closer
+  var frame = this._current_frame;
 
-  while (temp_parent) { //till we reach '' (the initial value);
-    if (tag_list.indexOf(temp_parent.tag) !== -1) { //if this is it use it
+  while (frame) { //till we reach '' (the initial value);
+    if (tag_list.indexOf(frame.tag) !== -1) { //if this is it use it
+      break;
+    } else if (stop_list && stop_list.indexOf(frame.tag) !== -1) {
+      frame = null;
       break;
     }
-    temp_parent = temp_parent.parent;
+    frame = frame.parent;
   }
 
-  if (temp_parent) {
-    printer.indent_level = temp_parent.indent_level;
+  return frame;
+};
+
+TagStack.prototype.try_pop = function(tag, stop_list) { //function to retrieve the opening tag to the corresponding closer
+  var frame = this._get_frame([tag], stop_list);
+  return this._try_pop_frame(frame);
+};
+
+TagStack.prototype.indent_to_tag = function(tag_list) {
+  var frame = this._get_frame(tag_list);
+  if (frame) {
+    this._printer.indent_level = frame.indent_level;
   }
 };
 
@@ -1541,8 +1546,6 @@ Beautifier.prototype.beautify = function() {
   // HACK: newline parsing inconsistent. This brute force normalizes the input.
   source_text = source_text.replace(allLineBreaks, '\n');
 
-  this._tag_stack = new TagFrame();
-
   var last_token = {
     text: '',
     type: ''
@@ -1553,6 +1556,8 @@ Beautifier.prototype.beautify = function() {
   var printer = new Printer(this._options.indent_character, this._options.indent_size,
     this._options.wrap_line_length, this._options.max_preserve_newlines, this._options.preserve_newlines);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
+
+  this._tag_stack = new TagStack(printer);
 
   var parser_token = null;
   var raw_token = tokens.next();
@@ -1813,7 +1818,7 @@ var TagOpenParserToken = function(parent, raw_token) {
 };
 
 Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to get a full tag and parse its type
-  var parser_token = new TagOpenParserToken(this._tag_stack.parser_token, raw_token);
+  var parser_token = new TagOpenParserToken(this._tag_stack.get_parser_token(), raw_token);
 
   parser_token.alignment_size = this._options.wrap_attributes_indent_size;
 
@@ -1834,13 +1839,13 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
   if (!parser_token.is_empty_element) {
     if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending
-      parser_token.start_tag_token = this._tag_stack.try_pop(parser_token.tag_name, printer); //remove it and all ancestors
+      parser_token.start_tag_token = this._tag_stack.try_pop(parser_token.tag_name); //remove it and all ancestors
     } else { // it's a start-tag
       // check if this tag is starting an element that has optional end element
       // and do an ending needed
-      this._do_optional_end_element(parser_token, printer);
+      this._do_optional_end_element(parser_token);
 
-      this._tag_stack.record_tag(parser_token.tag_name, parser_token, printer.indent_level); //push it on the tag stack
+      this._tag_stack.record_tag(parser_token); //push it on the tag stack
 
       if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
         !(parser_token.is_unformatted || parser_token.is_content_unformatted)) {
@@ -1859,7 +1864,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
   if (parser_token.is_empty_element) { //if this tag name is a single tag type (either in the list or has a closing /)
 
     if (parser_token.tag_start_char === '{' && parser_token.tag_check === 'else') {
-      this._tag_stack.indent_to_tag(['if', 'unless'], printer);
+      this._tag_stack.indent_to_tag(['if', 'unless']);
       parser_token.indent_content = true;
       // Don't add a newline if opening {{#if}} tag is on the current line
       var foundIfOnCurrentLine = printer.current_line_has_match(/{{#if/);
@@ -1902,8 +1907,10 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
   }
 };
 
+//To be used for <p> tag special case:
+//var p_closers = ['address', 'article', 'aside', 'blockquote', 'details', 'div', 'dl', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'];
 
-Beautifier.prototype._do_optional_end_element = function(parser_token, printer) {
+Beautifier.prototype._do_optional_end_element = function(parser_token) {
   // NOTE: cases of "if there is no more content in the parent element"
   // are handled automatically by the beautifier.
   // It assumes parent or ancestor close tag closes all children.
@@ -1913,61 +1920,82 @@ Beautifier.prototype._do_optional_end_element = function(parser_token, printer) 
 
   } else if (parser_token.tag_name === 'body') {
     // A head element’s end tag may be omitted if the head element is not immediately followed by a space character or a comment.
-    this._tag_stack.try_pop('head', printer);
+    this._tag_stack.try_pop('head');
 
-  } else if (parser_token.parent.tag_name === 'body') {
-    // TODO: A body element’s end tag may be omitted if the body element is not immediately followed by a comment.
+    //} else if (parser_token.tag_name === 'body') {
+    // DONE: A body element’s end tag may be omitted if the body element is not immediately followed by a comment.
 
   } else if (parser_token.tag_name === 'li') {
     // An li element’s end tag may be omitted if the li element is immediately followed by another li element or if there is no more content in the parent element.
-    this._tag_stack.try_pop('li', printer);
+    this._tag_stack.try_pop('li', ['ol', 'ul']);
 
   } else if (parser_token.tag_name === 'dd' || parser_token.tag_name === 'dt') {
     // A dd element’s end tag may be omitted if the dd element is immediately followed by another dd element or a dt element, or if there is no more content in the parent element.
     // A dt element’s end tag may be omitted if the dt element is immediately followed by another dt element or a dd element.
-    this._tag_stack.try_pop('dt', printer);
-    this._tag_stack.try_pop('dd', printer);
+    this._tag_stack.try_pop('dt', ['dl']);
+    this._tag_stack.try_pop('dd', ['dl']);
 
-  } else if (parser_token.parent.tag_name === 'rp' || parser_token.parent.tag_name === 'rt') {
+    //} else if (p_closers.indexOf(parser_token.tag_name) !== -1) {
+    //TODO: THIS IS A BUG FARM. We are not putting this into 1.8.0 as it is likely to blow up.
+    //A p element’s end tag may be omitted if the p element is immediately followed by an address, article, aside, blockquote, details, div, dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hr, main, nav, ol, p, pre, section, table, or ul element, or if there is no more content in the parent element and the parent element is an HTML element that is not an a, audio, del, ins, map, noscript, or video element, or an autonomous custom element.
+    //this._tag_stack.try_pop('p', ['body']);
+
+  } else if (parser_token.tag_name === 'rp' || parser_token.tag_name === 'rt') {
     // An rt element’s end tag may be omitted if the rt element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
     // An rp element’s end tag may be omitted if the rp element is immediately followed by an rt or rp element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('rt', printer);
-    this._tag_stack.try_pop('rp', printer);
+    this._tag_stack.try_pop('rt', ['ruby', 'rtc']);
+    this._tag_stack.try_pop('rp', ['ruby', 'rtc']);
 
   } else if (parser_token.tag_name === 'optgroup') {
     // An optgroup element’s end tag may be omitted if the optgroup element is immediately followed by another optgroup element, or if there is no more content in the parent element.
     // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('optgroup', printer);
-    this._tag_stack.try_pop('option', printer);
+    this._tag_stack.try_pop('optgroup', ['select']);
+    //this._tag_stack.try_pop('option', ['select']);
 
   } else if (parser_token.tag_name === 'option') {
     // An option element’s end tag may be omitted if the option element is immediately followed by another option element, or if it is immediately followed by an optgroup element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('option', printer);
+    this._tag_stack.try_pop('option', ['select', 'datalist', 'optgroup']);
 
-  } else if (parser_token.parent.tag_name === 'colgroup') {
-    // TODO: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
+  } else if (parser_token.tag_name === 'colgroup') {
+    // DONE: A colgroup element’s end tag may be omitted if the colgroup element is not immediately followed by a space character or a comment.
+    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    this._tag_stack.try_pop('caption', ['table']);
 
-  } else if (parser_token.parent.tag_name === 'caption') {
-    // TODO: A caption element’s end tag may be omitted if the caption element is not immediately followed by a space character or a comment.
+  } else if (parser_token.tag_name === 'thead') {
+    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    this._tag_stack.try_pop('caption', ['table']);
+    this._tag_stack.try_pop('colgroup', ['table']);
+
+    //} else if (parser_token.tag_name === 'caption') {
+    // DONE: A caption element’s end tag may be omitted if the caption element is not immediately followed by a space character or a comment.
 
   } else if (parser_token.tag_name === 'tbody' || parser_token.tag_name === 'tfoot') {
     // A thead element’s end tag may be omitted if the thead element is immediately followed by a tbody or tfoot element.
     // A tbody element’s end tag may be omitted if the tbody element is immediately followed by a tbody or tfoot element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('thead', printer);
-    this._tag_stack.try_pop('tbody', printer);
+    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    this._tag_stack.try_pop('caption', ['table']);
+    this._tag_stack.try_pop('colgroup', ['table']);
+    this._tag_stack.try_pop('thead', ['table']);
+    this._tag_stack.try_pop('tbody', ['table']);
 
-  } else if (parser_token.tag_name === 'tfoot') {
-    // TODO: A tfoot element’s end tag may be omitted if there is no more content in the parent element.
+    //} else if (parser_token.tag_name === 'tfoot') {
+    // DONE: A tfoot element’s end tag may be omitted if there is no more content in the parent element.
 
   } else if (parser_token.tag_name === 'tr') {
     // A tr element’s end tag may be omitted if the tr element is immediately followed by another tr element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('tr', printer);
+    // A colgroup element's end tag may be ommitted if a thead, tfoot, tbody, or tr element is started.
+    // A caption element's end tag may be ommitted if a colgroup, thead, tfoot, tbody, or tr element is started.
+    this._tag_stack.try_pop('caption', ['table']);
+    this._tag_stack.try_pop('colgroup', ['table']);
+    this._tag_stack.try_pop('tr', ['table', 'thead', 'tbody', 'tfoot']);
 
   } else if (parser_token.tag_name === 'th' || parser_token.tag_name === 'td') {
     // A td element’s end tag may be omitted if the td element is immediately followed by a td or th element, or if there is no more content in the parent element.
     // A th element’s end tag may be omitted if the th element is immediately followed by a td or th element, or if there is no more content in the parent element.
-    this._tag_stack.try_pop('td', printer);
-    this._tag_stack.try_pop('th', printer);
+    this._tag_stack.try_pop('td', ['tr']);
+    this._tag_stack.try_pop('th', ['tr']);
   }
 
   // Start element omission not handled currently
@@ -1976,7 +2004,7 @@ Beautifier.prototype._do_optional_end_element = function(parser_token, printer) 
   // A colgroup element’s start tag may be omitted if the first thing inside the colgroup element is a col element, and if the element is not immediately preceded by another colgroup element whose end tag has been omitted. (It can’t be omitted if the element is empty.)
 
   // Fix up the parent of the parser token
-  parser_token.parent = this._tag_stack.parser_token;
+  parser_token.parent = this._tag_stack.get_parser_token();
 
 };
 
