@@ -1831,6 +1831,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{field}}\n' +
             '    {{else}}\n' +
@@ -2056,6 +2064,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
@@ -2283,6 +2299,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{! comment}}\n' +
             '    {{else}}\n' +
@@ -2508,6 +2532,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{!-- comment--}}\n' +
@@ -2735,6 +2767,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
@@ -2960,6 +3000,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
@@ -3239,6 +3287,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{! \n' +
@@ -3636,6 +3692,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
@@ -4073,6 +4137,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
             ' mult-line\n' +
@@ -4501,6 +4573,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    content\n' +

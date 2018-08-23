@@ -894,6 +894,20 @@ exports.test_data = {
         ]
       },
 
+      // Issue #1415 -- Indent Formatting with Handlebars and &nbsp
+      {
+        input_: [
+          '{{#isDealLink}}',
+          '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ],
+        output: [
+          '{{#isDealLink}}',
+          '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ]
+      },
+
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
         input_: '{{#if 1}}\n' +
