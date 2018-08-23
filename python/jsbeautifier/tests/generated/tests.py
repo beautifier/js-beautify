@@ -129,6 +129,10 @@ class TestJSBeautifier(unittest.TestCase):
             'var ' + unicode_char(228) + 'x = {\n' +
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};')
+        bt(
+            'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
+            #  -- output --
+            'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
 
 
         #============================================================

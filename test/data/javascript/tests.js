@@ -47,6 +47,9 @@ exports.test_data = {
           "    ' + unicode_char(228) + 'rgerlich: true",
           "};"
         ]
+      }, {
+        input_: "var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";",
+        output: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
       }]
     }, {
       name: "Test template and continuation strings",

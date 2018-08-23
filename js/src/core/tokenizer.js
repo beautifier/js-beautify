@@ -45,8 +45,8 @@ var Tokenizer = function(input_string, options) {
   this.__newline_count = 0;
   this.__whitespace_before_token = '';
 
-  this._whitespace_pattern = /[\n\r\u2028\u2029\t ]+/g;
-  this._newline_pattern = /([\t ]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  this._whitespace_pattern = /[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+/g;
+  this._newline_pattern = /([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?/g;
 };
 
 Tokenizer.prototype.tokenize = function() {

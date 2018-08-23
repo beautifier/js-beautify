@@ -145,6 +145,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Unicode Support
+        reset_options();
+        set_name('Unicode Support');
+        bth('<p>Hello' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>');
+
+
+        //============================================================
         // Handle inline and block elements differently - ()
         reset_options();
         set_name('Handle inline and block elements differently - ()');
@@ -437,9 +444,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force';
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -504,6 +522,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -511,6 +539,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -576,9 +625,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -644,6 +704,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -651,6 +721,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -704,6 +795,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -711,6 +812,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -759,9 +881,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 0;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -790,9 +923,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'force-aligned';
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -857,6 +1001,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -864,6 +1018,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -933,6 +1108,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -940,6 +1125,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -987,9 +1193,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes = 'aligned-multiple';
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -1019,9 +1236,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -1082,9 +1310,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 4;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
@@ -1164,6 +1403,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment(
@@ -1171,6 +1420,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
+            '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
+            '    0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1250,9 +1520,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_attributes_indent_size = 8;
         bth('<div  >This is some text</div>', '<div>This is some text</div>');
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>');
         
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects &nbsp;
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
+        
+        // issue #1496 - respect unicode non-breaking space
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
+        
+        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');

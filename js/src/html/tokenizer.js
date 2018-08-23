@@ -53,9 +53,12 @@ var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
   this._current_tag_name = '';
 
+  this._whitespace_pattern = /[\n\r\t ]+/g;
+  this._newline_pattern = /([^\n\r]*)(\r\n|[\n\r])?/g;
+
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word_pattern = this._options.indent_handlebars ? /[\s<]|{{/g : /[\s<]/g;
+  this._word_pattern = this._options.indent_handlebars ? /[\n\r\t <]|{{/g : /[\n\r\t <]/g;
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -178,10 +181,10 @@ Tokenizer.prototype._read_open = function(c, open_token) {
   var token = null;
   if (!open_token) {
     if (c === '<') {
-      resulting_string = this._input.read(/<(?:[^\s>{][^\s>{/]*)?/g);
+      resulting_string = this._input.read(/<(?:[^\n\r\t >{][^\n\r\t >{/]*)?/g);
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     } else if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
-      resulting_string = this._input.readUntil(/[\s}]/g);
+      resulting_string = this._input.readUntil(/[\n\r\t }]/g);
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
@@ -234,7 +237,7 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
       if (c === '{' && this._input.peek(1) === '{') {
         resulting_string = this._input.readUntilAfter(/}}/g);
       } else {
-        resulting_string = this._input.readUntil(/[\s=\/>]/g);
+        resulting_string = this._input.readUntil(/[\n\r\t =\/>]/g);
       }
 
       if (resulting_string) {
@@ -267,7 +270,7 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
   } else if (previous_token.type === TOKEN.TAG_CLOSE && (previous_token.opened.text[0] === '<')) {
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (this._is_content_unformatted(tag_name)) {
-      resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '\\s*?>', 'ig'));
+      resulting_string = this._input.readUntil(new RegExp('</' + tag_name + '[\\n\\r\\t ]*?>', 'ig'));
     }
   }
 

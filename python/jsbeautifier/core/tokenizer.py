@@ -53,9 +53,9 @@ class Tokenizer:
         self.__whitespace_before_token = ''
 
         self._whitespace_pattern = re.compile(
-            self.acorn.six.u(r'[\n\r\u2028\u2029\t ]+'))
+            self.acorn.six.u(r'[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+'))
         self._newline_pattern = re.compile(
-            self.acorn.six.u(r'([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
+            self.acorn.six.u(r'([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?'))
 
     def tokenize(self):
         self._input.restart()
