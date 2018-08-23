@@ -4710,7 +4710,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <li>\n' +
             '        test content\n' +
             '    <li>\n' +
-            '        test content\n' +
+            '        <ul>\n' +
+            '            <li> extra text\n' +
+            '            <li> depth check\n' +
+            '        </ul>\n' +
+            '    <li> test content\n' +
             '    <li>\n' +
             '        test content\n' +
             '</ol>');
@@ -4744,6 +4748,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</select>');
         bth(
             '<table>\n' +
+            '    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)\n' +
+            '    <colgroup>\n' +
+            '        <col>\n' +
+            '        <col>\n' +
+            '        <col>\n' +
             '    <thead>\n' +
             '        <tr>\n' +
             '            <th>Function\n' +
@@ -4766,6 +4775,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '            <td>Engineer’s cab lighting\n' +
             '            <td>\n' +
             '            <td>✔\n' +
+            '        <tr>\n' +
+            '            <td>Station Announcements - Swiss\n' +
+            '            <td>\n' +
+            '            <td>✔\n' +
+            '    <tfoot>\n' +
             '        <tr>\n' +
             '            <td>Station Announcements - Swiss\n' +
             '            <td>\n' +
