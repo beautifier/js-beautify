@@ -5359,6 +5359,24 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // ASP(X) and JSP directives <%@ indent formatting
+        reset_options();
+        set_name('ASP(X) and JSP directives <%@ indent formatting');
+        bth(
+            '<%@Master language="C#"%>\n' +
+            '<%@Register TagPrefix="a" Namespace="a" Assembly="a"%>\n' +
+            '<%@Register TagPrefix="b" Namespace="a" Assembly="a"%>\n' +
+            '<%@Register TagPrefix="c" Namespace="a" Assembly="a"%>\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<some-content />\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
         // Linewrap length
         reset_options();
         set_name('Linewrap length');

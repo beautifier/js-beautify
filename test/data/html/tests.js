@@ -1521,6 +1521,25 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "ASP(X) and JSP directives <%@ indent formatting",
+    description: "",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<%@Master language="C#"%>',
+        '<%@Register TagPrefix="a" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="b" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="c" Namespace="a" Assembly="a"%>',
+        '<!DOCTYPE html>',
+        '',
+        '<html>',
+        '',
+        '<some-content />',
+        '',
+        '</html>'
+      ]
+    }]
+  }, {
     name: "Linewrap length",
     description: "",
     options: [{ name: "wrap_line_length", value: "80" }],
