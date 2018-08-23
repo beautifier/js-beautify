@@ -29,6 +29,7 @@
   SOFTWARE.
 */
 /*jshint unused:false */
+/*jshint strict:false */
 
 function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -320,6 +321,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var ' + unicode_char(228) + 'x = {\n' +
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};');
+        bt(
+            'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
+            //  -- output --
+            'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
 
 
         //============================================================
@@ -5395,6 +5400,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         test_fragment(null, '');
+
+        reset_options();
+        //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
 
         reset_options();
         //============================================================

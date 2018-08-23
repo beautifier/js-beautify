@@ -32,6 +32,8 @@
 
 */
 
+'use strict';
+
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
   console.error.apply(console, arguments);
 } : function() {};
@@ -396,7 +398,7 @@ function usage(err) {
 
 function processInputSync(filepath) {
   var data = '',
-    config = this.cfg,
+    config = this.cfg, // jshint ignore:line
     outfile = config.outfile,
     input;
 

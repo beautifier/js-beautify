@@ -36,6 +36,12 @@ exports.test_data = {
     { name: "extra_liners", value: "['html', 'head', '/html']" }
   ],
   groups: [{
+    name: "Unicode Support",
+    description: "",
+    tests: [{
+      unchanged: "<p>Hello' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>"
+    }]
+  }, {
     name: "Handle inline and block elements differently",
     description: "",
     matrix: [{}],
@@ -496,6 +502,34 @@ exports.test_data = {
         output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
       }, {
         fragment: true,
+        input: '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "issue #869",
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013{{indent_content80}}0014&nbsp;0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "TODO: This is wrong - goes over line length but respects &nbsp;",
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "issue #1496 - respect unicode non-breaking space",
+        fragment: true,
+        input: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>",
+        output: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013{{indent_content80}}0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>"
+      }, {
+        comment: "TODO: This is wrong - goes over line length but respects unicode nbsp",
+        fragment: true,
+        input: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>",
+        output: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015{{indent_content80}}0016 0017 0018 0019 0020</span>"
+      }, {
+        fragment: true,
         comment: 'Issue 1222 -- P tags are formatting correctly',
         input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
         output: '<p>Our forms for collecting address-related information follow a standard{{indent_content80}}design. Specific input elements will vary according to the form’s audience{{indent_content80}}and purpose.</p>'
@@ -541,6 +575,44 @@ exports.test_data = {
         output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
       }
     ]
+  }, {
+    name: "Issue #1335 -- <button> Bug with force-expand-multiline formatting",
+    description: "",
+    template: "^^^ $$$",
+    options: [
+      { name: "wrap_attributes", value: "'force-expand-multiline'" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<button',
+        '    class="my-class"',
+        '    id="id1"',
+        '>',
+        '    Button 1',
+        '</button>',
+        '',
+        '<button',
+        '    class="my-class"',
+        '    id="id2"',
+        '>',
+        '    Button 2',
+        '</button>'
+      ]
+    }, {
+      input_: [
+        '<button>',
+        '    <span>foo</span>',
+        '<p>bar</p>',
+        '</button>'
+      ],
+      output: [
+        '<button>',
+        '    <span>foo</span>',
+        '    <p>bar</p>',
+        '</button>'
+      ]
+    }]
   }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
@@ -1955,6 +2027,11 @@ exports.test_data = {
         '    <p class="foo">foo <span class="bar">bar</span></p>',
         '</aside>',
         '<p class="foo"><span class="bar">bar</span></p>'
+      ]
+    }, {
+      comment: "Test for #869 - not exactly what the user wants but no longer horrible",
+      unchanged: [
+        '<div><input type="checkbox" id="j" name="j" value="foo">&nbsp;<label for="j">Foo</label></div>'
       ]
     }, {
       comment: "Test for #1167",

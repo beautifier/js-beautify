@@ -1,4 +1,4 @@
-/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*jshint node:true */
 /*
 
   The MIT License (MIT)
@@ -26,7 +26,10 @@
   SOFTWARE.
 */
 
+'use strict';
+
 var mergeOpts = require('../core/options').mergeOpts;
+var normalizeOpts = require('../core/options').normalizeOpts;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var Tokenizer = require('../html/tokenizer').Tokenizer;
@@ -247,6 +250,7 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
   options = mergeOpts(options, 'html');
+  options = normalizeOpts(options);
 
   // backwards compatibility to 1.3.4
   if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
@@ -354,7 +358,7 @@ Beautifier.prototype.beautify = function() {
   var tokens = new Tokenizer(source_text, this._options).tokenize();
 
   var parser_token = null;
-  raw_token = tokens.next();
+  var raw_token = tokens.next();
   while (raw_token.type !== TOKEN.EOF) {
 
     if (raw_token.type === TOKEN.TAG_OPEN || raw_token.type === TOKEN.COMMENT) {
@@ -369,7 +373,7 @@ Beautifier.prototype.beautify = function() {
       parser_token = this._handle_text(printer, raw_token, last_tag_token);
     } else {
       // This should never happen, but if it does. Print the raw token
-      printer.add_raw_token(token);
+      printer.add_raw_token(raw_token);
     }
 
     last_token = parser_token;
@@ -382,7 +386,7 @@ Beautifier.prototype.beautify = function() {
 };
 
 Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_token) {
-  parser_token = { text: raw_token.text, type: raw_token.type };
+  var parser_token = { text: raw_token.text, type: raw_token.type };
   printer.alignment_size = 0;
   last_tag_token.tag_complete = true;
 
@@ -415,7 +419,7 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
 };
 
 Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_token, tokens) {
-  parser_token = { text: raw_token.text, type: raw_token.type };
+  var parser_token = { text: raw_token.text, type: raw_token.type };
   printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '');
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
@@ -470,7 +474,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
 };
 
 Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token) {
-  parser_token = { text: raw_token.text, type: 'TK_CONTENT' };
+  var parser_token = { text: raw_token.text, type: 'TK_CONTENT' };
   if (last_tag_token.custom_beautifier) { //check if we need to format javascript
     this._print_custom_beatifier_text(printer, raw_token, last_tag_token);
   } else if (last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) {
@@ -534,7 +538,7 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
   var parser_token = this._get_tag_open_token(raw_token);
   printer.traverse_whitespace(raw_token);
 
-  this._set_tag_position(printer, parser_token, last_tag_token, last_token);
+  this._set_tag_position(printer, raw_token, parser_token, last_tag_token, last_token);
 
 
   if ((last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) &&
@@ -629,7 +633,7 @@ Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to g
   return parser_token;
 };
 
-Beautifier.prototype._set_tag_position = function(printer, parser_token, last_tag_token, last_token) {
+Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_token, last_tag_token, last_token) {
 
   if (!parser_token.is_empty_element) {
     if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending

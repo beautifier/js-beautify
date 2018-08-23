@@ -10221,6 +10221,15 @@ class CSSBeautifierTest(unittest.TestCase):
         #============================================================
         t(None, "")
 
+        self.reset_options()
+        #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        t(None, '\n')
+        
+        self.reset_options()
+        #============================================================
+
         t("", "")
         t("\n", "")
         t(".tabs{}\n", ".tabs {}")

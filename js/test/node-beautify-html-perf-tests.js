@@ -2,6 +2,7 @@
 /*jshint node:true */
 /*jshint unused:false */
 
+'use strict';
 
 var fs = require('fs'),
   SanityTest = require('./sanitytest'),

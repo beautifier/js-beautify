@@ -29,6 +29,7 @@ from .tokenizer import Tokenizer
 from .tokenizer import TOKEN
 from .options import BeautifierOptions
 from ..core.options import mergeOpts
+from ..core.options import normalizeOpts
 from ..core.output import Output
 
 
@@ -195,6 +196,7 @@ class Beautifier:
     def beautify(self, source_text='', opts=None):
         if opts is not None:
             opts = mergeOpts(opts, 'js')
+            opts = normalizeOpts(opts)
             self.opts = copy.copy(opts)
 
         # Compat with old form
