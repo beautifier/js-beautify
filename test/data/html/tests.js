@@ -1194,6 +1194,44 @@ exports.test_data = {
         '        <tr>',
         '            <td>Electric locomotive operating sounds',
         '            <td>✔',
+        '                <table>',
+        '                    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
+        '                    <colgroup>',
+        '                        <col>',
+        '                        <col>',
+        '                        <col>',
+        '                    <thead>',
+        '                        <tr>',
+        '                            <th>Function',
+        '                            <th>Control Unit',
+        '                            <th>Central Station',
+        '                    <tbody>',
+        '                        <tr>',
+        '                            <td>Headlights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Interior Lights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Electric locomotive operating sounds',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Engineer’s cab lighting',
+        '                            <td>',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                    <tfoot>',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                </table>',
         '            <td>✔',
         '        <tr>',
         '            <td>Engineer’s cab lighting',
@@ -1216,7 +1254,6 @@ exports.test_data = {
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-        fragment: true,
         input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
         output: [
           '<ol>',
@@ -1226,15 +1263,15 @@ exports.test_data = {
           '</ol>'
         ]
       },
-      { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
-      { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
+      { unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+      { unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
+      { unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
     ]
   }, {
     name: "File starting with comment",
@@ -1257,8 +1294,10 @@ exports.test_data = {
     description: "",
     options: [],
     tests: [{
+      comment: 'ignore starts _after_ the start comment, ends after the end comment',
       unchanged: [
-        '<!-- beautify ignore:start -->',
+        '<div>',
+        '    <!-- beautify ignore:start -->',
         '@{',
         '',
         '    ViewBag.Title = "Dashboard";',
@@ -1272,20 +1311,21 @@ exports.test_data = {
         '    }',
         '',
         '}',
-        '<!-- beautify ignore:end -->',
+        ' <!-- beautify ignore:end -->',
         '',
-        '<header class="layout-header">',
+        '    <header class="layout-header">',
         '',
-        '    <h2 id="logo"><a href="/">Logo</a></h2>',
+        '        <h2 id="logo"><a href="/">Logo</a></h2>',
         '',
-        '    <ul class="social">',
+        '        <ul class="social">',
         '',
-        '        <li class="facebook"><a href="#">Facebook</a></li>',
-        '        <li class="twitter"><a href="#">Twitter</a></li>',
+        '            <li class="facebook"><a href="#">Facebook</a></li>',
+        '            <li class="twitter"><a href="#">Twitter</a></li>',
         '',
-        '    </ul>',
+        '        </ul>',
         '',
-        '</header>'
+        '    </header>',
+        '</div>'
       ]
     }]
   }, {
@@ -1606,7 +1646,7 @@ exports.test_data = {
         '    </div>',
         '</body>'
       ],
-      //--------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
       output: [
         '<body>',
         '    <div>',

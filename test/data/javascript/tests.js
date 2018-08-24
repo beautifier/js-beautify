@@ -1459,12 +1459,16 @@ exports.test_data = {
           comment: 'Directive: ignore',
           unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */"
         },
-        { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */" },
+        { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n  /* beautify ignore:end */" },
         { unchanged: "var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */" },
-        { unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */" },
         {
-          input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
-          output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+          comment: 'ignore starts _after_ the start comment, ends after the end comment',
+          unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */"
+        },
+        { unchanged: "/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */" },
+        {
+          input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/*beautify ignore:end*/",
+          output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/*beautify ignore:end*/"
         },
         {
           input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",

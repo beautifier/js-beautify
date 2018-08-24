@@ -4914,6 +4914,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <tr>\n' +
             '            <td>Electric locomotive operating sounds\n' +
             '            <td>✔\n' +
+            '                <table>\n' +
+            '                    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)\n' +
+            '                    <colgroup>\n' +
+            '                        <col>\n' +
+            '                        <col>\n' +
+            '                        <col>\n' +
+            '                    <thead>\n' +
+            '                        <tr>\n' +
+            '                            <th>Function\n' +
+            '                            <th>Control Unit\n' +
+            '                            <th>Central Station\n' +
+            '                    <tbody>\n' +
+            '                        <tr>\n' +
+            '                            <td>Headlights\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Interior Lights\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Electric locomotive operating sounds\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Engineer’s cab lighting\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Station Announcements - Swiss\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                    <tfoot>\n' +
+            '                        <tr>\n' +
+            '                            <td>Station Announcements - Swiss\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                </table>\n' +
             '            <td>✔\n' +
             '        <tr>\n' +
             '            <td>Engineer’s cab lighting\n' +
@@ -4935,7 +4973,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Unformatted tags
         reset_options();
         set_name('Unformatted tags');
-        test_fragment(
+        bth(
             '<ol>\n' +
             '    <li>b<pre>c</pre></li>\n' +
             '</ol>',
@@ -4945,36 +4983,36 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <pre>c</pre>\n' +
             '    </li>\n' +
             '</ol>');
-        test_fragment(
+        bth(
             '<ol>\n' +
             '    <li>b<code>c</code></li>\n' +
             '</ol>');
-        test_fragment(
+        bth(
             '<ul>\n' +
             '    <li>\n' +
             '        <span class="octicon octicon-person"></span>\n' +
             '        <a href="/contact/">Kontakt</a>\n' +
             '    </li>\n' +
             '</ul>');
-        test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
-        test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
-        test_fragment(
+        bth('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
+        bth('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n' +
             '</p>');
@@ -4999,8 +5037,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // ISSUE #545 and #944 Ignore directive works in html
         reset_options();
         set_name('ISSUE #545 and #944 Ignore directive works in html');
+        
+        // ignore starts _after_ the start comment, ends after the end comment
         bth(
-            '<!-- beautify ignore:start -->\n' +
+            '<div>\n' +
+            '    <!-- beautify ignore:start -->\n' +
             '@{\n' +
             '\n' +
             '    ViewBag.Title = "Dashboard";\n' +
@@ -5014,20 +5055,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    }\n' +
             '\n' +
             '}\n' +
-            '<!-- beautify ignore:end -->\n' +
+            ' <!-- beautify ignore:end -->\n' +
             '\n' +
-            '<header class="layout-header">\n' +
+            '    <header class="layout-header">\n' +
             '\n' +
-            '    <h2 id="logo"><a href="/">Logo</a></h2>\n' +
+            '        <h2 id="logo"><a href="/">Logo</a></h2>\n' +
             '\n' +
-            '    <ul class="social">\n' +
+            '        <ul class="social">\n' +
             '\n' +
-            '        <li class="facebook"><a href="#">Facebook</a></li>\n' +
-            '        <li class="twitter"><a href="#">Twitter</a></li>\n' +
+            '            <li class="facebook"><a href="#">Facebook</a></li>\n' +
+            '            <li class="twitter"><a href="#">Twitter</a></li>\n' +
             '\n' +
-            '    </ul>\n' +
+            '        </ul>\n' +
             '\n' +
-            '</header>');
+            '    </header>\n' +
+            '</div>');
 
 
         //============================================================
