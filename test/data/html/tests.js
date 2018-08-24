@@ -1111,6 +1111,17 @@ exports.test_data = {
         '        test content',
         '    <dd>',
         '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        <dl>',
+        '            <dt>',
+        '                test content',
+        '            <dt>',
+        '                test content',
+        '            <dd>',
+        '                test content',
+        '        </dl>',
         '</dl>'
       ]
     }, {

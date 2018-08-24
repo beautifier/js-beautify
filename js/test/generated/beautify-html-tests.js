@@ -4808,6 +4808,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        test content\n' +
             '    <dd>\n' +
             '        test content\n' +
+            '    <dt>\n' +
+            '        test content\n' +
+            '    <dd>\n' +
+            '        <dl>\n' +
+            '            <dt>\n' +
+            '                test content\n' +
+            '            <dt>\n' +
+            '                test content\n' +
+            '            <dd>\n' +
+            '                test content\n' +
+            '        </dl>\n' +
             '</dl>');
         bth(
             '<select>\n' +
