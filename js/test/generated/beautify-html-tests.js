@@ -438,6 +438,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Issue #1403 -- no extra newlines in force-aligned wrap_attributes - (wrap_attributes = ""force-aligned"")
+        reset_options();
+        set_name('Issue #1403 -- no extra newlines in force-aligned wrap_attributes - (wrap_attributes = ""force-aligned"")');
+        opts.wrap_attributes = 'force-aligned';
+        test_fragment(
+            '<button class="btn btn-primary" ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})" type="button">Save</button>',
+            //  -- output --
+            '<button class="btn btn-primary"\n' +
+            '        ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})"\n' +
+            '        type="button">Save</button>');
+
+
+        //============================================================
         // Attribute Wrap - (wrap_attributes = ""force"")
         reset_options();
         set_name('Attribute Wrap - (wrap_attributes = ""force"")');

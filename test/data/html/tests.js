@@ -318,6 +318,23 @@ exports.test_data = {
       }
     ]
   }, {
+    name: "Issue #1403 -- no extra newlines in force-aligned wrap_attributes",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      input: '<button class="btn btn-primary" ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})" type="button">Save</button>',
+      output: [
+        '<button class="btn btn-primary"',
+        '        ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})"',
+        '        type="button">Save</button>'
+      ]
+    }]
+  }, {
     name: "Attribute Wrap",
     description: "Wraps attributes inside of html tags",
     matrix: [{
