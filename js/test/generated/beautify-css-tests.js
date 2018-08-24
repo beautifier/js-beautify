@@ -10242,6 +10242,33 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Issue #645
+        reset_options();
+        set_name('Issue #645');
+        opts.selector_separator_newline = true;
+        opts.preserve_newlines = true;
+        opts.newline_between_rules = true;
+        t(
+            '/* Comment above first rule */\n' +
+            '\n' +
+            'body {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment between rules */\n' +
+            '\n' +
+            'ul,\n' +
+            '\n' +
+            '/* Comment between selectors */\n' +
+            '\n' +
+            'li {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment after last rule */');
+
+
+        //============================================================
         // Extend Tests
         reset_options();
         set_name('Extend Tests');

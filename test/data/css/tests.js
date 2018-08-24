@@ -934,6 +934,36 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Issue #645",
+      description: "",
+      options: [
+        { name: "selector_separator_newline", value: "true" },
+        { name: "preserve_newlines", value: "true" },
+        { name: "newline_between_rules", value: "true" }
+
+      ],
+      tests: [{
+        unchanged: [
+          '/* Comment above first rule */',
+          '',
+          'body {',
+          '\tdisplay: none;',
+          '}',
+          '',
+          '/* Comment between rules */',
+          '',
+          'ul,',
+          '',
+          '/* Comment between selectors */',
+          '',
+          'li {',
+          '\tdisplay: none;',
+          '}',
+          '',
+          '/* Comment after last rule */'
+        ]
+      }]
+    }, {
       name: "Extend Tests",
       description: "Test for '@extend'",
       options: [],

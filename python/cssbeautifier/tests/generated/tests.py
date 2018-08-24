@@ -10131,6 +10131,32 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Issue #645
+        self.reset_options()
+        self.options.selector_separator_newline = true
+        self.options.preserve_newlines = true
+        self.options.newline_between_rules = true
+        t(
+            '/* Comment above first rule */\n' +
+            '\n' +
+            'body {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment between rules */\n' +
+            '\n' +
+            'ul,\n' +
+            '\n' +
+            '/* Comment between selectors */\n' +
+            '\n' +
+            'li {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment after last rule */')
+
+
+        #============================================================
         # Extend Tests
         self.reset_options()
         t(
