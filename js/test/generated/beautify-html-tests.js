@@ -1844,6 +1844,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
             '{{/isDealLink}}',
@@ -2077,6 +2081,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
@@ -2312,6 +2320,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
             '{{/isDealLink}}',
@@ -2545,6 +2557,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
@@ -2780,6 +2796,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
             '{{/isDealLink}}',
@@ -3013,6 +3033,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
@@ -3300,6 +3324,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
@@ -3705,6 +3733,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
@@ -4150,6 +4182,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
             '{{/isDealLink}}',
@@ -4586,6 +4622,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
         bth(
             '{{#isDealLink}}\n' +
             '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
