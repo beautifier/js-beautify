@@ -31,10 +31,7 @@ exports.test_data = {
     { name: "indent_size", value: "4" },
     { name: "indent_char", value: "' '" },
     { name: "preserve_newlines", value: "true" },
-    { name: "jslint_happy", value: "false" },
-    { name: "keep_array_indentation", value: "false" },
-    { name: "brace_style", value: "'collapse'" },
-    { name: "operator_position", value: "'before-newline'" }
+    { name: "jslint_happy", value: "false" }
   ],
   groups: [{
       name: "Unicode Support",
@@ -258,6 +255,17 @@ exports.test_data = {
 
         // brace_style collapse - Shouldn't preserve if no newlines (uses collapse styling)
         {
+          options: [],
+          ibo: '',
+          iao: '',
+          ibc: '',
+          iac: '',
+          obo: ' ',
+          oao: '\n    ',
+          obc: '\n',
+          oac: ' '
+        },
+        {
           options: [
             { name: "brace_style", value: "'collapse'" }
           ],
@@ -301,16 +309,10 @@ exports.test_data = {
           output: 'if (1)<obo>{<oao>2<obc>}<oac>else<obo>{<oao>3<obc>}'
         },
         {
-          input: 'try<ibo>{<iao>a();<ibc>}<iac>' +
-            'catch(b)<ibo>{<iao>c();<ibc>}<iac>' +
-            'catch(d)<ibo>{}<iac>' +
-            'finally<ibo>{<iao>e();<ibc>}',
+          input: 'try<ibo>{<iao>a();<ibc>}<iac>' + 'catch(b)<ibo>{<iao>c();<ibc>}<iac>' + 'catch(d)<ibo>{}<iac>' + 'finally<ibo>{<iao>e();<ibc>}',
           output:
             // expected
-            'try<obo>{<oao>a();<obc>}<oac>' +
-            'catch (b)<obo>{<oao>c();<obc>}<oac>' +
-            'catch (d)<obo>{}<oac>' +
-            'finally<obo>{<oao>e();<obc>}'
+            'try<obo>{<oao>a();<obc>}<oac>' + 'catch (b)<obo>{<oao>c();<obc>}<oac>' + 'catch (d)<obo>{}<oac>' + 'finally<obo>{<oao>e();<obc>}'
         }
       ]
     }, {
@@ -574,6 +576,12 @@ exports.test_data = {
       name: "operator_position option - ensure no neswlines if preserve_newlines is false",
       matrix: [{
         options: [
+          // test for default
+          // { name: "operator_position", value: "'before-newline'" },
+          { name: "preserve_newlines", value: "false" }
+        ]
+      }, {
+        options: [
           { name: "operator_position", value: "'before-newline'" },
           { name: "preserve_newlines", value: "false" }
         ]
@@ -596,6 +604,16 @@ exports.test_data = {
       }]
     }, {
       name: 'operator_position option - set to "before-newline" (default value)',
+      matrix: [{
+        options: [
+          // test for default
+          // { name: "operator_position", value: "'before-newline'" }
+        ]
+      }, {
+        options: [
+          { name: "operator_position", value: "'before-newline'" }
+        ]
+      }],
       tests: [{
         comment: 'comprehensive, various newlines',
         input: inputlib.operator_position.comprehensive,
@@ -2749,8 +2767,7 @@ exports.test_data = {
             '    var obj = {<oao>' + //NL in templates
             '<oaot><oaot>a: function() { console.log("test"); },',
             '        b()<obo><obot><obot>{<oao>' + //NL in templates
-            '<oaot><oaot><oaot>console.log("test2");' +
-            '<obc>        }' + //NL in templates
+            '<oaot><oaot><oaot>console.log("test2");' + '<obc>        }' + //NL in templates
             '<obc>    };' + //NL in templates
             '<obc>}'
           ]

@@ -28,8 +28,7 @@
 
 'use strict';
 
-var mergeOpts = require('../core/options').mergeOpts;
-var normalizeOpts = require('../core/options').normalizeOpts;
+var Options = require('../html/options').Options;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var Tokenizer = require('../html/tokenizer').Tokenizer;
@@ -38,22 +37,15 @@ var TOKEN = require('../html/tokenizer').TOKEN;
 var lineBreak = acorn.lineBreak;
 var allLineBreaks = acorn.allLineBreaks;
 
-var Printer = function(indent_character, indent_size, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
+var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
 
-  this.indent_character = indent_character;
-  this.indent_string = indent_character;
-  this.indent_size = indent_size;
   this.indent_level = 0;
   this.alignment_size = 0;
   this.wrap_line_length = wrap_line_length;
   this.max_preserve_newlines = max_preserve_newlines;
   this.preserve_newlines = preserve_newlines;
 
-  if (this.indent_size > 1) {
-    this.indent_string = new Array(this.indent_size + 1).join(this.indent_character);
-  }
-
-  this._output = new Output(this.indent_string, '');
+  this._output = new Output(indent_string, '');
 
 };
 
@@ -98,9 +90,9 @@ Printer.prototype.traverse_whitespace = function(raw_token) {
 // at the wrap_line_length, append a newline/indentation.
 // return true if a newline was added, false if a space was added
 Printer.prototype.print_space_or_wrap = function(text) {
-  if (this._output.current_line.get_character_count() + text.length + 1 >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
-    if (this._output.add_new_line()) {
-      return true;
+  if (this.wrap_line_length) {
+    if (this._output.current_line.get_character_count() + text.length + 1 >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
+      return this._output.add_new_line();
     }
   }
   return false;
@@ -232,18 +224,6 @@ TagStack.prototype.indent_to_tag = function(tag_list) {
   }
 };
 
-function get_array(input, default_list) {
-  var result = default_list || [];
-  if (typeof input === 'object') {
-    if (input !== null && typeof input.concat === 'function') {
-      result = input.concat();
-    }
-  } else if (typeof input === 'string') {
-    result = input.trim().replace(/\s*,\s*/g, ',').split(',');
-  }
-  return result;
-}
-
 function Beautifier(source_text, options, js_beautify, css_beautify) {
   //Wrapper function to invoke all the necessary constructors and deal with the output.
   this._source_text = source_text || '';
@@ -254,75 +234,9 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
 
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
-  options = mergeOpts(options, 'html');
-  options = normalizeOpts(options);
+  var optionHtml = new Options(options, 'html');
 
-  // backwards compatibility to 1.3.4
-  if ((options.wrap_line_length === undefined || parseInt(options.wrap_line_length, 10) === 0) &&
-    (options.max_char !== undefined && parseInt(options.max_char, 10) !== 0)) {
-    options.wrap_line_length = options.max_char;
-  }
-
-  this._options = Object.assign({}, options);
-
-  this._options.indent_inner_html = (options.indent_inner_html === undefined) ? false : options.indent_inner_html;
-  this._options.indent_body_inner_html = (options.indent_body_inner_html === undefined) ? true : options.indent_body_inner_html;
-  this._options.indent_head_inner_html = (options.indent_head_inner_html === undefined) ? true : options.indent_head_inner_html;
-  this._options.indent_size = (options.indent_size === undefined) ? 4 : parseInt(options.indent_size, 10);
-  this._options.indent_character = (options.indent_char === undefined) ? ' ' : options.indent_char;
-  this._options.wrap_line_length = parseInt(options.wrap_line_length, 10) === 0 ? 32786 : parseInt(options.wrap_line_length || 250, 10);
-  this._options.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
-  this._options.max_preserve_newlines = this._options.preserve_newlines ?
-    (isNaN(parseInt(options.max_preserve_newlines, 10)) ? 32786 : parseInt(options.max_preserve_newlines, 10)) :
-    0;
-  this._options.indent_handlebars = (options.indent_handlebars === undefined) ? false : options.indent_handlebars;
-  this._options.wrap_attributes = (options.wrap_attributes === undefined) ? 'auto' : options.wrap_attributes;
-  this._options.wrap_attributes_indent_size = (isNaN(parseInt(options.wrap_attributes_indent_size, 10))) ? this._options.indent_size : parseInt(options.wrap_attributes_indent_size, 10);
-  this._options.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-  this._options.extra_liners = get_array(options.extra_liners, ['head', 'body', '/html']);
-  this._options.eol = options.eol ? options.eol : 'auto';
-
-  if (options.indent_with_tabs) {
-    this._options.indent_character = '\t';
-    this._options.indent_size = 1;
-  }
-
-  // Support passing the source text back with no change
-  this._options.disabled = (options.disabled === undefined) ? false : options.disabled;
-
-  this._options.eol = this._options.eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
-
-  this._options.inline = get_array(options.inline, [
-    // https://www.w3.org/TR/html5/dom.html#phrasing-content
-    'a', 'abbr', 'area', 'audio', 'b', 'bdi', 'bdo', 'br', 'button', 'canvas', 'cite',
-    'code', 'data', 'datalist', 'del', 'dfn', 'em', 'embed', 'i', 'iframe', 'img',
-    'input', 'ins', 'kbd', 'keygen', 'label', 'map', 'mark', 'math', 'meter', 'noscript',
-    'object', 'output', 'progress', 'q', 'ruby', 's', 'samp', /* 'script', */ 'select', 'small',
-    'span', 'strong', 'sub', 'sup', 'svg', 'template', 'textarea', 'time', 'u', 'var',
-    'video', 'wbr', 'text',
-    // prexisting - not sure of full effect of removing, leaving in
-    'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt'
-  ]);
-  this._options.void_elements = get_array(options.void_elements, [
-    // HTLM void elements - aka self-closing tags - aka singletons
-    // https://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
-    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen',
-    'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr',
-    // NOTE: Optional tags are too complex for a simple list
-    // they are hard coded in _do_optional_end_element
-
-    // Doctype and xml elements
-    '!doctype', '?xml',
-    // ?php and ?= tags
-    '?php', '?=',
-    // other tags that were in this list, keeping just in case
-    'basefont', 'isindex'
-  ]);
-  this._options.unformatted = get_array(options.unformatted, []);
-  this._options.content_unformatted = get_array(options.content_unformatted, [
-    'pre', 'textarea'
-  ]);
-
+  this._options = optionHtml;
 
   this._is_wrap_attributes_force = this._options.wrap_attributes.substr(0, 'force'.length) === 'force';
   this._is_wrap_attributes_force_expand_multiline = (this._options.wrap_attributes === 'force-expand-multiline');
@@ -356,7 +270,7 @@ Beautifier.prototype.beautify = function() {
 
   var last_tag_token = new TagOpenParserToken();
 
-  var printer = new Printer(this._options.indent_character, this._options.indent_size,
+  var printer = new Printer(this._options.indent_string,
     this._options.wrap_line_length, this._options.max_preserve_newlines, this._options.preserve_newlines);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
 
@@ -410,7 +324,6 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
 
   if (last_tag_token.indent_content &&
     !(last_tag_token.is_unformatted || last_tag_token.is_content_unformatted)) {
-
     printer.indent();
 
     // only indent once per opened tag
@@ -517,13 +430,13 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
       var Child_options = function() {
         this.eol = '\n';
       };
-      Child_options.prototype = this._options;
+      Child_options.prototype = this._options.raw_options;
       var child_options = new Child_options();
       text = _beautifier(indentation + text, child_options);
     } else {
       // simply indent the string otherwise
       var white = text.match(/^\s*/)[0];
-      var _level = white.match(/[^\n\r]*$/)[0].split(this._indent_string).length - 1;
+      var _level = white.match(/[^\n\r]*$/)[0].split(this._options.indent_string).length - 1;
       var reindent = this._get_full_indent(script_indent_level - _level);
       text = (indentation + text.trim())
         .replace(/\r\n|\r|\n/g, '\n' + reindent);

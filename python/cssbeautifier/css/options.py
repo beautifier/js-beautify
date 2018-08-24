@@ -23,41 +23,18 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from jsbeautifier.core.options import Options as BaseOptions
 
-class BeautifierOptions:
-    def __init__(self):
-        self.indent_size = 4
-        self.indent_char = ' '
-        self.indent_with_tabs = False
-        self.preserve_newlines = False
-        self.selector_separator_newline = True
-        self.end_with_newline = False
-        self.newline_between_rules = True
-        self.space_around_combinator = False
-        self.eol = 'auto'
-        self.disabled = False
+class BeautifierOptions(BaseOptions):
+    def __init__(self, options=None):
+        super(BeautifierOptions, self).__init__(options, 'css')
 
-        self.css = None
-        self.js = None
-        self.html = None
+        self.selector_separator_newline = self._get_boolean('selector_separator_newline', True)
+        self.newline_between_rules = self._get_boolean('newline_between_rules', True)
 
         # deprecated
-        self.space_around_selector_separator = False
+        space_around_selector_separator = self._get_boolean('space_around_selector_separator')
 
-    def __repr__(self):
-        return """indent_size = %d
-indent_char = [%s]
-indent_with_tabs = [%s]
-preserve_newlines = [%s]
-separate_selectors_newline = [%s]
-end_with_newline = [%s]
-newline_between_rules = [%s]
-space_around_combinator = [%s]
-""" % (self.indent_size,
-            self.indent_char,
-            self.indent_with_tabs,
-            self.preserve_newlines,
-            self.selector_separator_newline,
-            self.end_with_newline,
-            self.newline_between_rules,
-            self.space_around_combinator)
+        # Continue to accept deprecated option
+        self.space_around_combinator = self._get_boolean('space_around_combinator') or \
+            space_around_selector_separator

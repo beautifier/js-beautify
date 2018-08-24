@@ -685,26 +685,12 @@ exports.test_data = {
     ],
     tests: [{
         fragment: true,
-        input_: '{{#if 0}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}',
-        output: '{{#if 0}}\n' +
-          '<div>\n' +
-          '</div>\n' +
-          '{{/if}}'
+        input_: '{{#if 0}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}',
+        output: '{{#if 0}}\n' + '<div>\n' + '</div>\n' + '{{/if}}'
       }, {
         fragment: true,
-        input_: '<div>\n' +
-          '{{#each thing}}\n' +
-          '    {{name}}\n' +
-          '{{/each}}\n' +
-          '</div>',
-        output: '<div>\n' +
-          '    {{#each thing}}\n' +
-          '    {{name}}\n' +
-          '    {{/each}}\n' +
-          '</div>'
+        input_: '<div>\n' + '{{#each thing}}\n' + '    {{name}}\n' + '{{/each}}\n' + '</div>',
+        output: '<div>\n' + '    {{#each thing}}\n' + '    {{name}}\n' + '    {{/each}}\n' + '</div>'
       },
       {
         input_: [
@@ -858,59 +844,20 @@ exports.test_data = {
         input_: '{{#if     words}}^^^&content$$${{/if}}',
         output: '{{#if words}}^^^&content$$${{/if}}'
       }, {
-        unchanged: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        unchanged: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       }, {
-        input_: '{{#if 1}}\n' +
-          '<div>\n' +
-          '</div>\n' +
-          '{{/if}}',
-        output: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '<div>\n' + '</div>\n' + '{{/if}}',
+        output: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       }, {
-        unchanged: '<div>\n' +
-          '    {{#if 1}}\n' +
-          '    {{/if}}\n' +
-          '</div>'
+        unchanged: '<div>\n' + '    {{#if 1}}\n' + '    {{/if}}\n' + '</div>'
       }, {
-        input_: '<div>\n' +
-          '{{#if 1}}\n' +
-          '{{/if}}\n' +
-          '</div>',
-        output: '<div>\n' +
-          '    {{#if 1}}\n' +
-          '    {{/if}}\n' +
-          '</div>'
+        input_: '<div>\n' + '{{#if 1}}\n' + '{{/if}}\n' + '</div>',
+        output: '<div>\n' + '    {{#if 1}}\n' + '    {{/if}}\n' + '</div>'
       }, {
-        input_: '{{#if}}\n' +
-          '{{#each}}\n' +
-          '{{#if}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}\n' +
-          '{{#if}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}\n' +
-          '{{/each}}\n' +
-          '{{/if}}',
-        output: '{{#if}}\n' +
-          '    {{#each}}\n' +
-          '        {{#if}}\n' +
-          '            ^^^&content$$$\n' +
-          '        {{/if}}\n' +
-          '        {{#if}}\n' +
-          '            ^^^&content$$$\n' +
-          '        {{/if}}\n' +
-          '    {{/each}}\n' +
-          '{{/if}}'
+        input_: '{{#if}}\n' + '{{#each}}\n' + '{{#if}}\n' + '^^^&content$$$\n' + '{{/if}}\n' + '{{#if}}\n' + '^^^&content$$$\n' + '{{/if}}\n' + '{{/each}}\n' + '{{/if}}',
+        output: '{{#if}}\n' + '    {{#each}}\n' + '        {{#if}}\n' + '            ^^^&content$$$\n' + '        {{/if}}\n' + '        {{#if}}\n' + '            ^^^&content$$$\n' + '        {{/if}}\n' + '    {{/each}}\n' + '{{/if}}'
       }, {
-        unchanged: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        unchanged: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       },
 
       // Issue #576 -- Indent Formatting with Handlebars
@@ -982,42 +929,14 @@ exports.test_data = {
 
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
-        input_: '{{#if 1}}\n' +
-          '    ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{/if}}',
-        output: '{{#if 1}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{else}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '    ^^^&content$$$\n' + '    {{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}',
+        output: '{{#if 1}}\n' + '    ^^^&content$$$\n' + '{{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}'
       }, {
-        input_: '{{#if 1}}\n' +
-          '    {{else}}\n' +
-          '    {{/if}}',
-        output: '{{#if 1}}\n' +
-          '{{else}}\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '    {{else}}\n' + '    {{/if}}',
+        output: '{{#if 1}}\n' + '{{else}}\n' + '{{/if}}'
       }, {
-        input_: '{{#if thing}}\n' +
-          '{{#if otherthing}}\n' +
-          '    ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '^^^&content$$$\n' +
-          '    {{/if}}\n' +
-          '       {{else}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}',
-        output: '{{#if thing}}\n' +
-          '    {{#if otherthing}}\n' +
-          '        ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '        ^^^&content$$$\n' +
-          '    {{/if}}\n' +
-          '{{else}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{/if}}'
+        input_: '{{#if thing}}\n' + '{{#if otherthing}}\n' + '    ^^^&content$$$\n' + '    {{else}}\n' + '^^^&content$$$\n' + '    {{/if}}\n' + '       {{else}}\n' + '^^^&content$$$\n' + '{{/if}}',
+        output: '{{#if thing}}\n' + '    {{#if otherthing}}\n' + '        ^^^&content$$$\n' + '    {{else}}\n' + '        ^^^&content$$$\n' + '    {{/if}}\n' + '{{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}'
       },
       {
         comment: 'ISSUE #800 and #1123: else if and #unless',
@@ -1089,11 +1008,7 @@ exports.test_data = {
     ],
     tests: [{
         input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
-        output: '{{#if test}}\n' +
-          '    <div></div>\n' +
-          '{{else}}\n' +
-          '    <div></div>\n' +
-          '{{/if}}'
+        output: '{{#if test}}\n' + '    <div></div>\n' + '{{else}}\n' + '    <div></div>\n' + '{{/if}}'
       }, {
         unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
       },
@@ -1835,14 +1750,8 @@ exports.test_data = {
     ],
     tests: [{
       fragment: true,
-      input_: '<div>\n' +
-        '<div>\n' +
-        '</div>\n' +
-        '</div>',
-      output: '<div>\n' +
-        '    <div>\n' +
-        '    </div>\n' +
-        '</div>'
+      input_: '<div>\n' + '<div>\n' + '</div>\n' + '</div>',
+      output: '<div>\n' + '    <div>\n' + '    </div>\n' + '</div>'
     }]
   }, {
     name: "Do not indent html inner html by default",
@@ -1935,10 +1844,8 @@ exports.test_data = {
       input: '<div>\n\tfoo\n</div>',
       output: '<div> foo </div>'
     }, {
-      input_: '<div>Should not</div>\n\n\n' +
-        '<div>preserve newlines</div>',
-      output: '<div>Should not</div>\n' +
-        '<div>preserve newlines</div>'
+      input_: '<div>Should not</div>\n\n\n' + '<div>preserve newlines</div>',
+      output: '<div>Should not</div>\n' + '<div>preserve newlines</div>'
     }, {
       input: [
         '<header>',
@@ -1993,10 +1900,8 @@ exports.test_data = {
       { name: 'indent_size', value: "2" }
     ],
     tests: [{
-      input_: '<div>Should</div>\n\n\n' +
-        '<div>preserve zero newlines</div>',
-      output: '<div>Should</div>\n' +
-        '<div>preserve zero newlines</div>'
+      input_: '<div>Should</div>\n\n\n' + '<div>preserve zero newlines</div>',
+      output: '<div>Should</div>\n' + '<div>preserve zero newlines</div>'
     }, {
       input: [
         '<header>',
@@ -2039,10 +1944,8 @@ exports.test_data = {
       { name: 'max_preserve_newlines', value: "1" }
     ],
     tests: [{
-      input_: '<div>Should</div>\n\n\n' +
-        '<div>preserve one newline</div>',
-      output: '<div>Should</div>\n\n' +
-        '<div>preserve one newline</div>'
+      input_: '<div>Should</div>\n\n\n' + '<div>preserve one newline</div>',
+      output: '<div>Should</div>\n\n' + '<div>preserve one newline</div>'
     }, {
       input: [
         '<header>',
@@ -2088,8 +1991,7 @@ exports.test_data = {
       { name: 'max_preserve_newlines', value: "null" }
     ],
     tests: [{
-      unchanged: '<div>Should</div>\n\n\n' +
-        '<div>preserve zero newlines</div>'
+      unchanged: '<div>Should</div>\n\n\n' + '<div>preserve zero newlines</div>'
     }, {
       unchanged: [
         '<header>',

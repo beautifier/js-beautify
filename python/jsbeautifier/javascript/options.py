@@ -23,67 +23,71 @@
 # SOFTWARE.
 
 
-class BeautifierOptions:
-    def __init__(self):
-        self.indent_size = 4
-        self.indent_char = ' '
-        self.indent_with_tabs = False
-        self.eol = 'auto'
-        self.preserve_newlines = True
-        self.max_preserve_newlines = 10
-        self.space_in_paren = False
-        self.space_in_empty_paren = False
-        self.e4x = False
-        self.jslint_happy = False
-        self.space_after_anon_function = False
-        self.brace_style = 'collapse'
-        self.keep_array_indentation = False
-        self.space_before_conditional = True
-        self.keep_function_indentation = False
-        self.eval_code = False
-        self.unescape_strings = False
-        self.wrap_line_length = 0
-        self.unindent_chained_methods = False
-        self.break_chained_methods = False
-        self.end_with_newline = False
-        self.comma_first = False
-        self.operator_position = 'before-newline'
-        self.disabled = False
+from ..core.options import Options as BaseOptions
+
+OPERATOR_POSITION = [
+    'before-newline',
+    'after-newline',
+    'preserve-newline'
+]
+
+class BeautifierOptions(BaseOptions):
+    def __init__(self, options=None):
+        super(BeautifierOptions, self).__init__(options, 'js')
 
         self.css = None
         self.js = None
         self.html = None
 
+        # compatibility, re
+
+        raw_brace_style = getattr(self.raw_options, 'brace_style', None)
+        if raw_brace_style == "expand-strict": # graceful handling of deprecated option
+            setattr(self.raw_options, 'brace_style', "expand")
+        elif raw_brace_style == "collapse-preserve-inline": # graceful handling of deprecated option
+            setattr(self.raw_options, 'brace_style', "collapse,preserve-inline")
+        # elif bool(self.raw_options.braces_on_own_line): # graceful handling of deprecated option
+        #     raw_brace_style = "expand": "collapse"
+        # elif raw_brace_style is None: # Nothing exists to set it
+        #     setattr(self.raw_options, 'brace_style', "collapse")
+
+        # preserve-inline in delimited string will trigger brace_preserve_inline, everything
+        # else is considered a brace_style and the last one only will have an effect
+
+        brace_style_split = self._get_selection('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline'])
+
+        # preserve-inline in delimited string will trigger brace_preserve_inline
+        # Everything else is considered a brace_style and the last one only will
+        # have an effect
+        # specify defaults in case one half of meta-option is missing
+        self.brace_preserve_inline = False
+        self.brace_style = "collapse"
+
+        for bs in brace_style_split:
+            if bs == "preserve-inline":
+                self.brace_preserve_inline = True
+            else:
+                self.brace_style = bs
+
+        self.unindent_chained_methods = self._get_boolean('unindent_chained_methods')
+        self.break_chained_methods = self._get_boolean('break_chained_methods')
+        self.space_in_paren = self._get_boolean('space_in_paren')
+        self.space_in_empty_paren = self._get_boolean('space_in_empty_paren')
+        self.jslint_happy = self._get_boolean('jslint_happy')
+        self.space_after_anon_function = self._get_boolean('space_after_anon_function')
+        self.keep_array_indentation = self._get_boolean('keep_array_indentation')
+        self.space_before_conditional = self._get_boolean('space_before_conditional', True)
+        self.unescape_strings = self._get_boolean('unescape_strings')
+        self.e4x = self._get_boolean('e4x')
+        self.comma_first = self._get_boolean('comma_first')
+        self.operator_position = self._get_selection('operator_position', OPERATOR_POSITION)[0]
+
         # For testing of beautify preserve:start directive
         self.test_output_raw = False
         self.editorconfig = False
 
-    def __repr__(self):
-        return \
-            """indent_size = %d
-indent_char = [%s]
-preserve_newlines = %s
-max_preserve_newlines = %d
-space_in_paren = %s
-jslint_happy = %s
-space_after_anon_function = %s
-indent_with_tabs = %s
-brace_style = %s
-keep_array_indentation = %s
-eval_code = %s
-wrap_line_length = %s
-unescape_strings = %s
-""" % (self.indent_size,
-                self.indent_char,
-                self.preserve_newlines,
-                self.max_preserve_newlines,
-                self.space_in_paren,
-                self.jslint_happy,
-                self.space_after_anon_function,
-                self.indent_with_tabs,
-                self.brace_style,
-                self.keep_array_indentation,
-                self.eval_code,
-                self.wrap_line_length,
-                self.unescape_strings,
-       )
+        # force opts.space_after_anon_function to true if opts.jslint_happy
+        if self.jslint_happy:
+            self.space_after_anon_function = True
+
+        self.eval_code = False

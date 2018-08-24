@@ -28,8 +28,7 @@
 
 'use strict';
 
-var mergeOpts = require('../core/options').mergeOpts;
-var normalizeOpts = require('../core/options').normalizeOpts;
+var Options = require('./options').Options;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
@@ -39,33 +38,9 @@ var allLineBreaks = acorn.allLineBreaks;
 
 function Beautifier(source_text, options) {
   this._source_text = source_text || '';
-  options = options || {};
-
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
-  options = mergeOpts(options, 'css');
-  options = normalizeOpts(options);
-  this._options = {};
-
-  var indentSize = options.indent_size ? parseInt(options.indent_size, 10) : 4;
-  var indentCharacter = options.indent_char || ' ';
-  var preserve_newlines = (options.preserve_newlines === undefined) ? false : options.preserve_newlines;
-  var selectorSeparatorNewline = (options.selector_separator_newline === undefined) ? true : options.selector_separator_newline;
-  var end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-  var newline_between_rules = (options.newline_between_rules === undefined) ? true : options.newline_between_rules;
-  var space_around_combinator = (options.space_around_combinator === undefined) ? false : options.space_around_combinator;
-  space_around_combinator = space_around_combinator || ((options.space_around_selector_separator === undefined) ? false : options.space_around_selector_separator);
-  var eol = options.eol ? options.eol : 'auto';
-
-  // Support passing the source text back with no change
-  this._options.disabled = (options.disabled === undefined) ? false : options.disabled;
-
-  if (options.indent_with_tabs) {
-    indentCharacter = '\t';
-    indentSize = 1;
-  }
-
-  eol = eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
+  this._options = new Options(options);
 
   // tokenizer
   var whitespaceChar = /\s/;
@@ -96,21 +71,21 @@ function Beautifier(source_text, options) {
   // When allowAtLeastOneNewLine is true, will output new lines for each
   // newline character found; if the user has preserve_newlines off, only
   // the first newline will be output
-  function eatWhitespace(allowAtLeastOneNewLine) {
+  this.eatWhitespace = function(allowAtLeastOneNewLine) {
     var result = whitespaceChar.test(input.peek());
     var isFirstNewLine = true;
 
     while (whitespaceChar.test(input.peek())) {
       ch = input.next();
       if (allowAtLeastOneNewLine && ch === '\n') {
-        if (preserve_newlines || isFirstNewLine) {
+        if (this._options.preserve_newlines || isFirstNewLine) {
           isFirstNewLine = false;
           output.add_new_line(true);
         }
       }
     }
     return result;
-  }
+  };
 
   // Nested pseudo-class if we are insideRule
   // and the next special character found opens
@@ -174,6 +149,7 @@ function Beautifier(source_text, options) {
     }
 
     var source_text = this._source_text;
+    var eol = this._options.eol;
     if (eol === 'auto') {
       eol = '\n';
       if (source_text && lineBreak.test(source_text || '')) {
@@ -186,19 +162,17 @@ function Beautifier(source_text, options) {
     source_text = source_text.replace(allLineBreaks, '\n');
 
     // reset
-    var singleIndent = new Array(indentSize + 1).join(indentCharacter);
     var baseIndentString = '';
     var preindent_index = 0;
     if (source_text && source_text.length) {
-      while ((source_text.charAt(preindent_index) === ' ' ||
-          source_text.charAt(preindent_index) === '\t')) {
+      while ((source_text.charAt(preindent_index) === ' ' || source_text.charAt(preindent_index) === '\t')) {
         preindent_index += 1;
       }
       baseIndentString = source_text.substring(0, preindent_index);
       source_text = source_text.substring(preindent_index);
     }
 
-    output = new Output(singleIndent, baseIndentString);
+    output = new Output(this._options.indent_string, baseIndentString);
     input = new InputScanner(source_text);
     indentLevel = 0;
     nestedLevel = 0;
@@ -235,7 +209,7 @@ function Beautifier(source_text, options) {
         print_string(input.read(block_comment_pattern));
 
         // Ensures any new lines following the comment are preserved
-        eatWhitespace(true);
+        this.eatWhitespace(true);
 
         // Block comments are followed by a new line so they don't
         // share a line with other properties
@@ -249,7 +223,7 @@ function Beautifier(source_text, options) {
         print_string(input.read(comment_pattern));
 
         // Ensures any new lines following the comment are preserved
-        eatWhitespace(true);
+        this.eatWhitespace(true);
       } else if (ch === '@') {
         preserveSingleSpace(isAfterSpace);
 
@@ -309,12 +283,12 @@ function Beautifier(source_text, options) {
           // otherwise, declarations are also allowed
           insideRule = (indentLevel >= nestedLevel);
         }
-        if (newline_between_rules && insideRule) {
+        if (this._options.newline_between_rules && insideRule) {
           if (output.previous_line && output.previous_line.item(-1) !== '{') {
             output.ensure_empty_line_above('/', ',');
           }
         }
-        eatWhitespace(true);
+        this.eatWhitespace(true);
         output.add_new_line();
       } else if (ch === '}') {
         outdent();
@@ -334,25 +308,23 @@ function Beautifier(source_text, options) {
           nestedLevel--;
         }
 
-        eatWhitespace(true);
+        this.eatWhitespace(true);
         output.add_new_line();
 
-        if (newline_between_rules && !output.just_added_blankline()) {
+        if (this._options.newline_between_rules && !output.just_added_blankline()) {
           if (input.peek() !== '}') {
             output.add_new_line(true);
           }
         }
       } else if (ch === ":") {
-        if ((insideRule || enteringConditionalGroup) &&
-          !(input.lookBack("&") || foundNestedPseudoClass()) &&
-          !input.lookBack("(") && !insideAtExtend) {
+        if ((insideRule || enteringConditionalGroup) && !(input.lookBack("&") || foundNestedPseudoClass()) && !input.lookBack("(") && !insideAtExtend) {
           // 'property: value' delimiter
           // which could be in a conditional group query
           print_string(':');
           if (!insidePropertyValue) {
             insidePropertyValue = true;
             output.space_before_token = true;
-            eatWhitespace(true);
+            this.eatWhitespace(true);
             indent();
           }
         } else {
@@ -375,7 +347,7 @@ function Beautifier(source_text, options) {
       } else if (ch === '"' || ch === '\'') {
         preserveSingleSpace(isAfterSpace);
         print_string(ch + eatString(ch));
-        eatWhitespace(true);
+        this.eatWhitespace(true);
       } else if (ch === ';') {
         if (insidePropertyValue) {
           outdent();
@@ -384,7 +356,7 @@ function Beautifier(source_text, options) {
         insideAtExtend = false;
         insideAtImport = false;
         print_string(ch);
-        eatWhitespace(true);
+        this.eatWhitespace(true);
 
         // This maintains single line comments on the same
         // line. Block comments are also affected, but
@@ -396,7 +368,7 @@ function Beautifier(source_text, options) {
       } else if (ch === '(') { // may be a url
         if (input.lookBack("url")) {
           print_string(ch);
-          eatWhitespace();
+          this.eatWhitespace();
           ch = input.next();
           if (ch === ')' || ch === '"' || ch !== '\'') {
             input.back();
@@ -408,29 +380,28 @@ function Beautifier(source_text, options) {
           parenLevel++;
           preserveSingleSpace(isAfterSpace);
           print_string(ch);
-          eatWhitespace();
+          this.eatWhitespace();
         }
       } else if (ch === ')') {
         print_string(ch);
         parenLevel--;
       } else if (ch === ',') {
         print_string(ch);
-        eatWhitespace(true);
-        if (selectorSeparatorNewline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
+        this.eatWhitespace(true);
+        if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
           output.add_new_line();
         } else {
           output.space_before_token = true;
         }
-      } else if ((ch === '>' || ch === '+' || ch === '~') &&
-        !insidePropertyValue && parenLevel < 1) {
+      } else if ((ch === '>' || ch === '+' || ch === '~') && !insidePropertyValue && parenLevel < 1) {
         //handle combinator spacing
-        if (space_around_combinator) {
+        if (this._options.space_around_combinator) {
           output.space_before_token = true;
           print_string(ch);
           output.space_before_token = true;
         } else {
           print_string(ch);
-          eatWhitespace();
+          this.eatWhitespace();
           // squash extra whitespace
           if (ch && whitespaceChar.test(ch)) {
             ch = '';
@@ -442,7 +413,7 @@ function Beautifier(source_text, options) {
         preserveSingleSpace(isAfterSpace);
         print_string(ch);
       } else if (ch === '=') { // no whitespace before or after
-        eatWhitespace();
+        this.eatWhitespace();
         print_string('=');
         if (whitespaceChar.test(ch)) {
           ch = '';
@@ -456,7 +427,7 @@ function Beautifier(source_text, options) {
       }
     }
 
-    var sweetCode = output.get_code(end_with_newline, eol);
+    var sweetCode = output.get_code(this._options.end_with_newline, eol);
 
     return sweetCode;
   };

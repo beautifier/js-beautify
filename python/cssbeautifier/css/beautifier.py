@@ -3,8 +3,6 @@ import sys
 import re
 import copy
 from .options import BeautifierOptions
-from jsbeautifier.core.options import mergeOpts
-from jsbeautifier.core.options import normalizeOpts
 from jsbeautifier.core.output import Output
 from jsbeautifier.core.inputscanner import InputScanner
 from jsbeautifier.__version__ import __version__
@@ -117,24 +115,13 @@ class Beautifier:
 
         self.__source_text = source_text
 
-        opts = mergeOpts(opts, 'css')
-        opts = normalizeOpts(opts)
-
-        # Continue to accept deprecated option
-        opts.space_around_combinator = opts.space_around_combinator or \
-            opts.space_around_selector_separator
+        opts = BeautifierOptions(opts)
 
         self.opts = opts
         self.indentSize = opts.indent_size
         self.indentChar = opts.indent_char
         self.input = None
         self.ch = None
-
-        if self.opts.indent_with_tabs:
-            self.indentChar = "\t"
-            self.indentSize = 1
-
-        self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule

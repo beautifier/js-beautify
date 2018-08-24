@@ -28,10 +28,9 @@
 
 'use strict';
 
-var mergeOpts = require('../core/options').mergeOpts;
-var normalizeOpts = require('../core/options').normalizeOpts;
 var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
+var Options = require('./options').Options;
 var Tokenizer = require('./tokenizer').Tokenizer;
 var line_starters = require('./tokenizer').line_starters;
 var positionable_operators = require('./tokenizer').positionable_operators;
@@ -68,18 +67,6 @@ function generateMapFromStrings(list) {
     result[list[x].replace(/-/g, '_')] = list[x];
   }
   return result;
-}
-
-function sanitizeOperatorPosition(opPosition) {
-  opPosition = opPosition || OPERATOR_POSITION.before_newline;
-
-  if (!in_array(opPosition, validPositionValues)) {
-    throw new Error("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
-      validPositionValues +
-      "\nYou passed in: '" + opPosition + "'");
-  }
-
-  return opPosition;
 }
 
 var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
@@ -166,74 +153,7 @@ function Beautifier(source_text, options) {
   this._previous_flags = null;
 
   this._flag_store = null;
-  this._options = {};
-
-  // Allow the setting of language/file-type specific options
-  // with inheritance of overall settings
-  options = mergeOpts(options, 'js');
-  options = normalizeOpts(options);
-
-  // compatibility, re
-  if (options.brace_style === "expand-strict") { //graceful handling of deprecated option
-    options.brace_style = "expand";
-  } else if (options.brace_style === "collapse-preserve-inline") { //graceful handling of deprecated option
-    options.brace_style = "collapse,preserve-inline";
-  } else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
-    options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
-  } else if (!options.brace_style) { //Nothing exists to set it
-    options.brace_style = "collapse";
-  }
-
-  //preserve-inline in delimited string will trigger brace_preserve_inline, everything
-  //else is considered a brace_style and the last one only will have an effect
-  var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
-  this._options.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
-  this._options.brace_style = "collapse";
-  for (var bs = 0; bs < brace_style_split.length; bs++) {
-    if (brace_style_split[bs] === "preserve-inline") {
-      this._options.brace_preserve_inline = true;
-    } else {
-      this._options.brace_style = brace_style_split[bs];
-    }
-  }
-
-  this._options.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
-  this._options.indent_char = options.indent_char ? options.indent_char : ' ';
-  this._options.eol = options.eol ? options.eol : 'auto';
-  this._options.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
-  this._options.unindent_chained_methods = (options.unindent_chained_methods === undefined) ? false : options.unindent_chained_methods;
-  this._options.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
-  this._options.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
-  this._options.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
-  this._options.space_in_empty_paren = (options.space_in_empty_paren === undefined) ? false : options.space_in_empty_paren;
-  this._options.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
-  this._options.space_after_anon_function = (options.space_after_anon_function === undefined) ? false : options.space_after_anon_function;
-  this._options.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
-  this._options.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
-  this._options.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
-  this._options.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
-  this._options.e4x = (options.e4x === undefined) ? false : options.e4x;
-  this._options.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-  this._options.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
-  this._options.operator_position = sanitizeOperatorPosition(options.operator_position);
-
-  // Support passing the source text back with no change
-  this._options.disabled = (options.disabled === undefined) ? false : options.disabled;
-
-  // For testing of beautify preserve:start directive
-  this._options.test_output_raw = (options.test_output_raw === undefined) ? false : options.test_output_raw;
-
-  // force this._options.space_after_anon_function to true if this._options.jslint_happy
-  if (this._options.jslint_happy) {
-    this._options.space_after_anon_function = true;
-  }
-
-  if (options.indent_with_tabs) {
-    this._options.indent_char = '\t';
-    this._options.indent_size = 1;
-  }
-
-  this._options.eol = this._options.eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
+  this._options = new Options(options);
 }
 
 Beautifier.prototype.create_flags = function(flags_base, mode) {
@@ -274,8 +194,6 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
 Beautifier.prototype._reset = function(source_text) {
   var baseIndentString = '';
 
-  var indent_string = new Array(this._options.indent_size + 1).join(this._options.indent_char);
-
   var preindent_index = 0;
   if (source_text && source_text.length) {
     while ((source_text.charAt(preindent_index) === ' ' ||
@@ -288,7 +206,7 @@ Beautifier.prototype._reset = function(source_text) {
 
   this._last_type = TOKEN.START_BLOCK; // last token type
   this._last_last_text = ''; // pre-last token text
-  this._output = new Output(indent_string, baseIndentString);
+  this._output = new Output(this._options.indent_string, baseIndentString);
 
   // If testing the ignore directive, start with output disable set to true
   this._output.raw = this._options.test_output_raw;
@@ -306,7 +224,7 @@ Beautifier.prototype._reset = function(source_text) {
   // MODE.BlockStatement and continues on.
   this._flag_store = [];
   this.set_mode(MODE.BlockStatement);
-  var tokenizer = new Tokenizer(source_text, this._options, indent_string);
+  var tokenizer = new Tokenizer(source_text, this._options);
   this._tokens = tokenizer.tokenize();
   return source_text;
 };

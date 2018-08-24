@@ -9,7 +9,7 @@ import errno
 import copy
 from jsbeautifier.__version__ import __version__
 from jsbeautifier.javascript.options import BeautifierOptions
-from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosition
+from jsbeautifier.javascript.beautifier import Beautifier
 
 #
 # The MIT License (MIT)
@@ -275,7 +275,7 @@ def main():
         elif opt in ('--comma-first', '-C'):
             js_options.comma_first = True
         elif opt in ('--operator-position', '-O'):
-            js_options.operator_position = sanitizeOperatorPosition(arg)
+            js_options.operator_position = arg
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):

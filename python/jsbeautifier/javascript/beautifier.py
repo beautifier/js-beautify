@@ -28,8 +28,6 @@ import copy
 from .tokenizer import Tokenizer
 from .tokenizer import TOKEN
 from .options import BeautifierOptions
-from ..core.options import mergeOpts
-from ..core.options import normalizeOpts
 from ..core.output import Output
 
 
@@ -82,21 +80,6 @@ OPERATOR_POSITION_BEFORE_OR_PRESERVE = [
     OPERATOR_POSITION['preserve_newline']]
 
 
-def sanitizeOperatorPosition(opPosition):
-    if not opPosition:
-        return OPERATOR_POSITION['before_newline']
-    elif opPosition not in OPERATOR_POSITION.values():
-        raise ValueError(
-            "Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
-            str(
-                OPERATOR_POSITION.values()) +
-            "\nYou passed in: '" +
-            opPosition +
-            "'")
-
-    return opPosition
-
-
 class MODE:
     BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
         ForInitializer, Conditional, Expression = range(7)
@@ -119,10 +102,10 @@ def remove_redundant_indentation(output, frame):
 
 class Beautifier:
 
-    def __init__(self, opts=default_options()):
+    def __init__(self, opts=None):
         import jsbeautifier.core.acorn as acorn
         self.acorn = acorn
-        self._options = copy.copy(opts)
+        self._options = BeautifierOptions(opts)
 
         self._blank_state()
 
@@ -136,23 +119,12 @@ class Beautifier:
         self._flag_store = []
         self._tokens = None
 
-        # force opts.space_after_anon_function to true if opts.jslint_happy
-        if self._options.jslint_happy:
-            self._options.space_after_anon_function = True
-
-        if self._options.indent_with_tabs:
-            self._options.indent_char = "\t"
-            self._options.indent_size = 1
-
         if self._options.eol == 'auto':
             self._options.eol = '\n'
             if self.acorn.lineBreak.search(js_source_text or ''):
                 self._options.eol = self.acorn.lineBreak.search(
                     js_source_text).group()
 
-        self._options.eol = self._options.eol.replace('\\r', '\r').replace('\\n', '\n')
-
-        indent_string = self._options.indent_char * self._options.indent_size
 
         baseIndentString = ''
         self._last_type = TOKEN.START_BLOCK  # last token type
@@ -166,7 +138,7 @@ class Beautifier:
                 preindent_index += 1
             js_source_text = js_source_text[preindent_index:]
 
-        self._output = Output(indent_string, baseIndentString)
+        self._output = Output(self._options.indent_string, baseIndentString)
         # If testing the ignore directive, start with output disable set to
         # true
         self._output.raw = self._options.test_output_raw
@@ -176,32 +148,8 @@ class Beautifier:
 
     def beautify(self, source_text='', opts=None):
         if opts is not None:
-            opts = mergeOpts(opts, 'js')
-            opts = normalizeOpts(opts)
-            self._options = copy.copy(opts)
+            self._options = BeautifierOptions(opts)
 
-        # Compat with old form
-        if self._options.brace_style == 'collapse-preserve-inline':
-            self._options.brace_style = 'collapse,preserve-inline'
-
-        # split always returns at least one value
-        split = re.compile(r"[^a-zA-Z0-9_\-]+").split(self._options.brace_style)
-        # preserve-inline in delimited string will trigger brace_preserve_inline
-        # Everything else is considered a brace_style and the last one only will
-        # have an effect
-        # specify defaults in case one half of meta-option is missing
-        self._options.brace_style = "collapse"
-        self._options.brace_preserve_inline = False
-        for bs in split:
-            if bs == "preserve-inline":
-                self._options.brace_preserve_inline = True
-            else:
-                # validate each brace_style that's not a preserve-inline
-                # (results in very similar validation as js version)
-                if bs not in ['expand', 'collapse', 'end-expand', 'none']:
-                    raise(Exception(
-                        'opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
-                self._options.brace_style = bs
 
         source_text = source_text or ''
         if self._options.disabled:
