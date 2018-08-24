@@ -105,8 +105,6 @@ var in_html_comment;
 
 var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
-  this.positionable_operators = positionable_operators;
-  this.line_starters = line_starters;
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -527,7 +525,7 @@ Tokenizer.prototype._read_string_recursive = function(delimiter, allow_unescaped
   return resulting_string;
 };
 
-
-
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
+module.exports.positionable_operators = positionable_operators.slice();
+module.exports.line_starters = line_starters.slice();

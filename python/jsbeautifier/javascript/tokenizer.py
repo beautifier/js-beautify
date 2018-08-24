@@ -114,10 +114,9 @@ class Tokenizer(BaseTokenizer):
     positionable_operators = positionable_operators
     line_starters = line_starters
 
-    def __init__(self, input_string, opts, indent_string):
+    def __init__(self, input_string, opts):
         BaseTokenizer.__init__(self, input_string, opts)
 
-        self.indent_string = indent_string
         self.in_html_comment = False
         self.has_char_escapes = False
 
