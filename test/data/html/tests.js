@@ -894,6 +894,15 @@ exports.test_data = {
         ]
       },
 
+      // Issue #1040 -- Ignore expressions in handlebar tags
+      {
+        unchanged: [
+          '{{#if `this.customerSegment == "Active"`}}',
+          '    ...',
+          '{{/if}}'
+        ]
+      },
+
       // Issue #1415 -- Indent Formatting with Handlebars and &nbsp
       {
         input_: [
