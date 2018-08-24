@@ -31,8 +31,7 @@
   Written by Daniel Stockman (daniel.stockman@gmail.com)
 
 */
-
-'use strict';
+/*jshint strict:false */
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
   console.error.apply(console, arguments);
@@ -398,7 +397,7 @@ function usage(err) {
 
 function processInputSync(filepath) {
   var data = '',
-    config = this.cfg, // jshint ignore:line
+    config = this.cfg,
     outfile = config.outfile,
     input;
 
