@@ -1631,6 +1631,25 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #1027 -- Formatting SVG files",
+    description: "",
+    options: [],
+    tests: [{
+      input: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"',
+        '     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '                    <rect id="XMLID_20_" x="-7"',
+        '                          class="st0"',
+        '                          width="49" height="36"/>',
+        '</svg>'
+      ],
+      output: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '    <rect id="XMLID_20_" x="-7" class="st0" width="49" height="36" />',
+        '</svg>'
+      ]
+    }]
+  }, {
     name: "Linewrap length",
     description: "",
     options: [{ name: "wrap_line_length", value: "80" }],
