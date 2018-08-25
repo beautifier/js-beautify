@@ -1723,22 +1723,25 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Indent with tabs",
-    description: "Use one tab instead of several spaces for indentation",
-    template: "^^^ $$$",
-    options: [
-      { name: "indent_with_tabs", value: "true" }
-    ],
+    name: "Linewrap length",
+    description: "",
+    options: [{ name: "wrap_line_length", value: "40" }],
     tests: [{
+      comment: "Issue #740 -- Negative values ending a line are wrapped as a unit",
       fragment: true,
-      input_: '<div>\n' +
-        '<div>\n' +
-        '</div>\n' +
-        '</div>',
-      output: '<div>\n' +
-        '\t<div>\n' +
-        '\t</div>\n' +
-        '</div>'
+      input: [
+        'return  someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !== -10;',
+        'return someLongExpressionThatGet !== -100;'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        'return someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !==',
+        '-10;',
+        'return someLongExpressionThatGet !==',
+        '-100;'
+      ]
     }]
   }, {
     name: "Indent without tabs",
