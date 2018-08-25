@@ -5563,6 +5563,23 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Issue #1027 -- Formatting SVG files
+        reset_options();
+        set_name('Issue #1027 -- Formatting SVG files');
+        bth(
+            '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\n' +
+            '     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">\n' +
+            '                    <rect id="XMLID_20_" x="-7"\n' +
+            '                          class="st0"\n' +
+            '                          width="49" height="36"/>\n' +
+            '</svg>',
+            //  -- output --
+            '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">\n' +
+            '    <rect id="XMLID_20_" x="-7" class="st0" width="49" height="36" />\n' +
+            '</svg>');
+
+
+        //============================================================
         // Linewrap length
         reset_options();
         set_name('Linewrap length');
