@@ -284,6 +284,7 @@ exports.test_data = {
   }, {
     name: "Attribute Wrap alignment with spaces",
     description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+    template: "^^^ $$$",
     matrix: [{
       options: [
         { name: "wrap_attributes", value: "'force-aligned'" },
@@ -291,10 +292,55 @@ exports.test_data = {
       ]
     }],
     tests: [{
-      fragment: true,
-      input: '<div><div a="1" b="2"><div>test</div></div></div>',
-      output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
-    }]
+        fragment: true,
+        input: '<div><div a="1" b="2"><div>test</div></div></div>',
+        output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<input type="radio"',
+          '       name="garage"',
+          '       id="garage-02"',
+          '       class="ns-e-togg__radio ns-js-form-binding"',
+          '       value="02"',
+          '       {{#ifCond data.antragsart "05"}}',
+          '       checked="checked"',
+          '       {{/ifCond}}>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<div>',
+          '\t<input type="radio"',
+          '\t       name="garage"',
+          '\t       id="garage-02"',
+          '\t       class="ns-e-togg__radio ns-js-form-binding"',
+          '\t       value="02"',
+          '\t       {{#ifCond data.antragsart "05"}}',
+          '\t       checked="checked"',
+          '\t       {{/ifCond}}>',
+          '</div>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '---',
+          'layout: mainLayout.html',
+          'page: default.html',
+          '---',
+          '',
+          '<div>',
+          '\t{{> componentXYZ my.data.key}}',
+          '\t{{> componentABC my.other.data.key}}',
+          '\t<span>Hello World</span>',
+          '\t<p>Your paragraph</p>',
+          '</div>'
+        ]
+      }
+    ]
   }, {
     name: "Attribute Wrap de-indent",
     description: "Tags de-indent when attributes are wrapped",

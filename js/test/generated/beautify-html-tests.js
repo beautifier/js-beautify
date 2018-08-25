@@ -400,6 +400,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t\t<div>test</div>\n' +
             '\t</div>\n' +
             '</div>');
+        test_fragment(
+            '<input type="radio"\n' +
+            '       name="garage"\n' +
+            '       id="garage-02"\n' +
+            '       class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '       value="02"\n' +
+            '       {{#ifCond data.antragsart "05"}}\n' +
+            '       checked="checked"\n' +
+            '       {{/ifCond}}>');
+        test_fragment(
+            '<div>\n' +
+            '\t<input type="radio"\n' +
+            '\t       name="garage"\n' +
+            '\t       id="garage-02"\n' +
+            '\t       class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '\t       value="02"\n' +
+            '\t       {{#ifCond data.antragsart "05"}}\n' +
+            '\t       checked="checked"\n' +
+            '\t       {{/ifCond}}>\n' +
+            '</div>');
+        test_fragment(
+            '---\n' +
+            'layout: mainLayout.html\n' +
+            'page: default.html\n' +
+            '---\n' +
+            '\n' +
+            '<div>\n' +
+            '\t{{> componentXYZ my.data.key}}\n' +
+            '\t{{> componentABC my.other.data.key}}\n' +
+            '\t<span>Hello World</span>\n' +
+            '\t<p>Your paragraph</p>\n' +
+            '</div>');
 
 
         //============================================================
