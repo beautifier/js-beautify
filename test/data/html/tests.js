@@ -1809,6 +1809,24 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Indent with tabs",
+    description: "Use one tab instead of several spaces for indentation",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_with_tabs", value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>\n' +
+        '<div>\n' +
+        '</div>\n' +
+        '</div>',
+      output: '<div>\n' +
+        '\t<div>\n' +
+        '\t</div>\n' +
+        '</div>'
+    }]
+  }, {
     name: "Indent without tabs",
     description: "Use several spaces for indentation",
     template: "^^^ $$$",

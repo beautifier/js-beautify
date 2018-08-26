@@ -5710,6 +5710,23 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Indent with tabs
+        reset_options();
+        set_name('Indent with tabs');
+        opts.indent_with_tabs = true;
+        test_fragment(
+            '<div>\n' +
+            '<div>\n' +
+            '</div>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '\t<div>\n' +
+            '\t</div>\n' +
+            '</div>');
+
+
+        //============================================================
         // Indent without tabs
         reset_options();
         set_name('Indent without tabs');
