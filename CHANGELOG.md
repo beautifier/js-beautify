@@ -1,4 +1,14 @@
 # Changelog
+## v1.8.1
+
+### Description
+
+
+### Closed Issues
+* Why npm is a dependency? ([#1516](https://github.com/beautify-web/js-beautify/issues/1516))
+* indent_inner_html not working in v1.8.0 ([#1514](https://github.com/beautify-web/js-beautify/issues/1514))
+
+
 ## v1.8.0
 
 ### Description
