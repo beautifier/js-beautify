@@ -24,6 +24,7 @@
 
 import copy
 import re
+from collections import namedtuple
 
 class Options:
     def __init__(self, options=None, merge_child_field=None):
@@ -132,7 +133,17 @@ class Options:
 
 
 def _mergeOpts(options, childFieldName):
-    finalOpts = copy.copy(options) or object()
+    if options is None:
+        options = {}
+
+    if isinstance(options, tuple):
+        options = dict(options)
+
+    if isinstance(options, dict):
+        options = _normalizeOpts(options)
+        options = namedtuple("CustomOptions", options.keys())(*options.values())
+
+    finalOpts = copy.copy(options)
 
     local = getattr(finalOpts, childFieldName, None)
     if local:
@@ -143,11 +154,18 @@ def _mergeOpts(options, childFieldName):
     return finalOpts
 
 def _normalizeOpts(options):
-    convertedOpts = copy.copy(options) or object()
-    option_keys = copy.copy(getattr(convertedOpts, '__dict__', {}))
-    for key in option_keys:
-        if '-' in key:
-            delattr(convertedOpts, key)
-            setattr(convertedOpts, key.replace('-', '_'), getattr(options, key, None))
+    convertedOpts = copy.copy(options)
+    if isinstance(convertedOpts, dict):
+        option_keys = list(convertedOpts.keys())
+        for key in option_keys:
+            if '-' in key:
+                del convertedOpts[key]
+                convertedOpts[key.replace('-', '_')] = options[key]
+    else:
+        option_keys = list(getattr(convertedOpts, '__dict__', {}))
+        for key in option_keys:
+            if '-' in key:
+                delattr(convertedOpts, key)
+                setattr(convertedOpts, key.replace('-', '_'), getattr(options, key, None))
 
     return convertedOpts

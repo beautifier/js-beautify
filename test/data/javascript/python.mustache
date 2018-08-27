@@ -152,6 +152,21 @@ class TestJSBeautifier(unittest.TestCase):
 
         self.reset_options()
         #============================================================
+        # Test passing dictionary or tuple
+        self.options = {'end_with_newline': True, 'eol': '\r\n' }
+        test_fragment(None, '\r\n')
+
+        self.options = {'end-with-newline': True}
+        test_fragment(None, '\n')
+
+        self.options = {'end-with-newline': False}
+        test_fragment(None, '')
+
+        self.options = ( ('end-with-newline', True), ('eol', '\r') )
+        test_fragment(None, '\r')
+
+        self.reset_options()
+        #============================================================
         self.options.indent_size = 1
         self.options.indent_char = ' '
         bt('{ one_char() }', "{\n one_char()\n}")
@@ -1278,26 +1293,27 @@ class TestJSBeautifier(unittest.TestCase):
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
-        # Everywhere we do newlines, they should be replaced with opts.eol
-        self.options.eol = '\r\\n'
-        expectation = expectation.replace('\n', '\r\n')
-        self.options.disabled = True
-        self.assertMultiLineEqual(
-            jsbeautifier.beautify(input, self.options), input or '')
-        self.assertMultiLineEqual(
-            jsbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
-        self.options.disabled = False;
-        self.assertMultiLineEqual(
-            jsbeautifier.beautify(input, self.options), expectation)
-        if input and input.find('\n') != -1:
-            input = input.replace('\n', '\r\n')
+        if self.options is None or not isinstance(self.options, (dict, tuple)):
+            # Everywhere we do newlines, they should be replaced with opts.eol
+            self.options.eol = '\r\\n'
+            expectation = expectation.replace('\n', '\r\n')
+            self.options.disabled = True
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify(input, self.options), input or '')
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+            self.options.disabled = False;
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(input, self.options), expectation)
-            # Ensure support for auto eol detection
-            self.options.eol = 'auto'
-            self.assertMultiLineEqual(
-                jsbeautifier.beautify(input, self.options), expectation)
-        self.options.eol = '\n'
+            if input and input.find('\n') != -1:
+                input = input.replace('\n', '\r\n')
+                self.assertMultiLineEqual(
+                    jsbeautifier.beautify(input, self.options), expectation)
+                # Ensure support for auto eol detection
+                self.options.eol = 'auto'
+                self.assertMultiLineEqual(
+                    jsbeautifier.beautify(input, self.options), expectation)
+            self.options.eol = '\n'
 
     def wrap(self, text):
         return self.wrapregex.sub('    \\1', text)
