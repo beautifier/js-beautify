@@ -400,6 +400,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t\t<div>test</div>\n' +
             '\t</div>\n' +
             '</div>');
+        test_fragment(
+            '<input type="radio"\n' +
+            '       name="garage"\n' +
+            '       id="garage-02"\n' +
+            '       class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '       value="02"\n' +
+            '       {{#ifCond data.antragsart "05"}}\n' +
+            '       checked="checked"\n' +
+            '       {{/ifCond}}>');
+        test_fragment(
+            '<div>\n' +
+            '\t<input type="radio"\n' +
+            '\t       name="garage"\n' +
+            '\t       id="garage-02"\n' +
+            '\t       class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '\t       value="02"\n' +
+            '\t       {{#ifCond data.antragsart "05"}}\n' +
+            '\t       checked="checked"\n' +
+            '\t       {{/ifCond}}>\n' +
+            '</div>');
+        test_fragment(
+            '---\n' +
+            'layout: mainLayout.html\n' +
+            'page: default.html\n' +
+            '---\n' +
+            '\n' +
+            '<div>\n' +
+            '\t{{> componentXYZ my.data.key}}\n' +
+            '\t{{> componentABC my.other.data.key}}\n' +
+            '\t<span>Hello World</span>\n' +
+            '\t<p>Your paragraph</p>\n' +
+            '</div>');
 
 
         //============================================================
@@ -435,6 +467,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n' +
             '          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n' +
             '</p>');
+
+
+        //============================================================
+        // Issue #1403 -- no extra newlines in force-aligned wrap_attributes - (wrap_attributes = ""force-aligned"")
+        reset_options();
+        set_name('Issue #1403 -- no extra newlines in force-aligned wrap_attributes - (wrap_attributes = ""force-aligned"")');
+        opts.wrap_attributes = 'force-aligned';
+        test_fragment(
+            '<button class="btn btn-primary" ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})" type="button">Save</button>',
+            //  -- output --
+            '<button class="btn btn-primary"\n' +
+            '        ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})"\n' +
+            '        type="button">Save</button>');
 
 
         //============================================================
@@ -1831,6 +1876,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{field}}\n' +
             '    {{else}}\n' +
@@ -2056,6 +2113,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
@@ -2283,6 +2352,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{! comment}}\n' +
             '    {{else}}\n' +
@@ -2508,6 +2589,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{!-- comment--}}\n' +
@@ -2735,6 +2828,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '    {{else}}\n' +
@@ -2960,6 +3065,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
@@ -3239,6 +3356,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{! \n' +
@@ -3636,6 +3765,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </span>\n' +
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
         bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
@@ -4073,6 +4214,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    {{!-- \n' +
             ' mult-line\n' +
@@ -4502,6 +4655,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
             '</div>');
         bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
             '{{#if 1}}\n' +
             '    content\n' +
             '    {{else}}\n' +
@@ -4728,6 +4893,17 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        test content\n' +
             '    <dd>\n' +
             '        test content\n' +
+            '    <dt>\n' +
+            '        test content\n' +
+            '    <dd>\n' +
+            '        <dl>\n' +
+            '            <dt>\n' +
+            '                test content\n' +
+            '            <dt>\n' +
+            '                test content\n' +
+            '            <dd>\n' +
+            '                test content\n' +
+            '        </dl>\n' +
             '</dl>');
         bth(
             '<select>\n' +
@@ -4770,6 +4946,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <tr>\n' +
             '            <td>Electric locomotive operating sounds\n' +
             '            <td>✔\n' +
+            '                <table>\n' +
+            '                    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)\n' +
+            '                    <colgroup>\n' +
+            '                        <col>\n' +
+            '                        <col>\n' +
+            '                        <col>\n' +
+            '                    <thead>\n' +
+            '                        <tr>\n' +
+            '                            <th>Function\n' +
+            '                            <th>Control Unit\n' +
+            '                            <th>Central Station\n' +
+            '                    <tbody>\n' +
+            '                        <tr>\n' +
+            '                            <td>Headlights\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Interior Lights\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Electric locomotive operating sounds\n' +
+            '                            <td>✔\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Engineer’s cab lighting\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                        <tr>\n' +
+            '                            <td>Station Announcements - Swiss\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                    <tfoot>\n' +
+            '                        <tr>\n' +
+            '                            <td>Station Announcements - Swiss\n' +
+            '                            <td>\n' +
+            '                            <td>✔\n' +
+            '                </table>\n' +
             '            <td>✔\n' +
             '        <tr>\n' +
             '            <td>Engineer’s cab lighting\n' +
@@ -4791,7 +5005,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Unformatted tags
         reset_options();
         set_name('Unformatted tags');
-        test_fragment(
+        bth(
             '<ol>\n' +
             '    <li>b<pre>c</pre></li>\n' +
             '</ol>',
@@ -4801,36 +5015,36 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <pre>c</pre>\n' +
             '    </li>\n' +
             '</ol>');
-        test_fragment(
+        bth(
             '<ol>\n' +
             '    <li>b<code>c</code></li>\n' +
             '</ol>');
-        test_fragment(
+        bth(
             '<ul>\n' +
             '    <li>\n' +
             '        <span class="octicon octicon-person"></span>\n' +
             '        <a href="/contact/">Kontakt</a>\n' +
             '    </li>\n' +
             '</ul>');
-        test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
-        test_fragment('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
-        test_fragment(
+        bth('<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>');
+        bth('<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>');
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n' +
             '</p>');
-        test_fragment(
+        bth(
             '<p>\n' +
             '    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n' +
             '</p>');
@@ -4855,8 +5069,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // ISSUE #545 and #944 Ignore directive works in html
         reset_options();
         set_name('ISSUE #545 and #944 Ignore directive works in html');
+        
+        // ignore starts _after_ the start comment, ends after the end comment
         bth(
-            '<!-- beautify ignore:start -->\n' +
+            '<div>\n' +
+            '    <!-- beautify ignore:start -->\n' +
             '@{\n' +
             '\n' +
             '    ViewBag.Title = "Dashboard";\n' +
@@ -4870,20 +5087,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    }\n' +
             '\n' +
             '}\n' +
-            '<!-- beautify ignore:end -->\n' +
+            ' <!-- beautify ignore:end -->\n' +
             '\n' +
-            '<header class="layout-header">\n' +
+            '    <header class="layout-header">\n' +
             '\n' +
-            '    <h2 id="logo"><a href="/">Logo</a></h2>\n' +
+            '        <h2 id="logo"><a href="/">Logo</a></h2>\n' +
             '\n' +
-            '    <ul class="social">\n' +
+            '        <ul class="social">\n' +
             '\n' +
-            '        <li class="facebook"><a href="#">Facebook</a></li>\n' +
-            '        <li class="twitter"><a href="#">Twitter</a></li>\n' +
+            '            <li class="facebook"><a href="#">Facebook</a></li>\n' +
+            '            <li class="twitter"><a href="#">Twitter</a></li>\n' +
             '\n' +
-            '    </ul>\n' +
+            '        </ul>\n' +
             '\n' +
-            '</header>');
+            '    </header>\n' +
+            '</div>');
 
 
         //============================================================
@@ -5359,6 +5577,41 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // ASP(X) and JSP directives <%@ indent formatting
+        reset_options();
+        set_name('ASP(X) and JSP directives <%@ indent formatting');
+        bth(
+            '<%@Master language="C#"%>\n' +
+            '<%@Register TagPrefix="a" Namespace="a" Assembly="a"%>\n' +
+            '<%@Register TagPrefix="b" Namespace="a" Assembly="a"%>\n' +
+            '<%@Register TagPrefix="c" Namespace="a" Assembly="a"%>\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<some-content />\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
+        // Issue #1027 -- Formatting SVG files
+        reset_options();
+        set_name('Issue #1027 -- Formatting SVG files');
+        bth(
+            '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\n' +
+            '     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">\n' +
+            '                    <rect id="XMLID_20_" x="-7"\n' +
+            '                          class="st0"\n' +
+            '                          width="49" height="36"/>\n' +
+            '</svg>',
+            //  -- output --
+            '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">\n' +
+            '    <rect id="XMLID_20_" x="-7" class="st0" width="49" height="36" />\n' +
+            '</svg>');
+
+
+        //============================================================
         // Linewrap length
         reset_options();
         set_name('Linewrap length');
@@ -5387,23 +5640,73 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
-
-
-        //============================================================
-        // Indent with tabs
-        reset_options();
-        set_name('Indent with tabs');
-        opts.indent_with_tabs = true;
+        
+        // Issue #1122
         test_fragment(
             '<div>\n' +
             '<div>\n' +
+            '<p>\n' +
+            '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие\n' +
+            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются\n' +
+            '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.\n' +
+            '</p>\n' +
             '</div>\n' +
             '</div>',
             //  -- output --
             '<div>\n' +
-            '\t<div>\n' +
-            '\t</div>\n' +
+            '    <div>\n' +
+            '        <p>\n' +
+            '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов\n' +
+            '            и глубина зондирования), текущие\n' +
+            '            отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК».\n' +
+            '            Одновременно, они распечатываются\n' +
+            '            на минипринтере. Управлять контроллером для записи данных\n' +
+            '            зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки\n' +
+            '                РК-11</link_row>.\n' +
+            '        </p>\n' +
+            '    </div>\n' +
             '</div>');
+        
+        // Issue #1122
+        test_fragment(
+            '<div>\n' +
+            '<div>\n' +
+            '<p>\n' +
+            '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.\n' +
+            '</p>\n' +
+            '</div>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <div>\n' +
+            '        <p>\n' +
+            '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов\n' +
+            '            и глубина зондирования), текущие отсчеты сохраняются в контроллере\n' +
+            '            при нажатии кнопки «ПУСК». Одновременно, они распечатываются на\n' +
+            '            минипринтере. Управлять контроллером для записи данных зондирования\n' +
+            '            можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.\n' +
+            '        </p>\n' +
+            '    </div>\n' +
+            '</div>');
+
+
+        //============================================================
+        // Linewrap length
+        reset_options();
+        set_name('Linewrap length');
+        opts.wrap_line_length = 40;
+        
+        // Issue #740 -- Negative values ending a line are wrapped as a unit
+        test_fragment(
+            'return  someLongExpressionThatGe !== -1;\n' +
+            'return someLongExpressionThatGet !== -10;\n' +
+            'return someLongExpressionThatGet !== -100;',
+            //  -- output --
+            'return someLongExpressionThatGe !== -1;\n' +
+            'return someLongExpressionThatGet !==\n' +
+            '-10;\n' +
+            'return someLongExpressionThatGet !==\n' +
+            '-100;');
 
 
         //============================================================

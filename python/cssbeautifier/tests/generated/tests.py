@@ -1232,6 +1232,33 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '.list-group-condensed {}')
         t(
+            '@media only screen and (max-width: 40em) {\n' +
+            'header {\n' +
+            '    margin: 0 auto;\n' +
+            '    padding: 10px;\n' +
+            '    background: red;\n' +
+            '    }\n' +
+            'main {\n' +
+            '    margin: 20px auto;\n' +
+            '    padding: 4px;\n' +
+            '    background: blue;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            '@media only screen and (max-width: 40em) {\n' +
+            '\theader {\n' +
+            '\t\tmargin: 0 auto;\n' +
+            '\t\tpadding: 10px;\n' +
+            '\t\tbackground: red;\n' +
+            '\t}\n' +
+            '\n' +
+            '\tmain {\n' +
+            '\t\tmargin: 20px auto;\n' +
+            '\t\tpadding: 4px;\n' +
+            '\t\tbackground: blue;\n' +
+            '\t}\n' +
+            '}')
+        t(
             '.preloader {\n' +
             '\theight: 20px;\n' +
             '\t.line {\n' +
@@ -1539,6 +1566,32 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             'color: #38a0e5;\n' +
             '.list-group-condensed {}')
+        t(
+            '@media only screen and (max-width: 40em) {\n' +
+            'header {\n' +
+            '    margin: 0 auto;\n' +
+            '    padding: 10px;\n' +
+            '    background: red;\n' +
+            '    }\n' +
+            'main {\n' +
+            '    margin: 20px auto;\n' +
+            '    padding: 4px;\n' +
+            '    background: blue;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            '@media only screen and (max-width: 40em) {\n' +
+            '\theader {\n' +
+            '\t\tmargin: 0 auto;\n' +
+            '\t\tpadding: 10px;\n' +
+            '\t\tbackground: red;\n' +
+            '\t}\n' +
+            '\tmain {\n' +
+            '\t\tmargin: 20px auto;\n' +
+            '\t\tpadding: 4px;\n' +
+            '\t\tbackground: blue;\n' +
+            '\t}\n' +
+            '}')
         t(
             '.preloader {\n' +
             '\theight: 20px;\n' +
@@ -10128,6 +10181,32 @@ class CSSBeautifierTest(unittest.TestCase):
             '.fa-rotate-270 {\n' +
             '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
             '}')
+
+
+        #============================================================
+        # Issue #645
+        self.reset_options()
+        self.options.selector_separator_newline = true
+        self.options.preserve_newlines = true
+        self.options.newline_between_rules = true
+        t(
+            '/* Comment above first rule */\n' +
+            '\n' +
+            'body {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment between rules */\n' +
+            '\n' +
+            'ul,\n' +
+            '\n' +
+            '/* Comment between selectors */\n' +
+            '\n' +
+            'li {\n' +
+            '\tdisplay: none;\n' +
+            '}\n' +
+            '\n' +
+            '/* Comment after last rule */')
 
 
         #============================================================

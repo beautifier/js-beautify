@@ -474,6 +474,36 @@ exports.test_data = {
         },
         {
           input_: [
+            '@media only screen and (max-width: 40em) {',
+            'header {',
+            '    margin: 0 auto;',
+            '    padding: 10px;',
+            '    background: red;',
+            '    }',
+            'main {',
+            '    margin: 20px auto;',
+            '    padding: 4px;',
+            '    background: blue;',
+            '    }',
+            '}'
+          ],
+          output: [
+            '@media only screen and (max-width: 40em) {',
+            '\theader {',
+            '\t\tmargin: 0 auto;',
+            '\t\tpadding: 10px;',
+            '\t\tbackground: red;',
+            '\t}',
+            '{{new_rule}}\tmain {',
+            '\t\tmargin: 20px auto;',
+            '\t\tpadding: 4px;',
+            '\t\tbackground: blue;',
+            '\t}',
+            '}'
+          ]
+        },
+        {
+          input_: [
             '.preloader {',
             '\theight: 20px;',
             '\t.line {',
@@ -931,6 +961,36 @@ exports.test_data = {
           '.fa-rotate-270 {',
           '\tfilter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
           '}'
+        ]
+      }]
+    }, {
+      name: "Issue #645",
+      description: "",
+      options: [
+        { name: "selector_separator_newline", value: "true" },
+        { name: "preserve_newlines", value: "true" },
+        { name: "newline_between_rules", value: "true" }
+
+      ],
+      tests: [{
+        unchanged: [
+          '/* Comment above first rule */',
+          '',
+          'body {',
+          '\tdisplay: none;',
+          '}',
+          '',
+          '/* Comment between rules */',
+          '',
+          'ul,',
+          '',
+          '/* Comment between selectors */',
+          '',
+          'li {',
+          '\tdisplay: none;',
+          '}',
+          '',
+          '/* Comment after last rule */'
         ]
       }]
     }, {

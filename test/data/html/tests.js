@@ -284,6 +284,7 @@ exports.test_data = {
   }, {
     name: "Attribute Wrap alignment with spaces",
     description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+    template: "^^^ $$$",
     matrix: [{
       options: [
         { name: "wrap_attributes", value: "'force-aligned'" },
@@ -291,10 +292,55 @@ exports.test_data = {
       ]
     }],
     tests: [{
-      fragment: true,
-      input: '<div><div a="1" b="2"><div>test</div></div></div>',
-      output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
-    }]
+        fragment: true,
+        input: '<div><div a="1" b="2"><div>test</div></div></div>',
+        output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<input type="radio"',
+          '       name="garage"',
+          '       id="garage-02"',
+          '       class="ns-e-togg__radio ns-js-form-binding"',
+          '       value="02"',
+          '       {{#ifCond data.antragsart "05"}}',
+          '       checked="checked"',
+          '       {{/ifCond}}>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<div>',
+          '\t<input type="radio"',
+          '\t       name="garage"',
+          '\t       id="garage-02"',
+          '\t       class="ns-e-togg__radio ns-js-form-binding"',
+          '\t       value="02"',
+          '\t       {{#ifCond data.antragsart "05"}}',
+          '\t       checked="checked"',
+          '\t       {{/ifCond}}>',
+          '</div>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '---',
+          'layout: mainLayout.html',
+          'page: default.html',
+          '---',
+          '',
+          '<div>',
+          '\t{{> componentXYZ my.data.key}}',
+          '\t{{> componentABC my.other.data.key}}',
+          '\t<span>Hello World</span>',
+          '\t<p>Your paragraph</p>',
+          '</div>'
+        ]
+      }
+    ]
   }, {
     name: "Attribute Wrap de-indent",
     description: "Tags de-indent when attributes are wrapped",
@@ -317,6 +363,23 @@ exports.test_data = {
         output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
       }
     ]
+  }, {
+    name: "Issue #1403 -- no extra newlines in force-aligned wrap_attributes",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      input: '<button class="btn btn-primary" ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})" type="button">Save</button>',
+      output: [
+        '<button class="btn btn-primary"',
+        '        ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})"',
+        '        type="button">Save</button>'
+      ]
+    }]
   }, {
     name: "Attribute Wrap",
     description: "Wraps attributes inside of html tags",
@@ -894,6 +957,29 @@ exports.test_data = {
         ]
       },
 
+      // Issue #1040 -- Ignore expressions in handlebar tags
+      {
+        unchanged: [
+          '{{#if `this.customerSegment == "Active"`}}',
+          '    ...',
+          '{{/if}}'
+        ]
+      },
+
+      // Issue #1415 -- Indent Formatting with Handlebars and &nbsp
+      {
+        input_: [
+          '{{#isDealLink}}',
+          '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ],
+        output: [
+          '{{#isDealLink}}',
+          '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ]
+      },
+
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
         input_: '{{#if 1}}\n' +
@@ -1097,6 +1183,17 @@ exports.test_data = {
         '        test content',
         '    <dd>',
         '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        <dl>',
+        '            <dt>',
+        '                test content',
+        '            <dt>',
+        '                test content',
+        '            <dd>',
+        '                test content',
+        '        </dl>',
         '</dl>'
       ]
     }, {
@@ -1143,6 +1240,44 @@ exports.test_data = {
         '        <tr>',
         '            <td>Electric locomotive operating sounds',
         '            <td>✔',
+        '                <table>',
+        '                    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
+        '                    <colgroup>',
+        '                        <col>',
+        '                        <col>',
+        '                        <col>',
+        '                    <thead>',
+        '                        <tr>',
+        '                            <th>Function',
+        '                            <th>Control Unit',
+        '                            <th>Central Station',
+        '                    <tbody>',
+        '                        <tr>',
+        '                            <td>Headlights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Interior Lights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Electric locomotive operating sounds',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Engineer’s cab lighting',
+        '                            <td>',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                    <tfoot>',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                </table>',
         '            <td>✔',
         '        <tr>',
         '            <td>Engineer’s cab lighting',
@@ -1165,7 +1300,6 @@ exports.test_data = {
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-        fragment: true,
         input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
         output: [
           '<ol>',
@@ -1175,15 +1309,15 @@ exports.test_data = {
           '</ol>'
         ]
       },
-      { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
-      { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
+      { unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+      { unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
+      { unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
     ]
   }, {
     name: "File starting with comment",
@@ -1206,8 +1340,10 @@ exports.test_data = {
     description: "",
     options: [],
     tests: [{
+      comment: 'ignore starts _after_ the start comment, ends after the end comment',
       unchanged: [
-        '<!-- beautify ignore:start -->',
+        '<div>',
+        '    <!-- beautify ignore:start -->',
         '@{',
         '',
         '    ViewBag.Title = "Dashboard";',
@@ -1221,20 +1357,21 @@ exports.test_data = {
         '    }',
         '',
         '}',
-        '<!-- beautify ignore:end -->',
+        ' <!-- beautify ignore:end -->',
         '',
-        '<header class="layout-header">',
+        '    <header class="layout-header">',
         '',
-        '    <h2 id="logo"><a href="/">Logo</a></h2>',
+        '        <h2 id="logo"><a href="/">Logo</a></h2>',
         '',
-        '    <ul class="social">',
+        '        <ul class="social">',
         '',
-        '        <li class="facebook"><a href="#">Facebook</a></li>',
-        '        <li class="twitter"><a href="#">Twitter</a></li>',
+        '            <li class="facebook"><a href="#">Facebook</a></li>',
+        '            <li class="twitter"><a href="#">Twitter</a></li>',
         '',
-        '    </ul>',
+        '        </ul>',
         '',
-        '</header>'
+        '    </header>',
+        '</div>'
       ]
     }]
   }, {
@@ -1521,6 +1658,44 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "ASP(X) and JSP directives <%@ indent formatting",
+    description: "",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<%@Master language="C#"%>',
+        '<%@Register TagPrefix="a" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="b" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="c" Namespace="a" Assembly="a"%>',
+        '<!DOCTYPE html>',
+        '',
+        '<html>',
+        '',
+        '<some-content />',
+        '',
+        '</html>'
+      ]
+    }]
+  }, {
+    name: "Issue #1027 -- Formatting SVG files",
+    description: "",
+    options: [],
+    tests: [{
+      input: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"',
+        '     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '                    <rect id="XMLID_20_" x="-7"',
+        '                          class="st0"',
+        '                          width="49" height="36"/>',
+        '</svg>'
+      ],
+      output: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '    <rect id="XMLID_20_" x="-7" class="st0" width="49" height="36" />',
+        '</svg>'
+      ]
+    }]
+  }, {
     name: "Linewrap length",
     description: "",
     options: [{ name: "wrap_line_length", value: "80" }],
@@ -1536,6 +1711,7 @@ exports.test_data = {
         '    </div>',
         '</body>'
       ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
       output: [
         '<body>',
         '    <div>',
@@ -1549,28 +1725,88 @@ exports.test_data = {
     }, {
       fragment: true,
       input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
       output: [
         '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014',
         '    0015 0016 0017 0018 0019 0020</span>'
       ]
+    }, {
+      comment: "Issue #1122",
+      fragment: true,
+      input: [
+        '<div>',
+        '<div>',
+        '<p>',
+        '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие',
+        '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются',
+        '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '</p>',
+        '</div>',
+        '</div>'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        '<div>',
+        '    <div>',
+        '        <p>',
+        '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов',
+        '            и глубина зондирования), текущие',
+        '            отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК».',
+        '            Одновременно, они распечатываются',
+        '            на минипринтере. Управлять контроллером для записи данных',
+        '            зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки',
+        '                РК-11</link_row>.',
+        '        </p>',
+        '    </div>',
+        '</div>'
+      ]
+    }, {
+      comment: "Issue #1122",
+      fragment: true,
+      input: [
+        '<div>',
+        '<div>',
+        '<p>',
+        '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '</p>',
+        '</div>',
+        '</div>'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        '<div>',
+        '    <div>',
+        '        <p>',
+        '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов',
+        '            и глубина зондирования), текущие отсчеты сохраняются в контроллере',
+        '            при нажатии кнопки «ПУСК». Одновременно, они распечатываются на',
+        '            минипринтере. Управлять контроллером для записи данных зондирования',
+        '            можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '        </p>',
+        '    </div>',
+        '</div>'
+      ]
     }]
   }, {
-    name: "Indent with tabs",
-    description: "Use one tab instead of several spaces for indentation",
-    template: "^^^ $$$",
-    options: [
-      { name: "indent_with_tabs", value: "true" }
-    ],
+    name: "Linewrap length",
+    description: "",
+    options: [{ name: "wrap_line_length", value: "40" }],
     tests: [{
+      comment: "Issue #740 -- Negative values ending a line are wrapped as a unit",
       fragment: true,
-      input_: '<div>\n' +
-        '<div>\n' +
-        '</div>\n' +
-        '</div>',
-      output: '<div>\n' +
-        '\t<div>\n' +
-        '\t</div>\n' +
-        '</div>'
+      input: [
+        'return  someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !== -10;',
+        'return someLongExpressionThatGet !== -100;'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        'return someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !==',
+        '-10;',
+        'return someLongExpressionThatGet !==',
+        '-100;'
+      ]
     }]
   }, {
     name: "Indent without tabs",
