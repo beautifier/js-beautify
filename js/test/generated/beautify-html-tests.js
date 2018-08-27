@@ -5710,6 +5710,23 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Indent with tabs
+        reset_options();
+        set_name('Indent with tabs');
+        opts.indent_with_tabs = true;
+        test_fragment(
+            '<div>\n' +
+            '<div>\n' +
+            '</div>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '\t<div>\n' +
+            '\t</div>\n' +
+            '</div>');
+
+
+        //============================================================
         // Indent without tabs
         reset_options();
         set_name('Indent without tabs');
@@ -5724,6 +5741,40 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <div>\n' +
             '    </div>\n' +
             '</div>');
+
+
+        //============================================================
+        // Do not indent html inner html by default
+        reset_options();
+        set_name('Do not indent html inner html by default');
+        test_fragment(
+            '<html>\n' +
+            '<body>\n' +
+            '<div></div>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>',
+            //  -- output --
+            '<html>\n' +
+            '<body>\n' +
+            '    <div></div>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
+        // indent_inner_html set to true indents html inner html
+        reset_options();
+        set_name('indent_inner_html set to true indents html inner html');
+        opts.indent_inner_html = true;
+        test_fragment(
+            '<html>\n' +
+            '    <body>\n' +
+            '        <div></div>\n' +
+            '    </body>\n' +
+            '\n' +
+            '</html>');
 
 
         //============================================================

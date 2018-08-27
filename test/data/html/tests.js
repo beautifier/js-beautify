@@ -1809,6 +1809,24 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Indent with tabs",
+    description: "Use one tab instead of several spaces for indentation",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_with_tabs", value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      input_: '<div>\n' +
+        '<div>\n' +
+        '</div>\n' +
+        '</div>',
+      output: '<div>\n' +
+        '\t<div>\n' +
+        '\t</div>\n' +
+        '</div>'
+    }]
+  }, {
     name: "Indent without tabs",
     description: "Use several spaces for indentation",
     template: "^^^ $$$",
@@ -1825,6 +1843,24 @@ exports.test_data = {
         '    <div>\n' +
         '    </div>\n' +
         '</div>'
+    }]
+  }, {
+    name: "Do not indent html inner html by default",
+    description: "",
+    tests: [{
+      fragment: true,
+      input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+      output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+    }]
+  }, {
+    name: "indent_inner_html set to true indents html inner html",
+    description: "",
+    options: [
+      { name: 'indent_inner_html', value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<html>\n    <body>\n        <div></div>\n    </body>\n\n</html>'
     }]
   }, {
     name: "Indent body inner html by default",
