@@ -27,7 +27,7 @@ from jsbeautifier.core.options import Options as BaseOptions
 
 class BeautifierOptions(BaseOptions):
     def __init__(self, options=None):
-        super(BeautifierOptions, self).__init__(options, 'css')
+        BaseOptions.__init__(self, options, 'css')
 
         self.selector_separator_newline = self._get_boolean('selector_separator_newline', True)
         self.newline_between_rules = self._get_boolean('newline_between_rules', True)

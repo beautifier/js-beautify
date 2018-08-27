@@ -33,7 +33,7 @@ OPERATOR_POSITION = [
 
 class BeautifierOptions(BaseOptions):
     def __init__(self, options=None):
-        super(BeautifierOptions, self).__init__(options, 'js')
+        BaseOptions.__init__(self, options, 'js')
 
         self.css = None
         self.js = None

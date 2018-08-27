@@ -115,7 +115,7 @@ class Tokenizer(BaseTokenizer):
     line_starters = line_starters
 
     def __init__(self, input_string, opts):
-        super(Tokenizer, self).__init__(input_string, opts)
+        BaseTokenizer.__init__(self, input_string, opts)
 
         self.in_html_comment = False
         self.has_char_escapes = False
