@@ -210,13 +210,13 @@ class Beautifier:
             self.handle_unknown(current_token, preserve_statement_flags)
 
     def handle_whitespace_and_comments(
-            self, local_token, preserve_statement_flags=False):
-        newlines = local_token.newlines
+            self, current_token, preserve_statement_flags=False):
+        newlines = current_token.newlines
         keep_whitespace = self._options.keep_array_indentation and self.is_array(
             self._flags.mode)
 
-        if local_token.comments_before is not None:
-            for comment_token in local_token.comments_before:
+        if current_token.comments_before is not None:
+            for comment_token in current_token.comments_before:
                     # The cleanest handling of inline comments is to treat them
                     # as though they aren't there.
                 # Just continue formatting and the behavior should be logical.

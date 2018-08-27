@@ -305,21 +305,14 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
   var keep_whitespace = this._options.keep_array_indentation && is_array(this._flags.mode);
 
   if (current_token.comments_before) {
-    var local_token = current_token.comments_before.next();
-    while (local_token) {
+    var comment_token = current_token.comments_before.next();
+    while (comment_token) {
       // The cleanest handling of inline comments is to treat them as though they aren't there.
       // Just continue formatting and the behavior should be logical.
       // Also ignore unknown tokens.  Again, this should result in better behavior.
-      this.handle_whitespace_and_comments(local_token, preserve_statement_flags);
-      this.handle_token(local_token, preserve_statement_flags);
-      if (current_token.type === TOKEN.BLOCK_COMMENT) {
-        this.handle_block_comment(current_token);
-      } else if (current_token.type === TOKEN.COMMENT) {
-        this.handle_comment(current_token);
-      } else if (current_token.type === TOKEN.UNKNOWN) {
-        this.handle_unknown(current_token);
-      }
-      local_token = current_token.comments_before.next();
+      this.handle_whitespace_and_comments(comment_token, preserve_statement_flags);
+      this.handle_token(comment_token, preserve_statement_flags);
+      comment_token = current_token.comments_before.next();
     }
   }
 
@@ -333,7 +326,7 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
     }
 
     if (this._options.preserve_newlines) {
-      if (current_token.newlines > 1) {
+      if (newlines > 1) {
         this.print_newline(false, preserve_statement_flags);
         for (var j = 1; j < newlines; j += 1) {
           this.print_newline(true, preserve_statement_flags);
