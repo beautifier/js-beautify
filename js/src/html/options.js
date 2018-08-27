@@ -33,7 +33,7 @@ var BaseOptions = require('../core/options').Options;
 function Options(options) {
   BaseOptions.call(this, options, 'html');
 
-  this.indent_inner_html = this._get_boolean('indent_inner_html', true);
+  this.indent_inner_html = this._get_boolean('indent_inner_html');
   this.indent_body_inner_html = this._get_boolean('indent_body_inner_html', true);
   this.indent_head_inner_html = this._get_boolean('indent_head_inner_html', true);
 
