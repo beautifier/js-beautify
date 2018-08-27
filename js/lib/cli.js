@@ -31,8 +31,7 @@
   Written by Daniel Stockman (daniel.stockman@gmail.com)
 
 */
-
-'use strict';
+/*jshint strict:false */
 
 var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
   console.error.apply(console, arguments);
@@ -85,7 +84,7 @@ var path = require('path'),
     "keep_array_indentation": Boolean,
     "unescape_strings": Boolean,
     "wrap_line_length": Number,
-    "wrap_attributes": ["auto", "force", "force-aligned"],
+    "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple"],
     "wrap_attributes_indent_size": Number,
     "e4x": Boolean,
     "end_with_newline": Boolean,
@@ -398,7 +397,7 @@ function usage(err) {
 
 function processInputSync(filepath) {
   var data = '',
-    config = this.cfg, // jshint ignore:line
+    config = this.cfg,
     outfile = config.outfile,
     input;
 
