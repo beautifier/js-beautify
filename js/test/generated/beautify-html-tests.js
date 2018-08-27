@@ -5744,6 +5744,40 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Do not indent html inner html by default
+        reset_options();
+        set_name('Do not indent html inner html by default');
+        test_fragment(
+            '<html>\n' +
+            '<body>\n' +
+            '<div></div>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>',
+            //  -- output --
+            '<html>\n' +
+            '<body>\n' +
+            '    <div></div>\n' +
+            '</body>\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
+        // indent_inner_html set to true indents html inner html
+        reset_options();
+        set_name('indent_inner_html set to true indents html inner html');
+        opts.indent_inner_html = true;
+        test_fragment(
+            '<html>\n' +
+            '    <body>\n' +
+            '        <div></div>\n' +
+            '    </body>\n' +
+            '\n' +
+            '</html>');
+
+
+        //============================================================
         // Indent body inner html by default
         reset_options();
         set_name('Indent body inner html by default');

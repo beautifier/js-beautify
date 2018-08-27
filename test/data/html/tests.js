@@ -1845,6 +1845,24 @@ exports.test_data = {
         '</div>'
     }]
   }, {
+    name: "Do not indent html inner html by default",
+    description: "",
+    tests: [{
+      fragment: true,
+      input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+      output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+    }]
+  }, {
+    name: "indent_inner_html set to true indents html inner html",
+    description: "",
+    options: [
+      { name: 'indent_inner_html', value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<html>\n    <body>\n        <div></div>\n    </body>\n\n</html>'
+    }]
+  }, {
     name: "Indent body inner html by default",
     description: "",
     tests: [{
