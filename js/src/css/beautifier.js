@@ -36,401 +36,19 @@ var InputScanner = require('../core/inputscanner').InputScanner;
 var lineBreak = acorn.lineBreak;
 var allLineBreaks = acorn.allLineBreaks;
 
+// tokenizer
+var whitespaceChar = /\s/;
+var whitespacePattern = /(?:\s|\n)+/g;
+var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
+var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
+
 function Beautifier(source_text, options) {
   this._source_text = source_text || '';
   // Allow the setting of language/file-type specific options
   // with inheritance of overall settings
   this._options = new Options(options);
-
-  // tokenizer
-  var whitespaceChar = /\s/;
-  var whitespacePattern = /(?:\s|\n)+/g;
-  var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
-  var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
-
-  var ch;
-  var parenLevel = 0;
-  var input;
-
-  function eatString(endChars) {
-    var result = '';
-    ch = input.next();
-    while (ch) {
-      result += ch;
-      if (ch === "\\") {
-        result += input.next();
-      } else if (endChars.indexOf(ch) !== -1 || ch === "\n") {
-        break;
-      }
-      ch = input.next();
-    }
-    return result;
-  }
-
-  // Skips any white space in the source text from the current position.
-  // When allowAtLeastOneNewLine is true, will output new lines for each
-  // newline character found; if the user has preserve_newlines off, only
-  // the first newline will be output
-  this.eatWhitespace = function(allowAtLeastOneNewLine) {
-    var result = whitespaceChar.test(input.peek());
-    var isFirstNewLine = true;
-
-    while (whitespaceChar.test(input.peek())) {
-      ch = input.next();
-      if (allowAtLeastOneNewLine && ch === '\n') {
-        if (this._options.preserve_newlines || isFirstNewLine) {
-          isFirstNewLine = false;
-          output.add_new_line(true);
-        }
-      }
-    }
-    return result;
-  };
-
-  // Nested pseudo-class if we are insideRule
-  // and the next special character found opens
-  // a new block
-  function foundNestedPseudoClass() {
-    var openParen = 0;
-    var i = 1;
-    var ch = input.peek(i);
-    while (ch) {
-      if (ch === "{") {
-        return true;
-      } else if (ch === '(') {
-        // pseudoclasses can contain ()
-        openParen += 1;
-      } else if (ch === ')') {
-        if (openParen === 0) {
-          return false;
-        }
-        openParen -= 1;
-      } else if (ch === ";" || ch === "}") {
-        return false;
-      }
-      i++;
-      ch = input.peek(i);
-    }
-    return false;
-  }
-
-  var indentLevel;
-  var nestedLevel;
-  var output;
-
-  function print_string(output_string) {
-    if (output.just_added_newline()) {
-      output.set_indent(indentLevel);
-    }
-    output.add_token(output_string);
-  }
-
-  function preserveSingleSpace(isAfterSpace) {
-    if (isAfterSpace) {
-      output.space_before_token = true;
-    }
-  }
-
-  function indent() {
-    indentLevel++;
-  }
-
-  function outdent() {
-    if (indentLevel > 0) {
-      indentLevel--;
-    }
-  }
-
-  /*_____________________--------------------_____________________*/
-
-  this.beautify = function() {
-    if (this._options.disabled) {
-      return this._source_text;
-    }
-
-    var source_text = this._source_text;
-    var eol = this._options.eol;
-    if (eol === 'auto') {
-      eol = '\n';
-      if (source_text && lineBreak.test(source_text || '')) {
-        eol = source_text.match(lineBreak)[0];
-      }
-    }
-
-
-    // HACK: newline parsing inconsistent. This brute force normalizes the input.
-    source_text = source_text.replace(allLineBreaks, '\n');
-
-    // reset
-    var baseIndentString = '';
-    var preindent_index = 0;
-    if (source_text && source_text.length) {
-      while ((source_text.charAt(preindent_index) === ' ' || source_text.charAt(preindent_index) === '\t')) {
-        preindent_index += 1;
-      }
-      baseIndentString = source_text.substring(0, preindent_index);
-      source_text = source_text.substring(preindent_index);
-    }
-
-    output = new Output(this._options.indent_string, baseIndentString);
-    input = new InputScanner(source_text);
-    indentLevel = 0;
-    nestedLevel = 0;
-
-    ch = null;
-    parenLevel = 0;
-
-    var insideRule = false;
-    // This is the value side of a property value pair (blue in the following ex)
-    // label { content: blue }
-    var insidePropertyValue = false;
-    var enteringConditionalGroup = false;
-    var insideAtExtend = false;
-    var insideAtImport = false;
-    var topCharacter = ch;
-
-    while (true) {
-      var whitespace = input.read(whitespacePattern);
-      var isAfterSpace = whitespace !== '';
-      var previous_ch = topCharacter;
-      ch = input.next();
-      topCharacter = ch;
-
-      if (!ch) {
-        break;
-      } else if (ch === '/' && input.peek() === '*') {
-        // /* css comment */
-        // Always start block comments on a new line.
-        // This handles scenarios where a block comment immediately
-        // follows a property definition on the same line or where
-        // minified code is being beautified.
-        output.add_new_line();
-        input.back();
-        print_string(input.read(block_comment_pattern));
-
-        // Ensures any new lines following the comment are preserved
-        this.eatWhitespace(true);
-
-        // Block comments are followed by a new line so they don't
-        // share a line with other properties
-        output.add_new_line();
-      } else if (ch === '/' && input.peek() === '/') {
-        // // single line comment
-        // Preserves the space before a comment
-        // on the same line as a rule
-        output.space_before_token = true;
-        input.back();
-        print_string(input.read(comment_pattern));
-
-        // Ensures any new lines following the comment are preserved
-        this.eatWhitespace(true);
-      } else if (ch === '@') {
-        preserveSingleSpace(isAfterSpace);
-
-        // deal with less propery mixins @{...}
-        if (input.peek() === '{') {
-          print_string(ch + eatString('}'));
-        } else {
-          print_string(ch);
-
-          // strip trailing space, if present, for hash property checks
-          var variableOrRule = input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
-
-          if (variableOrRule.match(/[ :]$/)) {
-            // we have a variable or pseudo-class, add it and insert one space before continuing
-            variableOrRule = eatString(": ").replace(/\s$/, '');
-            print_string(variableOrRule);
-            output.space_before_token = true;
-          }
-
-          variableOrRule = variableOrRule.replace(/\s$/, '');
-
-          if (variableOrRule === 'extend') {
-            insideAtExtend = true;
-          } else if (variableOrRule === 'import') {
-            insideAtImport = true;
-          }
-
-          // might be a nesting at-rule
-          if (variableOrRule in this.NESTED_AT_RULE) {
-            nestedLevel += 1;
-            if (variableOrRule in this.CONDITIONAL_GROUP_RULE) {
-              enteringConditionalGroup = true;
-            }
-            // might be less variable
-          } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
-            insidePropertyValue = true;
-            indent();
-          }
-        }
-      } else if (ch === '#' && input.peek() === '{') {
-        preserveSingleSpace(isAfterSpace);
-        print_string(ch + eatString('}'));
-      } else if (ch === '{') {
-        if (insidePropertyValue) {
-          insidePropertyValue = false;
-          outdent();
-        }
-        indent();
-        output.space_before_token = true;
-        print_string(ch);
-
-        // when entering conditional groups, only rulesets are allowed
-        if (enteringConditionalGroup) {
-          enteringConditionalGroup = false;
-          insideRule = (indentLevel > nestedLevel);
-        } else {
-          // otherwise, declarations are also allowed
-          insideRule = (indentLevel >= nestedLevel);
-        }
-        if (this._options.newline_between_rules && insideRule) {
-          if (output.previous_line && output.previous_line.item(-1) !== '{') {
-            output.ensure_empty_line_above('/', ',');
-          }
-        }
-        this.eatWhitespace(true);
-        output.add_new_line();
-      } else if (ch === '}') {
-        outdent();
-        output.add_new_line();
-        if (previous_ch === '{') {
-          output.trim(true);
-        }
-        insideAtImport = false;
-        insideAtExtend = false;
-        if (insidePropertyValue) {
-          outdent();
-          insidePropertyValue = false;
-        }
-        print_string(ch);
-        insideRule = false;
-        if (nestedLevel) {
-          nestedLevel--;
-        }
-
-        this.eatWhitespace(true);
-        output.add_new_line();
-
-        if (this._options.newline_between_rules && !output.just_added_blankline()) {
-          if (input.peek() !== '}') {
-            output.add_new_line(true);
-          }
-        }
-      } else if (ch === ":") {
-        if ((insideRule || enteringConditionalGroup) && !(input.lookBack("&") || foundNestedPseudoClass()) && !input.lookBack("(") && !insideAtExtend) {
-          // 'property: value' delimiter
-          // which could be in a conditional group query
-          print_string(':');
-          if (!insidePropertyValue) {
-            insidePropertyValue = true;
-            output.space_before_token = true;
-            this.eatWhitespace(true);
-            indent();
-          }
-        } else {
-          // sass/less parent reference don't use a space
-          // sass nested pseudo-class don't use a space
-
-          // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
-          if (input.lookBack(" ")) {
-            output.space_before_token = true;
-          }
-          if (input.peek() === ":") {
-            // pseudo-element
-            ch = input.next();
-            print_string("::");
-          } else {
-            // pseudo-class
-            print_string(':');
-          }
-        }
-      } else if (ch === '"' || ch === '\'') {
-        preserveSingleSpace(isAfterSpace);
-        print_string(ch + eatString(ch));
-        this.eatWhitespace(true);
-      } else if (ch === ';') {
-        if (insidePropertyValue) {
-          outdent();
-          insidePropertyValue = false;
-        }
-        insideAtExtend = false;
-        insideAtImport = false;
-        print_string(ch);
-        this.eatWhitespace(true);
-
-        // This maintains single line comments on the same
-        // line. Block comments are also affected, but
-        // a new line is always output before one inside
-        // that section
-        if (input.peek() !== '/') {
-          output.add_new_line();
-        }
-      } else if (ch === '(') { // may be a url
-        if (input.lookBack("url")) {
-          print_string(ch);
-          this.eatWhitespace();
-          ch = input.next();
-          if (ch === ')' || ch === '"' || ch !== '\'') {
-            input.back();
-            parenLevel++;
-          } else if (ch) {
-            print_string(ch + eatString(')'));
-          }
-        } else {
-          parenLevel++;
-          preserveSingleSpace(isAfterSpace);
-          print_string(ch);
-          this.eatWhitespace();
-        }
-      } else if (ch === ')') {
-        print_string(ch);
-        parenLevel--;
-      } else if (ch === ',') {
-        print_string(ch);
-        this.eatWhitespace(true);
-        if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
-          output.add_new_line();
-        } else {
-          output.space_before_token = true;
-        }
-      } else if ((ch === '>' || ch === '+' || ch === '~') && !insidePropertyValue && parenLevel < 1) {
-        //handle combinator spacing
-        if (this._options.space_around_combinator) {
-          output.space_before_token = true;
-          print_string(ch);
-          output.space_before_token = true;
-        } else {
-          print_string(ch);
-          this.eatWhitespace();
-          // squash extra whitespace
-          if (ch && whitespaceChar.test(ch)) {
-            ch = '';
-          }
-        }
-      } else if (ch === ']') {
-        print_string(ch);
-      } else if (ch === '[') {
-        preserveSingleSpace(isAfterSpace);
-        print_string(ch);
-      } else if (ch === '=') { // no whitespace before or after
-        this.eatWhitespace();
-        print_string('=');
-        if (whitespaceChar.test(ch)) {
-          ch = '';
-        }
-      } else if (ch === '!') { // !important
-        print_string(' ');
-        print_string(ch);
-      } else {
-        preserveSingleSpace(isAfterSpace);
-        print_string(ch);
-      }
-    }
-
-    var sweetCode = output.get_code(this._options.end_with_newline, eol);
-
-    return sweetCode;
-  };
+  this._ch = null;
+  this._input = null;
 
   // https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
   this.NESTED_AT_RULE = {
@@ -447,6 +65,383 @@ function Beautifier(source_text, options) {
     "@supports": true,
     "@document": true
   };
+
 }
+
+Beautifier.prototype.eatString = function(endChars) {
+  var result = '';
+  this._ch = this._input.next();
+  while (this._ch) {
+    result += this._ch;
+    if (this._ch === "\\") {
+      result += this._input.next();
+    } else if (endChars.indexOf(this._ch) !== -1 || this._ch === "\n") {
+      break;
+    }
+    this._ch = this._input.next();
+  }
+  return result;
+};
+
+// Skips any white space in the source text from the current position.
+// When allowAtLeastOneNewLine is true, will output new lines for each
+// newline character found; if the user has preserve_newlines off, only
+// the first newline will be output
+Beautifier.prototype.eatWhitespace = function(allowAtLeastOneNewLine) {
+  var result = whitespaceChar.test(this._input.peek());
+  var isFirstNewLine = true;
+
+  while (whitespaceChar.test(this._input.peek())) {
+    this._ch = this._input.next();
+    if (allowAtLeastOneNewLine && this._ch === '\n') {
+      if (this._options.preserve_newlines || isFirstNewLine) {
+        isFirstNewLine = false;
+        this._output.add_new_line(true);
+      }
+    }
+  }
+  return result;
+};
+
+// Nested pseudo-class if we are insideRule
+// and the next special character found opens
+// a new block
+Beautifier.prototype.foundNestedPseudoClass = function() {
+  var openParen = 0;
+  var i = 1;
+  var ch = this._input.peek(i);
+  while (ch) {
+    if (ch === "{") {
+      return true;
+    } else if (ch === '(') {
+      // pseudoclasses can contain ()
+      openParen += 1;
+    } else if (ch === ')') {
+      if (openParen === 0) {
+        return false;
+      }
+      openParen -= 1;
+    } else if (ch === ";" || ch === "}") {
+      return false;
+    }
+    i++;
+    ch = this._input.peek(i);
+  }
+  return false;
+};
+
+Beautifier.prototype.print_string = function(output_string) {
+  if (this._output.just_added_newline()) {
+    this._output.set_indent(this._indentLevel);
+  }
+  this._output.add_token(output_string);
+};
+
+Beautifier.prototype.preserveSingleSpace = function(isAfterSpace) {
+  if (isAfterSpace) {
+    this._output.space_before_token = true;
+  }
+};
+
+Beautifier.prototype.indent = function() {
+  this._indentLevel++;
+};
+
+Beautifier.prototype.outdent = function() {
+  if (this._indentLevel > 0) {
+    this._indentLevel--;
+  }
+};
+
+/*_____________________--------------------_____________________*/
+
+Beautifier.prototype.beautify = function() {
+  if (this._options.disabled) {
+    return this._source_text;
+  }
+
+  var source_text = this._source_text;
+  var eol = this._options.eol;
+  if (eol === 'auto') {
+    eol = '\n';
+    if (source_text && lineBreak.test(source_text || '')) {
+      eol = source_text.match(lineBreak)[0];
+    }
+  }
+
+
+  // HACK: newline parsing inconsistent. This brute force normalizes the this._input.
+  source_text = source_text.replace(allLineBreaks, '\n');
+
+  // reset
+  var baseIndentString = '';
+  var preindent_index = 0;
+  if (source_text && source_text.length) {
+    while ((source_text.charAt(preindent_index) === ' ' || source_text.charAt(preindent_index) === '\t')) {
+      preindent_index += 1;
+    }
+    baseIndentString = source_text.substring(0, preindent_index);
+    source_text = source_text.substring(preindent_index);
+  }
+
+  this._output = new Output(this._options.indent_string, baseIndentString);
+  this._input = new InputScanner(source_text);
+  this._indentLevel = 0;
+  this._nestedLevel = 0;
+
+  this._ch = null;
+  var parenLevel = 0;
+
+  var insideRule = false;
+  // This is the value side of a property value pair (blue in the following ex)
+  // label { content: blue }
+  var insidePropertyValue = false;
+  var enteringConditionalGroup = false;
+  var insideAtExtend = false;
+  var insideAtImport = false;
+  var topCharacter = this._ch;
+
+  while (true) {
+    var whitespace = this._input.read(whitespacePattern);
+    var isAfterSpace = whitespace !== '';
+    var previous_ch = topCharacter;
+    this._ch = this._input.next();
+    topCharacter = this._ch;
+
+    if (!this._ch) {
+      break;
+    } else if (this._ch === '/' && this._input.peek() === '*') {
+      // /* css comment */
+      // Always start block comments on a new line.
+      // This handles scenarios where a block comment immediately
+      // follows a property definition on the same line or where
+      // minified code is being beautified.
+      this._output.add_new_line();
+      this._input.back();
+      this.print_string(this._input.read(block_comment_pattern));
+
+      // Ensures any new lines following the comment are preserved
+      this.eatWhitespace(true);
+
+      // Block comments are followed by a new line so they don't
+      // share a line with other properties
+      this._output.add_new_line();
+    } else if (this._ch === '/' && this._input.peek() === '/') {
+      // // single line comment
+      // Preserves the space before a comment
+      // on the same line as a rule
+      this._output.space_before_token = true;
+      this._input.back();
+      this.print_string(this._input.read(comment_pattern));
+
+      // Ensures any new lines following the comment are preserved
+      this.eatWhitespace(true);
+    } else if (this._ch === '@') {
+      this.preserveSingleSpace(isAfterSpace);
+
+      // deal with less propery mixins @{...}
+      if (this._input.peek() === '{') {
+        this.print_string(this._ch + this.eatString('}'));
+      } else {
+        this.print_string(this._ch);
+
+        // strip trailing space, if present, for hash property checks
+        var variableOrRule = this._input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
+
+        if (variableOrRule.match(/[ :]$/)) {
+          // we have a variable or pseudo-class, add it and insert one space before continuing
+          variableOrRule = this.eatString(": ").replace(/\s$/, '');
+          this.print_string(variableOrRule);
+          this._output.space_before_token = true;
+        }
+
+        variableOrRule = variableOrRule.replace(/\s$/, '');
+
+        if (variableOrRule === 'extend') {
+          insideAtExtend = true;
+        } else if (variableOrRule === 'import') {
+          insideAtImport = true;
+        }
+
+        // might be a nesting at-rule
+        if (variableOrRule in this.NESTED_AT_RULE) {
+          this._nestedLevel += 1;
+          if (variableOrRule in this.CONDITIONAL_GROUP_RULE) {
+            enteringConditionalGroup = true;
+          }
+          // might be less variable
+        } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
+          insidePropertyValue = true;
+          this.indent();
+        }
+      }
+    } else if (this._ch === '#' && this._input.peek() === '{') {
+      this.preserveSingleSpace(isAfterSpace);
+      this.print_string(this._ch + this.eatString('}'));
+    } else if (this._ch === '{') {
+      if (insidePropertyValue) {
+        insidePropertyValue = false;
+        this.outdent();
+      }
+      this.indent();
+      this._output.space_before_token = true;
+      this.print_string(this._ch);
+
+      // when entering conditional groups, only rulesets are allowed
+      if (enteringConditionalGroup) {
+        enteringConditionalGroup = false;
+        insideRule = (this._indentLevel > this._nestedLevel);
+      } else {
+        // otherwise, declarations are also allowed
+        insideRule = (this._indentLevel >= this._nestedLevel);
+      }
+      if (this._options.newline_between_rules && insideRule) {
+        if (this._output.previous_line && this._output.previous_line.item(-1) !== '{') {
+          this._output.ensure_empty_line_above('/', ',');
+        }
+      }
+      this.eatWhitespace(true);
+      this._output.add_new_line();
+    } else if (this._ch === '}') {
+      this.outdent();
+      this._output.add_new_line();
+      if (previous_ch === '{') {
+        this._output.trim(true);
+      }
+      insideAtImport = false;
+      insideAtExtend = false;
+      if (insidePropertyValue) {
+        this.outdent();
+        insidePropertyValue = false;
+      }
+      this.print_string(this._ch);
+      insideRule = false;
+      if (this._nestedLevel) {
+        this._nestedLevel--;
+      }
+
+      this.eatWhitespace(true);
+      this._output.add_new_line();
+
+      if (this._options.newline_between_rules && !this._output.just_added_blankline()) {
+        if (this._input.peek() !== '}') {
+          this._output.add_new_line(true);
+        }
+      }
+    } else if (this._ch === ":") {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend) {
+        // 'property: value' delimiter
+        // which could be in a conditional group query
+        this.print_string(':');
+        if (!insidePropertyValue) {
+          insidePropertyValue = true;
+          this._output.space_before_token = true;
+          this.eatWhitespace(true);
+          this.indent();
+        }
+      } else {
+        // sass/less parent reference don't use a space
+        // sass nested pseudo-class don't use a space
+
+        // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+        if (this._input.lookBack(" ")) {
+          this._output.space_before_token = true;
+        }
+        if (this._input.peek() === ":") {
+          // pseudo-element
+          this._ch = this._input.next();
+          this.print_string("::");
+        } else {
+          // pseudo-class
+          this.print_string(':');
+        }
+      }
+    } else if (this._ch === '"' || this._ch === '\'') {
+      this.preserveSingleSpace(isAfterSpace);
+      this.print_string(this._ch + this.eatString(this._ch));
+      this.eatWhitespace(true);
+    } else if (this._ch === ';') {
+      if (insidePropertyValue) {
+        this.outdent();
+        insidePropertyValue = false;
+      }
+      insideAtExtend = false;
+      insideAtImport = false;
+      this.print_string(this._ch);
+      this.eatWhitespace(true);
+
+      // This maintains single line comments on the same
+      // line. Block comments are also affected, but
+      // a new line is always output before one inside
+      // that section
+      if (this._input.peek() !== '/') {
+        this._output.add_new_line();
+      }
+    } else if (this._ch === '(') { // may be a url
+      if (this._input.lookBack("url")) {
+        this.print_string(this._ch);
+        this.eatWhitespace();
+        this._ch = this._input.next();
+        if (this._ch === ')' || this._ch === '"' || this._ch !== '\'') {
+          this._input.back();
+          parenLevel++;
+        } else if (this._ch) {
+          this.print_string(this._ch + this.eatString(')'));
+        }
+      } else {
+        parenLevel++;
+        this.preserveSingleSpace(isAfterSpace);
+        this.print_string(this._ch);
+        this.eatWhitespace();
+      }
+    } else if (this._ch === ')') {
+      this.print_string(this._ch);
+      parenLevel--;
+    } else if (this._ch === ',') {
+      this.print_string(this._ch);
+      this.eatWhitespace(true);
+      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
+        this._output.add_new_line();
+      } else {
+        this._output.space_before_token = true;
+      }
+    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel < 1) {
+      //handle combinator spacing
+      if (this._options.space_around_combinator) {
+        this._output.space_before_token = true;
+        this.print_string(this._ch);
+        this._output.space_before_token = true;
+      } else {
+        this.print_string(this._ch);
+        this.eatWhitespace();
+        // squash extra whitespace
+        if (this._ch && whitespaceChar.test(this._ch)) {
+          this._ch = '';
+        }
+      }
+    } else if (this._ch === ']') {
+      this.print_string(this._ch);
+    } else if (this._ch === '[') {
+      this.preserveSingleSpace(isAfterSpace);
+      this.print_string(this._ch);
+    } else if (this._ch === '=') { // no whitespace before or after
+      this.eatWhitespace();
+      this.print_string('=');
+      if (whitespaceChar.test(this._ch)) {
+        this._ch = '';
+      }
+    } else if (this._ch === '!') { // !important
+      this.print_string(' ');
+      this.print_string(this._ch);
+    } else {
+      this.preserveSingleSpace(isAfterSpace);
+      this.print_string(this._ch);
+    }
+  }
+
+  var sweetCode = this._output.get_code(this._options.end_with_newline, eol);
+
+  return sweetCode;
+};
 
 module.exports.Beautifier = Beautifier;
