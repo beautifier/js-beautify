@@ -7,6 +7,11 @@ from jsbeautifier.core.output import Output
 from jsbeautifier.core.inputscanner import InputScanner
 from jsbeautifier.__version__ import __version__
 
+# This is not pretty, but given how we did the version import
+# it is the only way to do this without having setup.py fail on a missing
+# six dependency.
+six = __import__("six")
+
 #
 # The MIT License (MIT)
 
@@ -31,6 +36,7 @@ from jsbeautifier.__version__ import __version__
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 
 
 whitespaceChar = re.compile(r"\s")
@@ -102,11 +108,14 @@ class Printer:
 class Beautifier:
 
     def __init__(self, source_text, opts=default_options()):
-        import jsbeautifier.core.acorn as acorn
-        self.lineBreak = acorn.lineBreak
-        self.allLineBreaks = acorn.allLineBreaks
+        # in javascript, these two differ
+        # in python they are the same, different methods are called on them
+        # IMPORTANT: This string must be run through six to handle \u chars
+        self.lineBreak = re.compile(six.u(r"\r\n|[\n\r\u2028\u2029]"))
+        self.allLineBreaks = self.lineBreak
+
         self.comment_pattern = re.compile(
-            acorn.six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
+            six.u(r"\/\/(?:[^\n\r\u2028\u2029]*)"))
         self.block_comment_pattern = re.compile(
             r"\/\*(?:[\s\S]*?)((?:\*\/)|$)")
 

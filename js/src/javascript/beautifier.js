@@ -28,8 +28,8 @@
 
 'use strict';
 
-var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
+var acorn = require('./acorn');
 var Options = require('./options').Options;
 var Tokenizer = require('./tokenizer').Tokenizer;
 var line_starters = require('./tokenizer').line_starters;

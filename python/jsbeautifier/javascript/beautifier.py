@@ -103,7 +103,7 @@ def remove_redundant_indentation(output, frame):
 class Beautifier:
 
     def __init__(self, opts=None):
-        import jsbeautifier.core.acorn as acorn
+        import jsbeautifier.javascript.acorn as acorn
         self.acorn = acorn
         self._options = BeautifierOptions(opts)
 

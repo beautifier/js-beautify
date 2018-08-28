@@ -29,13 +29,12 @@
 'use strict';
 
 var Options = require('../html/options').Options;
-var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var Tokenizer = require('../html/tokenizer').Tokenizer;
 var TOKEN = require('../html/tokenizer').TOKEN;
 
-var lineBreak = acorn.lineBreak;
-var allLineBreaks = acorn.allLineBreaks;
+var lineBreak = /\r\n|[\r\n]/;
+var allLineBreaks = /\r\n|[\r\n]/g;
 
 var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
 

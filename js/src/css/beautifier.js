@@ -29,12 +29,11 @@
 'use strict';
 
 var Options = require('./options').Options;
-var acorn = require('../core/acorn');
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
 
-var lineBreak = acorn.lineBreak;
-var allLineBreaks = acorn.allLineBreaks;
+var lineBreak = /\r\n|[\r\n]/;
+var allLineBreaks = /\r\n|[\r\n]/g;
 
 // tokenizer
 var whitespaceChar = /\s/;

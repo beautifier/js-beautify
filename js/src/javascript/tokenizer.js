@@ -31,8 +31,8 @@
 var InputScanner = require('../core/inputscanner').InputScanner;
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
-var acorn = require('../core/acorn');
 var Directives = require('../core/directives').Directives;
+var acorn = require('./acorn');
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -105,6 +105,9 @@ var in_html_comment;
 
 var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
+
+  this._whitespace_pattern = /[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+/g;
+  this._newline_pattern = /([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?/g;
 };
 Tokenizer.prototype = new BaseTokenizer();
 

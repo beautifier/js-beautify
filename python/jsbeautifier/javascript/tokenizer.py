@@ -116,14 +116,27 @@ class Tokenizer(BaseTokenizer):
 
     def __init__(self, input_string, opts):
         BaseTokenizer.__init__(self, input_string, opts)
+        # This is not pretty, but given how we did the version import
+        # it is the only way to do this without having setup.py fail on a missing
+        # six dependency.
+        self._six = __import__("six")
+
+        import jsbeautifier.javascript.acorn as acorn
+        self.acorn = acorn
 
         self.in_html_comment = False
         self.has_char_escapes = False
 
         # comment ends just before nearest linefeed or end of file
         # IMPORTANT: This string must be run through six to handle \u chars
+        self._whitespace_pattern = re.compile(
+            self._six.u(r'[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+'))
+        self._newline_pattern = re.compile(
+            self._six.u(r'([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?'))
+        # // comment ends just before nearest linefeed or end of file
+
         self.comment_pattern = re.compile(
-            self.acorn.six.u(r'//([^\n\r\u2028\u2029]*)'))
+            self._six.u(r'//([^\n\r\u2028\u2029]*)'))
 
 
 
