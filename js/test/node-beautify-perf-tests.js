@@ -14,6 +14,7 @@ function node_beautifier_tests() {
   console.log('Testing performance...');
   var data = fs.readFileSync(__dirname + '/../../test/resources/underscore.js', 'utf8');
   var data_min = fs.readFileSync(__dirname + '/../../test/resources/underscore-min.js', 'utf8');
+  var github_min = fs.readFileSync(__dirname + '/../../test/resources/github-min.js', 'utf8');
   var options = {
     wrap_line_length: 80
   };
@@ -29,6 +30,9 @@ function node_beautifier_tests() {
     })
     .add("js-beautify (underscore-min)", function() {
       beautifier.js(data_min, options);
+    })
+    .add("js-beautify (github-min)", function() {
+      beautifier.js(github_min, options);
     })
     // add listeners
     .on('cycle', function(event) {

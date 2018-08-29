@@ -43,19 +43,14 @@ TOKEN = TokenTypes()
 class Tokenizer:
 
     def __init__(self, input_string, options):
-        import jsbeautifier.core.acorn as acorn
-        self.acorn = acorn
-
         self._input = InputScanner(input_string)
         self._options = options
         self.__tokens = None
         self.__newline_count = 0
         self.__whitespace_before_token = ''
 
-        self._whitespace_pattern = re.compile(
-            self.acorn.six.u(r'[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+'))
-        self._newline_pattern = re.compile(
-            self.acorn.six.u(r'([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?'))
+        self._whitespace_pattern = re.compile(r'[\n\r\t ]+')
+        self._newline_pattern = re.compile(r'([^\n\r]*)(\r\n|[\n\r])?')
 
     def tokenize(self):
         self._input.restart()
@@ -68,17 +63,7 @@ class Tokenizer:
         comments = TokenStream()
 
         while previous.type != TOKEN.EOF:
-            current = self._get_next_token(previous, open_token)
-
-            while self._is_comment(current):
-                comments.add(current)
-                current = self._get_next_token(previous, open_token)
-
-            if not comments.isEmpty():
-                current.comments_before = comments
-                comments = TokenStream()
-
-            current.parent = open_token
+            current = self.__get_next_token_with_comments(previous, open_token)
 
             if self._is_opening(current):
                 open_stack.append(open_token)
@@ -90,12 +75,28 @@ class Tokenizer:
                 open_token = open_stack.pop()
                 current.parent = open_token
 
-            current.previous = previous
-            previous.next = current
-
             self.__tokens.add(current)
             previous = current
         return self.__tokens
+
+    def __get_next_token_with_comments(self, previous, open_token):
+        current = self._get_next_token(previous, open_token)
+
+        if self._is_comment(current):
+            comments = TokenStream()
+            while self._is_comment(current):
+                comments.add(current)
+                current = self._get_next_token(previous, open_token)
+
+            if not comments.isEmpty():
+                current.comments_before = comments
+                comments = TokenStream()
+
+        current.parent = open_token
+        current.previous = previous
+        previous.next = current
+
+        return current
 
     def _is_first_token(self):
         return self.__tokens.isEmpty()

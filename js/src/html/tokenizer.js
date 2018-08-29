@@ -31,7 +31,6 @@
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var Directives = require('../core/directives').Directives;
-var acorn = require('../core/acorn');
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
@@ -52,9 +51,6 @@ var directives_core = new Directives(/<\!--/, /-->/);
 var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
   this._current_tag_name = '';
-
-  this._whitespace_pattern = /[\n\r\t ]+/g;
-  this._newline_pattern = /([^\n\r]*)(\r\n|[\n\r])?/g;
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
@@ -167,7 +163,6 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
       if (directives && directives.ignore === 'start') {
         comment += directives_core.readIgnored(this._input);
       }
-      comment = comment.replace(acorn.allLineBreaks, '\n');
       token = this._create_token(TOKEN.COMMENT, comment);
       token.directives = directives;
     }
