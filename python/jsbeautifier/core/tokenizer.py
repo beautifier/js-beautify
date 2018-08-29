@@ -63,17 +63,7 @@ class Tokenizer:
         comments = TokenStream()
 
         while previous.type != TOKEN.EOF:
-            current = self._get_next_token(previous, open_token)
-
-            while self._is_comment(current):
-                comments.add(current)
-                current = self._get_next_token(previous, open_token)
-
-            if not comments.isEmpty():
-                current.comments_before = comments
-                comments = TokenStream()
-
-            current.parent = open_token
+            current = self.__get_next_token_with_comments(previous, open_token)
 
             if self._is_opening(current):
                 open_stack.append(open_token)
@@ -85,12 +75,28 @@ class Tokenizer:
                 open_token = open_stack.pop()
                 current.parent = open_token
 
-            current.previous = previous
-            previous.next = current
-
             self.__tokens.add(current)
             previous = current
         return self.__tokens
+
+    def __get_next_token_with_comments(self, previous, open_token):
+        current = self._get_next_token(previous, open_token)
+
+        if self._is_comment(current):
+            comments = TokenStream()
+            while self._is_comment(current):
+                comments.add(current)
+                current = self._get_next_token(previous, open_token)
+
+            if not comments.isEmpty():
+                current.comments_before = comments
+                comments = TokenStream()
+
+        current.parent = open_token
+        current.previous = previous
+        previous.next = current
+
+        return current
 
     def _is_first_token(self):
         return self.__tokens.isEmpty()
