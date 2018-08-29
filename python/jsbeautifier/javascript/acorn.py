@@ -39,17 +39,15 @@ _nonASCIIidentifierChars = six.u(r"\u0300-\u036f\u0483-\u0487\u0591-\u05bd\u05bf
 #_nonASCIIidentifierStart = re.compile("[" + _nonASCIIidentifierStartChars + "]")
 #_nonASCIIidentifier = re.compile("[" + _nonASCIIidentifierStartChars + _nonASCIIidentifierChars + "]")
 
-_identifierStart = six.u(
-    "[" +
-    _baseASCIIidentifierStartChars +
-    _nonASCIIidentifierStartChars +
-    "]")
-_identifierChars = six.u(
-    "[" +
-    _baseASCIIidentifierChars +
-    _nonASCIIidentifierStartChars +
-    _nonASCIIidentifierChars +
-    "]*")
+_identifierStart = six.u("[") + \
+    _baseASCIIidentifierStartChars + \
+    _nonASCIIidentifierStartChars + \
+    six.u("]")
+_identifierChars = six.u("[") + \
+    _baseASCIIidentifierChars + \
+    _nonASCIIidentifierStartChars + \
+    _nonASCIIidentifierChars + \
+    six.u("]*")
 
 identifier = re.compile(_identifierStart + _identifierChars)
 
