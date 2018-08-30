@@ -81,7 +81,7 @@ update_release_branch()
     make js || exit 1
     git add -f js/lib/ || exit 1
     git commit -m "Release: $NEW_VERSION"
-    npm version --allow-same-version --no-git-tag-version  $NEW_VERSION
+    npm version --allow-same-version $NEW_VERSION
     git push || exit 1
     git push --tags
 }
