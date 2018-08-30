@@ -75,13 +75,13 @@ update_release_branch()
 {
     git reset --hard
     git clean -xfd
-    git checkout -B release origin/release
+    git checkout -B release origin/release || exit 1
     git merge origin/master --no-edit || exit 1
 
     make js || exit 1
     git add -f js/lib/ || exit 1
     git commit -m "Release: $NEW_VERSION"
-    git tag "v$NEW_VERSION"
+    git tag "v$NEW_VERSION" || exit 1
     git push || exit 1
     git push --tags
 }
