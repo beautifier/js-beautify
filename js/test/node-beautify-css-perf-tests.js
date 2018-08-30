@@ -18,12 +18,12 @@ function node_beautifier_html_tests() {
   };
 
   //warm-up
-  beautifier.html(github_css, options);
+  beautifier.css(github_css, options);
 
   var suite = new Benchmark.Suite();
 
   suite.add("css-beautify (github.css)", function() {
-      beautifier.html(github_css, options);
+      beautifier.css(github_css, options);
     })
     // add listeners
     .on('cycle', function(event) {
