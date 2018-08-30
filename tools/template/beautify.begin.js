@@ -1,6 +1,4 @@
-/*jshint curly:false, eqeqeq:true, laxbreak:true, noempty:false */
 /* AUTO-GENERATED. DO NOT MODIFY. */
-/* see js/src/javascript/index.js */
 /*
 
   The MIT License (MIT)
