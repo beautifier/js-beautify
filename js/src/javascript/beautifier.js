@@ -337,7 +337,7 @@ Beautifier.prototype.handle_whitespace_and_comments = function(current_token, pr
 
 };
 
-var newline_restricted_tokens = ['async', 'await', 'break', 'continue', 'return', 'throw', 'yield'];
+var newline_restricted_tokens = ['async', 'break', 'continue', 'return', 'throw', 'yield'];
 
 Beautifier.prototype.allow_wrap_or_preserved_newline = function(current_token, force_linewrap) {
   force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;

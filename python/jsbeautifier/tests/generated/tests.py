@@ -1849,6 +1849,21 @@ class TestJSBeautifier(unittest.TestCase):
             '}')
         bt('async () => 5;')
         bt('async x => x * 2;')
+        bt(
+            'async function() {\n' +
+            '    const obj = {\n' +
+            '        a: 1,\n' +
+            '        b: await fn(),\n' +
+            '        c: 2\n' +
+            '    };\n' +
+            '}')
+        bt(
+            'const a = 1,\n' +
+            '    b = a ? await foo() : b,\n' +
+            '    c = await foo(),\n' +
+            '    d = 3,\n' +
+            '    e = (await foo()),\n' +
+            '    f = 4;')
 
 
         #============================================================

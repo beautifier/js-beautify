@@ -879,6 +879,27 @@ exports.test_data = {
         },
         {
           unchanged: "async x => x * 2;"
+        },
+        {
+          unchanged: [
+            'async function() {',
+            '    const obj = {',
+            '        a: 1,',
+            '        b: await fn(),',
+            '        c: 2',
+            '    };',
+            '}'
+          ]
+        },
+        {
+          unchanged: [
+            'const a = 1,',
+            '    b = a ? await foo() : b,',
+            '    c = await foo(),',
+            '    d = 3,',
+            '    e = (await foo()),',
+            '    f = 4;'
+          ]
         }
       ]
     }, {

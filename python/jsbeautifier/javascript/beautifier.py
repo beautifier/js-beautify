@@ -268,7 +268,6 @@ class Beautifier:
 
     _newline_restricted_tokens = frozenset([
         'async',
-        'await',
         'break',
         'continue',
         'return',
