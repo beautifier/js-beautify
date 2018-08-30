@@ -9,12 +9,12 @@ Fixes and enhancements are totally welcome.  We prefer you to file an issue befo
 
 ### 0. Prereqisites for development
 
-* bash 
+* bash
 * make
 * nodejs - v10.x (with npm)
 * python - v2.7.x or v3.x (with pip)
 
-If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help. 
+If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help.
 
 ### 1. Build and Test Locally
 This repository holds two mostly identical implementations of the beautifiers: a JavaScript implementation and a Python implementation.
@@ -73,8 +73,11 @@ Test data files and support files used to generate implementation-specific test 
 ## Master
 We use the `master` branch as the primary development branch.
 
-## Milestone Release Tags
-Each release is has a tag created for it when it is released.  The latest release is linked from the `README.md`.
+## Release
+We use the `release` branch to hold releases, including built files for bower and the website.
+
+# Tags
+Each release is has a tag created for it in the `release` branch when it is published.  The latest release is linked from the `README.md`.
 
 ## Attic
 This project has been around for a while.  While some parts have improved significantly over time, others fell
@@ -119,6 +122,7 @@ This is script will:
 
 * Update README.md with correct cdn links
 * Update CHANGLOG.md with the milestone description and a list of closed issues
+* Commit the built files to the `release` branch
 * Publish the python version to PyPI
 * Publish the javascript version to npm
 * Merge the changes and publish them on the gh-pages branch

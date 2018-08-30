@@ -61,7 +61,7 @@ update_versions()
     git clean -xfd || exit 1
     npm version --no-git-tag-version $NEW_VERSION
 
-    #sedi -E 's@(cdn.rawgit.+beautify/v)[^/]+@\1'$NEW_VERSION'@' README.md
+    sedi -E 's@(cdn.rawgit.+beautify/v)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's/\((README\.md:.js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
 

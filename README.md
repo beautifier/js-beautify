@@ -70,9 +70,9 @@ To pull the latest version from one of these services include one set of the scr
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.1/beautify-css.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.1/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.2/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.2/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.2/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
