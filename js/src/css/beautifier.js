@@ -174,13 +174,11 @@ Beautifier.prototype.beautify = function() {
 
   // reset
   var baseIndentString = '';
-  var preindent_index = 0;
-  if (source_text && source_text.length) {
-    while ((source_text.charAt(preindent_index) === ' ' || source_text.charAt(preindent_index) === '\t')) {
-      preindent_index += 1;
-    }
-    baseIndentString = source_text.substring(0, preindent_index);
-    source_text = source_text.substring(preindent_index);
+  if (this._options.base_indent_string) {
+    baseIndentString = this._options.base_indent_string;
+  } else {
+    var match = source_text.match(/^[\t ]*/);
+    baseIndentString = match[0];
   }
 
   this._output = new Output(this._options.indent_string, baseIndentString);

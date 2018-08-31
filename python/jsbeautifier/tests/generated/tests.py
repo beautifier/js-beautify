@@ -287,6 +287,146 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Support Indent Level Options and Base Indent Autodetection - ()
+        self.reset_options()
+        test_fragment('   a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        self.reset_options()
+        self.options.indent_level = 0
+        test_fragment('   a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")
+        self.reset_options()
+        self.options.indent_level = 1
+        test_fragment('   a', '    a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '    // This is a random comment\n' +
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")
+        self.reset_options()
+        self.options.indent_level = 2
+        test_fragment('a', '        a')
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }')
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '        // This is a random comment\n' +
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")
+        self.reset_options()
+        self.options.indent_with_tabs = true
+        self.options.indent_level = 2
+        test_fragment('a', '\t\ta')
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}')
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t\t// This is a random comment\n' +
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        self.reset_options()
+        self.options.indent_level = 0
+        test_fragment('\t   a')
+        test_fragment(
+            '\t   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }')
+        test_fragment(
+            '\t   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t   // This is a random comment\n' +
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }')
+
+
+        #============================================================
         # Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
         self.reset_options()
         self.options.js = { 'indent_size': 3 }
