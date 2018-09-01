@@ -583,8 +583,10 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
   if (parser_token.is_empty_element) { //if this tag name is a single tag type (either in the list or has a closing /)
 
+    // if you hit an else case, reset the indent level if you are inside an:
+    // 'if', 'unless', or 'each' block.
     if (parser_token.tag_start_char === '{' && parser_token.tag_check === 'else') {
-      this._tag_stack.indent_to_tag(['if', 'unless']);
+      this._tag_stack.indent_to_tag(['if', 'unless', 'each']);
       parser_token.indent_content = true;
       // Don't add a newline if opening {{#if}} tag is on the current line
       var foundIfOnCurrentLine = printer.current_line_has_match(/{{#if/);

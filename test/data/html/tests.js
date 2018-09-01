@@ -1075,8 +1075,8 @@ exports.test_data = {
       }
     ]
   }, {
-    name: "Handlebars Else tag indenting",
-    description: "Handlebar Else tags should be newlined after formatted tags",
+    name: "Handlebars Else If and Each tag indenting",
+    description: "Handlebar Else If and Each Handling tags should be newlined after formatted tags",
     template: "^^^ $$$",
     options: [
       { name: "indent_handlebars", value: "true" }
@@ -1107,6 +1107,16 @@ exports.test_data = {
           '        <i class="fa fa-unlink" style="color:red"></i>',
           '    {{/if}}',
           '</a>'
+        ]
+      },
+      // Each handling
+      {
+        unchanged: [
+          '{{#each clinics as |clinic|}}',
+          '    <p>{{clinic.name}}</p>',
+          '{{else}}',
+          '    <p>Unfortunately no clinics found.</p>',
+          '{{/each}}'
         ]
       }
     ]

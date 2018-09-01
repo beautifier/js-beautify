@@ -4902,9 +4902,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Handlebars Else tag indenting
+        // Handlebars Else If and Each tag indenting
         reset_options();
-        set_name('Handlebars Else tag indenting');
+        set_name('Handlebars Else If and Each tag indenting');
         opts.indent_handlebars = true;
         bth(
             '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
@@ -4934,6 +4934,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <i class="fa fa-unlink" style="color:red"></i>\n' +
             '    {{/if}}\n' +
             '</a>');
+        bth(
+            '{{#each clinics as |clinic|}}\n' +
+            '    <p>{{clinic.name}}</p>\n' +
+            '{{else}}\n' +
+            '    <p>Unfortunately no clinics found.</p>\n' +
+            '{{/each}}');
 
 
         //============================================================
