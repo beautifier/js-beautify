@@ -32,14 +32,14 @@ py: generate-tests $(BUILD_DIR)/python
 	@echo Testing python beautify functionality...
 	$(SCRIPT_DIR)/python-dev python python/js-beautify-test.py || exit 1
 
-jstest: depends js package
+jstest: depends js build/*.tgz
 	@echo Testing javascript implementation...
 	@$(NODE) js/test/node-beautify-tests.js || exit 1
 	@$(NODE) js/test/amd-beautify-tests.js || exit 1
 	@$(NODE) --version && \
 		./js/test/shell-test.sh
 
-pytest: depends py package
+pytest: depends py python/dist/*
 	@echo Testing python implementation...
 	@cd python && \
 		$(PYTHON) --version && \
