@@ -42,7 +42,7 @@ function Options(options, merge_child_field) {
   this.indent_level = this._get_number('indent_level');
 
   this.preserve_newlines = this._get_boolean('preserve_newlines', true);
-  this.max_preserve_newlines = this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
+  this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
   if (!this.preserve_newlines) {
     this.max_preserve_newlines = 0;
   }
@@ -51,16 +51,6 @@ function Options(options, merge_child_field) {
   if (this.indent_with_tabs) {
     this.indent_char = '\t';
     this.indent_size = 1;
-  }
-
-  this.indent_string = this.indent_char;
-  if (this.indent_size > 1) {
-    this.indent_string = new Array(this.indent_size + 1).join(this.indent_char);
-  }
-  // Set to null to continue support for auto detection of base indent level.
-  this.base_indent_string = null;
-  if (this.indent_level > 0) {
-    this.base_indent_string = new Array(this.indent_level + 1).join(this.indent_string);
   }
 
   // Backwards compat with 1.3.x

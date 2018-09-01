@@ -192,19 +192,11 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
 };
 
 Beautifier.prototype._reset = function(source_text) {
-  var baseIndentString = '';
-
-  if (this._options.base_indent_string) {
-    baseIndentString = this._options.base_indent_string;
-  } else {
-    var match = source_text.match(/^[\t ]*/);
-    baseIndentString = match[0];
-  }
-
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
 
   this._last_type = TOKEN.START_BLOCK; // last token type
   this._last_last_text = ''; // pre-last token text
-  this._output = new Output(this._options.indent_string, baseIndentString);
+  this._output = new Output(this._options, baseIndentString);
 
   // If testing the ignore directive, start with output disable set to true
   this._output.raw = this._options.test_output_raw;

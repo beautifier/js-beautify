@@ -110,7 +110,15 @@ class IndentCache:
 
 
 class Output:
-    def __init__(self, indent_string, baseIndentString=''):
+    def __init__(self, options, baseIndentString=''):
+
+        indent_string = options.indent_char
+        if options.indent_size > 0:
+            indent_string = options.indent_char * options.indent_size
+
+        # Set to null to continue support for auto detection of base levelself.
+        if options.indent_level > 0:
+            baseIndentString = options.indent_level * indent_string
 
         self.__indent_cache = IndentCache(baseIndentString, indent_string)
         self.__alignment_cache = IndentCache('', ' ')

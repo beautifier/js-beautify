@@ -144,8 +144,18 @@ IndentCache.prototype.get_level_string = function(level) {
 };
 
 
-function Output(indent_string, baseIndentString) {
+function Output(options, baseIndentString) {
+  var indent_string = options.indent_char;
+  if (options.indent_size > 1) {
+    indent_string = new Array(options.indent_size + 1).join(options.indent_char);
+  }
+
+  // Set to null to continue support for auto detection of base indent level.
   baseIndentString = baseIndentString || '';
+  if (options.indent_level > 0) {
+    baseIndentString = new Array(options.indent_level + 1).join(indent_string);
+  }
+
   this.__indent_cache = new IndentCache(baseIndentString, indent_string);
   this.__alignment_cache = new IndentCache('', ' ');
   this.baseIndentLength = baseIndentString.length;

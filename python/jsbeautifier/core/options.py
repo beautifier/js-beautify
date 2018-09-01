@@ -55,13 +55,6 @@ class Options:
             self.indent_char = '\t'
             self.indent_size = 1
 
-        self.indent_string = self.indent_char * self.indent_size
-
-        # Set to null to continue support for auto detection of base levelself.
-        self.base_indent_string = None
-        if self.indent_level > 0:
-            self.base_indent_string = self.indent_level * self.indent_string
-
         # Backwards compat with 1.3.x
         self.wrap_line_length = self._get_number('wrap_line_length', self._get_number('max_char'))
 
