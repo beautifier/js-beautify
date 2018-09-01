@@ -54,7 +54,7 @@ class BeautifierOptions(BaseOptions):
         # preserve-inline in delimited string will trigger brace_preserve_inline, everything
         # else is considered a brace_style and the last one only will have an effect
 
-        brace_style_split = self._get_selection('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline'])
+        brace_style_split = self._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline'])
 
         # preserve-inline in delimited string will trigger brace_preserve_inline
         # Everything else is considered a brace_style and the last one only will
@@ -80,7 +80,7 @@ class BeautifierOptions(BaseOptions):
         self.unescape_strings = self._get_boolean('unescape_strings')
         self.e4x = self._get_boolean('e4x')
         self.comma_first = self._get_boolean('comma_first')
-        self.operator_position = self._get_selection('operator_position', OPERATOR_POSITION)[0]
+        self.operator_position = self._get_selection('operator_position', OPERATOR_POSITION)
 
         # For testing of beautify preserve:start directive
         self.test_output_raw = False

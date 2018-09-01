@@ -110,6 +110,22 @@ Options.prototype._get_number = function(name, default_value) {
 };
 
 Options.prototype._get_selection = function(name, selection_list, default_value) {
+  var result = this._get_selection_list(name, selection_list, default_value);
+  if (result.length !== 1) {
+    throw new Error(
+      "Invalid Option Value: The option '" + name + "' can only be one of the following values:\n" +
+      selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
+  }
+
+  return result[0];
+};
+
+
+Options.prototype._get_selection_list = function(name, selection_list, default_value) {
+  if (!selection_list || selection_list.length === 0) {
+    throw new Error("Selection list cannot be empty.");
+  }
+
   default_value = default_value || [selection_list[0]];
   if (!this._is_valid_selection(default_value, selection_list)) {
     throw new Error("Invalid Default Value!");
@@ -118,7 +134,8 @@ Options.prototype._get_selection = function(name, selection_list, default_value)
   var result = this._get_array(name, default_value);
   if (!this._is_valid_selection(result, selection_list)) {
     throw new Error(
-      "Invalid Option Value: The option '" + name + "' must be one of the following values\n" + selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
+      "Invalid Option Value: The option '" + name + "' can contain only the following values:\n" +
+      selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
   }
 
   return result;
