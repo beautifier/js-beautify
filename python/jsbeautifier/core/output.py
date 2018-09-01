@@ -125,6 +125,7 @@ class Output:
         self.baseIndentLength = len(baseIndentString)
         self.indent_length = len(indent_string)
         self.raw = False
+        self._end_with_newline = options.end_with_newline
         self.__lines = []
         self.previous_line = None
         self.current_line = None
@@ -162,11 +163,11 @@ class Output:
             self.__add_outputline()
         return True
 
-    def get_code(self, end_with_newline, eol):
+    def get_code(self, eol):
         sweet_code = "\n".join(line.toString() for line in self.__lines)
         sweet_code = re.sub('[\r\n\t ]+$', '', sweet_code)
 
-        if end_with_newline:
+        if self._end_with_newline:
             sweet_code += '\n'
 
         if not eol == '\n':

@@ -161,6 +161,7 @@ function Output(options, baseIndentString) {
   this.baseIndentLength = baseIndentString.length;
   this.indent_length = indent_string.length;
   this.raw = false;
+  this._end_with_newline = options.end_with_newline;
 
   this.__lines = [];
   this.previous_line = null;
@@ -208,10 +209,10 @@ Output.prototype.add_new_line = function(force_newline) {
   return true;
 };
 
-Output.prototype.get_code = function(end_with_newline, eol) {
+Output.prototype.get_code = function(eol) {
   var sweet_code = this.__lines.join('\n').replace(/[\r\n\t ]+$/, '');
 
-  if (end_with_newline) {
+  if (this._end_with_newline) {
     sweet_code += '\n';
   }
 

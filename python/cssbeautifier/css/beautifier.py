@@ -455,6 +455,6 @@ class Beautifier:
                 self.preserveSingleSpace(isAfterSpace)
                 self.print_string(self._ch)
 
-        sweet_code = self._output.get_code(self._options.end_with_newline, self._options.eol)
+        sweet_code = self._output.get_code(self._options.eol)
 
         return sweet_code

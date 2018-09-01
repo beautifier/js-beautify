@@ -247,7 +247,7 @@ Beautifier.prototype.beautify = function() {
     current_token = this._tokens.next();
   }
 
-  sweet_code = this._output.get_code(this._options.end_with_newline, eol);
+  sweet_code = this._output.get_code(eol);
 
   return sweet_code;
 };

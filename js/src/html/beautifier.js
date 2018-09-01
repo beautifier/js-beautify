@@ -301,7 +301,7 @@ Beautifier.prototype.beautify = function() {
 
     raw_token = tokens.next();
   }
-  var sweet_code = printer._output.get_code(this._options.end_with_newline, eol);
+  var sweet_code = printer._output.get_code(eol);
 
   return sweet_code;
 };

@@ -161,8 +161,7 @@ class Beautifier:
             self._last_type = current_token.type
             self._flags.last_text = current_token.text
 
-        sweet_code = self._output.get_code(
-            self._options.end_with_newline, self._options.eol)
+        sweet_code = self._output.get_code(self._options.eol)
 
         return sweet_code
 

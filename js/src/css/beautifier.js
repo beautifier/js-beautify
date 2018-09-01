@@ -430,7 +430,7 @@ Beautifier.prototype.beautify = function() {
     }
   }
 
-  var sweetCode = this._output.get_code(this._options.end_with_newline, eol);
+  var sweetCode = this._output.get_code(eol);
 
   return sweetCode;
 };
