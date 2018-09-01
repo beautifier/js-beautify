@@ -73,6 +73,8 @@
 */
 
 (function() {
+
+/* GENERATED_BUILD_OUTPUT */
 var legacy_beautify_html =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -514,6 +516,7 @@ function Options(options, merge_child_field) {
   this.end_with_newline = this._get_boolean('end_with_newline');
   this.indent_size = this._get_number('indent_size', 4);
   this.indent_char = this._get_characters('indent_char', ' ');
+  this.indent_level = this._get_number('indent_level');
 
   this.preserve_newlines = this._get_boolean('preserve_newlines', true);
   this.max_preserve_newlines = this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
@@ -530,6 +533,11 @@ function Options(options, merge_child_field) {
   this.indent_string = this.indent_char;
   if (this.indent_size > 1) {
     this.indent_string = new Array(this.indent_size + 1).join(this.indent_char);
+  }
+  // Set to null to continue support for auto detection of base indent level.
+  this.base_indent_string = null;
+  if (this.indent_level > 0) {
+    this.base_indent_string = new Array(this.indent_level + 1).join(this.indent_string);
   }
 
   // Backwards compat with 1.3.x
@@ -1254,7 +1262,7 @@ var TOKEN = __webpack_require__(18).TOKEN;
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
 
-var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
+var Printer = function(indent_string, base_indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
 
   this.indent_level = 0;
   this.alignment_size = 0;
@@ -1262,7 +1270,7 @@ var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, p
   this.max_preserve_newlines = max_preserve_newlines;
   this.preserve_newlines = preserve_newlines;
 
-  this._output = new Output(indent_string, '');
+  this._output = new Output(indent_string, base_indent_string);
 
 };
 
@@ -1479,6 +1487,15 @@ Beautifier.prototype.beautify = function() {
 
   // HACK: newline parsing inconsistent. This brute force normalizes the input.
   source_text = source_text.replace(allLineBreaks, '\n');
+  var baseIndentString = '';
+
+  if (this._options.base_indent_string) {
+    baseIndentString = this._options.base_indent_string;
+  } else {
+    //  Including commented out text would change existing beautifier behavior for v1.8.1 to autodetect base indent.
+    //    var match = source_text.match(/^[\t ]*/);
+    //    baseIndentString = match[0];
+  }
 
   var last_token = {
     text: '',
@@ -1487,7 +1504,7 @@ Beautifier.prototype.beautify = function() {
 
   var last_tag_token = new TagOpenParserToken();
 
-  var printer = new Printer(this._options.indent_string,
+  var printer = new Printer(this._options.indent_string, baseIndentString,
     this._options.wrap_line_length, this._options.max_preserve_newlines, this._options.preserve_newlines);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
 
@@ -1792,8 +1809,10 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
   if (parser_token.is_empty_element) { //if this tag name is a single tag type (either in the list or has a closing /)
 
+    // if you hit an else case, reset the indent level if you are inside an:
+    // 'if', 'unless', or 'each' block.
     if (parser_token.tag_start_char === '{' && parser_token.tag_check === 'else') {
-      this._tag_stack.indent_to_tag(['if', 'unless']);
+      this._tag_stack.indent_to_tag(['if', 'unless', 'each']);
       parser_token.indent_content = true;
       // Don't add a newline if opening {{#if}} tag is on the current line
       var foundIfOnCurrentLine = printer.current_line_has_match(/{{#if/);
