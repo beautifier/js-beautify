@@ -194,15 +194,13 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
 Beautifier.prototype._reset = function(source_text) {
   var baseIndentString = '';
 
-  var preindent_index = 0;
-  if (source_text && source_text.length) {
-    while ((source_text.charAt(preindent_index) === ' ' ||
-        source_text.charAt(preindent_index) === '\t')) {
-      preindent_index += 1;
-    }
-    baseIndentString = source_text.substring(0, preindent_index);
-    source_text = source_text.substring(preindent_index);
+  if (this._options.base_indent_string) {
+    baseIndentString = this._options.base_indent_string;
+  } else {
+    var match = source_text.match(/^[\t ]*/);
+    baseIndentString = match[0];
   }
+
 
   this._last_type = TOKEN.START_BLOCK; // last token type
   this._last_last_text = ''; // pre-last token text

@@ -183,6 +183,152 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Support Indent Level Options and Base Indent Autodetection - ()
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - ()');
+        test_fragment('   a', 'a');
+        test_fragment(
+            '   <div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '// This is a random comment\n' +
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
+        opts.indent_level = 0;
+        test_fragment('   a', 'a');
+        test_fragment(
+            '   <div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '// This is a random comment\n' +
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")');
+        opts.indent_level = 1;
+        test_fragment('   a', '    a');
+        test_fragment(
+            '   <div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '    <div>\n' +
+            '        <p>This is my sentence.</p>\n' +
+            '    </div>');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '    // This is a random comment\n' +
+            '    <div>\n' +
+            '        <p>This is my sentence.</p>\n' +
+            '    </div>');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")');
+        opts.indent_level = 2;
+        test_fragment('a', '        a');
+        test_fragment(
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '        <div>\n' +
+            '            <p>This is my sentence.</p>\n' +
+            '        </div>');
+        test_fragment(
+            '// This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '        // This is a random comment\n' +
+            '        <div>\n' +
+            '            <p>This is my sentence.</p>\n' +
+            '        </div>');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")');
+        opts.indent_with_tabs = true;
+        opts.indent_level = 2;
+        test_fragment('a', '\t\ta');
+        test_fragment(
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '\t\t<div>\n' +
+            '\t\t\t<p>This is my sentence.</p>\n' +
+            '\t\t</div>');
+        test_fragment(
+            '// This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '\t\t// This is a random comment\n' +
+            '\t\t<div>\n' +
+            '\t\t\t<p>This is my sentence.</p>\n' +
+            '\t\t</div>');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
+        opts.indent_level = 0;
+        test_fragment('\t   a', 'a');
+        test_fragment(
+            '\t   <div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+        test_fragment(
+            '\t   // This is a random comment\n' +
+            '<div>\n' +
+            '  <p>This is my sentence.</p>\n' +
+            '</div>',
+            //  -- output --
+            '// This is a random comment\n' +
+            '<div>\n' +
+            '    <p>This is my sentence.</p>\n' +
+            '</div>');
+
+
+        //============================================================
         // Custom Extra Liners (empty) - (extra_liners = "[]")
         reset_options();
         set_name('Custom Extra Liners (empty) - (extra_liners = "[]")');

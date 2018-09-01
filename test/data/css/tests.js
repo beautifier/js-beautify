@@ -57,6 +57,99 @@ exports.test_data = {
         { fragment: true, input: '\n', output: '{{eof}}' }
       ]
     }, {
+      name: "Support Indent Level Options and Base Indent Autodetection",
+      description: "If user specifies indent level, use it. If not, autodetect indent level from starting whitespace.",
+      matrix: [{
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "false" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "false" },
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "false" },
+          { name: "indent_level", value: "1" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '    ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "false" },
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '        ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "true" },
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '\t\t',
+        i: '\t'
+      }, {
+        options: [
+          { name: "indent_size", value: "4" },
+          { name: "indent_char", value: "' '" },
+          { name: "indent_with_tabs", value: "false" },
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '\t   ',
+        output_start_of_base: '\t   ',
+        i: '    '
+      }],
+      tests: [
+        { fragment: true, input: '{{input_start_indent}}a', output: '{{output_start_of_base}}a' },
+        {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}.a {',
+            '  text-align: right;',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}.a {',
+            '{{output_start_of_base}}{{i}}text-align: right;',
+            '{{output_start_of_base}}}'
+          ]
+        }, {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}// This is a random comment',
+            '.a {',
+            '  text-align: right;',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}// This is a random comment',
+            '{{output_start_of_base}}.a {',
+            '{{output_start_of_base}}{{i}}text-align: right;',
+            '{{output_start_of_base}}}'
+          ]
+        }
+      ]
+    }, {
       name: "Empty braces",
       description: "",
       tests: [

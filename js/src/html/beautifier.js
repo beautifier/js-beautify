@@ -36,7 +36,7 @@ var TOKEN = require('../html/tokenizer').TOKEN;
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
 
-var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
+var Printer = function(indent_string, base_indent_string, wrap_line_length, max_preserve_newlines, preserve_newlines) { //handles input/output and some other printing functions
 
   this.indent_level = 0;
   this.alignment_size = 0;
@@ -44,7 +44,7 @@ var Printer = function(indent_string, wrap_line_length, max_preserve_newlines, p
   this.max_preserve_newlines = max_preserve_newlines;
   this.preserve_newlines = preserve_newlines;
 
-  this._output = new Output(indent_string, '');
+  this._output = new Output(indent_string, base_indent_string);
 
 };
 
@@ -261,6 +261,15 @@ Beautifier.prototype.beautify = function() {
 
   // HACK: newline parsing inconsistent. This brute force normalizes the input.
   source_text = source_text.replace(allLineBreaks, '\n');
+  var baseIndentString = '';
+
+  if (this._options.base_indent_string) {
+    baseIndentString = this._options.base_indent_string;
+  } else {
+    //  Including commented out text would change existing beautifier behavior for v1.8.1 to autodetect base indent.
+    //    var match = source_text.match(/^[\t ]*/);
+    //    baseIndentString = match[0];
+  }
 
   var last_token = {
     text: '',
@@ -269,7 +278,7 @@ Beautifier.prototype.beautify = function() {
 
   var last_tag_token = new TagOpenParserToken();
 
-  var printer = new Printer(this._options.indent_string,
+  var printer = new Printer(this._options.indent_string, baseIndentString,
     this._options.wrap_line_length, this._options.max_preserve_newlines, this._options.preserve_newlines);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
 

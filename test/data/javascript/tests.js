@@ -188,6 +188,81 @@ exports.test_data = {
         { fragment: true, input: '\n', output: '{{eof}}' }
       ]
     }, {
+      name: "Support Indent Level Options and Base Indent Autodetection",
+      description: "If user specifies indent level, use it. If not, autodetect indent level from starting whitespace.",
+      matrix: [{
+        options: [],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "1" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '    ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '        ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_with_tabs", value: "true" },
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '\t\t',
+        i: '\t'
+      }, {
+        options: [
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '\t   ',
+        output_start_of_base: '\t   ',
+        i: '    '
+      }],
+      tests: [
+        { fragment: true, input: '{{input_start_indent}}a', output: '{{output_start_of_base}}a' },
+        {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}function test(){',
+            '  console.log("this is a test");',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}function test() {',
+            '{{output_start_of_base}}{{i}}console.log("this is a test");',
+            '{{output_start_of_base}}}'
+          ]
+        }, {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}// This is a random comment',
+            'function test(){',
+            '  console.log("this is a test");',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}// This is a random comment',
+            '{{output_start_of_base}}function test() {',
+            '{{output_start_of_base}}{{i}}console.log("this is a test");',
+            '{{output_start_of_base}}}'
+          ]
+        }
+      ]
+    }, {
       name: "Support simple language specific option inheritance/overriding",
       description: "Support simple language specific option inheritance/overriding",
       matrix: [{

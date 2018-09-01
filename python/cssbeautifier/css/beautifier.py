@@ -206,8 +206,11 @@ class Beautifier:
         # input newlines.
         source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
-        m = re.search("^[\t ]*", source_text)
-        baseIndentString = m.group(0)
+        if self._options.base_indent_string is not None:
+            baseIndentString = self._options.base_indent_string
+        else:
+            m = re.search("^[\t ]*", source_text)
+            baseIndentString = m.group(0)
 
         self._output = Output(self._options.indent_string, baseIndentString)
 
