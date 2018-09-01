@@ -18,6 +18,13 @@ test_cli_common()
         exit 1
     }
 
+    # unicode error - only happens in python
+    $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1 | grep -q "invalid continuation byte" || {
+        $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1
+        echo "[$CLI_SCRIPT_NAME] Output should be unicode error message."
+        exit 1
+    }
+
     $CLI_SCRIPT 2> /dev/null && {
         echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
         exit 1
