@@ -130,13 +130,11 @@ class Beautifier:
         self._last_type = TOKEN.START_BLOCK  # last token type
         self._last_last_text = ''         # pre-last token text
 
-        preindent_index = 0
-        if js_source_text is not None and len(js_source_text) > 0:
-            while preindent_index < len(js_source_text) and \
-                    js_source_text[preindent_index] in [' ', '\t']:
-                baseIndentString += js_source_text[preindent_index]
-                preindent_index += 1
-            js_source_text = js_source_text[preindent_index:]
+        if self._options.base_indent_string is not None:
+            baseIndentString = self._options.base_indent_string
+        else:
+            match = re.search("^[\t ]*", js_source_text)
+            baseIndentString = match.group(0)
 
         self._output = Output(self._options.indent_string, baseIndentString)
         # If testing the ignore directive, start with output disable set to

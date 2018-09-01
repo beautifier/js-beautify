@@ -80,6 +80,81 @@ exports.test_data = {
       { fragment: true, input: '\n', output: '{{eof}}' }
     ]
   }, {
+    name: "Support Indent Level Options and Base Indent Autodetection",
+    description: "If user specifies indent level, use it; otherwise start at zero indent.",
+    matrix: [{
+      options: [],
+      input_start_indent: '   ',
+      output_start_of_base: '',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "0" }
+      ],
+      input_start_indent: '   ',
+      output_start_of_base: '',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "1" }
+      ],
+      input_start_indent: '   ',
+      output_start_of_base: '    ',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "2" }
+      ],
+      input_start_indent: '',
+      output_start_of_base: '        ',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_with_tabs", value: "true" },
+        { name: "indent_level", value: "2" }
+      ],
+      input_start_indent: '',
+      output_start_of_base: '\t\t',
+      i: '\t'
+    }, {
+      options: [
+        { name: "indent_level", value: "0" }
+      ],
+      input_start_indent: '\t   ',
+      output_start_of_base: '',
+      i: '    '
+    }],
+    tests: [
+      { fragment: true, input: '{{input_start_indent}}a', output: '{{output_start_of_base}}a' },
+      {
+        fragment: true,
+        input: [
+          '{{input_start_indent}}<div>',
+          '  <p>This is my sentence.</p>',
+          '</div>'
+        ],
+        output: [
+          '{{output_start_of_base}}<div>',
+          '{{output_start_of_base}}{{i}}<p>This is my sentence.</p>',
+          '{{output_start_of_base}}</div>'
+        ]
+      }, {
+        fragment: true,
+        input: [
+          '{{input_start_indent}}// This is a random comment',
+          '<div>',
+          '  <p>This is my sentence.</p>',
+          '</div>'
+        ],
+        output: [
+          '{{output_start_of_base}}// This is a random comment',
+          '{{output_start_of_base}}<div>',
+          '{{output_start_of_base}}{{i}}<p>This is my sentence.</p>',
+          '{{output_start_of_base}}</div>'
+        ]
+      }
+    ]
+  }, {
     name: "Custom Extra Liners (empty)",
     description: "",
     matrix: [{
@@ -1000,8 +1075,8 @@ exports.test_data = {
       }
     ]
   }, {
-    name: "Handlebars Else tag indenting",
-    description: "Handlebar Else tags should be newlined after formatted tags",
+    name: "Handlebars Else If and Each tag indenting",
+    description: "Handlebar Else If and Each Handling tags should be newlined after formatted tags",
     template: "^^^ $$$",
     options: [
       { name: "indent_handlebars", value: "true" }
@@ -1032,6 +1107,16 @@ exports.test_data = {
           '        <i class="fa fa-unlink" style="color:red"></i>',
           '    {{/if}}',
           '</a>'
+        ]
+      },
+      // Each handling
+      {
+        unchanged: [
+          '{{#each clinics as |clinic|}}',
+          '    <p>{{clinic.name}}</p>',
+          '{{else}}',
+          '    <p>Unfortunately no clinics found.</p>',
+          '{{/each}}'
         ]
       }
     ]

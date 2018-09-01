@@ -39,6 +39,7 @@ function Options(options, merge_child_field) {
   this.end_with_newline = this._get_boolean('end_with_newline');
   this.indent_size = this._get_number('indent_size', 4);
   this.indent_char = this._get_characters('indent_char', ' ');
+  this.indent_level = this._get_number('indent_level');
 
   this.preserve_newlines = this._get_boolean('preserve_newlines', true);
   this.max_preserve_newlines = this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
@@ -55,6 +56,11 @@ function Options(options, merge_child_field) {
   this.indent_string = this.indent_char;
   if (this.indent_size > 1) {
     this.indent_string = new Array(this.indent_size + 1).join(this.indent_char);
+  }
+  // Set to null to continue support for auto detection of base indent level.
+  this.base_indent_string = null;
+  if (this.indent_level > 0) {
+    this.base_indent_string = new Array(this.indent_level + 1).join(this.indent_string);
   }
 
   // Backwards compat with 1.3.x

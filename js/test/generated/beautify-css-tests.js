@@ -176,6 +176,169 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
+        test_fragment('   a');
+        test_fragment(
+            '   .a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '   .a {\n' +
+            '       text-align: right;\n' +
+            '   }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '   // This is a random comment\n' +
+            '   .a {\n' +
+            '       text-align: right;\n' +
+            '   }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "0")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
+        opts.indent_level = 0;
+        test_fragment('   a');
+        test_fragment(
+            '   .a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '   .a {\n' +
+            '       text-align: right;\n' +
+            '   }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '   // This is a random comment\n' +
+            '   .a {\n' +
+            '       text-align: right;\n' +
+            '   }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "1")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "1")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
+        opts.indent_level = 1;
+        test_fragment('   a', '    a');
+        test_fragment(
+            '   .a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '    .a {\n' +
+            '        text-align: right;\n' +
+            '    }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '    // This is a random comment\n' +
+            '    .a {\n' +
+            '        text-align: right;\n' +
+            '    }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "2")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
+        opts.indent_level = 2;
+        test_fragment('a', '        a');
+        test_fragment(
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '        .a {\n' +
+            '            text-align: right;\n' +
+            '        }');
+        test_fragment(
+            '// This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '        // This is a random comment\n' +
+            '        .a {\n' +
+            '            text-align: right;\n' +
+            '        }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "true", indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "true", indent_level = "2")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = true;
+        opts.indent_level = 2;
+        test_fragment('a', '\t\ta');
+        test_fragment(
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '\t\t.a {\n' +
+            '\t\t\ttext-align: right;\n' +
+            '\t\t}');
+        test_fragment(
+            '// This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '\t\t// This is a random comment\n' +
+            '\t\t.a {\n' +
+            '\t\t\ttext-align: right;\n' +
+            '\t\t}');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_size = "4", indent_char = "" "", indent_with_tabs = "false", indent_level = "0")');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.indent_with_tabs = false;
+        opts.indent_level = 0;
+        test_fragment('\t   a');
+        test_fragment(
+            '\t   .a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '\t   .a {\n' +
+            '\t       text-align: right;\n' +
+            '\t   }');
+        test_fragment(
+            '\t   // This is a random comment\n' +
+            '.a {\n' +
+            '  text-align: right;\n' +
+            '}',
+            //  -- output --
+            '\t   // This is a random comment\n' +
+            '\t   .a {\n' +
+            '\t       text-align: right;\n' +
+            '\t   }');
+
+
+        //============================================================
         // Empty braces
         reset_options();
         set_name('Empty braces');
