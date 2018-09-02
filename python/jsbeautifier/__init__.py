@@ -338,8 +338,8 @@ def main():
         usage(sys.stderr)
         return 1
 
-    except UnicodeDecodeError as ex:
-        print("Could not decode input stream:",
+    except UnicodeError as ex:
+        print("Error while decoding input or encoding output:",
             file=sys.stderr)
         print(ex, file=sys.stderr)
         return 1
