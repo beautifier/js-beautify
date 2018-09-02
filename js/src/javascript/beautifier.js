@@ -69,6 +69,14 @@ function generateMapFromStrings(list) {
   return result;
 }
 
+function reserved_word(token, word) {
+  return token && token.type === TOKEN.RESERVED && token.text === word;
+}
+
+function reserved_array(token, words) {
+  return token && token.type === TOKEN.RESERVED && in_array(token.text, words);
+}
+
 var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
 
 // Generate map from array
@@ -371,7 +379,7 @@ Beautifier.prototype.print_newline = function(force_newline, preserve_statement_
     if (this._flags.last_text !== ';' && this._flags.last_text !== ',' && this._flags.last_text !== '=' && (this._last_type !== TOKEN.OPERATOR || this._flags.last_text === '--' || this._flags.last_text === '++')) {
       var next_token = this._tokens.peek();
       while (this._flags.mode === MODE.Statement &&
-        !(this._flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
+        !(this._flags.if_block && reserved_word(next_token, 'else')) &&
         !this._flags.do_block) {
         this.restore_mode();
       }
@@ -470,7 +478,7 @@ Beautifier.prototype.start_of_statement = function(current_token) {
   start = start || (this._last_type === TOKEN.RESERVED && this._flags.last_text === 'do');
   start = start || (this._last_type === TOKEN.RESERVED && in_array(this._flags.last_text, newline_restricted_tokens) && !current_token.newlines);
   start = start || (this._last_type === TOKEN.RESERVED && this._flags.last_text === 'else' &&
-    !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before));
+    !(reserved_word(current_token, 'if') && !current_token.comments_before));
   start = start || (this._last_type === TOKEN.END_EXPR && (this._previous_flags.mode === MODE.ForInitializer || this._previous_flags.mode === MODE.Conditional));
   start = start || (this._last_type === TOKEN.WORD && this._flags.mode === MODE.BlockStatement &&
     !this._flags.in_case &&
@@ -491,9 +499,8 @@ Beautifier.prototype.start_of_statement = function(current_token) {
     // if (a) if (b) if(c) d(); else e(); else f();
     if (!this.start_of_object_property()) {
       this.allow_wrap_or_preserved_newline(current_token,
-        current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['do', 'for', 'if', 'while']));
+        reserved_array(current_token, ['do', 'for', 'if', 'while']));
     }
-
     return true;
   }
   return false;
@@ -649,7 +656,10 @@ Beautifier.prototype.handle_start_block = function(current_token) {
   // Check if this is should be treated as a ObjectLiteral
   var next_token = this._tokens.peek();
   var second_token = this._tokens.peek(1);
-  if (second_token && (
+  if (this._flags.last_word === 'switch' && this._last_type === TOKEN.END_EXPR) {
+    this.set_mode(MODE.BlockStatement);
+    this._flags.in_case_statement = true;
+  } else if (second_token && (
       (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
       (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
     )) {
@@ -795,7 +805,7 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (this._flags.do_block && !this._flags.do_while) {
-    if (current_token.type === TOKEN.RESERVED && current_token.text === 'while') {
+    if (reserved_word(current_token, 'while')) {
       // do {} ## while ()
       this._output.space_before_token = true;
       this.print_token(current_token);
@@ -814,7 +824,7 @@ Beautifier.prototype.handle_word = function(current_token) {
   // Bare/inline ifs are tricky
   // Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
   if (this._flags.if_block) {
-    if (!this._flags.else_block && (current_token.type === TOKEN.RESERVED && current_token.text === 'else')) {
+    if (!this._flags.else_block && reserved_word(current_token, 'else')) {
       this._flags.else_block = true;
     } else {
       while (this._flags.mode === MODE.Statement) {
@@ -825,7 +835,7 @@ Beautifier.prototype.handle_word = function(current_token) {
     }
   }
 
-  if (current_token.type === TOKEN.RESERVED && (current_token.text === 'case' || (current_token.text === 'default' && this._flags.in_case_statement))) {
+  if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
     this.print_newline();
     if (this._flags.case_body || this._options.jslint_happy) {
       // switch cases following one another
@@ -834,7 +844,6 @@ Beautifier.prototype.handle_word = function(current_token) {
     }
     this.print_token(current_token);
     this._flags.in_case = true;
-    this._flags.in_case_statement = true;
     return;
   }
 
@@ -844,7 +853,7 @@ Beautifier.prototype.handle_word = function(current_token) {
     }
   }
 
-  if (current_token.type === TOKEN.RESERVED && current_token.text === 'function') {
+  if (reserved_word(current_token, 'function')) {
     if (in_array(this._flags.last_text, ['}', ';']) ||
       (this._output.just_added_newline() && !(in_array(this._flags.last_text, ['(', '[', '{', ':', '=', ',']) || this._last_type === TOKEN.OPERATOR))) {
       // make sure there is a nice clean space of at least one blank line
@@ -884,7 +893,7 @@ Beautifier.prototype.handle_word = function(current_token) {
 
     if (this._previous_flags.inline_frame) {
       prefix = 'SPACE';
-    } else if (!(current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
+    } else if (!reserved_array(current_token, ['else', 'catch', 'finally', 'from'])) {
       prefix = 'NEWLINE';
     } else {
       if (this._options.brace_style === "expand" ||
@@ -919,7 +928,7 @@ Beautifier.prototype.handle_word = function(current_token) {
     prefix = 'NEWLINE';
   }
 
-  if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, line_starters) && this._flags.last_text !== ')') {
+  if (reserved_array(current_token, line_starters) && this._flags.last_text !== ')') {
     if (this._flags.inline_frame || this._flags.last_text === 'else' || this._flags.last_text === 'export') {
       prefix = 'SPACE';
     } else {
@@ -928,7 +937,7 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   }
 
-  if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['else', 'catch', 'finally'])) {
+  if (reserved_array(current_token, ['else', 'catch', 'finally'])) {
     if ((!(this._last_type === TOKEN.END_BLOCK && this._previous_flags.mode === MODE.BlockStatement) ||
         this._options.brace_style === "expand" ||
         this._options.brace_style === "end-expand" ||
@@ -950,16 +959,16 @@ Beautifier.prototype.handle_word = function(current_token) {
       // no newline between 'return nnn'
       this._output.space_before_token = true;
     } else if (this._last_type !== TOKEN.END_EXPR) {
-      if ((this._last_type !== TOKEN.START_EXPR || !(current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['var', 'let', 'const']))) && this._flags.last_text !== ':') {
+      if ((this._last_type !== TOKEN.START_EXPR || !reserved_array(current_token, ['var', 'let', 'const'])) && this._flags.last_text !== ':') {
         // no need to force newline on 'var': for (var x = 0...)
-        if (current_token.type === TOKEN.RESERVED && current_token.text === 'if' && this._flags.last_text === 'else') {
+        if (reserved_word(current_token, 'if') && this._flags.last_text === 'else') {
           // no newline for } else if {
           this._output.space_before_token = true;
         } else {
           this.print_newline();
         }
       }
-    } else if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, line_starters) && this._flags.last_text !== ')') {
+    } else if (reserved_array(current_token, line_starters) && this._flags.last_text !== ')') {
       this.print_newline();
     }
   } else if (this._flags.multiline_frame && is_array(this._flags.mode) && this._flags.last_text === ',' && this._last_last_text === '}') {
@@ -980,7 +989,7 @@ Beautifier.prototype.handle_word = function(current_token) {
       this._flags.if_block = true;
     } else if (current_token.text === 'import') {
       this._flags.import_block = true;
-    } else if (this._flags.import_block && current_token.type === TOKEN.RESERVED && current_token.text === 'from') {
+    } else if (this._flags.import_block && reserved_word(current_token, 'from')) {
       this._flags.import_block = false;
     }
   }
@@ -997,7 +1006,7 @@ Beautifier.prototype.handle_semicolon = function(current_token) {
 
   var next_token = this._tokens.peek();
   while (this._flags.mode === MODE.Statement &&
-    !(this._flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
+    !(this._flags.if_block && reserved_word(next_token, 'else')) &&
     !this._flags.do_block) {
     this.restore_mode();
   }

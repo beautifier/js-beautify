@@ -100,6 +100,14 @@ def remove_redundant_indentation(output, frame):
     output.remove_indent(frame.start_line_index)
 
 
+def reserved_word(token, word):
+    return token and token.type == TOKEN.RESERVED and token.text == word
+
+
+def reserved_array(token, words):
+    return token and token.type == TOKEN.RESERVED and token.text in words
+
+
 class Beautifier:
 
     def __init__(self, opts=None):
@@ -394,7 +402,7 @@ class Beautifier:
             self._last_type == TOKEN.RESERVED and self._flags.last_text in self._newline_restricted_tokens and not current_token.newlines)
         start = start or (
             self._last_type == TOKEN.RESERVED and self._flags.last_text == 'else' and not (
-                current_token.type == TOKEN.RESERVED and current_token.text == 'if' and \
+                reserved_word(current_token, 'if') and \
                     current_token.comments_before is None))
         start = start or (self._last_type == TOKEN.END_EXPR and (
             self._previous_flags.mode == MODE.ForInitializer or self._previous_flags.mode == MODE.Conditional))
@@ -420,9 +428,7 @@ class Beautifier:
             # if (a) if (b) if(c) d(); else e(); else f();
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(
-                    current_token, current_token.type == TOKEN.RESERVED and current_token.text in [
-                        'do', 'for', 'if', 'while'])
-
+                    current_token, reserved_array(current_token, ['do', 'for', 'if', 'while']))
             return True
         else:
             return False
@@ -571,7 +577,11 @@ class Beautifier:
         # ObjectLiteral
         next_token = self._tokens.peek()
         second_token = self._tokens.peek(1)
-        if second_token is not None and (
+        if self._flags.last_word == 'switch' and \
+                self._last_type == TOKEN.END_EXPR:
+            self.set_mode(MODE.BlockStatement)
+            self._flags.in_case_statement = True
+        elif second_token is not None and (
             (second_token.text in [
                 ':',
                 ','] and next_token.type in [
@@ -715,7 +725,7 @@ class Beautifier:
             self.handle_whitespace_and_comments(current_token)
 
         if self._flags.do_block and not self._flags.do_while:
-            if current_token.type == TOKEN.RESERVED and current_token.text == 'while':
+            if reserved_word(current_token, 'while'):
                 # do {} ## while ()
                 self._output.space_before_token = True
                 self.print_token(current_token)
@@ -742,15 +752,13 @@ class Beautifier:
 
                 self._flags.if_block = False
 
-        if current_token.type == TOKEN.RESERVED and (current_token.text == 'case' or (
-                current_token.text == 'default' and self._flags.in_case_statement)):
+        if self._flags.in_case_statement and reserved_array(current_token, ['case', 'default']):
             self.print_newline()
             if self._flags.case_body or self._options.jslint_happy:
                 self._flags.case_body = False
                 self.deindent()
             self.print_token(current_token)
             self._flags.in_case = True
-            self._flags.in_case_statement = True
             return
 
         if self._last_type in [
@@ -761,7 +769,7 @@ class Beautifier:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(current_token)
 
-        if current_token.type == TOKEN.RESERVED and current_token.text == 'function':
+        if reserved_word(current_token, 'function'):
             if (self._flags.last_text in ['}', ';'] or (self._output.just_added_newline() and not (
                     self._flags.last_text in ['(', '[', '{', ':', '=', ','] or self._last_type == TOKEN.OPERATOR))):
                 # make sure there is a nice clean space of at least one blank line
@@ -799,7 +807,7 @@ class Beautifier:
         if self._last_type == TOKEN.END_BLOCK:
             if self._previous_flags.inline_frame:
                 prefix = 'SPACE'
-            elif not (current_token.type == TOKEN.RESERVED and current_token.text in ['else', 'catch', 'finally', 'from']):
+            elif not reserved_array(current_token, ['else', 'catch', 'finally', 'from']):
                 prefix = 'NEWLINE'
             else:
                 if self._options.brace_style in ['expand', 'end-expand'] or (
@@ -829,14 +837,13 @@ class Beautifier:
             self._output.space_before_token = True
             prefix = 'NEWLINE'
 
-        if current_token.type == TOKEN.RESERVED and current_token.text in Tokenizer.line_starters and self._flags.last_text != ')':
+        if reserved_array(current_token, Tokenizer.line_starters) and self._flags.last_text != ')':
             if self._flags.inline_frame or self._flags.last_text == 'else ' or self._flags.last_text == 'export':
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
 
-        if current_token.type == TOKEN.RESERVED and current_token.text in [
-                'else', 'catch', 'finally']:
+        if reserved_array(current_token, ['else', 'catch', 'finally']):
             if ((not (self._last_type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement))
                 or self._options.brace_style == 'expand'
                 or self._options.brace_style == 'end-expand'
@@ -860,17 +867,17 @@ class Beautifier:
             elif self._last_type != TOKEN.END_EXPR:
                 if (
                     self._last_type != TOKEN.START_EXPR or not (
-                        current_token.type == TOKEN.RESERVED and current_token.text in [
+                        reserved_array(current_token, [
                             'var',
                             'let',
-                            'const'])) and self._flags.last_text != ':':
+                            'const']))) and self._flags.last_text != ':':
                     # no need to force newline on VAR -
                     # for (var x = 0...
-                    if current_token.type == TOKEN.RESERVED and current_token.text == 'if' and self._flags.last_text == 'else':
+                    if reserved_word(current_token, 'if') and self._flags.last_text == 'else':
                         self._output.space_before_token = True
                     else:
                         self.print_newline()
-            elif current_token.type == TOKEN.RESERVED and current_token.text in Tokenizer.line_starters and self._flags.last_text != ')':
+            elif reserved_array(current_token, Tokenizer.line_starters) and self._flags.last_text != ')':
                 self.print_newline()
         elif self._flags.multiline_frame and self.is_array(self._flags.mode) and self._flags.last_text == ',' and self._last_last_text == '}':
             self.print_newline()  # }, in lists get a newline

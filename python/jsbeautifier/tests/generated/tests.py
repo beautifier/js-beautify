@@ -4520,6 +4520,17 @@ class TestJSBeautifier(unittest.TestCase):
             '        break\n' +
             '}')
         bt(
+            'switch(x) {default: case 1: a(); break; case 0: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    default:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    case 0:\n' +
+            '        break\n' +
+            '}')
+        bt(
             'switch(x){case -1:break;case !y:break;}',
             #  -- output --
             'switch (x) {\n' +

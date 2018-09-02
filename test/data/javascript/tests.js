@@ -3124,6 +3124,9 @@ exports.test_data = {
         { unchanged: 'a[1]()', comment: 'another magic function call' },
         { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
         { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
+
+        { input: 'switch(x) {default: case 1: a(); break; case 0: break}', output: "switch (x) {\n    default:\n    case 1:\n        a();\n        break;\n    case 0:\n        break\n}" },
+
         { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
         { unchanged: 'a !== b' },
         { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },
