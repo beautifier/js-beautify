@@ -2101,7 +2101,7 @@ exports.test_data = {
     name: "unformatted to prevent formatting changes",
     description: "",
     options: [
-      { name: 'unformatted', value: "['u']" }
+      { name: 'unformatted', value: "['u', 'span', 'textarea']" }
     ],
     tests: [{
       unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
@@ -2113,14 +2113,29 @@ exports.test_data = {
     }, {
       unchanged: '<u><div \n\t\nclass=""">Ignore whitespace in attributes\t</div></u>'
     }, {
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '</span>',
+        '</div>'
+      ]
+    }, {
       input_: '<u \n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>',
       output: '<u\n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>'
     }]
   }, {
     name: "content_unformatted to prevent formatting content",
-    description: "",
+    description: "NOTE: for this test textarea is still content_unformatted but pre is not",
     options: [
-      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br', 'meta']" }
+
+      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br', 'meta', 'textarea']" }
     ],
     tests: [{
       fragment: true,
@@ -2172,7 +2187,20 @@ exports.test_data = {
         '    <br />',
         '    <br></div>'
       ]
-
+    }, {
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '</span>',
+        '</div>'
+      ]
     }, {
       input: [
         '<div>',
@@ -2267,6 +2295,20 @@ exports.test_data = {
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
       unchanged: '<div><br /></div>'
+    }, {
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '    </span>',
+        '</div>'
+      ]
     }, {
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
