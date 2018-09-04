@@ -1352,10 +1352,6 @@ Beautifier.prototype.handle_dot = function(current_token) {
     this.handle_whitespace_and_comments(current_token, true);
   }
 
-  if (this._options.unindent_chained_methods) {
-    this.deindent();
-  }
-
   if (reserved_array(this._flags.last_token, special_words)) {
     this._output.space_before_token = false;
   } else {
@@ -1363,6 +1359,12 @@ Beautifier.prototype.handle_dot = function(current_token) {
     // force newlines on dots after close paren when break_chained - for bar().baz()
     this.allow_wrap_or_preserved_newline(current_token,
       this._flags.last_token.text === ')' && this._options.break_chained_methods);
+  }
+
+  // Only unindent chained method dot if this dot starts a new line.
+  // Otherwise the automatic extra indentation removal will handle the over indent
+  if (this._options.unindent_chained_methods && this._output.just_added_newline()) {
+    this.deindent();
   }
 
   this.print_token(current_token);

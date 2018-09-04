@@ -1236,9 +1236,6 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token, True)
 
-        if self._options.unindent_chained_methods:
-            self.deindent()
-
         if reserved_array(self._flags.last_token, _special_word_set):
             self._output.space_before_token = False
         else:
@@ -1246,7 +1243,15 @@ class Beautifier:
             # force newlines on dots after close paren when break_chained - for
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
-                current_token, self._flags.last_token.text == ')' and self._options.break_chained_methods)
+                current_token, self._flags.last_text == ')' and
+                    self._options.break_chained_methods)
+
+        # Only unindent chained method dot if this dot starts a new line.
+        # Otherwise the automatic extra indentation removal
+        # will handle any over indent
+        if self._options.unindent_chained_methods and \
+                self._output.just_added_newline():
+            self.deindent()
 
         self.print_token(current_token)
 

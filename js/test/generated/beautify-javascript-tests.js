@@ -1246,6 +1246,21 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    .f()\n' +
             '    .f();\n' +
             '});');
+        
+        // regression test for fix #1533
+        bt(
+            'angular.module("test").controller("testCtrl", function($scope) {\n' +
+            '    $scope.tnew;\n' +
+            '    $scope.toggle_tnew = function() {\n' +
+            '        $scope.mode = 0;\n' +
+            '        if (!$scope.tnew) {\n' +
+            '            $scope.tnew = {};\n' +
+            '        } else $scope.tnew = null;\n' +
+            '    }\n' +
+            '    $scope.fn = function() {\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '});');
 
 
         //============================================================

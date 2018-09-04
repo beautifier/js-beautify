@@ -557,8 +557,24 @@ exports.test_data = {
             '    .f();',
             '});'
           ]
+        },
+        {
+          comment: 'regression test for fix #1533',
+          unchanged: [
+            'angular.module("test").controller("testCtrl", function($scope) {',
+            '    $scope.tnew;',
+            '    $scope.toggle_tnew = function() {',
+            '        $scope.mode = 0;',
+            '        if (!$scope.tnew) {',
+            '            $scope.tnew = {};',
+            '        } else $scope.tnew = null;',
+            '    }',
+            '    $scope.fn = function() {',
+            '        return null;',
+            '    }',
+            '});'
+          ]
         }
-
       ]
     }, {
       name: "Space in parens tests",
