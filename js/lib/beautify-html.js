@@ -1696,15 +1696,15 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
 
 Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_token, last_token) {
   var parser_token = this._get_tag_open_token(raw_token);
-  printer.traverse_whitespace(raw_token);
-
-  this._set_tag_position(printer, raw_token, parser_token, last_tag_token, last_token);
-
 
   if ((last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) &&
     raw_token.type === TOKEN.TAG_OPEN && raw_token.text.indexOf('</') === 0) {
+    // End element tags for unformatted or content_unformatted elements
+    // are printed raw to keep any newlines inside them exactly the same.
     printer.add_raw_token(raw_token);
   } else {
+    printer.traverse_whitespace(raw_token);
+    this._set_tag_position(printer, raw_token, parser_token, last_tag_token, last_token);
     printer.print_token(raw_token.text);
   }
 
