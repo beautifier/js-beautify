@@ -6222,7 +6222,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // unformatted to prevent formatting changes
         reset_options();
         set_name('unformatted to prevent formatting changes');
-        opts.unformatted = ['u'];
+        opts.unformatted = ['u', 'span', 'textarea'];
         bth('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
         bth('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
         bth(
@@ -6245,6 +6245,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<u><div \n' +
             '\t\n' +
             'class=""">Ignore whitespace in attributes\t</div></u>');
+        
+        // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
+        bth(
+            '<div>\n' +
+            '    <textarea></textarea>\n' +
+            '    <textarea>\n' +
+            '\n' +
+            '</textarea>\n' +
+            '    <span></span>\n' +
+            '    <span>\n' +
+            '\n' +
+            '</span>\n' +
+            '</div>');
         bth(
             '<u \n' +
             '\n' +
@@ -6261,7 +6274,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // content_unformatted to prevent formatting content
         reset_options();
         set_name('content_unformatted to prevent formatting content');
-        opts.content_unformatted = ['?php', 'script', 'style', 'p', 'span', 'br', 'meta'];
+        opts.content_unformatted = ['?php', 'script', 'style', 'p', 'span', 'br', 'meta', 'textarea'];
         test_fragment(
             '<html><body><h1>A</h1><script>if(1){f();}</script><style>.a{display:none;}</style></body></html>',
             //  -- output --
@@ -6306,6 +6319,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <br>\n' +
             '    <br />\n' +
             '    <br></div>');
+        
+        // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
+        bth(
+            '<div>\n' +
+            '    <textarea></textarea>\n' +
+            '    <textarea>\n' +
+            '\n' +
+            '</textarea>\n' +
+            '    <span></span>\n' +
+            '    <span>\n' +
+            '\n' +
+            '</span>\n' +
+            '</div>');
         bth(
             '<div>\n' +
             '<meta>\n' +
@@ -6396,6 +6422,19 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</p>');
         bth('<div><span>blabla<div>something here</div></span></div>');
         bth('<div><br /></div>');
+        
+        // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
+        bth(
+            '<div>\n' +
+            '    <textarea></textarea>\n' +
+            '    <textarea>\n' +
+            '\n' +
+            '</textarea>\n' +
+            '    <span></span>\n' +
+            '    <span>\n' +
+            '\n' +
+            '    </span>\n' +
+            '</div>');
         bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',
