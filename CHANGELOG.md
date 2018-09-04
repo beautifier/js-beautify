@@ -1,4 +1,15 @@
 # Changelog
+## v1.8.4
+
+### Description
+Broader adoption of 1.8.x revealed a few more high priority fixes
+
+
+### Closed Issues
+* Multiple newlines added between empty textarea and "unformatted" inline elements  ([#1534](https://github.com/beautify-web/js-beautify/issues/1534))
+* unindent_chained_methods broken ([#1533](https://github.com/beautify-web/js-beautify/issues/1533))
+
+
 ## v1.8.3
 
 ### Description
