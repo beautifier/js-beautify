@@ -1243,7 +1243,7 @@ class Beautifier:
             # force newlines on dots after close paren when break_chained - for
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
-                current_token, self._flags.last_text == ')' and
+                current_token, self._flags.last_token.text == ')' and
                     self._options.break_chained_methods)
 
         # Only unindent chained method dot if this dot starts a new line.
