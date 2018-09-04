@@ -1,4 +1,17 @@
 # Changelog
+## v1.8.3
+
+### Description
+
+
+### Closed Issues
+* Missing Bower Assets ([#1521](https://github.com/beautify-web/js-beautify/issues/1521))
+* Javascript ternary breaked with `await` ([#1519](https://github.com/beautify-web/js-beautify/issues/1519))
+* Object property indented after `await` ([#1517](https://github.com/beautify-web/js-beautify/issues/1517))
+* Handlebars formatting problems ([#870](https://github.com/beautify-web/js-beautify/issues/870))
+* beautify.js doesn't have indent_level option ([#724](https://github.com/beautify-web/js-beautify/issues/724))
+
+
 ## v1.8.1
 
 ### Description
