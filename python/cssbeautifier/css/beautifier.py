@@ -205,14 +205,9 @@ class Beautifier:
         # HACK: newline parsing inconsistent. This brute force normalizes the
         # input newlines.
         source_text = re.sub(self.allLineBreaks, '\n', source_text)
+        baseIndentString = re.search("^[\t ]*", source_text).group(0)
 
-        if self._options.base_indent_string is not None:
-            baseIndentString = self._options.base_indent_string
-        else:
-            m = re.search("^[\t ]*", source_text)
-            baseIndentString = m.group(0)
-
-        self._output = Output(self._options.indent_string, baseIndentString)
+        self._output = Output(self._options, baseIndentString)
 
         self._input = InputScanner(source_text)
 
@@ -460,6 +455,6 @@ class Beautifier:
                 self.preserveSingleSpace(isAfterSpace)
                 self.print_string(self._ch)
 
-        sweet_code = self._output.get_code(self._options.end_with_newline, self._options.eol)
+        sweet_code = self._output.get_code(self._options.eol)
 
         return sweet_code

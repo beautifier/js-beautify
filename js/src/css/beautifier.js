@@ -173,15 +173,9 @@ Beautifier.prototype.beautify = function() {
   source_text = source_text.replace(allLineBreaks, '\n');
 
   // reset
-  var baseIndentString = '';
-  if (this._options.base_indent_string) {
-    baseIndentString = this._options.base_indent_string;
-  } else {
-    var match = source_text.match(/^[\t ]*/);
-    baseIndentString = match[0];
-  }
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
 
-  this._output = new Output(this._options.indent_string, baseIndentString);
+  this._output = new Output(this._options, baseIndentString);
   this._input = new InputScanner(source_text);
   this._indentLevel = 0;
   this._nestedLevel = 0;
@@ -436,7 +430,7 @@ Beautifier.prototype.beautify = function() {
     }
   }
 
-  var sweetCode = this._output.get_code(this._options.end_with_newline, eol);
+  var sweetCode = this._output.get_code(eol);
 
   return sweetCode;
 };

@@ -55,13 +55,6 @@ class Options:
             self.indent_char = '\t'
             self.indent_size = 1
 
-        self.indent_string = self.indent_char * self.indent_size
-
-        # Set to null to continue support for auto detection of base levelself.
-        self.base_indent_string = None
-        if self.indent_level > 0:
-            self.base_indent_string = self.indent_level * self.indent_string
-
         # Backwards compat with 1.3.x
         self.wrap_line_length = self._get_number('wrap_line_length', self._get_number('max_char'))
 
@@ -104,15 +97,31 @@ class Options:
         return result
 
     def _get_selection(self, name, selection_list, default_value=None):
+        result = self._get_selection_list(name, selection_list, default_value)
+        if len(result) != 1:
+            raise ValueError(
+                "Invalid Option Value: The option '" + name + "' can only be one of the following values:\n" +
+                str(selection_list) +
+                "\nYou passed in: '" +
+                str(getattr(self.raw_options, name, None)) +
+                "'")
+
+        return result[0]
+
+
+    def _get_selection_list(self, name, selection_list, default_value=None):
+        if not selection_list:
+            raise ValueError("Selection list cannot be empty.")
+
         default_value = default_value or [selection_list[0]]
+
         if not self._is_valid_selection(default_value, selection_list):
             raise ValueError("Invalid Default Value!")
 
         result = self._get_array(name, default_value)
-        self._is_valid_selection(result, selection_list)
         if not self._is_valid_selection(result, selection_list):
             raise ValueError(
-                "Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
+                "Invalid Option Value: The option '" + name + "' can contain only the following values:\n" +
                 str(selection_list) +
                 "\nYou passed in: '" +
                 str(getattr(self.raw_options, name, None)) +

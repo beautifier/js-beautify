@@ -144,13 +144,24 @@ IndentCache.prototype.get_level_string = function(level) {
 };
 
 
-function Output(indent_string, baseIndentString) {
+function Output(options, baseIndentString) {
+  var indent_string = options.indent_char;
+  if (options.indent_size > 1) {
+    indent_string = new Array(options.indent_size + 1).join(options.indent_char);
+  }
+
+  // Set to null to continue support for auto detection of base indent level.
   baseIndentString = baseIndentString || '';
+  if (options.indent_level > 0) {
+    baseIndentString = new Array(options.indent_level + 1).join(indent_string);
+  }
+
   this.__indent_cache = new IndentCache(baseIndentString, indent_string);
   this.__alignment_cache = new IndentCache('', ' ');
   this.baseIndentLength = baseIndentString.length;
   this.indent_length = indent_string.length;
   this.raw = false;
+  this._end_with_newline = options.end_with_newline;
 
   this.__lines = [];
   this.previous_line = null;
@@ -198,10 +209,10 @@ Output.prototype.add_new_line = function(force_newline) {
   return true;
 };
 
-Output.prototype.get_code = function(end_with_newline, eol) {
+Output.prototype.get_code = function(eol) {
   var sweet_code = this.__lines.join('\n').replace(/[\r\n\t ]+$/, '');
 
-  if (end_with_newline) {
+  if (this._end_with_newline) {
     sweet_code += '\n';
   }
 

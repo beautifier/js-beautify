@@ -18,6 +18,14 @@ test_cli_common()
         exit 1
     }
 
+    # unicode error - only happens in python
+    # Note: different exceptions are thrown on different platforms.
+    $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1 | grep -q "Error while decoding input or encoding output:" || {
+        $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1
+        echo "[$CLI_SCRIPT_NAME] Output should be unicode error message."
+        exit 1
+    }
+
     $CLI_SCRIPT 2> /dev/null && {
         echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
         exit 1

@@ -62,6 +62,9 @@ from jsbeautifier.javascript.beautifier import Beautifier
 # Here are the available options: (read source)
 
 
+class MissingInputStreamError(Exception):
+    pass
+
 def default_options():
     return BeautifierOptions()
 
@@ -108,22 +111,14 @@ def set_file_editorconfig_opts(filename, js_options):
         # do not error on bad editor config
         print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
 
-
 def beautify_file(file_name, opts=default_options()):
     input_string = ''
     if file_name == '-':  # stdin
-        try:
-            if sys.stdin.isatty():
-                raise Exception()
+        if sys.stdin.isatty():
+            raise MissingInputStreamError()
 
-            stream = sys.stdin
-            input_string = ''.join(stream.readlines())
-        except Exception:
-            print(
-                "Must pipe input or define at least one file.\n",
-                file=sys.stderr)
-            usage(sys.stderr)
-            raise
+        stream = sys.stdin
+        input_string = ''.join(stream.readlines())
     else:
         stream = io.open(file_name, 'rt', newline='')
         input_string = ''.join(stream.readlines())
@@ -335,6 +330,19 @@ def main():
                         # fail on a missing six dependency.
                         six = __import__("six")
                         f.write(six.u(pretty))
+
+    except MissingInputStreamError:
+        print(
+            "Must pipe input or define at least one file.\n",
+            file=sys.stderr)
+        usage(sys.stderr)
+        return 1
+
+    except UnicodeError as ex:
+        print("Error while decoding input or encoding output:",
+            file=sys.stderr)
+        print(ex, file=sys.stderr)
+        return 1
 
     except Exception as ex:
         print(ex, file=sys.stderr)

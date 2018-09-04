@@ -50,7 +50,7 @@ function Options(options) {
   //preserve-inline in delimited string will trigger brace_preserve_inline, everything
   //else is considered a brace_style and the last one only will have an effect
 
-  var brace_style_split = this._get_selection('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline']);
+  var brace_style_split = this._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline']);
 
   this.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
   this.brace_style = "collapse";
@@ -74,7 +74,7 @@ function Options(options) {
   this.unescape_strings = this._get_boolean('unescape_strings');
   this.e4x = this._get_boolean('e4x');
   this.comma_first = this._get_boolean('comma_first');
-  this.operator_position = this._get_selection('operator_position', validPositionValues)[0];
+  this.operator_position = this._get_selection('operator_position', validPositionValues);
 
   // For testing of beautify preserve:start directive
   this.test_output_raw = this._get_boolean('test_output_raw');

@@ -42,7 +42,7 @@ function Options(options, merge_child_field) {
   this.indent_level = this._get_number('indent_level');
 
   this.preserve_newlines = this._get_boolean('preserve_newlines', true);
-  this.max_preserve_newlines = this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
+  this.max_preserve_newlines = this._get_number('max_preserve_newlines', 32786);
   if (!this.preserve_newlines) {
     this.max_preserve_newlines = 0;
   }
@@ -51,16 +51,6 @@ function Options(options, merge_child_field) {
   if (this.indent_with_tabs) {
     this.indent_char = '\t';
     this.indent_size = 1;
-  }
-
-  this.indent_string = this.indent_char;
-  if (this.indent_size > 1) {
-    this.indent_string = new Array(this.indent_size + 1).join(this.indent_char);
-  }
-  // Set to null to continue support for auto detection of base indent level.
-  this.base_indent_string = null;
-  if (this.indent_level > 0) {
-    this.base_indent_string = new Array(this.indent_level + 1).join(this.indent_string);
   }
 
   // Backwards compat with 1.3.x
@@ -110,6 +100,22 @@ Options.prototype._get_number = function(name, default_value) {
 };
 
 Options.prototype._get_selection = function(name, selection_list, default_value) {
+  var result = this._get_selection_list(name, selection_list, default_value);
+  if (result.length !== 1) {
+    throw new Error(
+      "Invalid Option Value: The option '" + name + "' can only be one of the following values:\n" +
+      selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
+  }
+
+  return result[0];
+};
+
+
+Options.prototype._get_selection_list = function(name, selection_list, default_value) {
+  if (!selection_list || selection_list.length === 0) {
+    throw new Error("Selection list cannot be empty.");
+  }
+
   default_value = default_value || [selection_list[0]];
   if (!this._is_valid_selection(default_value, selection_list)) {
     throw new Error("Invalid Default Value!");
@@ -118,7 +124,8 @@ Options.prototype._get_selection = function(name, selection_list, default_value)
   var result = this._get_array(name, default_value);
   if (!this._is_valid_selection(result, selection_list)) {
     throw new Error(
-      "Invalid Option Value: The option '" + name + "' must be one of the following values\n" + selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
+      "Invalid Option Value: The option '" + name + "' can contain only the following values:\n" +
+      selection_list + "\nYou passed in: '" + this.raw_options[name] + "'");
   }
 
   return result;

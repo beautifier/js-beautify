@@ -40,6 +40,7 @@ release_web()
     git fetch || exit 1
     git checkout -B gh-pages origin/gh-pages || exit 1
     git merge origin/release --no-edit || exit 1
+    git push || exit 1
     git checkout master
 }
 
