@@ -29,12 +29,12 @@
 ---------------
 
 
-  Written by Einar Lielmanis, <einar@jsbeautifier.org>
-      http://jsbeautifier.org/
+  Written by Einar Lielmanis, <einar@beautifier.io>
+      https://beautifier.io/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
   "End braces on own line" added by Chris J. Shull, <chrisjshull@gmail.com>
-  Parsing improvements for brace-less statements by Liam Newman <bitwiseman@gmail.com>
+  Parsing improvements for brace-less statements by Liam Newman <bitwiseman@beautifier.io>
 
 
   Usage:

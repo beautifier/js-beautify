@@ -1,6 +1,6 @@
 #
 # deobfuscator for scripts messed up with myobfuscate.com
-# by Einar Lielmanis <einar@jsbeautifier.org>
+# by Einar Lielmanis <einar@beautifier.io>
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #

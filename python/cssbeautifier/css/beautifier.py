@@ -68,7 +68,7 @@ def usage(stream=sys.stdout):
 
     print("cssbeautifier.py@" + __version__ + """
 
-CSS beautifier (http://jsbeautifier.org/)
+CSS beautifier (https://beautifier.io/)
 
 """, file=stream)
     if stream == sys.stderr:

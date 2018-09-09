@@ -62,7 +62,7 @@ Files related to the JavaScript implementations of the beautifiers.
 Files related to the Python implementations of the beautifiers.
 
 ## `web`
-Files related to http://jsbeautifier.org/.
+Files related to https://beautifier.io/.
 
 ## `test`
 Test data files and support files used to generate implementation-specific test files.
