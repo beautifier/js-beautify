@@ -373,7 +373,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
         this.eatWhitespace();
         this._ch = this._input.next();
-        if (this._ch === ')' || this._ch === '"' || this._ch !== '\'') {
+        if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
           parenLevel++;
         } else if (this._ch) {

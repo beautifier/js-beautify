@@ -370,6 +370,30 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\topacity: 0.9;\n' +
             '\tfilter: alpha(opacity=90);\n' +
             '}');
+        
+        // simple data uri base64 test
+        t(
+            'a { background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=); }',
+            //  -- output --
+            'a {\n' +
+            '\tbackground: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=);\n' +
+            '}');
+        
+        // non-base64 data
+        t(
+            'a { background: url(data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E); }',
+            //  -- output --
+            'a {\n' +
+            '\tbackground: url(data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E);\n' +
+            '}');
+        
+        // Beautifier does not fix or mitigate bad data uri
+        t(
+            'a { background: url(data:  image/gif   base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=); }',
+            //  -- output --
+            'a {\n' +
+            '\tbackground: url(data:  image/gif   base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=);\n' +
+            '}');
 
 
         //============================================================

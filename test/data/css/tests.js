@@ -165,6 +165,18 @@ exports.test_data = {
       tests: [{
         input: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity = 90);\n}',
         output: '#cboxOverlay {\n\tbackground: url(images/overlay.png) repeat 0 0;\n\topacity: 0.9;\n\tfilter: alpha(opacity=90);\n}'
+      }, {
+        comment: 'simple data uri base64 test',
+        input: 'a { background: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=); }',
+        output: 'a {\n\tbackground: url(data:image/gif;base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=);\n}'
+      }, {
+        comment: 'non-base64 data',
+        input: 'a { background: url(data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E); }',
+        output: 'a {\n\tbackground: url(data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E);\n}'
+      }, {
+        comment: 'Beautifier does not fix or mitigate bad data uri',
+        input: 'a { background: url(data:  image/gif   base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=); }',
+        output: 'a {\n\tbackground: url(data:  image/gif   base64,R0lGODlhCwALAJEAAAAAAP///xUVFf///yH5BAEAAAMALAAAAAALAAsAAAIPnI+py+0/hJzz0IruwjsVADs=);\n}'
       }]
     }, {
       name: "Support simple language specific option inheritance/overriding",
