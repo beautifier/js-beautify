@@ -780,6 +780,25 @@ exports.test_data = {
         ]
       },
       {
+        comment: "Issue #1469 - preserve newlines inside handlebars, including first one. Just treated as text here.",
+        input_: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '   {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: [
+          '{{em-input',
+          'label="Some Labe" property="amt"',
+          'type="text" placeholder=""}}',
+          '{{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
+      {
         input_: [
           '{{#if callOn}}',
           '{{#unless callOn}}',
@@ -897,6 +916,27 @@ exports.test_data = {
           '{{ myHelper someValue}}',
           '^^^&content$$$',
           '{{value-title}}'
+        ]
+      },
+      {
+        comment: "Issue #1469 - preserve newlines inside handlebars, including first one. BUG: does not fix indenting inside handlebars.",
+        input_: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '^^^&content$$$',
+          '   {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '^^^&content$$$',
+          '{{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ]
       },
       {
