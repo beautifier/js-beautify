@@ -3504,6 +3504,17 @@ class TestJSBeautifier(unittest.TestCase):
             '        return 0;\n' +
             '    }\n' +
             '}')
+        
+        # Issue 1544 - Typescript declare formatting (no newline).
+        bt(
+            'declare const require: any;\n' +
+            'declare function greet(greeting: string): void;\n' +
+            'declare var foo: number;\n' +
+            'declare namespace myLib {\n' +
+            '    function makeGreeting(s: string): string;\n' +
+            '    let numberOfGreetings: number;\n' +
+            '}\n' +
+            'declare let test: any;')
         bt(
             'interface Test {\n' +
             '    blah: string[];\n' +
