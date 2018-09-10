@@ -30,7 +30,7 @@
 
 //
 // trivial bookmarklet/escaped script detector for the javascript beautifier
-// written by Einar Lielmanis <einar@jsbeautifier.org>
+// written by Einar Lielmanis <einar@beautifier.io>
 //
 // usage:
 //

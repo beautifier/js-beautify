@@ -37,9 +37,9 @@ from jsbeautifier.javascript.beautifier import Beautifier
 # SOFTWARE.
 #
 # Originally written by Einar Lielmanis et al.,
-# Conversion to python by Einar Lielmanis, einar@jsbeautifier.org,
+# Conversion to python by Einar Lielmanis, einar@beautifier.io,
 # Parsing improvement for brace-less and semicolon-less statements
-#    by Liam Newman <bitwiseman@gmail.com>
+#    by Liam Newman <bitwiseman@beautifier.io>
 # Python is not my native language, feel free to push things around.
 #
 # Use either from command line (script displays its usage when run
@@ -130,7 +130,7 @@ def usage(stream=sys.stdout):
 
     print("jsbeautifier.py@" + __version__ + """
 
-Javascript beautifier (http://jsbeautifier.org/)
+Javascript beautifier (https://beautifier.io/)
 
 Usage: jsbeautifier.py [options] <infile>
 

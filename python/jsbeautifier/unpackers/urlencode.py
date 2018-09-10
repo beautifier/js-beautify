@@ -1,6 +1,6 @@
 #
 # Trivial bookmarklet/escaped script detector for the javascript beautifier
-#     written by Einar Lielmanis <einar@jsbeautifier.org>
+#     written by Einar Lielmanis <einar@beautifier.io>
 #     rewritten in Python by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
 # Will always return valid javascript: if `detect()` is false, `code` is
