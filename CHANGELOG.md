@@ -1,4 +1,17 @@
 # Changelog
+## v1.8.6
+
+### Description
+Beautifier has moved to https://beautifier.io
+
+### Closed Issues
+* JS beautify break the angular compile ([#1544](https://github.com/beautify-web/js-beautify/issues/1544))
+* base64 string is broken with v1.8.4 ([#1535](https://github.com/beautify-web/js-beautify/issues/1535))
+* Bookmarklet becomes totally useless ([#1408](https://github.com/beautify-web/js-beautify/issues/1408))
+* HTTPS ([#1399](https://github.com/beautify-web/js-beautify/issues/1399))
+* Beautify breaks when js starts with space followed by multi-line comment ([#789](https://github.com/beautify-web/js-beautify/issues/789))
+
+
 ## v1.8.4
 
 ### Description
@@ -53,7 +66,7 @@ Highlights:
 * HTML: Improved line wrapping in HTML - still not fully correct
 * HTML: 10x performance improvement in HTML beautifier
 * JS: ES6 BigInt support (@thejoshwolfe)
-* JS: ES6 Dynamic import support 
+* JS: ES6 Dynamic import support
 * CSS: :hover for @extend formatting (@MacKLess)
 * HTML: Incorrect line wrapping issue (@andreyvolokitin)
 * JS: Javascript ++ Operator Indentation (@Elrendio)
@@ -261,7 +274,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 ## v1.6.4
 
 ### Description
-* Fixed JSX multi-line root element handling 
+* Fixed JSX multi-line root element handling
 * Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
 * Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
 * Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
@@ -428,7 +441,7 @@ Version jump due to release script tweaks
 ### Description
 * JSX support!
 * Alternative Newline Characters
-* CSS and JS comment formatting fixes 
+* CSS and JS comment formatting fixes
 * General bug fixing
 
 
@@ -531,12 +544,12 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 * Do not break "x++ + y"
 * function declaration inside array behaves the same as in expression
 * Close String literals at newline
-* Support handlebar syntax 
+* Support handlebar syntax
 * Check `<script>` "type"-attribute
 * Allow `<style>` and `<script>` tags to be unformatted
 * Port css nesting fix to python
 * Fix python six dependency
-* Initial very cursory support for ES6 module, export, and import 
+* Initial very cursory support for ES6 module, export, and import
 
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
