@@ -31,8 +31,8 @@
 
     Written by Harutyun Amirjanyan, (amirjanyan@gmail.com)
 
-    Based on code initially developed by: Einar Lielmanis, <einar@jsbeautifier.org>
-        http://jsbeautifier.org/
+    Based on code initially developed by: Einar Lielmanis, <einar@beautifier.io>
+        https://beautifier.io/
 
     Usage:
         css_beautify(source_text);
@@ -1238,7 +1238,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
         this.eatWhitespace();
         this._ch = this._input.next();
-        if (this._ch === ')' || this._ch === '"' || this._ch !== '\'') {
+        if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
           parenLevel++;
         } else if (this._ch) {

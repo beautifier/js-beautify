@@ -27,7 +27,7 @@
 
 //
 // simple unpacker/deobfuscator for scripts messed up with javascriptobfuscator.com
-// written by Einar Lielmanis <einar@jsbeautifier.org>
+// written by Einar Lielmanis <einar@beautifier.io>
 //
 // usage:
 //

@@ -1060,6 +1060,9 @@ Beautifier.prototype.handle_word = function(current_token) {
         this._output.space_before_token = true;
       } else if (reserved_word(this._flags.last_token, 'default') && this._last_last_text === 'export') {
         this._output.space_before_token = true;
+      } else if (this._flags.last_token.text === 'declare') {
+        // accomodates Typescript declare function formatting
+        this._output.space_before_token = true;
       } else {
         this.print_newline();
       }
@@ -1147,6 +1150,9 @@ Beautifier.prototype.handle_word = function(current_token) {
   } else if (prefix === 'NEWLINE') {
     if (reserved_array(this._flags.last_token, special_words)) {
       // no newline between 'return nnn'
+      this._output.space_before_token = true;
+    } else if (this._flags.last_token.text === 'declare' && reserved_array(current_token, ['var', 'let', 'const'])) {
+      // accomodates Typescript declare formatting
       this._output.space_before_token = true;
     } else if (this._flags.last_token.type !== TOKEN.END_EXPR) {
       if ((this._flags.last_token.type !== TOKEN.START_EXPR || !reserved_array(current_token, ['var', 'let', 'const'])) && this._flags.last_token.text !== ':') {
@@ -3728,7 +3734,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
         this.eatWhitespace();
         this._ch = this._input.next();
-        if (this._ch === ')' || this._ch === '"' || this._ch !== '\'') {
+        if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
           parenLevel++;
         } else if (this._ch) {
@@ -3955,23 +3961,25 @@ Printer.prototype.add_raw_token = function(token) {
   this._output.add_raw_token(token);
 };
 
+Printer.prototype.print_preserved_newlines = function(raw_token) {
+  var newlines = 0;
+  if (raw_token.type !== TOKEN.TEXT && raw_token.previous.type !== TOKEN.TEXT) {
+    newlines = raw_token.newlines ? 1 : 0;
+  }
+
+  if (this.preserve_newlines) {
+    newlines = raw_token.newlines < this.max_preserve_newlines + 1 ? raw_token.newlines : this.max_preserve_newlines + 1;
+  }
+  for (var n = 0; n < newlines; n++) {
+    this.print_newline(n > 0);
+  }
+
+  return newlines !== 0;
+};
+
 Printer.prototype.traverse_whitespace = function(raw_token) {
   if (raw_token.whitespace_before || raw_token.newlines) {
-    var newlines = 0;
-
-    if (raw_token.type !== TOKEN.TEXT && raw_token.previous.type !== TOKEN.TEXT) {
-      newlines = raw_token.newlines ? 1 : 0;
-    }
-
-    if (this.preserve_newlines) {
-      newlines = raw_token.newlines < this.max_preserve_newlines + 1 ? raw_token.newlines : this.max_preserve_newlines + 1;
-    }
-
-    if (newlines) {
-      for (var n = 0; n < newlines; n++) {
-        this.print_newline(n > 0);
-      }
-    } else {
+    if (!this.print_preserved_newlines(raw_token)) {
       this._output.space_before_token = true;
       this.print_space_or_wrap(raw_token.text);
     }
@@ -4234,16 +4242,21 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
   printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '');
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
+  } else if (last_tag_token.tag_start_char === '{' && raw_token.type === TOKEN.TEXT) {
+    // For the insides of handlebars allow newlines or a single space between open and contents
+    if (printer.print_preserved_newlines(raw_token)) {
+      printer.print_raw_text(raw_token.whitespace_before + raw_token.text);
+    } else {
+      printer.print_token(raw_token.text);
+    }
   } else {
-    if (last_tag_token.tag_start_char === '<') {
-      if (raw_token.type === TOKEN.ATTRIBUTE) {
-        printer.set_space_before_token(true);
-        last_tag_token.attr_count += 1;
-      } else if (raw_token.type === TOKEN.EQUALS) { //no space before =
-        printer.set_space_before_token(false);
-      } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
-        printer.set_space_before_token(false);
-      }
+    if (raw_token.type === TOKEN.ATTRIBUTE) {
+      printer.set_space_before_token(true);
+      last_tag_token.attr_count += 1;
+    } else if (raw_token.type === TOKEN.EQUALS) { //no space before =
+      printer.set_space_before_token(false);
+    } else if (raw_token.type === TOKEN.VALUE && raw_token.previous.type === TOKEN.EQUALS) { //no space before value
+      printer.set_space_before_token(false);
     }
 
     if (printer._output.space_before_token && last_tag_token.tag_start_char === '<') {
