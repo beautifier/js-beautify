@@ -31,8 +31,8 @@
 
     Written by Harutyun Amirjanyan, (amirjanyan@gmail.com)
 
-    Based on code initially developed by: Einar Lielmanis, <einar@jsbeautifier.org>
-        http://jsbeautifier.org/
+    Based on code initially developed by: Einar Lielmanis, <einar@beautifier.io>
+        https://beautifier.io/
 
     Usage:
         css_beautify(source_text);

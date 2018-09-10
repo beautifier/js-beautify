@@ -1,6 +1,6 @@
 //
 // simple testing interface
-// written by Einar Lielmanis, einar@jsbeautifier.org
+// written by Einar Lielmanis, einar@beautifier.io
 //
 // usage:
 //

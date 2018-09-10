@@ -866,6 +866,9 @@ Beautifier.prototype.handle_word = function(current_token) {
         this._output.space_before_token = true;
       } else if (reserved_word(this._flags.last_token, 'default') && this._last_last_text === 'export') {
         this._output.space_before_token = true;
+      } else if (this._flags.last_token.text === 'declare') {
+        // accomodates Typescript declare function formatting
+        this._output.space_before_token = true;
       } else {
         this.print_newline();
       }
@@ -953,6 +956,9 @@ Beautifier.prototype.handle_word = function(current_token) {
   } else if (prefix === 'NEWLINE') {
     if (reserved_array(this._flags.last_token, special_words)) {
       // no newline between 'return nnn'
+      this._output.space_before_token = true;
+    } else if (this._flags.last_token.text === 'declare' && reserved_array(current_token, ['var', 'let', 'const'])) {
+      // accomodates Typescript declare formatting
       this._output.space_before_token = true;
     } else if (this._flags.last_token.type !== TOKEN.END_EXPR) {
       if ((this._flags.last_token.type !== TOKEN.START_EXPR || !reserved_array(current_token, ['var', 'let', 'const'])) && this._flags.last_token.text !== ':') {

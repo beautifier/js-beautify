@@ -782,6 +782,9 @@ class Beautifier:
                     self._output.space_before_token = True
                 elif reserved_word(self._flags.last_token, 'default') and self._last_last_text == 'export':
                     self._output.space_before_token = True
+                elif self._flags.last_token.text == 'declare':
+                    # accomodates Typescript declare function formatting
+                    self._output.space_before_token = True
                 else:
                     self.print_newline()
             elif self._flags.last_token.type == TOKEN.OPERATOR or self._flags.last_token.text == '=':
@@ -857,6 +860,12 @@ class Beautifier:
         elif prefix == 'NEWLINE':
             if reserved_array(self._flags.last_token, _special_word_set):
                 # no newline between return nnn
+                self._output.space_before_token = True
+            elif self._flags.last_token.text == 'declare' and reserved_array(current_token, [
+                    'var',
+                    'let',
+                    'const']):
+                # accomodates Typescript declare formatting
                 self._output.space_before_token = True
             elif self._flags.last_token.type != TOKEN.END_EXPR:
                 if (

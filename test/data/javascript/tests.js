@@ -2288,6 +2288,19 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1544 - Typescript declare formatting (no newline).",
+          unchanged: [
+            'declare const require: any;',
+            'declare function greet(greeting: string): void;',
+            'declare var foo: number;',
+            'declare namespace myLib {',
+            '    function makeGreeting(s: string): string;',
+            '    let numberOfGreetings: number;',
+            '}',
+            'declare let test: any;'
+          ]
+        },
+        {
           unchanged: [
             'interface Test {',
             '    blah: string[];',

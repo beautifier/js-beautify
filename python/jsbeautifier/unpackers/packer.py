@@ -1,6 +1,6 @@
 #
 # Unpacker for Dean Edward's p.a.c.k.e.r, a part of javascript beautifier
-# by Einar Lielmanis <einar@jsbeautifier.org>
+# by Einar Lielmanis <einar@beautifier.io>
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #

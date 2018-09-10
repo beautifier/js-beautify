@@ -18,7 +18,7 @@ JavaScript, unpack scripts packed by Dean Edward’s popular packer,
 as well as partly deobfuscate scripts processed by the npm package
 [javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
-Open [jsbeautifier.org](http://jsbeautifier.org/) to try it out.  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
 
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
@@ -62,17 +62,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.4/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.5/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.4/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.4/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.4/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.5/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.5/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.5/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -92,7 +92,7 @@ $ pip install jsbeautifier
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
 ## Web Browser
-Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Libary
 The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
@@ -365,13 +365,13 @@ You are free to use this in any way you want, in case you find this useful or wo
 
 # Credits
 
-* Created by Einar Lielmanis, <einar@jsbeautifier.org>
+* Created by Einar Lielmanis, <einar@beautifier.io>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
 * Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
-* Maintained and expanded by Liam Newman <bitwiseman@gmail.com>
+* Maintained and expanded by Liam Newman <bitwiseman@beautifier.io>
 
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.8.4)
+(README.md: js-beautify@1.8.5)

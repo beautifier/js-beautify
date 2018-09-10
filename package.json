@@ -1,7 +1,7 @@
 {
   "name": "js-beautify",
-  "version": "1.8.4",
-  "description": "jsbeautifier.org for node",
+  "version": "1.8.5",
+  "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
     "css-beautify": "./js/bin/css-beautify.js",
@@ -21,7 +21,7 @@
   ],
   "scripts": {},
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
-  "homepage": "http://jsbeautifier.org/",
+  "homepage": "https://beautifier.io/",
   "repository": {
     "type": "git",
     "url": "git://github.com/beautify-web/js-beautify.git"
@@ -31,7 +31,7 @@
     "beautifier",
     "code-quality"
   ],
-  "author": "Einar Lielmanis <einar@jsbeautifier.org>",
+  "author": "Einar Lielmanis <einar@beautifier.io>",
   "contributors": [
     "Vital Batmanov <vital76@gmail.com>",
     "Chris J. Shull <chrisjshull@gmail.com>",
@@ -41,7 +41,7 @@
     "Daniel Stockman <daniel.stockman@gmail.com>",
     "Harutyun Amirjanyan <amirjanyan@gmail.com>",
     "Nochum Sossonko <nsossonko@hotmail.com>",
-    "Liam Newman <bitwiseman@gmail.com>"
+    "Liam Newman <bitwiseman@beautifier.io>"
   ],
   "license": "MIT",
   "dependencies": {

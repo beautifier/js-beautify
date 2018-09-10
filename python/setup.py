@@ -32,8 +32,8 @@ setup(name='jsbeautifier',
       long_description=('Beautify, unpack or deobfuscate JavaScript. '
                         'Handles popular online obfuscators.'),
       author='Liam Newman, Einar Lielmanis, et al.',
-      author_email='team@jsbeautifier.org',
-      url='http://jsbeautifier.org',
+      author_email='team@beautifier.io',
+      url='https://beautifier.io',
       entry_points={
           'console_scripts': [
               'js-beautify = jsbeautifier:main'

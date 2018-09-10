@@ -31,8 +31,8 @@
 
   Written by Nochum Sossonko, (nsossonko@hotmail.com)
 
-  Based on code initially developed by: Einar Lielmanis, <einar@jsbeautifier.org>
-    http://jsbeautifier.org/
+  Based on code initially developed by: Einar Lielmanis, <einar@beautifier.io>
+    https://beautifier.io/
 
   Usage:
     style_html(html_source);
