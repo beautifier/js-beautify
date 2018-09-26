@@ -152,6 +152,7 @@ Output options:
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space-after-anon-function  Add a space before an anonymous function's parens, ie. function ()
+ --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
@@ -217,7 +218,7 @@ def main():
                                     'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
                                     'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
                                     'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig'])
+                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -257,6 +258,8 @@ def main():
             js_options.jslint_happy = True
         elif opt in ('--space_after_anon_function', '-a'):
             js_options.space_after_anon_function = True
+        elif opt in ('--space_after_named_function'):
+            js_options.space_after_named_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
