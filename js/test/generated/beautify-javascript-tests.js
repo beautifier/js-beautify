@@ -4420,6 +4420,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    import("otherdynamic");\n' +
             '}');
         
+        // Issue #1197 - dynamic import() arrow syntax
+        bt('frontend = Async(() => import("../frontend").then(m => m.default      ))', 'frontend = Async(() => import("../frontend").then(m => m.default))');
+        
         // Issue 858 - from is a keyword only after import
         bt(
             'if (from < to) {\n' +

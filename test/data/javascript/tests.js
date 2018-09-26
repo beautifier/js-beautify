@@ -2937,6 +2937,11 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue #1197 - dynamic import() arrow syntax",
+          input: 'frontend = Async(() => import("../frontend").then(m => m.default      ))',
+          output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
+        },
+        {
           comment: "Issue 858 - from is a keyword only after import",
           unchanged: [
             'if (from < to) {',
