@@ -1910,28 +1910,39 @@ exports.test_data = {
             { name: "space_after_anon_function", value: "true" }
           ],
           f: ' ',
-          c: ''
+          c: '',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "true" },
             { name: "space_after_anon_function", value: "false" }
           ],
           f: ' ',
-          c: ''
+          c: '',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "false" },
             { name: "space_after_anon_function", value: "true" }
           ],
           f: ' ',
-          c: '    '
+          c: '    ',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "false" },
             { name: "space_after_anon_function", value: "false" }
           ],
           f: '',
-          c: '    '
+          c: '    ',
+          nf: ''
+        }, {
+          options: [
+            { name: "space_after_named_function", value: "true" }
+          ],
+          f: '',
+          c: '    ',
+          nf: ' '
         }
 
 
@@ -1945,8 +1956,16 @@ exports.test_data = {
           output: 'x();\n\nfunction{{f}}() {}'
         },
         {
+          input_: 'x();\n\nfunction y(){}',
+          output: 'x();\n\nfunction y{{nf}}() {}'
+        },
+        {
           input_: 'x();\n\nvar x = {\nx: function(){}\n}',
           output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'
+        },
+        {
+          input_: 'x();\n\nvar x = {\nx: function y(){}\n}',
+          output: 'x();\n\nvar x = {\n    x: function y{{nf}}() {}\n}'
         },
         {
           input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
@@ -1972,6 +1991,10 @@ exports.test_data = {
           output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
         },
         {
+          input_: 'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \\\'\\\';',
+          output: 'var a2, b2, c2, d2 = 0,\n    c = function yoohoo{{nf}}() {},\n    d = \\\'\\\';'
+        },
+        {
           input_: 'var a2, b2, c2, d2 = 0, c = function() {},\nd = \\\'\\\';',
           output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
         },
@@ -1979,8 +2002,26 @@ exports.test_data = {
           input_: 'var o2=$.extend(a);function(){alert(x);}',
           output: 'var o2 = $.extend(a);\n\nfunction{{f}}() {\n    alert(x);\n}'
         },
-        { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}' },
-        { unchanged: 'function* x() {\n    yield 1;\n}' }
+        {
+          input_: 'var o2=$.extend(a);function yoohoo(){alert(x);}',
+          output: 'var o2 = $.extend(a);\n\nfunction yoohoo{{nf}}() {\n    alert(x);\n}'
+        },
+        {
+          input: 'function*() {\n    yield 1;\n}',
+          output: 'function*{{f}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'function* yoohoo() {\n    yield 1;\n}',
+          output: 'function* yoohoo{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'function* x() {\n    yield 1;\n}',
+          output: 'function* x{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'async x() {\n    yield 1;\n}',
+          output: 'async x{{nf}}() {\n    yield 1;\n}'
+        }
       ]
     }, {
       name: "Regression tests",

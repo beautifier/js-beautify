@@ -78,6 +78,7 @@ var path = require('path'),
     "space_in_empty_paren": Boolean,
     "jslint_happy": Boolean,
     "space_after_anon_function": Boolean,
+    "space_after_named_function": Boolean,
     "brace_style": "brace_style", //See above for validation
     "unindent_chained_methods": Boolean,
     "break_chained_methods": Boolean,
@@ -354,6 +355,7 @@ function usage(err) {
       msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
       msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
       msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
+      msg.push('  --space_after_named_function      Add a space before a named function\'s parens, ie. function example ()');
       msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
       msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
       msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
