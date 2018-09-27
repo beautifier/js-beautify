@@ -65,7 +65,7 @@ class InputScanner:
     def testChar(self, pattern, index=0):
         # test one character regex match
         val = self.peek(index)
-        return val is not None and pattern.match(val)
+        return val is not None and bool(pattern.match(val))
 
     def match(self, pattern):
         pattern_match = None
