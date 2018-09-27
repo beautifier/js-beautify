@@ -78,6 +78,8 @@ punct = re.compile(r'([-[\]{}()*+?.,\\^$|#])').sub(r'\\\1', punct)
 punct = punct.replace(' ', '|')
 
 punct_pattern = re.compile(punct)
+shebang_pattern = re.compile(r'#![^\n]*(?:\r\n|[\n\r\u2028\u2029])?')
+include_pattern = re.compile(r'#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?')
 
 # Words which always should start on a new line
 line_starters = frozenset(
@@ -344,14 +346,20 @@ class Tokenizer(BaseTokenizer):
         resulting_string = ''
 
         if c == '#':
-            c = self._input.next()
+
             # she-bang
-            if self._is_first_token() and self._input.peek() == '!':
-                resulting_string = c
-                while self._input.hasNext() and c != '\n':
-                    c = self._input.next()
-                    resulting_string += c
+            if self._is_first_token():
+                resulting_string = self._input.read(shebang_pattern)
+                if resulting_string:
+                    return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+
+            # handles extendscript #includes
+            resulting_string = self._input.read(include_pattern)
+
+            if resulting_string:
                 return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+
+            c = self._input.next()
 
             # Spidermonkey-specific sharp variables for circular references
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript

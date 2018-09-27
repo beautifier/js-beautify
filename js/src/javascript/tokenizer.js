@@ -87,6 +87,8 @@ punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
 var punct_pattern = new RegExp(punct, 'g');
+var shebang_pattern = /#![^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
+var include_pattern = /#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -213,17 +215,22 @@ Tokenizer.prototype._read_non_javascript = function(c) {
   var resulting_string = '';
 
   if (c === '#') {
-    c = this._input.next();
+    if (this._is_first_token()) {
+      resulting_string = this._input.read(shebang_pattern);
 
-    if (this._is_first_token() && this._input.peek() === '!') {
-      // shebang
-      resulting_string = c;
-      while (this._input.hasNext() && c !== '\n') {
-        c = this._input.next();
-        resulting_string += c;
+      if (resulting_string) {
+        return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
       }
+    }
+
+    // handles extendscript #includes
+    resulting_string = this._input.read(include_pattern);
+
+    if (resulting_string) {
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
     }
+
+    c = this._input.next();
 
     // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
     var sharp = '#';
