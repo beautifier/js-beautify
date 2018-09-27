@@ -1,4 +1,4 @@
-/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*jshint node:true */
 /*
 
   The MIT License (MIT)
@@ -26,6 +26,8 @@
   SOFTWARE.
 */
 
+'use strict';
+
 function Token(type, text, newlines, whitespace_before) {
   this.type = type;
   this.text = text;
@@ -41,7 +43,10 @@ function Token(type, text, newlines, whitespace_before) {
   this.newlines = newlines || 0;
   this.whitespace_before = whitespace_before || '';
   this.parent = null;
+  this.next = null;
+  this.previous = null;
   this.opened = null;
+  this.closed = null;
   this.directives = null;
 }
 

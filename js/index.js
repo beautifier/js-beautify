@@ -1,3 +1,5 @@
+/*jshint node:true */
+/* globals define */
 /*
   The MIT License (MIT)
 
@@ -24,6 +26,8 @@
   SOFTWARE.
 
 */
+
+'use strict';
 
 /**
 The following batches are equivalent:

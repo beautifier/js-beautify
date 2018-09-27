@@ -1,5 +1,7 @@
 /*jshint node:true */
 
+'use strict';
+
 var SanityTest = require('./sanitytest'),
   Urlencoded = require('../lib/unpackers/urlencode_unpacker'),
   run_javascript_tests = require('./generated/beautify-javascript-tests').run_javascript_tests,

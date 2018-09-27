@@ -26,6 +26,7 @@
   SOFTWARE.
 */
 /*jshint unused:false */
+/*jshint strict:false */
 
 function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -35,8 +36,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         indent_char: ' ',
         preserve_newlines: true,
         jslint_happy: false,
-        keep_array_indentation: false,
-        brace_style: 'collapse',
         space_before_conditional: true,
         break_chained_methods: false,
         selector_separator: '\n',
@@ -50,57 +49,75 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'js-beautify';
     }
 
-    function test_js_beautifier(input)
+    function test_beautifier(input)
     {
         return js_beautify(input, opts);
     }
 
     var sanitytest;
+    var test_name = '';
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
 
     // test the input on beautifier with the current flag settings
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
+        var success = true;
+        sanitytest.test_function(test_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
-        sanitytest.expect(input, expected);
+        success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected !== input) {
-            sanitytest.expect(expected, expected);
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
-        if (input && input.indexOf('\n') !== -1) {
+        opts.disabled = true;
+        success = success && sanitytest.expect(input, input || '');
+        success = success && sanitytest.expect('\n\n' + expected, '\n\n' + expected);
+        opts.disabled = false;
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
             opts.eol = 'auto';
-            sanitytest.expect(input, expected);
+            success = success && sanitytest.expect(input, expected);
         }
         opts.eol = '\n';
+        return success;
     }
-
 
 
     // test the input on beautifier with the current flag settings
     // test both the input as well as { input } wrapping
     function bt(input, expectation)
     {
+        var success = true;
+
         var wrapped_input, wrapped_expectation;
 
         expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_js_beautifier, 'js_beautify');
-        test_fragment(input, expectation);
+        success = success && test_fragment(input, expectation);
 
         // If we set raw, input should be unchanged
         opts.test_output_raw = true;
         if (!opts.end_with_newline) {
-            test_fragment(input, input);
+            success = success && test_fragment(input, input);
         }
         opts.test_output_raw = false;
 
@@ -117,16 +134,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         if (current_indent_size === 4 && input) {
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
-            test_fragment(wrapped_input, wrapped_expectation);
+            success = success && test_fragment(wrapped_input, wrapped_expectation);
 
             // If we set raw, input should be unchanged
             opts.test_output_raw = true;
             if (!opts.end_with_newline) {
-                test_fragment(wrapped_input, wrapped_input);
+                success = success && test_fragment(wrapped_input, wrapped_input);
             }
             opts.test_output_raw = false;
         }
-
+        return success;
     }
 
     // run all tests for the given brace style ("collapse", "expand", "end-expand", or "none").
@@ -289,6 +306,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {{^matrix}}
         // {{&name}}
         reset_options();
+        set_name('{{&name}}');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -300,6 +318,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {{#matrix}}
         // {{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})
         reset_options();
+        set_name('{{&name}} - ({{#matrix_context_string}}.{{/matrix_context_string}})');
         {{#options}}
         opts.{{name}} = {{&value}};
         {{/options}}
@@ -318,6 +337,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         test_fragment(null, '');
+
+        reset_options();
+        //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
 
         reset_options();
         //============================================================

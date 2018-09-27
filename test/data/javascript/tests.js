@@ -31,10 +31,7 @@ exports.test_data = {
     { name: "indent_size", value: "4" },
     { name: "indent_char", value: "' '" },
     { name: "preserve_newlines", value: "true" },
-    { name: "jslint_happy", value: "false" },
-    { name: "keep_array_indentation", value: "false" },
-    { name: "brace_style", value: "'collapse'" },
-    { name: "operator_position", value: "'before-newline'" }
+    { name: "jslint_happy", value: "false" }
   ],
   groups: [{
       name: "Unicode Support",
@@ -47,6 +44,9 @@ exports.test_data = {
           "    ' + unicode_char(228) + 'rgerlich: true",
           "};"
         ]
+      }, {
+        input_: "var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";",
+        output: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
       }]
     }, {
       name: "Test template and continuation strings",
@@ -188,6 +188,81 @@ exports.test_data = {
         { fragment: true, input: '\n', output: '{{eof}}' }
       ]
     }, {
+      name: "Support Indent Level Options and Base Indent Autodetection",
+      description: "If user specifies indent level, use it. If not, autodetect indent level from starting whitespace.",
+      matrix: [{
+        options: [],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '   ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "1" }
+        ],
+        input_start_indent: '   ',
+        output_start_of_base: '    ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '        ',
+        i: '    '
+      }, {
+        options: [
+          { name: "indent_with_tabs", value: "true" },
+          { name: "indent_level", value: "2" }
+        ],
+        input_start_indent: '',
+        output_start_of_base: '\t\t',
+        i: '\t'
+      }, {
+        options: [
+          { name: "indent_level", value: "0" }
+        ],
+        input_start_indent: '\t   ',
+        output_start_of_base: '\t   ',
+        i: '    '
+      }],
+      tests: [
+        { fragment: true, input: '{{input_start_indent}}a', output: '{{output_start_of_base}}a' },
+        {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}function test(){',
+            '  console.log("this is a test");',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}function test() {',
+            '{{output_start_of_base}}{{i}}console.log("this is a test");',
+            '{{output_start_of_base}}}'
+          ]
+        }, {
+          fragment: true,
+          input: [
+            '{{input_start_indent}}// This is a random comment',
+            'function test(){',
+            '  console.log("this is a test");',
+            '}'
+          ],
+          output: [
+            '{{output_start_of_base}}// This is a random comment',
+            '{{output_start_of_base}}function test() {',
+            '{{output_start_of_base}}{{i}}console.log("this is a test");',
+            '{{output_start_of_base}}}'
+          ]
+        }
+      ]
+    }, {
       name: "Support simple language specific option inheritance/overriding",
       description: "Support simple language specific option inheritance/overriding",
       matrix: [{
@@ -255,6 +330,17 @@ exports.test_data = {
 
         // brace_style collapse - Shouldn't preserve if no newlines (uses collapse styling)
         {
+          options: [],
+          ibo: '',
+          iao: '',
+          ibc: '',
+          iac: '',
+          obo: ' ',
+          oao: '\n    ',
+          obc: '\n',
+          oac: ' '
+        },
+        {
           options: [
             { name: "brace_style", value: "'collapse'" }
           ],
@@ -298,16 +384,10 @@ exports.test_data = {
           output: 'if (1)<obo>{<oao>2<obc>}<oac>else<obo>{<oao>3<obc>}'
         },
         {
-          input: 'try<ibo>{<iao>a();<ibc>}<iac>' +
-            'catch(b)<ibo>{<iao>c();<ibc>}<iac>' +
-            'catch(d)<ibo>{}<iac>' +
-            'finally<ibo>{<iao>e();<ibc>}',
+          input: 'try<ibo>{<iao>a();<ibc>}<iac>' + 'catch(b)<ibo>{<iao>c();<ibc>}<iac>' + 'catch(d)<ibo>{}<iac>' + 'finally<ibo>{<iao>e();<ibc>}',
           output:
             // expected
-            'try<obo>{<oao>a();<obc>}<oac>' +
-            'catch (b)<obo>{<oao>c();<obc>}<oac>' +
-            'catch (d)<obo>{}<oac>' +
-            'finally<obo>{<oao>e();<obc>}'
+            'try<obo>{<oao>a();<obc>}<oac>' + 'catch (b)<obo>{<oao>c();<obc>}<oac>' + 'catch (d)<obo>{}<oac>' + 'finally<obo>{<oao>e();<obc>}'
         }
       ]
     }, {
@@ -477,8 +557,24 @@ exports.test_data = {
             '    .f();',
             '});'
           ]
+        },
+        {
+          comment: 'regression test for fix #1533',
+          unchanged: [
+            'angular.module("test").controller("testCtrl", function($scope) {',
+            '    $scope.tnew;',
+            '    $scope.toggle_tnew = function() {',
+            '        $scope.mode = 0;',
+            '        if (!$scope.tnew) {',
+            '            $scope.tnew = {};',
+            '        } else $scope.tnew = null;',
+            '    }',
+            '    $scope.fn = function() {',
+            '        return null;',
+            '    }',
+            '});'
+          ]
         }
-
       ]
     }, {
       name: "Space in parens tests",
@@ -571,6 +667,12 @@ exports.test_data = {
       name: "operator_position option - ensure no neswlines if preserve_newlines is false",
       matrix: [{
         options: [
+          // test for default
+          // { name: "operator_position", value: "'before-newline'" },
+          { name: "preserve_newlines", value: "false" }
+        ]
+      }, {
+        options: [
           { name: "operator_position", value: "'before-newline'" },
           { name: "preserve_newlines", value: "false" }
         ]
@@ -592,7 +694,17 @@ exports.test_data = {
         output: inputlib.operator_position.sanity
       }]
     }, {
-      name: "operator_position option - set to 'before-newline' (default value)",
+      name: 'operator_position option - set to "before-newline" (default value)',
+      matrix: [{
+        options: [
+          // test for default
+          // { name: "operator_position", value: "'before-newline'" }
+        ]
+      }, {
+        options: [
+          { name: "operator_position", value: "'before-newline'" }
+        ]
+      }],
       tests: [{
         comment: 'comprehensive, various newlines',
         input: inputlib.operator_position.comprehensive,
@@ -660,7 +772,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "operator_position option - set to 'after_newline'",
+      name: 'operator_position option - set to "after_newline"',
       options: [{
         name: "operator_position",
         value: "'after-newline'"
@@ -731,7 +843,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "operator_position option - set to 'preserve-newline'",
+      name: 'operator_position option - set to "preserve-newline"',
       options: [{
         name: "operator_position",
         value: "'preserve-newline'"
@@ -858,6 +970,27 @@ exports.test_data = {
         },
         {
           unchanged: "async x => x * 2;"
+        },
+        {
+          unchanged: [
+            'async function() {',
+            '    const obj = {',
+            '        a: 1,',
+            '        b: await fn(),',
+            '        c: 2',
+            '    };',
+            '}'
+          ]
+        },
+        {
+          unchanged: [
+            'const a = 1,',
+            '    b = a ? await foo() : b,',
+            '    c = await foo(),',
+            '    d = 3,',
+            '    e = (await foo()),',
+            '    f = 4;'
+          ]
         }
       ]
     }, {
@@ -1456,12 +1589,16 @@ exports.test_data = {
           comment: 'Directive: ignore',
           unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */"
         },
-        { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */" },
+        { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n  /* beautify ignore:end */" },
         { unchanged: "var a = 1;\n/* beautify ignore:start */\n   var a = 1;\n/* beautify ignore:end */" },
-        { unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */" },
         {
-          input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
-          output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */"
+          comment: 'ignore starts _after_ the start comment, ends after the end comment',
+          unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */"
+        },
+        { unchanged: "/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */" },
+        {
+          input_: "var a =  1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/*beautify ignore:end*/",
+          output: "var a = 1;\n/* beautify ignore:start */\n   var a,,,{ 1;\n/*beautify ignore:end*/"
         },
         {
           input_: "var a = 1;\n /* beautify ignore:start */\n   var a,,,{ 1;\n/* beautify ignore:end */",
@@ -1773,28 +1910,39 @@ exports.test_data = {
             { name: "space_after_anon_function", value: "true" }
           ],
           f: ' ',
-          c: ''
+          c: '',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "true" },
             { name: "space_after_anon_function", value: "false" }
           ],
           f: ' ',
-          c: ''
+          c: '',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "false" },
             { name: "space_after_anon_function", value: "true" }
           ],
           f: ' ',
-          c: '    '
+          c: '    ',
+          nf: ''
         }, {
           options: [
             { name: "jslint_happy", value: "false" },
             { name: "space_after_anon_function", value: "false" }
           ],
           f: '',
-          c: '    '
+          c: '    ',
+          nf: ''
+        }, {
+          options: [
+            { name: "space_after_named_function", value: "true" }
+          ],
+          f: '',
+          c: '    ',
+          nf: ' '
         }
 
 
@@ -1808,8 +1956,16 @@ exports.test_data = {
           output: 'x();\n\nfunction{{f}}() {}'
         },
         {
+          input_: 'x();\n\nfunction y(){}',
+          output: 'x();\n\nfunction y{{nf}}() {}'
+        },
+        {
           input_: 'x();\n\nvar x = {\nx: function(){}\n}',
           output: 'x();\n\nvar x = {\n    x: function{{f}}() {}\n}'
+        },
+        {
+          input_: 'x();\n\nvar x = {\nx: function y(){}\n}',
+          output: 'x();\n\nvar x = {\n    x: function y{{nf}}() {}\n}'
         },
         {
           input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
@@ -1835,6 +1991,10 @@ exports.test_data = {
           output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
         },
         {
+          input_: 'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \\\'\\\';',
+          output: 'var a2, b2, c2, d2 = 0,\n    c = function yoohoo{{nf}}() {},\n    d = \\\'\\\';'
+        },
+        {
           input_: 'var a2, b2, c2, d2 = 0, c = function() {},\nd = \\\'\\\';',
           output: 'var a2, b2, c2, d2 = 0,\n    c = function{{f}}() {},\n    d = \\\'\\\';'
         },
@@ -1842,8 +2002,26 @@ exports.test_data = {
           input_: 'var o2=$.extend(a);function(){alert(x);}',
           output: 'var o2 = $.extend(a);\n\nfunction{{f}}() {\n    alert(x);\n}'
         },
-        { input: 'function*() {\n    yield 1;\n}', output: 'function*{{f}}() {\n    yield 1;\n}' },
-        { unchanged: 'function* x() {\n    yield 1;\n}' }
+        {
+          input_: 'var o2=$.extend(a);function yoohoo(){alert(x);}',
+          output: 'var o2 = $.extend(a);\n\nfunction yoohoo{{nf}}() {\n    alert(x);\n}'
+        },
+        {
+          input: 'function*() {\n    yield 1;\n}',
+          output: 'function*{{f}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'function* yoohoo() {\n    yield 1;\n}',
+          output: 'function* yoohoo{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'function* x() {\n    yield 1;\n}',
+          output: 'function* x{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'async x() {\n    yield 1;\n}',
+          output: 'async x{{nf}}() {\n    yield 1;\n}'
+        }
       ]
     }, {
       name: "Regression tests",
@@ -2148,6 +2326,19 @@ exports.test_data = {
             '        return 0;',
             '    }',
             '}'
+          ]
+        },
+        {
+          comment: "Issue 1544 - Typescript declare formatting (no newline).",
+          unchanged: [
+            'declare const require: any;',
+            'declare function greet(greeting: string): void;',
+            'declare var foo: number;',
+            'declare namespace myLib {',
+            '    function makeGreeting(s: string): string;',
+            '    let numberOfGreetings: number;',
+            '}',
+            'declare let test: any;'
           ]
         },
         {
@@ -2742,8 +2933,7 @@ exports.test_data = {
             '    var obj = {<oao>' + //NL in templates
             '<oaot><oaot>a: function() { console.log("test"); },',
             '        b()<obo><obot><obot>{<oao>' + //NL in templates
-            '<oaot><oaot><oaot>console.log("test2");' +
-            '<obc>        }' + //NL in templates
+            '<oaot><oaot><oaot>console.log("test2");' + '<obc>        }' + //NL in templates
             '<obc>    };' + //NL in templates
             '<obc>}'
           ]
@@ -2786,6 +2976,11 @@ exports.test_data = {
             '    import("otherdynamic");',
             '}'
           ]
+        },
+        {
+          comment: "Issue #1197 - dynamic import() arrow syntax",
+          input: 'frontend = Async(() => import("../frontend").then(m => m.default      ))',
+          output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
         },
         {
           comment: "Issue 858 - from is a keyword only after import",
@@ -3004,6 +3199,9 @@ exports.test_data = {
         { unchanged: 'a[1]()', comment: 'another magic function call' },
         { input: 'if(a){b();}else if(c) foo();', output: "if (a) {\n    b();\n} else if (c) foo();" },
         { input: 'switch(x) {case 0: case 1: a(); break; default: break}', output: "switch (x) {\n    case 0:\n    case 1:\n        a();\n        break;\n    default:\n        break\n}" },
+
+        { input: 'switch(x) {default: case 1: a(); break; case 0: break}', output: "switch (x) {\n    default:\n    case 1:\n        a();\n        break;\n    case 0:\n        break\n}" },
+
         { input: 'switch(x){case -1:break;case !y:break;}', output: 'switch (x) {\n    case -1:\n        break;\n    case !y:\n        break;\n}' },
         { unchanged: 'a !== b' },
         { input: 'if (a) b(); else c();', output: "if (a) b();\nelse c();" },

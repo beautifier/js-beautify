@@ -21,18 +21,9 @@ build_js()
 
   # Wrap webkit output into an non-breaking form.
   # In an upcoming verion these will be replaced with standard webpack umd
-  cat ./tools/template/beautify.begin.js > ./js/lib/beautify.js
-  cat ./dist/legacy_beautify_js.js >> ./js/lib/beautify.js
-  cat ./tools/template/beautify.end.js >> ./js/lib/beautify.js
-
-  cat ./tools/template/beautify-css.begin.js > ./js/lib/beautify-css.js
-  cat ./dist/legacy_beautify_css.js >> ./js/lib/beautify-css.js
-  cat ./tools/template/beautify-css.end.js >> ./js/lib/beautify-css.js
-
-  cat ./tools/template/beautify-html.begin.js > ./js/lib/beautify-html.js
-  cat ./dist/legacy_beautify_html.js >> ./js/lib/beautify-html.js
-  cat ./tools/template/beautify-html.end.js >> ./js/lib/beautify-html.js
-
+  sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_js.js' <./tools/template/beautify.wrapper.js >./js/lib/beautify.js || exit 1
+  sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_css.js' <./tools/template/beautify-css.wrapper.js >./js/lib/beautify-css.js || exit 1
+  sed '/GENERATED_BUILD_OUTPUT/ r ./build/legacy/legacy_beautify_html.js' <./tools/template/beautify-html.wrapper.js >./js/lib/beautify-html.js || exit 1
 }
 
 build_beautify()
@@ -62,8 +53,7 @@ build_beautify()
 
   $PROJECT_DIR/js/bin/css-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-style.css || exit 1
 
-  # html not ready yet
-  # $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
+  $PROJECT_DIR/js/bin/html-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r index.html
 
   build_js
 }

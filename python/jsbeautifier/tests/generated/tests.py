@@ -55,8 +55,6 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.indent_char = ' '
         default_options.preserve_newlines = true
         default_options.jslint_happy = false
-        default_options.keep_array_indentation = true
-        default_options.brace_style = 'collapse'
         default_options.indent_level = 0
         default_options.break_chained_methods = false
         default_options.eol = '\n'
@@ -65,9 +63,6 @@ class TestJSBeautifier(unittest.TestCase):
         default_options.indent_char = ' '
         default_options.preserve_newlines = true
         default_options.jslint_happy = false
-        default_options.keep_array_indentation = false
-        default_options.brace_style = 'collapse'
-        default_options.operator_position = 'before-newline'
 
         self.options = copy.copy(default_options)
 
@@ -129,6 +124,10 @@ class TestJSBeautifier(unittest.TestCase):
             'var ' + unicode_char(228) + 'x = {\n' +
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};')
+        bt(
+            'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
+            #  -- output --
+            'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
 
 
         #============================================================
@@ -254,7 +253,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # End With Newline - (eof = "\n")
+        # End With Newline - (end_with_newline = "true")
         self.reset_options()
         self.options.end_with_newline = true
         test_fragment('', '\n')
@@ -270,7 +269,7 @@ class TestJSBeautifier(unittest.TestCase):
             '   return .5\n')
         test_fragment('\n')
 
-        # End With Newline - (eof = "")
+        # End With Newline - (end_with_newline = "false")
         self.reset_options()
         self.options.end_with_newline = false
         test_fragment('')
@@ -288,7 +287,147 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Support simple language specific option inheritance/overriding - (j = "   ")
+        # Support Indent Level Options and Base Indent Autodetection - ()
+        self.reset_options()
+        test_fragment('   a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        self.reset_options()
+        self.options.indent_level = 0
+        test_fragment('   a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")
+        self.reset_options()
+        self.options.indent_level = 1
+        test_fragment('   a', '    a')
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }')
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '    // This is a random comment\n' +
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")
+        self.reset_options()
+        self.options.indent_level = 2
+        test_fragment('a', '        a')
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }')
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '        // This is a random comment\n' +
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")
+        self.reset_options()
+        self.options.indent_with_tabs = true
+        self.options.indent_level = 2
+        test_fragment('a', '\t\ta')
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}')
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t\t// This is a random comment\n' +
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}')
+
+        # Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        self.reset_options()
+        self.options.indent_level = 0
+        test_fragment('\t   a')
+        test_fragment(
+            '\t   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }')
+        test_fragment(
+            '\t   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            #  -- output --
+            '\t   // This is a random comment\n' +
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }')
+
+
+        #============================================================
+        # Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
         self.reset_options()
         self.options.js = { 'indent_size': 3 }
         self.options.css = { 'indent_size': 5 }
@@ -297,7 +436,7 @@ class TestJSBeautifier(unittest.TestCase):
             '   test();\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (j = "    ")
+        # Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         self.reset_options()
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } }
         bt(
@@ -305,7 +444,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    test();\n' +
             '}')
 
-        # Support simple language specific option inheritance/overriding - (j = "    ")
+        # Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")
         self.reset_options()
         self.options.indent_size = 9
         self.options.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2}
@@ -318,7 +457,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt(
@@ -340,7 +479,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }')
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }')
 
-        # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt(
@@ -412,7 +551,48 @@ class TestJSBeautifier(unittest.TestCase):
             '    e();\n' +
             '}')
 
-        # Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - ()
+        self.reset_options()
+        bt(
+            'var a ={a: 2};\n' +
+            'var a ={a: 2};',
+            #  -- output --
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};')
+        bt(
+            '//case 1\n' +
+            'if (a == 1){}\n' +
+            '//case 2\n' +
+            'else if (a == 2){}',
+            #  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}')
+        bt(
+            'if(1){2}else{3}',
+            #  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}')
+        bt(
+            'try{a();}catch(b){c();}catch(d){}finally{e();}',
+            #  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}')
+
+        # Brace style permutations - (brace_style = ""collapse"")
         self.reset_options()
         self.options.brace_style = 'collapse'
         bt(
@@ -454,7 +634,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    e();\n' +
             '}')
 
-        # Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        # Brace style permutations - (brace_style = ""collapse"")
         self.reset_options()
         self.options.brace_style = 'collapse'
         bt(
@@ -528,7 +708,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
+        # Comma-first option - (comma_first = "false")
         self.reset_options()
         self.options.comma_first = false
         bt(
@@ -660,7 +840,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             ');')
 
-        # Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
+        # Comma-first option - (comma_first = "true")
         self.reset_options()
         self.options.comma_first = true
         bt(
@@ -797,7 +977,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Unindent chained functions - ()
+        # Unindent chained functions - (unindent_chained_methods = "true")
         self.reset_options()
         self.options.unindent_chained_methods = true
         bt(
@@ -850,10 +1030,25 @@ class TestJSBeautifier(unittest.TestCase):
             '    .f()\n' +
             '    .f();\n' +
             '});')
+        
+        # regression test for fix #1533
+        bt(
+            'angular.module("test").controller("testCtrl", function($scope) {\n' +
+            '    $scope.tnew;\n' +
+            '    $scope.toggle_tnew = function() {\n' +
+            '        $scope.mode = 0;\n' +
+            '        if (!$scope.tnew) {\n' +
+            '            $scope.tnew = {};\n' +
+            '        } else $scope.tnew = null;\n' +
+            '    }\n' +
+            '    $scope.fn = function() {\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '});')
 
 
         #============================================================
-        # Space in parens tests - (s = "", e = "")
+        # Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")
         self.reset_options()
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = false
@@ -903,7 +1098,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }]\n' +
             '}')
 
-        # Space in parens tests - (s = "", e = "")
+        # Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")
         self.reset_options()
         self.options.space_in_paren = false
         self.options.space_in_empty_paren = true
@@ -953,7 +1148,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    }]\n' +
             '}')
 
-        # Space in parens tests - (s = " ", e = "")
+        # Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")
         self.reset_options()
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = false
@@ -1003,7 +1198,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    } ]\n' +
             '}')
 
-        # Space in parens tests - (s = " ", e = " ")
+        # Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")
         self.reset_options()
         self.options.space_in_paren = true
         self.options.space_in_empty_paren = true
@@ -1055,7 +1250,55 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")
+        self.reset_options()
+        self.options.preserve_newlines = false
+        bt(
+            'var res = a + b - c / d * e % f;\n' +
+            'var res = g & h | i ^ j;\n' +
+            'var res = (k && l || m) ? n : o;\n' +
+            'var res = p >> q << r >>> s;\n' +
+            'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'ac + -ad')
+        bt(
+            'var res = a + b\n' +
+            '- c /\n' +
+            'd  *     e\n' +
+            '%\n' +
+            'f;\n' +
+            '   var res = g & h\n' +
+            '| i ^\n' +
+            'j;\n' +
+            'var res = (k &&\n' +
+            'l\n' +
+            '|| m) ?\n' +
+            'n\n' +
+            ': o\n' +
+            ';\n' +
+            'var res = p\n' +
+            '>> q <<\n' +
+            'r\n' +
+            '>>> s;\n' +
+            'var res\n' +
+            '  = t\n' +
+            '\n' +
+            ' === u !== v\n' +
+            ' !=\n' +
+            'w\n' +
+            '== x >=\n' +
+            'y <= z > aa <\n' +
+            'ab;\n' +
+            'ac +\n' +
+            '-ad',
+            #  -- output --
+            'var res = a + b - c / d * e % f;\n' +
+            'var res = g & h | i ^ j;\n' +
+            'var res = (k && l || m) ? n : o;\n' +
+            'var res = p >> q << r >>> s;\n' +
+            'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'ac + -ad')
+
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'before-newline'
         self.options.preserve_newlines = false
@@ -1104,7 +1347,7 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'after-newline'
         self.options.preserve_newlines = false
@@ -1153,7 +1396,7 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         self.options.preserve_newlines = false
@@ -1204,8 +1447,129 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'before-newline' (default value)
+        # operator_position option - set to "before-newline" (default value) - ()
         self.reset_options()
+        
+        # comprehensive, various newlines
+        bt(
+            'var res = a + b\n' +
+            '- c /\n' +
+            'd  *     e\n' +
+            '%\n' +
+            'f;\n' +
+            '   var res = g & h\n' +
+            '| i ^\n' +
+            'j;\n' +
+            'var res = (k &&\n' +
+            'l\n' +
+            '|| m) ?\n' +
+            'n\n' +
+            ': o\n' +
+            ';\n' +
+            'var res = p\n' +
+            '>> q <<\n' +
+            'r\n' +
+            '>>> s;\n' +
+            'var res\n' +
+            '  = t\n' +
+            '\n' +
+            ' === u !== v\n' +
+            ' !=\n' +
+            'w\n' +
+            '== x >=\n' +
+            'y <= z > aa <\n' +
+            'ab;\n' +
+            'ac +\n' +
+            '-ad',
+            #  -- output --
+            'var res = a + b -\n' +
+            '    c /\n' +
+            '    d * e %\n' +
+            '    f;\n' +
+            'var res = g & h |\n' +
+            '    i ^\n' +
+            '    j;\n' +
+            'var res = (k &&\n' +
+            '        l ||\n' +
+            '        m) ?\n' +
+            '    n :\n' +
+            '    o;\n' +
+            'var res = p >>\n' +
+            '    q <<\n' +
+            '    r >>>\n' +
+            '    s;\n' +
+            'var res = t\n' +
+            '\n' +
+            '    ===\n' +
+            '    u !== v !=\n' +
+            '    w ==\n' +
+            '    x >=\n' +
+            '    y <= z > aa <\n' +
+            '    ab;\n' +
+            'ac +\n' +
+            '    -ad')
+        
+        # colon special case
+        bt(
+            'var a = {\n' +
+            '    b\n' +
+            ': bval,\n' +
+            '    c:\n' +
+            'cval\n' +
+            '    ,d: dval\n' +
+            '};\n' +
+            'var e = f ? g\n' +
+            ': h;\n' +
+            'var i = j ? k :\n' +
+            'l;',
+            #  -- output --
+            'var a = {\n' +
+            '    b: bval,\n' +
+            '    c: cval,\n' +
+            '    d: dval\n' +
+            '};\n' +
+            'var e = f ? g :\n' +
+            '    h;\n' +
+            'var i = j ? k :\n' +
+            '    l;')
+        
+        # catch-all, includes brackets and other various code
+        bt(
+            'var d = 1;\n' +
+            'if (a === b\n' +
+            '    && c) {\n' +
+            '    d = (c * everything\n' +
+            '            / something_else) %\n' +
+            '        b;\n' +
+            '    e\n' +
+            '        += d;\n' +
+            '\n' +
+            '} else if (!(complex && simple) ||\n' +
+            '    (emotion && emotion.name === "happy")) {\n' +
+            '    cryTearsOfJoy(many ||\n' +
+            '        anOcean\n' +
+            '        || aRiver);\n' +
+            '}',
+            #  -- output --
+            'var d = 1;\n' +
+            'if (a === b &&\n' +
+            '    c) {\n' +
+            '    d = (c * everything /\n' +
+            '            something_else) %\n' +
+            '        b;\n' +
+            '    e\n' +
+            '        += d;\n' +
+            '\n' +
+            '} else if (!(complex && simple) ||\n' +
+            '    (emotion && emotion.name === "happy")) {\n' +
+            '    cryTearsOfJoy(many ||\n' +
+            '        anOcean ||\n' +
+            '        aRiver);\n' +
+            '}')
+
+        # operator_position option - set to "before-newline" (default value) - (operator_position = ""before-newline"")
+        self.reset_options()
+        self.options.operator_position = 'before-newline'
         
         # comprehensive, various newlines
         bt(
@@ -1326,7 +1690,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'after_newline'
+        # operator_position option - set to "after_newline"
         self.reset_options()
         self.options.operator_position = 'after-newline'
         
@@ -1448,7 +1812,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - set to 'preserve-newline'
+        # operator_position option - set to "preserve-newline"
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         
@@ -1640,6 +2004,21 @@ class TestJSBeautifier(unittest.TestCase):
             '}')
         bt('async () => 5;')
         bt('async x => x * 2;')
+        bt(
+            'async function() {\n' +
+            '    const obj = {\n' +
+            '        a: 1,\n' +
+            '        b: await fn(),\n' +
+            '        c: 2\n' +
+            '    };\n' +
+            '}')
+        bt(
+            'const a = 1,\n' +
+            '    b = a ? await foo() : b,\n' +
+            '    c = await foo(),\n' +
+            '    d = 3,\n' +
+            '    e = (await foo()),\n' +
+            '    f = 4;')
 
 
         #============================================================
@@ -2044,7 +2423,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Space before conditional - (s = "")
+        # Space before conditional - (space_before_conditional = "false")
         self.reset_options()
         self.options.space_before_conditional = false
         bt('if(a) b()')
@@ -2076,7 +2455,7 @@ class TestJSBeautifier(unittest.TestCase):
         bt('return [];')
         bt('return ();')
 
-        # Space before conditional - (s = " ")
+        # Space before conditional - (space_before_conditional = "true")
         self.reset_options()
         self.options.space_before_conditional = true
         bt('if (a) b()')
@@ -2230,23 +2609,26 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */')
+            '  /* beautify ignore:end */')
         bt(
             'var a = 1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a = 1;\n' +
             '/* beautify ignore:end */')
+        
+        # ignore starts _after_ the start comment, ends after the end comment
         bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */')
+        bt('/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */')
         bt(
             'var a =  1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */',
+            '/*beautify ignore:end*/',
             #  -- output --
             'var a = 1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */')
+            '/*beautify ignore:end*/')
         bt(
             'var a = 1;\n' +
             ' /* beautify ignore:start */\n' +
@@ -2513,7 +2895,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # jslint and space after anon function - (f = " ", c = "")
+        # jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")
         self.reset_options()
         self.options.jslint_happy = true
         self.options.space_after_anon_function = true
@@ -2532,6 +2914,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}')
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2540,6 +2930,18 @@ class TestJSBeautifier(unittest.TestCase):
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}')
         bt(
             'function () {\n' +
@@ -2578,6 +2980,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    c = function () {},\n' +
             '    d = \'\';')
         bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
+            '    d = \'\';')
+        bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
             'd = \'\';',
             #  -- output --
@@ -2593,6 +3001,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    alert(x);\n' +
             '}')
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2601,11 +3017,19 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}')
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
-        # jslint and space after anon function - (f = " ", c = "")
+        # jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")
         self.reset_options()
         self.options.jslint_happy = true
         self.options.space_after_anon_function = false
@@ -2624,6 +3048,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}')
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2632,6 +3064,18 @@ class TestJSBeautifier(unittest.TestCase):
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}')
         bt(
             'function () {\n' +
@@ -2670,6 +3114,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    c = function () {},\n' +
             '    d = \'\';')
         bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
+            '    d = \'\';')
+        bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
             'd = \'\';',
             #  -- output --
@@ -2685,6 +3135,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    alert(x);\n' +
             '}')
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2693,11 +3151,19 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}')
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
-        # jslint and space after anon function - (f = " ", c = "    ")
+        # jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")
         self.reset_options()
         self.options.jslint_happy = false
         self.options.space_after_anon_function = true
@@ -2716,6 +3182,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}')
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2724,6 +3198,18 @@ class TestJSBeautifier(unittest.TestCase):
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}')
         bt(
             'function () {\n' +
@@ -2762,6 +3248,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    c = function () {},\n' +
             '    d = \'\';')
         bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
+            '    d = \'\';')
+        bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
             'd = \'\';',
             #  -- output --
@@ -2777,6 +3269,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    alert(x);\n' +
             '}')
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2785,11 +3285,19 @@ class TestJSBeautifier(unittest.TestCase):
             '    yield 1;\n' +
             '}')
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}')
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}')
 
-        # jslint and space after anon function - (f = "", c = "    ")
+        # jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")
         self.reset_options()
         self.options.jslint_happy = false
         self.options.space_after_anon_function = false
@@ -2808,6 +3316,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}')
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2816,6 +3332,18 @@ class TestJSBeautifier(unittest.TestCase):
             '\n' +
             'var x = {\n' +
             '    x: function() {}\n' +
+            '}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}')
         bt(
             'function () {\n' +
@@ -2859,6 +3387,12 @@ class TestJSBeautifier(unittest.TestCase):
             '    c = function() {},\n' +
             '    d = \'\';')
         bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
+            '    d = \'\';')
+        bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
             'd = \'\';',
             #  -- output --
@@ -2874,11 +3408,173 @@ class TestJSBeautifier(unittest.TestCase):
             '    alert(x);\n' +
             '}')
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}')
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
             'function* x() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}')
+
+        # jslint and space after anon function - (space_after_named_function = "true")
+        self.reset_options()
+        self.options.space_after_named_function = true
+        bt(
+            'a=typeof(x)',
+            #  -- output --
+            'a = typeof(x)')
+        bt(
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function() {}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'function y(){}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'function y () {}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function() {}\n' +
+            '}')
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            #  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y () {}\n' +
+            '}')
+        bt(
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}',
+            #  -- output --
+            'function() {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}')
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y:\n' +
+            '        break;\n' +
+            '}')
+        
+        # typical greasemonkey start
+        test_fragment(
+            '// comment 2\n' +
+            '(function()')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo () {},\n' +
+            '    d = \'\';')
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            #  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';')
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function() {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            #  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo () {\n' +
+            '    alert(x);\n' +
+            '}')
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'function* yoohoo () {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'function* x () {\n' +
+            '    yield 1;\n' +
+            '}')
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}',
+            #  -- output --
+            'async x () {\n' +
             '    yield 1;\n' +
             '}')
 
@@ -3122,6 +3818,17 @@ class TestJSBeautifier(unittest.TestCase):
             '        return 0;\n' +
             '    }\n' +
             '}')
+        
+        # Issue 1544 - Typescript declare formatting (no newline).
+        bt(
+            'declare const require: any;\n' +
+            'declare function greet(greeting: string): void;\n' +
+            'declare var foo: number;\n' +
+            'declare namespace myLib {\n' +
+            '    function makeGreeting(s: string): string;\n' +
+            '    let numberOfGreetings: number;\n' +
+            '}\n' +
+            'declare let test: any;')
         bt(
             'interface Test {\n' +
             '    blah: string[];\n' +
@@ -3502,7 +4209,7 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3546,7 +4253,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        # brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'expand,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3608,7 +4315,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        # brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'end-expand,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3656,7 +4363,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'none,preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3700,7 +4407,7 @@ class TestJSBeautifier(unittest.TestCase):
             '    };\n' +
             '}')
 
-        # brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        # brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")
         self.reset_options()
         self.options.brace_style = 'collapse-preserve-inline'
         bt('import { asdf } from "asdf";')
@@ -3774,6 +4481,9 @@ class TestJSBeautifier(unittest.TestCase):
             '} else {\n' +
             '    import("otherdynamic");\n' +
             '}')
+        
+        # Issue #1197 - dynamic import() arrow syntax
+        bt('frontend = Async(() => import("../frontend").then(m => m.default      ))', 'frontend = Async(() => import("../frontend").then(m => m.default))')
         
         # Issue 858 - from is a keyword only after import
         bt(
@@ -4150,6 +4860,17 @@ class TestJSBeautifier(unittest.TestCase):
             '        a();\n' +
             '        break;\n' +
             '    default:\n' +
+            '        break\n' +
+            '}')
+        bt(
+            'switch(x) {default: case 1: a(); break; case 0: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    default:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    case 0:\n' +
             '        break\n' +
             '}')
         bt(
@@ -5151,6 +5872,27 @@ class TestJSBeautifier(unittest.TestCase):
         self.reset_options()
         #============================================================
         bt(None, "")
+
+        self.reset_options()
+        #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        test_fragment(None, '\n')
+
+        self.reset_options()
+        #============================================================
+        # Test passing dictionary or tuple
+        self.options = {'end_with_newline': True, 'eol': '\r\n' }
+        test_fragment(None, '\r\n')
+
+        self.options = {'end-with-newline': True}
+        test_fragment(None, '\n')
+
+        self.options = {'end-with-newline': False}
+        test_fragment(None, '')
+
+        self.options = ( ('end-with-newline', True), ('eol', '\r') )
+        test_fragment(None, '\r')
 
         self.reset_options()
         #============================================================
@@ -6280,20 +7022,27 @@ class TestJSBeautifier(unittest.TestCase):
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(expectation, self.options), expectation)
 
-        # Everywhere we do newlines, they should be replaced with opts.eol
-        self.options.eol = '\r\\n'
-        expectation = expectation.replace('\n', '\r\n')
-        self.assertMultiLineEqual(
-            jsbeautifier.beautify(input, self.options), expectation)
-        if input and input.find('\n') != -1:
-            input = input.replace('\n', '\r\n')
+        if self.options is None or not isinstance(self.options, (dict, tuple)):
+            # Everywhere we do newlines, they should be replaced with opts.eol
+            self.options.eol = '\r\\n'
+            expectation = expectation.replace('\n', '\r\n')
+            self.options.disabled = True
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify(input, self.options), input or '')
+            self.assertMultiLineEqual(
+                jsbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+            self.options.disabled = False;
             self.assertMultiLineEqual(
                 jsbeautifier.beautify(input, self.options), expectation)
-            # Ensure support for auto eol detection
-            self.options.eol = 'auto'
-            self.assertMultiLineEqual(
-                jsbeautifier.beautify(input, self.options), expectation)
-        self.options.eol = '\n'
+            if input and input.find('\n') != -1:
+                input = input.replace('\n', '\r\n')
+                self.assertMultiLineEqual(
+                    jsbeautifier.beautify(input, self.options), expectation)
+                # Ensure support for auto eol detection
+                self.options.eol = 'auto'
+                self.assertMultiLineEqual(
+                    jsbeautifier.beautify(input, self.options), expectation)
+            self.options.eol = '\n'
 
     def wrap(self, text):
         return self.wrapregex.sub('    \\1', text)

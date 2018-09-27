@@ -1,7 +1,7 @@
 {
   "name": "js-beautify",
-  "version": "1.8.0-rc4",
-  "description": "jsbeautifier.org for node",
+  "version": "1.8.6",
+  "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
     "css-beautify": "./js/bin/css-beautify.js",
@@ -21,7 +21,7 @@
   ],
   "scripts": {},
   "bugs": "https://github.com/beautify-web/js-beautify/issues",
-  "homepage": "http://jsbeautifier.org/",
+  "homepage": "https://beautifier.io/",
   "repository": {
     "type": "git",
     "url": "git://github.com/beautify-web/js-beautify.git"
@@ -31,7 +31,7 @@
     "beautifier",
     "code-quality"
   ],
-  "author": "Einar Lielmanis <einar@jsbeautifier.org>",
+  "author": "Einar Lielmanis <einar@beautifier.io>",
   "contributors": [
     "Vital Batmanov <vital76@gmail.com>",
     "Chris J. Shull <chrisjshull@gmail.com>",
@@ -41,24 +41,23 @@
     "Daniel Stockman <daniel.stockman@gmail.com>",
     "Harutyun Amirjanyan <amirjanyan@gmail.com>",
     "Nochum Sossonko <nsossonko@hotmail.com>",
-    "Liam Newman <bitwiseman@gmail.com>"
+    "Liam Newman <bitwiseman@beautifier.io>"
   ],
   "license": "MIT",
   "dependencies": {
     "config-chain": "~1.1.5",
     "editorconfig": "^0.15.0",
     "mkdirp": "~0.5.0",
-    "nopt": "~4.0.1",
-    "npm": "^6.2.0"
+    "nopt": "~4.0.1"
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "jshint": "~2.9.1",
+    "jshint": "^2.9.6",
     "mocha": "^5.2.0",
-    "mustache": "~2.3.0",
+    "mustache": "^2.3.2",
     "node-static": "^0.7.10",
-    "requirejs": "^2.3.3",
-    "webpack": "^4.16.2",
+    "requirejs": "^2.3.6",
+    "webpack": "^4.17.1",
     "webpack-command": "^0.4.1"
   }
 }

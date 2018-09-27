@@ -36,6 +36,12 @@ exports.test_data = {
     { name: "extra_liners", value: "['html', 'head', '/html']" }
   ],
   groups: [{
+    name: "Unicode Support",
+    description: "",
+    tests: [{
+      unchanged: "<p>Hello' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + 'world!</p>"
+    }]
+  }, {
     name: "Handle inline and block elements differently",
     description: "",
     matrix: [{}],
@@ -72,6 +78,81 @@ exports.test_data = {
       { fragment: true, input: '<div></div>', output: '<div></div>{{eof}}' },
       // { fragment: true, input: '   \n\n<div></div>\n\n\n\n', output: '   <div></div>{{eof}}' },
       { fragment: true, input: '\n', output: '{{eof}}' }
+    ]
+  }, {
+    name: "Support Indent Level Options and Base Indent Autodetection",
+    description: "If user specifies indent level, use it; otherwise start at zero indent.",
+    matrix: [{
+      options: [],
+      input_start_indent: '   ',
+      output_start_of_base: '',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "0" }
+      ],
+      input_start_indent: '   ',
+      output_start_of_base: '',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "1" }
+      ],
+      input_start_indent: '   ',
+      output_start_of_base: '    ',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_level", value: "2" }
+      ],
+      input_start_indent: '',
+      output_start_of_base: '        ',
+      i: '    '
+    }, {
+      options: [
+        { name: "indent_with_tabs", value: "true" },
+        { name: "indent_level", value: "2" }
+      ],
+      input_start_indent: '',
+      output_start_of_base: '\t\t',
+      i: '\t'
+    }, {
+      options: [
+        { name: "indent_level", value: "0" }
+      ],
+      input_start_indent: '\t   ',
+      output_start_of_base: '',
+      i: '    '
+    }],
+    tests: [
+      { fragment: true, input: '{{input_start_indent}}a', output: '{{output_start_of_base}}a' },
+      {
+        fragment: true,
+        input: [
+          '{{input_start_indent}}<div>',
+          '  <p>This is my sentence.</p>',
+          '</div>'
+        ],
+        output: [
+          '{{output_start_of_base}}<div>',
+          '{{output_start_of_base}}{{i}}<p>This is my sentence.</p>',
+          '{{output_start_of_base}}</div>'
+        ]
+      }, {
+        fragment: true,
+        input: [
+          '{{input_start_indent}}// This is a random comment',
+          '<div>',
+          '  <p>This is my sentence.</p>',
+          '</div>'
+        ],
+        output: [
+          '{{output_start_of_base}}// This is a random comment',
+          '{{output_start_of_base}}<div>',
+          '{{output_start_of_base}}{{i}}<p>This is my sentence.</p>',
+          '{{output_start_of_base}}</div>'
+        ]
+      }
     ]
   }, {
     name: "Custom Extra Liners (empty)",
@@ -137,12 +218,12 @@ exports.test_data = {
     name: "Tests for script and style types (issue 453, 821)",
     description: "Only format recognized script types",
     tests: [{
-        input: '<script type="text/unknown"><div></div></script>',
-        output: [
-          '<script type="text/unknown">',
-          '    <div></div>',
-          '</script>'
-        ]
+        unchanged: '<script type="text/unknown"><div></div></script>'
+      }, {
+        unchanged: '<script type="text/unknown">Blah Blah Blah</script>'
+      }, {
+        input: '<script type="text/unknown">    Blah Blah Blah   </script>',
+        output: '<script type="text/unknown"> Blah Blah Blah   </script>'
       }, {
         input: '<script type="text/javascript"><div></div></script>',
         output: [
@@ -239,12 +320,7 @@ exports.test_data = {
           '</script>'
         ]
       }, {
-        input: '<style type="text/unknown"><tag></tag></style>',
-        output: [
-          '<style type="text/unknown">',
-          '    <tag></tag>',
-          '</style>'
-        ]
+        unchanged: '<style type="text/unknown"><tag></tag></style>'
       }, {
         input: '<style type="text/css"><tag></tag></style>',
         output: [
@@ -283,6 +359,7 @@ exports.test_data = {
   }, {
     name: "Attribute Wrap alignment with spaces",
     description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
+    template: "^^^ $$$",
     matrix: [{
       options: [
         { name: "wrap_attributes", value: "'force-aligned'" },
@@ -290,10 +367,55 @@ exports.test_data = {
       ]
     }],
     tests: [{
-      fragment: true,
-      input: '<div><div a="1" b="2"><div>test</div></div></div>',
-      output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
-    }]
+        fragment: true,
+        input: '<div><div a="1" b="2"><div>test</div></div></div>',
+        output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<input type="radio"',
+          '       name="garage"',
+          '       id="garage-02"',
+          '       class="ns-e-togg__radio ns-js-form-binding"',
+          '       value="02"',
+          '       {{#ifCond data.antragsart "05"}}',
+          '       checked="checked"',
+          '       {{/ifCond}}>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<div>',
+          '\t<input type="radio"',
+          '\t       name="garage"',
+          '\t       id="garage-02"',
+          '\t       class="ns-e-togg__radio ns-js-form-binding"',
+          '\t       value="02"',
+          '\t       {{#ifCond data.antragsart "05"}}',
+          '\t       checked="checked"',
+          '\t       {{/ifCond}}>',
+          '</div>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '---',
+          'layout: mainLayout.html',
+          'page: default.html',
+          '---',
+          '',
+          '<div>',
+          '\t{{> componentXYZ my.data.key}}',
+          '\t{{> componentABC my.other.data.key}}',
+          '\t<span>Hello World</span>',
+          '\t<p>Your paragraph</p>',
+          '</div>'
+        ]
+      }
+    ]
   }, {
     name: "Attribute Wrap de-indent",
     description: "Tags de-indent when attributes are wrapped",
@@ -304,21 +426,35 @@ exports.test_data = {
       ]
     }],
     tests: [{
-        fragment: true,
         input: '<div a="1" b="2"><div>test</div></div>',
         output: '<div a="1"\n     b="2">\n    <div>test</div>\n</div>'
       },
       {
-        fragment: true,
         input: '<p>\n    <a href="/test/" target="_blank"><img src="test.jpg" /></a><a href="/test/" target="_blank"><img src="test.jpg" /></a>\n</p>',
         output: '<p>\n    <a href="/test/"\n       target="_blank"><img src="test.jpg" /></a><a href="/test/"\n       target="_blank"><img src="test.jpg" /></a>\n</p>'
       },
       {
-        fragment: true,
         input: '<p>\n    <span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/" data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>',
         output: '<p>\n    <span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span><span data-not-a-href="/test/"\n          data-totally-not-a-target="_blank"><img src="test.jpg" /></span>\n</p>'
       }
     ]
+  }, {
+    name: "Issue #1403 -- no extra newlines in force-aligned wrap_attributes",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" }
+      ]
+    }],
+    tests: [{
+      fragment: true,
+      input: '<button class="btn btn-primary" ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})" type="button">Save</button>',
+      output: [
+        '<button class="btn btn-primary"',
+        '        ng-click="shipment.editSendDate = false;sampleTracking.updateShipmentDates({shipment_id: shipment.shipment_id, sent_timestamp: shipment.sending_date})"',
+        '        type="button">Save</button>'
+      ]
+    }]
   }, {
     name: "Attribute Wrap",
     description: "Wraps attributes inside of html tags",
@@ -330,6 +466,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n    '
     }, {
@@ -341,6 +478,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: '\n    ',
       indent_over80: '\n    '
     }, {
@@ -352,6 +490,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n        '
     }, {
@@ -364,6 +503,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: '\n    ',
       indent_content80: '\n    ',
       indent_over80: '\n'
     }, {
@@ -376,6 +516,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: '\n    ',
       indent_content80: '\n    ',
       indent_over80: '\n    '
     }, {
@@ -387,6 +528,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: ' '
     }, {
@@ -398,6 +540,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n     '
     }, {
@@ -410,6 +553,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: '\n    ',
       indent_over80: '\n     '
     }, {
@@ -422,6 +566,7 @@ exports.test_data = {
       indent_end: '',
       indent_attr_aligned: ' ',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: '\n    ',
       indent_content80: '\n    ',
       indent_over80: '\n     '
     }, {
@@ -432,6 +577,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: ' '
     }, {
@@ -444,6 +590,7 @@ exports.test_data = {
       indent_attr_first: ' ',
       indent_end: '',
       indent_end_selfclosing: ' ',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n     '
     }, {
@@ -455,6 +602,7 @@ exports.test_data = {
       indent_attr_first: '\n    ',
       indent_end: '\n',
       indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n    '
     }, {
@@ -467,6 +615,7 @@ exports.test_data = {
       indent_attr_first: '\n    ',
       indent_end: '\n',
       indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
       indent_content80: '\n    ',
       indent_over80: '\n    '
     }, {
@@ -478,47 +627,129 @@ exports.test_data = {
       indent_attr_first: '\n        ',
       indent_end: '\n',
       indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n        '
     }],
     tests: [{
+        input: '<div  >This is some text</div>',
+        output: '<div>This is some text</div>'
+      }, {
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        fragment: true,
+        input: '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0010   0011   0012   0013   0014   0015   0016   0017   0018   0019   0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\t0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014{{indent_content80}}0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "issue #869",
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013{{indent_content80}}0014&nbsp;0015 0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "TODO: This is wrong - goes over line length but respects &nbsp;",
+        fragment: true,
+        input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
+        output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
+      }, {
+        comment: "issue #1496 - respect unicode non-breaking space",
+        fragment: true,
+        input: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>",
+        output: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013{{indent_content80}}0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>"
+      }, {
+        comment: "TODO: This is wrong - goes over line length but respects unicode nbsp",
+        fragment: true,
+        input: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>",
+        output: "<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015{{indent_content80}}0016 0017 0018 0019 0020</span>"
+      }, {
+        fragment: true,
+        comment: 'Issue 1222 -- P tags are formatting correctly',
+        input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+        output: '<p>Our forms for collecting address-related information follow a standard{{indent_content80}}design. Specific input elements will vary according to the form’s audience{{indent_content80}}and purpose.</p>'
+      }, {
+        input: '<div attr="123"  >This is some text</div>',
+        output: '<div attr="123">This is some text</div>'
+      }, {
+        fragment: true,
+        input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
+        output: '<div{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end}}>This is some text</div>'
+      }, {
+        fragment: true,
+        input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+        output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_over80}}data-attr2="hello    t here"{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This{{indent_content80_selfclosing}}is some text</div>'
+      }, {
+        fragment: true,
+        input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
+        output: '<img{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end_selfclosing}}/>'
+      }, {
+        fragment: true,
+        input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
+        output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
+      }, {
+        comment: "Issue #1094 - Beautify correctly without quotes and with extra spaces",
+        fragment: true,
+        input: '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+        output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1=12345{{indent_over80}}data-attr2="hello    t here"{{indent_attr}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This{{indent_content80_selfclosing}}is some text</div>'
+      },
+      {
+        fragment: true,
+        input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
+        output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1=foo12{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
+      },
+      // Not ready
+      // {
+      //   fragment: true,
+      //   input: '<?xml version=    "1.0"    encoding = "UTF-8" ?><root attr1   =   foo   attr2="bar"/>',
+      //   output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1=foo{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
+      // },
+      {
+        fragment: true,
+        input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
+        output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+      }
+    ]
+  }, {
+    name: "Issue #1335 -- <button> Bug with force-expand-multiline formatting",
+    description: "",
+    template: "^^^ $$$",
+    options: [
+      { name: "wrap_attributes", value: "'force-expand-multiline'" }
+    ],
+    tests: [{
       fragment: true,
-      input: '<div  >This is some text</div>',
-      output: '<div>This is some text</div>'
+      unchanged: [
+        '<button',
+        '    class="my-class"',
+        '    id="id1"',
+        '>',
+        '    Button 1',
+        '</button>',
+        '',
+        '<button',
+        '    class="my-class"',
+        '    id="id2"',
+        '>',
+        '    Button 2',
+        '</button>'
+      ]
     }, {
-      fragment: true,
-      comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
-      input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
-      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015{{indent_content80}}0016 0017 0018 0019 0020</span>'
-    }, {
-      fragment: true,
-      comment: 'Issue 1222 -- P tags are formatting correctly',
-      input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
-      output: '<p>Our forms for collecting address-related information follow a standard design.{{indent_content80}}Specific input elements will vary according to the form’s audience and purpose.</p>'
-    }, {
-      fragment: true,
-      input: '<div attr="123"  >This is some text</div>',
-      output: '<div attr="123">This is some text</div>'
-    }, {
-      fragment: true,
-      input: '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
-      output: '<div{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end}}>This is some text</div>'
-    }, {
-      fragment: true,
-      input: '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
-      output: '<div{{indent_attr_first}}lookatthissuperduperlongattributenamewhoahcrazy0="true"{{indent_attr}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_over80}}heymanimreallylongtoowhocomesupwiththesenames="false"{{indent_end}}>This is some text</div>'
-    }, {
-      fragment: true,
-      input: '<img attr0 attr1="123" data-attr2="hello    t here"/>',
-      output: '<img{{indent_attr_first}}attr0{{indent_attr}}attr1="123"{{indent_attr}}data-attr2="hello    t here"{{indent_end_selfclosing}}/>'
-    }, {
-      fragment: true,
-      input: '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
-      output: '<?xml version="1.0" encoding="UTF-8" ?>\n<root{{indent_attr_first}}attr1="foo"{{indent_attr}}{{indent_attr_faligned}}attr2="bar"{{indent_end_selfclosing}}/>'
-    }, {
-      fragment: true,
-      input: '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
-      output: '<link{{indent_attr_first}}href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"{{indent_over80}}{{indent_attr_faligned}}{{indent_attr_aligned}}rel="stylesheet"{{indent_attr}}{{indent_attr_faligned}}type="text/css"{{indent_end}}>'
+      input_: [
+        '<button>',
+        '    <span>foo</span>',
+        '<p>bar</p>',
+        '</button>'
+      ],
+      output: [
+        '<button>',
+        '    <span>foo</span>',
+        '    <p>bar</p>',
+        '</button>'
+      ]
     }]
   }, {
     name: "Handlebars Indenting Off",
@@ -529,35 +760,67 @@ exports.test_data = {
     ],
     tests: [{
         fragment: true,
-        input_: '{{#if 0}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}',
-        output: '{{#if 0}}\n' +
-          '<div>\n' +
-          '</div>\n' +
-          '{{/if}}'
+        input_: '{{#if 0}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}',
+        output: '{{#if 0}}\n' + '<div>\n' + '</div>\n' + '{{/if}}'
       }, {
         fragment: true,
-        input_: '<div>\n' +
-          '{{#each thing}}\n' +
-          '    {{name}}\n' +
-          '{{/each}}\n' +
-          '</div>',
-        output: '<div>\n' +
-          '    {{#each thing}} {{name}} {{/each}}\n' +
-          '</div>'
+        input_: '<div>\n' + '{{#each thing}}\n' + '    {{name}}\n' + '{{/each}}\n' + '</div>',
+        output: '<div>\n' + '    {{#each thing}}\n' + '    {{name}}\n' + '    {{/each}}\n' + '</div>'
       },
       {
-        fragment: true,
         input_: [
+          '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '   {{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: [
           '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
           '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
+      {
+        comment: "Issue #1469 - preserve newlines inside handlebars, including first one. Just treated as text here.",
+        input_: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '   {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ],
-        output: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}} ' +
-          '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}} ' +
+        output: [
+          '{{em-input',
+          'label="Some Labe" property="amt"',
+          'type="text" placeholder=""}}',
+          '{{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
+      {
+        input_: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '      {{translate "onText"}}',
+          '   {{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '   {{else if (eq callOn false)}}',
+          '{{translate "offText"}}',
+          '        {{/if}}'
+        ],
+        output: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '{{translate "onText"}}',
+          '{{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '{{else if (eq callOn false)}}',
+          '{{translate "offText"}}',
+          '{{/if}}'
+        ]
       }
     ]
   }, {
@@ -568,58 +831,67 @@ exports.test_data = {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{field}}'
+      content: '{{field}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}'
+      content: '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{! comment}}'
+      content: '{{! comment}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{!-- comment--}}'
+      content: '{{!-- comment--}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}'
+      content: '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{pre{{field1}} {{field2}} {{field3}}post'
+      content: '{pre{{field1}} {{field2}} {{field3}}post',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{! \n mult-line\ncomment  \n     with spacing\n}}'
+      content: '{{! \n mult-line\ncomment  \n     with spacing\n}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}'
+      content: '{{!-- \n mult-line\ncomment  \n     with spacing\n--}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
-      content: '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}'
+      content: '{{!-- \n mult-line\ncomment \n{{#> component}}\n mult-line\ncomment  \n     with spacing\n {{/ component}}--}}',
+      indent_over80: ' '
     }, {
       options: [
         { name: "indent_handlebars", value: "true" },
         { name: "wrap_line_length", value: "80" }
       ],
-      content: 'content'
+      content: 'content',
+      indent_over80: '\n    '
     }],
     tests: [
-      { fragment: true, unchanged: '{{page-title}}' },
+      { unchanged: '{{page-title}}' },
       {
-        fragment: true,
         unchanged: [
           '{{page-title}}',
           '{{a}}',
@@ -627,93 +899,86 @@ exports.test_data = {
         ]
       },
       {
-        fragment: true,
+        unchanged: [
+          '{{textarea value=someContent}}',
+          '',
+          '^^^&content$$$',
+          '{{#if condition}}',
+          '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>',
+          '{{/if}}',
+          '^^^&content$$$'
+        ]
+      },
+      {
+        comment: "error case",
+        unchanged: [
+          '{{page-title}}',
+          '{{ myHelper someValue}}',
+          '^^^&content$$$',
+          '{{value-title}}'
+        ]
+      },
+      {
+        comment: "Issue #1469 - preserve newlines inside handlebars, including first one. BUG: does not fix indenting inside handlebars.",
+        input_: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '^^^&content$$$',
+          '   {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ],
+        output: [
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '^^^&content$$$',
+          '{{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
+      {
         unchanged: [
           '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+          '^^^&content$$$',
           '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
         ]
       },
-      { fragment: true, unchanged: '{{#if 0}}{{/if}}' },
-      { fragment: true, unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
-      { fragment: true, unchanged: '{{#if 0}}\n{{/if}}' }, {
-        fragment: true,
+      { unchanged: '{{#if 0}}{{/if}}' },
+      { unchanged: '{{#if 0}}^^^&content$$${{/if}}' },
+      { unchanged: '{{#if 0}}\n{{/if}}' }, {
         input_: '{{#if     words}}{{/if}}',
         output: '{{#if words}}{{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if     words}}^^^&content$$${{/if}}',
         output: '{{#if words}}^^^&content$$${{/if}}'
       }, {
-        fragment: true,
         input_: '{{#if     words}}^^^&content$$${{/if}}',
         output: '{{#if words}}^^^&content$$${{/if}}'
       }, {
-        fragment: true,
-        unchanged: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        unchanged: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       }, {
-        fragment: true,
-        input_: '{{#if 1}}\n' +
-          '<div>\n' +
-          '</div>\n' +
-          '{{/if}}',
-        output: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '<div>\n' + '</div>\n' + '{{/if}}',
+        output: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       }, {
-        fragment: true,
-        unchanged: '<div>\n' +
-          '    {{#if 1}}\n' +
-          '    {{/if}}\n' +
-          '</div>'
+        unchanged: '<div>\n' + '    {{#if 1}}\n' + '    {{/if}}\n' + '</div>'
       }, {
-        fragment: true,
-        input_: '<div>\n' +
-          '{{#if 1}}\n' +
-          '{{/if}}\n' +
-          '</div>',
-        output: '<div>\n' +
-          '    {{#if 1}}\n' +
-          '    {{/if}}\n' +
-          '</div>'
+        input_: '<div>\n' + '{{#if 1}}\n' + '{{/if}}\n' + '</div>',
+        output: '<div>\n' + '    {{#if 1}}\n' + '    {{/if}}\n' + '</div>'
       }, {
-        fragment: true,
-        input_: '{{#if}}\n' +
-          '{{#each}}\n' +
-          '{{#if}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}\n' +
-          '{{#if}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}\n' +
-          '{{/each}}\n' +
-          '{{/if}}',
-        output: '{{#if}}\n' +
-          '    {{#each}}\n' +
-          '        {{#if}}\n' +
-          '            ^^^&content$$$\n' +
-          '        {{/if}}\n' +
-          '        {{#if}}\n' +
-          '            ^^^&content$$$\n' +
-          '        {{/if}}\n' +
-          '    {{/each}}\n' +
-          '{{/if}}'
+        input_: '{{#if}}\n' + '{{#each}}\n' + '{{#if}}\n' + '^^^&content$$$\n' + '{{/if}}\n' + '{{#if}}\n' + '^^^&content$$$\n' + '{{/if}}\n' + '{{/each}}\n' + '{{/if}}',
+        output: '{{#if}}\n' + '    {{#each}}\n' + '        {{#if}}\n' + '            ^^^&content$$$\n' + '        {{/if}}\n' + '        {{#if}}\n' + '            ^^^&content$$$\n' + '        {{/if}}\n' + '    {{/each}}\n' + '{{/if}}'
       }, {
-        fragment: true,
-        unchanged: '{{#if 1}}\n' +
-          '    <div>\n' +
-          '    </div>\n' +
-          '{{/if}}'
+        unchanged: '{{#if 1}}\n' + '    <div>\n' + '    </div>\n' + '{{/if}}'
       },
 
       // Issue #576 -- Indent Formatting with Handlebars
       {
-        fragment: true,
-        input_: ['<div>',
+        input_: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -725,7 +990,8 @@ exports.test_data = {
           '    <strong>{{userName}}:&nbsp;</strong>{{text}}',
           '</div>'
         ],
-        output: ['<div>',
+        output: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -738,8 +1004,8 @@ exports.test_data = {
           '</div>'
         ]
       }, {
-        fragment: true,
-        unchanged: ['<div>',
+        unchanged: [
+          '<div>',
           '    <small>SMALL TEXT</small>',
           '    <span>',
           '        {{#if isOwner}}',
@@ -753,118 +1019,116 @@ exports.test_data = {
         ]
       },
 
+      // Issue #1040 -- Ignore expressions in handlebar tags
+      {
+        unchanged: [
+          '{{#if `this.customerSegment == "Active"`}}',
+          '    ...',
+          '{{/if}}'
+        ]
+      },
+
+      // Issue #1415 -- Indent Formatting with Handlebars and &nbsp
+      {
+        input_: [
+          '{{#isDealLink}}',
+          '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ],
+        output: [
+          '{{#isDealLink}}',
+          '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>',
+          '{{/isDealLink}}'
+        ]
+      },
+
       // Test {{else}} aligned with {{#if}} and {{/if}}
       {
-        fragment: true,
-        input_: '{{#if 1}}\n' +
-          '    ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{/if}}',
-        output: '{{#if 1}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{else}}\n' +
-          '    ^^^&content$$$\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '    ^^^&content$$$\n' + '    {{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}',
+        output: '{{#if 1}}\n' + '    ^^^&content$$$\n' + '{{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}'
       }, {
-        fragment: true,
-        input_: '{{#if 1}}\n' +
-          '    {{else}}\n' +
-          '    {{/if}}',
-        output: '{{#if 1}}\n' +
-          '{{else}}\n' +
-          '{{/if}}'
+        input_: '{{#if 1}}\n' + '    {{else}}\n' + '    {{/if}}',
+        output: '{{#if 1}}\n' + '{{else}}\n' + '{{/if}}'
       }, {
-        fragment: true,
-        input_: '{{#if thing}}\n' +
-          '{{#if otherthing}}\n' +
-          '    ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '^^^&content$$$\n' +
-          '    {{/if}}\n' +
-          '       {{else}}\n' +
-          '^^^&content$$$\n' +
-          '{{/if}}',
-        output: '{{#if thing}}\n' +
-          '    {{#if otherthing}}\n' +
-          '        ^^^&content$$$\n' +
-          '    {{else}}\n' +
-          '        ^^^&content$$$\n' +
-          '    {{/if}}\n' +
-          '{{else}}\n' +
-          '    ^^^&content$$$\n' +
+        input_: '{{#if thing}}\n' + '{{#if otherthing}}\n' + '    ^^^&content$$$\n' + '    {{else}}\n' + '^^^&content$$$\n' + '    {{/if}}\n' + '       {{else}}\n' + '^^^&content$$$\n' + '{{/if}}',
+        output: '{{#if thing}}\n' + '    {{#if otherthing}}\n' + '        ^^^&content$$$\n' + '    {{else}}\n' + '        ^^^&content$$$\n' + '    {{/if}}\n' + '{{else}}\n' + '    ^^^&content$$$\n' + '{{/if}}'
+      },
+      {
+        comment: 'ISSUE #800 and #1123: else if and #unless',
+        input_: [
+          '{{#if callOn}}',
+          '{{#unless callOn}}',
+          '      ^^^&content$$$',
+          '   {{else}}',
+          '{{translate "offText"}}',
+          '{{/unless callOn}}',
+          '   {{else if (eq callOn false)}}',
+          '^^^&content$$$',
+          '        {{/if}}'
+        ],
+        output: [
+          '{{#if callOn}}',
+          '    {{#unless callOn}}',
+          '        ^^^&content$$$',
+          '    {{else}}',
+          '        {{translate "offText"}}',
+          '    {{/unless callOn}}',
+          '{{else if (eq callOn false)}}',
+          '    ^^^&content$$$',
           '{{/if}}'
+        ]
       },
       // Test {{}} inside of <> tags, which should be separated by spaces
       // for readability, unless they are inside a string.
       {
-        fragment: true,
         input_: '<div{{someStyle}}></div>',
         output: '<div {{someStyle}}></div>'
       }, {
-        fragment: true,
         input_: '<dIv{{#if test}}class="foo"{{/if}}>^^^&content$$$</dIv>',
         output: '<dIv {{#if test}} class="foo" {{/if}}>^^^&content$$$</dIv>'
       }, {
-        fragment: true,
         input_: '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</diV>',
-        output: '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>^^^&content$$$</diV>'
+        output: '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}"^^^&indent_over80$$${{/if}}>^^^&content$$$</diV>'
       }, {
-        fragment: true,
         input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
         output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
       }, {
-        fragment: true,
         unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
       }, {
-        fragment: true,
         unchanged: '<div unformatted="{{#if  }}    ^^^&content$$${{/if}}">^^^&content$$$</div>'
       },
 
       // Quotes found inside of Handlebars expressions inside of quoted
       // strings themselves should not be considered string delimiters.
       {
-        fragment: true,
         unchanged: '<div class="{{#if thingIs "value"}}^^^&content$$${{/if}}"></div>'
       }, {
-        fragment: true,
         unchanged: '<div class="{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}"></div>'
       }, {
-        fragment: true,
         unchanged: '<div class=\\\'{{#if thingIs "value"}}^^^&content$$${{/if}}\\\'></div>'
       }, {
-        fragment: true,
         unchanged: '<div class=\\\'{{#if thingIs \\\'value\\\'}}^^^&content$$${{/if}}\\\'></div>'
       }, {
-        fragment: true,
         unchanged: '<span>{{condition < 0 ? "result1" : "result2"}}</span>'
       }, {
-        fragment: true,
         unchanged: '<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>'
       }
     ]
   }, {
-    name: "Handlebars Else tag indenting",
-    description: "Handlebar Else tags should be newlined after formatted tags",
+    name: "Handlebars Else If and Each tag indenting",
+    description: "Handlebar Else If and Each Handling tags should be newlined after formatted tags",
     template: "^^^ $$$",
     options: [
       { name: "indent_handlebars", value: "true" }
     ],
     tests: [{
-        fragment: true,
         input_: '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
-        output: '{{#if test}}\n' +
-          '    <div></div>\n' +
-          '{{else}}\n' +
-          '    <div></div>\n' +
-          '{{/if}}'
+        output: '{{#if test}}\n' + '    <div></div>\n' + '{{else}}\n' + '    <div></div>\n' + '{{/if}}'
       }, {
-        fragment: true,
         unchanged: '{{#if test}}<span></span>{{else}}<span></span>{{/if}}'
       },
       // Else if handling
       {
-        fragment: true,
         input: ['<a class="navbar-brand">',
           '    {{#if connected}}',
           '        <i class="fa fa-link" style="color:green"></i> {{else if sleep}}',
@@ -884,6 +1148,16 @@ exports.test_data = {
           '    {{/if}}',
           '</a>'
         ]
+      },
+      // Each handling
+      {
+        unchanged: [
+          '{{#each clinics as |clinic|}}',
+          '    <p>{{clinic.name}}</p>',
+          '{{else}}',
+          '    <p>Unfortunately no clinics found.</p>',
+          '{{/each}}'
+        ]
       }
     ]
   }, {
@@ -891,19 +1165,181 @@ exports.test_data = {
     description: "Unclosed elements should not indent",
     options: [],
     tests: [
-      { fragment: true, unchanged: '<source>\n<source>' },
-      { fragment: true, unchanged: '<br>\n<br>' },
-      { fragment: true, unchanged: '<input>\n<input>' },
-      { fragment: true, unchanged: '<meta>\n<meta>' },
-      { fragment: true, unchanged: '<link>\n<link>' },
-      { fragment: true, unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
+      { unchanged: '<source>\n<source>' },
+      { unchanged: '<br>\n<br>' },
+      { unchanged: '<input>\n<input>' },
+      { unchanged: '<meta>\n<meta>' },
+      { unchanged: '<link>\n<link>' },
+      { unchanged: '<colgroup>\n    <col>\n    <col>\n</colgroup>' },
+      { input: '<source>\n    <source>', output: '<source>\n<source>' },
+      { input: '<br>\n    <br>', output: '<br>\n<br>' },
+      { input: '<input>\n    <input>', output: '<input>\n<input>' },
+      { input: '<meta>\n    <meta>', output: '<meta>\n<meta>' },
+      { input: '<link>\n    <link>', output: '<link>\n<link>' },
+      { input: '<colgroup>\n        <col>\n        <col>\n</colgroup>', output: '<colgroup>\n    <col>\n    <col>\n</colgroup>' }
     ]
+  }, {
+    name: "Optional html elements",
+    description: "Optional elements should not indent",
+    options: [],
+    tests: [{
+      fragment: true,
+      unchanged: [
+        '<li>test content',
+        '<li>test content',
+        '<li>test content'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<ol>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        <ul>',
+        '            <li> extra text',
+        '            <li> depth check',
+        '        </ul>',
+        '    <li> test content',
+        '    <li>',
+        '        test content',
+        '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<dl>',
+        '    <dt>',
+        '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '    <dd>',
+        '        test content',
+        '    <dt>',
+        '        test content',
+        '    <dd>',
+        '        <dl>',
+        '            <dt>',
+        '                test content',
+        '            <dt>',
+        '                test content',
+        '            <dd>',
+        '                test content',
+        '        </dl>',
+        '</dl>'
+      ]
+    }, {
+      unchanged: [
+        '<select>',
+        '    <optgroup>',
+        '        test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '    <optgroup>',
+        '        test content',
+        '        <option>',
+        '            test content',
+        '        <option>',
+        '            test content',
+        '</select>'
+      ]
+    }, {
+      unchanged: [
+        '<table>',
+        '    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
+        '    <colgroup>',
+        '        <col>',
+        '        <col>',
+        '        <col>',
+        '    <thead>',
+        '        <tr>',
+        '            <th>Function',
+        '            <th>Control Unit',
+        '            <th>Central Station',
+        '    <tbody>',
+        '        <tr>',
+        '            <td>Headlights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Interior Lights',
+        '            <td>✔',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Electric locomotive operating sounds',
+        '            <td>✔',
+        '                <table>',
+        '                    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
+        '                    <colgroup>',
+        '                        <col>',
+        '                        <col>',
+        '                        <col>',
+        '                    <thead>',
+        '                        <tr>',
+        '                            <th>Function',
+        '                            <th>Control Unit',
+        '                            <th>Central Station',
+        '                    <tbody>',
+        '                        <tr>',
+        '                            <td>Headlights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Interior Lights',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Electric locomotive operating sounds',
+        '                            <td>✔',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Engineer’s cab lighting',
+        '                            <td>',
+        '                            <td>✔',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                    <tfoot>',
+        '                        <tr>',
+        '                            <td>Station Announcements - Swiss',
+        '                            <td>',
+        '                            <td>✔',
+        '                </table>',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Engineer’s cab lighting',
+        '            <td>',
+        '            <td>✔',
+        '        <tr>',
+        '            <td>Station Announcements - Swiss',
+        '            <td>',
+        '            <td>✔',
+        '    <tfoot>',
+        '        <tr>',
+        '            <td>Station Announcements - Swiss',
+        '            <td>',
+        '            <td>✔',
+        '</table>'
+      ]
+    }]
   }, {
     name: "Unformatted tags",
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-        fragment: true,
         input: '<ol>\n    <li>b<pre>c</pre></li>\n</ol>',
         output: [
           '<ol>',
@@ -913,22 +1349,21 @@ exports.test_data = {
           '</ol>'
         ]
       },
-      { fragment: true, unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
-      { fragment: true, unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
-      { fragment: true, unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
-      { fragment: true, unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
+      { unchanged: '<ol>\n    <li>b<code>c</code></li>\n</ol>' },
+      { unchanged: '<ul>\n    <li>\n        <span class="octicon octicon-person"></span>\n        <a href="/contact/">Kontakt</a>\n    </li>\n</ul>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s" /><input type="submit" id="searchsubmit" value="Search" /></div>' },
+      { unchanged: '<div class="searchform"><input type="text" value="" name="s" id="s"><input type="submit" id="searchsubmit" value="Search"></div>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a><a href="/test/"><img src="test.jpg" /></a>\n</p>' },
+      { unchanged: '<p>\n    <span>image: <img src="test.jpg" /></span><span>image: <img src="test.jpg" /></span>\n</p>' },
+      { unchanged: '<p>\n    <strong>image: <img src="test.jpg" /></strong><strong>image: <img src="test.jpg" /></strong>\n</p>' }
     ]
   }, {
     name: "File starting with comment",
     description: "Unformatted tag behavior",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<!--sample comment -->',
         '',
@@ -941,11 +1376,49 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "ISSUE #545 and #944 Ignore directive works in html",
+    description: "",
+    options: [],
+    tests: [{
+      comment: 'ignore starts _after_ the start comment, ends after the end comment',
+      unchanged: [
+        '<div>',
+        '    <!-- beautify ignore:start -->',
+        '@{',
+        '',
+        '    ViewBag.Title = "Dashboard";',
+        '    string firstName = string.Empty;',
+        '    string userId = ViewBag.UserId;',
+        '',
+        '    if( !string.IsNullOrEmpty(ViewBag.FirstName ) ) {',
+        '',
+        '         firstName = "<h2>Hi " + ViewBag.FirstName + "</h2>";',
+        '',
+        '    }',
+        '',
+        '}',
+        ' <!-- beautify ignore:end -->',
+        '',
+        '    <header class="layout-header">',
+        '',
+        '        <h2 id="logo"><a href="/">Logo</a></h2>',
+        '',
+        '        <ul class="social">',
+        '',
+        '            <li class="facebook"><a href="#">Facebook</a></li>',
+        '            <li class="twitter"><a href="#">Twitter</a></li>',
+        '',
+        '        </ul>',
+        '',
+        '    </header>',
+        '</div>'
+      ]
+    }]
+  }, {
     name: "Issue 1478 - Space handling inside self closing tag",
     description: "Properly indent following text after self closing tags regardless of space",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div>',
         '    <br/>',
@@ -964,7 +1437,6 @@ exports.test_data = {
     description: "Keep single line comments as they are after closing tags",
     options: [],
     tests: [{
-      fragment: true,
       input: [
         '<div class="col">',
         '    <div class="row">',
@@ -1000,23 +1472,24 @@ exports.test_data = {
     options: [],
     tests: [{
         comment: '#1202',
-        fragment: true,
         unchanged: '<a class="js-open-move-from-header" href="#">5A - IN-SPRINT TESTING</a>'
       },
       { fragment: true, unchanged: '<a ">9</a">' },
-      { fragment: true, unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
-      { fragment: true, unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' }
+      { unchanged: '<a href="javascript:;" id="_h_url_paid_pro3" onmousedown="_h_url_click_paid_pro(this);" rel="nofollow" class="pro-title" itemprop="name">WA GlassKote</a>' },
+      { unchanged: '<a href="/b/yergey-brewing-a-beer-has-no-name/1745600">"A Beer Has No Name"</a>' },
+      {
+        comment: '#1304',
+        unchanged: '<label>Every</label><input class="scheduler__minutes-input" type="text">'
+      }
     ]
   }, {
     name: "Php formatting",
     description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
       output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>'
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'for($i = 1; $i <= 100; $i++;) {',
@@ -1040,14 +1513,12 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?= "A" ?>',
         '<?= "B" ?>',
         '<?= "C" ?>'
       ]
     }, {
-      fragment: true,
       unchanged: [
         '<?php',
         'echo "A";',
@@ -1065,7 +1536,11 @@ exports.test_data = {
         ],
         h: '    ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '    ',
+        dhj: '    ',
+        dc: '     ',
+        dj: '   '
       },
       {
         options: [
@@ -1073,7 +1548,53 @@ exports.test_data = {
         ],
         h: '    ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '    ',
+        dhj: '    ',
+        dc: '     ',
+        dj: '   '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '         ',
+        dhj: '         ',
+        dc: '   ',
+        dj: '     '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5, 'disabled': true }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '         ',
+        dhj: '',
+        dc: '   ',
+        dj: ''
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3, 'disabled': true }" }
+        ],
+        h: '         ',
+        c: '   ',
+        j: '     ',
+        dhc: '',
+        dhj: '         ',
+        dc: '',
+        dj: '     '
       },
       {
         options: [
@@ -1084,38 +1605,134 @@ exports.test_data = {
         ],
         h: '  ',
         c: '     ',
-        j: '   '
+        j: '   ',
+        dhc: '  ',
+        dhj: '  ',
+        dc: '     ',
+        dj: '   '
+      },
+      {
+        options: [
+          { name: "indent_size", value: "9" },
+          { name: "html", value: "{ 'js': { 'indent_size': 3, 'disabled': true }, 'css': { 'indent_size': 5 }, 'indent_size': 2}" },
+          { name: "js", value: "{ 'indent_size': 5 }" },
+          { name: "css", value: "{ 'indent_size': 3 }" }
+        ],
+        h: '  ',
+        c: '     ',
+        j: '   ',
+        dhc: '  ',
+        dhj: '',
+        dc: '     ',
+        dj: ''
       }
     ],
     tests: [{
-      fragment: true,
-      unchanged: [
-        '<head>',
-        '{{h}}<script>',
-        '{{h}}{{h}}if (a == b) {',
-        '{{h}}{{h}}{{j}}test();',
-        '{{h}}{{h}}}',
-        '{{h}}</script>',
-        '{{h}}<style>',
-        '{{h}}{{h}}.selector {',
-        '{{h}}{{h}}{{c}}font-size: 12px;',
-        '{{h}}{{h}}}',
-        '{{h}}</style>',
-        '</head>'
-      ]
-    }]
+        fragment: true,
+        unchanged: [
+          '<head>',
+          '{{h}}<script>',
+          '{{h}}{{h}}if (a == b) {',
+          '{{h}}{{h}}{{j}}test();',
+          '{{h}}{{h}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{h}}{{h}}.selector {',
+          '{{h}}{{h}}{{c}}font-size: 12px;',
+          '{{h}}{{h}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      }, {
+        fragment: true,
+        input: [
+          '<head>',
+          '<script>',
+          'if (a == b) {',
+          'test();',
+          '}',
+          '</script>',
+          '<style>',
+          '.selector {',
+          'font-size: 12px;',
+          '}',
+          '</style>',
+          '</head>'
+        ],
+        output: [
+          '<head>',
+          '{{h}}<script>',
+          '{{h}}{{h}}if (a == b) {',
+          '{{dhj}}{{dhj}}{{dj}}test();',
+          '{{dhj}}{{dhj}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{h}}{{h}}.selector {',
+          '{{dhc}}{{dhc}}{{dc}}font-size: 12px;',
+          '{{dhc}}{{dhc}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<body>',
+          '{{h}}<script src="one.js"></script> <!-- one -->',
+          '{{h}}<script src="two.js"></script> <!-- two-->',
+          '</body>'
+        ]
+      }
+    ]
   }, {
     name: "underscore.js  formatting",
     description: "underscore.js templates (<% ... %>) treated as comments.",
     options: [],
     tests: [{
-      fragment: true,
       unchanged: [
         '<div class="col-sm-9">',
         '    <textarea id="notes" class="form-control" rows="3">',
         '        <%= notes %>',
         '    </textarea>',
         '</div>'
+      ]
+    }]
+  }, {
+    name: "ASP(X) and JSP directives <%@ indent formatting",
+    description: "",
+    options: [],
+    tests: [{
+      unchanged: [
+        '<%@Master language="C#"%>',
+        '<%@Register TagPrefix="a" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="b" Namespace="a" Assembly="a"%>',
+        '<%@Register TagPrefix="c" Namespace="a" Assembly="a"%>',
+        '<!DOCTYPE html>',
+        '',
+        '<html>',
+        '',
+        '<some-content />',
+        '',
+        '</html>'
+      ]
+    }]
+  }, {
+    name: "Issue #1027 -- Formatting SVG files",
+    description: "",
+    options: [],
+    tests: [{
+      input: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"',
+        '     viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '                    <rect id="XMLID_20_" x="-7"',
+        '                          class="st0"',
+        '                          width="49" height="36"/>',
+        '</svg>'
+      ],
+      output: [
+        '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36" style="enable-background:new 0 0 36 36;" xml:space="preserve">',
+        '    <rect id="XMLID_20_" x="-7" class="st0" width="49" height="36" />',
+        '</svg>'
       ]
     }]
   }, {
@@ -1134,6 +1751,7 @@ exports.test_data = {
         '    </div>',
         '</body>'
       ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
       output: [
         '<body>',
         '    <div>',
@@ -1146,11 +1764,88 @@ exports.test_data = {
       ]
     }, {
       fragment: true,
-      comment: 'This test shows how line wrapping is still not correct. Should wrap before 0015.',
       input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
       output: [
-        '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015',
-        '    0016 0017 0018 0019 0020</span>'
+        '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014',
+        '    0015 0016 0017 0018 0019 0020</span>'
+      ]
+    }, {
+      comment: "Issue #1122",
+      fragment: true,
+      input: [
+        '<div>',
+        '<div>',
+        '<p>',
+        '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие',
+        '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются',
+        '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '</p>',
+        '</div>',
+        '</div>'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        '<div>',
+        '    <div>',
+        '        <p>',
+        '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов',
+        '            и глубина зондирования), текущие',
+        '            отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК».',
+        '            Одновременно, они распечатываются',
+        '            на минипринтере. Управлять контроллером для записи данных',
+        '            зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки',
+        '                РК-11</link_row>.',
+        '        </p>',
+        '    </div>',
+        '</div>'
+      ]
+    }, {
+      comment: "Issue #1122",
+      fragment: true,
+      input: [
+        '<div>',
+        '<div>',
+        '<p>',
+        '    В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '</p>',
+        '</div>',
+        '</div>'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        '<div>',
+        '    <div>',
+        '        <p>',
+        '            В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов',
+        '            и глубина зондирования), текущие отсчеты сохраняются в контроллере',
+        '            при нажатии кнопки «ПУСК». Одновременно, они распечатываются на',
+        '            минипринтере. Управлять контроллером для записи данных зондирования',
+        '            можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.',
+        '        </p>',
+        '    </div>',
+        '</div>'
+      ]
+    }]
+  }, {
+    name: "Linewrap length",
+    description: "",
+    options: [{ name: "wrap_line_length", value: "40" }],
+    tests: [{
+      comment: "Issue #740 -- Negative values ending a line are wrapped as a unit",
+      fragment: true,
+      input: [
+        'return  someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !== -10;',
+        'return someLongExpressionThatGet !== -100;'
+      ],
+      //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
+      output: [
+        'return someLongExpressionThatGe !== -1;',
+        'return someLongExpressionThatGet !==',
+        '-10;',
+        'return someLongExpressionThatGet !==',
+        '-100;'
       ]
     }]
   }, {
@@ -1180,14 +1875,26 @@ exports.test_data = {
     ],
     tests: [{
       fragment: true,
-      input_: '<div>\n' +
-        '<div>\n' +
-        '</div>\n' +
-        '</div>',
-      output: '<div>\n' +
-        '    <div>\n' +
-        '    </div>\n' +
-        '</div>'
+      input_: '<div>\n' + '<div>\n' + '</div>\n' + '</div>',
+      output: '<div>\n' + '    <div>\n' + '    </div>\n' + '</div>'
+    }]
+  }, {
+    name: "Do not indent html inner html by default",
+    description: "",
+    tests: [{
+      fragment: true,
+      input: '<html>\n<body>\n<div></div>\n</body>\n\n</html>',
+      output: '<html>\n<body>\n    <div></div>\n</body>\n\n</html>'
+    }]
+  }, {
+    name: "indent_inner_html set to true indents html inner html",
+    description: "",
+    options: [
+      { name: 'indent_inner_html', value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<html>\n    <body>\n        <div></div>\n    </body>\n\n</html>'
     }]
   }, {
     name: "Indent body inner html by default",
@@ -1230,11 +1937,9 @@ exports.test_data = {
     description: "",
     template: "^^^ $$$",
     tests: [{
-      fragment: true,
       input: '<div><span></span></div><span><div></div></span>',
       output: '<div><span></span></div><span>\n    <div></div>\n</span>'
     }, {
-      fragment: true,
       input: '<div><div><span><span>Nested spans</span></span></div></div>',
       output: [
         '<div>',
@@ -1242,48 +1947,235 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
       input: '<p>Should remove <span><span \n\nclass="some-class">attribute</span></span> newlines</p>',
       output: [
         '<p>Should remove <span><span class="some-class">attribute</span></span> newlines</p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>All</span> on <span>one</span> line</div>'
     }, {
-      fragment: true,
       unchanged: '<span class="{{class_name}}">{{content}}</span>'
     }, {
-      fragment: true,
       unchanged: '{{#if 1}}<span>{{content}}</span>{{/if}}'
+    }]
+  }, {
+    name: "Preserve newlines false",
+    description: "",
+    options: [
+      { name: 'indent_size', value: "2" },
+      { name: 'preserve_newlines', value: "false" }
+    ],
+    tests: [{
+      input: '<div>\n\tfoo\n</div>',
+      output: '<div> foo </div>'
+    }, {
+      input_: '<div>Should not</div>\n\n\n' + '<div>preserve newlines</div>',
+      output: '<div>Should not</div>\n' + '<div>preserve newlines</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '    <ul>',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true",
+    description: "",
+    options: [
+      { name: 'indent_size', value: "1" },
+      { name: 'indent_char', value: '"\t"' },
+      { name: 'preserve_newlines', value: "true" }
+    ],
+    tests: [{
+      fragment: true,
+      unchanged: '<div>\n\tfoo\n</div>'
+    }]
+  }, {
+    name: "Preserve newlines true with zero max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'max_preserve_newlines', value: "0" },
+      { name: 'indent_size', value: "2" }
+    ],
+    tests: [{
+      input_: '<div>Should</div>\n\n\n' + '<div>preserve zero newlines</div>',
+      output: '<div>Should</div>\n' + '<div>preserve zero newlines</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '    <ul>',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true with 1 max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'indent_size', value: "2" },
+      { name: 'max_preserve_newlines', value: "1" }
+    ],
+    tests: [{
+      input_: '<div>Should</div>\n\n\n' + '<div>preserve one newline</div>',
+      output: '<div>Should</div>\n\n' + '<div>preserve one newline</div>'
+    }, {
+      input: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ],
+      output: [
+        '<header>',
+        '  <h1>',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
+    }]
+  }, {
+    name: "Preserve newlines true with null max newline",
+    description: "",
+    options: [
+      { name: 'preserve_newlines', value: "true" },
+      { name: 'indent_size', value: "2" },
+      { name: 'max_preserve_newlines', value: "null" }
+    ],
+    tests: [{
+      unchanged: '<div>Should</div>\n\n\n' + '<div>preserve zero newlines</div>'
+    }, {
+      unchanged: [
+        '<header>',
+        '  <h1>',
+        '',
+        '',
+        '    <ul>',
+        '',
+        '      <li class="menuactive menuparent">',
+        '        <a>',
+        '          <span>Anita Koppe</span>',
+        '        </a>',
+        '',
+        '',
+        '      </li>',
+        '    </ul>',
+        '  </h1>',
+        '</header>'
+      ]
     }]
   }, {
     name: "unformatted to prevent formatting changes",
     description: "",
     options: [
-      { name: 'unformatted', value: "['u']" }
+      { name: 'unformatted', value: "['u', 'span', 'textarea']" }
     ],
     tests: [{
-      fragment: true,
       unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
     }, {
-      fragment: true,
       unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
     }, {
-      fragment: true,
-      unchanged: '<u>  \n\n\n  Ignore extra whitespace  \n\n\n  </u>'
+      input_: '<u>  \n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>',
+      output: '<u>\n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>'
     }, {
-      fragment: true,
-      unchanged: '<u><div \n\nclass="">Ignore whitespace in attributes</div></u>'
+      unchanged: '<u><div \n\t\nclass=""">Ignore whitespace in attributes\t</div></u>'
     }, {
-      fragment: true,
-      unchanged: '<u \n\nclass="">Ignore whitespace in attributes</u>'
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '</span>',
+        '</div>'
+      ]
+    }, {
+      input_: '<u \n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>',
+      output: '<u\n\n\t\t  class="">Ignore whitespace\nin\tattributes</u>'
     }]
   }, {
     name: "content_unformatted to prevent formatting content",
-    description: "",
+    description: "NOTE: for this test textarea is still content_unformatted but pre is not",
     options: [
-      { name: 'content_unformatted', value: "['script', 'style', 'p', 'span', 'br']" }
+
+      { name: 'content_unformatted', value: "['?php', 'script', 'style', 'p', 'span', 'br', 'meta', 'textarea']" }
     ],
     tests: [{
       fragment: true,
@@ -1299,7 +2191,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><div>But not me</div></p>',
       output: [
         '<div>',
@@ -1308,7 +2199,6 @@ exports.test_data = {
         '<p><div>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><div\n  class="iamalreadybeauty"\n>But not me</div></p>',
       output: [
         '<div>',
@@ -1319,26 +2209,79 @@ exports.test_data = {
         '>But not me</div></p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
-      input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+      unchanged: '<div><br></div>'
+    }, {
+      input: [
+        '<div>',
+        '<br>',
+        '<br />',
+        '<br></div>'
+      ],
       output: [
         '<div>',
-        '    <pre>var a=1; var b=a;</pre>',
+        '    <br>',
+        '    <br />',
+        '    <br></div>'
+      ]
+    }, {
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '</span>',
         '</div>'
       ]
     }, {
-      fragment: true,
+      input: [
+        '<div>',
+        '<meta>',
+        '<meta />',
+        '<meta></div>'
+      ],
+      output: [
+        '<div>',
+        '    <meta>',
+        '    <meta />',
+        '    <meta>',
+        '</div>'
+      ]
+    }, {
+      input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
+      output: [
+        '<div>',
+        '    <pre>var a=1;',
+        '        var b=a;</pre>',
+        '</div>'
+      ]
+    }, {
+      unchanged: [
+        '<?php',
+        '/**',
+        ' * Comment',
+        ' */',
+        '',
+        '?>',
+        '<div class="">',
+        '',
+        '</div>'
+      ]
+    }, {
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
         '    <pre>',
-        '        var a=1; var b=a;',
+        '        var a=1;',
+        '        var b=a;',
         '    </pre>',
         '</div>'
       ]
@@ -1369,7 +2312,6 @@ exports.test_data = {
         '</html>'
       ]
     }, {
-      fragment: true,
       input: '<div><p>Beautify me</p></div><p><p>But not me</p></p>',
       output: [
         '<div>',
@@ -1380,7 +2322,6 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       input: '<div><p\n  class="beauty-me"\n>Beautify me</p></div><p><p\n  class="iamalreadybeauty"\n>But not me</p></p>',
       output: [
         '<div>',
@@ -1391,13 +2332,24 @@ exports.test_data = {
         '</p>'
       ]
     }, {
-      fragment: true,
       unchanged: '<div><span>blabla<div>something here</div></span></div>'
     }, {
-      fragment: true,
       unchanged: '<div><br /></div>'
     }, {
-      fragment: true,
+      comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
+      unchanged: [
+        '<div>',
+        '    <textarea></textarea>',
+        '    <textarea>',
+        '',
+        '</textarea>',
+        '    <span></span>',
+        '    <span>',
+        '',
+        '    </span>',
+        '</div>'
+      ]
+    }, {
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
@@ -1406,7 +2358,6 @@ exports.test_data = {
         '</div>'
       ]
     }, {
-      fragment: true,
       input: '<div><pre>\nvar a=1;\nvar b=a;\n</pre></div>',
       output: [
         '<div>',
@@ -1418,7 +2369,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1041",
-      fragment: true,
       input: [
         '<p><span class="foo">foo <span class="bar">bar</span></span></p>',
         '',
@@ -1434,8 +2384,12 @@ exports.test_data = {
         '<p class="foo"><span class="bar">bar</span></p>'
       ]
     }, {
+      comment: "Test for #869 - not exactly what the user wants but no longer horrible",
+      unchanged: [
+        '<div><input type="checkbox" id="j" name="j" value="foo">&nbsp;<label for="j">Foo</label></div>'
+      ]
+    }, {
       comment: "Test for #1167",
-      fragment: true,
       unchanged: [
         '<span>',
         '    <span><img src="images/off.svg" alt=""></span>',
@@ -1444,7 +2398,6 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #882",
-      fragment: true,
       input: '<tr><th><h3>Name</h3></th><td class="full-width"></td></tr>',
       output: [
         '<tr>',
@@ -1456,12 +2409,29 @@ exports.test_data = {
       ]
     }, {
       comment: "Test for #1184",
-      fragment: true,
       input: '<div><div></div>Connect</div>',
       output: [
         '<div>',
         '    <div></div>Connect',
         '</div>'
+      ]
+    }, {
+      comment: "Test for #1383",
+      input: [
+        '<p class="newListItem">',
+        '  <svg height="40" width="40">',
+        '              <circle cx="20" cy="20" r="18" stroke="black" stroke-width="0" fill="#bddffa" />',
+        '              <text x="50%" y="50%" text-anchor="middle" stroke="#1b97f3" stroke-width="2px" dy=".3em">1</text>',
+        '            </svg> This is a paragraph after an SVG shape.',
+        '</p>'
+      ],
+      output: [
+        '<p class="newListItem">',
+        '    <svg height="40" width="40">',
+        '        <circle cx="20" cy="20" r="18" stroke="black" stroke-width="0" fill="#bddffa" />',
+        '        <text x="50%" y="50%" text-anchor="middle" stroke="#1b97f3" stroke-width="2px" dy=".3em">1</text>',
+        '    </svg> This is a paragraph after an SVG shape.',
+        '</p>'
       ]
     }]
   }, {

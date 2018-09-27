@@ -29,42 +29,42 @@ from ..core.token import Token
 class TokenStream:
 
     def __init__(self, parent_token=None):
-        self._tokens = []
-        self._tokens_length = len(self._tokens)
-        self._position = 0
-        self._parent_token = parent_token
+        self.__tokens = []
+        self.__tokens_length = len(self.__tokens)
+        self.__position = 0
+        self.__parent_token = parent_token
 
     def restart(self):
-        self._position = 0
+        self.__position = 0
 
     def isEmpty(self):
-        return self._tokens_length == 0
+        return self.__tokens_length == 0
 
     def hasNext(self):
-        return self._position < self._tokens_length
+        return self.__position < self.__tokens_length
 
     def next(self):
         if self.hasNext():
-            val = self._tokens[self._position]
-            self._position += 1
+            val = self.__tokens[self.__position]
+            self.__position += 1
             return val
         else:
             raise StopIteration
 
     def peek(self, index=0):
         val = None
-        index += self._position
-        if index >= 0 and index < self._tokens_length:
-            val = self._tokens[index]
+        index += self.__position
+        if index >= 0 and index < self.__tokens_length:
+            val = self.__tokens[index]
 
         return val
 
     def add(self, token):
-        if self._parent_token:
-            token.parent = self._parent_token
+        if self.__parent_token:
+            token.parent = self.__parent_token
 
-        self._tokens.append(token)
-        self._tokens_length += 1
+        self.__tokens.append(token)
+        self.__tokens_length += 1
 
     def __iter__(self):
         self.restart()

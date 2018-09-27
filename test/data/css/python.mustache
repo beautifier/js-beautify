@@ -109,6 +109,15 @@ class CSSBeautifierTest(unittest.TestCase):
         #============================================================
         t(None, "")
 
+        self.reset_options()
+        #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        t(None, '\n')
+        
+        self.reset_options()
+        #============================================================
+
         t("", "")
         t("\n", "")
         t(".tabs{}\n", ".tabs {}")
@@ -258,6 +267,12 @@ class CSSBeautifierTest(unittest.TestCase):
         # Everywhere we do newlines, they should be replaced with opts.eol
         self.options.eol = '\r\\n'
         expectation = expectation.replace('\n', '\r\n')
+        self.options.disabled = True
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), input or '')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+        self.options.disabled = False;
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
         if input and input.find('\n') != -1:

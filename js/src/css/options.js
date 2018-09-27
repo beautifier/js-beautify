@@ -28,11 +28,19 @@
 
 'use strict';
 
-var Beautifier = require('./beautifier').Beautifier;
+var BaseOptions = require('../core/options').Options;
 
-function style_html(html_source, options, js_beautify, css_beautify) {
-  var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
-  return beautifier.beautify();
+function Options(options) {
+  BaseOptions.call(this, options, 'css');
+
+  this.selector_separator_newline = this._get_boolean('selector_separator_newline', true);
+  this.newline_between_rules = this._get_boolean('newline_between_rules', true);
+  var space_around_selector_separator = this._get_boolean('space_around_selector_separator');
+  this.space_around_combinator = this._get_boolean('space_around_combinator') || space_around_selector_separator;
+
 }
+Options.prototype = new BaseOptions();
 
-module.exports = style_html;
+
+
+module.exports.Options = Options;

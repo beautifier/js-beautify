@@ -1,3 +1,6 @@
+/*jshint mocha:true */
+'use strict';
+
 var assert = require('assert');
 var InputScanner = require('../../src/core/inputscanner').InputScanner;
 

@@ -52,7 +52,7 @@ def beautify_file(file_name, opts=default_options()):
                 raise Exception()
 
             stream = sys.stdin
-        except Exception as ex:
+        except Exception:
             print("Must pipe input or define input file.\n", file=sys.stderr)
             usage(sys.stderr)
             raise Exception()
@@ -68,7 +68,7 @@ def usage(stream=sys.stdout):
 
     print("cssbeautifier.py@" + __version__ + """
 
-CSS beautifier (http://jsbeautifier.org/)
+CSS beautifier (https://beautifier.io/)
 
 Usage: cssbeautifier.py [options] <infile>
 

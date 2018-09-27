@@ -12,27 +12,18 @@ var fs = require('fs'),
 
 function node_beautifier_html_tests() {
   console.log('Testing performance...');
-  var github_html = fs.readFileSync(__dirname + '/../../test/resources/github.html', 'utf8');
-  var index_html = fs.readFileSync(__dirname + '/../../index.html', 'utf8');
-  var data_attr = fs.readFileSync(__dirname + '/../../test/resources/html-with-base64image.html', 'utf8');
+  var github_css = fs.readFileSync(__dirname + '/../../test/resources/github.css', 'utf8');
   var options = {
     wrap_line_length: 80
   };
 
   //warm-up
-  beautifier.html(github_html, options);
-  beautifier.html(data_attr, options);
+  beautifier.css(github_css, options);
 
   var suite = new Benchmark.Suite();
 
-  suite.add("html-beautify (index.html)", function() {
-      beautifier.html(index_html, options);
-    })
-    .add("html-beautify (base64 image)", function() {
-      beautifier.html(data_attr, options);
-    })
-    .add("html-beautify (github.html)", function() {
-      beautifier.html(github_html, options);
+  suite.add("css-beautify (github.css)", function() {
+      beautifier.css(github_css, options);
     })
     // add listeners
     .on('cycle', function(event) {

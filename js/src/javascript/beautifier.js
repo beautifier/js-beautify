@@ -1,35 +1,40 @@
-/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
+/*jshint node:true */
 /*
 
-    The MIT License (MIT)
+  The MIT License (MIT)
 
-    Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
 
-    Permission is hereby granted, free of charge, to any person
-    obtaining a copy of this software and associated documentation files
-    (the "Software"), to deal in the Software without restriction,
-    including without limitation the rights to use, copy, modify, merge,
-    publish, distribute, sublicense, and/or sell copies of the Software,
-    and to permit persons to whom the Software is furnished to do so,
-    subject to the following conditions:
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 */
 
-var mergeOpts = require('../core/options').mergeOpts;
-var acorn = require('../core/acorn');
+'use strict';
+
 var Output = require('../core/output').Output;
+var Token = require('../core/token').Token;
+var acorn = require('./acorn');
+var Options = require('./options').Options;
 var Tokenizer = require('./tokenizer').Tokenizer;
+var line_starters = require('./tokenizer').line_starters;
+var positionable_operators = require('./tokenizer').positionable_operators;
 var TOKEN = require('./tokenizer').TOKEN;
 
 function remove_redundant_indentation(output, frame) {
@@ -45,9 +50,7 @@ function remove_redundant_indentation(output, frame) {
   }
 
   // remove one indent from each line inside this section
-  var start_index = frame.start_line_index;
-
-  output.remove_indent(start_index);
+  output.remove_indent(frame.start_line_index);
 }
 
 function in_array(what, arr) {
@@ -67,17 +70,15 @@ function generateMapFromStrings(list) {
   return result;
 }
 
-function sanitizeOperatorPosition(opPosition) {
-  opPosition = opPosition || OPERATOR_POSITION.before_newline;
-
-  if (!in_array(opPosition, validPositionValues)) {
-    throw new Error("Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
-      validPositionValues +
-      "\nYou passed in: '" + opPosition + "'");
-  }
-
-  return opPosition;
+function reserved_word(token, word) {
+  return token && token.type === TOKEN.RESERVED && token.text === word;
 }
+
+function reserved_array(token, words) {
+  return token && token.type === TOKEN.RESERVED && in_array(token.text, words);
+}
+// Unsure of what they mean, but they work. Worth cleaning up in future.
+var special_words = ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async'];
 
 var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
 
@@ -96,170 +97,115 @@ var MODE = {
   Expression: 'Expression' //'(EXPRESSION)'
 };
 
-function Beautifier(js_source_text, options) {
-  "use strict";
+// we could use just string.split, but
+// IE doesn't like returning empty strings
+function split_linebreaks(s) {
+  //return s.split(/\x0d\x0a|\x0a/);
+
+  s = s.replace(acorn.allLineBreaks, '\n');
+  var out = [],
+    idx = s.indexOf("\n");
+  while (idx !== -1) {
+    out.push(s.substring(0, idx));
+    s = s.substring(idx + 1);
+    idx = s.indexOf("\n");
+  }
+  if (s.length) {
+    out.push(s);
+  }
+  return out;
+}
+
+function is_array(mode) {
+  return mode === MODE.ArrayLiteral;
+}
+
+function is_expression(mode) {
+  return in_array(mode, [MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
+}
+
+function all_lines_start_with(lines, c) {
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (line.charAt(0) !== c) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function each_line_matches_indent(lines, indent) {
+  var i = 0,
+    len = lines.length,
+    line;
+  for (; i < len; i++) {
+    line = lines[i];
+    // allow empty lines to pass through
+    if (line && line.indexOf(indent) !== 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+function Beautifier(source_text, options) {
   options = options || {};
-  js_source_text = js_source_text || '';
+  this._source_text = source_text || '';
 
-  var output;
-  var tokens;
-  var tokenizer;
-  var current_token;
-  var last_type, last_last_text, indent_string;
-  var flags, previous_flags, flag_store;
-  var prefix;
+  this._output = null;
+  this._tokens = null;
+  this._last_last_text = null;
+  this._flags = null;
+  this._previous_flags = null;
 
-  var handlers, opt;
-  var baseIndentString = '';
+  this._flag_store = null;
+  this._options = new Options(options);
+}
 
-  handlers = {};
-  handlers[TOKEN.START_EXPR] = handle_start_expr;
-  handlers[TOKEN.END_EXPR] = handle_end_expr;
-  handlers[TOKEN.START_BLOCK] = handle_start_block;
-  handlers[TOKEN.END_BLOCK] = handle_end_block;
-  handlers[TOKEN.WORD] = handle_word;
-  handlers[TOKEN.RESERVED] = handle_word;
-  handlers[TOKEN.SEMICOLON] = handle_semicolon;
-  handlers[TOKEN.STRING] = handle_string;
-  handlers[TOKEN.EQUALS] = handle_equals;
-  handlers[TOKEN.OPERATOR] = handle_operator;
-  handlers[TOKEN.COMMA] = handle_comma;
-  handlers[TOKEN.BLOCK_COMMENT] = handle_block_comment;
-  handlers[TOKEN.COMMENT] = handle_comment;
-  handlers[TOKEN.DOT] = handle_dot;
-  handlers[TOKEN.UNKNOWN] = handle_unknown;
-  handlers[TOKEN.EOF] = handle_eof;
-
-  function create_flags(flags_base, mode) {
-    var next_indent_level = 0;
-    if (flags_base) {
-      next_indent_level = flags_base.indentation_level;
-      if (!output.just_added_newline() &&
-        flags_base.line_indent_level > next_indent_level) {
-        next_indent_level = flags_base.line_indent_level;
-      }
-    }
-
-    var next_flags = {
-      mode: mode,
-      parent: flags_base,
-      last_text: flags_base ? flags_base.last_text : '', // last token text
-      last_word: flags_base ? flags_base.last_word : '', // last TOKEN.WORD passed
-      declaration_statement: false,
-      declaration_assignment: false,
-      multiline_frame: false,
-      inline_frame: false,
-      if_block: false,
-      else_block: false,
-      do_block: false,
-      do_while: false,
-      import_block: false,
-      in_case_statement: false, // switch(..){ INSIDE HERE }
-      in_case: false, // we're on the exact line with "case 0:"
-      case_body: false, // the indented case-action block
-      indentation_level: next_indent_level,
-      line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
-      start_line_index: output.get_line_number(),
-      ternary_depth: 0
-    };
-    return next_flags;
-  }
-
-  // Allow the setting of language/file-type specific options
-  // with inheritance of overall settings
-  options = mergeOpts(options, 'js');
-
-  opt = {};
-
-  // compatibility, re
-  if (options.brace_style === "expand-strict") { //graceful handling of deprecated option
-    options.brace_style = "expand";
-  } else if (options.brace_style === "collapse-preserve-inline") { //graceful handling of deprecated option
-    options.brace_style = "collapse,preserve-inline";
-  } else if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
-    options.brace_style = options.braces_on_own_line ? "expand" : "collapse";
-  } else if (!options.brace_style) { //Nothing exists to set it
-    options.brace_style = "collapse";
-  }
-
-  //preserve-inline in delimited string will trigger brace_preserve_inline, everything
-  //else is considered a brace_style and the last one only will have an effect
-  var brace_style_split = options.brace_style.split(/[^a-zA-Z0-9_\-]+/);
-  opt.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
-  opt.brace_style = "collapse";
-  for (var bs = 0; bs < brace_style_split.length; bs++) {
-    if (brace_style_split[bs] === "preserve-inline") {
-      opt.brace_preserve_inline = true;
-    } else {
-      opt.brace_style = brace_style_split[bs];
+Beautifier.prototype.create_flags = function(flags_base, mode) {
+  var next_indent_level = 0;
+  if (flags_base) {
+    next_indent_level = flags_base.indentation_level;
+    if (!this._output.just_added_newline() &&
+      flags_base.line_indent_level > next_indent_level) {
+      next_indent_level = flags_base.line_indent_level;
     }
   }
 
-  opt.indent_size = options.indent_size ? parseInt(options.indent_size, 10) : 4;
-  opt.indent_char = options.indent_char ? options.indent_char : ' ';
-  opt.eol = options.eol ? options.eol : 'auto';
-  opt.preserve_newlines = (options.preserve_newlines === undefined) ? true : options.preserve_newlines;
-  opt.unindent_chained_methods = (options.unindent_chained_methods === undefined) ? false : options.unindent_chained_methods;
-  opt.break_chained_methods = (options.break_chained_methods === undefined) ? false : options.break_chained_methods;
-  opt.max_preserve_newlines = (options.max_preserve_newlines === undefined) ? 0 : parseInt(options.max_preserve_newlines, 10);
-  opt.space_in_paren = (options.space_in_paren === undefined) ? false : options.space_in_paren;
-  opt.space_in_empty_paren = (options.space_in_empty_paren === undefined) ? false : options.space_in_empty_paren;
-  opt.jslint_happy = (options.jslint_happy === undefined) ? false : options.jslint_happy;
-  opt.space_after_anon_function = (options.space_after_anon_function === undefined) ? false : options.space_after_anon_function;
-  opt.keep_array_indentation = (options.keep_array_indentation === undefined) ? false : options.keep_array_indentation;
-  opt.space_before_conditional = (options.space_before_conditional === undefined) ? true : options.space_before_conditional;
-  opt.unescape_strings = (options.unescape_strings === undefined) ? false : options.unescape_strings;
-  opt.wrap_line_length = (options.wrap_line_length === undefined) ? 0 : parseInt(options.wrap_line_length, 10);
-  opt.e4x = (options.e4x === undefined) ? false : options.e4x;
-  opt.end_with_newline = (options.end_with_newline === undefined) ? false : options.end_with_newline;
-  opt.comma_first = (options.comma_first === undefined) ? false : options.comma_first;
-  opt.operator_position = sanitizeOperatorPosition(options.operator_position);
+  var next_flags = {
+    mode: mode,
+    parent: flags_base,
+    last_token: flags_base ? flags_base.last_token : new Token(TOKEN.START_BLOCK, ''), // last token text
+    last_word: flags_base ? flags_base.last_word : '', // last TOKEN.WORD passed
+    declaration_statement: false,
+    declaration_assignment: false,
+    multiline_frame: false,
+    inline_frame: false,
+    if_block: false,
+    else_block: false,
+    do_block: false,
+    do_while: false,
+    import_block: false,
+    in_case_statement: false, // switch(..){ INSIDE HERE }
+    in_case: false, // we're on the exact line with "case 0:"
+    case_body: false, // the indented case-action block
+    indentation_level: next_indent_level,
+    line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
+    start_line_index: this._output.get_line_number(),
+    ternary_depth: 0
+  };
+  return next_flags;
+};
 
-  // For testing of beautify ignore:start directive
-  opt.test_output_raw = (options.test_output_raw === undefined) ? false : options.test_output_raw;
+Beautifier.prototype._reset = function(source_text) {
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
 
-  // force opt.space_after_anon_function to true if opt.jslint_happy
-  if (opt.jslint_happy) {
-    opt.space_after_anon_function = true;
-  }
-
-  if (options.indent_with_tabs) {
-    opt.indent_char = '\t';
-    opt.indent_size = 1;
-  }
-
-  if (opt.eol === 'auto') {
-    opt.eol = '\n';
-    if (js_source_text && acorn.lineBreak.test(js_source_text || '')) {
-      opt.eol = js_source_text.match(acorn.lineBreak)[0];
-    }
-  }
-
-  opt.eol = opt.eol.replace(/\\r/, '\r').replace(/\\n/, '\n');
-
-  //----------------------------------
-  indent_string = '';
-  while (opt.indent_size > 0) {
-    indent_string += opt.indent_char;
-    opt.indent_size -= 1;
-  }
-
-  var preindent_index = 0;
-  if (js_source_text && js_source_text.length) {
-    while ((js_source_text.charAt(preindent_index) === ' ' ||
-        js_source_text.charAt(preindent_index) === '\t')) {
-      preindent_index += 1;
-    }
-    baseIndentString = js_source_text.substring(0, preindent_index);
-    js_source_text = js_source_text.substring(preindent_index);
-  }
-
-  last_type = TOKEN.START_BLOCK; // last token type
-  last_last_text = ''; // pre-last token text
-  output = new Output(indent_string, baseIndentString);
+  this._last_last_text = ''; // pre-last token text
+  this._output = new Output(this._options, baseIndentString);
 
   // If testing the ignore directive, start with output disable set to true
-  output.raw = opt.test_output_raw;
+  this._output.raw = this._options.test_output_raw;
 
 
   // Stack of parsing/formatting states, including MODE.
@@ -272,1173 +218,1193 @@ function Beautifier(js_source_text, options) {
   // encounter a ":", we'll switch to to MODE.ObjectLiteral.  If we then see a ";",
   // most full parsers would die, but the beautifier gracefully falls back to
   // MODE.BlockStatement and continues on.
-  flag_store = [];
-  set_mode(MODE.BlockStatement);
+  this._flag_store = [];
+  this.set_mode(MODE.BlockStatement);
+  var tokenizer = new Tokenizer(source_text, this._options);
+  this._tokens = tokenizer.tokenize();
+  return source_text;
+};
 
-  this.beautify = function() {
+Beautifier.prototype.beautify = function() {
+  // if disabled, return the input unchanged.
+  if (this._options.disabled) {
+    return this._source_text;
+  }
 
-    /*jshint onevar:true */
-    var sweet_code;
-    tokenizer = new Tokenizer(js_source_text, opt, indent_string);
-    tokens = tokenizer.tokenize();
+  var sweet_code;
+  var source_text = this._reset(this._source_text);
 
-    current_token = tokens.next();
-    while (current_token) {
-      handlers[current_token.type]();
+  var eol = this._options.eol;
+  if (this._options.eol === 'auto') {
+    eol = '\n';
+    if (source_text && acorn.lineBreak.test(source_text || '')) {
+      eol = source_text.match(acorn.lineBreak)[0];
+    }
+  }
 
-      last_last_text = flags.last_text;
-      last_type = current_token.type;
-      flags.last_text = current_token.text;
+  var current_token = this._tokens.next();
+  while (current_token) {
+    this.handle_token(current_token);
 
-      current_token = tokens.next();
+    this._last_last_text = this._flags.last_token.text;
+    this._flags.last_token = current_token;
+
+    current_token = this._tokens.next();
+  }
+
+  sweet_code = this._output.get_code(eol);
+
+  return sweet_code;
+};
+
+Beautifier.prototype.handle_token = function(current_token, preserve_statement_flags) {
+  if (current_token.type === TOKEN.START_EXPR) {
+    this.handle_start_expr(current_token);
+  } else if (current_token.type === TOKEN.END_EXPR) {
+    this.handle_end_expr(current_token);
+  } else if (current_token.type === TOKEN.START_BLOCK) {
+    this.handle_start_block(current_token);
+  } else if (current_token.type === TOKEN.END_BLOCK) {
+    this.handle_end_block(current_token);
+  } else if (current_token.type === TOKEN.WORD) {
+    this.handle_word(current_token);
+  } else if (current_token.type === TOKEN.RESERVED) {
+    this.handle_word(current_token);
+  } else if (current_token.type === TOKEN.SEMICOLON) {
+    this.handle_semicolon(current_token);
+  } else if (current_token.type === TOKEN.STRING) {
+    this.handle_string(current_token);
+  } else if (current_token.type === TOKEN.EQUALS) {
+    this.handle_equals(current_token);
+  } else if (current_token.type === TOKEN.OPERATOR) {
+    this.handle_operator(current_token);
+  } else if (current_token.type === TOKEN.COMMA) {
+    this.handle_comma(current_token);
+  } else if (current_token.type === TOKEN.BLOCK_COMMENT) {
+    this.handle_block_comment(current_token, preserve_statement_flags);
+  } else if (current_token.type === TOKEN.COMMENT) {
+    this.handle_comment(current_token, preserve_statement_flags);
+  } else if (current_token.type === TOKEN.DOT) {
+    this.handle_dot(current_token);
+  } else if (current_token.type === TOKEN.EOF) {
+    this.handle_eof(current_token);
+  } else if (current_token.type === TOKEN.UNKNOWN) {
+    this.handle_unknown(current_token, preserve_statement_flags);
+  } else {
+    this.handle_unknown(current_token, preserve_statement_flags);
+  }
+};
+
+Beautifier.prototype.handle_whitespace_and_comments = function(current_token, preserve_statement_flags) {
+  var newlines = current_token.newlines;
+  var keep_whitespace = this._options.keep_array_indentation && is_array(this._flags.mode);
+
+  if (current_token.comments_before) {
+    var comment_token = current_token.comments_before.next();
+    while (comment_token) {
+      // The cleanest handling of inline comments is to treat them as though they aren't there.
+      // Just continue formatting and the behavior should be logical.
+      // Also ignore unknown tokens.  Again, this should result in better behavior.
+      this.handle_whitespace_and_comments(comment_token, preserve_statement_flags);
+      this.handle_token(comment_token, preserve_statement_flags);
+      comment_token = current_token.comments_before.next();
+    }
+  }
+
+  if (keep_whitespace) {
+    for (var i = 0; i < newlines; i += 1) {
+      this.print_newline(i > 0, preserve_statement_flags);
+    }
+  } else {
+    if (this._options.max_preserve_newlines && newlines > this._options.max_preserve_newlines) {
+      newlines = this._options.max_preserve_newlines;
     }
 
-    sweet_code = output.get_code(opt.end_with_newline, opt.eol);
-
-    return sweet_code;
-  };
-
-  function handle_whitespace_and_comments(local_token, preserve_statement_flags) {
-    var newlines = local_token.newlines;
-    var keep_whitespace = opt.keep_array_indentation && is_array(flags.mode);
-
-    if (local_token.comments_before) {
-      var temp_token = current_token;
-      current_token = local_token.comments_before.next();
-      while (current_token) {
-        // The cleanest handling of inline comments is to treat them as though they aren't there.
-        // Just continue formatting and the behavior should be logical.
-        // Also ignore unknown tokens.  Again, this should result in better behavior.
-        handle_whitespace_and_comments(current_token, preserve_statement_flags);
-        handlers[current_token.type](preserve_statement_flags);
-        current_token = local_token.comments_before.next();
-      }
-      current_token = temp_token;
-    }
-
-    if (keep_whitespace) {
-      for (var i = 0; i < newlines; i += 1) {
-        print_newline(i > 0, preserve_statement_flags);
-      }
-    } else {
-      if (opt.max_preserve_newlines && newlines > opt.max_preserve_newlines) {
-        newlines = opt.max_preserve_newlines;
-      }
-
-      if (opt.preserve_newlines) {
-        if (local_token.newlines > 1) {
-          print_newline(false, preserve_statement_flags);
-          for (var j = 1; j < newlines; j += 1) {
-            print_newline(true, preserve_statement_flags);
-          }
+    if (this._options.preserve_newlines) {
+      if (newlines > 1) {
+        this.print_newline(false, preserve_statement_flags);
+        for (var j = 1; j < newlines; j += 1) {
+          this.print_newline(true, preserve_statement_flags);
         }
       }
     }
-
   }
 
-  // we could use just string.split, but
-  // IE doesn't like returning empty strings
-  function split_linebreaks(s) {
-    //return s.split(/\x0d\x0a|\x0a/);
+};
 
-    s = s.replace(acorn.allLineBreaks, '\n');
-    var out = [],
-      idx = s.indexOf("\n");
-    while (idx !== -1) {
-      out.push(s.substring(0, idx));
-      s = s.substring(idx + 1);
-      idx = s.indexOf("\n");
-    }
-    if (s.length) {
-      out.push(s);
-    }
-    return out;
+var newline_restricted_tokens = ['async', 'break', 'continue', 'return', 'throw', 'yield'];
+
+Beautifier.prototype.allow_wrap_or_preserved_newline = function(current_token, force_linewrap) {
+  force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
+
+  // Never wrap the first token on a line
+  if (this._output.just_added_newline()) {
+    return;
   }
 
-  var newline_restricted_tokens = ['async', 'await', 'break', 'continue', 'return', 'throw', 'yield'];
+  var shouldPreserveOrForce = (this._options.preserve_newlines && current_token.newlines) || force_linewrap;
+  var operatorLogicApplies = in_array(this._flags.last_token.text, positionable_operators) ||
+    in_array(current_token.text, positionable_operators);
 
-  function allow_wrap_or_preserved_newline(force_linewrap) {
-    force_linewrap = (force_linewrap === undefined) ? false : force_linewrap;
+  if (operatorLogicApplies) {
+    var shouldPrintOperatorNewline = (
+        in_array(this._flags.last_token.text, positionable_operators) &&
+        in_array(this._options.operator_position, OPERATOR_POSITION_BEFORE_OR_PRESERVE)
+      ) ||
+      in_array(current_token.text, positionable_operators);
+    shouldPreserveOrForce = shouldPreserveOrForce && shouldPrintOperatorNewline;
+  }
 
-    // Never wrap the first token on a line
-    if (output.just_added_newline()) {
+  if (shouldPreserveOrForce) {
+    this.print_newline(false, true);
+  } else if (this._options.wrap_line_length) {
+    if (reserved_array(this._flags.last_token, newline_restricted_tokens)) {
+      // These tokens should never have a newline inserted
+      // between them and the following expression.
       return;
     }
-
-    var shouldPreserveOrForce = (opt.preserve_newlines && current_token.newlines) || force_linewrap;
-    var operatorLogicApplies = in_array(flags.last_text, tokenizer.positionable_operators) || in_array(current_token.text, tokenizer.positionable_operators);
-
-    if (operatorLogicApplies) {
-      var shouldPrintOperatorNewline = (
-          in_array(flags.last_text, tokenizer.positionable_operators) &&
-          in_array(opt.operator_position, OPERATOR_POSITION_BEFORE_OR_PRESERVE)
-        ) ||
-        in_array(current_token.text, tokenizer.positionable_operators);
-      shouldPreserveOrForce = shouldPreserveOrForce && shouldPrintOperatorNewline;
+    var proposed_line_length = this._output.current_line.get_character_count() + current_token.text.length +
+      (this._output.space_before_token ? 1 : 0);
+    if (proposed_line_length >= this._options.wrap_line_length) {
+      this.print_newline(false, true);
     }
+  }
+};
 
-    if (shouldPreserveOrForce) {
-      print_newline(false, true);
-    } else if (opt.wrap_line_length) {
-      if (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens)) {
-        // These tokens should never have a newline inserted
-        // between them and the following expression.
-        return;
-      }
-      var proposed_line_length = output.current_line.get_character_count() + current_token.text.length +
-        (output.space_before_token ? 1 : 0);
-      if (proposed_line_length >= opt.wrap_line_length) {
-        print_newline(false, true);
+Beautifier.prototype.print_newline = function(force_newline, preserve_statement_flags) {
+  if (!preserve_statement_flags) {
+    if (this._flags.last_token.text !== ';' && this._flags.last_token.text !== ',' && this._flags.last_token.text !== '=' && (this._flags.last_token.type !== TOKEN.OPERATOR || this._flags.last_token.text === '--' || this._flags.last_token.text === '++')) {
+      var next_token = this._tokens.peek();
+      while (this._flags.mode === MODE.Statement &&
+        !(this._flags.if_block && reserved_word(next_token, 'else')) &&
+        !this._flags.do_block) {
+        this.restore_mode();
       }
     }
   }
 
-  function print_newline(force_newline, preserve_statement_flags) {
-    if (!preserve_statement_flags) {
-      if (flags.last_text !== ';' && flags.last_text !== ',' && flags.last_text !== '=' && (last_type !== TOKEN.OPERATOR || flags.last_text === '--' || flags.last_text === '++')) {
-        var next_token = tokens.peek();
-        while (flags.mode === MODE.Statement &&
-          !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
-          !flags.do_block) {
-          restore_mode();
-        }
-      }
-    }
+  if (this._output.add_new_line(force_newline)) {
+    this._flags.multiline_frame = true;
+  }
+};
 
-    if (output.add_new_line(force_newline)) {
-      flags.multiline_frame = true;
+Beautifier.prototype.print_token_line_indentation = function(current_token) {
+  if (this._output.just_added_newline()) {
+    if (this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines) {
+      this._output.current_line.push(current_token.whitespace_before);
+      this._output.space_before_token = false;
+    } else if (this._output.set_indent(this._flags.indentation_level)) {
+      this._flags.line_indent_level = this._flags.indentation_level;
     }
   }
+};
 
-  function print_token_line_indentation() {
-    if (output.just_added_newline()) {
-      if (opt.keep_array_indentation && is_array(flags.mode) && current_token.newlines) {
-        output.current_line.push(current_token.whitespace_before);
-        output.space_before_token = false;
-      } else if (output.set_indent(flags.indentation_level)) {
-        flags.line_indent_level = flags.indentation_level;
-      }
-    }
+Beautifier.prototype.print_token = function(current_token, printable_token) {
+  if (this._output.raw) {
+    this._output.add_raw_token(current_token);
+    return;
   }
 
-  function print_token(printable_token) {
-    if (output.raw) {
-      output.add_raw_token(current_token);
-      return;
-    }
-
-    if (opt.comma_first && last_type === TOKEN.COMMA &&
-      output.just_added_newline()) {
-      if (output.previous_line.last() === ',') {
-        var popped = output.previous_line.pop();
-        // if the comma was already at the start of the line,
-        // pull back onto that line and reprint the indentation
-        if (output.previous_line.is_empty()) {
-          output.previous_line.push(popped);
-          output.trim(true);
-          output.current_line.pop();
-          output.trim();
-        }
-
-        // add the comma in front of the next token
-        print_token_line_indentation();
-        output.add_token(',');
-        output.space_before_token = true;
-      }
-    }
-
-    printable_token = printable_token || current_token.text;
-    print_token_line_indentation();
-    output.add_token(printable_token);
-  }
-
-  function indent() {
-    flags.indentation_level += 1;
-  }
-
-  function deindent() {
-    if (flags.indentation_level > 0 &&
-      ((!flags.parent) || flags.indentation_level > flags.parent.indentation_level)) {
-      flags.indentation_level -= 1;
-
-    }
-  }
-
-  function set_mode(mode) {
-    if (flags) {
-      flag_store.push(flags);
-      previous_flags = flags;
-    } else {
-      previous_flags = create_flags(null, mode);
-    }
-
-    flags = create_flags(previous_flags, mode);
-  }
-
-  function is_array(mode) {
-    return mode === MODE.ArrayLiteral;
-  }
-
-  function is_expression(mode) {
-    return in_array(mode, [MODE.Expression, MODE.ForInitializer, MODE.Conditional]);
-  }
-
-  function restore_mode() {
-    if (flag_store.length > 0) {
-      previous_flags = flags;
-      flags = flag_store.pop();
-      if (previous_flags.mode === MODE.Statement) {
-        remove_redundant_indentation(output, previous_flags);
-      }
-    }
-  }
-
-  function start_of_object_property() {
-    return flags.parent.mode === MODE.ObjectLiteral && flags.mode === MODE.Statement && (
-      (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['get', 'set'])));
-  }
-
-  function start_of_statement() {
-    var start = false;
-    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD);
-    start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'do');
-    start = start || (last_type === TOKEN.RESERVED && in_array(flags.last_text, newline_restricted_tokens) && !current_token.newlines);
-    start = start || (last_type === TOKEN.RESERVED && flags.last_text === 'else' &&
-      !(current_token.type === TOKEN.RESERVED && current_token.text === 'if' && !current_token.comments_before));
-    start = start || (last_type === TOKEN.END_EXPR && (previous_flags.mode === MODE.ForInitializer || previous_flags.mode === MODE.Conditional));
-    start = start || (last_type === TOKEN.WORD && flags.mode === MODE.BlockStatement &&
-      !flags.in_case &&
-      !(current_token.text === '--' || current_token.text === '++') &&
-      last_last_text !== 'function' &&
-      current_token.type !== TOKEN.WORD && current_token.type !== TOKEN.RESERVED);
-    start = start || (flags.mode === MODE.ObjectLiteral && (
-      (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['get', 'set']))));
-
-    if (start) {
-      set_mode(MODE.Statement);
-      indent();
-
-      handle_whitespace_and_comments(current_token, true);
-
-      // Issue #276:
-      // If starting a new statement with [if, for, while, do], push to a new line.
-      // if (a) if (b) if(c) d(); else e(); else f();
-      if (!start_of_object_property()) {
-        allow_wrap_or_preserved_newline(
-          current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['do', 'for', 'if', 'while']));
+  if (this._options.comma_first && current_token.previous && current_token.previous.type === TOKEN.COMMA &&
+    this._output.just_added_newline()) {
+    if (this._output.previous_line.last() === ',') {
+      var popped = this._output.previous_line.pop();
+      // if the comma was already at the start of the line,
+      // pull back onto that line and reprint the indentation
+      if (this._output.previous_line.is_empty()) {
+        this._output.previous_line.push(popped);
+        this._output.trim(true);
+        this._output.current_line.pop();
+        this._output.trim();
       }
 
-      return true;
+      // add the comma in front of the next token
+      this.print_token_line_indentation(current_token);
+      this._output.add_token(',');
+      this._output.space_before_token = true;
     }
-    return false;
   }
 
-  function all_lines_start_with(lines, c) {
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (line.charAt(0) !== c) {
-        return false;
-      }
+  printable_token = printable_token || current_token.text;
+  this.print_token_line_indentation(current_token);
+  this._output.add_token(printable_token);
+};
+
+Beautifier.prototype.indent = function() {
+  this._flags.indentation_level += 1;
+};
+
+Beautifier.prototype.deindent = function() {
+  if (this._flags.indentation_level > 0 &&
+    ((!this._flags.parent) || this._flags.indentation_level > this._flags.parent.indentation_level)) {
+    this._flags.indentation_level -= 1;
+
+  }
+};
+
+Beautifier.prototype.set_mode = function(mode) {
+  if (this._flags) {
+    this._flag_store.push(this._flags);
+    this._previous_flags = this._flags;
+  } else {
+    this._previous_flags = this.create_flags(null, mode);
+  }
+
+  this._flags = this.create_flags(this._previous_flags, mode);
+};
+
+
+Beautifier.prototype.restore_mode = function() {
+  if (this._flag_store.length > 0) {
+    this._previous_flags = this._flags;
+    this._flags = this._flag_store.pop();
+    if (this._previous_flags.mode === MODE.Statement) {
+      remove_redundant_indentation(this._output, this._previous_flags);
+    }
+  }
+};
+
+Beautifier.prototype.start_of_object_property = function() {
+  return this._flags.parent.mode === MODE.ObjectLiteral && this._flags.mode === MODE.Statement && (
+    (this._flags.last_token.text === ':' && this._flags.ternary_depth === 0) || (reserved_array(this._flags.last_token, ['get', 'set'])));
+};
+
+Beautifier.prototype.start_of_statement = function(current_token) {
+  var start = false;
+  start = start || reserved_array(this._flags.last_token, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD;
+  start = start || reserved_word(this._flags.last_token, 'do');
+  start = start || (reserved_array(this._flags.last_token, newline_restricted_tokens) && !current_token.newlines);
+  start = start || reserved_word(this._flags.last_token, 'else') &&
+    !(reserved_word(current_token, 'if') && !current_token.comments_before);
+  start = start || (this._flags.last_token.type === TOKEN.END_EXPR && (this._previous_flags.mode === MODE.ForInitializer || this._previous_flags.mode === MODE.Conditional));
+  start = start || (this._flags.last_token.type === TOKEN.WORD && this._flags.mode === MODE.BlockStatement &&
+    !this._flags.in_case &&
+    !(current_token.text === '--' || current_token.text === '++') &&
+    this._last_last_text !== 'function' &&
+    current_token.type !== TOKEN.WORD && current_token.type !== TOKEN.RESERVED);
+  start = start || (this._flags.mode === MODE.ObjectLiteral && (
+    (this._flags.last_token.text === ':' && this._flags.ternary_depth === 0) || reserved_array(this._flags.last_token, ['get', 'set'])));
+
+  if (start) {
+    this.set_mode(MODE.Statement);
+    this.indent();
+
+    this.handle_whitespace_and_comments(current_token, true);
+
+    // Issue #276:
+    // If starting a new statement with [if, for, while, do], push to a new line.
+    // if (a) if (b) if(c) d(); else e(); else f();
+    if (!this.start_of_object_property()) {
+      this.allow_wrap_or_preserved_newline(current_token,
+        reserved_array(current_token, ['do', 'for', 'if', 'while']));
     }
     return true;
   }
+  return false;
+};
 
-  function each_line_matches_indent(lines, indent) {
-    var i = 0,
-      len = lines.length,
-      line;
-    for (; i < len; i++) {
-      line = lines[i];
-      // allow empty lines to pass through
-      if (line && line.indexOf(indent) !== 0) {
-        return false;
+Beautifier.prototype.handle_start_expr = function(current_token) {
+  // The conditional starts the statement if appropriate.
+  if (!this.start_of_statement(current_token)) {
+    this.handle_whitespace_and_comments(current_token);
+  }
+
+  var next_mode = MODE.Expression;
+  if (current_token.text === '[') {
+
+    if (this._flags.last_token.type === TOKEN.WORD || this._flags.last_token.text === ')') {
+      // this is array index specifier, break immediately
+      // a[x], fn()[x]
+      if (reserved_array(this._flags.last_token, line_starters)) {
+        this._output.space_before_token = true;
+      }
+      this.set_mode(next_mode);
+      this.print_token(current_token);
+      this.indent();
+      if (this._options.space_in_paren) {
+        this._output.space_before_token = true;
+      }
+      return;
+    }
+
+    next_mode = MODE.ArrayLiteral;
+    if (is_array(this._flags.mode)) {
+      if (this._flags.last_token.text === '[' ||
+        (this._flags.last_token.text === ',' && (this._last_last_text === ']' || this._last_last_text === '}'))) {
+        // ], [ goes to new line
+        // }, [ goes to new line
+        if (!this._options.keep_array_indentation) {
+          this.print_newline();
+        }
       }
     }
-    return true;
+
+    if (!in_array(this._flags.last_token.type, [TOKEN.START_EXPR, TOKEN.END_EXPR, TOKEN.WORD, TOKEN.OPERATOR])) {
+      this._output.space_before_token = true;
+    }
+  } else {
+    if (this._flags.last_token.type === TOKEN.RESERVED) {
+      if (this._flags.last_token.text === 'for') {
+        this._output.space_before_token = this._options.space_before_conditional;
+        next_mode = MODE.ForInitializer;
+      } else if (in_array(this._flags.last_token.text, ['if', 'while'])) {
+        this._output.space_before_token = this._options.space_before_conditional;
+        next_mode = MODE.Conditional;
+      } else if (in_array(this._flags.last_word, ['await', 'async'])) {
+        // Should be a space between await and an IIFE, or async and an arrow function
+        this._output.space_before_token = true;
+      } else if (this._flags.last_token.text === 'import' && current_token.whitespace_before === '') {
+        this._output.space_before_token = false;
+      } else if (in_array(this._flags.last_token.text, line_starters) || this._flags.last_token.text === 'catch') {
+        this._output.space_before_token = true;
+      }
+    } else if (this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
+      // Support of this kind of newline preservation.
+      // a = (b &&
+      //     (c || d));
+      if (!this.start_of_object_property()) {
+        this.allow_wrap_or_preserved_newline(current_token);
+      }
+    } else if (this._flags.last_token.type === TOKEN.WORD) {
+      this._output.space_before_token = false;
+
+      // function name() vs function name ()
+      // function* name() vs function* name ()
+      // async name() vs async name ()
+      if (this._options.space_after_named_function) {
+        // peek starts at next character so -1 is current token
+        var peek_back_three = this._tokens.peek(-4);
+        var peek_back_two = this._tokens.peek(-3);
+        if (reserved_array(peek_back_two, ['async', 'function']) ||
+          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          this._output.space_before_token = true;
+        }
+      }
+    } else {
+      // Support preserving wrapped arrow function expressions
+      // a.b('c',
+      //     () => d.e
+      // )
+      this.allow_wrap_or_preserved_newline(current_token);
+    }
+
+    // function() vs function ()
+    // yield*() vs yield* ()
+    // function*() vs function* ()
+    if ((this._flags.last_token.type === TOKEN.RESERVED && (this._flags.last_word === 'function' || this._flags.last_word === 'typeof')) ||
+      (this._flags.last_token.text === '*' &&
+        (in_array(this._last_last_text, ['function', 'yield']) ||
+          (this._flags.mode === MODE.ObjectLiteral && in_array(this._last_last_text, ['{', ',']))))) {
+
+      this._output.space_before_token = this._options.space_after_anon_function;
+    }
+
   }
 
-  function is_special_word(word) {
-    return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else', 'await', 'break', 'continue', 'async']);
+  if (this._flags.last_token.text === ';' || this._flags.last_token.type === TOKEN.START_BLOCK) {
+    this.print_newline();
+  } else if (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.END_BLOCK || this._flags.last_token.text === '.' || this._flags.last_token.type === TOKEN.COMMA) {
+    // do nothing on (( and )( and ][ and ]( and .(
+    // TODO: Consider whether forcing this is required.  Review failing tests when removed.
+    this.allow_wrap_or_preserved_newline(current_token, current_token.newlines);
   }
 
-  function handle_start_expr() {
+  this.set_mode(next_mode);
+  this.print_token(current_token);
+  if (this._options.space_in_paren) {
+    this._output.space_before_token = true;
+  }
+
+  // In all cases, if we newline while inside an expression it should be indented.
+  this.indent();
+};
+
+Beautifier.prototype.handle_end_expr = function(current_token) {
+  // statements inside expressions are not valid syntax, but...
+  // statements must all be closed when their container closes
+  while (this._flags.mode === MODE.Statement) {
+    this.restore_mode();
+  }
+
+  this.handle_whitespace_and_comments(current_token);
+
+  if (this._flags.multiline_frame) {
+    this.allow_wrap_or_preserved_newline(current_token,
+      current_token.text === ']' && is_array(this._flags.mode) && !this._options.keep_array_indentation);
+  }
+
+  if (this._options.space_in_paren) {
+    if (this._flags.last_token.type === TOKEN.START_EXPR && !this._options.space_in_empty_paren) {
+      // () [] no inner space in empty parens like these, ever, ref #320
+      this._output.trim();
+      this._output.space_before_token = false;
+    } else {
+      this._output.space_before_token = true;
+    }
+  }
+  if (current_token.text === ']' && this._options.keep_array_indentation) {
+    this.print_token(current_token);
+    this.restore_mode();
+  } else {
+    this.restore_mode();
+    this.print_token(current_token);
+  }
+  remove_redundant_indentation(this._output, this._previous_flags);
+
+  // do {} while () // no statement required after
+  if (this._flags.do_while && this._previous_flags.mode === MODE.Conditional) {
+    this._previous_flags.mode = MODE.Expression;
+    this._flags.do_block = false;
+    this._flags.do_while = false;
+
+  }
+};
+
+Beautifier.prototype.handle_start_block = function(current_token) {
+  this.handle_whitespace_and_comments(current_token);
+
+  // Check if this is should be treated as a ObjectLiteral
+  var next_token = this._tokens.peek();
+  var second_token = this._tokens.peek(1);
+  if (this._flags.last_word === 'switch' && this._flags.last_token.type === TOKEN.END_EXPR) {
+    this.set_mode(MODE.BlockStatement);
+    this._flags.in_case_statement = true;
+  } else if (second_token && (
+      (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
+      (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
+    )) {
+    // We don't support TypeScript,but we didn't break it for a very long time.
+    // We'll try to keep not breaking it.
+    if (!in_array(this._last_last_text, ['class', 'interface'])) {
+      this.set_mode(MODE.ObjectLiteral);
+    } else {
+      this.set_mode(MODE.BlockStatement);
+    }
+  } else if (this._flags.last_token.type === TOKEN.OPERATOR && this._flags.last_token.text === '=>') {
+    // arrow function: (param1, paramN) => { statements }
+    this.set_mode(MODE.BlockStatement);
+  } else if (in_array(this._flags.last_token.type, [TOKEN.EQUALS, TOKEN.START_EXPR, TOKEN.COMMA, TOKEN.OPERATOR]) ||
+    reserved_array(this._flags.last_token, ['return', 'throw', 'import', 'default'])
+  ) {
+    // Detecting shorthand function syntax is difficult by scanning forward,
+    //     so check the surrounding context.
+    // If the block is being returned, imported, export default, passed as arg,
+    //     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
+    this.set_mode(MODE.ObjectLiteral);
+  } else {
+    this.set_mode(MODE.BlockStatement);
+  }
+
+  var empty_braces = !next_token.comments_before && next_token.text === '}';
+  var empty_anonymous_function = empty_braces && this._flags.last_word === 'function' &&
+    this._flags.last_token.type === TOKEN.END_EXPR;
+
+  if (this._options.brace_preserve_inline) // check for inline, set inline_frame if so
+  {
+    // search forward for a newline wanted inside this block
+    var index = 0;
+    var check_token = null;
+    this._flags.inline_frame = true;
+    do {
+      index += 1;
+      check_token = this._tokens.peek(index - 1);
+      if (check_token.newlines) {
+        this._flags.inline_frame = false;
+        break;
+      }
+    } while (check_token.type !== TOKEN.EOF &&
+      !(check_token.type === TOKEN.END_BLOCK && check_token.opened === current_token));
+  }
+
+  if ((this._options.brace_style === "expand" ||
+      (this._options.brace_style === "none" && current_token.newlines)) &&
+    !this._flags.inline_frame) {
+    if (this._flags.last_token.type !== TOKEN.OPERATOR &&
+      (empty_anonymous_function ||
+        this._flags.last_token.type === TOKEN.EQUALS ||
+        (reserved_array(this._flags.last_token, special_words) && this._flags.last_token.text !== 'else'))) {
+      this._output.space_before_token = true;
+    } else {
+      this.print_newline(false, true);
+    }
+  } else { // collapse || inline_frame
+    if (is_array(this._previous_flags.mode) && (this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.COMMA)) {
+      if (this._flags.last_token.type === TOKEN.COMMA || this._options.space_in_paren) {
+        this._output.space_before_token = true;
+      }
+
+      if (this._flags.last_token.type === TOKEN.COMMA || (this._flags.last_token.type === TOKEN.START_EXPR && this._flags.inline_frame)) {
+        this.allow_wrap_or_preserved_newline(current_token);
+        this._previous_flags.multiline_frame = this._previous_flags.multiline_frame || this._flags.multiline_frame;
+        this._flags.multiline_frame = false;
+      }
+    }
+    if (this._flags.last_token.type !== TOKEN.OPERATOR && this._flags.last_token.type !== TOKEN.START_EXPR) {
+      if (this._flags.last_token.type === TOKEN.START_BLOCK && !this._flags.inline_frame) {
+        this.print_newline();
+      } else {
+        this._output.space_before_token = true;
+      }
+    }
+  }
+  this.print_token(current_token);
+  this.indent();
+};
+
+Beautifier.prototype.handle_end_block = function(current_token) {
+  // statements must all be closed when their container closes
+  this.handle_whitespace_and_comments(current_token);
+
+  while (this._flags.mode === MODE.Statement) {
+    this.restore_mode();
+  }
+
+  var empty_braces = this._flags.last_token.type === TOKEN.START_BLOCK;
+
+  if (this._flags.inline_frame && !empty_braces) { // try inline_frame (only set if this._options.braces-preserve-inline) first
+    this._output.space_before_token = true;
+  } else if (this._options.brace_style === "expand") {
+    if (!empty_braces) {
+      this.print_newline();
+    }
+  } else {
+    // skip {}
+    if (!empty_braces) {
+      if (is_array(this._flags.mode) && this._options.keep_array_indentation) {
+        // we REALLY need a newline here, but newliner would skip that
+        this._options.keep_array_indentation = false;
+        this.print_newline();
+        this._options.keep_array_indentation = true;
+
+      } else {
+        this.print_newline();
+      }
+    }
+  }
+  this.restore_mode();
+  this.print_token(current_token);
+};
+
+Beautifier.prototype.handle_word = function(current_token) {
+  if (current_token.type === TOKEN.RESERVED) {
+    if (in_array(current_token.text, ['set', 'get']) && this._flags.mode !== MODE.ObjectLiteral) {
+      current_token.type = TOKEN.WORD;
+    } else if (current_token.text === 'import' && this._tokens.peek().text === '(') {
+      current_token.type = TOKEN.WORD;
+    } else if (in_array(current_token.text, ['as', 'from']) && !this._flags.import_block) {
+      current_token.type = TOKEN.WORD;
+    } else if (this._flags.mode === MODE.ObjectLiteral) {
+      var next_token = this._tokens.peek();
+      if (next_token.text === ':') {
+        current_token.type = TOKEN.WORD;
+      }
+    }
+  }
+
+  if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
-    if (!start_of_statement()) {
-      handle_whitespace_and_comments(current_token);
+    if (reserved_array(this._flags.last_token, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD) {
+      this._flags.declaration_statement = true;
     }
-
-    var next_mode = MODE.Expression;
-    if (current_token.text === '[') {
-
-      if (last_type === TOKEN.WORD || flags.last_text === ')') {
-        // this is array index specifier, break immediately
-        // a[x], fn()[x]
-        if (last_type === TOKEN.RESERVED && in_array(flags.last_text, tokenizer.line_starters)) {
-          output.space_before_token = true;
-        }
-        set_mode(next_mode);
-        print_token();
-        indent();
-        if (opt.space_in_paren) {
-          output.space_before_token = true;
-        }
-        return;
-      }
-
-      next_mode = MODE.ArrayLiteral;
-      if (is_array(flags.mode)) {
-        if (flags.last_text === '[' ||
-          (flags.last_text === ',' && (last_last_text === ']' || last_last_text === '}'))) {
-          // ], [ goes to new line
-          // }, [ goes to new line
-          if (!opt.keep_array_indentation) {
-            print_newline();
-          }
-        }
-      }
-
-      if (!in_array(last_type, [TOKEN.START_EXPR, TOKEN.END_EXPR, TOKEN.WORD, TOKEN.OPERATOR])) {
-        output.space_before_token = true;
-      }
-    } else {
-      if (last_type === TOKEN.RESERVED) {
-        if (flags.last_text === 'for') {
-          output.space_before_token = opt.space_before_conditional;
-          next_mode = MODE.ForInitializer;
-        } else if (in_array(flags.last_text, ['if', 'while'])) {
-          output.space_before_token = opt.space_before_conditional;
-          next_mode = MODE.Conditional;
-        } else if (in_array(flags.last_word, ['await', 'async'])) {
-          // Should be a space between await and an IIFE, or async and an arrow function
-          output.space_before_token = true;
-        } else if (flags.last_text === 'import' && current_token.whitespace_before === '') {
-          output.space_before_token = false;
-        } else if (in_array(flags.last_text, tokenizer.line_starters) || flags.last_text === 'catch') {
-          output.space_before_token = true;
-        }
-      } else if (last_type === TOKEN.EQUALS || last_type === TOKEN.OPERATOR) {
-        // Support of this kind of newline preservation.
-        // a = (b &&
-        //     (c || d));
-        if (!start_of_object_property()) {
-          allow_wrap_or_preserved_newline();
-        }
-      } else if (last_type === TOKEN.WORD) {
-        output.space_before_token = false;
-      } else {
-        // Support preserving wrapped arrow function expressions
-        // a.b('c',
-        //     () => d.e
-        // )
-        allow_wrap_or_preserved_newline();
-      }
-
-      // function() vs function ()
-      // yield*() vs yield* ()
-      // function*() vs function* ()
-      if ((last_type === TOKEN.RESERVED && (flags.last_word === 'function' || flags.last_word === 'typeof')) ||
-        (flags.last_text === '*' &&
-          (in_array(last_last_text, ['function', 'yield']) ||
-            (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
-
-        output.space_before_token = opt.space_after_anon_function;
-      }
-
-    }
-
-    if (flags.last_text === ';' || last_type === TOKEN.START_BLOCK) {
-      print_newline();
-    } else if (last_type === TOKEN.END_EXPR || last_type === TOKEN.START_EXPR || last_type === TOKEN.END_BLOCK || flags.last_text === '.' || last_type === TOKEN.COMMA) {
-      // do nothing on (( and )( and ][ and ]( and .(
-      // TODO: Consider whether forcing this is required.  Review failing tests when removed.
-      allow_wrap_or_preserved_newline(current_token.newlines);
-    }
-
-    set_mode(next_mode);
-    print_token();
-    if (opt.space_in_paren) {
-      output.space_before_token = true;
-    }
-
-    // In all cases, if we newline while inside an expression it should be indented.
-    indent();
+  } else if (current_token.newlines && !is_expression(this._flags.mode) &&
+    (this._flags.last_token.type !== TOKEN.OPERATOR || (this._flags.last_token.text === '--' || this._flags.last_token.text === '++')) &&
+    this._flags.last_token.type !== TOKEN.EQUALS &&
+    (this._options.preserve_newlines || !reserved_array(this._flags.last_token, ['var', 'let', 'const', 'set', 'get']))) {
+    this.handle_whitespace_and_comments(current_token);
+    this.print_newline();
+  } else {
+    this.handle_whitespace_and_comments(current_token);
   }
 
-  function handle_end_expr() {
-    // statements inside expressions are not valid syntax, but...
-    // statements must all be closed when their container closes
-    while (flags.mode === MODE.Statement) {
-      restore_mode();
-    }
-
-    handle_whitespace_and_comments(current_token);
-
-    if (flags.multiline_frame) {
-      allow_wrap_or_preserved_newline(current_token.text === ']' && is_array(flags.mode) && !opt.keep_array_indentation);
-    }
-
-    if (opt.space_in_paren) {
-      if (last_type === TOKEN.START_EXPR && !opt.space_in_empty_paren) {
-        // () [] no inner space in empty parens like these, ever, ref #320
-        output.trim();
-        output.space_before_token = false;
-      } else {
-        output.space_before_token = true;
-      }
-    }
-    if (current_token.text === ']' && opt.keep_array_indentation) {
-      print_token();
-      restore_mode();
-    } else {
-      restore_mode();
-      print_token();
-    }
-    remove_redundant_indentation(output, previous_flags);
-
-    // do {} while () // no statement required after
-    if (flags.do_while && previous_flags.mode === MODE.Conditional) {
-      previous_flags.mode = MODE.Expression;
-      flags.do_block = false;
-      flags.do_while = false;
-
-    }
-  }
-
-  function handle_start_block() {
-    handle_whitespace_and_comments(current_token);
-
-    // Check if this is should be treated as a ObjectLiteral
-    var next_token = tokens.peek();
-    var second_token = tokens.peek(1);
-    if (second_token && (
-        (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
-        (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
-      )) {
-      // We don't support TypeScript,but we didn't break it for a very long time.
-      // We'll try to keep not breaking it.
-      if (!in_array(last_last_text, ['class', 'interface'])) {
-        set_mode(MODE.ObjectLiteral);
-      } else {
-        set_mode(MODE.BlockStatement);
-      }
-    } else if (last_type === TOKEN.OPERATOR && flags.last_text === '=>') {
-      // arrow function: (param1, paramN) => { statements }
-      set_mode(MODE.BlockStatement);
-    } else if (in_array(last_type, [TOKEN.EQUALS, TOKEN.START_EXPR, TOKEN.COMMA, TOKEN.OPERATOR]) ||
-      (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['return', 'throw', 'import', 'default']))
-    ) {
-      // Detecting shorthand function syntax is difficult by scanning forward,
-      //     so check the surrounding context.
-      // If the block is being returned, imported, export default, passed as arg,
-      //     assigned with = or assigned in a nested object, treat as an ObjectLiteral.
-      set_mode(MODE.ObjectLiteral);
-    } else {
-      set_mode(MODE.BlockStatement);
-    }
-
-    var empty_braces = !next_token.comments_before && next_token.text === '}';
-    var empty_anonymous_function = empty_braces && flags.last_word === 'function' &&
-      last_type === TOKEN.END_EXPR;
-
-    if (opt.brace_preserve_inline) // check for inline, set inline_frame if so
-    {
-      // search forward for a newline wanted inside this block
-      var index = 0;
-      var check_token = null;
-      flags.inline_frame = true;
-      do {
-        index += 1;
-        check_token = tokens.peek(index - 1);
-        if (check_token.newlines) {
-          flags.inline_frame = false;
-          break;
-        }
-      } while (check_token.type !== TOKEN.EOF &&
-        !(check_token.type === TOKEN.END_BLOCK && check_token.opened === current_token));
-    }
-
-    if ((opt.brace_style === "expand" ||
-        (opt.brace_style === "none" && current_token.newlines)) &&
-      !flags.inline_frame) {
-      if (last_type !== TOKEN.OPERATOR &&
-        (empty_anonymous_function ||
-          last_type === TOKEN.EQUALS ||
-          (last_type === TOKEN.RESERVED && is_special_word(flags.last_text) && flags.last_text !== 'else'))) {
-        output.space_before_token = true;
-      } else {
-        print_newline(false, true);
-      }
-    } else { // collapse || inline_frame
-      if (is_array(previous_flags.mode) && (last_type === TOKEN.START_EXPR || last_type === TOKEN.COMMA)) {
-        if (last_type === TOKEN.COMMA || opt.space_in_paren) {
-          output.space_before_token = true;
-        }
-
-        if (last_type === TOKEN.COMMA || (last_type === TOKEN.START_EXPR && flags.inline_frame)) {
-          allow_wrap_or_preserved_newline();
-          previous_flags.multiline_frame = previous_flags.multiline_frame || flags.multiline_frame;
-          flags.multiline_frame = false;
-        }
-      }
-      if (last_type !== TOKEN.OPERATOR && last_type !== TOKEN.START_EXPR) {
-        if (last_type === TOKEN.START_BLOCK && !flags.inline_frame) {
-          print_newline();
-        } else {
-          output.space_before_token = true;
-        }
-      }
-    }
-    print_token();
-    indent();
-  }
-
-  function handle_end_block() {
-    // statements must all be closed when their container closes
-    handle_whitespace_and_comments(current_token);
-
-    while (flags.mode === MODE.Statement) {
-      restore_mode();
-    }
-
-    var empty_braces = last_type === TOKEN.START_BLOCK;
-
-    if (flags.inline_frame && !empty_braces) { // try inline_frame (only set if opt.braces-preserve-inline) first
-      output.space_before_token = true;
-    } else if (opt.brace_style === "expand") {
-      if (!empty_braces) {
-        print_newline();
-      }
-    } else {
-      // skip {}
-      if (!empty_braces) {
-        if (is_array(flags.mode) && opt.keep_array_indentation) {
-          // we REALLY need a newline here, but newliner would skip that
-          opt.keep_array_indentation = false;
-          print_newline();
-          opt.keep_array_indentation = true;
-
-        } else {
-          print_newline();
-        }
-      }
-    }
-    restore_mode();
-    print_token();
-  }
-
-  function handle_word() {
-    if (current_token.type === TOKEN.RESERVED) {
-      if (in_array(current_token.text, ['set', 'get']) && flags.mode !== MODE.ObjectLiteral) {
-        current_token.type = TOKEN.WORD;
-      } else if (in_array(current_token.text, ['as', 'from']) && !flags.import_block) {
-        current_token.type = TOKEN.WORD;
-      } else if (flags.mode === MODE.ObjectLiteral) {
-        var next_token = tokens.peek();
-        if (next_token.text === ':') {
-          current_token.type = TOKEN.WORD;
-        }
-      }
-    }
-
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
-      if (last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD) {
-        flags.declaration_statement = true;
-      }
-    } else if (current_token.newlines && !is_expression(flags.mode) &&
-      (last_type !== TOKEN.OPERATOR || (flags.last_text === '--' || flags.last_text === '++')) &&
-      last_type !== TOKEN.EQUALS &&
-      (opt.preserve_newlines || !(last_type === TOKEN.RESERVED && in_array(flags.last_text, ['var', 'let', 'const', 'set', 'get'])))) {
-      handle_whitespace_and_comments(current_token);
-      print_newline();
-    } else {
-      handle_whitespace_and_comments(current_token);
-    }
-
-    if (flags.do_block && !flags.do_while) {
-      if (current_token.type === TOKEN.RESERVED && current_token.text === 'while') {
-        // do {} ## while ()
-        output.space_before_token = true;
-        print_token();
-        output.space_before_token = true;
-        flags.do_while = true;
-        return;
-      } else {
-        // do {} should always have while as the next word.
-        // if we don't see the expected while, recover
-        print_newline();
-        flags.do_block = false;
-      }
-    }
-
-    // if may be followed by else, or not
-    // Bare/inline ifs are tricky
-    // Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
-    if (flags.if_block) {
-      if (!flags.else_block && (current_token.type === TOKEN.RESERVED && current_token.text === 'else')) {
-        flags.else_block = true;
-      } else {
-        while (flags.mode === MODE.Statement) {
-          restore_mode();
-        }
-        flags.if_block = false;
-        flags.else_block = false;
-      }
-    }
-
-    if (current_token.type === TOKEN.RESERVED && (current_token.text === 'case' || (current_token.text === 'default' && flags.in_case_statement))) {
-      print_newline();
-      if (flags.case_body || opt.jslint_happy) {
-        // switch cases following one another
-        deindent();
-        flags.case_body = false;
-      }
-      print_token();
-      flags.in_case = true;
-      flags.in_case_statement = true;
+  if (this._flags.do_block && !this._flags.do_while) {
+    if (reserved_word(current_token, 'while')) {
+      // do {} ## while ()
+      this._output.space_before_token = true;
+      this.print_token(current_token);
+      this._output.space_before_token = true;
+      this._flags.do_while = true;
       return;
+    } else {
+      // do {} should always have while as the next word.
+      // if we don't see the expected while, recover
+      this.print_newline();
+      this._flags.do_block = false;
     }
+  }
 
-    if (last_type === TOKEN.COMMA || last_type === TOKEN.START_EXPR || last_type === TOKEN.EQUALS || last_type === TOKEN.OPERATOR) {
-      if (!start_of_object_property()) {
-        allow_wrap_or_preserved_newline();
+  // if may be followed by else, or not
+  // Bare/inline ifs are tricky
+  // Need to unwind the modes correctly: if (a) if (b) c(); else d(); else e();
+  if (this._flags.if_block) {
+    if (!this._flags.else_block && reserved_word(current_token, 'else')) {
+      this._flags.else_block = true;
+    } else {
+      while (this._flags.mode === MODE.Statement) {
+        this.restore_mode();
+      }
+      this._flags.if_block = false;
+      this._flags.else_block = false;
+    }
+  }
+
+  if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
+    this.print_newline();
+    if (this._flags.case_body || this._options.jslint_happy) {
+      // switch cases following one another
+      this.deindent();
+      this._flags.case_body = false;
+    }
+    this.print_token(current_token);
+    this._flags.in_case = true;
+    return;
+  }
+
+  if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
+    if (!this.start_of_object_property()) {
+      this.allow_wrap_or_preserved_newline(current_token);
+    }
+  }
+
+  if (reserved_word(current_token, 'function')) {
+    if (in_array(this._flags.last_token.text, ['}', ';']) ||
+      (this._output.just_added_newline() && !(in_array(this._flags.last_token.text, ['(', '[', '{', ':', '=', ',']) || this._flags.last_token.type === TOKEN.OPERATOR))) {
+      // make sure there is a nice clean space of at least one blank line
+      // before a new function definition
+      if (!this._output.just_added_blankline() && !current_token.comments_before) {
+        this.print_newline();
+        this.print_newline(true);
       }
     }
-
-    if (current_token.type === TOKEN.RESERVED && current_token.text === 'function') {
-      if (in_array(flags.last_text, ['}', ';']) ||
-        (output.just_added_newline() && !(in_array(flags.last_text, ['(', '[', '{', ':', '=', ',']) || last_type === TOKEN.OPERATOR))) {
-        // make sure there is a nice clean space of at least one blank line
-        // before a new function definition
-        if (!output.just_added_blankline() && !current_token.comments_before) {
-          print_newline();
-          print_newline(true);
-        }
-      }
-      if (last_type === TOKEN.RESERVED || last_type === TOKEN.WORD) {
-        if (last_type === TOKEN.RESERVED && (
-            in_array(flags.last_text, ['get', 'set', 'new', 'export']) ||
-            in_array(flags.last_text, newline_restricted_tokens))) {
-          output.space_before_token = true;
-        } else if (last_type === TOKEN.RESERVED && flags.last_text === 'default' && last_last_text === 'export') {
-          output.space_before_token = true;
-        } else {
-          print_newline();
-        }
-      } else if (last_type === TOKEN.OPERATOR || flags.last_text === '=') {
-        // foo = function
-        output.space_before_token = true;
-      } else if (!flags.multiline_frame && (is_expression(flags.mode) || is_array(flags.mode))) {
-        // (function
+    if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD) {
+      if (reserved_array(this._flags.last_token, ['get', 'set', 'new', 'export']) ||
+        reserved_array(this._flags.last_token, newline_restricted_tokens)) {
+        this._output.space_before_token = true;
+      } else if (reserved_word(this._flags.last_token, 'default') && this._last_last_text === 'export') {
+        this._output.space_before_token = true;
+      } else if (this._flags.last_token.text === 'declare') {
+        // accomodates Typescript declare function formatting
+        this._output.space_before_token = true;
       } else {
-        print_newline();
+        this.print_newline();
       }
-
-      print_token();
-      flags.last_word = current_token.text;
-      return;
+    } else if (this._flags.last_token.type === TOKEN.OPERATOR || this._flags.last_token.text === '=') {
+      // foo = function
+      this._output.space_before_token = true;
+    } else if (!this._flags.multiline_frame && (is_expression(this._flags.mode) || is_array(this._flags.mode))) {
+      // (function
+    } else {
+      this.print_newline();
     }
 
-    prefix = 'NONE';
+    this.print_token(current_token);
+    this._flags.last_word = current_token.text;
+    return;
+  }
 
-    if (last_type === TOKEN.END_BLOCK) {
+  var prefix = 'NONE';
 
-      if (previous_flags.inline_frame) {
-        prefix = 'SPACE';
-      } else if (!(current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['else', 'catch', 'finally', 'from']))) {
-        prefix = 'NEWLINE';
-      } else {
-        if (opt.brace_style === "expand" ||
-          opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.newlines)) {
-          prefix = 'NEWLINE';
-        } else {
-          prefix = 'SPACE';
-          output.space_before_token = true;
-        }
-      }
-    } else if (last_type === TOKEN.SEMICOLON && flags.mode === MODE.BlockStatement) {
-      // TODO: Should this be for STATEMENT as well?
-      prefix = 'NEWLINE';
-    } else if (last_type === TOKEN.SEMICOLON && is_expression(flags.mode)) {
+  if (this._flags.last_token.type === TOKEN.END_BLOCK) {
+
+    if (this._previous_flags.inline_frame) {
       prefix = 'SPACE';
-    } else if (last_type === TOKEN.STRING) {
+    } else if (!reserved_array(current_token, ['else', 'catch', 'finally', 'from'])) {
       prefix = 'NEWLINE';
-    } else if (last_type === TOKEN.RESERVED || last_type === TOKEN.WORD ||
-      (flags.last_text === '*' &&
-        (in_array(last_last_text, ['function', 'yield']) ||
-          (flags.mode === MODE.ObjectLiteral && in_array(last_last_text, ['{', ',']))))) {
+    } else {
+      if (this._options.brace_style === "expand" ||
+        this._options.brace_style === "end-expand" ||
+        (this._options.brace_style === "none" && current_token.newlines)) {
+        prefix = 'NEWLINE';
+      } else {
+        prefix = 'SPACE';
+        this._output.space_before_token = true;
+      }
+    }
+  } else if (this._flags.last_token.type === TOKEN.SEMICOLON && this._flags.mode === MODE.BlockStatement) {
+    // TODO: Should this be for STATEMENT as well?
+    prefix = 'NEWLINE';
+  } else if (this._flags.last_token.type === TOKEN.SEMICOLON && is_expression(this._flags.mode)) {
+    prefix = 'SPACE';
+  } else if (this._flags.last_token.type === TOKEN.STRING) {
+    prefix = 'NEWLINE';
+  } else if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD ||
+    (this._flags.last_token.text === '*' &&
+      (in_array(this._last_last_text, ['function', 'yield']) ||
+        (this._flags.mode === MODE.ObjectLiteral && in_array(this._last_last_text, ['{', ',']))))) {
+    prefix = 'SPACE';
+  } else if (this._flags.last_token.type === TOKEN.START_BLOCK) {
+    if (this._flags.inline_frame) {
       prefix = 'SPACE';
-    } else if (last_type === TOKEN.START_BLOCK) {
-      if (flags.inline_frame) {
-        prefix = 'SPACE';
-      } else {
-        prefix = 'NEWLINE';
-      }
-    } else if (last_type === TOKEN.END_EXPR) {
-      output.space_before_token = true;
+    } else {
+      prefix = 'NEWLINE';
+    }
+  } else if (this._flags.last_token.type === TOKEN.END_EXPR) {
+    this._output.space_before_token = true;
+    prefix = 'NEWLINE';
+  }
+
+  if (reserved_array(current_token, line_starters) && this._flags.last_token.text !== ')') {
+    if (this._flags.inline_frame || this._flags.last_token.text === 'else' || this._flags.last_token.text === 'export') {
+      prefix = 'SPACE';
+    } else {
       prefix = 'NEWLINE';
     }
 
-    if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, tokenizer.line_starters) && flags.last_text !== ')') {
-      if (flags.inline_frame || flags.last_text === 'else' || flags.last_text === 'export') {
-        prefix = 'SPACE';
-      } else {
-        prefix = 'NEWLINE';
-      }
-
-    }
-
-    if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['else', 'catch', 'finally'])) {
-      if ((!(last_type === TOKEN.END_BLOCK && previous_flags.mode === MODE.BlockStatement) ||
-          opt.brace_style === "expand" ||
-          opt.brace_style === "end-expand" ||
-          (opt.brace_style === "none" && current_token.newlines)) &&
-        !flags.inline_frame) {
-        print_newline();
-      } else {
-        output.trim(true);
-        var line = output.current_line;
-        // If we trimmed and there's something other than a close block before us
-        // put a newline back in.  Handles '} // comment' scenario.
-        if (line.last() !== '}') {
-          print_newline();
-        }
-        output.space_before_token = true;
-      }
-    } else if (prefix === 'NEWLINE') {
-      if (last_type === TOKEN.RESERVED && is_special_word(flags.last_text)) {
-        // no newline between 'return nnn'
-        output.space_before_token = true;
-      } else if (last_type !== TOKEN.END_EXPR) {
-        if ((last_type !== TOKEN.START_EXPR || !(current_token.type === TOKEN.RESERVED && in_array(current_token.text, ['var', 'let', 'const']))) && flags.last_text !== ':') {
-          // no need to force newline on 'var': for (var x = 0...)
-          if (current_token.type === TOKEN.RESERVED && current_token.text === 'if' && flags.last_text === 'else') {
-            // no newline for } else if {
-            output.space_before_token = true;
-          } else {
-            print_newline();
-          }
-        }
-      } else if (current_token.type === TOKEN.RESERVED && in_array(current_token.text, tokenizer.line_starters) && flags.last_text !== ')') {
-        print_newline();
-      }
-    } else if (flags.multiline_frame && is_array(flags.mode) && flags.last_text === ',' && last_last_text === '}') {
-      print_newline(); // }, in lists get a newline treatment
-    } else if (prefix === 'SPACE') {
-      output.space_before_token = true;
-    }
-    if (last_type === TOKEN.WORD || last_type === TOKEN.RESERVED) {
-      output.space_before_token = true;
-    }
-    print_token();
-    flags.last_word = current_token.text;
-
-    if (current_token.type === TOKEN.RESERVED) {
-      if (current_token.text === 'do') {
-        flags.do_block = true;
-      } else if (current_token.text === 'if') {
-        flags.if_block = true;
-      } else if (current_token.text === 'import') {
-        flags.import_block = true;
-      } else if (flags.import_block && current_token.type === TOKEN.RESERVED && current_token.text === 'from') {
-        flags.import_block = false;
-      }
-    }
   }
 
-  function handle_semicolon() {
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
-      // Semicolon can be the start (and end) of a statement
-      output.space_before_token = false;
+  if (reserved_array(current_token, ['else', 'catch', 'finally'])) {
+    if ((!(this._flags.last_token.type === TOKEN.END_BLOCK && this._previous_flags.mode === MODE.BlockStatement) ||
+        this._options.brace_style === "expand" ||
+        this._options.brace_style === "end-expand" ||
+        (this._options.brace_style === "none" && current_token.newlines)) &&
+      !this._flags.inline_frame) {
+      this.print_newline();
     } else {
-      handle_whitespace_and_comments(current_token);
+      this._output.trim(true);
+      var line = this._output.current_line;
+      // If we trimmed and there's something other than a close block before us
+      // put a newline back in.  Handles '} // comment' scenario.
+      if (line.last() !== '}') {
+        this.print_newline();
+      }
+      this._output.space_before_token = true;
     }
-
-    var next_token = tokens.peek();
-    while (flags.mode === MODE.Statement &&
-      !(flags.if_block && next_token && next_token.type === TOKEN.RESERVED && next_token.text === 'else') &&
-      !flags.do_block) {
-      restore_mode();
-    }
-
-    // hacky but effective for the moment
-    if (flags.import_block) {
-      flags.import_block = false;
-    }
-    print_token();
-  }
-
-  function handle_string() {
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
-      // One difference - strings want at least a space before
-      output.space_before_token = true;
-    } else {
-      handle_whitespace_and_comments(current_token);
-      if (last_type === TOKEN.RESERVED || last_type === TOKEN.WORD || flags.inline_frame) {
-        output.space_before_token = true;
-      } else if (last_type === TOKEN.COMMA || last_type === TOKEN.START_EXPR || last_type === TOKEN.EQUALS || last_type === TOKEN.OPERATOR) {
-        if (!start_of_object_property()) {
-          allow_wrap_or_preserved_newline();
+  } else if (prefix === 'NEWLINE') {
+    if (reserved_array(this._flags.last_token, special_words)) {
+      // no newline between 'return nnn'
+      this._output.space_before_token = true;
+    } else if (this._flags.last_token.text === 'declare' && reserved_array(current_token, ['var', 'let', 'const'])) {
+      // accomodates Typescript declare formatting
+      this._output.space_before_token = true;
+    } else if (this._flags.last_token.type !== TOKEN.END_EXPR) {
+      if ((this._flags.last_token.type !== TOKEN.START_EXPR || !reserved_array(current_token, ['var', 'let', 'const'])) && this._flags.last_token.text !== ':') {
+        // no need to force newline on 'var': for (var x = 0...)
+        if (reserved_word(current_token, 'if') && reserved_word(current_token.previous, 'else')) {
+          // no newline for } else if {
+          this._output.space_before_token = true;
+        } else {
+          this.print_newline();
         }
-      } else {
-        print_newline();
       }
+    } else if (reserved_array(current_token, line_starters) && this._flags.last_token.text !== ')') {
+      this.print_newline();
     }
-    print_token();
+  } else if (this._flags.multiline_frame && is_array(this._flags.mode) && this._flags.last_token.text === ',' && this._last_last_text === '}') {
+    this.print_newline(); // }, in lists get a newline treatment
+  } else if (prefix === 'SPACE') {
+    this._output.space_before_token = true;
+  }
+  if (current_token.previous && (current_token.previous.type === TOKEN.WORD || current_token.previous.type === TOKEN.RESERVED)) {
+    this._output.space_before_token = true;
+  }
+  this.print_token(current_token);
+  this._flags.last_word = current_token.text;
+
+  if (current_token.type === TOKEN.RESERVED) {
+    if (current_token.text === 'do') {
+      this._flags.do_block = true;
+    } else if (current_token.text === 'if') {
+      this._flags.if_block = true;
+    } else if (current_token.text === 'import') {
+      this._flags.import_block = true;
+    } else if (this._flags.import_block && reserved_word(current_token, 'from')) {
+      this._flags.import_block = false;
+    }
+  }
+};
+
+Beautifier.prototype.handle_semicolon = function(current_token) {
+  if (this.start_of_statement(current_token)) {
+    // The conditional starts the statement if appropriate.
+    // Semicolon can be the start (and end) of a statement
+    this._output.space_before_token = false;
+  } else {
+    this.handle_whitespace_and_comments(current_token);
   }
 
-  function handle_equals() {
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
+  var next_token = this._tokens.peek();
+  while (this._flags.mode === MODE.Statement &&
+    !(this._flags.if_block && reserved_word(next_token, 'else')) &&
+    !this._flags.do_block) {
+    this.restore_mode();
+  }
+
+  // hacky but effective for the moment
+  if (this._flags.import_block) {
+    this._flags.import_block = false;
+  }
+  this.print_token(current_token);
+};
+
+Beautifier.prototype.handle_string = function(current_token) {
+  if (this.start_of_statement(current_token)) {
+    // The conditional starts the statement if appropriate.
+    // One difference - strings want at least a space before
+    this._output.space_before_token = true;
+  } else {
+    this.handle_whitespace_and_comments(current_token);
+    if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD || this._flags.inline_frame) {
+      this._output.space_before_token = true;
+    } else if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
+      if (!this.start_of_object_property()) {
+        this.allow_wrap_or_preserved_newline(current_token);
+      }
     } else {
-      handle_whitespace_and_comments(current_token);
+      this.print_newline();
     }
+  }
+  this.print_token(current_token);
+};
 
-    if (flags.declaration_statement) {
-      // just got an '=' in a var-line, different formatting/line-breaking, etc will now be done
-      flags.declaration_assignment = true;
-    }
-    output.space_before_token = true;
-    print_token();
-    output.space_before_token = true;
+Beautifier.prototype.handle_equals = function(current_token) {
+  if (this.start_of_statement(current_token)) {
+    // The conditional starts the statement if appropriate.
+  } else {
+    this.handle_whitespace_and_comments(current_token);
   }
 
-  function handle_comma() {
-    handle_whitespace_and_comments(current_token, true);
+  if (this._flags.declaration_statement) {
+    // just got an '=' in a var-line, different formatting/line-breaking, etc will now be done
+    this._flags.declaration_assignment = true;
+  }
+  this._output.space_before_token = true;
+  this.print_token(current_token);
+  this._output.space_before_token = true;
+};
 
-    print_token();
-    output.space_before_token = true;
-    if (flags.declaration_statement) {
-      if (is_expression(flags.parent.mode)) {
-        // do not break on comma, for(var a = 1, b = 2)
-        flags.declaration_assignment = false;
-      }
+Beautifier.prototype.handle_comma = function(current_token) {
+  this.handle_whitespace_and_comments(current_token, true);
 
-      if (flags.declaration_assignment) {
-        flags.declaration_assignment = false;
-        print_newline(false, true);
-      } else if (opt.comma_first) {
-        // for comma-first, we want to allow a newline before the comma
-        // to turn into a newline after the comma, which we will fixup later
-        allow_wrap_or_preserved_newline();
-      }
-    } else if (flags.mode === MODE.ObjectLiteral ||
-      (flags.mode === MODE.Statement && flags.parent.mode === MODE.ObjectLiteral)) {
-      if (flags.mode === MODE.Statement) {
-        restore_mode();
-      }
+  this.print_token(current_token);
+  this._output.space_before_token = true;
+  if (this._flags.declaration_statement) {
+    if (is_expression(this._flags.parent.mode)) {
+      // do not break on comma, for(var a = 1, b = 2)
+      this._flags.declaration_assignment = false;
+    }
 
-      if (!flags.inline_frame) {
-        print_newline();
-      }
-    } else if (opt.comma_first) {
-      // EXPR or DO_BLOCK
+    if (this._flags.declaration_assignment) {
+      this._flags.declaration_assignment = false;
+      this.print_newline(false, true);
+    } else if (this._options.comma_first) {
       // for comma-first, we want to allow a newline before the comma
       // to turn into a newline after the comma, which we will fixup later
-      allow_wrap_or_preserved_newline();
+      this.allow_wrap_or_preserved_newline(current_token);
     }
-  }
+  } else if (this._flags.mode === MODE.ObjectLiteral ||
+    (this._flags.mode === MODE.Statement && this._flags.parent.mode === MODE.ObjectLiteral)) {
+    if (this._flags.mode === MODE.Statement) {
+      this.restore_mode();
+    }
 
-  function handle_operator() {
-    var isGeneratorAsterisk = current_token.text === '*' &&
-      ((last_type === TOKEN.RESERVED && in_array(flags.last_text, ['function', 'yield'])) ||
-        (in_array(last_type, [TOKEN.START_BLOCK, TOKEN.COMMA, TOKEN.END_BLOCK, TOKEN.SEMICOLON]))
-      );
-    var isUnary = in_array(current_token.text, ['-', '+']) && (
-      in_array(last_type, [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]) ||
-      in_array(flags.last_text, tokenizer.line_starters) ||
-      flags.last_text === ','
+    if (!this._flags.inline_frame) {
+      this.print_newline();
+    }
+  } else if (this._options.comma_first) {
+    // EXPR or DO_BLOCK
+    // for comma-first, we want to allow a newline before the comma
+    // to turn into a newline after the comma, which we will fixup later
+    this.allow_wrap_or_preserved_newline(current_token);
+  }
+};
+
+Beautifier.prototype.handle_operator = function(current_token) {
+  var isGeneratorAsterisk = current_token.text === '*' &&
+    (reserved_array(this._flags.last_token, ['function', 'yield']) ||
+      (in_array(this._flags.last_token.type, [TOKEN.START_BLOCK, TOKEN.COMMA, TOKEN.END_BLOCK, TOKEN.SEMICOLON]))
     );
+  var isUnary = in_array(current_token.text, ['-', '+']) && (
+    in_array(this._flags.last_token.type, [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]) ||
+    in_array(this._flags.last_token.text, line_starters) ||
+    this._flags.last_token.text === ','
+  );
 
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
+  if (this.start_of_statement(current_token)) {
+    // The conditional starts the statement if appropriate.
+  } else {
+    var preserve_statement_flags = !isGeneratorAsterisk;
+    this.handle_whitespace_and_comments(current_token, preserve_statement_flags);
+  }
+
+  if (reserved_array(this._flags.last_token, special_words)) {
+    // "return" had a special handling in TK_WORD. Now we need to return the favor
+    this._output.space_before_token = true;
+    this.print_token(current_token);
+    return;
+  }
+
+  // hack for actionscript's import .*;
+  if (current_token.text === '*' && this._flags.last_token.type === TOKEN.DOT) {
+    this.print_token(current_token);
+    return;
+  }
+
+  if (current_token.text === '::') {
+    // no spaces around exotic namespacing syntax operator
+    this.print_token(current_token);
+    return;
+  }
+
+  // Allow line wrapping between operators when operator_position is
+  //   set to before or preserve
+  if (this._flags.last_token.type === TOKEN.OPERATOR && in_array(this._options.operator_position, OPERATOR_POSITION_BEFORE_OR_PRESERVE)) {
+    this.allow_wrap_or_preserved_newline(current_token);
+  }
+
+  if (current_token.text === ':' && this._flags.in_case) {
+    this._flags.case_body = true;
+    this.indent();
+    this.print_token(current_token);
+    this.print_newline();
+    this._flags.in_case = false;
+    return;
+  }
+
+  var space_before = true;
+  var space_after = true;
+  var in_ternary = false;
+  if (current_token.text === ':') {
+    if (this._flags.ternary_depth === 0) {
+      // Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
+      space_before = false;
     } else {
-      var preserve_statement_flags = !isGeneratorAsterisk;
-      handle_whitespace_and_comments(current_token, preserve_statement_flags);
+      this._flags.ternary_depth -= 1;
+      in_ternary = true;
     }
+  } else if (current_token.text === '?') {
+    this._flags.ternary_depth += 1;
+  }
 
-    if (last_type === TOKEN.RESERVED && is_special_word(flags.last_text)) {
-      // "return" had a special handling in TK_WORD. Now we need to return the favor
-      output.space_before_token = true;
-      print_token();
-      return;
-    }
+  // let's handle the operator_position option prior to any conflicting logic
+  if (!isUnary && !isGeneratorAsterisk && this._options.preserve_newlines && in_array(current_token.text, positionable_operators)) {
+    var isColon = current_token.text === ':';
+    var isTernaryColon = (isColon && in_ternary);
+    var isOtherColon = (isColon && !in_ternary);
 
-    // hack for actionscript's import .*;
-    if (current_token.text === '*' && last_type === TOKEN.DOT) {
-      print_token();
-      return;
-    }
+    switch (this._options.operator_position) {
+      case OPERATOR_POSITION.before_newline:
+        // if the current token is : and it's not a ternary statement then we set space_before to false
+        this._output.space_before_token = !isOtherColon;
 
-    if (current_token.text === '::') {
-      // no spaces around exotic namespacing syntax operator
-      print_token();
-      return;
-    }
+        this.print_token(current_token);
 
-    // Allow line wrapping between operators when operator_position is
-    //   set to before or preserve
-    if (last_type === TOKEN.OPERATOR && in_array(opt.operator_position, OPERATOR_POSITION_BEFORE_OR_PRESERVE)) {
-      allow_wrap_or_preserved_newline();
-    }
-
-    if (current_token.text === ':' && flags.in_case) {
-      flags.case_body = true;
-      indent();
-      print_token();
-      print_newline();
-      flags.in_case = false;
-      return;
-    }
-
-    var space_before = true;
-    var space_after = true;
-    var in_ternary = false;
-    if (current_token.text === ':') {
-      if (flags.ternary_depth === 0) {
-        // Colon is invalid javascript outside of ternary and object, but do our best to guess what was meant.
-        space_before = false;
-      } else {
-        flags.ternary_depth -= 1;
-        in_ternary = true;
-      }
-    } else if (current_token.text === '?') {
-      flags.ternary_depth += 1;
-    }
-
-    // let's handle the operator_position option prior to any conflicting logic
-    if (!isUnary && !isGeneratorAsterisk && opt.preserve_newlines && in_array(current_token.text, tokenizer.positionable_operators)) {
-      var isColon = current_token.text === ':';
-      var isTernaryColon = (isColon && in_ternary);
-      var isOtherColon = (isColon && !in_ternary);
-
-      switch (opt.operator_position) {
-        case OPERATOR_POSITION.before_newline:
-          // if the current token is : and it's not a ternary statement then we set space_before to false
-          output.space_before_token = !isOtherColon;
-
-          print_token();
-
-          if (!isColon || isTernaryColon) {
-            allow_wrap_or_preserved_newline();
-          }
-
-          output.space_before_token = true;
-          return;
-
-        case OPERATOR_POSITION.after_newline:
-          // if the current token is anything but colon, or (via deduction) it's a colon and in a ternary statement,
-          //   then print a newline.
-
-          output.space_before_token = true;
-
-          if (!isColon || isTernaryColon) {
-            if (tokens.peek().newlines) {
-              print_newline(false, true);
-            } else {
-              allow_wrap_or_preserved_newline();
-            }
-          } else {
-            output.space_before_token = false;
-          }
-
-          print_token();
-
-          output.space_before_token = true;
-          return;
-
-        case OPERATOR_POSITION.preserve_newline:
-          if (!isOtherColon) {
-            allow_wrap_or_preserved_newline();
-          }
-
-          // if we just added a newline, or the current token is : and it's not a ternary statement,
-          //   then we set space_before to false
-          space_before = !(output.just_added_newline() || isOtherColon);
-
-          output.space_before_token = space_before;
-          print_token();
-          output.space_before_token = true;
-          return;
-      }
-    }
-
-    if (isGeneratorAsterisk) {
-      allow_wrap_or_preserved_newline();
-      space_before = false;
-      var next_token = tokens.peek();
-      space_after = next_token && in_array(next_token.type, [TOKEN.WORD, TOKEN.RESERVED]);
-    } else if (current_token.text === '...') {
-      allow_wrap_or_preserved_newline();
-      space_before = last_type === TOKEN.START_BLOCK;
-      space_after = false;
-    } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
-      // unary operators (and binary +/- pretending to be unary) special cases
-      if (last_type === TOKEN.COMMA || last_type === TOKEN.START_EXPR) {
-        allow_wrap_or_preserved_newline();
-      }
-
-      space_before = false;
-      space_after = false;
-
-      // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
-      // if there is a newline between -- or ++ and anything else we should preserve it.
-      if (current_token.newlines && (current_token.text === '--' || current_token.text === '++')) {
-        print_newline(false, true);
-      }
-
-      if (flags.last_text === ';' && is_expression(flags.mode)) {
-        // for (;; ++i)
-        //        ^^^
-        space_before = true;
-      }
-
-      if (last_type === TOKEN.RESERVED) {
-        space_before = true;
-      } else if (last_type === TOKEN.END_EXPR) {
-        space_before = !(flags.last_text === ']' && (current_token.text === '--' || current_token.text === '++'));
-      } else if (last_type === TOKEN.OPERATOR) {
-        // a++ + ++b;
-        // a - -b
-        space_before = in_array(current_token.text, ['--', '-', '++', '+']) && in_array(flags.last_text, ['--', '-', '++', '+']);
-        // + and - are not unary when preceeded by -- or ++ operator
-        // a-- + b
-        // a * +b
-        // a - -b
-        if (in_array(current_token.text, ['+', '-']) && in_array(flags.last_text, ['--', '++'])) {
-          space_after = true;
+        if (!isColon || isTernaryColon) {
+          this.allow_wrap_or_preserved_newline(current_token);
         }
-      }
 
+        this._output.space_before_token = true;
+        return;
 
-      if (((flags.mode === MODE.BlockStatement && !flags.inline_frame) || flags.mode === MODE.Statement) &&
-        (flags.last_text === '{' || flags.last_text === ';')) {
-        // { foo; --i }
-        // foo(); --bar;
-        print_newline();
-      }
+      case OPERATOR_POSITION.after_newline:
+        // if the current token is anything but colon, or (via deduction) it's a colon and in a ternary statement,
+        //   then print a newline.
+
+        this._output.space_before_token = true;
+
+        if (!isColon || isTernaryColon) {
+          if (this._tokens.peek().newlines) {
+            this.print_newline(false, true);
+          } else {
+            this.allow_wrap_or_preserved_newline(current_token);
+          }
+        } else {
+          this._output.space_before_token = false;
+        }
+
+        this.print_token(current_token);
+
+        this._output.space_before_token = true;
+        return;
+
+      case OPERATOR_POSITION.preserve_newline:
+        if (!isOtherColon) {
+          this.allow_wrap_or_preserved_newline(current_token);
+        }
+
+        // if we just added a newline, or the current token is : and it's not a ternary statement,
+        //   then we set space_before to false
+        space_before = !(this._output.just_added_newline() || isOtherColon);
+
+        this._output.space_before_token = space_before;
+        this.print_token(current_token);
+        this._output.space_before_token = true;
+        return;
     }
-
-    output.space_before_token = output.space_before_token || space_before;
-    print_token();
-    output.space_before_token = space_after;
   }
 
-  function handle_block_comment(preserve_statement_flags) {
-    if (output.raw) {
-      output.add_raw_token(current_token);
-      if (current_token.directives && current_token.directives.preserve === 'end') {
-        // If we're testing the raw output behavior, do not allow a directive to turn it off.
-        output.raw = opt.test_output_raw;
-      }
-      return;
+  if (isGeneratorAsterisk) {
+    this.allow_wrap_or_preserved_newline(current_token);
+    space_before = false;
+    var next_token = this._tokens.peek();
+    space_after = next_token && in_array(next_token.type, [TOKEN.WORD, TOKEN.RESERVED]);
+  } else if (current_token.text === '...') {
+    this.allow_wrap_or_preserved_newline(current_token);
+    space_before = this._flags.last_token.type === TOKEN.START_BLOCK;
+    space_after = false;
+  } else if (in_array(current_token.text, ['--', '++', '!', '~']) || isUnary) {
+    // unary operators (and binary +/- pretending to be unary) special cases
+    if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR) {
+      this.allow_wrap_or_preserved_newline(current_token);
     }
 
-    if (current_token.directives) {
-      print_newline(false, preserve_statement_flags);
-      print_token();
-      if (current_token.directives.preserve === 'start') {
-        output.raw = true;
-      }
-      print_newline(false, true);
-      return;
+    space_before = false;
+    space_after = false;
+
+    // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
+    // if there is a newline between -- or ++ and anything else we should preserve it.
+    if (current_token.newlines && (current_token.text === '--' || current_token.text === '++')) {
+      this.print_newline(false, true);
     }
 
-    // inline block
-    if (!acorn.newline.test(current_token.text) && !current_token.newlines) {
-      output.space_before_token = true;
-      print_token();
-      output.space_before_token = true;
-      return;
+    if (this._flags.last_token.text === ';' && is_expression(this._flags.mode)) {
+      // for (;; ++i)
+      //        ^^^
+      space_before = true;
     }
 
-    var lines = split_linebreaks(current_token.text);
-    var j; // iterator for this case
-    var javadoc = false;
-    var starless = false;
-    var lastIndent = current_token.whitespace_before;
-    var lastIndentLength = lastIndent.length;
-
-    // block comment starts with a new line
-    print_newline(false, preserve_statement_flags);
-    if (lines.length > 1) {
-      javadoc = all_lines_start_with(lines.slice(1), '*');
-      starless = each_line_matches_indent(lines.slice(1), lastIndent);
-    }
-
-    // first line always indented
-    print_token(lines[0]);
-    for (j = 1; j < lines.length; j++) {
-      print_newline(false, true);
-      if (javadoc) {
-        // javadoc: reformat and re-indent
-        print_token(' ' + ltrim(lines[j]));
-      } else if (starless && lines[j].length > lastIndentLength) {
-        // starless: re-indent non-empty content, avoiding trim
-        print_token(lines[j].substring(lastIndentLength));
-      } else {
-        // normal comments output raw
-        output.add_token(lines[j]);
+    if (this._flags.last_token.type === TOKEN.RESERVED) {
+      space_before = true;
+    } else if (this._flags.last_token.type === TOKEN.END_EXPR) {
+      space_before = !(this._flags.last_token.text === ']' && (current_token.text === '--' || current_token.text === '++'));
+    } else if (this._flags.last_token.type === TOKEN.OPERATOR) {
+      // a++ + ++b;
+      // a - -b
+      space_before = in_array(current_token.text, ['--', '-', '++', '+']) && in_array(this._flags.last_token.text, ['--', '-', '++', '+']);
+      // + and - are not unary when preceeded by -- or ++ operator
+      // a-- + b
+      // a * +b
+      // a - -b
+      if (in_array(current_token.text, ['+', '-']) && in_array(this._flags.last_token.text, ['--', '++'])) {
+        space_after = true;
       }
     }
 
-    // for comments of more than one line, make sure there's a new line after
-    print_newline(false, preserve_statement_flags);
+
+    if (((this._flags.mode === MODE.BlockStatement && !this._flags.inline_frame) || this._flags.mode === MODE.Statement) &&
+      (this._flags.last_token.text === '{' || this._flags.last_token.text === ';')) {
+      // { foo; --i }
+      // foo(); --bar;
+      this.print_newline();
+    }
   }
 
-  function handle_comment(preserve_statement_flags) {
-    if (current_token.newlines) {
-      print_newline(false, preserve_statement_flags);
+  this._output.space_before_token = this._output.space_before_token || space_before;
+  this.print_token(current_token);
+  this._output.space_before_token = space_after;
+};
+
+Beautifier.prototype.handle_block_comment = function(current_token, preserve_statement_flags) {
+  if (this._output.raw) {
+    this._output.add_raw_token(current_token);
+    if (current_token.directives && current_token.directives.preserve === 'end') {
+      // If we're testing the raw output behavior, do not allow a directive to turn it off.
+      this._output.raw = this._options.test_output_raw;
+    }
+    return;
+  }
+
+  if (current_token.directives) {
+    this.print_newline(false, preserve_statement_flags);
+    this.print_token(current_token);
+    if (current_token.directives.preserve === 'start') {
+      this._output.raw = true;
+    }
+    this.print_newline(false, true);
+    return;
+  }
+
+  // inline block
+  if (!acorn.newline.test(current_token.text) && !current_token.newlines) {
+    this._output.space_before_token = true;
+    this.print_token(current_token);
+    this._output.space_before_token = true;
+    return;
+  }
+
+  var lines = split_linebreaks(current_token.text);
+  var j; // iterator for this case
+  var javadoc = false;
+  var starless = false;
+  var lastIndent = current_token.whitespace_before;
+  var lastIndentLength = lastIndent.length;
+
+  // block comment starts with a new line
+  this.print_newline(false, preserve_statement_flags);
+  if (lines.length > 1) {
+    javadoc = all_lines_start_with(lines.slice(1), '*');
+    starless = each_line_matches_indent(lines.slice(1), lastIndent);
+  }
+
+  // first line always indented
+  this.print_token(current_token, lines[0]);
+  for (j = 1; j < lines.length; j++) {
+    this.print_newline(false, true);
+    if (javadoc) {
+      // javadoc: reformat and re-indent
+      this.print_token(current_token, ' ' + ltrim(lines[j]));
+    } else if (starless && lines[j].length > lastIndentLength) {
+      // starless: re-indent non-empty content, avoiding trim
+      this.print_token(current_token, lines[j].substring(lastIndentLength));
     } else {
-      output.trim(true);
-    }
-
-    output.space_before_token = true;
-    print_token();
-    print_newline(false, preserve_statement_flags);
-  }
-
-  function handle_dot() {
-    if (start_of_statement()) {
-      // The conditional starts the statement if appropriate.
-    } else {
-      handle_whitespace_and_comments(current_token, true);
-    }
-
-    if (opt.unindent_chained_methods) {
-      deindent();
-    }
-
-    if (last_type === TOKEN.RESERVED && is_special_word(flags.last_text)) {
-      output.space_before_token = false;
-    } else {
-      // allow preserved newlines before dots in general
-      // force newlines on dots after close paren when break_chained - for bar().baz()
-      allow_wrap_or_preserved_newline(flags.last_text === ')' && opt.break_chained_methods);
-    }
-
-    print_token();
-  }
-
-  function handle_unknown(preserve_statement_flags) {
-    print_token();
-
-    if (current_token.text[current_token.text.length - 1] === '\n') {
-      print_newline(false, preserve_statement_flags);
+      // normal comments output raw
+      this._output.add_token(lines[j]);
     }
   }
 
-  function handle_eof() {
-    // Unwind any open statements
-    while (flags.mode === MODE.Statement) {
-      restore_mode();
-    }
-    handle_whitespace_and_comments(current_token);
+  // for comments of more than one line, make sure there's a new line after
+  this.print_newline(false, preserve_statement_flags);
+};
+
+Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
+  if (current_token.newlines) {
+    this.print_newline(false, preserve_statement_flags);
+  } else {
+    this._output.trim(true);
   }
-}
+
+  this._output.space_before_token = true;
+  this.print_token(current_token);
+  this.print_newline(false, preserve_statement_flags);
+};
+
+Beautifier.prototype.handle_dot = function(current_token) {
+  if (this.start_of_statement(current_token)) {
+    // The conditional starts the statement if appropriate.
+  } else {
+    this.handle_whitespace_and_comments(current_token, true);
+  }
+
+  if (reserved_array(this._flags.last_token, special_words)) {
+    this._output.space_before_token = false;
+  } else {
+    // allow preserved newlines before dots in general
+    // force newlines on dots after close paren when break_chained - for bar().baz()
+    this.allow_wrap_or_preserved_newline(current_token,
+      this._flags.last_token.text === ')' && this._options.break_chained_methods);
+  }
+
+  // Only unindent chained method dot if this dot starts a new line.
+  // Otherwise the automatic extra indentation removal will handle the over indent
+  if (this._options.unindent_chained_methods && this._output.just_added_newline()) {
+    this.deindent();
+  }
+
+  this.print_token(current_token);
+};
+
+Beautifier.prototype.handle_unknown = function(current_token, preserve_statement_flags) {
+  this.print_token(current_token);
+
+  if (current_token.text[current_token.text.length - 1] === '\n') {
+    this.print_newline(false, preserve_statement_flags);
+  }
+};
+
+Beautifier.prototype.handle_eof = function(current_token) {
+  // Unwind any open statements
+  while (this._flags.mode === MODE.Statement) {
+    this.restore_mode();
+  }
+  this.handle_whitespace_and_comments(current_token);
+};
 
 module.exports.Beautifier = Beautifier;

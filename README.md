@@ -15,10 +15,10 @@
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
-as well as deobfuscate scripts processed by
-[javascriptobfuscator.com](http://javascriptobfuscator.com/).
+as well as partly deobfuscate scripts processed by the npm package
+[javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
-Open [jsbeautifier.org](http://jsbeautifier.org/) to try it out.  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
 
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
@@ -62,17 +62,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.6/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.6/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.6/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.8.6/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -92,7 +92,7 @@ $ pip install jsbeautifier
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
 ## Web Browser
-Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Libary
 The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
@@ -180,6 +180,7 @@ Beautifier Options:
   -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
+  --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
   -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]
   -u, --unindent-chained-methods    Don't indent chained method calls
   -B, --break-chained-methods       Break chained method calls across subsequent lines
@@ -365,13 +366,13 @@ You are free to use this in any way you want, in case you find this useful or wo
 
 # Credits
 
-* Created by Einar Lielmanis, <einar@jsbeautifier.org>
+* Created by Einar Lielmanis, <einar@beautifier.io>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
 * Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
-* Maintained and expanded by Liam Newman <bitwiseman@gmail.com>
+* Maintained and expanded by Liam Newman <bitwiseman@beautifier.io>
 
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.8.0-rc4)
+(README.md: js-beautify@1.8.6)
