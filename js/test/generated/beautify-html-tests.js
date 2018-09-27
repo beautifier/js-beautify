@@ -5943,6 +5943,116 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Tests script indent behavior - (indent_scripts = ""normal"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""normal"")');
+        opts.indent_scripts = 'normal';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '        if (a == b) {\n' +
+            '            test();\n' +
+            '        }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '        .selector {\n' +
+            '            font-size: 12px;\n' +
+            '        }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Tests script indent behavior - (indent_scripts = ""keep"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""keep"")');
+        opts.indent_scripts = 'keep';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '    if (a == b) {\n' +
+            '        test();\n' +
+            '    }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '    .selector {\n' +
+            '        font-size: 12px;\n' +
+            '    }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Tests script indent behavior - (indent_scripts = ""separate"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""separate"")');
+        opts.indent_scripts = 'separate';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            'if (a == b) {\n' +
+            '    test();\n' +
+            '}\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '.selector {\n' +
+            '    font-size: 12px;\n' +
+            '}\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+
+        //============================================================
         // underscore.js  formatting
         reset_options();
         set_name('underscore.js  formatting');

@@ -1685,6 +1685,78 @@ exports.test_data = {
       }
     ]
   }, {
+    name: "Tests script indent behavior",
+    description: "Tests script indenting behavior",
+    matrix: [{
+        options: [
+          { name: "indent_scripts", value: "'normal'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: '        '
+      },
+      {
+        options: [
+          { name: "indent_scripts", value: "'keep'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: '    '
+      },
+      {
+        options: [
+          { name: "indent_scripts", value: "'separate'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: ''
+      }
+    ],
+    tests: [{
+        fragment: true,
+        input: [
+          '<head>',
+          '<script>',
+          'if (a == b) {',
+          'test();',
+          '}',
+          '</script>',
+          '<style>',
+          '.selector {',
+          'font-size: 12px;',
+          '}',
+          '</style>',
+          '</head>'
+        ],
+        output: [
+          '<head>',
+          '{{h}}<script>',
+          '{{hscript}}if (a == b) {',
+          '{{hscript}}{{j}}test();',
+          '{{hscript}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{hscript}}.selector {',
+          '{{hscript}}{{c}}font-size: 12px;',
+          '{{hscript}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<body>',
+          '{{h}}<script src="one.js"></script> <!-- one -->',
+          '{{h}}<script src="two.js"></script> <!-- two-->',
+          '</body>'
+        ]
+      }
+    ]
+  }, {
     name: "underscore.js  formatting",
     description: "underscore.js templates (<% ... %>) treated as comments.",
     options: [],
