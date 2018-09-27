@@ -87,6 +87,7 @@ punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
 var punct_pattern = new RegExp(punct, 'g');
+var include_pattern = /include[^\n]*/g;
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -223,6 +224,12 @@ Tokenizer.prototype._read_non_javascript = function(c) {
         resulting_string += c;
       }
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
+      // handles extendscript #includes
+    }
+    resulting_string = this._input.read(include_pattern);
+
+    if (resulting_string) {
+      return this._create_token(TOKEN.UNKNOWN, c + resulting_string);
     }
 
     // Spidermonkey-specific sharp variables for circular references. Considered obsolete.

@@ -5286,6 +5286,8 @@ class TestJSBeautifier(unittest.TestCase):
             '/* comment */')
         test_fragment('#')
         test_fragment('#!')
+        test_fragment('#include')
+        test_fragment('#include "settings.jsxinc"')
         bt('function namespace::something()')
         test_fragment(
             '<!--\n' +

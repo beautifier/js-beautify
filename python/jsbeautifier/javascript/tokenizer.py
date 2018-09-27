@@ -78,6 +78,7 @@ punct = re.compile(r'([-[\]{}()*+?.,\\^$|#])').sub(r'\\\1', punct)
 punct = punct.replace(' ', '|')
 
 punct_pattern = re.compile(punct)
+include_pattern = re.compile(r'include[^\n]*')
 
 # Words which always should start on a new line
 line_starters = frozenset(
@@ -352,6 +353,12 @@ class Tokenizer(BaseTokenizer):
                     c = self._input.next()
                     resulting_string += c
                 return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+
+            # handles extendscript #includes
+            resulting_string = self._input.read(include_pattern)
+
+            if resulting_string:
+                return self._create_token(TOKEN.UNKNOWN, c + resulting_string)
 
             # Spidermonkey-specific sharp variables for circular references
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
