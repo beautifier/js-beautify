@@ -78,7 +78,7 @@ punct = re.compile(r'([-[\]{}()*+?.,\\^$|#])').sub(r'\\\1', punct)
 punct = punct.replace(' ', '|')
 
 punct_pattern = re.compile(punct)
-include_pattern = re.compile(r'include[^\n]*')
+include_pattern = re.compile(r'include[^\n\r\u2028\u2029]*')
 
 # Words which always should start on a new line
 line_starters = frozenset(

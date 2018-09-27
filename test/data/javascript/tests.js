@@ -3345,6 +3345,8 @@ exports.test_data = {
         { fragment: true, unchanged: "#!" },
         { fragment: true, unchanged: "#include" },
         { fragment: true, unchanged: '#include "settings.jsxinc"' },
+        { fragment: true, unchanged: '#include "settings.jsxinc"\n\n\n/* comment */' },
+        { fragment: true, unchanged: '#include "settings.jsxinc"\n\n\n#include "settings.jsxinc"\n\n\n/* comment */' },
 
         { unchanged: "function namespace::something()" },
 

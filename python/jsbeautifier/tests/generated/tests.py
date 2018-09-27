@@ -5288,6 +5288,19 @@ class TestJSBeautifier(unittest.TestCase):
         test_fragment('#!')
         test_fragment('#include')
         test_fragment('#include "settings.jsxinc"')
+        test_fragment(
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '/* comment */')
+        test_fragment(
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '/* comment */')
         bt('function namespace::something()')
         test_fragment(
             '<!--\n' +

@@ -87,7 +87,7 @@ punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
 var punct_pattern = new RegExp(punct, 'g');
-var include_pattern = /include[^\n]*/g;
+var include_pattern = /include[^\n\r\u2028\u2029]*/g;
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
