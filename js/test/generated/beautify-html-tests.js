@@ -1825,6 +1825,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve-aligned"")
+        reset_options();
+        set_name('Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve-aligned"")');
+        opts.wrap_attributes = 'preserve-aligned';
+        bth(
+            '<input type="text"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"\n' +
+            '(typeaheadOnSelect)="onSuggestionSelected($event)" />',
+            //  -- output --
+            '<input type="text" class="form-control" autocomplete="off"\n' +
+            '       [(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '       [typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"\n' +
+            '       (typeaheadOnSelect)="onSuggestionSelected($event)" />');
+
+        // Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve"")
+        reset_options();
+        set_name('Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve"")');
+        opts.wrap_attributes = 'preserve';
+        bth(
+            '<input type="text"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"\n' +
+            '(typeaheadOnSelect)="onSuggestionSelected($event)" />',
+            //  -- output --
+            '<input type="text" class="form-control" autocomplete="off"\n' +
+            '    [(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '    [typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"\n' +
+            '    (typeaheadOnSelect)="onSuggestionSelected($event)" />');
+
+
+        //============================================================
         // Handlebars Indenting Off
         reset_options();
         set_name('Handlebars Indenting Off');
