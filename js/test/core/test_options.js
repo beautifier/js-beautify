@@ -128,22 +128,22 @@ describe('Options', function() {
       assert.throws(new options.Options()._get_selection_list, /^Error: Selection list cannot be empty.$/);
     });
     it('should throw error with invalid default', function() {
-      assert.throws(() => { new options.Options()._get_selection_list('a', ['a', 'b'], ['c']) }, /^Error: Invalid Default Value!$/);
+      assert.throws(function() { new options.Options()._get_selection_list('a', ['a', 'b'], ['c']); }, /^Error: Invalid Default Value!$/);
     });
     it('should throw error with invalid option', function() {
-      assert.throws(() => { new options.Options({ a: ['c', 'd'] })._get_selection_list('a', ['a', 'b'], ['a']) }, /^Error: Invalid Option Value: The option/);
+      assert.throws(function() { new options.Options({ a: ['c', 'd'] })._get_selection_list('a', ['a', 'b'], ['a']); }, /^Error: Invalid Option Value: The option/);
     });
     it('should return [\'a\'] as in option ', function() {
-      assert.deepEqual(new options.Options({ a: ['a'] })._get_selection_list('a', ['a', 'b'], ['a']), ['a'])
+      assert.deepEqual(new options.Options({ a: ['a'] })._get_selection_list('a', ['a', 'b'], ['a']), ['a']);
     });
   });
 
   describe('_get_selection', function() {
     it('should throw error with multiple selection', function() {
-      assert.throws(() => { new options.Options({ a: ['a', 'b'] })._get_selection('a', ['a', 'b'], ['a']) }, /^Error: Invalid Option Value: The option/);
+      assert.throws(function() { new options.Options({ a: ['a', 'b'] })._get_selection('a', ['a', 'b'], ['a']); }, /^Error: Invalid Option Value: The option/);
     });
     it('should return [\'a\'] as in option ', function() {
-      assert.equal(new options.Options({ a: ['a'] })._get_selection('a', ['a', 'b'], ['a']), 'a')
+      assert.equal(new options.Options({ a: ['a'] })._get_selection('a', ['a', 'b'], ['a']), 'a');
     });
   });
 
