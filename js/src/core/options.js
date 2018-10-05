@@ -141,7 +141,7 @@ Options.prototype._is_valid_selection = function(result, selection_list) {
 // Example: obj = {a: 1, b: {a: 2}}
 //          mergeOpts(obj, 'b')
 //
-//          Returns: {a: 2, b: {a: 2}}
+//          Returns: {a: 2}
 function _mergeOpts(allOptions, childFieldName) {
   var finalOpts = {};
   allOptions = allOptions || {};
