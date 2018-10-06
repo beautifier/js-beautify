@@ -119,7 +119,7 @@ describe('Options', function() {
       assert.equal(new options.Options()._is_valid_selection(['a', 'b'], ['c']), false);
     });
     it('should return true with selection existent', function() {
-      assert.equal(new options.Options()._is_valid_selection(['a', 'b'], ['a']), false);
+      assert.equal(new options.Options()._is_valid_selection(['a', 'b'], ['a', 'b']), true);
     });
   });
 
@@ -133,7 +133,7 @@ describe('Options', function() {
     it('should throw error with invalid option', function() {
       assert.throws(function() { new options.Options({ a: ['c', 'd'] })._get_selection_list('a', ['a', 'b'], ['a']); }, /^Error: Invalid Option Value: The option/);
     });
-    it('should return [\'a\'] as in option ', function() {
+    it('should return [\'a\'] as in option', function() {
       assert.deepEqual(new options.Options({ a: ['a'] })._get_selection_list('a', ['a', 'b'], ['a']), ['a']);
     });
   });
@@ -142,10 +142,9 @@ describe('Options', function() {
     it('should throw error with multiple selection', function() {
       assert.throws(function() { new options.Options({ a: ['a', 'b'] })._get_selection('a', ['a', 'b'], ['a']); }, /^Error: Invalid Option Value: The option/);
     });
-    it('should return [\'a\'] as in option ', function() {
+    it('should return \'a\' as in option ', function() {
       assert.equal(new options.Options({ a: ['a'] })._get_selection('a', ['a', 'b'], ['a']), 'a');
     });
   });
-
 
 });
