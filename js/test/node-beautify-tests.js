@@ -18,6 +18,11 @@ function test_legacy_names() {
   results.expect(typeof beautify.css, 'function');
   results.expect(typeof beautify.html, 'function');
 
+  console.log('Ensure defaultOptions are defined');
+  results.expect(typeof beautify.js.defaultOptions, 'object');
+  results.expect(typeof beautify.css.defaultOptions, 'object');
+  results.expect(typeof beautify.html.defaultOptions, 'object');
+
   console.log('Ensure that legacy import names equal the new ones');
   results.expect(beautify.js, beautify.js_beautify);
   results.expect(beautify.css, beautify.css_beautify);
