@@ -29,8 +29,7 @@
 'use strict';
 
 function Options(options, merge_child_field) {
-  options = _mergeOpts(options, merge_child_field);
-  this.raw_options = _normalizeOpts(options);
+  this.raw_options = _mergeOpts(options, merge_child_field);
 
   // Support passing the source text back with no change
   this.disabled = this._get_boolean('disabled');
@@ -144,7 +143,7 @@ Options.prototype._is_valid_selection = function(result, selection_list) {
 //          Returns: {a: 2}
 function _mergeOpts(allOptions, childFieldName) {
   var finalOpts = {};
-  allOptions = allOptions || {};
+  allOptions = _normalizeOpts(allOptions);
   var name;
 
   for (name in allOptions) {

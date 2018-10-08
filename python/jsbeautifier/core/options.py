@@ -33,8 +33,7 @@ class Options:
         self.js = None
         self.html = None
 
-        options = _mergeOpts(options, merge_child_field)
-        self.raw_options = _normalizeOpts(options)
+        self.raw_options = _mergeOpts(options, merge_child_field)
 
         # Support passing the source text back with no change
         self.disabled = self._get_boolean('disabled')
@@ -47,7 +46,7 @@ class Options:
 
         self.preserve_newlines = self._get_boolean('preserve_newlines', True)
         # TODO: fix difference in js and python
-        self.max_preserve_newlines = self.max_preserve_newlines = self._get_number(
+        self.max_preserve_newlines = self._get_number(
             'max_preserve_newlines', 10)
         if not self.preserve_newlines:
             self.max_preserve_newlines = 0
