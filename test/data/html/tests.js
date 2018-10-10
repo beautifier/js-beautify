@@ -752,6 +752,35 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #1125 -- Add preserve and preserve_aligned attribute options",
+    description: "",
+    template: "^^^ $$$",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'preserve-aligned'" }
+      ],
+      indent_attr: '       '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" }
+      ],
+      indent_attr: '    '
+    }],
+    tests: [{
+      input: [
+        '<input type="text"     class="form-control"  autocomplete="off"',
+        '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"',
+        '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"',
+        '(typeaheadOnSelect)="onSuggestionSelected($event)" />'
+      ],
+      output: [
+        '<input type="text" class="form-control" autocomplete="off"',
+        '^^^indent_attr$$$[(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"',
+        '^^^indent_attr$$$[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"',
+        '^^^indent_attr$$$(typeaheadOnSelect)="onSuggestionSelected($event)" />'
+      ]
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
