@@ -47,10 +47,10 @@ function Options(options, merge_child_field) {
   }
 
   this.indent_with_tabs = this._get_boolean('indent_with_tabs');
-  if (this.indent_with_tabs) {
-    this.indent_char = '\t';
-    this.indent_size = 1;
-  }
+  // if (this.indent_with_tabs) {
+  //   this.indent_char = '\t';
+  //   this.indent_size = 1;
+  // }
 
   // Backwards compat with 1.3.x
   this.wrap_line_length = this._get_number('wrap_line_length', this._get_number('max_char'));

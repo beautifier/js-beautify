@@ -357,31 +357,40 @@ exports.test_data = {
 
     ]
   }, {
-    name: "Attribute Wrap alignment with spaces",
+    name: "Attribute Wrap alignment with spaces and tabs",
     description: "Ensure attributes are internally aligned with spaces when the indent_character is set to tab",
     template: "^^^ $$$",
     matrix: [{
       options: [
         { name: "wrap_attributes", value: "'force-aligned'" },
         { name: "indent_with_tabs", value: "true" }
-      ]
+      ],
+      indent_attr: '       ',
+      indent_div_attr: '     '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "indent_with_tabs", value: "true" }
+      ],
+      indent_attr: '\t',
+      indent_div_attr: '\t'
     }],
     tests: [{
         fragment: true,
         input: '<div><div a="1" b="2"><div>test</div></div></div>',
-        output: '<div>\n\t<div a="1"\n\t     b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
+        output: '<div>\n\t<div a="1"\n\t^^^indent_div_attr$$$b="2">\n\t\t<div>test</div>\n\t</div>\n</div>'
       },
       {
         fragment: true,
         unchanged: [
           '<input type="radio"',
-          '       name="garage"',
-          '       id="garage-02"',
-          '       class="ns-e-togg__radio ns-js-form-binding"',
-          '       value="02"',
-          '       {{#ifCond data.antragsart "05"}}',
-          '       checked="checked"',
-          '       {{/ifCond}}>'
+          '^^^indent_attr$$$name="garage"',
+          '^^^indent_attr$$$id="garage-02"',
+          '^^^indent_attr$$$class="ns-e-togg__radio ns-js-form-binding"',
+          '^^^indent_attr$$$value="02"',
+          '^^^indent_attr$$${{#ifCond data.antragsart "05"}}',
+          '^^^indent_attr$$$checked="checked"',
+          '^^^indent_attr$$${{/ifCond}}>'
         ]
       },
       {
@@ -389,13 +398,13 @@ exports.test_data = {
         unchanged: [
           '<div>',
           '\t<input type="radio"',
-          '\t       name="garage"',
-          '\t       id="garage-02"',
-          '\t       class="ns-e-togg__radio ns-js-form-binding"',
-          '\t       value="02"',
-          '\t       {{#ifCond data.antragsart "05"}}',
-          '\t       checked="checked"',
-          '\t       {{/ifCond}}>',
+          '\t^^^indent_attr$$$name="garage"',
+          '\t^^^indent_attr$$$id="garage-02"',
+          '\t^^^indent_attr$$$class="ns-e-togg__radio ns-js-form-binding"',
+          '\t^^^indent_attr$$$value="02"',
+          '\t^^^indent_attr$$${{#ifCond data.antragsart "05"}}',
+          '\t^^^indent_attr$$$checked="checked"',
+          '\t^^^indent_attr$$${{/ifCond}}>',
           '</div>'
         ]
       },
@@ -630,7 +639,47 @@ exports.test_data = {
       indent_content80_selfclosing: ' ',
       indent_content80: ' ',
       indent_over80: '\n        '
-    }],
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_indent_size", value: "4" },
+        { name: "indent_with_tabs", value: 'true'}
+      ],
+      indent_attr: '\n\t',
+      indent_attr_first: '\n\t',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n\t'
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_indent_size", value: "7" },
+        { name: "indent_with_tabs", value: 'true'}
+      ],
+      indent_attr: '\n       ',
+      indent_attr_first: '\n       ',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
+      indent_content80: ' ',
+      indent_over80: '\n       '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_line_length", value: "80" },
+        { name: "indent_with_tabs", value: 'true'}
+      ],
+      indent_attr: '\n\t',
+      indent_attr_first: '\n\t',
+      indent_end: '\n',
+      indent_end_selfclosing: '\n',
+      indent_content80_selfclosing: ' ',
+      indent_content80: '\n\t',
+      indent_over80: '\n\t'
+    }
+  ],
     tests: [{
         input: '<div  >This is some text</div>',
         output: '<div>This is some text</div>'

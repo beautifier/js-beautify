@@ -144,10 +144,12 @@ IndentCache.prototype.get_level_string = function(level) {
 };
 
 
-function Output(options, baseIndentString) {
+function Output(options, baseIndentString, alignmentChar) {
   var indent_string = options.indent_char;
-  if (options.indent_size > 1) {
-    indent_string = new Array(options.indent_size + 1).join(options.indent_char);
+  if (options.indent_with_tabs || options.indent_char === '\t') {
+    indent_string = '\t';
+  } else if (options.indent_size > 1) {
+      indent_string = new Array(options.indent_size + 1).join(options.indent_char);
   }
 
   // Set to null to continue support for auto detection of base indent level.
@@ -157,7 +159,13 @@ function Output(options, baseIndentString) {
   }
 
   this.__indent_cache = new IndentCache(baseIndentString, indent_string);
-  this.__alignment_cache = new IndentCache('', ' ');
+  // Assess whether alignment should use spaces or tab(s)
+  if (indent_string === '\t') {
+    this.__alignment_cache = new IndentCache('', alignmentChar || indent_string);
+  } else {
+    this.__alignment_cache = new IndentCache('', ' ');
+  }
+
   this.baseIndentLength = baseIndentString.length;
   this.indent_length = indent_string.length;
   this.raw = false;
@@ -223,13 +231,14 @@ Output.prototype.get_code = function(eol) {
   return sweet_code;
 };
 
-Output.prototype.set_indent = function(indent, alignment) {
+Output.prototype.set_indent = function(indent, alignment, character) {
   indent = indent || 0;
   alignment = alignment || 0;
+  character = character || ' ';
 
   // Never indent your first output indent at the start of the file
   if (this.__lines.length > 1) {
-    this.current_line.set_indent(indent, alignment);
+    this.current_line.set_indent(indent, alignment, character);
     return true;
   }
   this.current_line.set_indent();
