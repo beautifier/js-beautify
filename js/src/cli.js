@@ -85,7 +85,7 @@ var path = require('path'),
     "keep_array_indentation": Boolean,
     "unescape_strings": Boolean,
     "wrap_line_length": Number,
-    "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple"],
+    "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple", "preserve", "preserve-aligned"],
     "wrap_attributes_indent_size": Number,
     "e4x": Boolean,
     "end_with_newline": Boolean,
@@ -373,7 +373,7 @@ function usage(err) {
       msg.push('  -H, --indent-handlebars           Indent handlebars. Default is false.');
       msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
       msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
-      msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
+      msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]');
       msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
       msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
       msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');
