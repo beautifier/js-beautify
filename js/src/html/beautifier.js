@@ -36,7 +36,7 @@ var TOKEN = require('../html/tokenizer').TOKEN;
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
 
-var Printer = function(options, base_indent_string, alignmentChar) { //handles input/output and some other printing functions
+var Printer = function(options, base_indent_string) { //handles input/output and some other printing functions
 
   this.indent_level = 0;
   this.alignment_size = 0;
@@ -44,7 +44,7 @@ var Printer = function(options, base_indent_string, alignmentChar) { //handles i
   this.max_preserve_newlines = options.max_preserve_newlines;
   this.preserve_newlines = options.preserve_newlines;
 
-  this._output = new Output(options, base_indent_string, alignmentChar);
+  this._output = new Output(options, base_indent_string);
 
 };
 
@@ -277,11 +277,7 @@ Beautifier.prototype.beautify = function() {
 
   var last_tag_token = new TagOpenParserToken();
 
-  var alignmentChar = '';
-  if (this._is_wrap_attributes_force_aligned || this._is_wrap_attributes_aligned_multiple || this._is_wrap_attributes_preserve_aligned || this._options.wrap_attributes_indent_size !== this._options.indent_size) {
-    alignmentChar = ' ';
-  }
-  var printer = new Printer(this._options, baseIndentString, alignmentChar);
+  var printer = new Printer(this._options, baseIndentString);
   var tokens = new Tokenizer(source_text, this._options).tokenize();
 
   this._tag_stack = new TagStack(printer);
@@ -551,10 +547,6 @@ Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to g
   var parser_token = new TagOpenParserToken(this._tag_stack.get_parser_token(), raw_token);
 
   parser_token.alignment_size = this._options.wrap_attributes_indent_size;
-
-  if (this._options.indent_with_tabs) {
-    parser_token.alignment_size = 1;
-  }
 
   parser_token.is_end_tag = parser_token.is_end_tag ||
     in_array(parser_token.tag_check, this._options.void_elements);

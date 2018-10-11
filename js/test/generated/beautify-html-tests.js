@@ -543,29 +543,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<div>\n' +
             '\t<div a="1"\n' +
-            '\t     b="2">\n' +
+            '\t\t b="2">\n' +
             '\t\t<div>test</div>\n' +
             '\t</div>\n' +
             '</div>');
         test_fragment(
             '<input type="radio"\n' +
-            '       name="garage"\n' +
-            '       id="garage-02"\n' +
-            '       class="ns-e-togg__radio ns-js-form-binding"\n' +
-            '       value="02"\n' +
-            '       {{#ifCond data.antragsart "05"}}\n' +
-            '       checked="checked"\n' +
-            '       {{/ifCond}}>');
+            '\t   name="garage"\n' +
+            '\t   id="garage-02"\n' +
+            '\t   class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '\t   value="02"\n' +
+            '\t   {{#ifCond data.antragsart "05"}}\n' +
+            '\t   checked="checked"\n' +
+            '\t   {{/ifCond}}>');
         test_fragment(
             '<div>\n' +
             '\t<input type="radio"\n' +
-            '\t       name="garage"\n' +
-            '\t       id="garage-02"\n' +
-            '\t       class="ns-e-togg__radio ns-js-form-binding"\n' +
-            '\t       value="02"\n' +
-            '\t       {{#ifCond data.antragsart "05"}}\n' +
-            '\t       checked="checked"\n' +
-            '\t       {{/ifCond}}>\n' +
+            '\t\t   name="garage"\n' +
+            '\t\t   id="garage-02"\n' +
+            '\t\t   class="ns-e-togg__radio ns-js-form-binding"\n' +
+            '\t\t   value="02"\n' +
+            '\t\t   {{#ifCond data.antragsart "05"}}\n' +
+            '\t\t   checked="checked"\n' +
+            '\t\t   {{/ifCond}}>\n' +
             '</div>');
         test_fragment(
             '---\n' +
@@ -699,7 +699,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -802,10 +802,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
@@ -880,7 +880,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -984,10 +984,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
@@ -1075,10 +1075,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
@@ -1136,7 +1136,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
@@ -1178,7 +1178,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -1281,10 +1281,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
@@ -1388,10 +1388,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
@@ -1448,7 +1448,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
@@ -1491,7 +1491,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -1565,7 +1565,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -1683,10 +1683,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '    design. Specific input elements will vary according to the form’s audience\n' +
+            '    design. Specific input elements willl vary according to the form’s audience\n' +
             '    and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
@@ -1775,7 +1775,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -1864,7 +1864,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
@@ -1953,41 +1953,41 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
-        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>');
+        test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(
             '<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>',
             //  -- output --
             '<div\n' +
-            '       attr0\n' +
-            '       attr1="123"\n' +
-            '       data-attr2="hello    t here"\n' +
+            '\t   attr0\n' +
+            '\t   attr1="123"\n' +
+            '\t   data-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div\n' +
-            '       lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
-            '       attr0\n' +
-            '       attr1="123"\n' +
-            '       data-attr2="hello    t here"\n' +
-            '       heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '\t   lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '\t   attr0\n' +
+            '\t   attr1="123"\n' +
+            '\t   data-attr2="hello    t here"\n' +
+            '\t   heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
             '>This is some text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
             '<img\n' +
-            '       attr0\n' +
-            '       attr1="123"\n' +
-            '       data-attr2="hello    t here"\n' +
+            '\t   attr0\n' +
+            '\t   attr1="123"\n' +
+            '\t   data-attr2="hello    t here"\n' +
             '/>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root\n' +
-            '       attr1="foo"\n' +
-            '       attr2="bar"\n' +
+            '\t   attr1="foo"\n' +
+            '\t   attr2="bar"\n' +
             '/>');
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
@@ -1995,27 +1995,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div\n' +
-            '       lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
-            '       attr0\n' +
-            '       attr1=12345\n' +
-            '       data-attr2="hello    t here"\n' +
-            '       heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
+            '\t   lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
+            '\t   attr0\n' +
+            '\t   attr1=12345\n' +
+            '\t   data-attr2="hello    t here"\n' +
+            '\t   heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
             '>This is some text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root\n' +
-            '       attr1=foo12\n' +
-            '       attr2="bar"\n' +
+            '\t   attr1=foo12\n' +
+            '\t   attr2="bar"\n' +
             '/>');
         test_fragment(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
-            '       href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
-            '       rel="stylesheet"\n' +
-            '       type="text/css"\n' +
+            '\t   href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '\t   rel="stylesheet"\n' +
+            '\t   type="text/css"\n' +
             '>');
 
         // Attribute Wrap - (wrap_attributes = ""force-expand-multiline"", wrap_line_length = "80", indent_with_tabs = "true")
@@ -2071,10 +2071,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
-            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
+            '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
             //  -- output --
             '<p>Our forms for collecting address-related information follow a standard\n' +
-            '\tdesign. Specific input elements will vary according to the form’s audience\n' +
+            '\tdesign. Specific input elements willl vary according to the form’s audience\n' +
             '\tand purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment(

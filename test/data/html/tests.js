@@ -365,8 +365,8 @@ exports.test_data = {
         { name: "wrap_attributes", value: "'force-aligned'" },
         { name: "indent_with_tabs", value: "true" }
       ],
-      indent_attr: '       ',
-      indent_div_attr: '     '
+      indent_attr: '\t   ',
+      indent_div_attr: '\t '
     }, {
       options: [
         { name: "wrap_attributes", value: "'force'" },
@@ -643,7 +643,7 @@ exports.test_data = {
       options: [
         { name: "wrap_attributes", value: "'force-expand-multiline'" },
         { name: "wrap_attributes_indent_size", value: "4" },
-        { name: "indent_with_tabs", value: 'true'}
+        { name: "indent_with_tabs", value: 'true' }
       ],
       indent_attr: '\n\t',
       indent_attr_first: '\n\t',
@@ -656,20 +656,20 @@ exports.test_data = {
       options: [
         { name: "wrap_attributes", value: "'force-expand-multiline'" },
         { name: "wrap_attributes_indent_size", value: "7" },
-        { name: "indent_with_tabs", value: 'true'}
+        { name: "indent_with_tabs", value: 'true' }
       ],
-      indent_attr: '\n       ',
-      indent_attr_first: '\n       ',
+      indent_attr: '\n\t   ',
+      indent_attr_first: '\n\t   ',
       indent_end: '\n',
       indent_end_selfclosing: '\n',
       indent_content80_selfclosing: ' ',
       indent_content80: ' ',
-      indent_over80: '\n       '
+      indent_over80: '\n\t   '
     }, {
       options: [
         { name: "wrap_attributes", value: "'force-expand-multiline'" },
         { name: "wrap_line_length", value: "80" },
-        { name: "indent_with_tabs", value: 'true'}
+        { name: "indent_with_tabs", value: 'true' }
       ],
       indent_attr: '\n\t',
       indent_attr_first: '\n\t',
@@ -678,8 +678,7 @@ exports.test_data = {
       indent_content80_selfclosing: ' ',
       indent_content80: '\n\t',
       indent_over80: '\n\t'
-    }
-  ],
+    }],
     tests: [{
         input: '<div  >This is some text</div>',
         output: '<div>This is some text</div>'
@@ -718,8 +717,8 @@ exports.test_data = {
       }, {
         fragment: true,
         comment: 'Issue 1222 -- P tags are formatting correctly',
-        input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements will vary according to the form’s audience and purpose.</p>',
-        output: '<p>Our forms for collecting address-related information follow a standard{{indent_content80}}design. Specific input elements will vary according to the form’s audience{{indent_content80}}and purpose.</p>'
+        input: '<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>',
+        output: '<p>Our forms for collecting address-related information follow a standard{{indent_content80}}design. Specific input elements willl vary according to the form’s audience{{indent_content80}}and purpose.</p>'
       }, {
         input: '<div attr="123"  >This is some text</div>',
         output: '<div attr="123">This is some text</div>'
