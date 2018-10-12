@@ -752,6 +752,35 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Issue #1125 -- Add preserve and preserve_aligned attribute options",
+    description: "",
+    template: "^^^ $$$",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'preserve-aligned'" }
+      ],
+      indent_attr: '       '
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'preserve'" }
+      ],
+      indent_attr: '    '
+    }],
+    tests: [{
+      input: [
+        '<input type="text"     class="form-control"  autocomplete="off"',
+        '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"',
+        '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"',
+        '(typeaheadOnSelect)="onSuggestionSelected($event)" />'
+      ],
+      output: [
+        '<input type="text" class="form-control" autocomplete="off"',
+        '^^^indent_attr$$$[(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"',
+        '^^^indent_attr$$$[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"',
+        '^^^indent_attr$$$(typeaheadOnSelect)="onSuggestionSelected($event)" />'
+      ]
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
@@ -1670,6 +1699,78 @@ exports.test_data = {
           '{{h}}{{h}}.selector {',
           '{{dhc}}{{dhc}}{{dc}}font-size: 12px;',
           '{{dhc}}{{dhc}}}',
+          '{{h}}</style>',
+          '</head>'
+        ]
+      },
+      {
+        fragment: true,
+        unchanged: [
+          '<body>',
+          '{{h}}<script src="one.js"></script> <!-- one -->',
+          '{{h}}<script src="two.js"></script> <!-- two-->',
+          '</body>'
+        ]
+      }
+    ]
+  }, {
+    name: "Tests script indent behavior",
+    description: "Tests script indenting behavior",
+    matrix: [{
+        options: [
+          { name: "indent_scripts", value: "'normal'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: '        '
+      },
+      {
+        options: [
+          { name: "indent_scripts", value: "'keep'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: '    '
+      },
+      {
+        options: [
+          { name: "indent_scripts", value: "'separate'" }
+        ],
+        h: '    ',
+        c: '    ',
+        j: '    ',
+        hscript: ''
+      }
+    ],
+    tests: [{
+        fragment: true,
+        input: [
+          '<head>',
+          '<script>',
+          'if (a == b) {',
+          'test();',
+          '}',
+          '</script>',
+          '<style>',
+          '.selector {',
+          'font-size: 12px;',
+          '}',
+          '</style>',
+          '</head>'
+        ],
+        output: [
+          '<head>',
+          '{{h}}<script>',
+          '{{hscript}}if (a == b) {',
+          '{{hscript}}{{j}}test();',
+          '{{hscript}}}',
+          '{{h}}</script>',
+          '{{h}}<style>',
+          '{{hscript}}.selector {',
+          '{{hscript}}{{c}}font-size: 12px;',
+          '{{hscript}}}',
           '{{h}}</style>',
           '</head>'
         ]

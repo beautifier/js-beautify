@@ -1825,6 +1825,38 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve-aligned"")
+        reset_options();
+        set_name('Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve-aligned"")');
+        opts.wrap_attributes = 'preserve-aligned';
+        bth(
+            '<input type="text"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"\n' +
+            '(typeaheadOnSelect)="onSuggestionSelected($event)" />',
+            //  -- output --
+            '<input type="text" class="form-control" autocomplete="off"\n' +
+            '       [(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '       [typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"\n' +
+            '       (typeaheadOnSelect)="onSuggestionSelected($event)" />');
+
+        // Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve"")
+        reset_options();
+        set_name('Issue #1125 -- Add preserve and preserve_aligned attribute options - (wrap_attributes = ""preserve"")');
+        opts.wrap_attributes = 'preserve';
+        bth(
+            '<input type="text"     class="form-control"  autocomplete="off"\n' +
+            '[(ngModel)]="myValue"          [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '[typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate"   [typeaheadWaitMs]="300"\n' +
+            '(typeaheadOnSelect)="onSuggestionSelected($event)" />',
+            //  -- output --
+            '<input type="text" class="form-control" autocomplete="off"\n' +
+            '    [(ngModel)]="myValue" [disabled]="isDisabled" [placeholder]="placeholder"\n' +
+            '    [typeahead]="suggestionsSource" [typeaheadOptionField]="suggestionValueField" [typeaheadItemTemplate]="suggestionTemplate" [typeaheadWaitMs]="300"\n' +
+            '    (typeaheadOnSelect)="onSuggestionSelected($event)" />');
+
+
+        //============================================================
         // Handlebars Indenting Off
         reset_options();
         set_name('Handlebars Indenting Off');
@@ -5939,6 +5971,116 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<body>\n' +
             '  <script src="one.js"></script> <!-- one -->\n' +
             '  <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+
+        //============================================================
+        // Tests script indent behavior - (indent_scripts = ""normal"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""normal"")');
+        opts.indent_scripts = 'normal';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '        if (a == b) {\n' +
+            '            test();\n' +
+            '        }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '        .selector {\n' +
+            '            font-size: 12px;\n' +
+            '        }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Tests script indent behavior - (indent_scripts = ""keep"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""keep"")');
+        opts.indent_scripts = 'keep';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            '    if (a == b) {\n' +
+            '        test();\n' +
+            '    }\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '    .selector {\n' +
+            '        font-size: 12px;\n' +
+            '    }\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
+            '</body>');
+
+        // Tests script indent behavior - (indent_scripts = ""separate"")
+        reset_options();
+        set_name('Tests script indent behavior - (indent_scripts = ""separate"")');
+        opts.indent_scripts = 'separate';
+        test_fragment(
+            '<head>\n' +
+            '<script>\n' +
+            'if (a == b) {\n' +
+            'test();\n' +
+            '}\n' +
+            '</script>\n' +
+            '<style>\n' +
+            '.selector {\n' +
+            'font-size: 12px;\n' +
+            '}\n' +
+            '</style>\n' +
+            '</head>',
+            //  -- output --
+            '<head>\n' +
+            '    <script>\n' +
+            'if (a == b) {\n' +
+            '    test();\n' +
+            '}\n' +
+            '    </script>\n' +
+            '    <style>\n' +
+            '.selector {\n' +
+            '    font-size: 12px;\n' +
+            '}\n' +
+            '    </style>\n' +
+            '</head>');
+        test_fragment(
+            '<body>\n' +
+            '    <script src="one.js"></script> <!-- one -->\n' +
+            '    <script src="two.js"></script> <!-- two-->\n' +
             '</body>');
 
 

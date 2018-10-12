@@ -495,6 +495,17 @@ class Beautifier:
                     self.allow_wrap_or_preserved_newline(current_token)
             elif self._flags.last_token.type == TOKEN.WORD:
                 self._output.space_before_token = False
+                # function name() vs function name ()
+                # function* name() vs function* name ()
+                # async name() vs async name ()
+                if self._options.space_after_named_function:
+                    # peek starts at next character so -1 is current token
+                    peek_back_three = self._tokens.peek(-4)
+                    peek_back_two = self._tokens.peek(-3)
+                    if reserved_array(peek_back_two, ['async', 'function']) or (
+                        reserved_array(peek_back_three, ['async', 'function']) and
+                            peek_back_two.text == '*'):
+                        self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -699,6 +710,8 @@ class Beautifier:
             if current_token.text in [
                     'set', 'get'] and self._flags.mode != MODE.ObjectLiteral:
                 current_token.type = TOKEN.WORD
+            elif current_token.text == 'import' and self._tokens.peek().text == '(':
+                current_token.type = TOKEN.WORD    
             elif current_token.text in ['as', 'from'] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD
             elif self._flags.mode == MODE.ObjectLiteral:

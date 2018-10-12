@@ -75,6 +75,7 @@ class BeautifierOptions(BaseOptions):
         self.space_in_empty_paren = self._get_boolean('space_in_empty_paren')
         self.jslint_happy = self._get_boolean('jslint_happy')
         self.space_after_anon_function = self._get_boolean('space_after_anon_function')
+        self.space_after_named_function = self._get_boolean('space_after_named_function')
         self.keep_array_indentation = self._get_boolean('keep_array_indentation')
         self.space_before_conditional = self._get_boolean('space_before_conditional', True)
         self.unescape_strings = self._get_boolean('unescape_strings')

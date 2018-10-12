@@ -78,13 +78,14 @@ var path = require('path'),
     "space_in_empty_paren": Boolean,
     "jslint_happy": Boolean,
     "space_after_anon_function": Boolean,
+    "space_after_named_function": Boolean,
     "brace_style": "brace_style", //See above for validation
     "unindent_chained_methods": Boolean,
     "break_chained_methods": Boolean,
     "keep_array_indentation": Boolean,
     "unescape_strings": Boolean,
     "wrap_line_length": Number,
-    "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple"],
+    "wrap_attributes": ["auto", "force", "force-aligned", "force-expand-multiline", "aligned-multiple", "preserve", "preserve-aligned"],
     "wrap_attributes_indent_size": Number,
     "e4x": Boolean,
     "end_with_newline": Boolean,
@@ -354,6 +355,7 @@ function usage(err) {
       msg.push('  -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )');
       msg.push('  -j, --jslint-happy                Enable jslint-stricter mode');
       msg.push('  -a, --space-after-anon-function   Add a space before an anonymous function\'s parens, ie. function ()');
+      msg.push('  --space_after_named_function      Add a space before a named function\'s parens, ie. function example ()');
       msg.push('  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]');
       msg.push('  -u, --unindent-chained-methods    Don\'t indent chained method calls');
       msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
@@ -371,7 +373,7 @@ function usage(err) {
       msg.push('  -H, --indent-handlebars           Indent handlebars. Default is false.');
       msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
       msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
-      msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force] ["auto"]');
+      msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]');
       msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
       msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');
       msg.push('  -m, --max-preserve-newlines       Number of line-breaks to be preserved in one chunk [10]');

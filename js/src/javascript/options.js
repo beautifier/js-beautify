@@ -69,6 +69,7 @@ function Options(options) {
   this.space_in_empty_paren = this._get_boolean('space_in_empty_paren');
   this.jslint_happy = this._get_boolean('jslint_happy');
   this.space_after_anon_function = this._get_boolean('space_after_anon_function');
+  this.space_after_named_function = this._get_boolean('space_after_named_function');
   this.keep_array_indentation = this._get_boolean('keep_array_indentation');
   this.space_before_conditional = this._get_boolean('space_before_conditional', true);
   this.unescape_strings = this._get_boolean('unescape_strings');
@@ -83,6 +84,7 @@ function Options(options) {
   if (this.jslint_happy) {
     this.space_after_anon_function = true;
   }
+
 }
 Options.prototype = new BaseOptions();
 
