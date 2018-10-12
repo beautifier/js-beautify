@@ -45,16 +45,27 @@ class Options:
         self.indent_level = self._get_number('indent_level')
 
         self.preserve_newlines = self._get_boolean('preserve_newlines', True)
-        # TODO: fix difference in js and python
         self.max_preserve_newlines = self._get_number(
-            'max_preserve_newlines', 10)
+            'max_preserve_newlines', 32786)
+
         if not self.preserve_newlines:
             self.max_preserve_newlines = 0
 
-        self.indent_with_tabs = self._get_boolean('indent_with_tabs')
+        self.indent_with_tabs = self._get_boolean(
+            'indent_with_tabs', self.indent_char == '\t')
         if self.indent_with_tabs:
             self.indent_char = '\t'
-            self.indent_size = 1
+
+            # indent_size behavior changed after 1.8.6
+            # It used to be that indent_size would be
+            # set to 1 for indent_with_tabs. That is no longer needed and
+            # actually doesn't make sense - why not use spaces? Further,
+            # that might produce unexpected behavior - tabs being used
+            # for single-column alignment. So, when indent_with_tabs is true
+            # and indent_size is 1, reset indent_size to 4.
+            if self.indent_size == 1:
+                self.indent_size = 4
+
 
         # Backwards compat with 1.3.x
         self.wrap_line_length = self._get_number(

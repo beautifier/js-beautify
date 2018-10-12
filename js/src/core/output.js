@@ -150,8 +150,6 @@ IndentStringCache.prototype.get_indent_size = function(indent, column) {
   result += indent * this.__indent_size;
   result += column;
   return result;
-
-  // return this.get_indent_string(indent, column).length;
 };
 
 IndentStringCache.prototype.get_indent_string = function(indent_level, column) {
@@ -255,14 +253,13 @@ Output.prototype.get_code = function(eol) {
   return sweet_code;
 };
 
-Output.prototype.set_indent = function(indent, alignment, character) {
+Output.prototype.set_indent = function(indent, alignment) {
   indent = indent || 0;
   alignment = alignment || 0;
-  character = character || ' ';
 
   // Never indent your first output indent at the start of the file
   if (this.__lines.length > 1) {
-    this.current_line.set_indent(indent, alignment, character);
+    this.current_line.set_indent(indent, alignment);
     return true;
   }
   this.current_line.set_indent();

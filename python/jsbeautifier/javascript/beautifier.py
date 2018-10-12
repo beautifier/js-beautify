@@ -711,7 +711,7 @@ class Beautifier:
                     'set', 'get'] and self._flags.mode != MODE.ObjectLiteral:
                 current_token.type = TOKEN.WORD
             elif current_token.text == 'import' and self._tokens.peek().text == '(':
-                current_token.type = TOKEN.WORD    
+                current_token.type = TOKEN.WORD
             elif current_token.text in ['as', 'from'] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD
             elif self._flags.mode == MODE.ObjectLiteral:
@@ -1217,25 +1217,34 @@ class Beautifier:
 
         # block comment starts with a new line
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
-        if len(lines) > 1:
-            javadoc = not any(l for l in lines[1:] if (
-                l.strip() == '' or (l.lstrip())[0] != '*'))
-            starless = all(l.startswith(last_indent)
-                           or l.strip() == '' for l in lines[1:])
 
         # first line always indented
         self.print_token(current_token, lines[0])
-        for line in lines[1:]:
-            self.print_newline(preserve_statement_flags=True)
+
+
+        if len(lines) > 1:
+            lines = lines[1:]
+            javadoc = not any(l for l in lines if (
+                l.strip() == '' or (l.lstrip())[0] != '*'))
+            starless = all(l.startswith(last_indent)
+                           or l.strip() == '' for l in lines)
+
             if javadoc:
-                # javadoc: reformat and re-indent
-                self.print_token(current_token, ' ' + line.lstrip())
-            elif starless and len(line) > last_indent_length:
-                # starless: re-indent non-empty content, avoiding trim
-                self.print_token(current_token, line[last_indent_length:])
-            else:
-                # normal comments output raw
-                self._output.add_token(line)
+                this._flags.alignment = 1
+
+            for line in lines:
+                self.print_newline(preserve_statement_flags=True)
+                if javadoc:
+                    # javadoc: reformat and re-indent
+                    self.print_token(current_token, line.lstrip())
+                elif starless and len(line) > last_indent_length:
+                    # starless: re-indent non-empty content, avoiding trim
+                    self.print_token(current_token, line[last_indent_length:])
+                else:
+                    # normal comments output raw
+                    self._output.add_token(line)
+
+            this._flags.alignment = 0
 
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
