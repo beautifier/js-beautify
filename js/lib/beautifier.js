@@ -143,6 +143,7 @@ module.exports.js = js_beautify;
 module.exports.css = css_beautify;
 module.exports.html = style_html;
 
+
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -186,6 +187,7 @@ function js_beautify(js_source_text, options) {
 }
 
 module.exports = js_beautify;
+
 
 /***/ }),
 /* 2 */
@@ -761,6 +763,19 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       }
     } else if (this._flags.last_token.type === TOKEN.WORD) {
       this._output.space_before_token = false;
+
+      // function name() vs function name ()
+      // function* name() vs function* name ()
+      // async name() vs async name ()
+      if (this._options.space_after_named_function) {
+        // peek starts at next character so -1 is current token
+        var peek_back_three = this._tokens.peek(-4);
+        var peek_back_two = this._tokens.peek(-3);
+        if (reserved_array(peek_back_two, ['async', 'function']) ||
+          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          this._output.space_before_token = true;
+        }
+      }
     } else {
       // Support preserving wrapped arrow function expressions
       // a.b('c',
@@ -969,6 +984,8 @@ Beautifier.prototype.handle_end_block = function(current_token) {
 Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.type === TOKEN.RESERVED) {
     if (in_array(current_token.text, ['set', 'get']) && this._flags.mode !== MODE.ObjectLiteral) {
+      current_token.type = TOKEN.WORD;
+    } else if (current_token.text === 'import' && this._tokens.peek().text === '(') {
       current_token.type = TOKEN.WORD;
     } else if (in_array(current_token.text, ['as', 'from']) && !this._flags.import_block) {
       current_token.type = TOKEN.WORD;
@@ -1588,6 +1605,7 @@ Beautifier.prototype.handle_eof = function(current_token) {
 
 module.exports.Beautifier = Beautifier;
 
+
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1903,6 +1921,7 @@ Output.prototype.ensure_empty_line_above = function(starts_with, ends_with) {
 
 module.exports.Output = Output;
 
+
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1962,6 +1981,7 @@ function Token(type, text, newlines, whitespace_before) {
 
 
 module.exports.Token = Token;
+
 
 /***/ }),
 /* 5 */
@@ -2024,6 +2044,7 @@ exports.newline = /[\n\r\u2028\u2029]/;
 // in python they are the same, different methods are called on them
 exports.lineBreak = new RegExp('\r\n|' + exports.newline.source);
 exports.allLineBreaks = new RegExp(exports.lineBreak.source, 'g');
+
 
 /***/ }),
 /* 6 */
@@ -2101,6 +2122,7 @@ function Options(options) {
   this.space_in_empty_paren = this._get_boolean('space_in_empty_paren');
   this.jslint_happy = this._get_boolean('jslint_happy');
   this.space_after_anon_function = this._get_boolean('space_after_anon_function');
+  this.space_after_named_function = this._get_boolean('space_after_named_function');
   this.keep_array_indentation = this._get_boolean('keep_array_indentation');
   this.space_before_conditional = this._get_boolean('space_before_conditional', true);
   this.unescape_strings = this._get_boolean('unescape_strings');
@@ -2115,12 +2137,14 @@ function Options(options) {
   if (this.jslint_happy) {
     this.space_after_anon_function = true;
   }
+
 }
 Options.prototype = new BaseOptions();
 
 
 
 module.exports.Options = Options;
+
 
 /***/ }),
 /* 7 */
@@ -2158,8 +2182,7 @@ module.exports.Options = Options;
 
 
 function Options(options, merge_child_field) {
-  options = _mergeOpts(options, merge_child_field);
-  this.raw_options = _normalizeOpts(options);
+  this.raw_options = _mergeOpts(options, merge_child_field);
 
   // Support passing the source text back with no change
   this.disabled = this._get_boolean('disabled');
@@ -2270,10 +2293,10 @@ Options.prototype._is_valid_selection = function(result, selection_list) {
 // Example: obj = {a: 1, b: {a: 2}}
 //          mergeOpts(obj, 'b')
 //
-//          Returns: {a: 2, b: {a: 2}}
+//          Returns: {a: 2}
 function _mergeOpts(allOptions, childFieldName) {
   var finalOpts = {};
-  allOptions = allOptions || {};
+  allOptions = _normalizeOpts(allOptions);
   var name;
 
   for (name in allOptions) {
@@ -2305,6 +2328,7 @@ function _normalizeOpts(options) {
 module.exports.Options = Options;
 module.exports.normalizeOpts = _normalizeOpts;
 module.exports.mergeOpts = _mergeOpts;
+
 
 /***/ }),
 /* 8 */
@@ -2400,6 +2424,8 @@ punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
 var punct_pattern = new RegExp(punct, 'g');
+var shebang_pattern = /#![^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
+var include_pattern = /#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -2526,17 +2552,22 @@ Tokenizer.prototype._read_non_javascript = function(c) {
   var resulting_string = '';
 
   if (c === '#') {
-    c = this._input.next();
+    if (this._is_first_token()) {
+      resulting_string = this._input.read(shebang_pattern);
 
-    if (this._is_first_token() && this._input.peek() === '!') {
-      // shebang
-      resulting_string = c;
-      while (this._input.hasNext() && c !== '\n') {
-        c = this._input.next();
-        resulting_string += c;
+      if (resulting_string) {
+        return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
       }
+    }
+
+    // handles extendscript #includes
+    resulting_string = this._input.read(include_pattern);
+
+    if (resulting_string) {
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
     }
+
+    c = this._input.next();
 
     // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
     var sharp = '#';
@@ -2846,6 +2877,7 @@ module.exports.TOKEN = TOKEN;
 module.exports.positionable_operators = positionable_operators.slice();
 module.exports.line_starters = line_starters.slice();
 
+
 /***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -2999,6 +3031,7 @@ InputScanner.prototype.lookBack = function(testVal) {
 
 
 module.exports.InputScanner = InputScanner;
+
 
 /***/ }),
 /* 10 */
@@ -3158,6 +3191,7 @@ Tokenizer.prototype._readWhitespace = function() {
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
 
+
 /***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3242,6 +3276,7 @@ TokenStream.prototype.add = function(token) {
 
 module.exports.TokenStream = TokenStream;
 
+
 /***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3310,6 +3345,7 @@ Directives.prototype.readIgnored = function(input) {
 
 module.exports.Directives = Directives;
 
+
 /***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3353,6 +3389,7 @@ function css_beautify(source_text, options) {
 }
 
 module.exports = css_beautify;
+
 
 /***/ }),
 /* 14 */
@@ -3798,6 +3835,7 @@ Beautifier.prototype.beautify = function() {
 
 module.exports.Beautifier = Beautifier;
 
+
 /***/ }),
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3850,6 +3888,7 @@ Options.prototype = new BaseOptions();
 
 module.exports.Options = Options;
 
+
 /***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3893,6 +3932,7 @@ function style_html(html_source, options, js_beautify, css_beautify) {
 }
 
 module.exports = style_html;
+
 
 /***/ }),
 /* 17 */
@@ -4144,6 +4184,8 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
   this._is_wrap_attributes_force_expand_multiline = (this._options.wrap_attributes === 'force-expand-multiline');
   this._is_wrap_attributes_force_aligned = (this._options.wrap_attributes === 'force-aligned');
   this._is_wrap_attributes_aligned_multiple = (this._options.wrap_attributes === 'aligned-multiple');
+  this._is_wrap_attributes_preserve = this._options.wrap_attributes.substr(0, 'preserve'.length) === 'preserve';
+  this._is_wrap_attributes_preserve_aligned = (this._options.wrap_attributes === 'preserve-aligned');
 }
 
 Beautifier.prototype.beautify = function() {
@@ -4260,12 +4302,19 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
     }
 
     if (printer._output.space_before_token && last_tag_token.tag_start_char === '<') {
+      // Allow the current attribute to wrap
+      // Set wrapped to true if the line is wrapped
       var wrapped = printer.print_space_or_wrap(raw_token.text);
       if (raw_token.type === TOKEN.ATTRIBUTE) {
-        var indentAttrs = wrapped && !this._is_wrap_attributes_force;
+        if (this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) {
+          printer.traverse_whitespace(raw_token);
+          wrapped = wrapped || raw_token.newlines !== 0;
+        }
+        // Save whether we have wrapped any attributes
+        last_tag_token.has_wrapped_attrs = last_tag_token.has_wrapped_attrs || wrapped;
 
         if (this._is_wrap_attributes_force) {
-          var force_first_attr_wrap = false;
+          var force_attr_wrap = last_tag_token.attr_count > 1;
           if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.attr_count === 1) {
             var is_only_attribute = true;
             var peek_index = 0;
@@ -4279,16 +4328,13 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
               peek_index += 1;
             } while (peek_index < 4 && peek_token.type !== TOKEN.EOF && peek_token.type !== TOKEN.TAG_CLOSE);
 
-            force_first_attr_wrap = !is_only_attribute;
+            force_attr_wrap = !is_only_attribute;
           }
 
-          if (last_tag_token.attr_count > 1 || force_first_attr_wrap) {
+          if (force_attr_wrap) {
             printer.print_newline(false);
-            indentAttrs = true;
+            last_tag_token.has_wrapped_attrs = true;
           }
-        }
-        if (indentAttrs) {
-          last_tag_token.has_wrapped_attrs = true;
         }
       }
     }
@@ -4373,7 +4419,7 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
   }
 
   //indent attributes an auto, forced, aligned or forced-align line-wrap
-  if (this._is_wrap_attributes_force_aligned || this._is_wrap_attributes_aligned_multiple) {
+  if (this._is_wrap_attributes_force_aligned || this._is_wrap_attributes_aligned_multiple || this._is_wrap_attributes_preserve_aligned) {
     parser_token.alignment_size = raw_token.text.length + 1;
   }
 
@@ -4643,6 +4689,7 @@ Beautifier.prototype._do_optional_end_element = function(parser_token) {
 
 module.exports.Beautifier = Beautifier;
 
+
 /***/ }),
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -4689,7 +4736,7 @@ function Options(options) {
 
   this.indent_handlebars = this._get_boolean('indent_handlebars', true);
   this.wrap_attributes = this._get_selection('wrap_attributes',
-    ['auto', 'force', 'force-aligned', 'force-expand-multiline', 'aligned-multiple']);
+    ['auto', 'force', 'force-aligned', 'force-expand-multiline', 'aligned-multiple', 'preserve', 'preserve-aligned']);
   this.wrap_attributes_indent_size = this._get_number('wrap_attributes_indent_size', this.indent_size);
   this.extra_liners = this._get_array('extra_liners', ['head', 'body', '/html']);
 
@@ -4730,6 +4777,7 @@ Options.prototype = new BaseOptions();
 
 
 module.exports.Options = Options;
+
 
 /***/ }),
 /* 19 */
@@ -5024,6 +5072,7 @@ Tokenizer.prototype._read_content_word = function() {
 
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
+
 
 /***/ })
 /******/ ]);

@@ -219,6 +219,7 @@ function js_beautify(js_source_text, options) {
 
 module.exports = js_beautify;
 
+
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -793,6 +794,19 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       }
     } else if (this._flags.last_token.type === TOKEN.WORD) {
       this._output.space_before_token = false;
+
+      // function name() vs function name ()
+      // function* name() vs function* name ()
+      // async name() vs async name ()
+      if (this._options.space_after_named_function) {
+        // peek starts at next character so -1 is current token
+        var peek_back_three = this._tokens.peek(-4);
+        var peek_back_two = this._tokens.peek(-3);
+        if (reserved_array(peek_back_two, ['async', 'function']) ||
+          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          this._output.space_before_token = true;
+        }
+      }
     } else {
       // Support preserving wrapped arrow function expressions
       // a.b('c',
@@ -1001,6 +1015,8 @@ Beautifier.prototype.handle_end_block = function(current_token) {
 Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.type === TOKEN.RESERVED) {
     if (in_array(current_token.text, ['set', 'get']) && this._flags.mode !== MODE.ObjectLiteral) {
+      current_token.type = TOKEN.WORD;
+    } else if (current_token.text === 'import' && this._tokens.peek().text === '(') {
       current_token.type = TOKEN.WORD;
     } else if (in_array(current_token.text, ['as', 'from']) && !this._flags.import_block) {
       current_token.type = TOKEN.WORD;
@@ -1620,6 +1636,7 @@ Beautifier.prototype.handle_eof = function(current_token) {
 
 module.exports.Beautifier = Beautifier;
 
+
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1935,6 +1952,7 @@ Output.prototype.ensure_empty_line_above = function(starts_with, ends_with) {
 
 module.exports.Output = Output;
 
+
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1994,6 +2012,7 @@ function Token(type, text, newlines, whitespace_before) {
 
 
 module.exports.Token = Token;
+
 
 /***/ }),
 /* 4 */
@@ -2056,6 +2075,7 @@ exports.newline = /[\n\r\u2028\u2029]/;
 // in python they are the same, different methods are called on them
 exports.lineBreak = new RegExp('\r\n|' + exports.newline.source);
 exports.allLineBreaks = new RegExp(exports.lineBreak.source, 'g');
+
 
 /***/ }),
 /* 5 */
@@ -2133,6 +2153,7 @@ function Options(options) {
   this.space_in_empty_paren = this._get_boolean('space_in_empty_paren');
   this.jslint_happy = this._get_boolean('jslint_happy');
   this.space_after_anon_function = this._get_boolean('space_after_anon_function');
+  this.space_after_named_function = this._get_boolean('space_after_named_function');
   this.keep_array_indentation = this._get_boolean('keep_array_indentation');
   this.space_before_conditional = this._get_boolean('space_before_conditional', true);
   this.unescape_strings = this._get_boolean('unescape_strings');
@@ -2147,12 +2168,14 @@ function Options(options) {
   if (this.jslint_happy) {
     this.space_after_anon_function = true;
   }
+
 }
 Options.prototype = new BaseOptions();
 
 
 
 module.exports.Options = Options;
+
 
 /***/ }),
 /* 6 */
@@ -2190,8 +2213,7 @@ module.exports.Options = Options;
 
 
 function Options(options, merge_child_field) {
-  options = _mergeOpts(options, merge_child_field);
-  this.raw_options = _normalizeOpts(options);
+  this.raw_options = _mergeOpts(options, merge_child_field);
 
   // Support passing the source text back with no change
   this.disabled = this._get_boolean('disabled');
@@ -2302,10 +2324,10 @@ Options.prototype._is_valid_selection = function(result, selection_list) {
 // Example: obj = {a: 1, b: {a: 2}}
 //          mergeOpts(obj, 'b')
 //
-//          Returns: {a: 2, b: {a: 2}}
+//          Returns: {a: 2}
 function _mergeOpts(allOptions, childFieldName) {
   var finalOpts = {};
-  allOptions = allOptions || {};
+  allOptions = _normalizeOpts(allOptions);
   var name;
 
   for (name in allOptions) {
@@ -2337,6 +2359,7 @@ function _normalizeOpts(options) {
 module.exports.Options = Options;
 module.exports.normalizeOpts = _normalizeOpts;
 module.exports.mergeOpts = _mergeOpts;
+
 
 /***/ }),
 /* 7 */
@@ -2432,6 +2455,8 @@ punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
 var punct_pattern = new RegExp(punct, 'g');
+var shebang_pattern = /#![^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
+var include_pattern = /#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
@@ -2558,17 +2583,22 @@ Tokenizer.prototype._read_non_javascript = function(c) {
   var resulting_string = '';
 
   if (c === '#') {
-    c = this._input.next();
+    if (this._is_first_token()) {
+      resulting_string = this._input.read(shebang_pattern);
 
-    if (this._is_first_token() && this._input.peek() === '!') {
-      // shebang
-      resulting_string = c;
-      while (this._input.hasNext() && c !== '\n') {
-        c = this._input.next();
-        resulting_string += c;
+      if (resulting_string) {
+        return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
       }
+    }
+
+    // handles extendscript #includes
+    resulting_string = this._input.read(include_pattern);
+
+    if (resulting_string) {
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
     }
+
+    c = this._input.next();
 
     // Spidermonkey-specific sharp variables for circular references. Considered obsolete.
     var sharp = '#';
@@ -2878,6 +2908,7 @@ module.exports.TOKEN = TOKEN;
 module.exports.positionable_operators = positionable_operators.slice();
 module.exports.line_starters = line_starters.slice();
 
+
 /***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3031,6 +3062,7 @@ InputScanner.prototype.lookBack = function(testVal) {
 
 
 module.exports.InputScanner = InputScanner;
+
 
 /***/ }),
 /* 9 */
@@ -3190,6 +3222,7 @@ Tokenizer.prototype._readWhitespace = function() {
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
 
+
 /***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3274,6 +3307,7 @@ TokenStream.prototype.add = function(token) {
 
 module.exports.TokenStream = TokenStream;
 
+
 /***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3341,6 +3375,7 @@ Directives.prototype.readIgnored = function(input) {
 
 
 module.exports.Directives = Directives;
+
 
 /***/ })
 /******/ ]);
