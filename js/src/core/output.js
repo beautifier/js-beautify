@@ -1,6 +1,5 @@
 /*jshint node:true */
 /*
-
   The MIT License (MIT)
 
   Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
@@ -102,7 +101,7 @@ OutputLine.prototype.pop = function() {
 OutputLine.prototype.remove_indent = function() {
   if (this.__indent_count > 0) {
     this.__indent_count -= 1;
-    this.__character_count -= this.__parent.indent_length;
+    this.__character_count -= this.__parent.indent_size;
   }
 };
 
@@ -122,7 +121,6 @@ OutputLine.prototype.toString = function() {
   return result;
 };
 
-
 function IndentStringCache(options, baseIndentString) {
   this.__cache = [''];
   this.__indent_size = options.indent_size;
@@ -131,7 +129,7 @@ function IndentStringCache(options, baseIndentString) {
     this.__indent_string = new Array(options.indent_size + 1).join(options.indent_char);
   }
 
-  // Set to null to continue support for auto detection of base indent level.
+  // Set to null to continue support for auto detection of base indent
   baseIndentString = baseIndentString || '';
   if (options.indent_level > 0) {
     baseIndentString = new Array(options.indent_level + 1).join(this.__indent_string);
@@ -188,11 +186,10 @@ IndentStringCache.prototype.__add_column = function() {
 };
 
 function Output(options, baseIndentString) {
-
   this.__indent_cache = new IndentStringCache(options, baseIndentString);
   this.raw = false;
   this._end_with_newline = options.end_with_newline;
-
+  this.indent_size = options.indent_size;
   this.__lines = [];
   this.previous_line = null;
   this.current_line = null;
@@ -249,7 +246,6 @@ Output.prototype.get_code = function(eol) {
   if (eol !== '\n') {
     sweet_code = sweet_code.replace(/[\n]/g, eol);
   }
-
   return sweet_code;
 };
 

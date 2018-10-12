@@ -66,7 +66,6 @@ class Options:
             if self.indent_size == 1:
                 self.indent_size = 4
 
-
         # Backwards compat with 1.3.x
         self.wrap_line_length = self._get_number(
             'wrap_line_length', self._get_number('max_char'))

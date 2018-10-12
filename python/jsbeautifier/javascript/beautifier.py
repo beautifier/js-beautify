@@ -326,7 +326,7 @@ class Beautifier:
                 line.push(current_token.whitespace_before)
                 self._output.space_before_token = False
             elif self._output.set_indent(self._flags.indentation_level,
-                    self._flags.alignment):
+                            self._flags.alignment):
                 self._flags.line_indent_level = self._flags.indentation_level
 
     def print_token(self, current_token, s=None):
@@ -1222,7 +1222,6 @@ class Beautifier:
 
         # first line always indented
         self.print_token(current_token, lines[0])
-
 
         if len(lines) > 1:
             lines = lines[1:]
