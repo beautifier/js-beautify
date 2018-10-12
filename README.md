@@ -210,6 +210,7 @@ Which correspond to the underscored option keys for both library interfaces
     "space_in_empty_paren": false,
     "jslint_happy": false,
     "space_after_anon_function": false,
+    "space_after_named_function": false,
     "brace_style": "collapse",
     "unindent_chained_methods": false,
     "break_chained_methods": false,
