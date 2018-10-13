@@ -398,6 +398,7 @@ class Beautifier:
             current_token.type == TOKEN.WORD)
         start = start or reserved_word(self._flags.last_token, 'do')
         start = start or (
+            not (self._flags.parent.mode == MODE.ObjectLiteral and self._flags.mode == MODE.Statement) and
             reserved_array(self._flags.last_token, self._newline_restricted_tokens) and
             not current_token.newlines)
         start = start or (
@@ -711,7 +712,7 @@ class Beautifier:
                     'set', 'get'] and self._flags.mode != MODE.ObjectLiteral:
                 current_token.type = TOKEN.WORD
             elif current_token.text == 'import' and self._tokens.peek().text == '(':
-                current_token.type = TOKEN.WORD    
+                current_token.type = TOKEN.WORD
             elif current_token.text in ['as', 'from'] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD
             elif self._flags.mode == MODE.ObjectLiteral:
