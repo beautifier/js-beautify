@@ -2028,6 +2028,15 @@ class TestJSBeautifier(unittest.TestCase):
             '        yield b;\n' +
             '    }\n' +
             '}')
+        bt(
+            'a = {\n' +
+            '    myVar: async () => {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async async () => {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}')
 
 
         #============================================================
