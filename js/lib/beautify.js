@@ -700,7 +700,7 @@ Beautifier.prototype.start_of_statement = function(current_token) {
   var start = false;
   start = start || reserved_array(this._flags.last_token, ['var', 'let', 'const']) && current_token.type === TOKEN.WORD;
   start = start || reserved_word(this._flags.last_token, 'do');
-  start = start || (reserved_array(this._flags.last_token, newline_restricted_tokens) && !current_token.newlines);
+  start = start || (!(this._flags.parent.mode === MODE.ObjectLiteral && this._flags.mode === MODE.Statement)) && reserved_array(this._flags.last_token, newline_restricted_tokens) && !current_token.newlines;
   start = start || reserved_word(this._flags.last_token, 'else') &&
     !(reserved_word(current_token, 'if') && !current_token.comments_before);
   start = start || (this._flags.last_token.type === TOKEN.END_EXPR && (this._previous_flags.mode === MODE.ForInitializer || this._previous_flags.mode === MODE.Conditional));
