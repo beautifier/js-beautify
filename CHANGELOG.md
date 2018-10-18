@@ -1,4 +1,27 @@
 # Changelog
+## v1.8.8
+
+### Description
+
+
+### Closed Issues
+*  async function in object wrong indentation ([#1573](https://github.com/beautify-web/js-beautify/issues/1573))
+
+
+## v1.8.7
+
+### Description
+
+
+### Closed Issues
+* Add tests for html  `indent_scripts` option ([#1518](https://github.com/beautify-web/js-beautify/issues/1518))
+* Support dynamic import ([#1197](https://github.com/beautify-web/js-beautify/issues/1197))
+* HTML: add an option to preserve manual wrapping of attributes ([#1125](https://github.com/beautify-web/js-beautify/issues/1125))
+* js-beautify adds a space between # and include ([#1114](https://github.com/beautify-web/js-beautify/issues/1114))
+* space_after_anon_function doesn't work with anon async functions ([#1034](https://github.com/beautify-web/js-beautify/issues/1034))
+* Space before function arguments (space-after-function) ([#608](https://github.com/beautify-web/js-beautify/issues/608))
+
+
 ## v1.8.6
 
 ### Description
@@ -21,19 +44,6 @@ Broader adoption of 1.8.x revealed a few more high priority fixes
 ### Closed Issues
 * Multiple newlines added between empty textarea and "unformatted" inline elements  ([#1534](https://github.com/beautify-web/js-beautify/issues/1534))
 * unindent_chained_methods broken ([#1533](https://github.com/beautify-web/js-beautify/issues/1533))
-
-
-## v1.8.3
-
-### Description
-
-
-### Closed Issues
-* Missing Bower Assets ([#1521](https://github.com/beautify-web/js-beautify/issues/1521))
-* Javascript ternary breaked with `await` ([#1519](https://github.com/beautify-web/js-beautify/issues/1519))
-* Object property indented after `await` ([#1517](https://github.com/beautify-web/js-beautify/issues/1517))
-* Handlebars formatting problems ([#870](https://github.com/beautify-web/js-beautify/issues/870))
-* beautify.js doesn't have indent_level option ([#724](https://github.com/beautify-web/js-beautify/issues/724))
 
 
 ## v1.8.1
@@ -66,7 +76,7 @@ Highlights:
 * HTML: Improved line wrapping in HTML - still not fully correct
 * HTML: 10x performance improvement in HTML beautifier
 * JS: ES6 BigInt support (@thejoshwolfe)
-* JS: ES6 Dynamic import support
+* JS: ES6 Dynamic import support 
 * CSS: :hover for @extend formatting (@MacKLess)
 * HTML: Incorrect line wrapping issue (@andreyvolokitin)
 * JS: Javascript ++ Operator Indentation (@Elrendio)
@@ -274,7 +284,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 ## v1.6.4
 
 ### Description
-* Fixed JSX multi-line root element handling
+* Fixed JSX multi-line root element handling 
 * Fixed CSS Combinator spacing (NOTE: use `space_around_combinator` option)
 * Fixed (more) CSS pseudo-class and pseudo-element selectors (Thanks @Konamiman!)
 * Fixed Shorthand generator functions and `yield*` (Thanks @jgeurts!)
@@ -441,7 +451,7 @@ Version jump due to release script tweaks
 ### Description
 * JSX support!
 * Alternative Newline Characters
-* CSS and JS comment formatting fixes
+* CSS and JS comment formatting fixes 
 * General bug fixing
 
 
@@ -544,12 +554,12 @@ https://github.com/beautify-web/js-beautify/compare/v1.5.2...v1.5.3
 * Do not break "x++ + y"
 * function declaration inside array behaves the same as in expression
 * Close String literals at newline
-* Support handlebar syntax
+* Support handlebar syntax 
 * Check `<script>` "type"-attribute
 * Allow `<style>` and `<script>` tags to be unformatted
 * Port css nesting fix to python
 * Fix python six dependency
-* Initial very cursory support for ES6 module, export, and import
+* Initial very cursory support for ES6 module, export, and import 
 
 https://github.com/beautify-web/js-beautify/compare/v1.5.1...v1.5.2
 
