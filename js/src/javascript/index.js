@@ -37,4 +37,6 @@ function js_beautify(js_source_text, options) {
 }
 
 module.exports = js_beautify;
-module.exports.defaultOptions = new Options();
+module.exports.defaultOptions = function() {
+  return new Options();
+};
