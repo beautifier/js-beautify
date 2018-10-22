@@ -201,6 +201,7 @@ Which correspond to the underscored option keys for both library interfaces
     "indent_size": 4,
     "indent_char": " ",
     "indent_with_tabs": false,
+    "editorconfig", false,
     "eol": "\n",
     "end_with_newline": false,
     "indent_level": 0,
