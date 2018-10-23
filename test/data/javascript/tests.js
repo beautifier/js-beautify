@@ -1003,6 +1003,18 @@ exports.test_data = {
             '    }',
             '}'
           ]
+        },
+        {
+          unchanged: [
+            'a = {',
+            '    myVar: async () => {',
+            '        return a;',
+            '    },',
+            '    myOtherVar: async async () => {',
+            '        yield b;',
+            '    }',
+            '}'
+          ]
         }
       ]
     }, {

@@ -2258,6 +2258,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        yield b;\n' +
             '    }\n' +
             '}');
+        bt(
+            'a = {\n' +
+            '    myVar: async () => {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async async () => {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================
