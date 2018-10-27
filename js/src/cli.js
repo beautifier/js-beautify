@@ -41,7 +41,8 @@ var fs = require('fs'),
   cc = require('config-chain'),
   beautify = require('../index'),
   mkdirp = require('mkdirp'),
-  nopt = require('nopt');
+  nopt = require('nopt'),
+  glob = require('glob');
 
 nopt.invalidHandler = function(key, val) {
   throw new Error(key + " was invalid with value \"" + val + "\"");
@@ -578,6 +579,8 @@ function checkType(parsed) {
 function checkFiles(parsed) {
   var argv = parsed.argv;
   var isTTY = true;
+  var globFiles = [];
+  var hadGlob = false;
 
   try {
     isTTY = process.stdin.isTTY;
@@ -593,36 +596,65 @@ function checkFiles(parsed) {
     if (argv.cooked.indexOf('-') > -1) {
       // strip stdin path eagerly added by nopt in '-f -' case
       parsed.files.some(removeDashedPath);
+      parsed.files.forEach(testFilePath);
     }
   }
+
 
   if (argv.remain.length) {
     // assume any remaining args are files
     argv.remain.forEach(function(f) {
       if (f !== '-') {
-        parsed.files.push(path.resolve(f));
+
+        var foundFiles;
+        var isGlob = glob.hasMagic(f);
+
+        // Input was a glob
+        if (isGlob) {
+          hadGlob = true;
+          foundFiles = glob(f, {
+            sync: true,
+            absolute: true,
+            ignore: ['**/node_modules/**', '**/.git/**']
+          });
+        } else {
+          // Input was not a glob, add it to an array so we are able to handle it in the same loop below
+          testFilePath(f);
+          foundFiles = [f];
+        }
+
+        if (foundFiles && foundFiles.length) {
+          // Add files to the parsed.files if it didn't exist in the array yet
+          foundFiles.forEach(function(file) {
+            globFiles.push(file);
+            var filePath = path.resolve(file);
+            if (parsed.files.indexOf(filePath) === -1) {
+              parsed.files.push(filePath);
+            }
+          });
+        }
       }
     });
   }
 
   if ('string' === typeof parsed.outfile && isTTY && !parsed.files.length) {
+    testFilePath(parsed.outfile);
     // use outfile as input when no other files passed in args
     parsed.files.push(parsed.outfile);
     // operation is now an implicit overwrite
     parsed.replace = true;
   }
 
-  if (!parsed.files.length) {
+  if (!parsed.files.length && !hadGlob) {
     // read stdin by default
     parsed.files.push('-');
   }
+
   debug('files.length ' + parsed.files.length);
 
-  if (parsed.files.indexOf('-') > -1 && isTTY) {
+  if (parsed.files.indexOf('-') > -1 && isTTY && !hadGlob) {
     throw 'Must pipe input or define at least one file.';
   }
-
-  parsed.files.forEach(testFilePath);
 
   return parsed;
 }

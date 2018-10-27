@@ -54,6 +54,12 @@ test_cli_common()
       exit 1
   }
 
+  MISSING_FILE_GLOB="**/*/missing_file"
+  $CLI_SCRIPT $MISSING_FILE_GLOB > /dev/null || {
+      echo "[$CLI_SCRIPT_NAME $MISSING_FILE_GLOB] Return code should be success for globs."
+      exit 1
+  }
+
   $CLI_SCRIPT $MISSING_FILE 2>&1 | grep -q "$MISSING_FILE_MESSAGE" || {
       echo "[$CLI_SCRIPT_NAME $MISSING_FILE] Stderr should have useful message."
       exit 1
