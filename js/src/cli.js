@@ -33,9 +33,9 @@
 */
 /*jshint strict:false */
 
-var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function() {
+var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? function () {
   console.error.apply(console, arguments);
-} : function() {};
+} : function () {};
 
 var fs = require('fs'),
   cc = require('config-chain'),
@@ -43,13 +43,13 @@ var fs = require('fs'),
   mkdirp = require('mkdirp'),
   nopt = require('nopt');
 
-nopt.invalidHandler = function(key, val) {
+nopt.invalidHandler = function (key, val) {
   throw new Error(key + " was invalid with value \"" + val + "\"");
 };
 
 nopt.typeDefs.brace_style = {
   type: "brace_style",
-  validate: function(data, key, val) {
+  validate: function (data, key, val) {
     data[key] = val;
     // TODO: expand-strict is obsolete, now identical to expand.  Remove in future version
     // TODO: collapse-preserve-inline is obselete, now identical to collapse,preserve-inline = true. Remove in future version
@@ -243,7 +243,7 @@ function set_file_editorconfig_opts(file, config) {
 }
 
 // var cli = require('js-beautify/cli'); cli.interpret();
-var interpret = exports.interpret = function(argv, slice) {
+var interpret = exports.interpret = function (argv, slice) {
   var parsed;
   try {
     parsed = nopt(knownOpts, shortHands, argv, slice);
@@ -433,11 +433,11 @@ function processInputSync(filepath) {
 
     input.setEncoding('utf8');
 
-    input.on('data', function(chunk) {
+    input.on('data', function (chunk) {
       data += chunk;
     });
 
-    input.on('end', function() {
+    input.on('end', function () {
       makePretty(fileType, data, config, outfile, writePretty); // Where things get beautified
     });
   } else {
@@ -520,7 +520,7 @@ function dasherizeFlag(str) {
 
 function dasherizeShorthands(hash) {
   // operate in-place
-  Object.keys(hash).forEach(function(key) {
+  Object.keys(hash).forEach(function (key) {
     // each key value is an array
     var val = hash[key][0];
     // only dasherize one-character shorthands
@@ -586,9 +586,10 @@ function checkFiles(parsed) {
     }
   }
 
+
   if (argv.remain.length) {
     // assume any remaining args are files
-    argv.remain.forEach(function(f) {
+    argv.remain.forEach(function (f) {
       if (f !== '-') {
         parsed.files.push(path.resolve(f));
       }
