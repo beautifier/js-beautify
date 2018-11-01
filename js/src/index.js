@@ -37,6 +37,7 @@ function style_html(html_source, options, js, css) {
   css = css || css_beautify;
   return html_beautify(html_source, options, js, css);
 }
+style_html.defaultOptions = html_beautify.defaultOptions;
 
 module.exports.js = js_beautify;
 module.exports.css = css_beautify;
