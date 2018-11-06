@@ -160,7 +160,7 @@ CLI Options:
   -r, --replace    Write output in-place, replacing input
   -o, --outfile    Write output to file (default stdout)
   --config         Path to config file
-  --type           [js|css|html] ["js"] (Note: this is *not* a filter on the file extension, it only defines which beautifier type to run)
+  --type           [js|css|html] ["js"] Select beautifier type (NOTE: Does *not* filter files, only defines which beautifier type to run)
   -q, --quiet      Suppress logging to stdout
   -h, --help       Show this help
   -v, --version    Show the version
