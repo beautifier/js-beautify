@@ -571,13 +571,24 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       // function name() vs function name ()
       // function* name() vs function* name ()
       // async name() vs async name ()
-      if (this._options.space_after_named_function) {
+      // In ES6, you can also define the method properties of an object
+      // var obj = {a: function() {}}
+      // It can be abbreviated
+      // var obj = {a() {}}
+      // var obj = { a() {}} vs var obj = { a () {}}
+      // var obj = { * a() {}} vs var obj = { * a () {}}
+      var peek_back_two = this._tokens.peek(-3);
+      if (this._options.space_after_named_function && peek_back_two) {
         // peek starts at next character so -1 is current token
         var peek_back_three = this._tokens.peek(-4);
-        var peek_back_two = this._tokens.peek(-3);
         if (reserved_array(peek_back_two, ['async', 'function']) ||
-          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          (peek_back_two.text === '*' && reserved_array(peek_back_three, ['async', 'function']))) {
           this._output.space_before_token = true;
+        } else if (this._flags.mode === MODE.ObjectLiteral) {
+          if ((peek_back_two.text === '{' || peek_back_two.text === ',') ||
+            (peek_back_two.text === '*' && (peek_back_three.text === '{' || peek_back_three.text === ','))) {
+            this._output.space_before_token = true;
+          }
         }
       }
     } else {
@@ -595,45 +606,7 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       (this._flags.last_token.text === '*' &&
         (in_array(this._last_last_text, ['function', 'yield']) ||
           (this._flags.mode === MODE.ObjectLiteral && in_array(this._last_last_text, ['{', ',']))))) {
-
-      // In ES6, you can also define the method properties of an object
-      // var obj = {a: function() {}}
-      // It can be abbreviated
-      // var obj = {a() {}}
-      // In some linters, the property name and the left parenthesis need to have a space, something like that
-      // var obj = {a () {}}
-      // The following code is doing just that
-      //
-      // 1、Rule out chained function calls
-      // 2、Object assignment expression,such as
-      // var obj = {
-      //  a () {}
-      // }
-      // 3、The object parameters
-      // new Vue({
-      //   data () {}
-      // })
-      if ((this._options.space_after_named_function && current_token.text === '(') &&
-        in_array(previous_flags.mode, [MODE.Expression, MODE.Statement, MODE.BlockStatement, MODE.ObjectLiteral]) &&
-        (last_type === TOKEN.WORD || last_type === TOKEN.RESERVED && in_array(flags.last_word, ['get', 'set']))
-      ) {
-        var isFn = false;
-        //BUGBUG slice not allowed on this._tokens
-        var afterTokens = tokens.slice(token_pos + 1);
-        for (var i = 0; i < afterTokens.length; i++) {
-          if (current_token === afterTokens[i].opened) {
-            if (tokens[token_pos - 2] && tokens[token_pos - 2].type === TOKEN.RESERVED) {
-              break;
-            }
-            if (last_last_text === '*' && tokens[token_pos - 3] && tokens[token_pos - 3].type === TOKEN.RESERVED) {
-              break;
-            }
-            isFn = afterTokens[i] === afterTokens[i + 1].parent && afterTokens[i + 1].type === TOKEN.START_BLOCK;
-            break;
-          }
-        }
-        this._output.space_before_token = isFn ? this._options.space_after_named_function : false;
-      }
+      this._output.space_before_token = this._options.space_after_anon_function;
     }
   }
 
@@ -785,6 +758,11 @@ Beautifier.prototype.handle_start_block = function(current_token) {
   }
   this.print_token(current_token);
   this.indent();
+
+  // Except for specific cases, open braces are followed by a new line.
+  if (!empty_braces && !(this._options.brace_preserve_inline && this._flags.inline_frame)) {
+    this.print_newline();
+  }
 };
 
 Beautifier.prototype.handle_end_block = function(current_token) {

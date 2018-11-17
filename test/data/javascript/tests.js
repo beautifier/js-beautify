@@ -2045,6 +2045,60 @@ exports.test_data = {
         {
           input: 'async x() {\n    yield 1;\n}',
           output: 'async x{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'var a={data(){},\ndata2(){}}',
+          output: [
+            'var a = {',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {}',
+            '}'
+          ]
+        }, {
+          input: 'new Vue({\ndata(){},\ndata2(){}, a:1})',
+          output: [
+            'new Vue({',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {},',
+            '    a: 1',
+            '})'
+          ]
+        }, {
+          input: 'export default {data(){},\ndata2(){},\na:1}',
+          output: [
+            'export default {',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {},',
+            '    a: 1',
+            '}'
+          ]
+        },
+        {
+          input: 'var a={*data(){},*data2(){}}',
+          output: [
+            'var a = {',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {}',
+            '}'
+          ]
+        }, {
+          input: 'new Vue({\n*data(){},*data2(){}, a:1})',
+          output: [
+            'new Vue({',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {},',
+            '    a: 1',
+            '})'
+          ]
+        }, {
+          input: 'export default {*data(){},*data2(){},\na:1}',
+          output: [
+            'export default {',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {},',
+            '    a: 1',
+            '}'
+          ]
         }
       ]
     }, {
@@ -3572,31 +3626,6 @@ exports.test_data = {
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
         { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
       ]
-    },
-    {
-      name: "jslint and space after function",
-      description: "jslint_happy and space_after_named_function tests",
-      matrix: [{
-        options: [
-          { name: "space_after_named_function", value: "true" }
-        ],
-        f: ' '
-      }, {
-        options: [
-          { name: "space_after_named_function", value: "false" }
-        ],
-        f: ''
-      }],
-      tests: [{
-        input_: 'var a={data(){}}',
-        output: 'var a = {\n    data{{f}}() {}\n}'
-      }, {
-        input_: 'new Vue({\ndata(){},\na:1})',
-        output: 'new Vue({\n    data{{f}}() {},\n    a: 1\n})'
-      }, {
-        input_: 'export default {\ndata(){},\na:1}',
-        output: 'export default {\n    data{{f}}() {},\n    a: 1\n}'
-      }]
     }
   ],
   examples: [{
