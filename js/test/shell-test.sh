@@ -4,6 +4,14 @@ REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 
 
+case "$OSTYPE" in
+    darwin*) PLATFORM="OSX" ;;
+    linux*)  PLATFORM="LINUX" ;;
+    bsd*)    PLATFORM="BSD" ;;
+    *)       PLATFORM="UNKNOWN" ;;
+esac
+
+
 test_cli_common()
 {
   echo ----------------------------------------
@@ -13,18 +21,18 @@ test_cli_common()
   echo Script: $CLI_SCRIPT
 
   # should find the minimal help output
-  $CLI_SCRIPT 2>&1 | grep -q "Must pipe input or define at least one file\." || {
-      $CLI_SCRIPT 2>&1
+  $CLI_SCRIPT 2>&1 < /dev/null | grep -q "Must pipe input or define at least one file\." || {
+      $CLI_SCRIPT 2>&1 < /dev/null
       echo "[$CLI_SCRIPT_NAME] Output should be help message."
       exit 1
   }
 
-  $CLI_SCRIPT 2> /dev/null && {
+  $CLI_SCRIPT 2> /dev/null < /dev/null && {
       echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
       exit 1
   }
 
-  $CLI_SCRIPT -Z 2> /dev/null && {
+  $CLI_SCRIPT -Z 2> /dev/null < /dev/null && {
       echo "[$CLI_SCRIPT_NAME -Z] Return code for invalid parameter should be error."
       exit 1
   }
@@ -87,29 +95,34 @@ test_cli_js_beautify()
       exit 1
   }
 
+  setup_temp
+  $CLI_SCRIPT -o $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../bin/js-beautify.js && diff $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../bin/js-beautify.js || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
+      cleanup 1
+  }
+
+  cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $TEST_TEMP/js-beautify-pipe.js $SCRIPT_DIR/../bin/js-beautify.js || {
+      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
+      cleanup 1
+  }
+
   $CLI_SCRIPT $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
-      exit 1
+      cleanup 1
   }
 
   node $SCRIPT_DIR/../lib/cli.js $SCRIPT_DIR/../bin/js-beautify.js | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
-      exit 1
+      cleanup 1
   }
 
   cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
-      exit 1
+      cleanup 1
   }
 
   cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT - | diff $SCRIPT_DIR/../bin/js-beautify.js - || {
       echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js was expected to be unchanged."
-      exit 1
-  }
-
-  setup_temp
-  cat $SCRIPT_DIR/../bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $TEST_TEMP/js-beautify-pipe.js $SCRIPT_DIR/../bin/js-beautify.js || {
-      echo "js-beautify output for $SCRIPT_DIR/../bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
       cleanup 1
   }
 
@@ -356,9 +369,6 @@ test_cli_js_beautify()
 
   cleanup
 }
-
-
-
 
 
 test_cli_common css-beautify
