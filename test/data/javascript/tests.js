@@ -991,6 +991,30 @@ exports.test_data = {
             '    e = (await foo()),',
             '    f = 4;'
           ]
+        },
+        {
+          unchanged: [
+            'a = {',
+            '    myVar: async function() {',
+            '        return a;',
+            '    },',
+            '    myOtherVar: async function() {',
+            '        yield b;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          unchanged: [
+            'a = {',
+            '    myVar: async () => {',
+            '        return a;',
+            '    },',
+            '    myOtherVar: async async () => {',
+            '        yield b;',
+            '    }',
+            '}'
+          ]
         }
       ]
     }, {

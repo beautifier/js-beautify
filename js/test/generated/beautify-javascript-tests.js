@@ -2249,6 +2249,24 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    d = 3,\n' +
             '    e = (await foo()),\n' +
             '    f = 4;');
+        bt(
+            'a = {\n' +
+            '    myVar: async function() {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async function() {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
+        bt(
+            'a = {\n' +
+            '    myVar: async () => {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async async () => {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================

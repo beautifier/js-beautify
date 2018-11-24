@@ -400,6 +400,7 @@ class Beautifier:
             current_token.type == TOKEN.WORD)
         start = start or reserved_word(self._flags.last_token, 'do')
         start = start or (
+            not (self._flags.parent.mode == MODE.ObjectLiteral and self._flags.mode == MODE.Statement) and
             reserved_array(self._flags.last_token, self._newline_restricted_tokens) and
             not current_token.newlines)
         start = start or (
