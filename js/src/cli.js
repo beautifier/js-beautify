@@ -398,7 +398,7 @@ function usage(err) {
 // main iterator, {cfg} passed as thisArg of forEach call
 
 function processInputSync(filepath) {
-  var data = '',
+  var data = null,
     config = this.cfg,
     outfile = config.outfile,
     input;
@@ -429,17 +429,27 @@ function processInputSync(filepath) {
 
   if (filepath === '-') {
     input = process.stdin;
-    input.resume();
 
     input.setEncoding('utf8');
 
+    input.on('error', function() {
+      throw 'Must pipe input or define at least one file.';
+    });
+
     input.on('data', function(chunk) {
+      data = data || '';
       data += chunk;
     });
 
     input.on('end', function() {
+      if (data === null) {
+        throw 'Must pipe input or define at least one file.';
+      }
       makePretty(fileType, data, config, outfile, writePretty); // Where things get beautified
     });
+
+    input.resume();
+
   } else {
     data = fs.readFileSync(filepath, 'utf8');
     makePretty(fileType, data, config, outfile, writePretty);

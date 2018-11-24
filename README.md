@@ -1,6 +1,5 @@
 # JS Beautifier
-[![Build Status](https://api.travis-ci.org/beautify-web/js-beautify.svg?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
-[![Build status](https://ci.appveyor.com/api/projects/status/5bxmpvew5n3e58te/branch/master?svg=true)](https://ci.appveyor.com/project/beautify-web/js-beautify/branch/master)
+[![Build Status](https://dev.azure.com/beautifier-io/js-beautify/_apis/build/status/beautify-web.js-beautify)](https://dev.azure.com/beautifier-io/js-beautify/_build/latest?definitionId=1)
 
 [![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
 [![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)

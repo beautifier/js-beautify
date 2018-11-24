@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import io
 import os
 import copy
 import jsbeautifier
@@ -42,9 +43,9 @@ if __name__ == '__main__':
         dirname, "../", "test/resources/underscore-min.js")
     github_min_file = os.path.join(
         dirname, "../", "test/resources/github-min.js")
-    data = copy.copy(''.join(open(underscore_file).readlines()))
-    data_min = copy.copy(''.join(open(underscore_min_file).readlines()))
-    github_min = copy.copy(''.join(open( github_min_file).readlines()))
+    data = copy.copy(''.join(io.open(underscore_file).readlines()))
+    data_min = copy.copy(''.join(io.open(underscore_min_file).readlines()))
+    github_min = copy.copy(''.join(io.open(github_min_file, encoding="UTF-8").readlines()))
 
     # warm up
     beautifier_test_underscore()

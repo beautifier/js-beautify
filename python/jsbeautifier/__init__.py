@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 import os
+import platform
 import io
 import getopt
 import re
@@ -118,10 +119,25 @@ def beautify_file(file_name, opts=default_options()):
             raise MissingInputStreamError()
 
         stream = sys.stdin
-        input_string = ''.join(stream.readlines())
+        if platform.platform().lower().startswith('windows'):
+            if sys.version_info.major >= 3:
+                # for python 3 on windows this prevents conversion
+                stream = io.TextIOWrapper(sys.stdin.buffer, newline='')
+            elif platform.architecture()[0] == '32bit':
+                # for python 2 x86 on windows this prevents conversion
+                import msvcrt
+                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+            else:
+                raise 'Pipe to stdin not supported on Windows with Python 2.x 64-bit.'
+
+        input_string = stream.read()
+
+        # if you pipe an empty string, that is a failure
+        if input_string == '':
+            raise MissingInputStreamError()
     else:
         stream = io.open(file_name, 'rt', newline='')
-        input_string = ''.join(stream.readlines())
+        input_string = stream.read()
 
     return beautify(input_string, opts)
 
@@ -310,13 +326,22 @@ def main():
         pretty = beautify_file(file, js_options)
 
         if outfile == 'stdout':
+            stream = sys.stdout
+
             # python automatically converts newlines in text to "\r\n" when on windows
             # switch to binary to prevent this
-            if sys.platform == "win32":
-                import msvcrt
-                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            if platform.platform().lower().startswith('windows'):
+                if sys.version_info.major >= 3:
+                    # for python 3 on windows this prevents conversion
+                    stream = io.TextIOWrapper(sys.stdout.buffer, newline='')
+                elif platform.architecture()[0] == '32bit':
+                    # for python 2 x86 on windows this prevents conversion
+                    import msvcrt
+                    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+                else:
+                    raise 'Pipe to stdout not supported on Windows with Python 2.x 64-bit.'
 
-            sys.stdout.write(pretty)
+            stream.write(pretty)
         else:
             if isFileDifferent(outfile, pretty):
                 mkdir_p(os.path.dirname(outfile))

@@ -3,6 +3,14 @@
 REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 
+case "$OSTYPE" in
+    darwin*) PLATFORM="OSX" ;;
+    linux*)  PLATFORM="LINUX" ;;
+    bsd*)    PLATFORM="BSD" ;;
+    *)       PLATFORM="UNKNOWN" ;;
+esac
+
+
 test_cli_common()
 {
     echo ----------------------------------------
@@ -12,21 +20,23 @@ test_cli_common()
     echo Script: $CLI_SCRIPT
 
     # should find the minimal help output
-    $CLI_SCRIPT 2>&1 | grep -q "Must pipe input or define at least one file\." || {
-        $CLI_SCRIPT 2>&1
+    $CLI_SCRIPT 2>&1 < /dev/null | grep -q "Must pipe input or define at least one file\." || {
+        $CLI_SCRIPT 2>&1 < /dev/null
         echo "[$CLI_SCRIPT_NAME] Output should be help message."
         exit 1
     }
 
     # unicode error - only happens in python
     # Note: different exceptions are thrown on different platforms.
-    $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1 | grep -q "Error while decoding input or encoding output:" || {
-        $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1
-        echo "[$CLI_SCRIPT_NAME] Output should be unicode error message."
-        exit 1
-    }
+    if [[ "$PLATFORM" == "OSX" || "$PLATFORM" == "BSD" || "$PLATFORM" == "LINUX" ]]; then
+        $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1 | grep -q "Error while decoding input or encoding output:" || {
+            $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1
+            echo "[$CLI_SCRIPT_NAME] Output should be unicode error message."
+            exit 1
+        }
+    fi
 
-    $CLI_SCRIPT 2> /dev/null && {
+    $CLI_SCRIPT 2> /dev/null < /dev/null && {
         echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
         exit 1
     }
@@ -93,30 +103,36 @@ test_cli_js_beautify()
         exit 1
     }
 
+    setup_temp
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-file.js || {
+        $CLI_SCRIPT -o $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-file.js | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        cleanup 1
+    }
+
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js || {
+        cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
+        cleanup 1
+    }
+
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
+        cleanup 1
     }
 
     cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
+        cleanup 1
     }
 
     cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT - | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
-    }
-
-    setup_temp
-    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - || diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js || {
-        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
         cleanup 1
     }
-
 
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js || {
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js | cat -t -e
@@ -302,7 +318,7 @@ test_cli_js_beautify()
         echo "[$CLI_SCRIPT_NAME --brace-style=invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
         cleanup 1
     }
-    $CLI_SCRIPT --brace-style=expand,preserve-inline,invalid 'expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
+    $CLI_SCRIPT --brace-style='expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
         echo "[$CLI_SCRIPT_NAME --brace-style=expand,preserve-inline,invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
         cleanup 1
     }
@@ -313,7 +329,6 @@ test_cli_js_beautify()
 
     cleanup
 }
-
 
 main() {
     #test_cli_common css-beautify
