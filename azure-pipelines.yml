@@ -5,11 +5,11 @@ jobs:
     vmImage: 'vs2017-win2016'
   strategy:
     matrix:
-      Python27_Node6:
+      Python27x86_Node6:
         python.version: '2.7'
         python.architecture: 'x86'
         node_version: 6.x
-      Python32_Node8:
+      Python34_Node8:
         python.version: '3.4'
         python.architecture: 'x64'
         node_version: 8.x
@@ -51,7 +51,7 @@ jobs:
       Python27_Node6:
         python.version: '2.7'
         node_version: 6.x
-      Python32_Node8:
+      Python34_Node8:
         python.version: '3.4'
         node_version: 8.x
       Python36_Node10:
