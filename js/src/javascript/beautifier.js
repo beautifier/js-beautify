@@ -571,13 +571,24 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       // function name() vs function name ()
       // function* name() vs function* name ()
       // async name() vs async name ()
-      if (this._options.space_after_named_function) {
+      // In ES6, you can also define the method properties of an object
+      // var obj = {a: function() {}}
+      // It can be abbreviated
+      // var obj = {a() {}}
+      // var obj = { a() {}} vs var obj = { a () {}}
+      // var obj = { * a() {}} vs var obj = { * a () {}}
+      var peek_back_two = this._tokens.peek(-3);
+      if (this._options.space_after_named_function && peek_back_two) {
         // peek starts at next character so -1 is current token
         var peek_back_three = this._tokens.peek(-4);
-        var peek_back_two = this._tokens.peek(-3);
         if (reserved_array(peek_back_two, ['async', 'function']) ||
-          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          (peek_back_two.text === '*' && reserved_array(peek_back_three, ['async', 'function']))) {
           this._output.space_before_token = true;
+        } else if (this._flags.mode === MODE.ObjectLiteral) {
+          if ((peek_back_two.text === '{' || peek_back_two.text === ',') ||
+            (peek_back_two.text === '*' && (peek_back_three.text === '{' || peek_back_three.text === ','))) {
+            this._output.space_before_token = true;
+          }
         }
       }
     } else {
@@ -595,10 +606,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       (this._flags.last_token.text === '*' &&
         (in_array(this._last_last_text, ['function', 'yield']) ||
           (this._flags.mode === MODE.ObjectLiteral && in_array(this._last_last_text, ['{', ',']))))) {
-
       this._output.space_before_token = this._options.space_after_anon_function;
     }
-
   }
 
   if (this._flags.last_token.text === ';' || this._flags.last_token.type === TOKEN.START_BLOCK) {
@@ -749,6 +758,11 @@ Beautifier.prototype.handle_start_block = function(current_token) {
   }
   this.print_token(current_token);
   this.indent();
+
+  // Except for specific cases, open braces are followed by a new line.
+  if (!empty_braces && !(this._options.brace_preserve_inline && this._flags.inline_frame)) {
+    this.print_newline();
+  }
 };
 
 Beautifier.prototype.handle_end_block = function(current_token) {
