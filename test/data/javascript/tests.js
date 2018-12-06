@@ -1003,6 +1003,18 @@ exports.test_data = {
             '    }',
             '}'
           ]
+        },
+        {
+          unchanged: [
+            'a = {',
+            '    myVar: async () => {',
+            '        return a;',
+            '    },',
+            '    myOtherVar: async async () => {',
+            '        yield b;',
+            '    }',
+            '}'
+          ]
         }
       ]
     }, {
@@ -2033,6 +2045,60 @@ exports.test_data = {
         {
           input: 'async x() {\n    yield 1;\n}',
           output: 'async x{{nf}}() {\n    yield 1;\n}'
+        },
+        {
+          input: 'var a={data(){},\ndata2(){}}',
+          output: [
+            'var a = {',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {}',
+            '}'
+          ]
+        }, {
+          input: 'new Vue({\ndata(){},\ndata2(){}, a:1})',
+          output: [
+            'new Vue({',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {},',
+            '    a: 1',
+            '})'
+          ]
+        }, {
+          input: 'export default {data(){},\ndata2(){},\na:1}',
+          output: [
+            'export default {',
+            '    data{{nf}}() {},',
+            '    data2{{nf}}() {},',
+            '    a: 1',
+            '}'
+          ]
+        },
+        {
+          input: 'var a={*data(){},*data2(){}}',
+          output: [
+            'var a = {',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {}',
+            '}'
+          ]
+        }, {
+          input: 'new Vue({\n*data(){},*data2(){}, a:1})',
+          output: [
+            'new Vue({',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {},',
+            '    a: 1',
+            '})'
+          ]
+        }, {
+          input: 'export default {*data(){},*data2(){},\na:1}',
+          output: [
+            'export default {',
+            '    * data{{nf}}() {},',
+            '    * data2{{nf}}() {},',
+            '    a: 1',
+            '}'
+          ]
         }
       ]
     }, {
@@ -3559,7 +3625,6 @@ exports.test_data = {
 
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
         { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
-
       ]
     }
   ],

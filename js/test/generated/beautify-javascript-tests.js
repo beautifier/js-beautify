@@ -2258,6 +2258,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        yield b;\n' +
             '    }\n' +
             '}');
+        bt(
+            'a = {\n' +
+            '    myVar: async () => {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async async () => {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================
@@ -3277,6 +3286,59 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'async x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
 
         // jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")
         reset_options();
@@ -3411,6 +3473,59 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'async x() {\n' +
             '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
             '}');
 
         // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")
@@ -3547,6 +3662,59 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'async x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
 
         // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")
         reset_options();
@@ -3682,6 +3850,59 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'async x() {\n' +
             '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
             '}');
 
         // jslint and space after anon function - (space_after_named_function = "true")
@@ -3829,6 +4050,59 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'async x () {\n' +
             '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data () {},\n' +
+            '    data2 () {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data () {},\n' +
+            '    data2 () {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data () {},\n' +
+            '    data2 () {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data () {},\n' +
+            '    * data2 () {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data () {},\n' +
+            '    * data2 () {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data () {},\n' +
+            '    * data2 () {},\n' +
+            '    a: 1\n' +
             '}');
 
 
