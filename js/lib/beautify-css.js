@@ -851,7 +851,8 @@ module.exports.InputScanner = InputScanner;
 
 
 
-var Beautifier = __webpack_require__(13).Beautifier;
+var Beautifier = __webpack_require__(13).Beautifier,
+  Options = __webpack_require__(14).Options;
 
 function css_beautify(source_text, options) {
   var beautifier = new Beautifier(source_text, options);
@@ -859,6 +860,9 @@ function css_beautify(source_text, options) {
 }
 
 module.exports = css_beautify;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
 
 
 /***/ }),

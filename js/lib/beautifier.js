@@ -138,6 +138,7 @@ function style_html(html_source, options, js, css) {
   css = css || css_beautify;
   return html_beautify(html_source, options, js, css);
 }
+style_html.defaultOptions = html_beautify.defaultOptions;
 
 module.exports.js = js_beautify;
 module.exports.css = css_beautify;
@@ -179,7 +180,8 @@ module.exports.html = style_html;
 
 
 
-var Beautifier = __webpack_require__(2).Beautifier;
+var Beautifier = __webpack_require__(2).Beautifier,
+  Options = __webpack_require__(6).Options;
 
 function js_beautify(js_source_text, options) {
   var beautifier = new Beautifier(js_source_text, options);
@@ -187,6 +189,9 @@ function js_beautify(js_source_text, options) {
 }
 
 module.exports = js_beautify;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
 
 
 /***/ }),
@@ -767,13 +772,24 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       // function name() vs function name ()
       // function* name() vs function* name ()
       // async name() vs async name ()
-      if (this._options.space_after_named_function) {
+      // In ES6, you can also define the method properties of an object
+      // var obj = {a: function() {}}
+      // It can be abbreviated
+      // var obj = {a() {}}
+      // var obj = { a() {}} vs var obj = { a () {}}
+      // var obj = { * a() {}} vs var obj = { * a () {}}
+      var peek_back_two = this._tokens.peek(-3);
+      if (this._options.space_after_named_function && peek_back_two) {
         // peek starts at next character so -1 is current token
         var peek_back_three = this._tokens.peek(-4);
-        var peek_back_two = this._tokens.peek(-3);
         if (reserved_array(peek_back_two, ['async', 'function']) ||
-          (reserved_array(peek_back_three, ['async', 'function']) && peek_back_two.text === '*')) {
+          (peek_back_two.text === '*' && reserved_array(peek_back_three, ['async', 'function']))) {
           this._output.space_before_token = true;
+        } else if (this._flags.mode === MODE.ObjectLiteral) {
+          if ((peek_back_two.text === '{' || peek_back_two.text === ',') ||
+            (peek_back_two.text === '*' && (peek_back_three.text === '{' || peek_back_three.text === ','))) {
+            this._output.space_before_token = true;
+          }
         }
       }
     } else {
@@ -791,10 +807,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       (this._flags.last_token.text === '*' &&
         (in_array(this._last_last_text, ['function', 'yield']) ||
           (this._flags.mode === MODE.ObjectLiteral && in_array(this._last_last_text, ['{', ',']))))) {
-
       this._output.space_before_token = this._options.space_after_anon_function;
     }
-
   }
 
   if (this._flags.last_token.text === ';' || this._flags.last_token.type === TOKEN.START_BLOCK) {
@@ -945,6 +959,11 @@ Beautifier.prototype.handle_start_block = function(current_token) {
   }
   this.print_token(current_token);
   this.indent();
+
+  // Except for specific cases, open braces are followed by a new line.
+  if (!empty_braces && !(this._options.brace_preserve_inline && this._flags.inline_frame)) {
+    this.print_newline();
+  }
 };
 
 Beautifier.prototype.handle_end_block = function(current_token) {
@@ -3381,7 +3400,8 @@ module.exports.Directives = Directives;
 
 
 
-var Beautifier = __webpack_require__(14).Beautifier;
+var Beautifier = __webpack_require__(14).Beautifier,
+  Options = __webpack_require__(15).Options;
 
 function css_beautify(source_text, options) {
   var beautifier = new Beautifier(source_text, options);
@@ -3389,6 +3409,9 @@ function css_beautify(source_text, options) {
 }
 
 module.exports = css_beautify;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
 
 
 /***/ }),
@@ -3924,7 +3947,8 @@ module.exports.Options = Options;
 
 
 
-var Beautifier = __webpack_require__(17).Beautifier;
+var Beautifier = __webpack_require__(17).Beautifier,
+  Options = __webpack_require__(18).Options;
 
 function style_html(html_source, options, js_beautify, css_beautify) {
   var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
@@ -3932,6 +3956,9 @@ function style_html(html_source, options, js_beautify, css_beautify) {
 }
 
 module.exports = style_html;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
 
 
 /***/ }),
@@ -4252,7 +4279,10 @@ Beautifier.prototype.beautify = function() {
 };
 
 Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_token) {
-  var parser_token = { text: raw_token.text, type: raw_token.type };
+  var parser_token = {
+    text: raw_token.text,
+    type: raw_token.type
+  };
   printer.alignment_size = 0;
   last_tag_token.tag_complete = true;
 
@@ -4280,7 +4310,10 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
 };
 
 Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_token, tokens) {
-  var parser_token = { text: raw_token.text, type: raw_token.type };
+  var parser_token = {
+    text: raw_token.text,
+    type: raw_token.type
+  };
   printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '');
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
@@ -4344,7 +4377,10 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
 };
 
 Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token) {
-  var parser_token = { text: raw_token.text, type: 'TK_CONTENT' };
+  var parser_token = {
+    text: raw_token.text,
+    type: 'TK_CONTENT'
+  };
   if (last_tag_token.custom_beautifier) { //check if we need to format javascript
     this._print_custom_beatifier_text(printer, raw_token, last_tag_token);
   } else if (last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) {
