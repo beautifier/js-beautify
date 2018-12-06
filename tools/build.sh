@@ -30,26 +30,13 @@ build_beautify()
 {
   cd $PROJECT_DIR
     # beautify test and data
-  for f in $(ls $PROJECT_DIR/js/test/*.js | sort -n); do
-      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
-  done
-
-  for f in $(ls $PROJECT_DIR/js/test/core/*.js | sort -n); do
-      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
-  done
-
-  for f in $(find $PROJECT_DIR/test/data -name '*.js' | sort -n); do
-      $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
-  done
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/*.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/test/core/*.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/test/data/**/*.js || exit 1
 
   # beautify product code
-  for f in $(find $PROJECT_DIR/js/src -name '*.js' | sort -n); do
-    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
-  done
-
-  for f in $(ls $PROJECT_DIR/web/*.js | sort -n); do
-    $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $f  || exit 1
-  done
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/js/src/**/*.js || exit 1
+  $PROJECT_DIR/js/bin/js-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/*.js || exit 1
 
   $PROJECT_DIR/js/bin/css-beautify.js --config $PROJECT_DIR/jsbeautifyrc -r $PROJECT_DIR/web/common-style.css || exit 1
 
