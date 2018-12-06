@@ -491,7 +491,6 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
     parser_token.alignment_size = raw_token.text.length + 1;
   }
 
-
   if (!parser_token.tag_complete && !parser_token.is_unformatted) {
     printer.alignment_size = parser_token.alignment_size;
   }

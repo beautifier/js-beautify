@@ -191,6 +191,7 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
     in_case: false, // we're on the exact line with "case 0:"
     case_body: false, // the indented case-action block
     indentation_level: next_indent_level,
+    alignment: 0,
     line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
     start_line_index: this._output.get_line_number(),
     ternary_depth: 0
@@ -393,7 +394,7 @@ Beautifier.prototype.print_token_line_indentation = function(current_token) {
     if (this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines) {
       this._output.current_line.push(current_token.whitespace_before);
       this._output.space_before_token = false;
-    } else if (this._output.set_indent(this._flags.indentation_level)) {
+    } else if (this._output.set_indent(this._flags.indentation_level, this._flags.alignment)) {
       this._flags.line_indent_level = this._flags.indentation_level;
     }
   }
@@ -1343,29 +1344,40 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
 
   // block comment starts with a new line
   this.print_newline(false, preserve_statement_flags);
-  if (lines.length > 1) {
-    javadoc = all_lines_start_with(lines.slice(1), '*');
-    starless = each_line_matches_indent(lines.slice(1), lastIndent);
-  }
 
   // first line always indented
   this.print_token(current_token, lines[0]);
-  for (j = 1; j < lines.length; j++) {
-    this.print_newline(false, true);
+
+
+  if (lines.length > 1) {
+    lines = lines.slice(1);
+    javadoc = all_lines_start_with(lines, '*');
+    starless = each_line_matches_indent(lines, lastIndent);
+
     if (javadoc) {
-      // javadoc: reformat and re-indent
-      this.print_token(current_token, ' ' + ltrim(lines[j]));
-    } else if (starless && lines[j].length > lastIndentLength) {
-      // starless: re-indent non-empty content, avoiding trim
-      this.print_token(current_token, lines[j].substring(lastIndentLength));
-    } else {
-      // normal comments output raw
-      this._output.add_token(lines[j]);
+      this._flags.alignment = 1;
     }
+
+    for (j = 0; j < lines.length; j++) {
+      this.print_newline(false, true);
+      if (javadoc) {
+        // javadoc: reformat and re-indent
+        this.print_token(current_token, ltrim(lines[j]));
+      } else if (starless && lines[j]) {
+        // starless: re-indent non-empty content, avoiding trim
+        this.print_token(current_token, lines[j].substring(lastIndentLength));
+      } else {
+        // normal comments output raw
+        this._output.add_token(lines[j]);
+      }
+    }
+
+    this._flags.alignment = 0;
   }
 
-  // for comments of more than one line, make sure there's a new line after
+  // for comments on their own line or  more than one line, make sure there's a new line after
   this.print_newline(false, preserve_statement_flags);
+
 };
 
 Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
