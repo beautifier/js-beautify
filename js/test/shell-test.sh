@@ -2,6 +2,7 @@
 
 REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/../..\" && pwd )`"
 
 
 case "$OSTYPE" in
@@ -159,6 +160,28 @@ test_cli_js_beautify()
       echo "js-beautify output for $TEST_TEMP/js-beautify-rn.js was expected to be unchanged."
       cleanup 1
   }
+
+  # Glob related tests
+  cp -r $PROJECT_DIR/js/src  $TEST_TEMP/
+  FILE_RCOUNT=$(find $PROJECT_DIR/js/src -name '*.js' | grep -c .)
+  FILE_COUNT=$(ls $PROJECT_DIR/js/src/*.js | grep -c .)
+  MISSING_FILE_GLOB="*/*/missing_file"
+  $CLI_SCRIPT $MISSING_FILE_GLOB > /dev/null || {
+      echo "[$CLI_SCRIPT_NAME $MISSING_FILE_GLOB] Return code should be success for globs."
+      exit 1
+  }
+
+  if [[ "$FILE_COUNT" == "`$CLI_SCRIPT $TEST_TEMP/src/*.js | grep -c .`" ]]; then
+    echo "js-beautify output for $TEST_TEMP/src/*.js was expected have $FILE_COUNT files."
+    cleanup 1
+  fi
+
+  if [[ "$FILE_RCOUNT" == "`$CLI_SCRIPT $TEST_TEMP/src/**/*.js | grep -c .`" ]]; then
+    echo "js-beautify output for $TEST_TEMP/src/*.js was expected have $FILE_RCOUNT files."
+    cleanup 1
+  fi
+
+
 
   # EditorConfig related tests
   cp -r js/test/resources/editorconfig $TEST_TEMP/

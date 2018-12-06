@@ -8,6 +8,7 @@ import re
 import string
 import errno
 import copy
+import glob
 from jsbeautifier.__version__ import __version__
 from jsbeautifier.javascript.options import BeautifierOptions
 from jsbeautifier.javascript.beautifier import Beautifier
@@ -229,31 +230,34 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-                                   ['indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjabkil:xhtvXnCO:w:",
+                                   ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
                                     'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-                                    'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+                                    'brace-style=', 'indent-level=', 'unescape-strings',
                                     'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function'])
+                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
+                                    'keep-array-indentation'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
 
     js_options = default_options()
 
-    file = None
-    outfile = 'stdout'
+    filepath_params = []
+    filepath_params.extend(args)
+
+    outfile_param = 'stdout'
     replace = False
-    if len(args) == 1:
-        file = args[0]
 
     for opt, arg in opts:
-        if opt in ('--keep-array-indentation', '-k'):
+        if opt in ('--file', '-f'):
+            filepath_params.append(arg)
+        elif opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
-        if opt in ('--keep-function-indentation', '-f'):
+        elif opt in ('--keep-function-indentation'):
             js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
-            outfile = arg
+            outfile_param = arg
         elif opt in ('--replace', '-r'):
             replace = True
         elif opt in ('--indent-size', '-s'):
@@ -293,7 +297,8 @@ def main():
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
-            file = '-'
+            #stdin is the default if no files are passed
+            filepath_params = []
         elif opt in ('--editorconfig'):
             js_options.editorconfig = True
         elif opt in ('--version', '-v'):
@@ -301,63 +306,100 @@ def main():
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
-    if not file:
-        file = '-'
-
     try:
-        if outfile == 'stdout' and replace and not file == '-':
-            outfile = file
+        filepaths = []
+        if not filepath_params or (
+                len(filepath_params) == 1 and filepath_params[0] == '-'):
+            # default to stdin
+            filepath_params = []
+            filepaths.append('-')
 
-        # Editorconfig used only on files, not stdin
-        if getattr(js_options, 'editorconfig'):
-            editorconfig_filepath = file
 
-            if editorconfig_filepath == '-':
-                if outfile != 'stdout':
-                    editorconfig_filepath = outfile
+        for filepath_param in filepath_params:
+            # ignore stdin setting if files are specified
+            if '-' == filepath_param:
+                continue
+
+            # Check if each literal filepath exists
+            if os.path.isfile(filepath_param):
+                filepaths.append(filepath_param)
+            elif '*' in filepath_param or '?' in filepath_param:
+                # handle globs
+                # empty result is okay
+                if sys.version_info.major == 2 or (
+                        sys.version_info.major == 3 and
+                        sys.version_info.minor <= 4):
+                    if '**' in filepath_param:
+                        raise 'Recursive globs not supported on Python <= 3.4.'
+                    filepaths.extend(glob.glob(filepath_param))
                 else:
-                    fileType = 'js'
-                    editorconfig_filepath = 'stdin.' + fileType
+                    filepaths.extend(glob.glob(filepath_param, recursive=True))
+            else:
+                # not a glob and not a file
+                raise OSError(errno.ENOENT, os.strerror(errno.ENOENT),
+                    filepath_param)
 
-            # debug("EditorConfig is enabled for ", editorconfig_filepath);
-            js_options = copy.copy(js_options)
-            set_file_editorconfig_opts(editorconfig_filepath, js_options)
+        if len(filepaths) > 1:
+            replace = True
+        elif filepaths and filepaths[0] == '-':
+            replace = False
 
-        pretty = beautify_file(file, js_options)
+        for filepath in filepaths:
+            if not replace:
+                outfile = outfile_param
+            else:
+                outfile = filepath
 
-        if outfile == 'stdout':
-            stream = sys.stdout
+            # Editorconfig used only on files, not stdin
+            if getattr(js_options, 'editorconfig'):
+                editorconfig_filepath = filepath
 
-            # python automatically converts newlines in text to "\r\n" when on windows
-            # switch to binary to prevent this
-            if platform.platform().lower().startswith('windows'):
-                if sys.version_info.major >= 3:
-                    # for python 3 on windows this prevents conversion
-                    stream = io.TextIOWrapper(sys.stdout.buffer, newline='')
-                elif platform.architecture()[0] == '32bit':
-                    # for python 2 x86 on windows this prevents conversion
-                    import msvcrt
-                    msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-                else:
-                    raise 'Pipe to stdout not supported on Windows with Python 2.x 64-bit.'
+                if editorconfig_filepath == '-':
+                    if outfile != 'stdout':
+                        editorconfig_filepath = outfile
+                    else:
+                        fileType = 'js'
+                        editorconfig_filepath = 'stdin.' + fileType
 
-            stream.write(pretty)
-        else:
-            if isFileDifferent(outfile, pretty):
-                mkdir_p(os.path.dirname(outfile))
+                # debug("EditorConfig is enabled for ", editorconfig_filepath);
+                js_options = copy.copy(js_options)
+                set_file_editorconfig_opts(editorconfig_filepath, js_options)
+
+            pretty = beautify_file(filepath, js_options)
+
+            if outfile == 'stdout':
+                stream = sys.stdout
 
                 # python automatically converts newlines in text to "\r\n" when on windows
-                # set newline to empty to prevent this
-                with io.open(outfile, 'wt', newline='') as f:
-                    print('writing ' + outfile, file=sys.stderr)
-                    try:
-                        f.write(pretty)
-                    except TypeError:
-                        # This is not pretty, but given how we did the version import
-                        # it is the only way to do this without having setup.py
-                        # fail on a missing six dependency.
-                        six = __import__("six")
-                        f.write(six.u(pretty))
+                # switch to binary to prevent this
+                if platform.platform().lower().startswith('windows'):
+                    if sys.version_info.major >= 3:
+                        # for python 3 on windows this prevents conversion
+                        stream = io.TextIOWrapper(sys.stdout.buffer, newline='')
+                    elif platform.architecture()[0] == '32bit':
+                        # for python 2 x86 on windows this prevents conversion
+                        import msvcrt
+                        msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+                    else:
+                        raise 'Pipe to stdout not supported on Windows with Python 2.x 64-bit.'
+
+                stream.write(pretty)
+            else:
+                if isFileDifferent(outfile, pretty):
+                    mkdir_p(os.path.dirname(outfile))
+
+                    # python automatically converts newlines in text to "\r\n" when on windows
+                    # set newline to empty to prevent this
+                    with io.open(outfile, 'wt', newline='') as f:
+                        print('writing ' + outfile, file=sys.stderr)
+                        try:
+                            f.write(pretty)
+                        except TypeError:
+                            # This is not pretty, but given how we did the version import
+                            # it is the only way to do this without having setup.py
+                            # fail on a missing six dependency.
+                            six = __import__("six")
+                            f.write(six.u(pretty))
 
     except MissingInputStreamError:
         print(

@@ -501,14 +501,25 @@ class Beautifier:
                 # function name() vs function name ()
                 # function* name() vs function* name ()
                 # async name() vs async name ()
-                if self._options.space_after_named_function:
+                # In ES6, you can also define the method properties of an object
+                # var obj = {a: function() {}}
+                # It can be abbreviated
+                # var obj = {a() {}}
+                # var obj = { a() {}} vs var obj = { a () {}}
+                # var obj = { * a() {}} vs var obj = { * a () {}}
+                peek_back_two = self._tokens.peek(-3)
+                if self._options.space_after_named_function and peek_back_two:
                     # peek starts at next character so -1 is current token
                     peek_back_three = self._tokens.peek(-4)
-                    peek_back_two = self._tokens.peek(-3)
                     if reserved_array(peek_back_two, ['async', 'function']) or (
-                        reserved_array(peek_back_three, ['async', 'function']) and
-                            peek_back_two.text == '*'):
+                        peek_back_two.text == '*' and
+                            reserved_array(peek_back_three, ['async', 'function'])):
                         self._output.space_before_token = True
+                    elif self._flags.mode == MODE.ObjectLiteral:
+                        if (peek_back_two.text == '{' or peek_back_two.text == ',') or (
+                            peek_back_two.text == '*' and (
+                                peek_back_three.text == '{' or peek_back_three.text == ',')):
+                            self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -678,6 +689,13 @@ class Beautifier:
 
         self.print_token(current_token)
         self.indent()
+
+        # Except for specific cases, open braces are followed by a new line.
+        if not empty_braces and not (
+                self._options.brace_preserve_inline and
+                    self._flags.inline_frame):
+            self.print_newline()
+
 
     def handle_end_block(self, current_token):
         # statements must all be closed when their container closes
