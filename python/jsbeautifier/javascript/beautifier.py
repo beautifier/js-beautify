@@ -55,6 +55,7 @@ class BeautifierFlags:
         self.in_case_statement = False
         self.case_body = False
         self.indentation_level = 0
+        self.alignment = 0
         self.line_indent_level = 0
         self.start_line_index = 0
         self.ternary_depth = 0
@@ -324,7 +325,8 @@ class Beautifier:
                     self._flags.mode) and current_token.newlines:
                 line.push(current_token.whitespace_before)
                 self._output.space_before_token = False
-            elif self._output.set_indent(self._flags.indentation_level):
+            elif self._output.set_indent(self._flags.indentation_level,
+                            self._flags.alignment):
                 self._flags.line_indent_level = self._flags.indentation_level
 
     def print_token(self, current_token, s=None):
@@ -1236,26 +1238,36 @@ class Beautifier:
 
         # block comment starts with a new line
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
-        if len(lines) > 1:
-            javadoc = not any(l for l in lines[1:] if (
-                l.strip() == '' or (l.lstrip())[0] != '*'))
-            starless = all(l.startswith(last_indent)
-                           or l.strip() == '' for l in lines[1:])
 
         # first line always indented
         self.print_token(current_token, lines[0])
-        for line in lines[1:]:
-            self.print_newline(preserve_statement_flags=True)
-            if javadoc:
-                # javadoc: reformat and re-indent
-                self.print_token(current_token, ' ' + line.lstrip())
-            elif starless and len(line) > last_indent_length:
-                # starless: re-indent non-empty content, avoiding trim
-                self.print_token(current_token, line[last_indent_length:])
-            else:
-                # normal comments output raw
-                self._output.add_token(line)
 
+        if len(lines) > 1:
+            lines = lines[1:]
+            javadoc = not any(l for l in lines if (
+                l.strip() == '' or (l.lstrip())[0] != '*'))
+            starless = all(l.startswith(last_indent)
+                           or l.strip() == '' for l in lines)
+
+            if javadoc:
+                self._flags.alignment = 1
+
+            for line in lines:
+                self.print_newline(preserve_statement_flags=True)
+                if javadoc:
+                    # javadoc: reformat and re-indent
+                    self.print_token(current_token, line.lstrip())
+                elif starless and len(line) > last_indent_length:
+                    # starless: re-indent non-empty content, avoiding trim
+                    self.print_token(current_token, line[last_indent_length:])
+                else:
+                    # normal comments output raw
+                    self._output.add_token(line)
+
+            self._flags.alignment = 0
+
+        # for comments on their own line or  more than one line,
+        # make sure there's a new line after
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
     def handle_comment(self, current_token, preserve_statement_flags):

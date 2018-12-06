@@ -115,8 +115,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         success = success && test_fragment(input, expectation);
 
         if (opts.indent_size === 4 && input) {
-            wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
-            wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    <span>inline</span>\n</div>';
+          var indent_string = opts.indent_with_tabs ? '\t' : '    ';
+            wrapped_input = '<div>\n' + input.replace(/^(.+)$/mg, indent_string + '$1') + '\n' + indent_string + '<span>inline</span>\n</div>';
+            wrapped_expectation = '<div>\n' + expectation.replace(/^(.+)$/mg, indent_string + '$1') + '\n' + indent_string + '<span>inline</span>\n</div>';
             success = success && test_fragment(wrapped_input, wrapped_expectation);
         }
         return success;

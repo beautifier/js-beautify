@@ -1,6 +1,5 @@
 /*jshint node:true */
 /*
-
   The MIT License (MIT)
 
   Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
@@ -58,7 +57,7 @@ OutputLine.prototype.has_match = function(pattern) {
 OutputLine.prototype.set_indent = function(indent, alignment) {
   this.__indent_count = indent || 0;
   this.__alignment_count = alignment || 0;
-  this.__character_count = this.__parent.baseIndentLength + this.__alignment_count + this.__indent_count * this.__parent.indent_length;
+  this.__character_count = this.__parent.get_indent_size(this.__indent_count, this.__alignment_count);
 };
 
 OutputLine.prototype.get_character_count = function() {
@@ -102,7 +101,7 @@ OutputLine.prototype.pop = function() {
 OutputLine.prototype.remove_indent = function() {
   if (this.__indent_count > 0) {
     this.__indent_count -= 1;
-    this.__character_count -= this.__parent.indent_length;
+    this.__character_count -= this.__parent.indent_size;
   }
 };
 
@@ -116,53 +115,81 @@ OutputLine.prototype.trim = function() {
 OutputLine.prototype.toString = function() {
   var result = '';
   if (!this.is_empty()) {
-    if (this.__indent_count >= 0) {
-      result = this.__parent.get_indent_string(this.__indent_count);
-    }
-    if (this.__alignment_count >= 0) {
-      result += this.__parent.get_alignment_string(this.__alignment_count);
-    }
+    result = this.__parent.get_indent_string(this.__indent_count, this.__alignment_count);
     result += this.__items.join('');
   }
   return result;
 };
 
-function IndentCache(base_string, level_string) {
-  this.__cache = [base_string];
-  this.__level_string = level_string;
-}
-
-IndentCache.prototype.__ensure_cache = function(level) {
-  while (level >= this.__cache.length) {
-    this.__cache.push(this.__cache[this.__cache.length - 1] + this.__level_string);
-  }
-};
-
-IndentCache.prototype.get_level_string = function(level) {
-  this.__ensure_cache(level);
-  return this.__cache[level];
-};
-
-
-function Output(options, baseIndentString) {
-  var indent_string = options.indent_char;
-  if (options.indent_size > 1) {
-    indent_string = new Array(options.indent_size + 1).join(options.indent_char);
+function IndentStringCache(options, baseIndentString) {
+  this.__cache = [''];
+  this.__indent_size = options.indent_size;
+  this.__indent_string = options.indent_char;
+  if (!options.indent_with_tabs) {
+    this.__indent_string = new Array(options.indent_size + 1).join(options.indent_char);
   }
 
-  // Set to null to continue support for auto detection of base indent level.
+  // Set to null to continue support for auto detection of base indent
   baseIndentString = baseIndentString || '';
   if (options.indent_level > 0) {
-    baseIndentString = new Array(options.indent_level + 1).join(indent_string);
+    baseIndentString = new Array(options.indent_level + 1).join(this.__indent_string);
   }
 
-  this.__indent_cache = new IndentCache(baseIndentString, indent_string);
-  this.__alignment_cache = new IndentCache('', ' ');
-  this.baseIndentLength = baseIndentString.length;
-  this.indent_length = indent_string.length;
+  this.__base_string = baseIndentString;
+  this.__base_string_length = baseIndentString.length;
+}
+
+IndentStringCache.prototype.get_indent_size = function(indent, column) {
+  var result = this.__base_string_length;
+  column = column || 0;
+  if (indent < 0) {
+    result = 0;
+  }
+  result += indent * this.__indent_size;
+  result += column;
+  return result;
+};
+
+IndentStringCache.prototype.get_indent_string = function(indent_level, column) {
+  var result = this.__base_string;
+  column = column || 0;
+  if (indent_level < 0) {
+    indent_level = 0;
+    result = '';
+  }
+  column += indent_level * this.__indent_size;
+  this.__ensure_cache(column);
+  result += this.__cache[column];
+  return result;
+};
+
+IndentStringCache.prototype.__ensure_cache = function(column) {
+  while (column >= this.__cache.length) {
+    this.__add_column();
+  }
+};
+
+IndentStringCache.prototype.__add_column = function() {
+  var column = this.__cache.length;
+  var indent = 0;
+  var result = '';
+  if (this.__indent_size && column >= this.__indent_size) {
+    indent = Math.floor(column / this.__indent_size);
+    column -= indent * this.__indent_size;
+    result = new Array(indent + 1).join(this.__indent_string);
+  }
+  if (column) {
+    result += new Array(column + 1).join(' ');
+  }
+
+  this.__cache.push(result);
+};
+
+function Output(options, baseIndentString) {
+  this.__indent_cache = new IndentStringCache(options, baseIndentString);
   this.raw = false;
   this._end_with_newline = options.end_with_newline;
-
+  this.indent_size = options.indent_size;
   this.__lines = [];
   this.previous_line = null;
   this.current_line = null;
@@ -181,12 +208,12 @@ Output.prototype.get_line_number = function() {
   return this.__lines.length;
 };
 
-Output.prototype.get_indent_string = function(level) {
-  return this.__indent_cache.get_level_string(level);
+Output.prototype.get_indent_string = function(indent, column) {
+  return this.__indent_cache.get_indent_string(indent, column);
 };
 
-Output.prototype.get_alignment_string = function(level) {
-  return this.__alignment_cache.get_level_string(level);
+Output.prototype.get_indent_size = function(indent, column) {
+  return this.__indent_cache.get_indent_size(indent, column);
 };
 
 Output.prototype.is_empty = function() {
@@ -219,7 +246,6 @@ Output.prototype.get_code = function(eol) {
   if (eol !== '\n') {
     sweet_code = sweet_code.replace(/[\n]/g, eol);
   }
-
   return sweet_code;
 };
 

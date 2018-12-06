@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import re
+import math
 
 # Using object instead of string to allow for later expansion of info
 # about each line
@@ -42,18 +43,17 @@ class OutputLine:
     def item(self, index):
         return self.__items[index]
 
-    def get_character_count(self):
-        return self.__character_count
-
     def is_empty(self):
         return len(self.__items) == 0
 
     def set_indent(self, indent=0, alignment=0):
         self.__indent_count = indent
         self.__alignment_count = alignment
-        self.__character_count = self.__parent.baseIndentLength + \
-            self.__alignment_count + \
-            self.__indent_count * self.__parent.indent_length
+        self.__character_count = self.__parent.get_indent_size(
+            self.__indent_count, self.__alignment_count)
+
+    def get_character_count(self):
+        return self.__character_count
 
     def last(self):
         if not self.is_empty():
@@ -75,7 +75,7 @@ class OutputLine:
     def remove_indent(self):
         if self.__indent_count > 0:
             self.__indent_count -= 1
-            self.__character_count -= self.__parent.indent_length
+            self.__character_count -= self.__parent.indent_size
 
     def trim(self):
         while self.last() == ' ':
@@ -85,52 +85,75 @@ class OutputLine:
     def toString(self):
         result = ''
         if not self.is_empty():
-            if self.__indent_count >= 0:
-                result = self.__parent.get_indent_string(self.__indent_count)
-            if self.__alignment_count >= 0:
-                result += self.__parent.get_alignment_string(
-                    self.__alignment_count)
+            result = self.__parent.get_indent_string(
+                self.__indent_count, self.__alignment_count)
             result += ''.join(self.__items)
         return result
 
 
-class IndentCache:
-    def __init__(self, base_string, level_string):
-        self.__cache = [base_string]
-        self.__level_string = level_string
+class IndentStringCache:
+    def __init__(self, options, base_string):
+        self.__cache = ['']
+        self.__indent_size = options.indent_size
+        self.__indent_string = options.indent_char
+        if not options.indent_with_tabs:
+            self.__indent_string = options.indent_char * options.indent_size
 
-    def __ensure_cache(self, level):
-        while level >= len(self.__cache):
-            self.__cache.append(
-                self.__cache[-1] + self.__level_string)
+        # Set to null to continue support of auto detection of base indent
+        base_string = base_string or ''
+        if options.indent_level > 0:
+            base_string = options.indent_level * self.__indent_string
 
-    def get_level_string(self, level):
-        self.__ensure_cache(level)
-        return self.__cache[level]
+        self.__base_string = base_string
+        self.__base_string_length = len(base_string)
+
+    def get_indent_size(self, indent, column=0):
+        result = self.__base_string_length
+        if indent < 0:
+            result = 0
+        result += indent * self.__indent_size
+        result += column
+        return result
+
+    def get_indent_string(self, indent_level, column=0):
+        result = self.__base_string
+        if indent_level < 0:
+            indent_level = 0
+            result = ''
+        column += indent_level * self.__indent_size
+        self.__ensure_cache(column)
+        result += self.__cache[column]
+        return result
+
+    def __ensure_cache(self, column):
+        while column >= len(self.__cache):
+            self.__add_column()
+
+    def __add_column(self):
+        column = len(self.__cache)
+        indent = 0
+        result = ''
+        if self.__indent_size and column >= self.__indent_size:
+            indent = int(math.floor(column / self.__indent_size))
+            column -= indent * self.__indent_size
+            result = indent * self.__indent_string
+        if column:
+            result += column * ' '
+        self.__cache.append(result)
 
 
 class Output:
     def __init__(self, options, baseIndentString=''):
 
-        indent_string = options.indent_char
-        if options.indent_size > 0:
-            indent_string = options.indent_char * options.indent_size
-
-        # Set to null to continue support for auto detection of base levelself.
-        if options.indent_level > 0:
-            baseIndentString = options.indent_level * indent_string
-
-        self.__indent_cache = IndentCache(baseIndentString, indent_string)
-        self.__alignment_cache = IndentCache('', ' ')
-        self.baseIndentLength = len(baseIndentString)
-        self.indent_length = len(indent_string)
+        self.__indent_cache = IndentStringCache(options, baseIndentString)
         self.raw = False
         self._end_with_newline = options.end_with_newline
+        self.indent_size = options.indent_size
         self.__lines = []
         self.previous_line = None
         self.current_line = None
         self.space_before_token = False
-
+        # initialize
         self.__add_outputline()
 
     def __add_outputline(self):
@@ -141,11 +164,11 @@ class Output:
     def get_line_number(self):
         return len(self.__lines)
 
-    def get_indent_string(self, level):
-        return self.__indent_cache.get_level_string(level)
+    def get_indent_string(self, indent, column=0):
+        return self.__indent_cache.get_indent_string(indent, column)
 
-    def get_alignment_string(self, level):
-        return self.__alignment_cache.get_level_string(level)
+    def get_indent_size(self, indent, column=0):
+        return self.__indent_cache.get_indent_size(indent, column)
 
     def is_empty(self):
         return self.previous_line is None and self.current_line.is_empty()
