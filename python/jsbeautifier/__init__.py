@@ -297,7 +297,7 @@ def main():
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
         elif opt in ('--stdin', '-i'):
-            #stdin is the default if no files are passed
+            # stdin is the default if no files are passed
             filepath_params = []
         elif opt in ('--editorconfig'):
             js_options.editorconfig = True
@@ -343,6 +343,9 @@ def main():
             replace = True
         elif filepaths and filepaths[0] == '-':
             replace = False
+
+        # remove duplicates
+        filepaths = set(filepaths)
 
         for filepath in filepaths:
             if not replace:
@@ -391,7 +394,7 @@ def main():
                     # python automatically converts newlines in text to "\r\n" when on windows
                     # set newline to empty to prevent this
                     with io.open(outfile, 'wt', newline='') as f:
-                        print('writing ' + outfile, file=sys.stderr)
+                        print('beautified ' + outfile, file=sys.stdout)
                         try:
                             f.write(pretty)
                         except TypeError:
@@ -400,6 +403,9 @@ def main():
                             # fail on a missing six dependency.
                             six = __import__("six")
                             f.write(six.u(pretty))
+                else:
+                    print('beautified ' + outfile + ' - unchanged', file=sys.stdout)
+
 
     except MissingInputStreamError:
         print(

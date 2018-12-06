@@ -172,28 +172,48 @@ test_cli_js_beautify()
 
     # Glob related tests
     cp -r $PROJECT_DIR/js/src  $TEST_TEMP/
-    FILE_RCOUNT=$(find $PROJECT_DIR/js/src -name '*.js' | grep -c .)
+    FILE_RCOUNT=$(find $PROJECT_DIR/js/src -name 't*.js' | grep -c .)
     FILE_COUNT=$(ls $PROJECT_DIR/js/src/*.js | grep -c .)
-    MISSING_FILE_GLOB="*/*/missing_file"
-    $CLI_SCRIPT $MISSING_FILE_GLOB > /dev/null || {
+
+    $CLI_SCRIPT '*/*/missing_file' > /dev/null || {
         echo "[$CLI_SCRIPT_NAME $MISSING_FILE_GLOB] Return code should be success for globs."
         exit 1
     }
 
-    if [[ "$FILE_COUNT" == "`$CLI_SCRIPT $TEST_TEMP/src/*.js | grep -c .`" ]]; then
-        echo "js-beautify output for $TEST_TEMP/src/*.js was expected have $FILE_COUNT files."
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT 'src/*.js' | grep -c .)" ]; then
+        echo "js-beautify output for 'src/*.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT 'src/*.js')
+        cleanup 1
+    fi
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/*.js' | grep -c .)" ]; then
+        echo "js-beautify output for 'src/*.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/*.js')
+        cleanup 1
+    fi
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/??dex.js' | grep -c .)" ]; then
+        echo "js-beautify output for --file 'src/cl?.js' --file 'src/??dex.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/??dex.js')
+        cleanup 1
+    fi
+
+    if [ "1" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/c??.js' 'src/cli.js'  | grep -c .)" ]; then
+        echo "js-beautify output for --file 'src/cl?.js' --file 'src/cl?.js' was expected have 1 file."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/c??.js' 'src/cli.js')
         cleanup 1
     fi
 
     # recursive wildcard not supported in python 3.4 or less
     # only run this test if the script doesn't report failure.
-    $CLI_SCRIPT $TEST_TEMP/src/**/*.js && {
-        if [[ "$FILE_RCOUNT" == "`$CLI_SCRIPT $TEST_TEMP/src/**/*.js | grep -c .`" ]]; then
-            echo "js-beautify output for $TEST_TEMP/src/*.js was expected have $FILE_RCOUNT files."
+    $CLI_SCRIPT 'src/**/t*.js' && {
+        if [ "$FILE_RCOUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT 'src/**/t*.js' | grep -c .)" ]; then
+            echo "js-beautify output for 'src/**/t*.js' was expected have $FILE_RCOUNT files."
+            echo $(cd $TEST_TEMP && $CLI_SCRIPT 'src/**/t*.js')
             cleanup 1
         fi
     }
-
 
     # EditorConfig related tests
     cp -r ../js/test/resources/editorconfig $TEST_TEMP/
