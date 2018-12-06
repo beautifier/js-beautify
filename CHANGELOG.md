@@ -1,4 +1,16 @@
 # Changelog
+## v1.8.9
+
+### Description
+
+
+### Closed Issues
+* Won't run from CLI - bad option name `files` ([#1583](https://github.com/beautify-web/js-beautify/issues/1583))
+* in the .vue file `space_after_anon_function` is invalid ([#1425](https://github.com/beautify-web/js-beautify/issues/1425))
+* Add function default_options() to beautifier.js ([#1364](https://github.com/beautify-web/js-beautify/issues/1364))
+* Support globs in CLI ([#787](https://github.com/beautify-web/js-beautify/issues/787))
+
+
 ## v1.8.8
 
 ### Description
@@ -19,7 +31,7 @@
 * HTML: add an option to preserve manual wrapping of attributes ([#1125](https://github.com/beautify-web/js-beautify/issues/1125))
 * js-beautify adds a space between # and include ([#1114](https://github.com/beautify-web/js-beautify/issues/1114))
 * space_after_anon_function doesn't work with anon async functions ([#1034](https://github.com/beautify-web/js-beautify/issues/1034))
-* Space before function arguments (space-after-function) ([#608](https://github.com/beautify-web/js-beautify/issues/608))
+* Space before function arguments (space-after-function) (space-after-named-function) ([#608](https://github.com/beautify-web/js-beautify/issues/608))
 
 
 ## v1.8.6
@@ -44,16 +56,6 @@ Broader adoption of 1.8.x revealed a few more high priority fixes
 ### Closed Issues
 * Multiple newlines added between empty textarea and "unformatted" inline elements  ([#1534](https://github.com/beautify-web/js-beautify/issues/1534))
 * unindent_chained_methods broken ([#1533](https://github.com/beautify-web/js-beautify/issues/1533))
-
-
-## v1.8.1
-
-### Description
-
-
-### Closed Issues
-* Why npm is a dependency? ([#1516](https://github.com/beautify-web/js-beautify/issues/1516))
-* indent_inner_html not working in v1.8.0 ([#1514](https://github.com/beautify-web/js-beautify/issues/1514))
 
 
 ## v1.8.0
