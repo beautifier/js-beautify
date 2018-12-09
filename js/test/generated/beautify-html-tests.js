@@ -444,6 +444,35 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <div></div>\n' +
             '    </div>\n' +
             '</script>');
+        
+        // null beatifier behavior - should still indent
+        test_fragment(
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '  <div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '      <div></div><div></div></div>\n' +
+            '</script>');
+        bth(
+            '<script type="test/null">\n' +
+            '   <div>\n' +
+            '     <div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '      <div></div><div></div></div>\n' +
+            '</script>');
+        bth(
+            '<script type="test/null">\n' +
+            '<div>\n' +
+            '<div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '    <div></div><div></div></div>\n' +
+            '</script>');
         bth(
             '<script>var foo = "bar";</script>',
             //  -- output --

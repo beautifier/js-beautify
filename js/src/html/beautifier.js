@@ -170,6 +170,9 @@ var get_custom_beautifier_name = function(tag_check, start_token) {
     return 'javascript';
   } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(html)/) > -1) {
     return 'html';
+  } else if (typeAttribute.search(/test\/null/) > -1) {
+    // Test only mime-type for testing the beautifier when null is passed as beautifing function
+    return 'null';
   }
 
   return null;
@@ -479,11 +482,12 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
       text = _beautifier(indentation + text, child_options);
     } else {
       // simply indent the string otherwise
-      var white = text.match(/^\s*/)[0];
-      var _level = white.match(/[^\n\r]*$/)[0].split(this._options.indent_string).length - 1;
-      var reindent = this._get_full_indent(script_indent_level - _level);
-      text = (indentation + text.trim())
-        .replace(/\r\n|\r|\n/g, '\n' + reindent);
+      var white = raw_token.whitespace_before;
+      if (white) {
+        text = text.replace(new RegExp('\n(' + white + ')?', 'g'), '\n');
+      }
+
+      text = indentation + text.replace(/\n/g, '\n' + indentation);
     }
     if (text) {
       printer.print_raw_text(text);

@@ -250,6 +250,32 @@ exports.test_data = {
           '</script>'
         ]
       }, {
+        comment: 'null beatifier behavior - should still indent',
+        fragment: true,
+        input: '<script type="test/null">\n    <div>\n  <div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '      <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="test/null">\n   <div>\n     <div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '      <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="test/null">\n<div>\n<div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '    <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
         input: '<script>var foo = "bar";</script>',
         output: [
           '<script>',
