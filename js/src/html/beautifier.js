@@ -136,11 +136,30 @@ Printer.prototype.get_full_indent = function(level) {
   return this._output.get_indent_string(level);
 };
 
-var get_custom_beautifier_name = function(tag_check, start_token) {
+var get_type_attribute = function(start_token) {
+  var result = null;
   var raw_token = start_token.next;
-  var typeAttribute = null;
 
-  if (!start_token.closed) {
+  // Search attributes for a type attribute
+  while (raw_token.type !== TOKEN.EOF && raw_token.closed !== start_token) {
+    if (raw_token.type === TOKEN.ATTRIBUTE && raw_token.text === 'type') {
+      if (raw_token.next && raw_token.next.type === TOKEN.EQUALS &&
+        raw_token.next.next && raw_token.next.next.type === TOKEN.VALUE) {
+        result = raw_token.next.next.text;
+      }
+      break;
+    }
+    raw_token = raw_token.next;
+  }
+
+  return result;
+};
+
+var get_custom_beautifier_name = function(tag_check, raw_token) {
+  var typeAttribute = null;
+  var result = null;
+
+  if (!raw_token.closed) {
     return null;
   }
 
@@ -150,32 +169,22 @@ var get_custom_beautifier_name = function(tag_check, start_token) {
     typeAttribute = 'text/css';
   }
 
-  // Search attributes for a type attribute
-  while (raw_token.type !== TOKEN.EOF && raw_token.closed !== start_token) {
-    if (raw_token.type === TOKEN.ATTRIBUTE && raw_token.text === 'type') {
-      if (raw_token.next && raw_token.next.type === TOKEN.EQUALS &&
-        raw_token.next.next && raw_token.next.next.type === TOKEN.VALUE) {
-        typeAttribute = raw_token.next.next.text;
-      }
-      break;
-    }
-    raw_token = raw_token.next;
-  }
+  typeAttribute = get_type_attribute(raw_token) || typeAttribute;
 
   // For script and style tags that have a type attribute, only enable custom beautifiers for matching values
   // For those without a type attribute use default;
   if (typeAttribute.search('text/css') > -1) {
-    return 'css';
+    result = 'css';
   } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1) {
-    return 'javascript';
+    result = 'javascript';
   } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(html)/) > -1) {
-    return 'html';
+    result = 'html';
   } else if (typeAttribute.search(/test\/null/) > -1) {
     // Test only mime-type for testing the beautifier when null is passed as beautifing function
-    return 'null';
+    result = 'null';
   }
 
-  return null;
+  return result;
 };
 
 function in_array(what, arr) {
