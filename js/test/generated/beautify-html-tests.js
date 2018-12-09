@@ -187,49 +187,49 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Support Indent Level Options and Base Indent Autodetection - ()
         reset_options();
         set_name('Support Indent Level Options and Base Indent Autodetection - ()');
-        test_fragment('   a', 'a');
+        test_fragment('   a');
         test_fragment(
             '   <div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '   <div>\n' +
+            '       <p>This is my sentence.</p>\n' +
+            '   </div>');
         test_fragment(
             '   // This is a random comment\n' +
             '<div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '// This is a random comment\n' +
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '   // This is a random comment\n' +
+            '   <div>\n' +
+            '       <p>This is my sentence.</p>\n' +
+            '   </div>');
 
         // Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
         reset_options();
         set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
         opts.indent_level = 0;
-        test_fragment('   a', 'a');
+        test_fragment('   a');
         test_fragment(
             '   <div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '   <div>\n' +
+            '       <p>This is my sentence.</p>\n' +
+            '   </div>');
         test_fragment(
             '   // This is a random comment\n' +
             '<div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '// This is a random comment\n' +
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '   // This is a random comment\n' +
+            '   <div>\n' +
+            '       <p>This is my sentence.</p>\n' +
+            '   </div>');
 
         // Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")
         reset_options();
@@ -308,25 +308,25 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         reset_options();
         set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
         opts.indent_level = 0;
-        test_fragment('\t   a', 'a');
+        test_fragment('\t   a');
         test_fragment(
             '\t   <div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '\t   <div>\n' +
+            '\t       <p>This is my sentence.</p>\n' +
+            '\t   </div>');
         test_fragment(
             '\t   // This is a random comment\n' +
             '<div>\n' +
             '  <p>This is my sentence.</p>\n' +
             '</div>',
             //  -- output --
-            '// This is a random comment\n' +
-            '<div>\n' +
-            '    <p>This is my sentence.</p>\n' +
-            '</div>');
+            '\t   // This is a random comment\n' +
+            '\t   <div>\n' +
+            '\t       <p>This is my sentence.</p>\n' +
+            '\t   </div>');
 
 
         //============================================================
@@ -430,6 +430,48 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<script>\n' +
             '    < div > < /div>\n' +
+            '</script>');
+        
+        // text/html should beautify as html
+        bth(
+            '<script type="text/html">\n' +
+            '<div>\n' +
+            '<div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="text/html">\n' +
+            '    <div>\n' +
+            '        <div></div>\n' +
+            '        <div></div>\n' +
+            '    </div>\n' +
+            '</script>');
+        
+        // null beatifier behavior - should still indent
+        test_fragment(
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '  <div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '      <div></div><div></div></div>\n' +
+            '</script>');
+        bth(
+            '<script type="test/null">\n' +
+            '   <div>\n' +
+            '     <div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '      <div></div><div></div></div>\n' +
+            '</script>');
+        bth(
+            '<script type="test/null">\n' +
+            '<div>\n' +
+            '<div></div><div></div></div></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <div>\n' +
+            '    <div></div><div></div></div>\n' +
             '</script>');
         bth(
             '<script>var foo = "bar";</script>',
@@ -7311,10 +7353,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </div>',
             '<div>\n' +
             '</div>');
-        bth('    <div>\n' +
+        test_fragment('   <div>\n' +
             '    </div>',
-            '<div>\n' +
-            '</div>');
+            '   <div>\n' +
+            '   </div>');
         bth('<div>\n' +
             '</div>\n' +
             '    <div>\n' +
@@ -7323,10 +7365,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</div>\n' +
             '<div>\n' +
             '</div>');
-        bth('    <div>\n' +
+        test_fragment('   <div>\n' +
             '</div>',
-            '<div>\n' +
-            '</div>');
+            '   <div>\n' +
+            '   </div>');
         bth('<div        >content</div>',
             '<div>content</div>');
         bth('<div     thinger="preserve  space  here"   ></div  >',
