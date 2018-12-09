@@ -136,28 +136,43 @@ Printer.prototype.get_full_indent = function(level) {
   return this._output.get_indent_string(level);
 };
 
-
-var uses_beautifier = function(tag_check, start_token) {
+var get_custom_beautifier_name = function(tag_check, start_token) {
   var raw_token = start_token.next;
+  var typeAttribute = null;
+
   if (!start_token.closed) {
-    return false;
+    return null;
   }
 
+  if (tag_check === 'script') {
+    typeAttribute = 'text/javascript';
+  } else if (tag_check === 'style') {
+    typeAttribute = 'text/css';
+  }
+
+  // Search attributes for a type attribute
   while (raw_token.type !== TOKEN.EOF && raw_token.closed !== start_token) {
     if (raw_token.type === TOKEN.ATTRIBUTE && raw_token.text === 'type') {
-      // For script and style tags that have a type attribute, only enable custom beautifiers for matching values
-      var peekEquals = raw_token.next ? raw_token.next : raw_token;
-      var peekValue = peekEquals.next ? peekEquals.next : peekEquals;
-      if (peekEquals.type === TOKEN.EQUALS && peekValue.type === TOKEN.VALUE) {
-        return (tag_check === 'style' && peekValue.text.search('text/css') > -1) ||
-          (tag_check === 'script' && peekValue.text.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1);
+      if (raw_token.next && raw_token.next.type === TOKEN.EQUALS &&
+        raw_token.next.next && raw_token.next.next.type === TOKEN.VALUE) {
+        typeAttribute = raw_token.next.next.text;
       }
-      return false;
+      break;
     }
     raw_token = raw_token.next;
   }
 
-  return true;
+  // For script and style tags that have a type attribute, only enable custom beautifiers for matching values
+  // For those without a type attribute use default;
+  if (typeAttribute.search('text/css') > -1) {
+    return 'css';
+  } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1) {
+    return 'javascript';
+  } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(html)/) > -1) {
+    return 'html';
+  }
+
+  return null;
 };
 
 function in_array(what, arr) {
@@ -265,10 +280,8 @@ Beautifier.prototype.beautify = function() {
 
   // HACK: newline parsing inconsistent. This brute force normalizes the input.
   source_text = source_text.replace(allLineBreaks, '\n');
-  var baseIndentString = '';
 
-  // Including commented out text would change existing html beautifier behavior to autodetect base indent.
-  // baseIndentString = source_text.match(/^[\t ]*/)[0];
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
 
   var last_token = {
     text: '',
@@ -413,7 +426,7 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     text: raw_token.text,
     type: 'TK_CONTENT'
   };
-  if (last_tag_token.custom_beautifier) { //check if we need to format javascript
+  if (last_tag_token.custom_beautifier_name) { //check if we need to format javascript
     this._print_custom_beatifier_text(printer, raw_token, last_tag_token);
   } else if (last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) {
     printer.add_raw_token(raw_token);
@@ -425,16 +438,23 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
 };
 
 Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token, last_tag_token) {
+  var local = this;
   if (raw_token.text !== '') {
     printer.print_newline(false);
     var text = raw_token.text,
       _beautifier,
       script_indent_level = 1;
-    if (last_tag_token.tag_name === 'script') {
-      _beautifier = typeof this._js_beautify === 'function' && this._js_beautify;
-    } else if (last_tag_token.tag_name === 'style') {
-      _beautifier = typeof this._css_beautify === 'function' && this._css_beautify;
+    if (last_tag_token.custom_beautifier_name === 'javascript' && typeof this._js_beautify === 'function') {
+      _beautifier = this._js_beautify;
+    } else if (last_tag_token.custom_beautifier_name === 'css' && typeof this._css_beautify === 'function') {
+      _beautifier = this._css_beautify;
+    } else if (last_tag_token.custom_beautifier_name === 'html') {
+      _beautifier = function(html_source, options) {
+        var beautifier = new Beautifier(html_source, options, local._js_beautify, local._css_beautify);
+        return beautifier.beautify();
+      };
     }
+
 
     if (this._options.indent_scripts === "keep") {
       script_indent_level = 0;
@@ -511,7 +531,7 @@ var TagOpenParserToken = function(parent, raw_token) {
   this.is_end_tag = false;
   this.indent_content = false;
   this.multiline_content = false;
-  this.custom_beautifier = false;
+  this.custom_beautifier_name = null;
   this.start_tag_token = null;
   this.attr_count = 0;
   this.has_wrapped_attrs = false;
@@ -584,7 +604,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
       if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
         !(parser_token.is_unformatted || parser_token.is_content_unformatted)) {
-        parser_token.custom_beautifier = uses_beautifier(parser_token.tag_check, raw_token);
+        parser_token.custom_beautifier_name = get_custom_beautifier_name(parser_token.tag_check, raw_token);
       }
     }
   }
@@ -632,7 +652,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
       printer.print_newline(false);
     }
   } else { // it's a start-tag
-    parser_token.indent_content = !parser_token.custom_beautifier;
+    parser_token.indent_content = !parser_token.custom_beautifier_name;
 
     if (parser_token.tag_start_char === '<') {
       if (parser_token.tag_name === 'html') {
