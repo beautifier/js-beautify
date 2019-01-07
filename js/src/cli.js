@@ -615,7 +615,16 @@ function checkFiles(parsed) {
             });
         } else {
             // Input was not a glob, add it to an array so we are able to handle it in the same loop below
-            testFilePath(f);
+            try {
+                testFilePath(f);
+            } catch (err) {
+                // if file is not found, and the resolved path indicates stdin marker
+                if (path.parse(f).base === '-') {
+                    f = '-';
+                } else {
+                    throw err;
+                }
+            }
             foundFiles = [f];
         }
 
@@ -623,7 +632,9 @@ function checkFiles(parsed) {
             // Add files to the parsed.files if it didn't exist in the array yet
             foundFiles.forEach(function(file) {
                 var filePath = path.resolve(file);
-                if (parsed.files.indexOf(filePath) === -1) {
+                if (file === '-') { // case of stdin
+                    parsed.files.push(file);
+                } else if (parsed.files.indexOf(filePath) === -1) {
                     parsed.files.push(filePath);
                 }
             });
