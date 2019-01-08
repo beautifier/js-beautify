@@ -238,21 +238,6 @@ var line_starters = __webpack_require__(8).line_starters;
 var positionable_operators = __webpack_require__(8).positionable_operators;
 var TOKEN = __webpack_require__(8).TOKEN;
 
-function remove_redundant_indentation(output, frame) {
-  // This implementation is effective but has some issues:
-  //     - can cause line wrap to happen too soon due to indent removal
-  //           after wrap points are calculated
-  // These issues are minor compared to ugly indentation.
-
-  if (frame.multiline_frame ||
-    frame.mode === MODE.ForInitializer ||
-    frame.mode === MODE.Conditional) {
-    return;
-  }
-
-  // remove one indent from each line inside this section
-  output.remove_indent(frame.start_line_index);
-}
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -297,6 +282,22 @@ var MODE = {
   Conditional: 'Conditional', //'(COND-EXPRESSION)',
   Expression: 'Expression' //'(EXPRESSION)'
 };
+
+function remove_redundant_indentation(output, frame) {
+  // This implementation is effective but has some issues:
+  //     - can cause line wrap to happen too soon due to indent removal
+  //           after wrap points are calculated
+  // These issues are minor compared to ugly indentation.
+
+  if (frame.multiline_frame ||
+    frame.mode === MODE.ForInitializer ||
+    frame.mode === MODE.Conditional) {
+    return;
+  }
+
+  // remove one indent from each line inside this section
+  output.remove_indent(frame.start_line_index);
+}
 
 // we could use just string.split, but
 // IE doesn't like returning empty strings
@@ -4152,28 +4153,55 @@ Printer.prototype.get_full_indent = function(level) {
   return this._output.get_indent_string(level);
 };
 
-
-var uses_beautifier = function(tag_check, start_token) {
+var get_type_attribute = function(start_token) {
+  var result = null;
   var raw_token = start_token.next;
-  if (!start_token.closed) {
-    return false;
-  }
 
-  while (raw_token.type !== TOKEN.EOF && raw_token.closed !== start_token) {
+  // Search attributes for a type attribute
+  while (raw_token.type !== TOKEN.EOF && start_token.closed !== raw_token) {
     if (raw_token.type === TOKEN.ATTRIBUTE && raw_token.text === 'type') {
-      // For script and style tags that have a type attribute, only enable custom beautifiers for matching values
-      var peekEquals = raw_token.next ? raw_token.next : raw_token;
-      var peekValue = peekEquals.next ? peekEquals.next : peekEquals;
-      if (peekEquals.type === TOKEN.EQUALS && peekValue.type === TOKEN.VALUE) {
-        return (tag_check === 'style' && peekValue.text.search('text/css') > -1) ||
-          (tag_check === 'script' && peekValue.text.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1);
+      if (raw_token.next && raw_token.next.type === TOKEN.EQUALS &&
+        raw_token.next.next && raw_token.next.next.type === TOKEN.VALUE) {
+        result = raw_token.next.next.text;
       }
-      return false;
+      break;
     }
     raw_token = raw_token.next;
   }
 
-  return true;
+  return result;
+};
+
+var get_custom_beautifier_name = function(tag_check, raw_token) {
+  var typeAttribute = null;
+  var result = null;
+
+  if (!raw_token.closed) {
+    return null;
+  }
+
+  if (tag_check === 'script') {
+    typeAttribute = 'text/javascript';
+  } else if (tag_check === 'style') {
+    typeAttribute = 'text/css';
+  }
+
+  typeAttribute = get_type_attribute(raw_token) || typeAttribute;
+
+  // For script and style tags that have a type attribute, only enable custom beautifiers for matching values
+  // For those without a type attribute use default;
+  if (typeAttribute.search('text/css') > -1) {
+    result = 'css';
+  } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1) {
+    result = 'javascript';
+  } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(html)/) > -1) {
+    result = 'html';
+  } else if (typeAttribute.search(/test\/null/) > -1) {
+    // Test only mime-type for testing the beautifier when null is passed as beautifing function
+    result = 'null';
+  }
+
+  return result;
 };
 
 function in_array(what, arr) {
@@ -4281,10 +4309,8 @@ Beautifier.prototype.beautify = function() {
 
   // HACK: newline parsing inconsistent. This brute force normalizes the input.
   source_text = source_text.replace(allLineBreaks, '\n');
-  var baseIndentString = '';
 
-  // Including commented out text would change existing html beautifier behavior to autodetect base indent.
-  // baseIndentString = source_text.match(/^[\t ]*/)[0];
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
 
   var last_token = {
     text: '',
@@ -4429,7 +4455,7 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     text: raw_token.text,
     type: 'TK_CONTENT'
   };
-  if (last_tag_token.custom_beautifier) { //check if we need to format javascript
+  if (last_tag_token.custom_beautifier_name) { //check if we need to format javascript
     this._print_custom_beatifier_text(printer, raw_token, last_tag_token);
   } else if (last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) {
     printer.add_raw_token(raw_token);
@@ -4441,16 +4467,23 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
 };
 
 Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token, last_tag_token) {
+  var local = this;
   if (raw_token.text !== '') {
     printer.print_newline(false);
     var text = raw_token.text,
       _beautifier,
       script_indent_level = 1;
-    if (last_tag_token.tag_name === 'script') {
-      _beautifier = typeof this._js_beautify === 'function' && this._js_beautify;
-    } else if (last_tag_token.tag_name === 'style') {
-      _beautifier = typeof this._css_beautify === 'function' && this._css_beautify;
+    if (last_tag_token.custom_beautifier_name === 'javascript' && typeof this._js_beautify === 'function') {
+      _beautifier = this._js_beautify;
+    } else if (last_tag_token.custom_beautifier_name === 'css' && typeof this._css_beautify === 'function') {
+      _beautifier = this._css_beautify;
+    } else if (last_tag_token.custom_beautifier_name === 'html') {
+      _beautifier = function(html_source, options) {
+        var beautifier = new Beautifier(html_source, options, local._js_beautify, local._css_beautify);
+        return beautifier.beautify();
+      };
     }
+
 
     if (this._options.indent_scripts === "keep") {
       script_indent_level = 0;
@@ -4475,11 +4508,12 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
       text = _beautifier(indentation + text, child_options);
     } else {
       // simply indent the string otherwise
-      var white = text.match(/^\s*/)[0];
-      var _level = white.match(/[^\n\r]*$/)[0].split(this._options.indent_string).length - 1;
-      var reindent = this._get_full_indent(script_indent_level - _level);
-      text = (indentation + text.trim())
-        .replace(/\r\n|\r|\n/g, '\n' + reindent);
+      var white = raw_token.whitespace_before;
+      if (white) {
+        text = text.replace(new RegExp('\n(' + white + ')?', 'g'), '\n');
+      }
+
+      text = indentation + text.replace(/\n/g, '\n' + indentation);
     }
     if (text) {
       printer.print_raw_text(text);
@@ -4527,7 +4561,7 @@ var TagOpenParserToken = function(parent, raw_token) {
   this.is_end_tag = false;
   this.indent_content = false;
   this.multiline_content = false;
-  this.custom_beautifier = false;
+  this.custom_beautifier_name = null;
   this.start_tag_token = null;
   this.attr_count = 0;
   this.has_wrapped_attrs = false;
@@ -4600,7 +4634,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
       if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
         !(parser_token.is_unformatted || parser_token.is_content_unformatted)) {
-        parser_token.custom_beautifier = uses_beautifier(parser_token.tag_check, raw_token);
+        parser_token.custom_beautifier_name = get_custom_beautifier_name(parser_token.tag_check, raw_token);
       }
     }
   }
@@ -4648,7 +4682,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
       printer.print_newline(false);
     }
   } else { // it's a start-tag
-    parser_token.indent_content = !parser_token.custom_beautifier;
+    parser_token.indent_content = !parser_token.custom_beautifier_name;
 
     if (parser_token.tag_start_char === '<') {
       if (parser_token.tag_name === 'html') {

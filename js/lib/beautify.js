@@ -268,21 +268,6 @@ var line_starters = __webpack_require__(7).line_starters;
 var positionable_operators = __webpack_require__(7).positionable_operators;
 var TOKEN = __webpack_require__(7).TOKEN;
 
-function remove_redundant_indentation(output, frame) {
-  // This implementation is effective but has some issues:
-  //     - can cause line wrap to happen too soon due to indent removal
-  //           after wrap points are calculated
-  // These issues are minor compared to ugly indentation.
-
-  if (frame.multiline_frame ||
-    frame.mode === MODE.ForInitializer ||
-    frame.mode === MODE.Conditional) {
-    return;
-  }
-
-  // remove one indent from each line inside this section
-  output.remove_indent(frame.start_line_index);
-}
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -327,6 +312,22 @@ var MODE = {
   Conditional: 'Conditional', //'(COND-EXPRESSION)',
   Expression: 'Expression' //'(EXPRESSION)'
 };
+
+function remove_redundant_indentation(output, frame) {
+  // This implementation is effective but has some issues:
+  //     - can cause line wrap to happen too soon due to indent removal
+  //           after wrap points are calculated
+  // These issues are minor compared to ugly indentation.
+
+  if (frame.multiline_frame ||
+    frame.mode === MODE.ForInitializer ||
+    frame.mode === MODE.Conditional) {
+    return;
+  }
+
+  // remove one indent from each line inside this section
+  output.remove_indent(frame.start_line_index);
+}
 
 // we could use just string.split, but
 // IE doesn't like returning empty strings
