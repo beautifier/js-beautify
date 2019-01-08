@@ -35,7 +35,7 @@ release_node()
 
 release_web()
 {
-    # release is now on beautifier/beautifier.io
+    echo release is now on beautifier/beautifier.io
     # cd $SCRIPT_DIR/..
     # git clean -xfd || exit 1
     # git fetch || exit 1
