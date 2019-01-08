@@ -35,13 +35,14 @@ release_node()
 
 release_web()
 {
-    cd $SCRIPT_DIR/..
-    git clean -xfd || exit 1
-    git fetch || exit 1
-    git checkout -B gh-pages origin/gh-pages || exit 1
-    git merge origin/release --no-edit || exit 1
-    git push || exit 1
-    git checkout master
+    # release is now on beautifier/beautifier.io
+    # cd $SCRIPT_DIR/..
+    # git clean -xfd || exit 1
+    # git fetch || exit 1
+    # git checkout -B gh-pages origin/gh-pages || exit 1
+    # git merge origin/release --no-edit || exit 1
+    # git push || exit 1
+    # git checkout master
 }
 
 sedi() {

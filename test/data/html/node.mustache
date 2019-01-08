@@ -235,10 +235,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    </div>',
             '<div>\n' +
             '</div>');
-        bth('    <div>\n' +
+        test_fragment('   <div>\n' +
             '    </div>',
-            '<div>\n' +
-            '</div>');
+            '   <div>\n' +
+            '   </div>');
         bth('<div>\n' +
             '</div>\n' +
             '    <div>\n' +
@@ -247,10 +247,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</div>\n' +
             '<div>\n' +
             '</div>');
-        bth('    <div>\n' +
+        test_fragment('   <div>\n' +
             '</div>',
-            '<div>\n' +
-            '</div>');
+            '   <div>\n' +
+            '   </div>');
         bth('<div        >content</div>',
             '<div>content</div>');
         bth('<div     thinger="preserve  space  here"   ></div  >',

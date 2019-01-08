@@ -85,14 +85,14 @@ exports.test_data = {
     matrix: [{
       options: [],
       input_start_indent: '   ',
-      output_start_of_base: '',
+      output_start_of_base: '   ',
       i: '    '
     }, {
       options: [
         { name: "indent_level", value: "0" }
       ],
       input_start_indent: '   ',
-      output_start_of_base: '',
+      output_start_of_base: '   ',
       i: '    '
     }, {
       options: [
@@ -121,7 +121,7 @@ exports.test_data = {
         { name: "indent_level", value: "0" }
       ],
       input_start_indent: '\t   ',
-      output_start_of_base: '',
+      output_start_of_base: '\t   ',
       i: '    '
     }],
     tests: [
@@ -239,11 +239,64 @@ exports.test_data = {
           '</script>'
         ]
       }, {
+        comment: 'text/html should beautify as html',
+        input: '<script type="text/html">\n<div>\n<div></div><div></div></div></script>',
+        output: [
+          '<script type="text/html">',
+          '    <div>',
+          '        <div></div>',
+          '        <div></div>',
+          '    </div>',
+          '</script>'
+        ]
+      }, {
+        comment: 'null beatifier behavior - should still indent',
+        fragment: true,
+        input: '<script type="test/null">\n    <div>\n  <div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '      <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="test/null">\n   <div>\n     <div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '      <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
+        input: '<script type="test/null">\n<div>\n<div></div><div></div></div></script>',
+        output: [
+          '<script type="test/null">',
+          '    <div>',
+          '    <div></div><div></div></div>',
+          '</script>'
+        ]
+      }, {
         input: '<script>var foo = "bar";</script>',
         output: [
           '<script>',
           '    var foo = "bar";',
           '</script>'
+        ]
+      }, {
+        comment: 'Issue #1606 - type attribute on other element',
+        input: [
+          '<script>',
+          'console.log(1  +  1);',
+          '</script>',
+          '',
+          '<input type="submit"></input>'
+        ],
+        output: [
+          '<script>',
+          '    console.log(1 + 1);',
+          '</script>',
+          '',
+          '<input type="submit"></input>'
         ]
       }, {
         input: '<script type="text/javascript">var foo = "bar";</script>',
