@@ -141,7 +141,7 @@ var get_type_attribute = function(start_token) {
   var raw_token = start_token.next;
 
   // Search attributes for a type attribute
-  while (raw_token.type !== TOKEN.EOF && raw_token.closed !== start_token) {
+  while (raw_token.type !== TOKEN.EOF && start_token.closed !== raw_token) {
     if (raw_token.type === TOKEN.ATTRIBUTE && raw_token.text === 'type') {
       if (raw_token.next && raw_token.next.type === TOKEN.EQUALS &&
         raw_token.next.next && raw_token.next.next.type === TOKEN.VALUE) {

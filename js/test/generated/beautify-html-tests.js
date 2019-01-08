@@ -479,6 +479,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<script>\n' +
             '    var foo = "bar";\n' +
             '</script>');
+        
+        // Issue #1606 - type attribute on other element
+        bth(
+            '<script>\n' +
+            'console.log(1  +  1);\n' +
+            '</script>\n' +
+            '\n' +
+            '<input type="submit"></input>',
+            //  -- output --
+            '<script>\n' +
+            '    console.log(1 + 1);\n' +
+            '</script>\n' +
+            '\n' +
+            '<input type="submit"></input>');
         bth(
             '<script type="text/javascript">var foo = "bar";</script>',
             //  -- output --

@@ -283,6 +283,22 @@ exports.test_data = {
           '</script>'
         ]
       }, {
+        comment: 'Issue #1606 - type attribute on other element',
+        input: [
+          '<script>',
+          'console.log(1  +  1);',
+          '</script>',
+          '',
+          '<input type="submit"></input>'
+        ],
+        output: [
+          '<script>',
+          '    console.log(1 + 1);',
+          '</script>',
+          '',
+          '<input type="submit"></input>'
+        ]
+      }, {
         input: '<script type="text/javascript">var foo = "bar";</script>',
         output: [
           '<script type="text/javascript">',
