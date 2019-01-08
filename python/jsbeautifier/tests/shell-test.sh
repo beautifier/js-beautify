@@ -135,6 +135,12 @@ test_cli_js_beautify()
         cleanup 1
     }
 
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -f - | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
+        $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        cleanup 1
+    }
+
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js || {
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify.js."
