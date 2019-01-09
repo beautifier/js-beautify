@@ -99,71 +99,40 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
 
 Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
   var token = null;
+  var resulting_string = null;
+  var directives = null;
+
   if (c === '<' || c === '{') {
     var peek1 = this._input.peek(1);
     var peek2 = this._input.peek(2);
-    if ((c === '<' && (peek1 === '!' || peek1 === '?' || peek1 === '%')) ||
-      this._options.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
-      //if we're in a comment, do something special
-      // We treat all comments as literals, even more than preformatted tags
-      // we just look for the appropriate close tag
+    //if we're in a comment, do something special
+    // We treat all comments as literals, even more than preformatted tags
+    // we just look for the appropriate close tag
+    if (c === '<' && (peek1 === '!' || peek1 === '?' || peek1 === '%')) {
+      resulting_string = this._input.read(/<!--/g, /-->/g);
 
-      // this is will have very poor perf, but will work for now.
-      var comment = '',
-        delimiter = '>',
-        matched = false;
-
-      var input_char = this._input.next();
-
-      while (input_char) {
-        comment += input_char;
-
-        // only need to check for the delimiter if the last chars match
-        if (comment.charAt(comment.length - 1) === delimiter.charAt(delimiter.length - 1) &&
-          comment.indexOf(delimiter) !== -1) {
-          break;
+      // only process directive on html comments
+      if (resulting_string) {
+        directives = directives_core.get_directives(resulting_string);
+        if (directives && directives.ignore === 'start') {
+          resulting_string += directives_core.readIgnored(this._input);
         }
+      } else {
+        resulting_string = this._input.read(/<!\[cdata\[/g, /]]>/g);
+        resulting_string = resulting_string || this._input.read(/<!\[/g, /]>/g);
+        resulting_string = resulting_string || this._input.read(/<\?/g, /\?>/g);
+        resulting_string = resulting_string || this._input.read(/<%/g, /%>/g);
 
-        // only need to search for custom delimiter for the first few characters
-        if (!matched) {
-          matched = comment.length > 10;
-          if (comment.indexOf('<![if') === 0) { //peek for <![if conditional comment
-            delimiter = '<![endif]>';
-            matched = true;
-          } else if (comment.indexOf('<![cdata[') === 0) { //if it's a <[cdata[ comment...
-            delimiter = ']]>';
-            matched = true;
-          } else if (comment.indexOf('<![') === 0) { // some other ![ comment? ...
-            delimiter = ']>';
-            matched = true;
-          } else if (comment.indexOf('<!--') === 0) { // <!-- comment ...
-            delimiter = '-->';
-            matched = true;
-          } else if (comment.indexOf('{{!--') === 0) { // {{!-- handlebars comment
-            delimiter = '--}}';
-            matched = true;
-          } else if (comment.indexOf('{{!') === 0) { // {{! handlebars comment
-            if (comment.length === 5 && comment.indexOf('{{!--') === -1) {
-              delimiter = '}}';
-              matched = true;
-            }
-          } else if (comment.indexOf('<?') === 0) { // {{! handlebars comment
-            delimiter = '?>';
-            matched = true;
-          } else if (comment.indexOf('<%') === 0) { // {{! handlebars comment
-            delimiter = '%>';
-            matched = true;
-          }
-        }
-
-        input_char = this._input.next();
+        // if none of the other patterns match, read the element as a comment anyway
+        resulting_string = resulting_string || this._input.read(/</g, />/g);
       }
+    } else if (this._options.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
+      resulting_string = this._input.read(/{{!--/g, /--}/g);
+      resulting_string = resulting_string || this._input.read(/{{!/g, /}}/g);
+    }
 
-      var directives = directives_core.get_directives(comment);
-      if (directives && directives.ignore === 'start') {
-        comment += directives_core.readIgnored(this._input);
-      }
-      token = this._create_token(TOKEN.COMMENT, comment);
+    if (resulting_string) {
+      token = this._create_token(TOKEN.COMMENT, resulting_string);
       token.directives = directives;
     }
   }

@@ -75,11 +75,13 @@ class InputScanner:
                 self.__position = pattern_match.end(0)
         return pattern_match
 
-    def read(self, pattern):
+    def read(self, pattern, until_after_pattern=None):
         val = ''
         pattern_match = self.match(pattern)
         if bool(pattern_match):
             val = pattern_match.group(0)
+            if until_after_pattern:
+                val += self.readUntilAfter(until_after_pattern)
         return val
 
     def readUntil(self, pattern, include_match=False):
