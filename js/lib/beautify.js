@@ -3080,11 +3080,14 @@ InputScanner.prototype.match = function(pattern) {
   return pattern_match;
 };
 
-InputScanner.prototype.read = function(pattern) {
+InputScanner.prototype.read = function(pattern, untilAfterPattern) {
   var val = '';
   var match = this.match(pattern);
   if (match) {
     val = match[0];
+    if (untilAfterPattern) {
+      val += this.readUntilAfter(untilAfterPattern);
+    }
   }
   return val;
 };

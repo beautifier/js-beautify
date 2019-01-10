@@ -798,11 +798,14 @@ InputScanner.prototype.match = function(pattern) {
   return pattern_match;
 };
 
-InputScanner.prototype.read = function(pattern) {
+InputScanner.prototype.read = function(pattern, untilAfterPattern) {
   var val = '';
   var match = this.match(pattern);
   if (match) {
     val = match[0];
+    if (untilAfterPattern) {
+      val += this.readUntilAfter(untilAfterPattern);
+    }
   }
   return val;
 };
@@ -852,7 +855,75 @@ module.exports.InputScanner = InputScanner;
 /***/ }),
 /* 9 */,
 /* 10 */,
-/* 11 */,
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+function Directives(start_block_pattern, end_block_pattern) {
+  start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
+  end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
+  this.__directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
+  this.__directive_pattern = / (\w+)[:](\w+)/g;
+
+  this.__directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
+}
+
+Directives.prototype.get_directives = function(text) {
+  if (!text.match(this.__directives_block_pattern)) {
+    return null;
+  }
+
+  var directives = {};
+  this.__directive_pattern.lastIndex = 0;
+  var directive_match = this.__directive_pattern.exec(text);
+
+  while (directive_match) {
+    directives[directive_match[1]] = directive_match[2];
+    directive_match = this.__directive_pattern.exec(text);
+  }
+
+  return directives;
+};
+
+Directives.prototype.readIgnored = function(input) {
+  return input.read(this.__directives_end_ignore_pattern);
+};
+
+
+module.exports.Directives = Directives;
+
+
+/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -939,6 +1010,9 @@ module.exports.defaultOptions = function() {
 var Options = __webpack_require__(14).Options;
 var Output = __webpack_require__(2).Output;
 var InputScanner = __webpack_require__(8).InputScanner;
+var Directives = __webpack_require__(11).Directives;
+
+var directives_core = new Directives(/\/\*/, /\*\//);
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -1099,11 +1173,14 @@ Beautifier.prototype.beautify = function() {
   var insideAtExtend = false;
   var insideAtImport = false;
   var topCharacter = this._ch;
+  var whitespace;
+  var isAfterSpace;
+  var previous_ch;
 
   while (true) {
-    var whitespace = this._input.read(whitespacePattern);
-    var isAfterSpace = whitespace !== '';
-    var previous_ch = topCharacter;
+    whitespace = this._input.read(whitespacePattern);
+    isAfterSpace = whitespace !== '';
+    previous_ch = topCharacter;
     this._ch = this._input.next();
     topCharacter = this._ch;
 
@@ -1117,7 +1194,16 @@ Beautifier.prototype.beautify = function() {
       // minified code is being beautified.
       this._output.add_new_line();
       this._input.back();
-      this.print_string(this._input.read(block_comment_pattern));
+
+      var comment = this._input.read(block_comment_pattern);
+
+      // Handle ignore directive
+      var directives = directives_core.get_directives(comment);
+      if (directives && directives.ignore === 'start') {
+        comment += directives_core.readIgnored(this._input);
+      }
+
+      this.print_string(comment);
 
       // Ensures any new lines following the comment are preserved
       this.eatWhitespace(true);
