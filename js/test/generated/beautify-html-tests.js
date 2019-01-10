@@ -799,7 +799,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '    attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -906,10 +906,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '    attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
-            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
             '    rel="stylesheet"\n' +
             '    type="text/css">');
 
@@ -980,7 +981,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '        attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -1051,8 +1052,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
-            'data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            'data-attr2="hello    t here"\n' +
+            'heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1065,17 +1066,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
-            'data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            'data-attr2="hello    t here"\n' +
+            'heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12 attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
-            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '<link\n' +
+            'href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
             'rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""auto"", wrap_line_length = "80", wrap_attributes_indent_size = "4")
@@ -1142,8 +1144,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
-            '    data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1156,17 +1158,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
-            '    data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            '    data-attr2="hello    t here"\n' +
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12 attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
-            '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
+            '<link\n' +
+            '    href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
             '    rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""auto"", wrap_line_length = "0")
@@ -1210,7 +1213,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12 attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
+        bth('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""force-aligned"")
         reset_options();
@@ -1278,7 +1281,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '      attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -1385,7 +1388,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '      attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -1455,8 +1458,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
-            '     data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1469,14 +1472,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
-            '     data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This\n' +
-            '    is some text</div>');
+            '     data-attr2="hello    t here"\n' +
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12 attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -1522,7 +1525,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12 attr2="bar" />');
-        test_fragment('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
+        bth('<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">');
 
         // Attribute Wrap - (wrap_attributes = ""force-aligned"", wrap_attributes_indent_size = "8")
         reset_options();
@@ -1591,7 +1594,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<?xml version="1.0" encoding="UTF-8" ?>\n' +
             '<root attr1=foo12\n' +
             '      attr2="bar" />');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin"\n' +
@@ -1677,7 +1680,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1=foo12\n' +
             '    attr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -1799,7 +1802,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1=foo12\n' +
             '    attr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -1887,7 +1890,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        attr1=foo12\n' +
             '        attr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -1976,7 +1979,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1=foo12\n' +
             '\tattr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -2065,7 +2068,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t   attr1=foo12\n' +
             '\t   attr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -2187,7 +2190,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1=foo12\n' +
             '\tattr2="bar"\n' +
             '/>');
-        test_fragment(
+        bth(
             '<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&amp;subset=latin" rel="stylesheet" type="text/css">',
             //  -- output --
             '<link\n' +
@@ -2573,10 +2576,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{{field}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{field}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{field}}</span>',
             //  -- output --
@@ -2829,10 +2832,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>',
             //  -- output --
@@ -3085,10 +3088,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{{! comment}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{! comment}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
             //  -- output --
@@ -3341,10 +3344,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{{!-- comment--}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{!-- comment--}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{!-- comment--}}</span>',
             //  -- output --
@@ -3597,10 +3600,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>',
             //  -- output --
@@ -3853,10 +3856,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
             //  -- output --
@@ -4234,14 +4237,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
@@ -4669,14 +4672,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             '--}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
@@ -5197,8 +5200,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5207,7 +5210,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5544,11 +5547,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<dIv{{#if test}}class="foo"{{/if}}>content</dIv>',
             //  -- output --
             '<dIv {{#if test}} class="foo" {{/if}}>content</dIv>');
-        bth(
-            '<diV{{#if thing}}{{somestyle}}class="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
+        test_fragment(
+            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class="{{class}}" {{else}} class="{{class2}}"\n' +
-            '    {{/if}}>content</diV>');
+            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}}\n' +
+            '    class="{{class2}}" {{/if}}>content</diV>');
         bth(
             '<span{{#if condition}}class="foo"{{/if}}>content</span>',
             //  -- output --
@@ -6554,7 +6557,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<body>\n' +
             '    <div>\n' +
             '        <div>\n' +
-            '            <p>Reconstruct the schematic editor the EDA system <a href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>\n' +
+            '            <p>Reconstruct the schematic editor the EDA system <a\n' +
+            '                    href="http://www.jedat.co.jp/eng/products.html"><i>AlphaSX</i></a>\n' +
             '                series</p>\n' +
             '        </div>\n' +
             '    </div>\n' +
@@ -7499,7 +7503,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             /* expected */
             '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
 
-        //BUGBUG: This should wrap before 40 not after.
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
@@ -7518,7 +7521,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    wrap_inside_this section here.</div>');
 
         opts.wrap_line_length = 80;
-        // BUGBUG #1238  This is still wrong but is also a good regression test
+        // #1238  Fixed
         //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
         bth('<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
             '   <ng-letter-avatar charCount="2" data="[[data]]"\n' +
@@ -7527,9 +7530,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     </span>',
             /* expected */
             '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round" fontsize="[[font]]"\n' +
-            '        height="[[height]]" width="[[width]]" avatarcustombgcolor="[[bgColor]]"\n' +
-            '        dynamic="true"></ng-letter-avatar>\n' +
+            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round"\n' +
+            '        fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
+            '        avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
             '</span>');
 
         // ISSUE #607 - preserve-newlines makes this look a bit odd now, but it much better

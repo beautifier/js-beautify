@@ -367,7 +367,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             /* expected */
             '<div>Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all. Some text that should not wrap at all.</div>');
 
-        //BUGBUG: This should wrap before 40 not after.
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
@@ -386,7 +385,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    wrap_inside_this section here.</div>');
 
         opts.wrap_line_length = 80;
-        // BUGBUG #1238  This is still wrong but is also a good regression test
+        // #1238  Fixed
         //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
         bth('<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
             '   <ng-letter-avatar charCount="2" data="[[data]]"\n' +
@@ -395,9 +394,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     </span>',
             /* expected */
             '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round" fontsize="[[font]]"\n' +
-            '        height="[[height]]" width="[[width]]" avatarcustombgcolor="[[bgColor]]"\n' +
-            '        dynamic="true"></ng-letter-avatar>\n' +
+            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round"\n' +
+            '        fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
+            '        avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
             '</span>');
 
         // ISSUE #607 - preserve-newlines makes this look a bit odd now, but it much better

@@ -671,6 +671,324 @@ exports.test_data = {
         { input: '.tabs  (t, t2)  \n{\n  key: val(p1  ,p2);  \n  }', output: '.tabs (t, t2) {\n\tkey: val(p1, p2);\n}' },
         { unchanged: '.box-shadow(@shadow: 0 1px 3px rgba(0, 0, 0, .25)) {\n\t-webkit-box-shadow: @shadow;\n\t-moz-box-shadow: @shadow;\n\tbox-shadow: @shadow;\n}' }
       ]
+    }, {
+      name: "Beautify preserve formatting",
+      description: "Allow beautifier to preserve sections",
+      options: [
+        { name: "indent_size", value: "4" },
+        { name: "indent_char", value: "' '" },
+        { name: "preserve_newlines", value: "true" }
+      ],
+      tests: [
+        // Preserve not yet supported
+        // { unchanged: "/* beautify preserve:start */\n/* beautify preserve:end */" },
+        // { unchanged: "/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */" },
+        // { unchanged: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */" },
+        // { unchanged: "/* beautify preserve:start */     {asdklgh;y;;{}dd2d}/* beautify preserve:end */" },
+        // {
+        //   input_: "var a =  1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+        //   output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+        // },
+        // {
+        //   input_: "var a = 1;\n /* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */",
+        //   output: "var a = 1;\n/* beautify preserve:start */\n   var a = 1;\n/* beautify preserve:end */"
+        // },
+        // {
+        //   unchanged: [
+        //     'var a = {',
+        //     '    /* beautify preserve:start */',
+        //     '    one   :  1',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '    /* beautify preserve:end */',
+        //     '};'
+        //   ]
+        // },
+        // {
+        //   input: [
+        //     'var a = {',
+        //     '/* beautify preserve:start */',
+        //     '    one   :  1,',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '/* beautify preserve:end */',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /* beautify preserve:start */',
+        //     '    one   :  1,',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '/* beautify preserve:end */',
+        //     '};'
+        //   ]
+        // },
+        // {
+        //   comment: 'one space before and after required, only single spaces inside.',
+        //   input: [
+        //     'var a = {',
+        //     '/*  beautify preserve:start  */',
+        //     '    one   :  1,',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /*  beautify preserve:start  */',
+        //     '    one: 1,',
+        //     '    two: 2,',
+        //     '    three: 3,',
+        //     '    ten: 10',
+        //     '};'
+        //   ]
+        // },
+        // {
+        //   input: [
+        //     'var a = {',
+        //     '/*beautify preserve:start*/',
+        //     '    one   :  1,',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /*beautify preserve:start*/',
+        //     '    one: 1,',
+        //     '    two: 2,',
+        //     '    three: 3,',
+        //     '    ten: 10',
+        //     '};'
+        //   ]
+        // },
+        // {
+        //   input: [
+        //     'var a = {',
+        //     '/*beautify  preserve:start*/',
+        //     '    one   :  1,',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '    ten   : 10',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /*beautify  preserve:start*/',
+        //     '    one: 1,',
+        //     '    two: 2,',
+        //     '    three: 3,',
+        //     '    ten: 10',
+        //     '};'
+        //   ]
+        // },
+
+        {
+          comment: 'Directive: ignore',
+          unchanged: "/* beautify ignore:start */\n/* beautify ignore:end */"
+        },
+        { unchanged: "/* beautify ignore:start */\n   var a,,,{ 1;\n .div {}/* beautify ignore:end */" },
+        { unchanged: ".div {}\n\n/* beautify ignore:start */\n   .div {}var a = 1;\n/* beautify ignore:end */" },
+        {
+          comment: 'ignore starts _after_ the start comment, ends after the end comment',
+          unchanged: "/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */"
+        },
+        { unchanged: "/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */" },
+        {
+          input_: ".div {}/* beautify ignore:start */\n   .div {}var a,,,{ 1;\n/*beautify ignore:end*/",
+          output: ".div {}\n/* beautify ignore:start */\n   .div {}var a,,,{ 1;\n/*beautify ignore:end*/"
+        },
+        {
+          input_: ".div {}\n  /* beautify ignore:start */\n   .div {}var a,,,{ 1;\n/* beautify ignore:end */",
+          output: ".div {}\n/* beautify ignore:start */\n   .div {}var a,,,{ 1;\n/* beautify ignore:end */"
+        },
+        {
+          unchanged: [
+            '.div {',
+            '    /* beautify ignore:start */',
+            '    one   :  1',
+            '    two   :  2,',
+            '    three :  {',
+            '    ten   : 10',
+            '    /* beautify ignore:end */',
+            '}'
+          ]
+        },
+        {
+          input: [
+            '.div {',
+            '/* beautify ignore:start */',
+            '    one   :  1',
+            '    two   :  2,',
+            '    three :  {',
+            '    ten   : 10',
+            '/* beautify ignore:end */',
+            '}'
+          ],
+          output: [
+            '.div {',
+            '    /* beautify ignore:start */',
+            '    one   :  1',
+            '    two   :  2,',
+            '    three :  {',
+            '    ten   : 10',
+            '/* beautify ignore:end */',
+            '}'
+          ]
+        },
+        // {
+        //   comment: 'Directives - multiple and interacting',
+        //   input: [
+        //     'var a = {',
+        //     '/* beautify preserve:start */',
+        //     '/* beautify preserve:start */',
+        //     '    one   :  1,',
+        //     '  /* beautify preserve:end */',
+        //     '    two   :  2,',
+        //     '    three :  3,',
+        //     '/* beautify preserve:start */',
+        //     '    ten   : 10',
+        //     '/* beautify preserve:end */',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /* beautify preserve:start */',
+        //     '/* beautify preserve:start */',
+        //     '    one   :  1,',
+        //     '  /* beautify preserve:end */',
+        //     '    two: 2,',
+        //     '    three: 3,',
+        //     '    /* beautify preserve:start */',
+        //     '    ten   : 10',
+        //     '/* beautify preserve:end */',
+        //     '};'
+        //   ]
+        // },
+        {
+          input: [
+            '.div {',
+            '/* beautify ignore:start */',
+            '    one   :  1',
+            ' /* beautify ignore:end */',
+            '    two   :  2,',
+            '/* beautify ignore:start */',
+            '    three :  {',
+            '    ten   : 10',
+            '/* beautify ignore:end */',
+            '}'
+          ],
+          output: [
+            '.div {',
+            '    /* beautify ignore:start */',
+            '    one   :  1',
+            ' /* beautify ignore:end */',
+            '    two : 2,',
+            '    /* beautify ignore:start */',
+            '    three :  {',
+            '    ten   : 10',
+            '/* beautify ignore:end */',
+            '}'
+          ]
+        }
+        // ,{
+        //   comment: 'Starts can occur together, ignore:end must occur alone.',
+        //   input: [
+        //     '.div {',
+        //     '/* beautify ignore:start */',
+        //     '    one   :  1',
+        //     '    NOTE: ignore end block does not support starting other directives',
+        //     '    This does not match the ending the ignore...',
+        //     ' /* beautify ignore:end preserve:start */',
+        //     '    two   :  2,',
+        //     '/* beautify ignore:start */',
+        //     '    three :  {',
+        //     '    ten   : 10',
+        //     '    ==The next comment ends the starting ignore==',
+        //     '/* beautify ignore:end */',
+        //     '}'
+        //   ],
+        //   output: [
+        //     '.div {',
+        //     '    /* beautify ignore:start */',
+        //     '    one   :  1',
+        //     '    NOTE: ignore end block does not support starting other directives',
+        //     '    This does not match the ending the ignore...',
+        //     ' /* beautify ignore:end preserve:start */',
+        //     '    two   :  2,',
+        //     '/* beautify ignore:start */',
+        //     '    three :  {',
+        //     '    ten   : 10',
+        //     '    ==The next comment ends the starting ignore==',
+        //     '/* beautify ignore:end */',
+        //     '}'
+        //   ]
+        // },
+        // {
+        //   input: [
+        //     '.div {',
+        //     '/* beautify ignore:start preserve:start */',
+        //     '    one   :  {',
+        //     ' /* beautify ignore:end */',
+        //     '    two   :  2,',
+        //     '  /* beautify ignore:start */',
+        //     '    three :  {',
+        //     '/* beautify ignore:end */',
+        //     '    ten   : 10',
+        //     '   // This is all preserved',
+        //     '}'
+        //   ],
+        //   output: [
+        //     '.div {',
+        //     '    /* beautify ignore:start preserve:start */',
+        //     '    one   :  {',
+        //     ' /* beautify ignore:end */',
+        //     '    two   :  2,',
+        //     '  /* beautify ignore:start */',
+        //     '    three :  {',
+        //     '/* beautify ignore:end */',
+        //     '    ten   : 10',
+        //     '   // This is all preserved',
+        //     '}'
+        //   ]
+        // },
+        // {
+        //   input: [
+        //     'var a = {',
+        //     '/* beautify ignore:start preserve:start */',
+        //     '    one   :  {',
+        //     ' /* beautify ignore:end */',
+        //     '    two   :  2,',
+        //     '  /* beautify ignore:start */',
+        //     '    three :  {',
+        //     '/* beautify ignore:end */',
+        //     '    ten   : 10,',
+        //     '/* beautify preserve:end */',
+        //     '     eleven: 11',
+        //     '};'
+        //   ],
+        //   output: [
+        //     'var a = {',
+        //     '    /* beautify ignore:start preserve:start */',
+        //     '    one   :  {',
+        //     ' /* beautify ignore:end */',
+        //     '    two   :  2,',
+        //     '  /* beautify ignore:start */',
+        //     '    three :  {',
+        //     '/* beautify ignore:end */',
+        //     '    ten   : 10,',
+        //     '/* beautify preserve:end */',
+        //     '    eleven: 11',
+        //     '};'
+        //   ]
+        // }
+      ]
     },
     {
       name: "Comments",

@@ -80,7 +80,7 @@ Printer.prototype.traverse_whitespace = function(raw_token) {
   if (raw_token.whitespace_before || raw_token.newlines) {
     if (!this.print_preserved_newlines(raw_token)) {
       this._output.space_before_token = true;
-      this.print_space_or_wrap(raw_token.text);
+      this.print_space_or_wrap(raw_token.text.length);
     }
     return true;
   }
@@ -90,10 +90,20 @@ Printer.prototype.traverse_whitespace = function(raw_token) {
 // Append a space to the given content (string array) or, if we are
 // at the wrap_line_length, append a newline/indentation.
 // return true if a newline was added, false if a space was added
-Printer.prototype.print_space_or_wrap = function(text) {
+Printer.prototype.print_space_or_wrap = function(textLength) {
   if (this.wrap_line_length) {
-    if (this._output.current_line.get_character_count() + text.length + 1 >= this.wrap_line_length) { //insert a line when the wrap_line_length is reached
-      return this._output.add_new_line();
+    // only consider wrapping if doing so could improve text position
+    // Example:
+    // <a attribute_that_wraps="">
+    // should not wrap the first attribute as it will not improve the postion.
+    // <span></span><a attribute_that_wraps="">
+    // should wrap the first attribute, as it will improve the postion.
+    if (this._output.get_indent_size(this.indent_level, this.alignment_size) <= this._output.current_line.get_character_count()) {
+      var proposed_length = this._output.current_line.get_character_count() + 1 + textLength;
+      if (proposed_length >= this.wrap_line_length) {
+        //insert a line when the wrap_line_length is reached
+        return this._output.add_new_line();
+      }
     }
   }
   return false;
@@ -367,6 +377,7 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
 };
 
 Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_token, tokens) {
+  var wrapped = false;
   var parser_token = {
     text: raw_token.text,
     type: raw_token.type
@@ -391,40 +402,50 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
       printer.set_space_before_token(false);
     }
 
-    if (printer._output.space_before_token && last_tag_token.tag_start_char === '<') {
+    if (raw_token.type === TOKEN.ATTRIBUTE && last_tag_token.tag_start_char === '<') {
+      if (this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) {
+        printer.traverse_whitespace(raw_token);
+        wrapped = raw_token.newlines !== 0;
+      }
+
       // Allow the current attribute to wrap
       // Set wrapped to true if the line is wrapped
-      var wrapped = printer.print_space_or_wrap(raw_token.text);
-      if (raw_token.type === TOKEN.ATTRIBUTE) {
-        if (this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) {
-          printer.traverse_whitespace(raw_token);
-          wrapped = wrapped || raw_token.newlines !== 0;
+      if (!wrapped && printer.wrap_line_length) {
+        // attribut="value" should all wrap together, so test it now
+        var wrap_text_length = raw_token.text.length;
+        if (raw_token.next.type === TOKEN.EQUALS) {
+          wrap_text_length += raw_token.next.text.length;
+          if (raw_token.next.next.type === TOKEN.VALUE) {
+            wrap_text_length += raw_token.next.next.text.length;
+          }
         }
-        // Save whether we have wrapped any attributes
-        last_tag_token.has_wrapped_attrs = last_tag_token.has_wrapped_attrs || wrapped;
+        wrapped = printer.print_space_or_wrap(wrap_text_length);
+      }
 
-        if (this._is_wrap_attributes_force) {
-          var force_attr_wrap = last_tag_token.attr_count > 1;
-          if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.attr_count === 1) {
-            var is_only_attribute = true;
-            var peek_index = 0;
-            var peek_token;
-            do {
-              peek_token = tokens.peek(peek_index);
-              if (peek_token.type === TOKEN.ATTRIBUTE) {
-                is_only_attribute = false;
-                break;
-              }
-              peek_index += 1;
-            } while (peek_index < 4 && peek_token.type !== TOKEN.EOF && peek_token.type !== TOKEN.TAG_CLOSE);
+      // Save whether we have wrapped any attributes
+      last_tag_token.has_wrapped_attrs = last_tag_token.has_wrapped_attrs || wrapped;
 
-            force_attr_wrap = !is_only_attribute;
-          }
+      if (this._is_wrap_attributes_force) {
+        var force_attr_wrap = last_tag_token.attr_count > 1;
+        if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.attr_count === 1) {
+          var is_only_attribute = true;
+          var peek_index = 0;
+          var peek_token;
+          do {
+            peek_token = tokens.peek(peek_index);
+            if (peek_token.type === TOKEN.ATTRIBUTE) {
+              is_only_attribute = false;
+              break;
+            }
+            peek_index += 1;
+          } while (peek_index < 4 && peek_token.type !== TOKEN.EOF && peek_token.type !== TOKEN.TAG_CLOSE);
 
-          if (force_attr_wrap) {
-            printer.print_newline(false);
-            last_tag_token.has_wrapped_attrs = true;
-          }
+          force_attr_wrap = !is_only_attribute;
+        }
+
+        if (force_attr_wrap) {
+          printer.print_newline(false);
+          last_tag_token.has_wrapped_attrs = true;
         }
       }
     }

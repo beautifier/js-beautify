@@ -1928,6 +1928,102 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Beautify preserve formatting
+        reset_options();
+        set_name('Beautify preserve formatting');
+        opts.indent_size = 4;
+        opts.indent_char = ' ';
+        opts.preserve_newlines = true;
+        
+        // Directive: ignore
+        t(
+            '/* beautify ignore:start */\n' +
+            '/* beautify ignore:end */');
+        t(
+            '/* beautify ignore:start */\n' +
+            '   var a,,,{ 1;\n' +
+            ' .div {}/* beautify ignore:end */');
+        t(
+            '.div {}\n' +
+            '\n' +
+            '/* beautify ignore:start */\n' +
+            '   .div {}var a = 1;\n' +
+            '/* beautify ignore:end */');
+        
+        // ignore starts _after_ the start comment, ends after the end comment
+        t('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */');
+        t('/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */');
+        t(
+            '.div {}/* beautify ignore:start */\n' +
+            '   .div {}var a,,,{ 1;\n' +
+            '/*beautify ignore:end*/',
+            //  -- output --
+            '.div {}\n' +
+            '/* beautify ignore:start */\n' +
+            '   .div {}var a,,,{ 1;\n' +
+            '/*beautify ignore:end*/');
+        t(
+            '.div {}\n' +
+            '  /* beautify ignore:start */\n' +
+            '   .div {}var a,,,{ 1;\n' +
+            '/* beautify ignore:end */',
+            //  -- output --
+            '.div {}\n' +
+            '/* beautify ignore:start */\n' +
+            '   .div {}var a,,,{ 1;\n' +
+            '/* beautify ignore:end */');
+        t(
+            '.div {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three :  {\n' +
+            '    ten   : 10\n' +
+            '    /* beautify ignore:end */\n' +
+            '}');
+        t(
+            '.div {\n' +
+            '/* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three :  {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '}',
+            //  -- output --
+            '.div {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            '    two   :  2,\n' +
+            '    three :  {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '}');
+        t(
+            '.div {\n' +
+            '/* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            ' /* beautify ignore:end */\n' +
+            '    two   :  2,\n' +
+            '/* beautify ignore:start */\n' +
+            '    three :  {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '}',
+            //  -- output --
+            '.div {\n' +
+            '    /* beautify ignore:start */\n' +
+            '    one   :  1\n' +
+            ' /* beautify ignore:end */\n' +
+            '    two : 2,\n' +
+            '    /* beautify ignore:start */\n' +
+            '    three :  {\n' +
+            '    ten   : 10\n' +
+            '/* beautify ignore:end */\n' +
+            '}');
+
+
+        //============================================================
         // Comments - (preserve_newlines = "false", newline_between_rules = "false")
         reset_options();
         set_name('Comments - (preserve_newlines = "false", newline_between_rules = "false")');

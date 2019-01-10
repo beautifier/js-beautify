@@ -31,6 +31,9 @@
 var Options = require('./options').Options;
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
+var Directives = require('../core/directives').Directives;
+
+var directives_core = new Directives(/\/\*/, /\*\//);
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -191,11 +194,14 @@ Beautifier.prototype.beautify = function() {
   var insideAtExtend = false;
   var insideAtImport = false;
   var topCharacter = this._ch;
+  var whitespace;
+  var isAfterSpace;
+  var previous_ch;
 
   while (true) {
-    var whitespace = this._input.read(whitespacePattern);
-    var isAfterSpace = whitespace !== '';
-    var previous_ch = topCharacter;
+    whitespace = this._input.read(whitespacePattern);
+    isAfterSpace = whitespace !== '';
+    previous_ch = topCharacter;
     this._ch = this._input.next();
     topCharacter = this._ch;
 
@@ -209,7 +215,16 @@ Beautifier.prototype.beautify = function() {
       // minified code is being beautified.
       this._output.add_new_line();
       this._input.back();
-      this.print_string(this._input.read(block_comment_pattern));
+
+      var comment = this._input.read(block_comment_pattern);
+
+      // Handle ignore directive
+      var directives = directives_core.get_directives(comment);
+      if (directives && directives.ignore === 'start') {
+        comment += directives_core.readIgnored(this._input);
+      }
+
+      this.print_string(comment);
 
       // Ensures any new lines following the comment are preserved
       this.eatWhitespace(true);
