@@ -37,6 +37,12 @@ function OutputLine(parent) {
   this.__items = [];
 }
 
+OutputLine.prototype.clone_empty = function() {
+  var line = new OutputLine(this.__parent);
+  line.set_indent(this.__indent_count, this.__alignment_count);
+  return line;
+};
+
 OutputLine.prototype.item = function(index) {
   if (index < 0) {
     return this.__items[this.__items.length + index];
@@ -55,9 +61,11 @@ OutputLine.prototype.has_match = function(pattern) {
 };
 
 OutputLine.prototype.set_indent = function(indent, alignment) {
-  this.__indent_count = indent || 0;
-  this.__alignment_count = alignment || 0;
-  this.__character_count = this.__parent.get_indent_size(this.__indent_count, this.__alignment_count);
+  if (this.is_empty()) {
+    this.__indent_count = indent || 0;
+    this.__alignment_count = alignment || 0;
+    this.__character_count = this.__parent.get_indent_size(this.__indent_count, this.__alignment_count);
+  }
 };
 
 OutputLine.prototype.get_character_count = function() {
@@ -193,6 +201,7 @@ function Output(options, baseIndentString) {
   this.__lines = [];
   this.previous_line = null;
   this.current_line = null;
+  this.next_line = new OutputLine(this);
   this.space_before_token = false;
   // initialize
   this.__add_outputline();
@@ -200,7 +209,7 @@ function Output(options, baseIndentString) {
 
 Output.prototype.__add_outputline = function() {
   this.previous_line = this.current_line;
-  this.current_line = new OutputLine(this);
+  this.current_line = this.next_line.clone_empty();
   this.__lines.push(this.current_line);
 };
 
@@ -253,11 +262,15 @@ Output.prototype.set_indent = function(indent, alignment) {
   indent = indent || 0;
   alignment = alignment || 0;
 
+  // Next line stores alignment values
+  this.next_line.set_indent(indent, alignment);
+
   // Never indent your first output indent at the start of the file
   if (this.__lines.length > 1) {
     this.current_line.set_indent(indent, alignment);
     return true;
   }
+
   this.current_line.set_indent();
   return false;
 };
@@ -266,6 +279,7 @@ Output.prototype.add_raw_token = function(token) {
   for (var x = 0; x < token.newlines; x++) {
     this.__add_outputline();
   }
+  this.current_line.set_indent(-1);
   this.current_line.push(token.whitespace_before);
   this.current_line.push_raw(token.text);
   this.space_before_token = false;

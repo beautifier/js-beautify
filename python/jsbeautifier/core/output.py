@@ -40,6 +40,11 @@ class OutputLine:
 
         self.__items = []
 
+    def clone_empty(self):
+        line = OutputLine(self.__parent)
+        line.set_indent(self.__indent_count, self.__alignment_count)
+        return line
+
     def item(self, index):
         return self.__items[index]
 
@@ -47,10 +52,11 @@ class OutputLine:
         return len(self.__items) == 0
 
     def set_indent(self, indent=0, alignment=0):
-        self.__indent_count = indent
-        self.__alignment_count = alignment
-        self.__character_count = self.__parent.get_indent_size(
-            self.__indent_count, self.__alignment_count)
+        if self.is_empty():
+            self.__indent_count = indent
+            self.__alignment_count = alignment
+            self.__character_count = self.__parent.get_indent_size(
+                self.__indent_count, self.__alignment_count)
 
     def get_character_count(self):
         return self.__character_count
@@ -152,13 +158,14 @@ class Output:
         self.__lines = []
         self.previous_line = None
         self.current_line = None
+        self.next_line = OutputLine(self)
         self.space_before_token = False
         # initialize
         self.__add_outputline()
 
     def __add_outputline(self):
         self.previous_line = self.current_line
-        self.current_line = OutputLine(self)
+        self.current_line = self.next_line.clone_empty()
         self.__lines.append(self.current_line)
 
     def get_line_number(self):
@@ -199,6 +206,9 @@ class Output:
         return sweet_code
 
     def set_indent(self, indent=0, alignment=0):
+        # Next line stores alignment values
+        self.next_line.set_indent(indent, alignment)
+
         # Never indent your first output indent at the start of the file
         if len(self.__lines) > 1:
             self.current_line.set_indent(indent, alignment)
@@ -210,6 +220,7 @@ class Output:
         for _ in range(token.newlines):
             self.__add_outputline()
 
+        self.current_line.set_indent(-1)
         self.current_line.push(token.whitespace_before)
         self.current_line.push(token.text)
         self.space_before_token = False

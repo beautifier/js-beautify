@@ -393,6 +393,7 @@ Beautifier.prototype.print_newline = function(force_newline, preserve_statement_
 Beautifier.prototype.print_token_line_indentation = function(current_token) {
   if (this._output.just_added_newline()) {
     if (this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines) {
+      this._output.current_line.set_indent(-1);
       this._output.current_line.push(current_token.whitespace_before);
       this._output.space_before_token = false;
     } else if (this._output.set_indent(this._flags.indentation_level, this._flags.alignment)) {
@@ -1361,6 +1362,7 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
 
     for (j = 0; j < lines.length; j++) {
       this.print_newline(false, true);
+      this._output.current_line.set_indent(-1);
       if (javadoc) {
         // javadoc: reformat and re-indent
         this.print_token(current_token, ltrim(lines[j]));

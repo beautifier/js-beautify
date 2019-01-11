@@ -323,6 +323,7 @@ class Beautifier:
             line = self._output.current_line
             if self._options.keep_array_indentation and self.is_array(
                     self._flags.mode) and current_token.newlines:
+                line.set_indent(-1)
                 line.push(current_token.whitespace_before)
                 self._output.space_before_token = False
             elif self._output.set_indent(self._flags.indentation_level,
@@ -1254,6 +1255,7 @@ class Beautifier:
 
             for line in lines:
                 self.print_newline(preserve_statement_flags=True)
+                self._output.current_line.set_indent(-1)
                 if javadoc:
                     # javadoc: reformat and re-indent
                     self.print_token(current_token, line.lstrip())

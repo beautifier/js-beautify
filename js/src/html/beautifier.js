@@ -124,6 +124,7 @@ Printer.prototype.print_token = function(text) {
 };
 
 Printer.prototype.print_raw_text = function(text) {
+  this._output.current_line.set_indent(-1);
   this._output.current_line.push_raw(text);
 };
 
