@@ -430,6 +430,7 @@ Beautifier.prototype.print_token = function(current_token, printable_token) {
 
   printable_token = printable_token || current_token.text;
   this.print_token_line_indentation(current_token);
+  this._output.non_breaking_space = true;
   this._output.add_token(printable_token);
 };
 

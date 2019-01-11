@@ -336,9 +336,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         bth('<div><span>content</span></div>');
 
-        // Handlebars tests
-        // Without the indent option on, handlebars are treated as content.
-
         opts.wrap_line_length = 0;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
@@ -370,47 +367,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some test text that should wrap_inside_this section here__.</div>',
             /* expected */
             '<div>Some test text that should\n' +
-            '    wrap_inside_this section here.</div>');
+            '    wrap_inside_this section here__.\n' +
+            '</div>');
 
         // Support passing string of number
         opts.wrap_line_length = "40";
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some test text that should wrap_inside_this section here__.</div>',
             /* expected */
             '<div>Some test text that should\n' +
-            '    wrap_inside_this section here.</div>');
-
-        opts.wrap_line_length = 80;
-        // #1238  Fixed
-        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
-        bth('<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '   <ng-letter-avatar charCount="2" data="[[data]]"\n' +
-            '        shape="round" fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
-            '   avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
-            '     </span>',
-            /* expected */
-            '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round"\n' +
-            '        fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
-            '        avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
-            '</span>');
-
-        // ISSUE #607 - preserve-newlines makes this look a bit odd now, but it much better
-        test_fragment(
-            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие\n' +
-            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются\n' +
-            '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>',
-            /* expected */
-            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и\n' +
-            '    глубина зондирования), текущие\n' +
-            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно,\n' +
-            '    они распечатываются\n' +
-            '    на минипринтере. Управлять контроллером для записи данных зондирования\n' +
-            '    можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>');
+            '    wrap_inside_this section here__.\n' +
+            '</div>');
 
         reset_options();
         //============================================================

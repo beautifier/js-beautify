@@ -37,6 +37,10 @@ class OutputLine:
         self.__character_count = 0
         self.__indent_count = -1
         self.__alignment_count = 0
+        self.__wrap_point_index = 0
+        self.__wrap_point_character_count = 0
+        self.__wrap_point_indent_count = -1
+        self.__wrap_point_alignment_count = 0
 
         self.__items = []
 
@@ -57,6 +61,39 @@ class OutputLine:
             self.__alignment_count = alignment
             self.__character_count = self.__parent.get_indent_size(
                 self.__indent_count, self.__alignment_count)
+
+    def set_wrap_point(self):
+        if self.__parent.wrap_line_length:
+            self.__wrap_point_index = len(self.__items)
+            self.__wrap_point_character_count = self.__character_count
+            self.__wrap_point_indent_count = \
+                self.__parent.next_line.__indent_count
+            self.__wrap_point_alignment_count = \
+                self.__parent.next_line.__alignment_count
+
+    def allow_wrap(self):
+        if self.__wrap_point_index and \
+                self.get_character_count() > self.__parent.wrap_line_length and \
+                self.__wrap_point_character_count > self.__parent.next_line.get_character_count():
+            self.__parent.add_new_line()
+            next = self.__parent.current_line
+            next.set_indent(self.__wrap_point_indent_count,
+                self.__wrap_point_alignment_count)
+            next.__items = self.__items[self.__wrap_point_index:]
+            self.__items = self.__items[:self.__wrap_point_index]
+
+            next.__character_count += self.__character_count - \
+                self.__wrap_point_character_count
+            self.__character_count = self.__wrap_point_character_count
+
+            if next.__items[0] == " ":
+                next.__items.pop(0)
+                next.__character_count -= 1
+
+            return True
+
+        return False
+
 
     def get_character_count(self):
         return self.__character_count
@@ -155,11 +192,14 @@ class Output:
         self.raw = False
         self._end_with_newline = options.end_with_newline
         self.indent_size = options.indent_size
+        self.wrap_line_length = options.wrap_line_length
         self.__lines = []
         self.previous_line = None
         self.current_line = None
         self.next_line = OutputLine(self)
         self.space_before_token = False
+        self.non_breaking_space = False
+        self.previous_token_wrapped = False
         # initialize
         self.__add_outputline()
 
@@ -224,13 +264,20 @@ class Output:
         self.current_line.push(token.whitespace_before)
         self.current_line.push(token.text)
         self.space_before_token = False
+        self.non_breaking_space = False
+        self.previous_token_wrapped = False
 
     def add_token(self, printable_token):
-        self.add_space_before_token()
+        self.__add_space_before_token()
         self.current_line.push(printable_token)
+        self.space_before_token = False
+        self.non_breaking_space = False
+        self.previous_token_wrapped = self.current_line.allow_wrap()
 
-    def add_space_before_token(self):
+    def __add_space_before_token(self):
         if self.space_before_token and not self.just_added_newline():
+            if not self.non_breaking_space:
+                self.current_line.set_wrap_point()
             self.current_line.push(' ')
         self.space_before_token = False
 

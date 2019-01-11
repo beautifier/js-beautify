@@ -357,6 +357,7 @@ class Beautifier:
             s = current_token.text
 
         self.print_token_line_indentation(current_token)
+        self._output.non_breaking_space = True
         self._output.add_token(s)
 
     def indent(self):

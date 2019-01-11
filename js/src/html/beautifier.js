@@ -40,7 +40,6 @@ var Printer = function(options, base_indent_string) { //handles input/output and
 
   this.indent_level = 0;
   this.alignment_size = 0;
-  this.wrap_line_length = options.wrap_line_length;
   this.max_preserve_newlines = options.max_preserve_newlines;
   this.preserve_newlines = options.preserve_newlines;
 
@@ -52,9 +51,16 @@ Printer.prototype.current_line_has_match = function(pattern) {
   return this._output.current_line.has_match(pattern);
 };
 
-Printer.prototype.set_space_before_token = function(value) {
+Printer.prototype.set_space_before_token = function(value, non_breaking) {
   this._output.space_before_token = value;
+  this._output.non_breaking_space = non_breaking;
 };
+
+Printer.prototype.set_wrap_point = function() {
+  this._output.set_indent(this.indent_level, this.alignment_size);
+  this._output.current_line.set_wrap_point();
+};
+
 
 Printer.prototype.add_raw_token = function(token) {
   this._output.add_raw_token(token);
@@ -80,62 +86,29 @@ Printer.prototype.traverse_whitespace = function(raw_token) {
   if (raw_token.whitespace_before || raw_token.newlines) {
     if (!this.print_preserved_newlines(raw_token)) {
       this._output.space_before_token = true;
-      this.print_space_or_wrap(raw_token.text.length);
     }
     return true;
   }
   return false;
 };
 
-// Append a space to the given content (string array) or, if we are
-// at the wrap_line_length, append a newline/indentation.
-// return true if a newline was added, false if a space was added
-Printer.prototype.print_space_or_wrap = function(textLength) {
-  if (this.wrap_line_length) {
-    // only consider wrapping if doing so could improve text position
-    // Example:
-    // <a attribute_that_wraps="">
-    // should not wrap the first attribute as it will not improve the postion.
-    // <span></span><a attribute_that_wraps="">
-    // should wrap the first attribute, as it will improve the postion.
-    if (this._output.get_indent_size(this.indent_level, this.alignment_size) <= this._output.current_line.get_character_count()) {
-      var proposed_length = this._output.current_line.get_character_count() + 1 + textLength;
-      if (proposed_length >= this.wrap_line_length) {
-        //insert a line when the wrap_line_length is reached
-        return this._output.add_new_line();
-      }
-    }
-  }
-  return false;
+Printer.prototype.previous_token_wrapped = function() {
+  return this._output.previous_token_wrapped;
 };
 
 Printer.prototype.print_newline = function(force) {
   this._output.add_new_line(force);
 };
 
-Printer.prototype.print_token = function(text) {
-  if (text) {
-    if (this._output.current_line.is_empty()) {
-      this._output.set_indent(this.indent_level, this.alignment_size);
-    }
-
-    this._output.add_token(text);
+Printer.prototype.print_token = function(token) {
+  if (token.text) {
+    this._output.set_indent(this.indent_level, this.alignment_size);
+    this._output.add_token(token.text);
   }
-};
-
-Printer.prototype.print_raw_text = function(text) {
-  this._output.current_line.set_indent(-1);
-  this._output.current_line.push_raw(text);
 };
 
 Printer.prototype.indent = function() {
   this.indent_level++;
-};
-
-Printer.prototype.unindent = function() {
-  if (this.indent_level > 0) {
-    this.indent_level--;
-  }
 };
 
 Printer.prototype.get_full_indent = function(level) {
@@ -354,17 +327,18 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
   printer.alignment_size = 0;
   last_tag_token.tag_complete = true;
 
-  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '');
+  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
   } else {
     if (last_tag_token.tag_start_char === '<') {
-      printer.set_space_before_token(raw_token.text[0] === '/'); // space before />, no space before >
+      printer.set_space_before_token(raw_token.text[0] === '/', true); // space before />, no space before >
       if (this._is_wrap_attributes_force_expand_multiline && last_tag_token.has_wrapped_attrs) {
         printer.print_newline(false);
       }
     }
-    printer.print_token(raw_token.text);
+    printer.print_token(raw_token);
+
   }
 
   if (last_tag_token.indent_content &&
@@ -374,24 +348,32 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
     // only indent once per opened tag
     last_tag_token.indent_content = false;
   }
+
+  if (!last_tag_token.is_inline_element &&
+    !(last_tag_token.is_unformatted || last_tag_token.is_content_unformatted)) {
+    printer.set_wrap_point();
+  }
+
   return parser_token;
 };
 
 Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_token, tokens) {
-  var wrapped = false;
+  var wrapped = last_tag_token.has_wrapped_attrs;
   var parser_token = {
     text: raw_token.text,
     type: raw_token.type
   };
-  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '');
+
+  printer.set_space_before_token(raw_token.newlines || raw_token.whitespace_before !== '', true);
   if (last_tag_token.is_unformatted) {
     printer.add_raw_token(raw_token);
   } else if (last_tag_token.tag_start_char === '{' && raw_token.type === TOKEN.TEXT) {
     // For the insides of handlebars allow newlines or a single space between open and contents
     if (printer.print_preserved_newlines(raw_token)) {
-      printer.print_raw_text(raw_token.whitespace_before + raw_token.text);
+      raw_token.newlines = 0;
+      printer.add_raw_token(raw_token);
     } else {
-      printer.print_token(raw_token.text);
+      printer.print_token(raw_token);
     }
   } else {
     if (raw_token.type === TOKEN.ATTRIBUTE) {
@@ -406,25 +388,9 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
     if (raw_token.type === TOKEN.ATTRIBUTE && last_tag_token.tag_start_char === '<') {
       if (this._is_wrap_attributes_preserve || this._is_wrap_attributes_preserve_aligned) {
         printer.traverse_whitespace(raw_token);
-        wrapped = raw_token.newlines !== 0;
+        wrapped = wrapped || raw_token.newlines !== 0;
       }
 
-      // Allow the current attribute to wrap
-      // Set wrapped to true if the line is wrapped
-      if (!wrapped && printer.wrap_line_length) {
-        // attribut="value" should all wrap together, so test it now
-        var wrap_text_length = raw_token.text.length;
-        if (raw_token.next.type === TOKEN.EQUALS) {
-          wrap_text_length += raw_token.next.text.length;
-          if (raw_token.next.next.type === TOKEN.VALUE) {
-            wrap_text_length += raw_token.next.next.text.length;
-          }
-        }
-        wrapped = printer.print_space_or_wrap(wrap_text_length);
-      }
-
-      // Save whether we have wrapped any attributes
-      last_tag_token.has_wrapped_attrs = last_tag_token.has_wrapped_attrs || wrapped;
 
       if (this._is_wrap_attributes_force) {
         var force_attr_wrap = last_tag_token.attr_count > 1;
@@ -446,11 +412,13 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
 
         if (force_attr_wrap) {
           printer.print_newline(false);
-          last_tag_token.has_wrapped_attrs = true;
+          wrapped = true;
         }
       }
     }
-    printer.print_token(raw_token.text);
+    printer.print_token(raw_token);
+    wrapped = wrapped || printer.previous_token_wrapped();
+    last_tag_token.has_wrapped_attrs = wrapped;
   }
   return parser_token;
 };
@@ -466,7 +434,7 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
-    printer.print_token(raw_token.text);
+    printer.print_token(raw_token);
   }
   return parser_token;
 };
@@ -521,7 +489,10 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
       text = indentation + text.replace(/\n/g, '\n' + indentation);
     }
     if (text) {
-      printer.print_raw_text(text);
+      raw_token.text = text;
+      raw_token.whitespace_before = '';
+      raw_token.newlines = 0;
+      printer.add_raw_token(raw_token);
       printer.print_newline(true);
     }
   }
@@ -538,7 +509,10 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
   } else {
     printer.traverse_whitespace(raw_token);
     this._set_tag_position(printer, raw_token, parser_token, last_tag_token, last_token);
-    printer.print_token(raw_token.text);
+    if (!parser_token.is_inline_element) {
+      printer.set_wrap_point();
+    }
+    printer.print_token(raw_token);
   }
 
   //indent attributes an auto, forced, aligned or forced-align line-wrap
