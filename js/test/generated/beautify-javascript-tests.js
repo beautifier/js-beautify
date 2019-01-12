@@ -6766,7 +6766,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // Line wrap test intputs
         //.............---------1---------2---------3---------4---------5---------6---------7
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+        wrap_input_1=('foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -6781,7 +6781,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............---------1---------2---------3---------4---------5---------6---------7
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         wrap_input_2=('{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
                       '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -6800,7 +6800,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -6817,7 +6817,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
                       'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
@@ -6834,8 +6834,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f &&\n' +
+                      '    "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap\n' +
@@ -6861,7 +6861,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      'foo.bar().baz().cucumber((f && "sass") ||\n' +
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
@@ -6889,7 +6889,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment(wrap_input_2,
                       /* expected */
                       '{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '    foo.bar().baz().cucumber((f && "sass") ||\n' +
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
                       '        .but_this_can\n' +
@@ -6917,7 +6917,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
@@ -6936,7 +6936,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap.but_this_can\n' +
@@ -6956,8 +6956,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
+                      'foo.bar().baz().cucumber((f &&\n' +
+                      '    "sass") || (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
                       'return between_return_and_expression_should_never_wrap\n' +
@@ -6984,7 +6984,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //.............1234567890123456789012345678901234567890123456789012345678901234567890
         test_fragment(wrap_input_1,
                       /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      'foo.bar().baz().cucumber((f && "sass") ||\n' +
                       '    (leans && mean));\n' +
                       'Test_very_long_variable_name_this_should_never_wrap\n' +
                       '    .but_this_can\n' +
@@ -7013,7 +7013,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         test_fragment(wrap_input_2,
                       /* expected */
                       '{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
+                      '    foo.bar().baz().cucumber((f && "sass") ||\n' +
                       '        (leans && mean));\n' +
                       '    Test_very_long_variable_name_this_should_never_wrap\n' +
                       '        .but_this_can\n' +

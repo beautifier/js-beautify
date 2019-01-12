@@ -58,7 +58,7 @@ Printer.prototype.set_space_before_token = function(value, non_breaking) {
 
 Printer.prototype.set_wrap_point = function() {
   this._output.set_indent(this.indent_level, this.alignment_size);
-  this._output.current_line.set_wrap_point();
+  this._output.set_wrap_point();
 };
 
 

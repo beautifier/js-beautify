@@ -72,7 +72,7 @@ OutputLine.prototype.set_indent = function(indent, alignment) {
   }
 };
 
-OutputLine.prototype.set_wrap_point = function() {
+OutputLine.prototype._set_wrap_point = function() {
   if (this.__parent.wrap_line_length) {
     this.__wrap_point_index = this.__items.length;
     this.__wrap_point_character_count = this.__character_count;
@@ -81,10 +81,16 @@ OutputLine.prototype.set_wrap_point = function() {
   }
 };
 
-OutputLine.prototype.allow_wrap = function() {
-  if (this.__wrap_point_index &&
-    this.get_character_count() > this.__parent.wrap_line_length &&
-    this.__wrap_point_character_count > this.__parent.next_line.get_character_count()) {
+OutputLine.prototype._should_wrap = function(count) {
+  count = count || 0;
+  count += this.__character_count;
+  return this.__wrap_point_index &&
+    count > this.__parent.wrap_line_length &&
+    this.__wrap_point_character_count > this.__parent.next_line.__character_count;
+};
+
+OutputLine.prototype._allow_wrap = function() {
+  if (this._should_wrap()) {
     this.__parent.add_new_line();
     var next = this.__parent.current_line;
     next.set_indent(this.__wrap_point_indent_count, this.__wrap_point_alignment_count);
@@ -101,10 +107,6 @@ OutputLine.prototype.allow_wrap = function() {
     return true;
   }
   return false;
-};
-
-OutputLine.prototype.get_character_count = function() {
-  return this.__character_count;
 };
 
 OutputLine.prototype.is_empty = function() {
@@ -141,13 +143,19 @@ OutputLine.prototype.pop = function() {
   return item;
 };
 
-OutputLine.prototype.remove_indent = function() {
+
+OutputLine.prototype._remove_indent = function() {
   if (this.__indent_count > 0) {
     this.__indent_count -= 1;
     this.__character_count -= this.__parent.indent_size;
   }
 };
 
+OutputLine.prototype._remove_wrap_indent = function() {
+  if (this.__wrap_point_indent_count > 0) {
+    this.__wrap_point_indent_count -= 1;
+  }
+};
 OutputLine.prototype.trim = function() {
   while (this.last() === ' ') {
     this.__items.pop();
@@ -296,6 +304,10 @@ Output.prototype.get_code = function(eol) {
   return sweet_code;
 };
 
+Output.prototype.set_wrap_point = function() {
+  this.current_line._set_wrap_point();
+};
+
 Output.prototype.set_indent = function(indent, alignment) {
   indent = indent || 0;
   alignment = alignment || 0;
@@ -330,13 +342,13 @@ Output.prototype.add_token = function(printable_token) {
   this.current_line.push(printable_token);
   this.space_before_token = false;
   this.non_breaking_space = false;
-  this.previous_token_wrapped = this.current_line.allow_wrap();
+  this.previous_token_wrapped = this.current_line._allow_wrap();
 };
 
 Output.prototype.__add_space_before_token = function() {
   if (this.space_before_token && !this.just_added_newline()) {
     if (!this.non_breaking_space) {
-      this.current_line.set_wrap_point();
+      this.set_wrap_point();
     }
     this.current_line.push(' ');
   }
@@ -345,15 +357,16 @@ Output.prototype.__add_space_before_token = function() {
 Output.prototype.remove_indent = function(index) {
   var output_length = this.__lines.length;
   while (index < output_length) {
-    this.__lines[index].remove_indent();
+    this.__lines[index]._remove_indent();
     index++;
   }
+  this.current_line._remove_wrap_indent();
 };
 
 Output.prototype.trim = function(eat_newlines) {
   eat_newlines = (eat_newlines === undefined) ? false : eat_newlines;
 
-  this.current_line.trim(this.indent_string, this.baseIndentString);
+  this.current_line.trim();
 
   while (eat_newlines && this.__lines.length > 1 &&
     this.current_line.is_empty()) {
