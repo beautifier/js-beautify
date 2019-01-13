@@ -185,7 +185,7 @@ function beautify() {
   var selectedOptions = JSON.stringify(opts, null, 2);
   $('#options-selected').val(selectedOptions);
 
-  if (language === 'html' || (language === 'auto' && looks_like_html(source))) {
+  if (language === 'html') {
     output = the.beautifier.html(source, opts);
   } else if (language === 'css') {
     output = the.beautifier.css(source, opts);
