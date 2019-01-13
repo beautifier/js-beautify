@@ -518,6 +518,30 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "unformatted_content_delimiter ^^",
+    description: "keep delimited together",
+    options: [
+      { name: "wrap_line_length", value: "80" },
+      { name: "unformatted_content_delimiter", value: "'^^'" }
+    ],
+    tests: [{
+      fragment: true,
+      input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 ^^09 0010 0011 0012 0013 0014 0015 ^^16 0017 0018 0019 0020</span>',
+      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008\n    ^^09 0010 0011 0012 0013 0014 0015 ^^16 0017 0018 0019 0020</span>'
+    }, {
+      fragment: true,
+      input: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n    0015 0016 0017 0018 0019 0020</span>'
+    }, {
+      fragment: true,
+      input: '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   ^^10   0011   0012   0013   0014   0015   0016   0^^7   0018   0019   0020</span>',
+      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009\n    ^^10   0011   0012   0013   0014   0015   0016   0^^7 0018 0019 0020</span>'
+    }, {
+      fragment: true,
+      input: '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0^^0   0011   0012   0013   0014   0015   0016   0^^7   0018   0019   0020</span>',
+      output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0^^0 0011 0012 0013 0014\n    0015 0016 0^^7 0018 0019 0020</span>'
+    }]
+  }, {
     name: "Attribute Wrap",
     description: "Wraps attributes inside of html tags",
     matrix: [{

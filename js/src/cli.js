@@ -107,6 +107,7 @@ var path = require('path'),
         "indent_handlebars": [Boolean],
         "indent_scripts": ["keep", "separate", "normal"],
         "extra_liners": [String, Array],
+        "unformatted_content_delimiter": String,
         // CLI
         "version": Boolean,
         "help": Boolean,
@@ -382,6 +383,7 @@ function usage(err) {
             msg.push('  -U, --unformatted                 List of tags (defaults to inline) that should not be reformatted');
             msg.push('  -T, --content_unformatted         List of tags (defaults to pre) whose content should not be reformatted');
             msg.push('  -E, --extra_liners                List of tags (defaults to [head,body,/html] that should have an extra newline');
+            msg.push('  --unformatted_content_delimiter    Keep text content together between this string [""]');
             break;
         case "css":
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
