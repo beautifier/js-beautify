@@ -185,7 +185,7 @@ function beautify() {
   var selectedOptions = JSON.stringify(opts, null, 2);
   $('#options-selected').val(selectedOptions);
 
-  if (language === 'html' || (language === 'auto' && looks_like_html(source))) {
+  if (language === 'html') {
     output = the.beautifier.html(source, opts);
   } else if (language === 'css') {
     output = the.beautifier.css(source, opts);
@@ -208,12 +208,6 @@ function beautify() {
   the.lastOpts = selectedOptions;
 
   the.beautify_in_progress = false;
-}
-
-function looks_like_html(source) {
-  // <foo> - looks like html
-  var trimmed = source.replace(/^[ \t\n\r]+/, '');
-  return trimmed && (trimmed.substring(0, 1) === '<');
 }
 
 function mergeObjects(allOptions, additionalOptions) {
