@@ -363,7 +363,7 @@ function usage(err) {
             msg.push('  -B, --break-chained-methods       Break chained method calls across subsequent lines');
             msg.push('  -k, --keep-array-indentation      Preserve array indentation');
             msg.push('  -x, --unescape-strings            Decode printable characters encoded in xNN notation');
-            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -w, --wrap-line-length            Wrap lines that exceed N characters [0]');
             msg.push('  -X, --e4x                         Pass E4X xml literals through untouched');
             msg.push('  --good-stuff                      Warm the cockles of Crockford\'s heart');
             msg.push('  -C, --comma-first                 Put commas at the beginning of new line instead of end');
@@ -374,7 +374,7 @@ function usage(err) {
             msg.push('  -I, --indent-inner-html           Indent body and head sections. Default is false.');
             msg.push('  -H, --indent-handlebars           Indent handlebars. Default is false.');
             msg.push('  -S, --indent-scripts              [keep|separate|normal] ["normal"]');
-            msg.push('  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]');
+            msg.push('  -w, --wrap-line-length            Wrap lines that exceed N characters [0]');
             msg.push('  -A, --wrap-attributes             Wrap html tag attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]');
             msg.push('  -i, --wrap-attributes-indent-size Indent wrapped tags to after N characters [indent-level]');
             msg.push('  -p, --preserve-newlines           Preserve line-breaks (--no-preserve-newlines disables)');

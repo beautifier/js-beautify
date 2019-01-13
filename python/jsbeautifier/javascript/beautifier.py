@@ -294,13 +294,7 @@ class Beautifier:
                 # These tokens should never have a newline inserted between
                 # them and the following expression.
                 return
-            proposed_line_length = self._output.current_line.get_character_count() + \
-                len(current_token.text)
-            if self._output.space_before_token:
-                proposed_line_length += 1
-
-            if proposed_line_length >= self._options.wrap_line_length:
-                self.print_newline(preserve_statement_flags=True)
+            self._output.set_wrap_point()
 
     def print_newline(
             self,
@@ -321,8 +315,10 @@ class Beautifier:
     def print_token_line_indentation(self, current_token):
         if self._output.just_added_newline():
             line = self._output.current_line
-            if self._options.keep_array_indentation and self.is_array(
-                    self._flags.mode) and current_token.newlines:
+            if self._options.keep_array_indentation and \
+                current_token.newlines and \
+                (self.is_array(self._flags.mode) or
+                        current_token.text == '['):
                 line.set_indent(-1)
                 line.push(current_token.whitespace_before)
                 self._output.space_before_token = False
@@ -359,9 +355,13 @@ class Beautifier:
         self.print_token_line_indentation(current_token)
         self._output.non_breaking_space = True
         self._output.add_token(s)
+        if self._output.previous_token_wrapped:
+            self._flags.multiline_frame = True
 
     def indent(self):
         self._flags.indentation_level += 1
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
 
     def deindent(self):
         allow_deindent = self._flags.indentation_level > 0 and (
@@ -369,6 +369,10 @@ class Beautifier:
 
         if allow_deindent:
             self._flags.indentation_level -= 1
+
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
+
 
     def set_mode(self, mode):
         if self._flags:
@@ -383,12 +387,18 @@ class Beautifier:
             self._output.just_added_newline())
         self._flags.start_line_index = self._output.get_line_number()
 
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
+
     def restore_mode(self):
         if len(self._flag_store) > 0:
             self._previous_flags = self._flags
             self._flags = self._flag_store.pop()
             if self._previous_flags.mode == MODE.Statement:
                 remove_redundant_indentation(self._output, self._previous_flags)
+
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
 
     def start_of_object_property(self):
         return self._flags.parent.mode == MODE.ObjectLiteral and self._flags.mode == MODE.Statement and (
@@ -450,8 +460,8 @@ class Beautifier:
             if self._flags.last_token.type == TOKEN.WORD or self._flags.last_token.text == ')':
                 if reserved_array(self._flags.last_token, Tokenizer.line_starters):
                     self._output.space_before_token = True
-                self.set_mode(next_mode)
                 self.print_token(current_token)
+                self.set_mode(next_mode)
                 self.indent()
                 if self._options.space_in_paren:
                     self._output.space_before_token = True
@@ -550,8 +560,8 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(
                 current_token, current_token.newlines)
 
-        self.set_mode(next_mode)
         self.print_token(current_token)
+        self.set_mode(next_mode)
 
         if self._options.space_in_paren:
             self._output.space_before_token = True
@@ -581,12 +591,9 @@ class Beautifier:
             else:
                 self._output.space_before_token = True
 
-        if current_token.text == ']' and self._options.keep_array_indentation:
-            self.print_token(current_token)
-            self.restore_mode()
-        else:
-            self.restore_mode()
-            self.print_token(current_token)
+        self.deindent()
+        self.print_token(current_token)
+        self.restore_mode()
 
         remove_redundant_indentation(self._output, self._previous_flags)
 

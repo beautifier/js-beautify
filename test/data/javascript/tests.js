@@ -664,7 +664,7 @@ exports.test_data = {
         }
       ]
     },
-     {
+    {
       name: "general preserve_newlines tests",
       template: "< >",
       matrix: [{
@@ -689,48 +689,47 @@ exports.test_data = {
         sn3: '\n            ',
         _n1: '\n    '
       }],
-      tests: [
+      tests: [{
+          unchanged: 'if (foo) // comment\n    bar();'
+        },
         {
           unchanged: 'if (foo) // comment\n    bar();'
         },
         {
-           unchanged: 'if (foo) // comment\n    bar();'
+          unchanged: 'if (foo) // comment\n    (bar());'
         },
         {
-           unchanged: 'if (foo) // comment\n    (bar());'
+          unchanged: 'if (foo) // comment\n    (bar());'
         },
         {
-           unchanged: 'if (foo) // comment\n    (bar());'
+          unchanged: 'if (foo) // comment\n    /asdf/;'
         },
         {
-           unchanged: 'if (foo) // comment\n    /asdf/;'
+          input: 'this.oa = new OAuth(\n' +
+            '    _requestToken,\n' +
+            '    _accessToken,\n' +
+            '    consumer_key\n' +
+            ');',
+          output: 'this.oa = new OAuth(<n1>_requestToken,<sn1>_accessToken,<sn1>consumer_key<n0>);'
         },
         {
-           input: 'this.oa = new OAuth(\n' +
-           '    _requestToken,\n' +
-           '    _accessToken,\n' +
-           '    consumer_key\n' +
-           ');',
-           output: 'this.oa = new OAuth(<n1>_requestToken,<sn1>_accessToken,<sn1>consumer_key<n0>);'
+          unchanged: 'foo = {\n    x: y, // #44\n    w: z // #44\n}'
         },
         {
-           unchanged: 'foo = {\n    x: y, // #44\n    w: z // #44\n}'
+          unchanged: 'switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}'
         },
         {
-           unchanged: 'switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}'
+          input: 'this.type =\n    this.options =\n    // comment\n    this.enabled null;',
+          output: 'this.type =<sn1>this.options =\n    // comment\n    this.enabled null;'
         },
         {
-           input: 'this.type =\n    this.options =\n    // comment\n    this.enabled null;',
-           output: 'this.type =<sn1>this.options =\n    // comment\n    this.enabled null;'
-        },
-        {
-           input: 'someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
-           output: 'someObj<n1>.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();'
+          input: 'someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
+          output: 'someObj<n1>.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();'
         },
 
         {
-           input: 'if (true ||\n!true) return;',
-           output: 'if (true ||<sn1>!true) return;'
+          input: 'if (true ||\n!true) return;',
+          output: 'if (true ||<sn1>!true) return;'
         },
 
         // this isn't ready yet.
@@ -738,116 +737,116 @@ exports.test_data = {
         //    unchanged: 'if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();'
         // },
         {
-           input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
-           output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\na();'
+          input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\na();'
         },
         {
-           input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
-           output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\n        else<sn3>a();'
+          input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\n        else<sn3>a();'
         },
         {
-           input: 'if (foo)\nbar();\nelse\ncar();',
-           output: 'if (foo)<sn1>bar();\nelse<sn1>car();'
-        },
-
-        {
-           input: 'if (foo) if (bar) if (baz);\na();',
-           output: 'if (foo)\n    if (bar)\n        if (baz);\na();'
-        },
-        {
-           input: 'if (foo) if (bar) if (baz) whee();\na();',
-           output: 'if (foo)\n    if (bar)\n        if (baz) whee();\na();'
-        },
-        {
-           input: 'if (foo) a()\nif (bar) if (baz) whee();\na();',
-           output: 'if (foo) a()\nif (bar)\n    if (baz) whee();\na();'
-        },
-        {
-           input: 'if (foo);\nif (bar) if (baz) whee();\na();',
-           output: 'if (foo);\nif (bar)\n    if (baz) whee();\na();'
-        },
-        {
-           input: 'if (options)\n' +
-           '    for (var p in options)\n' +
-           '        this[p] = options[p];',
-           output: 'if (options)\n'+
-           '    for (var p in options)<sn2>this[p] = options[p];'
-        },
-        {
-           input: 'if (options) for (var p in options) this[p] = options[p];',
-           output: 'if (options)\n    for (var p in options) this[p] = options[p];'
+          input: 'if (foo)\nbar();\nelse\ncar();',
+          output: 'if (foo)<sn1>bar();\nelse<sn1>car();'
         },
 
         {
-           input: 'if (options) do q(); while (b());',
-           output: 'if (options)\n    do q(); while (b());'
+          input: 'if (foo) if (bar) if (baz);\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz);\na();'
         },
         {
-           input: 'if (options) while (b()) q();',
-           output: 'if (options)\n    while (b()) q();'
+          input: 'if (foo) if (bar) if (baz) whee();\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz) whee();\na();'
         },
         {
-           input: 'if (options) do while (b()) q(); while (a());',
-           output: 'if (options)\n    do\n        while (b()) q(); while (a());'
+          input: 'if (foo) a()\nif (bar) if (baz) whee();\na();',
+          output: 'if (foo) a()\nif (bar)\n    if (baz) whee();\na();'
+        },
+        {
+          input: 'if (foo);\nif (bar) if (baz) whee();\na();',
+          output: 'if (foo);\nif (bar)\n    if (baz) whee();\na();'
+        },
+        {
+          input: 'if (options)\n' +
+            '    for (var p in options)\n' +
+            '        this[p] = options[p];',
+          output: 'if (options)\n' +
+            '    for (var p in options)<sn2>this[p] = options[p];'
+        },
+        {
+          input: 'if (options) for (var p in options) this[p] = options[p];',
+          output: 'if (options)\n    for (var p in options) this[p] = options[p];'
         },
 
         {
-           input: 'function f(a, b, c,\nd, e) {}',
-           output: 'function f(a, b, c,<sn1>d, e) {}'
+          input: 'if (options) do q(); while (b());',
+          output: 'if (options)\n    do q(); while (b());'
+        },
+        {
+          input: 'if (options) while (b()) q();',
+          output: 'if (options)\n    while (b()) q();'
+        },
+        {
+          input: 'if (options) do while (b()) q(); while (a());',
+          output: 'if (options)\n    do\n        while (b()) q(); while (a());'
         },
 
         {
-           input: 'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-           output: 'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}'
+          input: 'function f(a, b, c,\nd, e) {}',
+          output: 'function f(a, b, c,<sn1>d, e) {}'
+        },
+
+        {
+          input: 'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+          output: 'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}'
         },
         {
-           input: 'function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
-           output: 'function f(a, b) {\n    if (a) b()\n}\n\n<n0><n0>function g(a, b) {\n    if (!a) b()\n}'
+          input: 'function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+          output: 'function f(a, b) {\n    if (a) b()\n}\n\n<n0><n0>function g(a, b) {\n    if (!a) b()\n}'
         },
 
         // This is not valid syntax, but still want to behave reasonably and not side-effect
         {
-           input: '(if(a) b())(if(a) b())',
-           output: '(\n    if (a) b())(\n    if (a) b())'
+          input: '(if(a) b())(if(a) b())',
+          output: '(\n    if (a) b())(\n    if (a) b())'
         },
         {
-           input: '(if(a) b())\n\n\n(if(a) b())',
-           output: '(\n    if (a) b())\n<n0><n0>(\n    if (a) b())'
+          input: '(if(a) b())\n\n\n(if(a) b())',
+          output: '(\n    if (a) b())\n<n0><n0>(\n    if (a) b())'
         },
         {
-           input: 'if\n(a)\nb();',
-           output: 'if (a)<sn1>b();'
+          input: 'if\n(a)\nb();',
+          output: 'if (a)<sn1>b();'
         },
         {
-           input: 'var a =\nfoo',
-           output: 'var a =<sn1>foo'
+          input: 'var a =\nfoo',
+          output: 'var a =<sn1>foo'
         },
         {
-           input: 'var a = {\n"a":1,\n"b":2}',
-           output: 'var a = {\n    "a": 1,\n    "b": 2\n}'
+          input: 'var a = {\n"a":1,\n"b":2}',
+          output: 'var a = {\n    "a": 1,\n    "b": 2\n}'
         },
         {
-           input: 'var a = {\n\\\'a\\\':1,\n\\\'b\\\':2}',
-           output: 'var a = {\n    \\\'a\\\': 1,\n    \\\'b\\\': 2\n}'
+          input: 'var a = {\n\\\'a\\\':1,\n\\\'b\\\':2}',
+          output: 'var a = {\n    \\\'a\\\': 1,\n    \\\'b\\\': 2\n}'
         },
         {
-           unchanged: 'var a = /*i*/ "b";'
+          unchanged: 'var a = /*i*/ "b";'
         },
         {
-           input: 'var a = /*i*/\n"b";',
-           output: 'var a = /*i*/<sn1>"b";'
+          input: 'var a = /*i*/\n"b";',
+          output: 'var a = /*i*/<sn1>"b";'
         },
         {
-           input: '{\n\n\n"x"\n}',
-           output: '{<n0><n0><_n1>"x"\n}'
+          input: '{\n\n\n"x"\n}',
+          output: '{<n0><n0><_n1>"x"\n}'
         },
         {
-           input: 'if(a &&\nb\n||\nc\n||d\n&&\ne) e = f',
-           output: 'if (a &&<sn1>b ||<sn1>c ||<sn1>d &&<sn1>e) e = f'
+          input: 'if(a &&\nb\n||\nc\n||d\n&&\ne) e = f',
+          output: 'if (a &&<sn1>b ||<sn1>c ||<sn1>d &&<sn1>e) e = f'
         },
         {
-           input: 'if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f',
-           output: 'if (a &&<sn1>(b ||<sn2>c ||<sn2>d) &&<sn1>e) e = f'
+          input: 'if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f',
+          output: 'if (a &&<sn1>(b ||<sn2>c ||<sn2>d) &&<sn1>e) e = f'
         }, {
           fragment: true,
           input: '\n\n"x"',
@@ -871,8 +870,8 @@ exports.test_data = {
           output: 'var a = 42; // foo\n<n0><n0>var b;'
         },
         {
-           input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
-           output: 'a = 1;\n<n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0>b = 2;'
+          input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+          output: 'a = 1;\n<n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0>b = 2;'
         }
       ]
     }, {
@@ -914,8 +913,7 @@ exports.test_data = {
         pn1: '\n    ',
         pon1: '\n    '
       }],
-      tests: [
-        {
+      tests: [{
           input: 'foo\n.bar()\n.baz().cucumber(fat)',
           output: 'foo<pn1>.bar()<pon1>.baz()<n1>.cucumber(fat)'
         },
@@ -946,8 +944,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "false" },
         { name: "wrap_line_length", value: "0" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -991,8 +988,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "false" },
         { name: "wrap_line_length", value: "70" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1037,8 +1033,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "false" },
         { name: "wrap_line_length", value: "40" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1102,8 +1097,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "false" },
         { name: "wrap_line_length", value: "41" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1167,8 +1161,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "false" },
         { name: "wrap_line_length", value: "45" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1230,8 +1223,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "wrap_line_length", value: "0" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1279,8 +1271,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "wrap_line_length", value: "70" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1329,8 +1320,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "wrap_line_length", value: "40" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1395,8 +1385,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "wrap_line_length", value: "41" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1461,8 +1450,7 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "wrap_line_length", value: "45" }
       ],
-      tests: [
-        {
+      tests: [{
           fragment: true,
           input: '\' + wrap_input_1 + \'',
           output: [
@@ -1526,16 +1514,13 @@ exports.test_data = {
         { name: "preserve_newlines", value: "true" },
         { name: "max_preserve_newlines", value: "8" }
       ],
-      tests: [
-        {
-           input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
-           output: 'a = 1;\n\n\n\n\n\n\n\nb = 2;'
-        }
-      ]
+      tests: [{
+        input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+        output: 'a = 1;\n\n\n\n\n\n\n\nb = 2;'
+      }]
     }, {
       name: "more random test",
-      tests: [
-        {
+      tests: [{
           unchanged: 'return function();'
         },
         {
@@ -4120,10 +4105,9 @@ exports.test_data = {
       name: "keep_array_indentation false",
       description: "",
       options: [
-        {name: "keep_array_indentation", value: "false"}
+        { name: "keep_array_indentation", value: "false" }
       ],
-      tests: [
-        {
+      tests: [{
           input: 'a  = ["a", "b", "c",\n   "d", "e", "f"]',
           output: 'a = ["a", "b", "c",\n    "d", "e", "f"\n]'
         },
@@ -4178,7 +4162,7 @@ exports.test_data = {
         },
         {
           input: 'function  foo() {\n    return [\n        "one",\n        "two"\n    ];\n}',
-          output:'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
+          output: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
         },
         // 4 spaces per indent input, processed with 4-spaces per indent
         {
@@ -4255,10 +4239,9 @@ exports.test_data = {
       name: "keep_array_indentation true",
       description: "",
       options: [
-        {name: "keep_array_indentation", value: "true"}
+        { name: "keep_array_indentation", value: "true" }
       ],
-      tests: [
-        {
+      tests: [{
           input: 'a  = ["a", "b", "c",\n   "d", "e", "f"]',
           output: 'a = ["a", "b", "c",\n   "d", "e", "f"]'
         },
@@ -4313,7 +4296,7 @@ exports.test_data = {
         },
         {
           input: 'function  foo() {\n    return [\n        "one",\n        "two"\n    ];\n}',
-          output:'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
+          output: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
         },
         // 4 spaces per indent input, processed with 4-spaces per indent
         {

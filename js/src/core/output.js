@@ -81,11 +81,9 @@ OutputLine.prototype._set_wrap_point = function() {
   }
 };
 
-OutputLine.prototype._should_wrap = function(count) {
-  count = count || 0;
-  count += this.__character_count;
+OutputLine.prototype._should_wrap = function() {
   return this.__wrap_point_index &&
-    count > this.__parent.wrap_line_length &&
+    this.__character_count > this.__parent.wrap_line_length &&
     this.__wrap_point_character_count > this.__parent.next_line.__character_count;
 };
 

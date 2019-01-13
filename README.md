@@ -185,7 +185,7 @@ Beautifier Options:
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
-  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
+  -w, --wrap-line-length            Wrap lines that exceed N characters [0]
   -X, --e4x                         Pass E4X xml literals through untouched
   --good-stuff                      Warm the cockles of Crockford's heart
   -C, --comma-first                 Put commas at the beginning of new line instead of end
