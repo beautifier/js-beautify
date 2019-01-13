@@ -186,9 +186,8 @@ class Beautifier:
             self._output.space_before_token = True
 
     def print_string(self, output_string):
-        if self._output.just_added_newline():
-            self._output.set_indent(self._indentLevel)
-
+        self._output.set_indent(self._indentLevel)
+        self._output.non_breaking_space = True
         self._output.add_token(output_string)
 
 

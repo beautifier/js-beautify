@@ -133,9 +133,8 @@ Beautifier.prototype.foundNestedPseudoClass = function() {
 };
 
 Beautifier.prototype.print_string = function(output_string) {
-  if (this._output.just_added_newline()) {
-    this._output.set_indent(this._indentLevel);
-  }
+  this._output.set_indent(this._indentLevel);
+  this._output.non_breaking_space = true;
   this._output.add_token(output_string);
 };
 

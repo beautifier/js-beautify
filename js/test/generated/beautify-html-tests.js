@@ -733,6 +733,34 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // unformatted_content_delimiter ^^
+        reset_options();
+        set_name('unformatted_content_delimiter ^^');
+        opts.wrap_line_length = 80;
+        opts.unformatted_content_delimiter = '^^';
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 ^^09 0010 0011 0012 0013 0014 0015 ^^16 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008\n' +
+            '    ^^09 0010 0011 0012 0013 0014 0015 ^^16 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014 0015 0016 0017 0018 0019 0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
+            '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   ^^10   0011   0012   0013   0014   0015   0016   0^^7   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009\n' +
+            '    ^^10   0011   0012   0013   0014   0015   0016   0^^7 0018 0019 0020</span>');
+        test_fragment(
+            '<span>0   0001   0002   0003   0004   0005   0006   0007   0008   0009   0^^0   0011   0012   0013   0014   0015   0016   0^^7   0018   0019   0020</span>',
+            //  -- output --
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0^^0 0011 0012 0013 0014\n' +
+            '    0015 0016 0^^7 0018 0019 0020</span>');
+
+
+        //============================================================
         // Attribute Wrap - (wrap_attributes = ""force"")
         reset_options();
         set_name('Attribute Wrap - (wrap_attributes = ""force"")');
@@ -745,13 +773,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -764,13 +792,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="123"\n' +
             '    data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '    attr0\n' +
             '    attr1="123"\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -786,13 +814,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '    attr0\n' +
             '    attr1=12345\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -835,12 +863,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -849,12 +877,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -871,13 +899,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="123"\n' +
             '    data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '    attr0\n' +
             '    attr1="123"\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -893,13 +921,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '    attr0\n' +
             '    attr1=12345\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -927,13 +955,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -946,13 +974,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        attr1="123"\n' +
             '        data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '        attr0\n' +
             '        attr1="123"\n' +
             '        data-attr2="hello    t here"\n' +
-            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -968,13 +996,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '        attr0\n' +
             '        attr1=12345\n' +
             '        data-attr2="hello    t here"\n' +
-            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '        heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1018,12 +1046,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -1032,12 +1060,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1049,11 +1077,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
             'data-attr2="hello    t here"\n' +
-            'heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            'heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1063,11 +1091,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
             'data-attr2="hello    t here"\n' +
-            'heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            'heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1110,12 +1138,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -1124,12 +1152,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1141,11 +1169,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1155,11 +1183,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
             '    data-attr2="hello    t here"\n' +
-            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '    heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1185,20 +1213,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1207,7 +1235,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<root attr1="foo" attr2="bar" />');
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1227,13 +1255,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -1246,13 +1274,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     attr1="123"\n' +
             '     data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1="123"\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1268,13 +1296,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1=12345\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1317,12 +1345,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -1331,12 +1359,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1353,13 +1381,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     attr1="123"\n' +
             '     data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1="123"\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1375,13 +1403,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1=12345\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1424,12 +1452,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -1438,12 +1466,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1455,11 +1483,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123"\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1469,11 +1497,11 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1497,20 +1525,20 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment('<p>Our forms for collecting address-related information follow a standard design. Specific input elements willl vary according to the form’s audience and purpose.</p>');
         bth('<div attr="123"  >This is some text</div>', '<div attr="123">This is some text</div>');
         test_fragment('<div attr0 attr1="123" data-attr2="hello    t here">This is some text</div>');
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment('<img attr0 attr1="123" data-attr2="hello    t here"/>', '<img attr0 attr1="123" data-attr2="hello    t here" />');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1="foo" attr2="bar"/>',
@@ -1519,7 +1547,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<root attr1="foo" attr2="bar" />');
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
-        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+        test_fragment('<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>', '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1=12345 data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1540,13 +1568,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -1559,13 +1587,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     attr1="123"\n' +
             '     data-attr2="hello    t here">This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1="123"\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1581,13 +1609,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
             '     attr0\n' +
             '     attr1=12345\n' +
             '     data-attr2="hello    t here"\n' +
-            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>');
+            '     heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1614,13 +1642,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -1635,7 +1663,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    data-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1643,7 +1671,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="123"\n' +
             '    data-attr2="hello    t here"\n' +
             '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1663,7 +1691,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1671,7 +1699,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1=12345\n' +
             '    data-attr2="hello    t here"\n' +
             '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1719,12 +1747,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '    0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '    <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -1733,12 +1761,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '    0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '    0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '    <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -1757,7 +1785,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    data-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1765,7 +1793,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1="123"\n' +
             '    data-attr2="hello    t here"\n' +
             '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1785,7 +1813,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '    lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1793,7 +1821,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    attr1=12345\n' +
             '    data-attr2="hello    t here"\n' +
             '    heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1824,13 +1852,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -1845,7 +1873,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        data-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '        lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1853,7 +1881,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        attr1="123"\n' +
             '        data-attr2="hello    t here"\n' +
             '        heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1873,7 +1901,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '        lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1881,7 +1909,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        attr1=12345\n' +
             '        data-attr2="hello    t here"\n' +
             '        heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -1913,13 +1941,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -1934,7 +1962,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tdata-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\tlookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1942,7 +1970,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1="123"\n' +
             '\tdata-attr2="hello    t here"\n' +
             '\theymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -1962,7 +1990,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\tlookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -1970,7 +1998,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1=12345\n' +
             '\tdata-attr2="hello    t here"\n' +
             '\theymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -2002,13 +2030,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // issue #869
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013 0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment('<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>', '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
@@ -2023,7 +2051,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t   data-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\t   lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -2031,7 +2059,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t   attr1="123"\n' +
             '\t   data-attr2="hello    t here"\n' +
             '\t   heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -2051,7 +2079,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\t   lookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -2059,7 +2087,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\t   attr1=12345\n' +
             '\t   data-attr2="hello    t here"\n' +
             '\t   heymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -2107,12 +2135,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013\n' +
             '\t0014&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects &nbsp;
+        // issue #1324
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009  0010 <span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 <span>&nbsp;</span>&nbsp;0015\n' +
-            '\t0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010\n' +
+            '\t<span>&nbsp;</span>&nbsp;0015 0016 0017 0018 0019 0020</span>');
         
         // issue #1496 - respect unicode non-breaking space
         test_fragment(
@@ -2121,12 +2149,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic 0013\n' +
             '\t0014' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
-        // TODO: This is wrong - goes over line length but respects unicode nbsp
+        // issue #1496 and #1324 - respect unicode non-breaking space
         test_fragment(
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011  unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>',
             //  -- output --
-            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic <span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015\n' +
-            '\t0016 0017 0018 0019 0020</span>');
+            '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 unic\n' +
+            '\t<span>' + unicode_char(160) + '</span>' + unicode_char(160) + '0015 0016 0017 0018 0019 0020</span>');
         
         // Issue 1222 -- P tags are formatting correctly
         test_fragment(
@@ -2145,7 +2173,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tdata-attr2="hello    t here"\n' +
             '>This is some text</div>');
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0="true" attr0 attr1="123" data-attr2="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\tlookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -2153,7 +2181,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1="123"\n' +
             '\tdata-attr2="hello    t here"\n' +
             '\theymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<img attr0 attr1="123" data-attr2="hello    t here"/>',
             //  -- output --
@@ -2173,7 +2201,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // Issue #1094 - Beautify correctly without quotes and with extra spaces
         test_fragment(
-            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is some text</div>',
+            '<div lookatthissuperduperlongattributenamewhoahcrazy0 =    "true" attr0 attr1=  12345 data-attr2   ="hello    t here" heymanimreallylongtoowhocomesupwiththesenames="false">This is text</div>',
             //  -- output --
             '<div\n' +
             '\tlookatthissuperduperlongattributenamewhoahcrazy0="true"\n' +
@@ -2181,7 +2209,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\tattr1=12345\n' +
             '\tdata-attr2="hello    t here"\n' +
             '\theymanimreallylongtoowhocomesupwiththesenames="false"\n' +
-            '>This is some text</div>');
+            '>This is text</div>');
         test_fragment(
             '<?xml version="1.0" encoding="UTF-8" ?><root attr1   =   foo12   attr2  ="bar"    />',
             //  -- output --
@@ -2351,7 +2379,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{{field}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{field}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{field}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{field}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{field}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{field}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{field}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{field}}');
         
@@ -2607,7 +2659,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}');
         
@@ -2863,7 +2939,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{{! comment}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! comment}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! comment}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! comment}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! comment}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! comment}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! comment}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{! comment}}');
         
@@ -3119,7 +3219,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{{!-- comment--}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- comment--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- comment--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- comment--}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- comment--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- comment--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- comment--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{!-- comment--}}');
         
@@ -3375,7 +3499,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}');
         
@@ -3631,7 +3779,31 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '{pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{pre{{field1}} {{field2}} {{field3}}post\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{pre{{field1}} {{field2}} {{field3}}post');
         
@@ -3891,7 +4063,55 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{! \n' +
             ' mult-line\n' +
@@ -4326,7 +4546,55 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             '--}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{!-- \n' +
             ' mult-line\n' +
@@ -4764,7 +5032,73 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
             '{{/if}}\n' +
             '{{!-- \n' +
             ' mult-line\n' +
@@ -5322,7 +5656,34 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             'content\n' +
             '{{#if condition}}\n' +
-            '    <div class="some-class">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            'content',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            'content\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong>\n' +
+            '    </div>\n' +
+            '{{/if}}\n' +
+            'content');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            'content\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            'content',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            'content\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">\n' +
+            '        {{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong>\n' +
+            '    </div>\n' +
             '{{/if}}\n' +
             'content');
         
@@ -6568,6 +6929,78 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             //  -- output --
             '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0010 0011 0012 0013 0014\n' +
             '    0015 0016 0017 0018 0019 0020</span>');
+        test_fragment('<div>----1---------2---------3---------4---------5---------6---------7----</div>');
+        bth('<span>----1---------2---------3---------4---------5---------6---------7----</span>');
+        bth('<span>----1---------2---------3---------4---------5---------6---------7----<br /></span>');
+        bth(
+            '<div>----1---------2---------3---------4---------5---------6---------7-----</div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
+            '</div>');
+        test_fragment(
+            '<div>----1---------2---------3---------4---------5---------6---------7-----<br /></div>',
+            //  -- output --
+            '<div>\n' +
+            '    ----1---------2---------3---------4---------5---------6---------7-----<br />\n' +
+            '</div>');
+        test_fragment(
+            '<div>----1---------2---------3---------4---------5---------6---------7-----<hr /></div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
+            '    <hr />\n' +
+            '</div>');
+        test_fragment(
+            '<div>----1---------2---------3---------4---------5---------6---------7-----<hr />-</div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
+            '    <hr />-</div>');
+        bth(
+            '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6---------7-----</div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7\n' +
+            '    --------81 ----2---------3---------4---------5---------6---------7-----\n' +
+            '</div>');
+        bth(
+            '<span>---1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6</span>',
+            //  -- output --
+            '<span>---1---------2---------3---------4---------5---------6---------7\n' +
+            '    --------81 ----2---------3---------4---------5---------6</span>');
+        bth(
+            '<p>---------1---------2---------3---------4 ---------1---------2---------3---------4</p>',
+            //  -- output --
+            '<p>---------1---------2---------3---------4\n' +
+            '    ---------1---------2---------3---------4</p>');
+        bth(
+            '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6</div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7\n' +
+            '    --------81 ----2---------3---------4---------5---------6</div>');
+        bth(
+            '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6<br /></div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7\n' +
+            '    --------81 ----2---------3---------4---------5---------6<br /></div>');
+        bth(
+            '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6<hr /></div>',
+            //  -- output --
+            '<div>----1---------2---------3---------4---------5---------6---------7\n' +
+            '    --------81 ----2---------3---------4---------5---------6\n' +
+            '    <hr />\n' +
+            '</div>');
+        
+        // #1238  Fixed
+        bth(
+            '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
+            '   <ng-letter-avatar charCount="2" data="[[data]]"\n' +
+            '        shape="round" fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
+            '   avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
+            '     </span>',
+            //  -- output --
+            '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
+            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round"\n' +
+            '        fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
+            '        avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
+            '</span>');
         
         // Issue #1122
         test_fragment(
@@ -6612,29 +7045,24 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '            и глубина зондирования), текущие отсчеты сохраняются в контроллере\n' +
             '            при нажатии кнопки «ПУСК». Одновременно, они распечатываются на\n' +
             '            минипринтере. Управлять контроллером для записи данных зондирования\n' +
-            '            можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.\n' +
+            '            можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11\n' +
+            '            </link_row>.\n' +
             '        </p>\n' +
             '    </div>\n' +
             '</div>');
-
-
-        //============================================================
-        // Linewrap length
-        reset_options();
-        set_name('Linewrap length');
-        opts.wrap_line_length = 40;
         
-        // Issue #740 -- Negative values ending a line are wrapped as a unit
+        // #607 - preserve-newlines makes this look a bit odd now, but it much better
         test_fragment(
-            'return  someLongExpressionThatGe !== -1;\n' +
-            'return someLongExpressionThatGet !== -10;\n' +
-            'return someLongExpressionThatGet !== -100;',
+            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие\n' +
+            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются\n' +
+            '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>',
             //  -- output --
-            'return someLongExpressionThatGe !== -1;\n' +
-            'return someLongExpressionThatGet !==\n' +
-            '-10;\n' +
-            'return someLongExpressionThatGet !==\n' +
-            '-100;');
+            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина\n' +
+            '    зондирования), текущие\n' +
+            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно,\n' +
+            '    они распечатываются\n' +
+            '    на минипринтере. Управлять контроллером для записи данных зондирования можно\n' +
+            '    при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>');
 
 
         //============================================================
@@ -7472,9 +7900,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
         bth('<div><span>content</span></div>');
 
-        // Handlebars tests
-        // Without the indent option on, handlebars are treated as content.
-
         opts.wrap_line_length = 0;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
@@ -7506,47 +7931,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         opts.wrap_line_length = 40;
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some test text that should wrap_inside_this section here__.</div>',
             /* expected */
             '<div>Some test text that should\n' +
-            '    wrap_inside_this section here.</div>');
+            '    wrap_inside_this section here__.\n' +
+            '</div>');
 
         // Support passing string of number
         opts.wrap_line_length = "40";
         //...---------1---------2---------3---------4---------5---------6---------7
         //...1234567890123456789012345678901234567890123456789012345678901234567890
-        bth('<div>Some test text that should wrap_inside_this section here.</div>',
+        bth('<div>Some test text that should wrap_inside_this section here__.</div>',
             /* expected */
             '<div>Some test text that should\n' +
-            '    wrap_inside_this section here.</div>');
-
-        opts.wrap_line_length = 80;
-        // #1238  Fixed
-        //...---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
-        bth('<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '   <ng-letter-avatar charCount="2" data="[[data]]"\n' +
-            '        shape="round" fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
-            '   avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
-            '     </span>',
-            /* expected */
-            '<span uib-tooltip="[[firstName]] [[lastName]]" tooltip-enable="showToolTip">\n' +
-            '    <ng-letter-avatar charCount="2" data="[[data]]" shape="round"\n' +
-            '        fontsize="[[font]]" height="[[height]]" width="[[width]]"\n' +
-            '        avatarcustombgcolor="[[bgColor]]" dynamic="true"></ng-letter-avatar>\n' +
-            '</span>');
-
-        // ISSUE #607 - preserve-newlines makes this look a bit odd now, but it much better
-        test_fragment(
-            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и глубина зондирования), текущие\n' +
-            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно, они распечатываются\n' +
-            '    на минипринтере. Управлять контроллером для записи данных зондирования можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>',
-            /* expected */
-            '<p>В РАБОЧЕМ РЕЖИМЕ, после ввода параметров опыта (номер, шаг отсчетов и\n' +
-            '    глубина зондирования), текущие\n' +
-            '    отсчеты сохраняются в контроллере при нажатии кнопки «ПУСК». Одновременно,\n' +
-            '    они распечатываются\n' +
-            '    на минипринтере. Управлять контроллером для записи данных зондирования\n' +
-            '    можно при помощи <link_row to="РК.05.01.01">Радиокнопки РК-11</link_row>.</p>');
+            '    wrap_inside_this section here__.\n' +
+            '</div>');
 
         reset_options();
         //============================================================

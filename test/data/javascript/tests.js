@@ -663,6 +663,915 @@ exports.test_data = {
           ]
         }
       ]
+    },
+    {
+      name: "general preserve_newlines tests",
+      template: "< >",
+      matrix: [{
+        options: [
+          { name: "preserve_newlines", value: "false" }
+        ],
+        n0: '',
+        n1: '',
+        sn1: ' ',
+        sn2: ' ',
+        sn3: ' ',
+        _n1: '\n    '
+
+      }, {
+        options: [
+          { name: "preserve_newlines", value: "true" }
+        ],
+        n0: '\n',
+        n1: '\n    ',
+        sn1: '\n    ',
+        sn2: '\n        ',
+        sn3: '\n            ',
+        _n1: '\n    '
+      }],
+      tests: [{
+          unchanged: 'if (foo) // comment\n    bar();'
+        },
+        {
+          unchanged: 'if (foo) // comment\n    bar();'
+        },
+        {
+          unchanged: 'if (foo) // comment\n    (bar());'
+        },
+        {
+          unchanged: 'if (foo) // comment\n    (bar());'
+        },
+        {
+          unchanged: 'if (foo) // comment\n    /asdf/;'
+        },
+        {
+          input: 'this.oa = new OAuth(\n' +
+            '    _requestToken,\n' +
+            '    _accessToken,\n' +
+            '    consumer_key\n' +
+            ');',
+          output: 'this.oa = new OAuth(<n1>_requestToken,<sn1>_accessToken,<sn1>consumer_key<n0>);'
+        },
+        {
+          unchanged: 'foo = {\n    x: y, // #44\n    w: z // #44\n}'
+        },
+        {
+          unchanged: 'switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}'
+        },
+        {
+          input: 'this.type =\n    this.options =\n    // comment\n    this.enabled null;',
+          output: 'this.type =<sn1>this.options =\n    // comment\n    this.enabled null;'
+        },
+        {
+          input: 'someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
+          output: 'someObj<n1>.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();'
+        },
+
+        {
+          input: 'if (true ||\n!true) return;',
+          output: 'if (true ||<sn1>!true) return;'
+        },
+
+        // this isn't ready yet.
+        // {
+        //    unchanged: 'if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();'
+        // },
+        {
+          input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\na();'
+        },
+        {
+          input: 'if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz)<sn3>whee();\n        else<sn3>a();'
+        },
+        {
+          input: 'if (foo)\nbar();\nelse\ncar();',
+          output: 'if (foo)<sn1>bar();\nelse<sn1>car();'
+        },
+
+        {
+          input: 'if (foo) if (bar) if (baz);\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz);\na();'
+        },
+        {
+          input: 'if (foo) if (bar) if (baz) whee();\na();',
+          output: 'if (foo)\n    if (bar)\n        if (baz) whee();\na();'
+        },
+        {
+          input: 'if (foo) a()\nif (bar) if (baz) whee();\na();',
+          output: 'if (foo) a()\nif (bar)\n    if (baz) whee();\na();'
+        },
+        {
+          input: 'if (foo);\nif (bar) if (baz) whee();\na();',
+          output: 'if (foo);\nif (bar)\n    if (baz) whee();\na();'
+        },
+        {
+          input: 'if (options)\n' +
+            '    for (var p in options)\n' +
+            '        this[p] = options[p];',
+          output: 'if (options)\n' +
+            '    for (var p in options)<sn2>this[p] = options[p];'
+        },
+        {
+          input: 'if (options) for (var p in options) this[p] = options[p];',
+          output: 'if (options)\n    for (var p in options) this[p] = options[p];'
+        },
+
+        {
+          input: 'if (options) do q(); while (b());',
+          output: 'if (options)\n    do q(); while (b());'
+        },
+        {
+          input: 'if (options) while (b()) q();',
+          output: 'if (options)\n    while (b()) q();'
+        },
+        {
+          input: 'if (options) do while (b()) q(); while (a());',
+          output: 'if (options)\n    do\n        while (b()) q(); while (a());'
+        },
+
+        {
+          input: 'function f(a, b, c,\nd, e) {}',
+          output: 'function f(a, b, c,<sn1>d, e) {}'
+        },
+
+        {
+          input: 'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+          output: 'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}'
+        },
+        {
+          input: 'function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
+          output: 'function f(a, b) {\n    if (a) b()\n}\n\n<n0><n0>function g(a, b) {\n    if (!a) b()\n}'
+        },
+
+        // This is not valid syntax, but still want to behave reasonably and not side-effect
+        {
+          input: '(if(a) b())(if(a) b())',
+          output: '(\n    if (a) b())(\n    if (a) b())'
+        },
+        {
+          input: '(if(a) b())\n\n\n(if(a) b())',
+          output: '(\n    if (a) b())\n<n0><n0>(\n    if (a) b())'
+        },
+        {
+          input: 'if\n(a)\nb();',
+          output: 'if (a)<sn1>b();'
+        },
+        {
+          input: 'var a =\nfoo',
+          output: 'var a =<sn1>foo'
+        },
+        {
+          input: 'var a = {\n"a":1,\n"b":2}',
+          output: 'var a = {\n    "a": 1,\n    "b": 2\n}'
+        },
+        {
+          input: 'var a = {\n\\\'a\\\':1,\n\\\'b\\\':2}',
+          output: 'var a = {\n    \\\'a\\\': 1,\n    \\\'b\\\': 2\n}'
+        },
+        {
+          unchanged: 'var a = /*i*/ "b";'
+        },
+        {
+          input: 'var a = /*i*/\n"b";',
+          output: 'var a = /*i*/<sn1>"b";'
+        },
+        {
+          input: '{\n\n\n"x"\n}',
+          output: '{<n0><n0><_n1>"x"\n}'
+        },
+        {
+          input: 'if(a &&\nb\n||\nc\n||d\n&&\ne) e = f',
+          output: 'if (a &&<sn1>b ||<sn1>c ||<sn1>d &&<sn1>e) e = f'
+        },
+        {
+          input: 'if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f',
+          output: 'if (a &&<sn1>(b ||<sn2>c ||<sn2>d) &&<sn1>e) e = f'
+        }, {
+          fragment: true,
+          input: '\n\n"x"',
+          output: '"x"'
+        },
+        {
+          fragment: true,
+          input: '{\n\n"x"\nh=5;\n}',
+          output: '{<n0><_n1>"x"<_n1>h = 5;\n}'
+        },
+        {
+          input: 'var a = "foo" +\n    "bar";',
+          output: 'var a = "foo" +<sn1>"bar";'
+        },
+        {
+          input: 'var a = 42; // foo\n\nvar b;',
+          output: 'var a = 42; // foo\n<n0>var b;'
+        },
+        {
+          input: 'var a = 42; // foo\n\n\nvar b;',
+          output: 'var a = 42; // foo\n<n0><n0>var b;'
+        },
+        {
+          input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+          output: 'a = 1;\n<n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0><n0>b = 2;'
+        }
+      ]
+    }, {
+      name: "break chained methods",
+      template: "< >",
+      matrix: [{
+        options: [
+          { name: "break_chained_methods", value: "false" },
+          { name: "preserve_newlines", value: "false" }
+        ],
+        n0: '',
+        n1: '',
+        pn1: ''
+      }, {
+        options: [
+          { name: "break_chained_methods", value: "false" },
+          { name: "preserve_newlines", value: "true" }
+        ],
+        n0: '',
+        n1: '',
+        pn1: '\n    ',
+        pon1: '\n    '
+      }, {
+        options: [
+          { name: "break_chained_methods", value: "true" },
+          { name: "preserve_newlines", value: "false" }
+        ],
+        n0: '',
+        n1: '\n    ',
+        pn1: '',
+        pon1: '\n    '
+      }, {
+        options: [
+          { name: "break_chained_methods", value: "true" },
+          { name: "preserve_newlines", value: "true" }
+        ],
+        n0: '\n',
+        n1: '\n    ',
+        pn1: '\n    ',
+        pon1: '\n    '
+      }],
+      tests: [{
+          input: 'foo\n.bar()\n.baz().cucumber(fat)',
+          output: 'foo<pn1>.bar()<pon1>.baz()<n1>.cucumber(fat)'
+        },
+        {
+          input: 'foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)',
+          output: 'foo<pn1>.bar()<pon1>.baz()<n1>.cucumber(fat);\nfoo.bar()<n1>.baz()<n1>.cucumber(fat)'
+        },
+        {
+          input: 'foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)',
+          output: 'foo<pn1>.bar()<pon1>.baz()<n1>.cucumber(fat)\nfoo.bar()<n1>.baz()<n1>.cucumber(fat)'
+        },
+        {
+          input: 'this\n.something = foo.bar()\n.baz().cucumber(fat)',
+          output: 'this<pn1>.something = foo.bar()<pon1>.baz()<n1>.cucumber(fat)'
+        },
+        {
+          unchanged: 'this.something.xxx = foo.moo.bar()'
+        },
+        {
+          input: 'this\n.something\n.xxx = foo.moo\n.bar()',
+          output: 'this<pn1>.something<pn1>.xxx = foo.moo<pn1>.bar()'
+        }
+      ]
+    }, {
+      name: 'line wrapping 0',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "false" },
+        { name: "wrap_line_length", value: "0" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap.but_this_can',
+            'return between_return_and_expression_should_never_wrap.but_this_can',
+            'throw between_throw_and_expression_should_never_wrap.but_this_can',
+            'if (wraps_can_occur && inside_an_if_block) that_is_.okay();',
+            'object_literal = {',
+            '    propertx: first_token + 12345678.99999E-6,',
+            '    property: first_token_should_never_wrap + but_this_can,',
+            '    propertz: first_token_should_never_wrap + !but_this_can,',
+            '    proper: "first_token_should_never_wrap" + "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap.but_this_can',
+            '    return between_return_and_expression_should_never_wrap.but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can',
+            '    if (wraps_can_occur && inside_an_if_block) that_is_.okay();',
+            '    object_literal = {',
+            '        propertx: first_token + 12345678.99999E-6,',
+            '        property: first_token_should_never_wrap + but_this_can,',
+            '        propertz: first_token_should_never_wrap + !but_this_can,',
+            '        proper: "first_token_should_never_wrap" + "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 70',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "false" },
+        { name: "wrap_line_length", value: "70" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap.but_this_can',
+            'return between_return_and_expression_should_never_wrap.but_this_can',
+            'throw between_throw_and_expression_should_never_wrap.but_this_can',
+            'if (wraps_can_occur && inside_an_if_block) that_is_.okay();',
+            'object_literal = {',
+            '    propertx: first_token + 12345678.99999E-6,',
+            '    property: first_token_should_never_wrap + but_this_can,',
+            '    propertz: first_token_should_never_wrap + !but_this_can,',
+            '    proper: "first_token_should_never_wrap" + "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap.but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can',
+            '    if (wraps_can_occur && inside_an_if_block) that_is_.okay();',
+            '    object_literal = {',
+            '        propertx: first_token + 12345678.99999E-6,',
+            '        property: first_token_should_never_wrap + but_this_can,',
+            '        propertz: first_token_should_never_wrap + !but_this_can,',
+            '        proper: "first_token_should_never_wrap" + "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 40',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "false" },
+        { name: "wrap_line_length", value: "40" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f &&',
+            '    "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur &&',
+            '    inside_an_if_block) that_is_.okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f &&',
+            '        "sass") || (leans &&',
+            '        mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 41',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "false" },
+        { name: "wrap_line_length", value: "41" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") ||',
+            '    (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur &&',
+            '    inside_an_if_block) that_is_.okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f &&',
+            '        "sass") || (leans &&',
+            '        mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 45',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "false" },
+        { name: "wrap_line_length", value: "45" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (',
+            '    leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur && inside_an_if_block)',
+            '    that_is_.okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") ||',
+            '        (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_.okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 0',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "wrap_line_length", value: "0" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap.but_this_can',
+            'throw between_throw_and_expression_should_never_wrap.but_this_can',
+            'if (wraps_can_occur && inside_an_if_block) that_is_',
+            '    .okay();',
+            'object_literal = {',
+            '    propertx: first_token + 12345678.99999E-6,',
+            '    property: first_token_should_never_wrap + but_this_can,',
+            '    propertz: first_token_should_never_wrap + !but_this_can,',
+            '    proper: "first_token_should_never_wrap" + "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap.but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can',
+            '    if (wraps_can_occur && inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token + 12345678.99999E-6,',
+            '        property: first_token_should_never_wrap + but_this_can,',
+            '        propertz: first_token_should_never_wrap + !but_this_can,',
+            '        proper: "first_token_should_never_wrap" + "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 70',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "wrap_line_length", value: "70" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap.but_this_can',
+            'throw between_throw_and_expression_should_never_wrap.but_this_can',
+            'if (wraps_can_occur && inside_an_if_block) that_is_',
+            '    .okay();',
+            'object_literal = {',
+            '    propertx: first_token + 12345678.99999E-6,',
+            '    property: first_token_should_never_wrap + but_this_can,',
+            '    propertz: first_token_should_never_wrap + !but_this_can,',
+            '    proper: "first_token_should_never_wrap" + "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can',
+            '    if (wraps_can_occur && inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token + 12345678.99999E-6,',
+            '        property: first_token_should_never_wrap + but_this_can,',
+            '        propertz: first_token_should_never_wrap + !but_this_can,',
+            '        proper: "first_token_should_never_wrap" + "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 40',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "wrap_line_length", value: "40" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f &&',
+            '    "sass") || (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur &&',
+            '    inside_an_if_block) that_is_',
+            '    .okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f &&',
+            '        "sass") || (leans &&',
+            '        mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 41',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "wrap_line_length", value: "41" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") ||',
+            '    (leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur &&',
+            '    inside_an_if_block) that_is_',
+            '    .okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f &&',
+            '        "sass") || (leans &&',
+            '        mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: 'line wrapping 45',
+      description: "",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "wrap_line_length", value: "45" }
+      ],
+      tests: [{
+          fragment: true,
+          input: '\' + wrap_input_1 + \'',
+          output: [
+            'foo.bar().baz().cucumber((f && "sass") || (',
+            '    leans && mean));',
+            'Test_very_long_variable_name_this_should_never_wrap',
+            '    .but_this_can',
+            'return between_return_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'throw between_throw_and_expression_should_never_wrap',
+            '    .but_this_can',
+            'if (wraps_can_occur && inside_an_if_block)',
+            '    that_is_',
+            '    .okay();',
+            'object_literal = {',
+            '    propertx: first_token +',
+            '        12345678.99999E-6,',
+            '    property: first_token_should_never_wrap +',
+            '        but_this_can,',
+            '    propertz: first_token_should_never_wrap +',
+            '        !but_this_can,',
+            '    proper: "first_token_should_never_wrap" +',
+            '        "but_this_can"',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: '\' + wrap_input_2 + \'',
+          output: [
+            '{',
+            '    foo.bar().baz().cucumber((f && "sass") ||',
+            '        (leans && mean));',
+            '    Test_very_long_variable_name_this_should_never_wrap',
+            '        .but_this_can',
+            '    return between_return_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    throw between_throw_and_expression_should_never_wrap',
+            '        .but_this_can',
+            '    if (wraps_can_occur &&',
+            '        inside_an_if_block) that_is_',
+            '        .okay();',
+            '    object_literal = {',
+            '        propertx: first_token +',
+            '            12345678.99999E-6,',
+            '        property: first_token_should_never_wrap +',
+            '            but_this_can,',
+            '        propertz: first_token_should_never_wrap +',
+            '            !but_this_can,',
+            '        proper: "first_token_should_never_wrap" +',
+            '            "but_this_can"',
+            '    }',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: "general preserve_newlines tests preserve limit",
+      template: "< >",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "max_preserve_newlines", value: "8" }
+      ],
+      tests: [{
+        input: 'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
+        output: 'a = 1;\n\n\n\n\n\n\n\nb = 2;'
+      }]
+    }, {
+      name: "more random test",
+      tests: [{
+          unchanged: 'return function();'
+        },
+        {
+          unchanged: 'var a = function();'
+        },
+        {
+          unchanged: 'var a = 5 + function();'
+        },
+        {
+          comment: 'actionscript import',
+          unchanged: 'import foo.*;'
+        },
+        {
+          comment: 'actionscript',
+          unchanged: 'function f(a: a, b: b)'
+        },
+        {
+          input: 'function a(a) {} function b(b) {} function c(c) {}',
+          output: 'function a(a) {}\n\nfunction b(b) {}\n\nfunction c(c) {}'
+        },
+        {
+          unchanged: 'foo(a, function() {})'
+        },
+        {
+          unchanged: 'foo(a, /regex/)'
+        },
+        {
+          unchanged: '/* foo */\n"x"'
+        },
+        {
+          fragment: true,
+          unchanged: 'roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};'
+        },
+        {
+          fragment: true,
+          unchanged: 'if (zz) {\n    // ....\n}\n(function'
+        },
+        {
+          unchanged: 'a = //comment\n    /regex/;'
+        },
+        {
+          unchanged: 'var a = new function();'
+        },
+        {
+          unchanged: 'new function'
+        },
+        {
+          input: 'if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
+          output: 'if (a) {\n    b;\n} else {\n    c;\n}'
+        }
+      ]
     }, {
       name: "operator_position option - ensure no neswlines if preserve_newlines is false",
       matrix: [{
@@ -3191,6 +4100,279 @@ exports.test_data = {
             ')'
           ]
         }
+      ]
+    }, {
+      name: "keep_array_indentation false",
+      description: "",
+      options: [
+        { name: "keep_array_indentation", value: "false" }
+      ],
+      tests: [{
+          input: 'a  = ["a", "b", "c",\n   "d", "e", "f"]',
+          output: 'a = ["a", "b", "c",\n    "d", "e", "f"\n]'
+        },
+        {
+          input: 'a  = ["a", "b", "c",\n   "d", "e", "f",\n        "g", "h", "i"]',
+          output: 'a = ["a", "b", "c",\n    "d", "e", "f",\n    "g", "h", "i"\n]'
+        },
+        {
+          input: 'a  = ["a", "b", "c",\n       "d", "e", "f",\n            "g", "h", "i"]',
+          output: 'a = ["a", "b", "c",\n    "d", "e", "f",\n    "g", "h", "i"\n]'
+        },
+        {
+          input: 'var  x = [{}\n]',
+          output: 'var x = [{}]'
+        },
+        {
+          input: 'var x = [{foo:bar}\n]',
+          output: 'var x = [{\n    foo: bar\n}]'
+        },
+        {
+          input: 'a  = ["something",\n    "completely",\n    "different"];\nif (x);',
+          output: 'a = ["something",\n    "completely",\n    "different"\n];\nif (x);'
+        },
+        {
+          input: 'a = ["a","b","c"]',
+          output: 'a = ["a", "b", "c"]'
+        },
+
+        {
+          input: 'a = ["a",   "b","c"]',
+          output: 'a = ["a", "b", "c"]'
+        },
+        {
+          input: 'x = [{"a":0}]',
+          output: 'x = [{\n    "a": 0\n}]'
+        },
+        {
+          input: '{a([[a1]], {b;});}',
+          output: '{\n    a([\n        [a1]\n    ], {\n        b;\n    });\n}'
+        },
+        {
+          input: 'a ();\n   [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();',
+          output: 'a();\n[\n    ["sdfsdfsd"],\n    ["sdfsdfsdf"]\n].toString();'
+        },
+        {
+          input: 'a ();\na = [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();',
+          output: 'a();\na = [\n    ["sdfsdfsd"],\n    ["sdfsdfsdf"]\n].toString();'
+        },
+        {
+          input: 'function()  {\n    Foo([\n        ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n    ]);\n}',
+          output: 'function() {\n    Foo([\n        ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n    ]);\n}'
+        },
+        {
+          input: 'function  foo() {\n    return [\n        "one",\n        "two"\n    ];\n}',
+          output: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
+        },
+        // 4 spaces per indent input, processed with 4-spaces per indent
+        {
+          input: [
+            'function foo() {',
+            '    return [',
+            '        {',
+            '            one: "x",',
+            '            two: [',
+            '                {',
+            '                    id: "a",',
+            '                    name: "apple"',
+            '                }, {',
+            '                    id: "b",',
+            '                    name: "banana"',
+            '                }',
+            '            ]',
+            '        }',
+            '    ];',
+            '}'
+          ],
+          output: [
+            'function foo() {',
+            '    return [{',
+            '        one: "x",',
+            '        two: [{',
+            '            id: "a",',
+            '            name: "apple"',
+            '        }, {',
+            '            id: "b",',
+            '            name: "banana"',
+            '        }]',
+            '    }];',
+            '}'
+          ]
+        },
+        // 3 spaces per indent input, processed with 4-spaces per indent
+        {
+          input: [
+            'function foo() {',
+            '   return [',
+            '      {',
+            '         one: "x",',
+            '         two: [',
+            '            {',
+            '               id: "a",',
+            '               name: "apple"',
+            '            }, {',
+            '               id: "b",',
+            '               name: "banana"',
+            '            }',
+            '         ]',
+            '      }',
+            '   ];',
+            '}'
+          ],
+          output: [
+            'function foo() {',
+            '    return [{',
+            '        one: "x",',
+            '        two: [{',
+            '            id: "a",',
+            '            name: "apple"',
+            '        }, {',
+            '            id: "b",',
+            '            name: "banana"',
+            '        }]',
+            '    }];',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: "keep_array_indentation true",
+      description: "",
+      options: [
+        { name: "keep_array_indentation", value: "true" }
+      ],
+      tests: [{
+          input: 'a  = ["a", "b", "c",\n   "d", "e", "f"]',
+          output: 'a = ["a", "b", "c",\n   "d", "e", "f"]'
+        },
+        {
+          input: 'a  = ["a", "b", "c",\n   "d", "e", "f",\n        "g", "h", "i"]',
+          output: 'a = ["a", "b", "c",\n   "d", "e", "f",\n        "g", "h", "i"]'
+        },
+        {
+          input: 'a  = ["a", "b", "c",\n       "d", "e", "f",\n            "g", "h", "i"]',
+          output: 'a = ["a", "b", "c",\n       "d", "e", "f",\n            "g", "h", "i"]'
+        },
+        {
+          input: 'var  x = [{}\n]',
+          output: 'var x = [{}\n]'
+        },
+        {
+          input: 'var x = [{foo:bar}\n]',
+          output: 'var x = [{\n        foo: bar\n    }\n]'
+        },
+        {
+          input: 'a  = ["something",\n    "completely",\n    "different"];\nif (x);',
+          output: 'a = ["something",\n    "completely",\n    "different"];\nif (x);'
+        },
+        {
+          input: 'a = ["a","b","c"]',
+          output: 'a = ["a", "b", "c"]'
+        },
+
+        {
+          input: 'a = ["a",   "b","c"]',
+          output: 'a = ["a", "b", "c"]'
+        },
+        {
+          input: 'x = [{"a":0}]',
+          output: 'x = [{\n    "a": 0\n}]'
+        },
+        {
+          input: '{a([[a1]], {b;});}',
+          output: '{\n    a([[a1]], {\n        b;\n    });\n}'
+        },
+        {
+          input: 'a ();\n   [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();',
+          output: 'a();\n   [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();'
+        },
+        {
+          input: 'a ();\na = [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();',
+          output: 'a();\na = [\n   ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n   ].toString();'
+        },
+        {
+          input: 'function()  {\n    Foo([\n        ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n    ]);\n}',
+          output: 'function() {\n    Foo([\n        ["sdfsdfsd"],\n        ["sdfsdfsdf"]\n    ]);\n}'
+        },
+        {
+          input: 'function  foo() {\n    return [\n        "one",\n        "two"\n    ];\n}',
+          output: 'function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}'
+        },
+        // 4 spaces per indent input, processed with 4-spaces per indent
+        {
+          input: [
+            'function  foo() {',
+            '    return [',
+            '        {',
+            '            one: "x",',
+            '            two: [',
+            '                {',
+            '                    id: "a",',
+            '                    name: "apple"',
+            '                }, {',
+            '                    id: "b",',
+            '                    name: "banana"',
+            '                }',
+            '            ]',
+            '        }',
+            '    ];',
+            '}'
+          ],
+          output: [
+            'function foo() {',
+            '    return [',
+            '        {',
+            '            one: "x",',
+            '            two: [',
+            '                {',
+            '                    id: "a",',
+            '                    name: "apple"',
+            '                }, {',
+            '                    id: "b",',
+            '                    name: "banana"',
+            '                }',
+            '            ]',
+            '        }',
+            '    ];',
+            '}'
+          ]
+        }
+        //,
+        // 3 spaces per indent input, processed with 4-spaces per indent
+        // {
+        //   input: [
+        //     'function foo() {',
+        //     '   return [',
+        //     '      {',
+        //     '         one: "x",',
+        //     '         two: [',
+        //     '            {',
+        //     '               id: "a",',
+        //     '               name: "apple"',
+        //     '            }, {',
+        //     '               id: "b",',
+        //     '               name: "banana"',
+        //     '            }',
+        //     '         ]',
+        //     '      }',
+        //     '   ];',
+        //     '}'
+        //   ],
+        //   output: [
+        //     'function foo() {',
+        //     '    return [{',
+        //     '        one: "x",',
+        //     '        two: [{',
+        //     '            id: "a",',
+        //     '            name: "apple"',
+        //     '        }, {',
+        //     '            id: "b",',
+        //     '            name: "banana"',
+        //     '        }]',
+        //     '    }];',
+        //     '}'
+        //   ]
+        // }
       ]
     }, {
       // =======================================================

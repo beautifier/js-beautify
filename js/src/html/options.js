@@ -73,6 +73,7 @@ function Options(options) {
   this.content_unformatted = this._get_array('content_unformatted', [
     'pre', 'textarea'
   ]);
+  this.unformatted_content_delimiter = this._get_characters('unformatted_content_delimiter');
   this.indent_scripts = this._get_selection('indent_scripts', ['normal', 'keep', 'separate']);
 }
 Options.prototype = new BaseOptions();
