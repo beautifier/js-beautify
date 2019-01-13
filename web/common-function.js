@@ -210,12 +210,6 @@ function beautify() {
   the.beautify_in_progress = false;
 }
 
-function looks_like_html(source) {
-  // <foo> - looks like html
-  var trimmed = source.replace(/^[ \t\n\r]+/, '');
-  return trimmed && (trimmed.substring(0, 1) === '<');
-}
-
 function mergeObjects(allOptions, additionalOptions) {
   var finalOpts = {};
   var name;
