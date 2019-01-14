@@ -65,6 +65,13 @@
       All of the source code is completely free and open, available on <a href="https://github.com/beautify-web/js-beautify">GitHub</a> under MIT licence,
       <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
     </p>
+    <p>
+      <select name="language" id="language">
+      <option value="css">Beautify CSS</option>
+      <option value="html">Beautify HTML</option>
+      <option value="js">Beautify JavaScript</option>
+    </select>
+    </p>
   </div>
 
 
@@ -162,16 +169,10 @@
   </table>
 
   <div style="line-height: 0">
-    <select name="language" id="language">
-      <option value="auto">Auto Detect</option>
-      <option value="css">CSS</option>
-      <option value="html">HTML</option>
-      <option value="js">JavaScript</option>
-    </select>
-    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em>
+    <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em>
     </button>
     <textarea id="source" rows="30" cols="160"></textarea>
-    <button class="submit"><strong>Beautify JavaScript or HTML</strong> <em>(ctrl-enter)</em>
+    <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em>
     </button>
   </div>
 

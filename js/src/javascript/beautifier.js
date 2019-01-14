@@ -365,11 +365,7 @@ Beautifier.prototype.allow_wrap_or_preserved_newline = function(current_token, f
       // between them and the following expression.
       return;
     }
-    var proposed_line_length = this._output.current_line.get_character_count() + current_token.text.length +
-      (this._output.space_before_token ? 1 : 0);
-    if (proposed_line_length >= this._options.wrap_line_length) {
-      this.print_newline(false, true);
-    }
+    this._output.set_wrap_point();
   }
 };
 
@@ -392,7 +388,10 @@ Beautifier.prototype.print_newline = function(force_newline, preserve_statement_
 
 Beautifier.prototype.print_token_line_indentation = function(current_token) {
   if (this._output.just_added_newline()) {
-    if (this._options.keep_array_indentation && is_array(this._flags.mode) && current_token.newlines) {
+    if (this._options.keep_array_indentation &&
+      current_token.newlines &&
+      (current_token.text === '[' || is_array(this._flags.mode))) {
+      this._output.current_line.set_indent(-1);
       this._output.current_line.push(current_token.whitespace_before);
       this._output.space_before_token = false;
     } else if (this._output.set_indent(this._flags.indentation_level, this._flags.alignment)) {
@@ -429,18 +428,23 @@ Beautifier.prototype.print_token = function(current_token, printable_token) {
 
   printable_token = printable_token || current_token.text;
   this.print_token_line_indentation(current_token);
+  this._output.non_breaking_space = true;
   this._output.add_token(printable_token);
+  if (this._output.previous_token_wrapped) {
+    this._flags.multiline_frame = true;
+  }
 };
 
 Beautifier.prototype.indent = function() {
   this._flags.indentation_level += 1;
+  this._output.set_indent(this._flags.indentation_level, this._flags.alignment);
 };
 
 Beautifier.prototype.deindent = function() {
   if (this._flags.indentation_level > 0 &&
     ((!this._flags.parent) || this._flags.indentation_level > this._flags.parent.indentation_level)) {
     this._flags.indentation_level -= 1;
-
+    this._output.set_indent(this._flags.indentation_level, this._flags.alignment);
   }
 };
 
@@ -453,6 +457,7 @@ Beautifier.prototype.set_mode = function(mode) {
   }
 
   this._flags = this.create_flags(this._previous_flags, mode);
+  this._output.set_indent(this._flags.indentation_level, this._flags.alignment);
 };
 
 
@@ -463,6 +468,7 @@ Beautifier.prototype.restore_mode = function() {
     if (this._previous_flags.mode === MODE.Statement) {
       remove_redundant_indentation(this._output, this._previous_flags);
     }
+    this._output.set_indent(this._flags.indentation_level, this._flags.alignment);
   }
 };
 
@@ -520,8 +526,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
       if (reserved_array(this._flags.last_token, line_starters)) {
         this._output.space_before_token = true;
       }
-      this.set_mode(next_mode);
       this.print_token(current_token);
+      this.set_mode(next_mode);
       this.indent();
       if (this._options.space_in_paren) {
         this._output.space_before_token = true;
@@ -620,8 +626,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
     this.allow_wrap_or_preserved_newline(current_token, current_token.newlines);
   }
 
-  this.set_mode(next_mode);
   this.print_token(current_token);
+  this.set_mode(next_mode);
   if (this._options.space_in_paren) {
     this._output.space_before_token = true;
   }
@@ -653,13 +659,10 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
       this._output.space_before_token = true;
     }
   }
-  if (current_token.text === ']' && this._options.keep_array_indentation) {
-    this.print_token(current_token);
-    this.restore_mode();
-  } else {
-    this.restore_mode();
-    this.print_token(current_token);
-  }
+  this.deindent();
+  this.print_token(current_token);
+  this.restore_mode();
+
   remove_redundant_indentation(this._output, this._previous_flags);
 
   // do {} while () // no statement required after
@@ -1361,6 +1364,7 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
 
     for (j = 0; j < lines.length; j++) {
       this.print_newline(false, true);
+      this._output.current_line.set_indent(-1);
       if (javadoc) {
         // javadoc: reformat and re-indent
         this.print_token(current_token, ltrim(lines[j]));

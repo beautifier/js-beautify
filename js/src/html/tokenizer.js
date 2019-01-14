@@ -55,6 +55,13 @@ var Tokenizer = function(input_string, options) {
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
   this._word_pattern = this._options.indent_handlebars ? /[\n\r\t <]|{{/g : /[\n\r\t <]/g;
+  this._unformatted_content_delimiter = null;
+
+  if (this._options.unformatted_content_delimiter) {
+    this._unformatted_content_delimiter =
+      new RegExp(this._options.unformatted_content_delimiter
+        .replace(/([[\\^$.|?*+()])/g, '\\$1'), 'g');
+  }
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -246,8 +253,16 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
 };
 
 Tokenizer.prototype._read_content_word = function() {
-  // if we get here and we see handlebars treat them as plain text
-  var resulting_string = this._input.readUntil(this._word_pattern);
+  var resulting_string;
+  if (this._unformatted_content_delimiter) {
+    resulting_string = this._input.read(this._unformatted_content_delimiter);
+  }
+  if (resulting_string) {
+    resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
+  } else {
+    // if we get here and we see handlebars treat them as plain text
+    resulting_string = this._input.readUntil(this._word_pattern);
+  }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
   }
