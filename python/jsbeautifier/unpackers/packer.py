@@ -26,7 +26,8 @@ def detect(source):
     endstr = ''
     begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c[ ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*', source)
+    mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c['
+                      ' ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*', source)
     if(mystr):
         begin_offset = mystr.start()
         beginstr = source[:begin_offset]
@@ -40,7 +41,7 @@ def detect(source):
                 endstr = ''
         else:
             endstr = source_end.split("')))", 1)[1]
-    return (mystr != None)
+    return (mystr is not None)
 
 
 def unpack(source):
