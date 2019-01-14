@@ -40,7 +40,7 @@ def detect(source):
                 endstr = ''
         else:
             endstr = source_end.split("')))", 1)[1]
-    return (mystr != -1)
+    return (mystr != None)
 
 
 def unpack(source):
