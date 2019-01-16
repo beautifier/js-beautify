@@ -129,6 +129,9 @@ class Tokenizer:
         return token
 
     def _readWhitespace(self):
+        if not self._input.testChar(self._whitespace_pattern):
+            return
+
         resulting_string = self._input.read(self._whitespace_pattern)
         if resulting_string == ' ':
             self.__whitespace_before_token = resulting_string

@@ -31,6 +31,7 @@
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var Directives = require('../core/directives').Directives;
+var TemplatableReader = require('./templatablereader').TemplatableReader;
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
@@ -54,7 +55,12 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word_pattern = this._options.indent_handlebars ? /[\n\r\t <]|{{/g : /[\n\r\t <]/g;
+  this._word = new TemplatableReader(this._input).until(/[\n\r\t <]/g).with_templates();
+  this._word.handlebars = false; // Detect only
+  this._single_quote = new TemplatableReader(this._input).until_after(/'/g).with_templates();
+  this._double_quote = new TemplatableReader(this._input).until_after(/"/g).with_templates();
+  this._attribute = new TemplatableReader(this._input).until(/[\n\r\t =\/>]/g).with_templates();
+  this._element_name = new TemplatableReader(this._input).until(/[\n\r\t >\/]/g).with_templates();
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
@@ -93,12 +99,13 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
     return this._create_token(TOKEN.EOF, '');
   }
 
+  token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_raw_content(previous_token, open_token);
+  token = token || this._read_close(c, open_token);
+  token = token || this._read_content_word(c);
   token = token || this._read_comment(c);
   token = token || this._read_open(c, open_token);
-  token = token || this._read_close(c, open_token);
-  token = token || this._read_content_word();
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
@@ -109,13 +116,12 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
   var resulting_string = null;
   var directives = null;
 
-  if (c === '<' || c === '{') {
+  if (c === '<') {
     var peek1 = this._input.peek(1);
-    var peek2 = this._input.peek(2);
     //if we're in a comment, do something special
     // We treat all comments as literals, even more than preformatted tags
     // we just look for the appropriate close tag
-    if (c === '<' && (peek1 === '!' || peek1 === '?' || peek1 === '%')) {
+    if (c === '<' && (peek1 === '!' || peek1 === '?')) {
       resulting_string = this._input.read(/<!--/g, /-->/g);
 
       // only process directive on html comments
@@ -128,14 +134,7 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
         resulting_string = this._input.read(/<!\[cdata\[/g, /]]>/g);
         resulting_string = resulting_string || this._input.read(/<!\[/g, /]>/g);
         resulting_string = resulting_string || this._input.read(/<\?/g, /\?>/g);
-        resulting_string = resulting_string || this._input.read(/<%/g, /%>/g);
-
-        // if none of the other patterns match, read the element as a comment anyway
-        resulting_string = resulting_string || this._input.read(/</g, />/g);
       }
-    } else if (this._options.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
-      resulting_string = this._input.read(/{{!--/g, /--}/g);
-      resulting_string = resulting_string || this._input.read(/{{!/g, /}}/g);
     }
 
     if (resulting_string) {
@@ -152,15 +151,36 @@ Tokenizer.prototype._read_open = function(c, open_token) {
   var token = null;
   if (!open_token) {
     if (c === '<') {
-      resulting_string = this._input.read(/<(?:[^\n\r\t >{][^\n\r\t >{/]*)?/g);
-      token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
-    } else if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
-      resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+
+      resulting_string = this._input.next();
+      if (this._input.peek() === '/') {
+        resulting_string += this._input.next();
+      }
+      resulting_string += this._element_name.read();
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
   return token;
 };
+
+Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
+  var resulting_string = null;
+  var token = null;
+  if (!open_token) {
+    if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
+      if (this._input.peek(2) === '!') {
+        resulting_string = this._input.read(/{{!--/g, /--}}/g);
+        resulting_string = resulting_string || this._input.read(/{{/g, /}}/g);
+        token = this._create_token(TOKEN.COMMENT, resulting_string);
+      } else {
+        resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+        token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
+      }
+    }
+  }
+  return token;
+};
+
 
 Tokenizer.prototype._read_close = function(c, open_token) {
   var resulting_string = null;
@@ -191,25 +211,14 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
       token = this._create_token(TOKEN.EQUALS, this._input.next());
     } else if (c === '"' || c === "'") {
       var content = this._input.next();
-      var input_string = '';
-      var string_pattern = new RegExp(c + '|{{', 'g');
-      while (this._input.hasNext()) {
-        input_string = this._input.readUntilAfter(string_pattern);
-        content += input_string;
-        if (input_string[input_string.length - 1] === '"' || input_string[input_string.length - 1] === "'") {
-          break;
-        } else if (this._input.hasNext()) {
-          content += this._input.readUntilAfter(/}}/g);
-        }
+      if (c === '"') {
+        content += this._double_quote.read();
+      } else {
+        content += this._single_quote.read();
       }
-
       token = this._create_token(TOKEN.VALUE, content);
     } else {
-      if (c === '{' && this._input.peek(1) === '{') {
-        resulting_string = this._input.readUntilAfter(/}}/g);
-      } else {
-        resulting_string = this._input.readUntil(/[\n\r\t =\/>]/g);
-      }
+      resulting_string = this._attribute.read();
 
       if (resulting_string) {
         if (previous_token.type === TOKEN.EQUALS) {
@@ -252,16 +261,21 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
   return null;
 };
 
-Tokenizer.prototype._read_content_word = function() {
-  var resulting_string;
+Tokenizer.prototype._read_content_word = function(c) {
+  var resulting_string = '';
   if (this._unformatted_content_delimiter) {
-    resulting_string = this._input.read(this._unformatted_content_delimiter);
+    if (c === this._options.unformatted_content_delimiter[0]) {
+      resulting_string = this._input.read(this._unformatted_content_delimiter);
+    }
   }
+
   if (resulting_string) {
     resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
   } else {
-    // if we get here and we see handlebars treat them as plain text
-    resulting_string = this._input.readUntil(this._word_pattern);
+    if (c === '{' && !this._options.indent_handlebars) {
+      resulting_string += this._input.next();
+    }
+    resulting_string += this._word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);

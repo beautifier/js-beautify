@@ -132,6 +132,9 @@ Tokenizer.prototype._create_token = function(type, text) {
 };
 
 Tokenizer.prototype._readWhitespace = function() {
+  if (!this._input.testChar(this._whitespace_pattern)) {
+    return;
+  }
   var resulting_string = this._input.read(this._whitespace_pattern);
   if (resulting_string === ' ') {
     this.__whitespace_before_token = resulting_string;

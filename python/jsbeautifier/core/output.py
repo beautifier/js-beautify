@@ -240,11 +240,20 @@ class Output:
         return True
 
     def get_code(self, eol):
-        sweet_code = "\n".join(line.toString() for line in self.__lines)
-        sweet_code = re.sub('[\r\n\t ]+$', '', sweet_code)
+        self.trim(True)
+
+        # handle some edge cases where the last tokens
+        # has text that ends with newline(s)
+        last_item = self.current_line.pop()
+        if last_item:
+            if last_item[-1] == '\n':
+                last_item = re.sub(r'[\n]+$', '', last_item)
+            self.current_line.push(last_item)
 
         if self._end_with_newline:
-            sweet_code += '\n'
+            self.__add_outputline()
+
+        sweet_code = "\n".join(line.toString() for line in self.__lines)
 
         if not eol == '\n':
             sweet_code = sweet_code.replace('\n', eol)

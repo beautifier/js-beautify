@@ -2621,21 +2621,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{field}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{field}}</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{{field}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{field}}</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{{field}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{field}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{field}}</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{field}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{field}}</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{{field}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{field}}</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{{field}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{field}}{{/if}}">{{field}}</{{ele}}>');
         bth('<div unformatted="{{#if}}{{field}}{{/if}}">{{field}}</div>');
         bth('<div unformatted="{{#if  }}    {{field}}{{/if}}">{{field}}</div>');
         bth('<div class="{{#if thingIs "value"}}{{field}}{{/if}}"></div>');
@@ -2901,21 +2906,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</{{ele}}>');
         bth('<div unformatted="{{#if}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
         bth('<div unformatted="{{#if  }}    {{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}">{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}</div>');
         bth('<div class="{{#if thingIs "value"}}{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}{{/if}}"></div>');
@@ -3181,21 +3191,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{! comment}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{! comment}}</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{{! comment}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{! comment}}</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{{! comment}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! comment}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! comment}}</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{! comment}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{{! comment}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{! comment}}</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{{! comment}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{! comment}}{{/if}}">{{! comment}}</{{ele}}>');
         bth('<div unformatted="{{#if}}{{! comment}}{{/if}}">{{! comment}}</div>');
         bth('<div unformatted="{{#if  }}    {{! comment}}{{/if}}">{{! comment}}</div>');
         bth('<div class="{{#if thingIs "value"}}{{! comment}}{{/if}}"></div>');
@@ -3461,21 +3476,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{!-- comment--}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- comment--}}</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{{!-- comment--}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- comment--}}</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{{!-- comment--}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- comment--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{!-- comment--}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{!-- comment--}}</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{{!-- comment--}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{!-- comment--}}</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{{!-- comment--}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{!-- comment--}}{{/if}}">{{!-- comment--}}</{{ele}}>');
         bth('<div unformatted="{{#if}}{{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
         bth('<div unformatted="{{#if  }}    {{!-- comment--}}{{/if}}">{{!-- comment--}}</div>');
         bth('<div class="{{#if thingIs "value"}}{{!-- comment--}}{{/if}}"></div>');
@@ -3741,21 +3761,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</{{ele}}>');
         bth('<div unformatted="{{#if}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
         bth('<div unformatted="{{#if  }}    {{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}">{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}</div>');
         bth('<div class="{{#if thingIs "value"}}{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}{{/if}}"></div>');
@@ -4021,21 +4046,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    {pre{{field1}} {{field2}} {{field3}}post\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>{pre{{field1}} {{field2}} {{field3}}post</span>');
+        bth('<{{ele}} unformatted="{{#if}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</{{ele}}>');
         bth('<div unformatted="{{#if}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
         bth('<div unformatted="{{#if  }}    {pre{{field1}} {{field2}} {{field3}}post{{/if}}">{pre{{field1}} {{field2}} {{field3}}post</div>');
         bth('<div class="{{#if thingIs "value"}}{pre{{field1}} {{field2}} {{field3}}post{{/if}}"></div>');
@@ -4442,45 +4472,59 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{! \n' +
+            '<dIv {{#if test}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{! \n' +
+            '<dIv {{#if test}}class="foo" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{! \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{! \n' +
+            '<span {{#if condition}}class="foo"{{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{! \n' +
+            '<span {{#if condition}}class="foo" {{/if}}>{{! \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '}}</span>');
+        bth(
+            '<{{ele}} unformatted="{{#if}}{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}{{/if}}">{{! \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '}}</{{ele}}>');
         bth(
             '<div unformatted="{{#if}}{{! \n' +
             ' mult-line\n' +
@@ -4925,45 +4969,59 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '--}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            '<dIv {{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            '<dIv {{#if test}}class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
+            '<span {{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n' +
+            '<span {{#if condition}}class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment  \n' +
             '     with spacing\n' +
             '--}}</span>');
+        bth(
+            '<{{ele}} unformatted="{{#if}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            '--}}</{{ele}}>');
         bth(
             '<div unformatted="{{#if}}{{!-- \n' +
             ' mult-line\n' +
@@ -5513,11 +5571,13 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             ' {{/ component}}--}}\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>{{!-- \n' +
+            '<dIv {{#if test}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5526,7 +5586,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>{{!-- \n' +
+            '<dIv {{#if test}}class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5535,7 +5595,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5544,7 +5604,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}} class="{{class2}}" {{/if}}>{{!-- \n' +
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5552,8 +5612,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>{{!-- \n' +
+            '<span {{#if condition}}class="foo"{{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5562,7 +5624,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '     with spacing\n' +
             ' {{/ component}}--}}</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>{{!-- \n' +
+            '<span {{#if condition}}class="foo" {{/if}}>{{!-- \n' +
             ' mult-line\n' +
             'comment \n' +
             '{{#> component}}\n' +
@@ -5570,6 +5632,22 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'comment  \n' +
             '     with spacing\n' +
             ' {{/ component}}--}}</span>');
+        bth(
+            '<{{ele}} unformatted="{{#if}}{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}{{/if}}">{{!-- \n' +
+            ' mult-line\n' +
+            'comment \n' +
+            '{{#> component}}\n' +
+            ' mult-line\n' +
+            'comment  \n' +
+            '     with spacing\n' +
+            ' {{/ component}}--}}</{{ele}}>');
         bth(
             '<div unformatted="{{#if}}{{!-- \n' +
             ' mult-line\n' +
@@ -5901,22 +5979,27 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    content\n' +
             '{{/if}}');
         bth(
-            '<div{{someStyle}}></div>',
+            '<div {{someStyle}}>  </div>',
             //  -- output --
-            '<div {{someStyle}}></div>');
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
         bth(
-            '<dIv{{#if test}}class="foo"{{/if}}>content</dIv>',
+            '<dIv {{#if test}}class="foo"{{/if}}>content</dIv>',
             //  -- output --
-            '<dIv {{#if test}} class="foo" {{/if}}>content</dIv>');
+            '<dIv {{#if test}}class="foo" {{/if}}>content</dIv>');
         test_fragment(
-            '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>content</diV>',
             //  -- output --
-            '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}}\n' +
-            '    class="{{class2}}" {{/if}}>content</diV>');
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"\n' +
+            '    {{else}}class="{{class2}}" {{/if}}>content</diV>');
+        
+        // partiial support for templating in attributes
         bth(
-            '<span{{#if condition}}class="foo"{{/if}}>content</span>',
+            '<span {{#if condition}}class="foo"{{/if}}>content</span>',
             //  -- output --
-            '<span {{#if condition}} class="foo" {{/if}}>content</span>');
+            '<span {{#if condition}}class="foo" {{/if}}>content</span>');
+        bth('<{{ele}} unformatted="{{#if}}content{{/if}}">content</{{ele}}>');
         bth('<div unformatted="{{#if}}content{{/if}}">content</div>');
         bth('<div unformatted="{{#if  }}    content{{/if}}">content</div>');
         bth('<div class="{{#if thingIs "value"}}content{{/if}}"></div>');
@@ -6349,12 +6432,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Php formatting
         reset_options();
         set_name('Php formatting');
-        bth(
-            '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
-            //  -- output --
-            '<h1 class="content-page-header">\n' +
-            '    <?=$view["name"]; ?>\n' +
-            '</h1>');
+        bth('<h1  class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
         bth(
             '<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
@@ -6374,7 +6452,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '</html>');
         bth(
-            '<?= "A" ?>\n' +
+            '<?= "A" ?>abc<?= "D" ?>\n' +
             '<?= "B" ?>\n' +
             '<?= "C" ?>');
         bth(
@@ -6382,6 +6460,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             'echo "A";\n' +
             '?>\n' +
             '<span>Test</span>');
+        bth('<<?= html_element(); ?> <?=language_attributes();?>>abc</<?= html_element(); ?>>');
+        bth('<input type="text" value="<?=$x["test"] . $x[\'test\']?>">');
 
 
         //============================================================
