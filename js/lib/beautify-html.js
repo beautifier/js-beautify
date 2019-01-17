@@ -461,11 +461,23 @@ Output.prototype.add_new_line = function(force_newline) {
 };
 
 Output.prototype.get_code = function(eol) {
-  var sweet_code = this.__lines.join('\n').replace(/[\r\n\t ]+$/, '');
+  this.trim(true);
+
+  // handle some edge cases where the last tokens
+  // has text that ends with newline(s)
+  var last_item = this.current_line.pop();
+  if (last_item) {
+    if (last_item[last_item.length - 1] === '\n') {
+      last_item = last_item.replace(/\n+$/g, '');
+    }
+    this.current_line.push(last_item);
+  }
 
   if (this._end_with_newline) {
-    sweet_code += '\n';
+    this.__add_outputline();
   }
+
+  var sweet_code = this.__lines.join('\n');
 
   if (eol !== '\n') {
     sweet_code = sweet_code.replace(/[\n]/g, eol);
@@ -924,6 +936,7 @@ InputScanner.prototype.test = function(pattern, index) {
 InputScanner.prototype.testChar = function(pattern, index) {
   // test one character regex match
   var val = this.peek(index);
+  pattern.lastIndex = 0;
   return val !== null && pattern.test(val);
 };
 
@@ -1131,6 +1144,9 @@ Tokenizer.prototype._create_token = function(type, text) {
 };
 
 Tokenizer.prototype._readWhitespace = function() {
+  if (!this._input.testChar(this._whitespace_pattern)) {
+    return;
+  }
   var resulting_string = this._input.read(this._whitespace_pattern);
   if (resulting_string === ' ') {
     this.__whitespace_before_token = resulting_string;
@@ -2200,16 +2216,19 @@ function Options(options) {
   this.wrap_attributes_indent_size = this._get_number('wrap_attributes_indent_size', this.indent_size);
   this.extra_liners = this._get_array('extra_liners', ['head', 'body', '/html']);
 
+  // Block vs inline elements
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
+  // https://www.w3.org/TR/html5/dom.html#phrasing-content
   this.inline = this._get_array('inline', [
-    // https://www.w3.org/TR/html5/dom.html#phrasing-content
     'a', 'abbr', 'area', 'audio', 'b', 'bdi', 'bdo', 'br', 'button', 'canvas', 'cite',
     'code', 'data', 'datalist', 'del', 'dfn', 'em', 'embed', 'i', 'iframe', 'img',
     'input', 'ins', 'kbd', 'keygen', 'label', 'map', 'mark', 'math', 'meter', 'noscript',
     'object', 'output', 'progress', 'q', 'ruby', 's', 'samp', /* 'script', */ 'select', 'small',
     'span', 'strong', 'sub', 'sup', 'svg', 'template', 'textarea', 'time', 'u', 'var',
     'video', 'wbr', 'text',
-    // prexisting - not sure of full effect of removing, leaving in
-    'acronym', 'address', 'big', 'dt', 'ins', 'strike', 'tt'
+    // obsolete inline tags
+    'acronym', 'big', 'strike', 'tt'
   ]);
   this.void_elements = this._get_array('void_elements', [
     // HTLM void elements - aka self-closing tags - aka singletons
@@ -2221,9 +2240,10 @@ function Options(options) {
 
     // Doctype and xml elements
     '!doctype', '?xml',
-    // ?php and ?= tags
-    '?php', '?=',
-    // other tags that were in this list, keeping just in case
+
+    // obsolete tags
+    // basefont: https://www.computerhope.com/jargon/h/html-basefont-tag.htm
+    // isndex: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/isindex
     'basefont', 'isindex'
   ]);
   this.unformatted = this._get_array('unformatted', []);
@@ -2278,6 +2298,7 @@ module.exports.Options = Options;
 var BaseTokenizer = __webpack_require__(9).Tokenizer;
 var BASETOKEN = __webpack_require__(9).TOKEN;
 var Directives = __webpack_require__(11).Directives;
+var TemplatableReader = __webpack_require__(19).TemplatableReader;
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
@@ -2301,7 +2322,12 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word_pattern = this._options.indent_handlebars ? /[\n\r\t <]|{{/g : /[\n\r\t <]/g;
+  this._word = new TemplatableReader(this._input).until(/[\n\r\t <]/g).with_templates();
+  this._word.handlebars = false; // Detect only
+  this._single_quote = new TemplatableReader(this._input).until_after(/'/g).with_templates();
+  this._double_quote = new TemplatableReader(this._input).until_after(/"/g).with_templates();
+  this._attribute = new TemplatableReader(this._input).until(/[\n\r\t =\/>]/g).with_templates();
+  this._element_name = new TemplatableReader(this._input).until(/[\n\r\t >\/]/g).with_templates();
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
@@ -2340,12 +2366,13 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
     return this._create_token(TOKEN.EOF, '');
   }
 
+  token = token || this._read_open_handlebars(c, open_token);
   token = token || this._read_attribute(c, previous_token, open_token);
   token = token || this._read_raw_content(previous_token, open_token);
+  token = token || this._read_close(c, open_token);
+  token = token || this._read_content_word(c);
   token = token || this._read_comment(c);
   token = token || this._read_open(c, open_token);
-  token = token || this._read_close(c, open_token);
-  token = token || this._read_content_word();
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
@@ -2356,13 +2383,12 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
   var resulting_string = null;
   var directives = null;
 
-  if (c === '<' || c === '{') {
+  if (c === '<') {
     var peek1 = this._input.peek(1);
-    var peek2 = this._input.peek(2);
     //if we're in a comment, do something special
     // We treat all comments as literals, even more than preformatted tags
     // we just look for the appropriate close tag
-    if (c === '<' && (peek1 === '!' || peek1 === '?' || peek1 === '%')) {
+    if (c === '<' && (peek1 === '!' || peek1 === '?')) {
       resulting_string = this._input.read(/<!--/g, /-->/g);
 
       // only process directive on html comments
@@ -2375,14 +2401,7 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
         resulting_string = this._input.read(/<!\[cdata\[/g, /]]>/g);
         resulting_string = resulting_string || this._input.read(/<!\[/g, /]>/g);
         resulting_string = resulting_string || this._input.read(/<\?/g, /\?>/g);
-        resulting_string = resulting_string || this._input.read(/<%/g, /%>/g);
-
-        // if none of the other patterns match, read the element as a comment anyway
-        resulting_string = resulting_string || this._input.read(/</g, />/g);
       }
-    } else if (this._options.indent_handlebars && c === '{' && peek1 === '{' && peek2 === '!') {
-      resulting_string = this._input.read(/{{!--/g, /--}/g);
-      resulting_string = resulting_string || this._input.read(/{{!/g, /}}/g);
     }
 
     if (resulting_string) {
@@ -2399,15 +2418,36 @@ Tokenizer.prototype._read_open = function(c, open_token) {
   var token = null;
   if (!open_token) {
     if (c === '<') {
-      resulting_string = this._input.read(/<(?:[^\n\r\t >{][^\n\r\t >{/]*)?/g);
-      token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
-    } else if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
-      resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+
+      resulting_string = this._input.next();
+      if (this._input.peek() === '/') {
+        resulting_string += this._input.next();
+      }
+      resulting_string += this._element_name.read();
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
   return token;
 };
+
+Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
+  var resulting_string = null;
+  var token = null;
+  if (!open_token) {
+    if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
+      if (this._input.peek(2) === '!') {
+        resulting_string = this._input.read(/{{!--/g, /--}}/g);
+        resulting_string = resulting_string || this._input.read(/{{/g, /}}/g);
+        token = this._create_token(TOKEN.COMMENT, resulting_string);
+      } else {
+        resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+        token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
+      }
+    }
+  }
+  return token;
+};
+
 
 Tokenizer.prototype._read_close = function(c, open_token) {
   var resulting_string = null;
@@ -2438,25 +2478,14 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
       token = this._create_token(TOKEN.EQUALS, this._input.next());
     } else if (c === '"' || c === "'") {
       var content = this._input.next();
-      var input_string = '';
-      var string_pattern = new RegExp(c + '|{{', 'g');
-      while (this._input.hasNext()) {
-        input_string = this._input.readUntilAfter(string_pattern);
-        content += input_string;
-        if (input_string[input_string.length - 1] === '"' || input_string[input_string.length - 1] === "'") {
-          break;
-        } else if (this._input.hasNext()) {
-          content += this._input.readUntilAfter(/}}/g);
-        }
+      if (c === '"') {
+        content += this._double_quote.read();
+      } else {
+        content += this._single_quote.read();
       }
-
       token = this._create_token(TOKEN.VALUE, content);
     } else {
-      if (c === '{' && this._input.peek(1) === '{') {
-        resulting_string = this._input.readUntilAfter(/}}/g);
-      } else {
-        resulting_string = this._input.readUntil(/[\n\r\t =\/>]/g);
-      }
+      resulting_string = this._attribute.read();
 
       if (resulting_string) {
         if (previous_token.type === TOKEN.EQUALS) {
@@ -2499,16 +2528,21 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
   return null;
 };
 
-Tokenizer.prototype._read_content_word = function() {
-  var resulting_string;
+Tokenizer.prototype._read_content_word = function(c) {
+  var resulting_string = '';
   if (this._unformatted_content_delimiter) {
-    resulting_string = this._input.read(this._unformatted_content_delimiter);
+    if (c === this._options.unformatted_content_delimiter[0]) {
+      resulting_string = this._input.read(this._unformatted_content_delimiter);
+    }
   }
+
   if (resulting_string) {
     resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
   } else {
-    // if we get here and we see handlebars treat them as plain text
-    resulting_string = this._input.readUntil(this._word_pattern);
+    if (c === '{' && !this._options.indent_handlebars) {
+      resulting_string += this._input.next();
+    }
+    resulting_string += this._word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
@@ -2517,6 +2551,173 @@ Tokenizer.prototype._read_content_word = function() {
 
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+function PatternReader(input_scanner) {
+  this._input = input_scanner;
+  this._until_pattern = null;
+  this._from_pattern = null;
+  this._include_match = false;
+}
+
+PatternReader.prototype.read = function() {
+  var result = '';
+  if (this._from_pattern) {
+    result = this._input.read(this._from_pattern, this._until_pattern, this._include_match);
+  } else {
+    result = this._input.readUntil(this._until_pattern, this._include_match);
+  }
+  return result;
+};
+
+PatternReader.prototype.until_after = function(pattern) {
+  this.include_match = true;
+  this._until_pattern = pattern;
+  return this;
+};
+
+PatternReader.prototype.until = function(pattern) {
+  this.include_match = false;
+  this._until_pattern = pattern;
+  return this;
+};
+
+PatternReader.prototype.from = function(pattern) {
+  this._from_pattern = pattern;
+  return this;
+};
+
+function TemplatableReader(input_scanner) {
+  PatternReader.call(this, input_scanner);
+  this.__template_pattern = null;
+  this.handlebars = true;
+  this.php = true;
+  this.asp = true;
+  this.__language = {
+    handlebars_comment: new PatternReader(input_scanner).from(/{{!--/g).until_after(/--}}/g),
+    handlebars: new PatternReader(input_scanner).from(/{{/g).until_after(/}}/g),
+    php: new PatternReader(input_scanner).from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
+    asp: new PatternReader(input_scanner).from(/<%/g).until_after(/%>/g)
+  };
+}
+TemplatableReader.prototype = new PatternReader();
+
+// This lets templates appear anywhere we would do a readUntil
+// The cost is higher but it is pay to play.
+TemplatableReader.prototype.with_templates = function() {
+  this.__set_templated_pattern();
+  return this;
+};
+
+TemplatableReader.prototype.read = function() {
+  var result;
+  if (this._from_pattern) {
+    result = this._input.read(this._from_pattern, this.__template_pattern);
+  } else {
+    result = this._input.readUntil(this.__template_pattern);
+  }
+  var next = '';
+  do {
+    result += next;
+    next = this.read_template();
+    if (next !== '') {
+      next += this._input.readUntil(this.__template_pattern);
+    }
+  } while (this._input.hasNext() && next !== '');
+  result += next;
+
+  if (this.include_match) {
+    result += this._input.readUntilAfter(this._until_pattern);
+  }
+  return result;
+};
+
+TemplatableReader.prototype.__set_templated_pattern = function() {
+  var items = [];
+
+  if (this._until_pattern) {
+    items.push(this._until_pattern.source);
+  }
+
+  if (this.php) {
+    items.push(this.__language.php._from_pattern.source);
+  }
+
+  if (this.handlebars) {
+    items.push(this.__language.handlebars._from_pattern.source);
+  }
+
+  if (this.asp) {
+    items.push(this.__language.asp._from_pattern.source);
+  }
+
+  this.__template_pattern = new RegExp('(?:' + items.join('|') + ')', 'g');
+};
+
+TemplatableReader.prototype.read_template = function() {
+  var resulting_string = '';
+  var c = this._input.peek();
+  if (c === '<') {
+    var peek1 = this._input.peek(1);
+    //if we're in a comment, do something special
+    // We treat all comments as literals, even more than preformatted tags
+    // we just look for the appropriate close tag
+    if (this.php && peek1 === '?') {
+      resulting_string = resulting_string ||
+        this.__language.php.read();
+    }
+    if (this.asp && peek1 === '%') {
+      resulting_string = resulting_string ||
+        this.__language.asp.read();
+    }
+  } else if (c === '{') {
+    if (this.handlebars) {
+      resulting_string = resulting_string ||
+        this.__language.handlebars_comment.read();
+      resulting_string = resulting_string ||
+        this.__language.handlebars.read();
+    }
+  }
+  return resulting_string;
+};
+
+
+module.exports.TemplatableReader = TemplatableReader;
 
 
 /***/ })
