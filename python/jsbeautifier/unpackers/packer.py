@@ -24,20 +24,24 @@ def detect(source):
     global endstr
     beginstr = ''
     endstr = ''
+    begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
-    if(mystr > 0):
-        beginstr = source[:mystr]
-    if(mystr != -1):
+    mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c['
+                      ' ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*', source)
+    if(mystr):
+        begin_offset = mystr.start()
+        beginstr = source[:begin_offset]
+    if(begin_offset != -1):
         """ Find endstr"""
-        if(source.split("')))", 1)[0] == source):
+        source_end = source[begin_offset:]
+        if(source_end.split("')))", 1)[0] == source_end):
             try:
-                endstr = source.split("}))", 1)[1]
+                endstr = source_end.split("}))", 1)[1]
             except IndexError:
                 endstr = ''
         else:
-            endstr = source.split("')))", 1)[1]
-    return (mystr != -1)
+            endstr = source_end.split("')))", 1)[1]
+    return (mystr is not None)
 
 
 def unpack(source):

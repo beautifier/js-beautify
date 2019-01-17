@@ -83,6 +83,7 @@ InputScanner.prototype.test = function(pattern, index) {
 InputScanner.prototype.testChar = function(pattern, index) {
   // test one character regex match
   var val = this.peek(index);
+  pattern.lastIndex = 0;
   return val !== null && pattern.test(val);
 };
 

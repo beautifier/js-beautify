@@ -1282,15 +1282,16 @@ exports.test_data = {
       // Test {{}} inside of <> tags, which should be separated by spaces
       // for readability, unless they are inside a string.
       {
-        input_: '<div{{someStyle}}></div>',
-        output: '<div {{someStyle}}></div>'
+        input_: '<div {{someStyle}}>  </div>',
+        output: '<div {{someStyle}}> </div>'
       }, {
-        input_: '<dIv{{#if test}}class="foo"{{/if}}>^^^&content$$$</dIv>',
-        output: '<dIv {{#if test}} class="foo" {{/if}}>^^^&content$$$</dIv>'
+        comment: 'only partial support for complex templating in attributes',
+        input_: '<dIv {{#if test}}class="foo"{{/if}}>^^^&content$$$</dIv>',
+        output: '<dIv {{#if test}}class="foo" {{/if}}>^^^&content$$$</dIv>'
       }, {
         fragment: true,
-        input_: '<diV{{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</diV>',
-        output: '<diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}}^^^&indent_over80$$$class="{{class2}}" {{/if}}>^^^&content$$$</diV>'
+        input_: '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>^^^&content$$$</diV>',
+        output: '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"^^^&indent_over80$$${{else}}class="{{class2}}" {{/if}}>^^^&content$$$</diV>'
       },
       // {
       //   fragment: true,
@@ -1298,8 +1299,11 @@ exports.test_data = {
       //   output: '<div>\n    <diV {{#if thing}} {{somestyle}} class_spacing_for="{{class}}" {{else}}^^^&indent_over80$$$class="{{class2}}" {{/if}}>^^^&content$$$</diV>\n    <span />\n</div>'
       // },
       {
-        input_: '<span{{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
-        output: '<span {{#if condition}} class="foo" {{/if}}>^^^&content$$$</span>'
+        comment: 'partiial support for templating in attributes',
+        input_: '<span {{#if condition}}class="foo"{{/if}}>^^^&content$$$</span>',
+        output: '<span {{#if condition}}class="foo" {{/if}}>^^^&content$$$</span>'
+      }, {
+        unchanged: '<{{ele}} unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</{{ele}}>'
       }, {
         unchanged: '<div unformatted="{{#if}}^^^&content$$${{/if}}">^^^&content$$$</div>'
       }, {
@@ -1695,8 +1699,8 @@ exports.test_data = {
     description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
     options: [],
     tests: [{
-      input: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>',
-      output: '<h1 class="content-page-header">\n    <?=$view["name"]; ?>\n</h1>'
+      input: '<h1  class="content-page-header"><?=$view["name"]; ?></h1>',
+      output: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>'
     }, {
       unchanged: [
         '<?php',
@@ -1722,7 +1726,7 @@ exports.test_data = {
       ]
     }, {
       unchanged: [
-        '<?= "A" ?>',
+        '<?= "A" ?>abc<?= "D" ?>',
         '<?= "B" ?>',
         '<?= "C" ?>'
       ]
@@ -1732,6 +1736,14 @@ exports.test_data = {
         'echo "A";',
         '?>',
         '<span>Test</span>'
+      ]
+    }, {
+      unchanged: [
+        '<<?= html_element(); ?> <?=language_attributes();?>>abc</<?= html_element(); ?>>'
+      ]
+    }, {
+      unchanged: [
+        '<input type="text" value="<?=$x["test"] . $x[\\\'test\\\']?>">'
       ]
     }]
   }, {
