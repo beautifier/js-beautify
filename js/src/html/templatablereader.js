@@ -78,7 +78,6 @@ PatternReader.prototype._create = function() {
 
 PatternReader.prototype._update = function() {};
 
-
 // This lets templates appear anywhere we would do a readUntil
 // The cost is higher but it is pay to play.
 function TemplatableReader(input_scanner, parent) {
@@ -99,6 +98,7 @@ function TemplatableReader(input_scanner, parent) {
     handlebars: pattern_reader.from(/{{/g).until_after(/}}/g),
     php: pattern_reader.from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
     erb: pattern_reader.from(/<%[^%]/g).until_after(/[^%]%>/g),
+    // django coflicts with handlebars a bit.
     django: pattern_reader.from(/{%/g).until_after(/%}/g),
     django_value: pattern_reader.from(/{{/g).until_after(/}}/g),
     django_comment: pattern_reader.from(/{#/g).until_after(/#}/g)
@@ -176,9 +176,9 @@ TemplatableReader.prototype.read_template = function() {
       resulting_string = resulting_string ||
         this.__patterns.php.read();
     }
-    if (!this._excluded.asp && peek1 === '%') {
+    if (!this._excluded.erb && peek1 === '%') {
       resulting_string = resulting_string ||
-        this.__patterns.asp.read();
+        this.__patterns.erb.read();
     }
   } else if (c === '{') {
     if (!this._excluded.handlebars) {
@@ -186,6 +186,17 @@ TemplatableReader.prototype.read_template = function() {
         this.__patterns.handlebars_comment.read();
       resulting_string = resulting_string ||
         this.__patterns.handlebars.read();
+    }
+    // django coflicts with handlebars a bit.
+    if (!this._excluded.django && !this._excluded.handlebars) {
+      resulting_string = resulting_string ||
+        this.__patterns.django_value.read();
+    }
+    if (!this._excluded.django) {
+      resulting_string = resulting_string ||
+        this.__patterns.django_comment.read();
+      resulting_string = resulting_string ||
+        this.__patterns.django.read();
     }
   }
   return resulting_string;
