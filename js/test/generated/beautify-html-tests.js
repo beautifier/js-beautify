@@ -2337,11 +2337,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '       {{em-input label="Place*" property="place" type="text" placeholder=""}}',
             //  -- output --
             '{{em-input\n' +
-            'label="Some Labe" property="amt"\n' +
-            'type="text" placeholder=""}}\n' +
+            '  label="Some Labe" property="amt"\n' +
+            '  type="text" placeholder=""}}\n' +
             '{{em-input label="Type*"\n' +
             'property="type" type="text" placeholder="(LTD)"}}\n' +
             '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
+        bth(
+            '<div>\n' +
+            '{{em-input\n' +
+            '  label="Some Labe" property="amt"\n' +
+            '  type="text" placeholder=""}}\n' +
+            '   {{em-input label="Type*"\n' +
+            'property="type" type="text" placeholder="(LTD)"}}\n' +
+            '       {{em-input label="Place*" property="place" type="text" placeholder=""}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    {{em-input\n' +
+            '  label="Some Labe" property="amt"\n' +
+            '  type="text" placeholder=""}}\n' +
+            '    {{em-input label="Type*"\n' +
+            'property="type" type="text" placeholder="(LTD)"}}\n' +
+            '    {{em-input label="Place*" property="place" type="text" placeholder=""}}\n' +
+            '</div>');
         bth(
             '{{#if callOn}}\n' +
             '{{#unless callOn}}\n' +
@@ -6429,10 +6447,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Php formatting
+        // minimal template handling - ()
         reset_options();
-        set_name('Php formatting');
-        bth('<h1  class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header"><?php$view["name"]; ?></h1>', '<h1 class="content-page-header"><?php$view["name"]; ?></h1>');
         bth(
             '<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
@@ -6452,16 +6470,326 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '</html>');
         bth(
-            '<?= "A" ?>abc<?= "D" ?>\n' +
-            '<?= "B" ?>\n' +
-            '<?= "C" ?>');
+            '<?php "A" ?>abc<?php "D" ?>\n' +
+            '<?php "B" ?>\n' +
+            '<?php "C" ?>');
         bth(
             '<?php\n' +
             'echo "A";\n' +
             '?>\n' +
             '<span>Test</span>');
+        bth('<<?php html_element(); ?> <?phplanguage_attributes();?>>abc</<?php html_element(); ?>>');
+        bth('<input type="text" value="<?php$x["test"] . $x[\'test\']?>">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header"><?=$view["name"]; ?></h1>', '<h1 class="content-page-header"><?=$view["name"]; ?></h1>');
+        bth(
+            '<?=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+        test_fragment(
+            '<?= ?>\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '<?= "A" ?>abc<?= "D" ?>\n' +
+            '<?= "B" ?>\n' +
+            '<?= "C" ?>');
+        bth(
+            '<?=\n' +
+            'echo "A";\n' +
+            '?>\n' +
+            '<span>Test</span>');
         bth('<<?= html_element(); ?> <?=language_attributes();?>>abc</<?= html_element(); ?>>');
         bth('<input type="text" value="<?=$x["test"] . $x[\'test\']?>">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header"><%$view["name"]; %></h1>', '<h1 class="content-page-header"><%$view["name"]; %></h1>');
+        bth(
+            '<%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>');
+        test_fragment(
+            '<% %>\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '<% "A" %>abc<% "D" %>\n' +
+            '<% "B" %>\n' +
+            '<% "C" %>');
+        bth(
+            '<%\n' +
+            'echo "A";\n' +
+            '%>\n' +
+            '<span>Test</span>');
+        bth('<<% html_element(); %> <%language_attributes();%>>abc</<% html_element(); %>>');
+        bth('<input type="text" value="<%$x["test"] . $x[\'test\']%>">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header">{{$view["name"]; }}</h1>', '<h1 class="content-page-header">{{$view["name"]; }}</h1>');
+        bth(
+            '{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}}');
+        test_fragment(
+            '{{ }}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{{ "A" }}abc{{ "D" }}\n' +
+            '{{ "B" }}\n' +
+            '{{ "C" }}');
+        bth(
+            '{{\n' +
+            'echo "A";\n' +
+            '}}\n' +
+            '<span>Test</span>');
+        bth('<{{ html_element(); }} {{language_attributes();}}>abc</{{ html_element(); }}>');
+        bth('<input type="text" value="{{$x["test"] . $x[\'test\']}}">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header">{#$view["name"]; #}</h1>', '<h1 class="content-page-header">{#$view["name"]; #}</h1>');
+        bth(
+            '{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '#}');
+        test_fragment(
+            '{# #}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{# "A" #}abc{# "D" #}\n' +
+            '{# "B" #}\n' +
+            '{# "C" #}');
+        bth(
+            '{#\n' +
+            'echo "A";\n' +
+            '#}\n' +
+            '<span>Test</span>');
+        bth('<{# html_element(); #} {#language_attributes();#}>abc</{# html_element(); #}>');
+        bth('<input type="text" value="{#$x["test"] . $x[\'test\']#}">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header">{%$view["name"]; %}</h1>', '<h1 class="content-page-header">{%$view["name"]; %}</h1>');
+        bth(
+            '{%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%}');
+        test_fragment(
+            '{% %}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{% "A" %}abc{% "D" %}\n' +
+            '{% "B" %}\n' +
+            '{% "C" %}');
+        bth(
+            '{%\n' +
+            'echo "A";\n' +
+            '%}\n' +
+            '<span>Test</span>');
+        bth('<{% html_element(); %} {%language_attributes();%}>abc</{% html_element(); %}>');
+        bth('<input type="text" value="{%$x["test"] . $x[\'test\']%}">');
+
+        // minimal template handling - (indent_handlebars = "false")
+        reset_options();
+        set_name('minimal template handling - (indent_handlebars = "false")');
+        opts.indent_handlebars = false;
+        bth('<h1  class="content-page-header">{{$view["name"]; }}</h1>', '<h1 class="content-page-header">{{$view["name"]; }}</h1>');
+        bth(
+            '{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}}');
+        test_fragment(
+            '{{ }}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{{ "A" }}abc{{ "D" }}\n' +
+            '{{ "B" }}\n' +
+            '{{ "C" }}');
+        bth(
+            '{{\n' +
+            'echo "A";\n' +
+            '}}\n' +
+            '<span>Test</span>');
+        bth('<{{ html_element(); }} {{language_attributes();}}>abc</{{ html_element(); }}>');
+        bth('<input type="text" value="{{$x["test"] . $x[\'test\']}}">');
+
+        // minimal template handling - (indent_handlebars = "false")
+        reset_options();
+        set_name('minimal template handling - (indent_handlebars = "false")');
+        opts.indent_handlebars = false;
+        bth('<h1  class="content-page-header">{{#$view["name"]; }}</h1>', '<h1 class="content-page-header">{{#$view["name"]; }}</h1>');
+        bth(
+            '{{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}}');
+        test_fragment(
+            '{{# }}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{{# "A" }}abc{{# "D" }}\n' +
+            '{{# "B" }}\n' +
+            '{{# "C" }}');
+        bth(
+            '{{#\n' +
+            'echo "A";\n' +
+            '}}\n' +
+            '<span>Test</span>');
+        bth('<{{# html_element(); }} {{#language_attributes();}}>abc</{{# html_element(); }}>');
+        bth('<input type="text" value="{{#$x["test"] . $x[\'test\']}}">');
+
+        // minimal template handling - (indent_handlebars = "false")
+        reset_options();
+        set_name('minimal template handling - (indent_handlebars = "false")');
+        opts.indent_handlebars = false;
+        bth('<h1  class="content-page-header">{{!$view["name"]; }}</h1>', '<h1 class="content-page-header">{{!$view["name"]; }}</h1>');
+        bth(
+            '{{!\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}}');
+        test_fragment(
+            '{{! }}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{{! "A" }}abc{{! "D" }}\n' +
+            '{{! "B" }}\n' +
+            '{{! "C" }}');
+        bth(
+            '{{!\n' +
+            'echo "A";\n' +
+            '}}\n' +
+            '<span>Test</span>');
+        bth('<{{! html_element(); }} {{!language_attributes();}}>abc</{{! html_element(); }}>');
+        bth('<input type="text" value="{{!$x["test"] . $x[\'test\']}}">');
+
+        // minimal template handling - (indent_handlebars = "false")
+        reset_options();
+        set_name('minimal template handling - (indent_handlebars = "false")');
+        opts.indent_handlebars = false;
+        bth('<h1  class="content-page-header">{{!--$view["name"]; --}}</h1>', '<h1 class="content-page-header">{{!--$view["name"]; --}}</h1>');
+        bth(
+            '{{!--\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '--}}');
+        test_fragment(
+            '{{!-- --}}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{{!-- "A" --}}abc{{!-- "D" --}}\n' +
+            '{{!-- "B" --}}\n' +
+            '{{!-- "C" --}}');
+        bth(
+            '{{!--\n' +
+            'echo "A";\n' +
+            '--}}\n' +
+            '<span>Test</span>');
+        bth('<{{!-- html_element(); --}} {{!--language_attributes();--}}>abc</{{!-- html_element(); --}}>');
+        bth('<input type="text" value="{{!--$x["test"] . $x[\'test\']--}}">');
 
 
         //============================================================

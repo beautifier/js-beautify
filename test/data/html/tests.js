@@ -961,11 +961,33 @@ exports.test_data = {
         ],
         output: [
           '{{em-input',
-          'label="Some Labe" property="amt"',
-          'type="text" placeholder=""}}',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
           '{{em-input label="Type*"',
           'property="type" type="text" placeholder="(LTD)"}}',
           '{{em-input label="Place*" property="place" type="text" placeholder=""}}'
+        ]
+      },
+      {
+        input_: [
+          '<div>',
+          '{{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '   {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '       {{em-input label="Place*" property="place" type="text" placeholder=""}}',
+          '</div>'
+        ],
+        output: [
+          '<div>',
+          '    {{em-input',
+          '  label="Some Labe" property="amt"',
+          '  type="text" placeholder=""}}',
+          '    {{em-input label="Type*"',
+          'property="type" type="text" placeholder="(LTD)"}}',
+          '    {{em-input label="Place*" property="place" type="text" placeholder=""}}',
+          '</div>'
         ]
       },
       {
@@ -1695,25 +1717,85 @@ exports.test_data = {
       }
     ]
   }, {
-    name: "Php formatting",
-    description: "Php (<?php ... ?> and <?= ... ?>) treated as comments.",
-    options: [],
+    name: "minimal template handling",
+    description: "treated as content.",
+    template: "^^^ $$$",
+    matrix: [
+
+      // Php (<?php ... ?> and <?= ... ?>) =.
+      {
+        s: '<?php',
+        e: '?>'
+      },
+      {
+        s: '<?=',
+        e: '?>'
+      },
+      // erb, ejs, asp: <% ... %>
+      {
+        s: '<%',
+        e: '%>'
+      },
+      // django {{ ... }} and {# ... #} and {% ... %}
+      {
+        s: '{{',
+        e: '}}'
+      },
+      {
+        s: '{#',
+        e: '#}'
+      },
+      {
+        s: '{%',
+        e: '%}'
+      },
+      // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
+      {
+        options: [
+          { name: "indent_handlebars", value: "false" }
+        ],
+        s: '{{',
+        e: '}}'
+      },
+      {
+        options: [
+          { name: "indent_handlebars", value: "false" }
+        ],
+        s: '{{#',
+        e: '}}'
+      },
+      {
+        options: [
+          { name: "indent_handlebars", value: "false" }
+        ],
+        s: '{{!',
+        e: '}}'
+      },
+      {
+        options: [
+          { name: "indent_handlebars", value: "false" }
+        ],
+        s: '{{!--',
+        e: '--}}'
+      }
+
+    ],
     tests: [{
-      input: '<h1  class="content-page-header"><?=$view["name"]; ?></h1>',
-      output: '<h1 class="content-page-header"><?=$view["name"]; ?></h1>'
+      input: '<h1  class="content-page-header">^^^s$$$$view["name"]; ^^^e$$$</h1>',
+      output: '<h1 class="content-page-header">^^^s$$$$view["name"]; ^^^e$$$</h1>'
     }, {
       unchanged: [
-        '<?php',
+        '^^^s$$$',
         'for($i = 1; $i <= 100; $i++;) {',
         '    #count to 100!',
         '    echo($i . "</br>");',
         '}',
-        '?>'
+        '^^^e$$$'
       ]
     }, {
       fragment: true,
       unchanged: [
-        '<?php ?>',
+        '^^^s$$$ ^^^e$$$',
         '<!DOCTYPE html>',
         '',
         '<html>',
@@ -1726,24 +1808,24 @@ exports.test_data = {
       ]
     }, {
       unchanged: [
-        '<?= "A" ?>abc<?= "D" ?>',
-        '<?= "B" ?>',
-        '<?= "C" ?>'
+        '^^^s$$$ "A" ^^^e$$$abc^^^s$$$ "D" ^^^e$$$',
+        '^^^s$$$ "B" ^^^e$$$',
+        '^^^s$$$ "C" ^^^e$$$'
       ]
     }, {
       unchanged: [
-        '<?php',
+        '^^^s$$$',
         'echo "A";',
-        '?>',
+        '^^^e$$$',
         '<span>Test</span>'
       ]
     }, {
       unchanged: [
-        '<<?= html_element(); ?> <?=language_attributes();?>>abc</<?= html_element(); ?>>'
+        '<^^^s$$$ html_element(); ^^^e$$$ ^^^s$$$language_attributes();^^^e$$$>abc</^^^s$$$ html_element(); ^^^e$$$>'
       ]
     }, {
       unchanged: [
-        '<input type="text" value="<?=$x["test"] . $x[\\\'test\\\']?>">'
+        '<input type="text" value="^^^s$$$$x["test"] . $x[\\\'test\\\']^^^e$$$">'
       ]
     }]
   }, {

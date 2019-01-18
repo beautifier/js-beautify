@@ -32,6 +32,10 @@ var fs = require('fs');
 var mustache = require('mustache');
 var path = require('path');
 
+mustache.escape = function(text) {
+  return text;
+};
+
 function generate_tests() {
   // javascript
   generate_test_files('javascript', 'bt', 'js/test/generated/beautify-javascript-tests.js', 'python/jsbeautifier/tests/generated/tests.py');
@@ -161,20 +165,12 @@ function set_formatters(data, test_method, comment_mark) {
         throw "Test strings are identical.  Omit 'output' and use 'unchanged': " + input;
       }
 
-      if (output && output.indexOf('<%') !== -1) {
-        mustache.tags = ['<%', '%>'];
-      }
-
       input = getTestString(render(input));
 
       if (output) {
         output = getTestString(render(output));
       } else {
         output = '';
-      }
-
-      if (output && output.indexOf('<%') !== -1) {
-        mustache.tags = ['{{', '}}'];
       }
 
       if (this.input_ || input.indexOf('\n') !== -1 || output.indexOf('\n') !== -1) {
