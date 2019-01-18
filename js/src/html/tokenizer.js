@@ -55,12 +55,13 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word = new TemplatableReader(this._input).until(/[\n\r\t <]/g).with_templates();
-  this._word.handlebars = false; // Detect only
-  this._single_quote = new TemplatableReader(this._input).until_after(/'/g).with_templates();
-  this._double_quote = new TemplatableReader(this._input).until_after(/"/g).with_templates();
-  this._attribute = new TemplatableReader(this._input).until(/[\n\r\t =\/>]/g).with_templates();
-  this._element_name = new TemplatableReader(this._input).until(/[\n\r\t >\/]/g).with_templates();
+  var templatable_reader = new TemplatableReader(this._input);
+  this._word = templatable_reader.until(/[\n\r\t <]/g)
+    .exclude('handlebars');
+  this._single_quote = templatable_reader.until_after(/'/g);
+  this._double_quote = templatable_reader.until_after(/"/g);
+  this._attribute = templatable_reader.until(/[\n\r\t =\/>]/g);
+  this._element_name = templatable_reader.until(/[\n\r\t >\/]/g);
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
