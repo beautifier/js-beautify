@@ -2322,12 +2322,15 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  this._word = new TemplatableReader(this._input).until(/[\n\r\t <]/g).with_templates();
-  this._word.handlebars = false; // Detect only
-  this._single_quote = new TemplatableReader(this._input).until_after(/'/g).with_templates();
-  this._double_quote = new TemplatableReader(this._input).until_after(/"/g).with_templates();
-  this._attribute = new TemplatableReader(this._input).until(/[\n\r\t =\/>]/g).with_templates();
-  this._element_name = new TemplatableReader(this._input).until(/[\n\r\t >\/]/g).with_templates();
+  var templatable_reader = new TemplatableReader(this._input);
+  this._word = templatable_reader.until(/[\n\r\t <]/g);
+  if (this._options.indent_handlebars) {
+    this._word = this._word.exclude('handlebars');
+  }
+  this._single_quote = templatable_reader.until_after(/'/g);
+  this._double_quote = templatable_reader.until_after(/"/g);
+  this._attribute = templatable_reader.until(/[\n\r\t =\/>]/g);
+  this._element_name = templatable_reader.until(/[\n\r\t >\/]/g);
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
@@ -2539,9 +2542,9 @@ Tokenizer.prototype._read_content_word = function(c) {
   if (resulting_string) {
     resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
   } else {
-    if (c === '{' && !this._options.indent_handlebars) {
-      resulting_string += this._input.next();
-    }
+    // if (c === '{' && !this._options.indent_handlebars) {
+    //   resulting_string += this._input.next();
+    // }
     resulting_string += this._word.read();
   }
   if (resulting_string) {
@@ -2588,14 +2591,14 @@ module.exports.TOKEN = TOKEN;
 
 
 
-function PatternReader(input_scanner) {
+function PatternReader(input_scanner, parent) {
   this._input = input_scanner;
-  this._until_pattern = null;
-  this._from_pattern = null;
-  this._include_match = false;
+  this._until_pattern = parent && parent._until_pattern ? new RegExp(parent._until_pattern) : null;
+  this._from_pattern = parent && parent._from_pattern ? new RegExp(parent._from_pattern) : null;
+  this._include_match = parent ? parent._include_match : false;
 }
 
-PatternReader.prototype.read = function() {
+PatternReader.prototype._read = function() {
   var result = '';
   if (this._from_pattern) {
     result = this._input.read(this._from_pattern, this._until_pattern, this._include_match);
@@ -2605,52 +2608,93 @@ PatternReader.prototype.read = function() {
   return result;
 };
 
+PatternReader.prototype.read = function() {
+  return this._read();
+};
+
 PatternReader.prototype.until_after = function(pattern) {
-  this.include_match = true;
-  this._until_pattern = pattern;
-  return this;
+  var result = this._create();
+  result.include_match = true;
+  result._until_pattern = pattern;
+  result._update();
+  return result;
 };
 
 PatternReader.prototype.until = function(pattern) {
-  this.include_match = false;
-  this._until_pattern = pattern;
-  return this;
+  var result = this._create();
+  result.include_match = false;
+  result._until_pattern = pattern;
+  result._update();
+  return result;
 };
 
 PatternReader.prototype.from = function(pattern) {
-  this._from_pattern = pattern;
-  return this;
+  var result = this._create();
+  result._from_pattern = pattern;
+  result._update();
+  return result;
 };
 
-function TemplatableReader(input_scanner) {
-  PatternReader.call(this, input_scanner);
-  this.__template_pattern = null;
-  this.handlebars = true;
-  this.php = true;
-  this.asp = true;
-  this.__language = {
-    handlebars_comment: new PatternReader(input_scanner).from(/{{!--/g).until_after(/--}}/g),
-    handlebars: new PatternReader(input_scanner).from(/{{/g).until_after(/}}/g),
-    php: new PatternReader(input_scanner).from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
-    asp: new PatternReader(input_scanner).from(/<%/g).until_after(/%>/g)
+PatternReader.prototype._create = function() {
+  return new PatternReader(this._input, this);
+};
+
+PatternReader.prototype._update = function() {};
+
+// This lets templates appear anywhere we would do a readUntil
+// The cost is higher but it is pay to play.
+function TemplatableReader(input_scanner, parent) {
+  PatternReader.call(this, input_scanner, parent);
+  this.__template_pattern = parent && parent.__template_pattern ? new RegExp(parent.__template_pattern) : null;
+  this._excluded = {
+    django: false,
+    erb: false,
+    handlebars: false,
+    php: false
+  };
+  if (parent) {
+    this._excluded = Object.assign(this._excluded, parent._excluded);
+  }
+  var pattern_reader = new PatternReader(input_scanner);
+  this.__patterns = {
+    handlebars_comment: pattern_reader.from(/{{!--/g).until_after(/--}}/g),
+    handlebars: pattern_reader.from(/{{/g).until_after(/}}/g),
+    php: pattern_reader.from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
+    erb: pattern_reader.from(/<%[^%]/g).until_after(/[^%]%>/g),
+    // django coflicts with handlebars a bit.
+    django: pattern_reader.from(/{%/g).until_after(/%}/g),
+    django_value: pattern_reader.from(/{{/g).until_after(/}}/g),
+    django_comment: pattern_reader.from(/{#/g).until_after(/#}/g)
   };
 }
 TemplatableReader.prototype = new PatternReader();
 
-// This lets templates appear anywhere we would do a readUntil
-// The cost is higher but it is pay to play.
-TemplatableReader.prototype.with_templates = function() {
+TemplatableReader.prototype._create = function() {
+  return new TemplatableReader(this._input, this);
+};
+
+TemplatableReader.prototype._update = function() {
   this.__set_templated_pattern();
-  return this;
+};
+
+TemplatableReader.prototype.exclude = function(language) {
+  var result = this._create();
+  result._excluded[language] = true;
+  result._update();
+  return result;
 };
 
 TemplatableReader.prototype.read = function() {
-  var result;
+  var result = '';
   if (this._from_pattern) {
     result = this._input.read(this._from_pattern, this.__template_pattern);
+    if (!result) {
+      return result;
+    }
   } else {
     result = this._input.readUntil(this.__template_pattern);
   }
+
   var next = '';
   do {
     result += next;
@@ -2670,22 +2714,16 @@ TemplatableReader.prototype.read = function() {
 TemplatableReader.prototype.__set_templated_pattern = function() {
   var items = [];
 
+  items.push(this.__patterns.php._from_pattern.source);
+  items.push(this.__patterns.handlebars._from_pattern.source);
+  items.push(this.__patterns.erb._from_pattern.source);
+  items.push(this.__patterns.django._from_pattern.source);
+  items.push(this.__patterns.django_value._from_pattern.source);
+  items.push(this.__patterns.django_comment._from_pattern.source);
+
   if (this._until_pattern) {
     items.push(this._until_pattern.source);
   }
-
-  if (this.php) {
-    items.push(this.__language.php._from_pattern.source);
-  }
-
-  if (this.handlebars) {
-    items.push(this.__language.handlebars._from_pattern.source);
-  }
-
-  if (this.asp) {
-    items.push(this.__language.asp._from_pattern.source);
-  }
-
   this.__template_pattern = new RegExp('(?:' + items.join('|') + ')', 'g');
 };
 
@@ -2697,20 +2735,31 @@ TemplatableReader.prototype.read_template = function() {
     //if we're in a comment, do something special
     // We treat all comments as literals, even more than preformatted tags
     // we just look for the appropriate close tag
-    if (this.php && peek1 === '?') {
+    if (!this._excluded.php && peek1 === '?') {
       resulting_string = resulting_string ||
-        this.__language.php.read();
+        this.__patterns.php.read();
     }
-    if (this.asp && peek1 === '%') {
+    if (!this._excluded.erb && peek1 === '%') {
       resulting_string = resulting_string ||
-        this.__language.asp.read();
+        this.__patterns.erb.read();
     }
   } else if (c === '{') {
-    if (this.handlebars) {
+    if (!this._excluded.handlebars) {
       resulting_string = resulting_string ||
-        this.__language.handlebars_comment.read();
+        this.__patterns.handlebars_comment.read();
       resulting_string = resulting_string ||
-        this.__language.handlebars.read();
+        this.__patterns.handlebars.read();
+    }
+    // django coflicts with handlebars a bit.
+    if (!this._excluded.django && !this._excluded.handlebars) {
+      resulting_string = resulting_string ||
+        this.__patterns.django_value.read();
+    }
+    if (!this._excluded.django) {
+      resulting_string = resulting_string ||
+        this.__patterns.django_comment.read();
+      resulting_string = resulting_string ||
+        this.__patterns.django.read();
     }
   }
   return resulting_string;
