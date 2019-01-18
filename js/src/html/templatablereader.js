@@ -85,9 +85,10 @@ function TemplatableReader(input_scanner, parent) {
   PatternReader.call(this, input_scanner, parent);
   this.__template_pattern = parent && parent.__template_pattern ? new RegExp(parent.__template_pattern) : null;
   this._excluded = {
+    django: false,
+    erb: false,
     handlebars: false,
-    php: false,
-    asp: false
+    php: false
   };
   if (parent) {
     this._excluded = Object.assign(this._excluded, parent._excluded);
@@ -97,7 +98,10 @@ function TemplatableReader(input_scanner, parent) {
     handlebars_comment: pattern_reader.from(/{{!--/g).until_after(/--}}/g),
     handlebars: pattern_reader.from(/{{/g).until_after(/}}/g),
     php: pattern_reader.from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
-    asp: pattern_reader.from(/<%/g).until_after(/%>/g)
+    erb: pattern_reader.from(/<%[^%]/g).until_after(/[^%]%>/g),
+    django: pattern_reader.from(/{%/g).until_after(/%}/g),
+    django_value: pattern_reader.from(/{{/g).until_after(/}}/g),
+    django_comment: pattern_reader.from(/{#/g).until_after(/#}/g)
   };
 }
 TemplatableReader.prototype = new PatternReader();
@@ -149,7 +153,10 @@ TemplatableReader.prototype.__set_templated_pattern = function() {
 
   items.push(this.__patterns.php._from_pattern.source);
   items.push(this.__patterns.handlebars._from_pattern.source);
-  items.push(this.__patterns.asp._from_pattern.source);
+  items.push(this.__patterns.erb._from_pattern.source);
+  items.push(this.__patterns.django._from_pattern.source);
+  items.push(this.__patterns.django_value._from_pattern.source);
+  items.push(this.__patterns.django_comment._from_pattern.source);
 
   if (this._until_pattern) {
     items.push(this._until_pattern.source);
