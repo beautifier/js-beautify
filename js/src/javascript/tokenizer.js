@@ -33,6 +33,9 @@ var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var Directives = require('../core/directives').Directives;
 var acorn = require('./acorn');
+var Pattern = require('../core/pattern').Pattern;
+var TemplatablePattern = require('../core/templatablepattern').TemplatablePattern;
+
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -63,7 +66,7 @@ var TOKEN = {
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
-var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
+var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/;
 
 var digit = /[0-9]/;
 
@@ -86,30 +89,50 @@ var punct =
 punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
-var punct_pattern = new RegExp(punct, 'g');
-var shebang_pattern = /#![^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
-var include_pattern = /#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
+var punct_pattern = new RegExp(punct);
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
 var reserved_words = line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
 var reserved_word_pattern = new RegExp('^(?:' + reserved_words.join('|') + ')$');
 
-//  /* ... */ comment ends with nearest */ or end of file
-var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
-
-// comment ends just before nearest linefeed or end of file
-var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
-
-var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
+// var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
 
 var in_html_comment;
 
 var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
 
-  this._whitespace_pattern = /[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+/g;
-  this._newline_pattern = /([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  this._patterns.whitespace = this._patterns.whitespace.matching(
+    /\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff/.source,
+    /\u2028\u2029/.source);
+
+  var pattern_reader = new Pattern(this._input);
+  var templatable = new TemplatablePattern(this._input);
+  templatable = templatable.disable('handlebars');
+  templatable = templatable.disable('django');
+
+
+  this.__patterns = {
+    template: templatable,
+    identifier: templatable.starting_with(acorn.identifier).matching(acorn.identifierMatch),
+    number: pattern_reader.matching(number_pattern),
+    punct: pattern_reader.matching(punct_pattern),
+    // comment ends just before nearest linefeed or end of file
+    comment: pattern_reader.starting_with(/\/\//).until(/[\n\r\u2028\u2029]/),
+    //  /* ... */ comment ends with nearest */ or end of file
+    block_comment: pattern_reader.starting_with(/\/\*/).until_after(/\*\//),
+    html_comment_start: pattern_reader.matching(/<!--/),
+    html_comment_end: pattern_reader.matching(/-->/),
+    include: pattern_reader.starting_with(/#include/).until_after(acorn.lineBreak),
+    shebang: pattern_reader.starting_with(/#!/).until_after(acorn.lineBreak),
+    xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/),
+    single_quote: templatable.until(/['\\\n\r\u2028\u2029]/),
+    double_quote: templatable.until(/["\\\n\r\u2028\u2029]/),
+    template_text: templatable.until(/[`\\$]/),
+    template_expression: templatable.until(/[`}\\]/)
+  };
+
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -134,14 +157,18 @@ Tokenizer.prototype._reset = function() {
 };
 
 Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this._readWhitespace();
   var token = null;
+  this._readWhitespace();
   var c = this._input.peek();
 
-  token = token || this._read_singles(c);
-  token = token || this._read_word(previous_token);
-  token = token || this._read_comment(c);
+  if (c === null) {
+    return this._create_token(TOKEN.EOF, '');
+  }
+
   token = token || this._read_string(c);
+  token = token || this._read_word(previous_token);
+  token = token || this._read_singles(c);
+  token = token || this._read_comment(c);
   token = token || this._read_regexp(c, previous_token);
   token = token || this._read_xml(c, previous_token);
   token = token || this._read_non_javascript(c);
@@ -153,8 +180,9 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
 
 Tokenizer.prototype._read_word = function(previous_token) {
   var resulting_string;
-  resulting_string = this._input.read(acorn.identifier);
+  resulting_string = this.__patterns.identifier.read();
   if (resulting_string !== '') {
+    resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
     if (!(previous_token.type === TOKEN.DOT ||
         (previous_token.type === TOKEN.RESERVED && (previous_token.text === 'set' || previous_token.text === 'get'))) &&
       reserved_word_pattern.test(resulting_string)) {
@@ -163,11 +191,10 @@ Tokenizer.prototype._read_word = function(previous_token) {
       }
       return this._create_token(TOKEN.RESERVED, resulting_string);
     }
-
     return this._create_token(TOKEN.WORD, resulting_string);
   }
 
-  resulting_string = this._input.read(number_pattern);
+  resulting_string = this.__patterns.number.read();
   if (resulting_string !== '') {
     return this._create_token(TOKEN.WORD, resulting_string);
   }
@@ -175,9 +202,7 @@ Tokenizer.prototype._read_word = function(previous_token) {
 
 Tokenizer.prototype._read_singles = function(c) {
   var token = null;
-  if (c === null) {
-    token = this._create_token(TOKEN.EOF, '');
-  } else if (c === '(' || c === '[') {
+  if (c === '(' || c === '[') {
     token = this._create_token(TOKEN.START_EXPR, c);
   } else if (c === ')' || c === ']') {
     token = this._create_token(TOKEN.END_EXPR, c);
@@ -200,7 +225,7 @@ Tokenizer.prototype._read_singles = function(c) {
 };
 
 Tokenizer.prototype._read_punctuation = function() {
-  var resulting_string = this._input.read(punct_pattern);
+  var resulting_string = this.__patterns.punct.read();
 
   if (resulting_string !== '') {
     if (resulting_string === '=') {
@@ -216,7 +241,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
 
   if (c === '#') {
     if (this._is_first_token()) {
-      resulting_string = this._input.read(shebang_pattern);
+      resulting_string = this.__patterns.shebang.read();
 
       if (resulting_string) {
         return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
@@ -224,7 +249,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
     }
 
     // handles extendscript #includes
-    resulting_string = this._input.read(include_pattern);
+    resulting_string = this.__patterns.include.read();
 
     if (resulting_string) {
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
@@ -256,23 +281,20 @@ Tokenizer.prototype._read_non_javascript = function(c) {
     this._input.back();
 
   } else if (c === '<') {
-    if (this._input.peek(1) === '?' || this._input.peek(1) === '%') {
-      resulting_string = this._input.read(template_pattern);
-      if (resulting_string) {
-        resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
-        return this._create_token(TOKEN.STRING, resulting_string);
-      }
-    } else if (this._input.match(/<\!--/g)) {
-      c = '<!--';
+    resulting_string = this.__patterns.html_comment_start.read();
+    if (resulting_string) {
       while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
-        c += this._input.next();
+        resulting_string += this._input.next();
       }
       in_html_comment = true;
-      return this._create_token(TOKEN.COMMENT, c);
+      return this._create_token(TOKEN.COMMENT, resulting_string);
     }
-  } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
-    in_html_comment = false;
-    return this._create_token(TOKEN.COMMENT, '-->');
+  } else if (in_html_comment && c === '-') {
+    resulting_string = this.__patterns.html_comment_end.read();
+    if (resulting_string) {
+      in_html_comment = false;
+      return this._create_token(TOKEN.COMMENT, resulting_string);
+    }
   }
 
   return null;
@@ -284,7 +306,7 @@ Tokenizer.prototype._read_comment = function(c) {
     var comment = '';
     if (this._input.peek(1) === '*') {
       // peek for comment /* ... */
-      comment = this._input.read(block_comment_pattern);
+      comment = this.__patterns.block_comment.read();
       var directives = directives_core.get_directives(comment);
       if (directives && directives.ignore === 'start') {
         comment += directives_core.readIgnored(this._input);
@@ -294,7 +316,7 @@ Tokenizer.prototype._read_comment = function(c) {
       token.directives = directives;
     } else if (this._input.peek(1) === '/') {
       // peek for comment // ...
-      comment = this._input.read(comment_pattern);
+      comment = this.__patterns.comment.read();
       token = this._create_token(TOKEN.COMMENT, comment);
     }
   }
@@ -315,9 +337,12 @@ Tokenizer.prototype._read_string = function(c) {
     if (this.has_char_escapes && this._options.unescape_strings) {
       resulting_string = unescape_string(resulting_string);
     }
+
     if (this._input.peek() === c) {
       resulting_string += this._input.next();
     }
+
+    resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
 
     return this._create_token(TOKEN.STRING, resulting_string);
   }
@@ -373,17 +398,13 @@ Tokenizer.prototype._read_regexp = function(c, previous_token) {
   return null;
 };
 
-
-var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-
 Tokenizer.prototype._read_xml = function(c, previous_token) {
 
-  if (this._options.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(previous_token)) {
+  if (this._options.e4x && c === "<" && this._allow_regexp_or_xml(previous_token)) {
+    var xmlStr = '';
+    var match = this.__patterns.xml.read_match();
     // handle e4x xml literals
     //
-    var xmlStr = '';
-    var match = this._input.match(startXmlRegExp);
     if (match) {
       // Trim root tag to attempt to
       var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
@@ -405,7 +426,7 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
         if (depth <= 0) {
           break;
         }
-        match = this._input.match(xmlRegExp);
+        match = this.__patterns.xml.read_match();
       }
       // if we didn't close correctly, keep unformatted.
       if (!match) {
@@ -485,51 +506,53 @@ function unescape_string(s) {
 // handle string
 //
 Tokenizer.prototype._read_string_recursive = function(delimiter, allow_unescaped_newlines, start_sub) {
-  // Template strings can travers lines without escape characters.
-  // Other strings cannot
   var current_char;
-  var resulting_string = '';
-  var esc = false;
+  var pattern;
+  if (delimiter === '\'') {
+    pattern = this.__patterns.single_quote;
+  } else if (delimiter === '"') {
+    pattern = this.__patterns.double_quote;
+  } else if (delimiter === '`') {
+    pattern = this.__patterns.template_text;
+  } else if (delimiter === '}') {
+    pattern = this.__patterns.template_expression;
+  }
+
+  var resulting_string = pattern.read();
+  var next = '';
   while (this._input.hasNext()) {
-    current_char = this._input.peek();
-    if (!(esc || (current_char !== delimiter &&
-        (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
+    next = this._input.next();
+    if (next === delimiter ||
+      (!allow_unescaped_newlines && acorn.newline.test(next))) {
+      this._input.back();
       break;
-    }
+    } else if (next === '\\' && this._input.hasNext()) {
+      current_char = this._input.peek();
 
-    // Handle \r\n linebreaks after escapes or in template strings
-    if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
-      if (current_char === '\r' && this._input.peek(1) === '\n') {
-        this._input.next();
-        current_char = this._input.peek();
-      }
-      resulting_string += '\n';
-    } else {
-      resulting_string += current_char;
-    }
-
-    if (esc) {
       if (current_char === 'x' || current_char === 'u') {
         this.has_char_escapes = true;
+      } else if (current_char === '\r' && this._input.peek(1) === '\n') {
+        this._input.next();
       }
-      esc = false;
-    } else {
-      esc = current_char === '\\';
+      next += this._input.next();
+    } else if (start_sub) {
+      if (start_sub === '${' && next === '$' && this._input.peek() === '{') {
+        next += this._input.next();
+      }
+
+      if (start_sub === next) {
+        if (delimiter === '`') {
+          next += this._read_string_recursive('}', allow_unescaped_newlines, '`');
+        } else {
+          next += this._read_string_recursive('`', allow_unescaped_newlines, '${');
+        }
+        if (this._input.hasNext()) {
+          next += this._input.next();
+        }
+      }
     }
-
-    this._input.next();
-
-    if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
-      if (delimiter === '`') {
-        resulting_string += this._read_string_recursive('}', allow_unescaped_newlines, '`');
-      } else {
-        resulting_string += this._read_string_recursive('`', allow_unescaped_newlines, '${');
-      }
-
-      if (this._input.hasNext()) {
-        resulting_string += this._input.next();
-      }
-    }
+    next += pattern.read();
+    resulting_string += next;
   }
 
   return resulting_string;

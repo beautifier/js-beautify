@@ -31,7 +31,8 @@
 var BaseTokenizer = require('../core/tokenizer').Tokenizer;
 var BASETOKEN = require('../core/tokenizer').TOKEN;
 var Directives = require('../core/directives').Directives;
-var TemplatableReader = require('./templatablereader').TemplatableReader;
+var TemplatablePattern = require('../core/templatablepattern').TemplatablePattern;
+var Pattern = require('../core/pattern').Pattern;
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
@@ -55,21 +56,38 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  var templatable_reader = new TemplatableReader(this._input);
-  this._word = templatable_reader.until(/[\n\r\t <]/g);
+  var templatable_reader = new TemplatablePattern(this._input);
+  var pattern_reader = new Pattern(this._input);
+
+  this.__patterns = {
+    word: templatable_reader.until(/[\n\r\t <]/),
+    single_quote: templatable_reader.until_after(/'/),
+    double_quote: templatable_reader.until_after(/"/),
+    attribute: templatable_reader.until(/[\n\r\t =\/>]/),
+    element_name: templatable_reader.until(/[\n\r\t >\/]/),
+
+    handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
+    handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
+    handlebars_open: pattern_reader.until(/[\n\r\t }]/),
+    handlebars_raw_close: pattern_reader.until(/}}/),
+    comment: pattern_reader.starting_with(/<!--/).until_after(/-->/),
+    cdata: pattern_reader.starting_with(/<!\[cdata\[/).until_after(/]]>/),
+    // https://en.wikipedia.org/wiki/Conditional_comment
+    conditional_comment: pattern_reader.starting_with(/<!\[/).until_after(/]>/),
+    processing: pattern_reader.starting_with(/<\?/).until_after(/\?>/)
+  };
+
   if (this._options.indent_handlebars) {
-    this._word = this._word.exclude('handlebars');
+    this.__patterns.word = this.__patterns.word.exclude('handlebars');
   }
-  this._single_quote = templatable_reader.until_after(/'/g);
-  this._double_quote = templatable_reader.until_after(/"/g);
-  this._attribute = templatable_reader.until(/[\n\r\t =\/>]/g);
-  this._element_name = templatable_reader.until(/[\n\r\t >\/]/g);
+
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
-    this._unformatted_content_delimiter =
-      new RegExp(this._options.unformatted_content_delimiter
-        .replace(/([[\\^$.|?*+()])/g, '\\$1'), 'g');
+    var literal_regexp = this._input.get_literal_regexp(this._options.unformatted_content_delimiter);
+    this.__patterns.unformatted_content_delimiter =
+      pattern_reader.matching(literal_regexp)
+      .until_after(literal_regexp);
   }
 };
 Tokenizer.prototype = new BaseTokenizer();
@@ -94,8 +112,8 @@ Tokenizer.prototype._reset = function() {
 };
 
 Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this._readWhitespace();
   var token = null;
+  this._readWhitespace();
   var c = this._input.peek();
 
   if (c === null) {
@@ -125,7 +143,7 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
     // We treat all comments as literals, even more than preformatted tags
     // we just look for the appropriate close tag
     if (c === '<' && (peek1 === '!' || peek1 === '?')) {
-      resulting_string = this._input.read(/<!--/g, /-->/g);
+      resulting_string = this.__patterns.comment.read();
 
       // only process directive on html comments
       if (resulting_string) {
@@ -134,9 +152,9 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
           resulting_string += directives_core.readIgnored(this._input);
         }
       } else {
-        resulting_string = this._input.read(/<!\[cdata\[/g, /]]>/g);
-        resulting_string = resulting_string || this._input.read(/<!\[/g, /]>/g);
-        resulting_string = resulting_string || this._input.read(/<\?/g, /\?>/g);
+        resulting_string = this.__patterns.cdata.read();
+        resulting_string = resulting_string || this.__patterns.conditional_comment.read();
+        resulting_string = resulting_string || this.__patterns.processing.read();
       }
     }
 
@@ -159,7 +177,7 @@ Tokenizer.prototype._read_open = function(c, open_token) {
       if (this._input.peek() === '/') {
         resulting_string += this._input.next();
       }
-      resulting_string += this._element_name.read();
+      resulting_string += this.__patterns.element_name.read();
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
@@ -172,11 +190,11 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   if (!open_token) {
     if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
       if (this._input.peek(2) === '!') {
-        resulting_string = this._input.read(/{{!--/g, /--}}/g);
-        resulting_string = resulting_string || this._input.read(/{{/g, /}}/g);
+        resulting_string = this.__patterns.handlebars_comment.read();
+        resulting_string = resulting_string || this.__patterns.handlebars.read();
         token = this._create_token(TOKEN.COMMENT, resulting_string);
       } else {
-        resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+        resulting_string = this.__patterns.handlebars_open.read();
         token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
       }
     }
@@ -215,13 +233,13 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
     } else if (c === '"' || c === "'") {
       var content = this._input.next();
       if (c === '"') {
-        content += this._double_quote.read();
+        content += this.__patterns.double_quote.read();
       } else {
-        content += this._single_quote.read();
+        content += this.__patterns.single_quote.read();
       }
       token = this._create_token(TOKEN.VALUE, content);
     } else {
-      resulting_string = this._attribute.read();
+      resulting_string = this.__patterns.attribute.read();
 
       if (resulting_string) {
         if (previous_token.type === TOKEN.EQUALS) {
@@ -249,7 +267,7 @@ Tokenizer.prototype._is_content_unformatted = function(tag_name) {
 Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { // jshint unused:false
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
-    resulting_string = this._input.readUntil(/}}/g);
+    resulting_string = this.__patterns.handlebars_raw_close.read();
   } else if (previous_token.type === TOKEN.TAG_CLOSE && (previous_token.opened.text[0] === '<')) {
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (this._is_content_unformatted(tag_name)) {
@@ -266,19 +284,14 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
 
 Tokenizer.prototype._read_content_word = function(c) {
   var resulting_string = '';
-  if (this._unformatted_content_delimiter) {
+  if (this._options.unformatted_content_delimiter) {
     if (c === this._options.unformatted_content_delimiter[0]) {
-      resulting_string = this._input.read(this._unformatted_content_delimiter);
+      resulting_string = this.__patterns.unformatted_content_delimiter.read();
     }
   }
 
-  if (resulting_string) {
-    resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
-  } else {
-    // if (c === '{' && !this._options.indent_handlebars) {
-    //   resulting_string += this._input.next();
-    // }
-    resulting_string += this._word.read();
+  if (!resulting_string) {
+    resulting_string = this.__patterns.word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);

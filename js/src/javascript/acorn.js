@@ -39,7 +39,8 @@ var identifierStart = "[" + baseASCIIidentifierStartChars + nonASCIIidentifierSt
 var identifierChars = "[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]*";
 
 exports.identifier = new RegExp(identifierStart + identifierChars, 'g');
-
+exports.identifierStart = new RegExp(identifierStart);
+exports.identifierMatch = new RegExp("[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]+");
 
 var nonASCIIwhitespace = /[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]/; // jshint ignore:line
 

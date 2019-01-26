@@ -26,9 +26,10 @@ import re
 from ..core.inputscanner import InputScanner
 from ..core.token import Token
 from ..core.tokenstream import TokenStream
+from ..core.pattern import Pattern
+from ..core.whitespacepattern import WhitespacePattern
 
-
-__all__ = ["TOKEN", "Tokenizer", "TokenTypes"]
+__all__ = ["TOKEN", "Tokenizer", "TokenizerPatterns", "TokenTypes"]
 
 class TokenTypes:
     START = 'TK_START'
@@ -40,17 +41,20 @@ class TokenTypes:
 
 TOKEN = TokenTypes()
 
+class TokenizerPatterns:
+    def __init__(self, input_scanner):
+        self.whitespace = WhitespacePattern(input_scanner)
+
+
+
 class Tokenizer:
 
     def __init__(self, input_string, options):
         self._input = InputScanner(input_string)
         self._options = options
         self.__tokens = None
-        self.__newline_count = 0
-        self.__whitespace_before_token = ''
 
-        self._whitespace_pattern = re.compile(r'[\n\r\t ]+')
-        self._newline_pattern = re.compile(r'([^\n\r]*)(\r\n|[\n\r])?')
+        self._patterns = TokenizerPatterns(self._input)
 
     def tokenize(self):
         self._input.restart()
@@ -123,22 +127,9 @@ class Tokenizer:
 
     def _create_token(self, token_type, text):
         token = Token(token_type, text,
-                self.__newline_count, self.__whitespace_before_token)
-        self.__newline_count = 0
-        self.__whitespace_before_token = ''
+                self._patterns.whitespace.newline_count,
+                self._patterns.whitespace.whitespace_before_token)
         return token
 
     def _readWhitespace(self):
-        if not self._input.testChar(self._whitespace_pattern):
-            return
-
-        resulting_string = self._input.read(self._whitespace_pattern)
-        if resulting_string == ' ':
-            self.__whitespace_before_token = resulting_string
-        elif resulting_string != '':
-            for nextMatch in self._newline_pattern.findall(resulting_string):
-                if nextMatch[1] == '':
-                    self.__whitespace_before_token = nextMatch[0]
-                    break
-
-                self.__newline_count += 1
+        return self._patterns.whitespace.read()

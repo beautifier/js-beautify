@@ -31,6 +31,7 @@
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Token = require('../core/token').Token;
 var TokenStream = require('../core/tokenstream').TokenStream;
+var WhitespacePattern = require('./whitespacepattern').WhitespacePattern;
 
 var TOKEN = {
   START: 'TK_START',
@@ -42,11 +43,9 @@ var Tokenizer = function(input_string, options) {
   this._input = new InputScanner(input_string);
   this._options = options || {};
   this.__tokens = null;
-  this.__newline_count = 0;
-  this.__whitespace_before_token = '';
 
-  this._whitespace_pattern = /[\n\r\t ]+/g;
-  this._newline_pattern = /([^\n\r]*)(\r\n|[\n\r])?/g;
+  this._patterns = {};
+  this._patterns.whitespace = new WhitespacePattern(this._input);
 };
 
 Tokenizer.prototype.tokenize = function() {
@@ -125,28 +124,14 @@ Tokenizer.prototype._is_closing = function(current_token, open_token) { // jshin
 };
 
 Tokenizer.prototype._create_token = function(type, text) {
-  var token = new Token(type, text, this.__newline_count, this.__whitespace_before_token);
-  this.__newline_count = 0;
-  this.__whitespace_before_token = '';
+  var token = new Token(type, text,
+    this._patterns.whitespace.newline_count,
+    this._patterns.whitespace.whitespace_before_token);
   return token;
 };
 
 Tokenizer.prototype._readWhitespace = function() {
-  if (!this._input.testChar(this._whitespace_pattern)) {
-    return;
-  }
-  var resulting_string = this._input.read(this._whitespace_pattern);
-  if (resulting_string === ' ') {
-    this.__whitespace_before_token = resulting_string;
-  } else if (resulting_string !== '') {
-    this._newline_pattern.lastIndex = 0;
-    var nextMatch = this._newline_pattern.exec(resulting_string);
-    while (nextMatch[2]) {
-      this.__newline_count += 1;
-      nextMatch = this._newline_pattern.exec(resulting_string);
-    }
-    this.__whitespace_before_token = nextMatch[1];
-  }
+  return this._patterns.whitespace.read();
 };
 
 

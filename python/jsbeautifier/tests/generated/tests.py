@@ -4428,6 +4428,77 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # minimal template handling - ()
+        self.reset_options()
+        bt('var  a = <?php$view["name"]; ?>;', 'var a = <?php$view["name"]; ?>;')
+        bt(
+            'a = abc<?php\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>;')
+        test_fragment(
+            '<?php ?>\n' +
+            'test.met<?php someValue ?>hod();')
+        bt(
+            '<?php "A" ?>abc<?php "D" ?>;\n' +
+            '<?php "B" ?>.test();\n' +
+            '" <?php   "C" \'D\'  ?>  "')
+        bt(
+            '<?php\n' +
+            'echo "A";\n' +
+            '?>;\n' +
+            'test.method();')
+
+        # minimal template handling - ()
+        self.reset_options()
+        bt('var  a = <?=$view["name"]; ?>;', 'var a = <?=$view["name"]; ?>;')
+        bt(
+            'a = abc<?=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>;')
+        test_fragment(
+            '<?= ?>\n' +
+            'test.met<?= someValue ?>hod();')
+        bt(
+            '<?= "A" ?>abc<?= "D" ?>;\n' +
+            '<?= "B" ?>.test();\n' +
+            '" <?=   "C" \'D\'  ?>  "')
+        bt(
+            '<?=\n' +
+            'echo "A";\n' +
+            '?>;\n' +
+            'test.method();')
+
+        # minimal template handling - ()
+        self.reset_options()
+        bt('var  a = <%$view["name"]; %>;', 'var a = <%$view["name"]; %>;')
+        bt(
+            'a = abc<%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>;')
+        test_fragment(
+            '<% %>\n' +
+            'test.met<% someValue %>hod();')
+        bt(
+            '<% "A" %>abc<% "D" %>;\n' +
+            '<% "B" %>.test();\n' +
+            '" <%   "C" \'D\'  %>  "')
+        bt(
+            '<%\n' +
+            'echo "A";\n' +
+            '%>;\n' +
+            'test.method();')
+
+
+        #============================================================
         # jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")
         self.reset_options()
         self.options.jslint_happy = true

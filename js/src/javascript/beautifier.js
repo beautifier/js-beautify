@@ -1351,6 +1351,7 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
 
   // first line always indented
   this.print_token(current_token, lines[0]);
+  this.print_newline(false, preserve_statement_flags);
 
 
   if (lines.length > 1) {
@@ -1363,8 +1364,6 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
     }
 
     for (j = 0; j < lines.length; j++) {
-      this.print_newline(false, true);
-      this._output.current_line.set_indent(-1);
       if (javadoc) {
         // javadoc: reformat and re-indent
         this.print_token(current_token, ltrim(lines[j]));
@@ -1373,16 +1372,16 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
         this.print_token(current_token, lines[j].substring(lastIndentLength));
       } else {
         // normal comments output raw
+        this._output.current_line.set_indent(-1);
         this._output.add_token(lines[j]);
       }
+
+      // for comments on their own line or  more than one line, make sure there's a new line after
+      this.print_newline(false, preserve_statement_flags);
     }
 
     this._flags.alignment = 0;
   }
-
-  // for comments on their own line or  more than one line, make sure there's a new line after
-  this.print_newline(false, preserve_statement_flags);
-
 };
 
 Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
