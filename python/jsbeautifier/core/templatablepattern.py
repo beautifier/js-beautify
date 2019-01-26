@@ -70,13 +70,13 @@ class TemplatablePattern(Pattern):
 
     def disable(self, language):
         result = self._create()
-        result._disabled.__setattr__(language, True)
+        setattr(result._disabled, language, True)
         result._update()
         return result
 
     def exclude(self, language):
         result = self._create()
-        result._excluded.__setattr__(language, True)
+        setattr(result._excluded, language, True)
         result._update()
         return result
 
