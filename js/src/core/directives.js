@@ -34,7 +34,7 @@ function Directives(start_block_pattern, end_block_pattern) {
   this.__directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
   this.__directive_pattern = / (\w+)[:](\w+)/g;
 
-  this.__directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
+  this.__directives_end_ignore_pattern = new RegExp(start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern, 'g');
 }
 
 Directives.prototype.get_directives = function(text) {
@@ -55,7 +55,7 @@ Directives.prototype.get_directives = function(text) {
 };
 
 Directives.prototype.readIgnored = function(input) {
-  return input.read(this.__directives_end_ignore_pattern);
+  return input.readUntilAfter(this.__directives_end_ignore_pattern);
 };
 
 

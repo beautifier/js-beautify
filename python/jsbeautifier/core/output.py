@@ -108,7 +108,11 @@ class OutputLine:
 
     def push(self, item):
         self.__items.append(item)
-        self.__character_count += len(item)
+        last_newline_index = item.rfind('\n')
+        if last_newline_index != -1:
+            self.__character_count = len(item) - last_newline_index
+        else:
+            self.__character_count += len(item)
 
     def pop(self):
         item = None

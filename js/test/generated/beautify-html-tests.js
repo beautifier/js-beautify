@@ -6444,6 +6444,14 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         
         // #1304
         bth('<label>Every</label><input class="scheduler__minutes-input" type="text">');
+        
+        // #1377
+        bth(
+            '<a href=\'\' onclick=\'doIt("<?php echo str_replace("\'", "\\ ", $var); ?>  "); \'>\n' +
+            '    Test\n' +
+            '</a>\n' +
+            '\n' +
+            '<?php include_once $_SERVER[\'DOCUMENT_ROOT\'] . "/shared/helpModal.php";  ?>');
 
 
         //============================================================
@@ -7258,18 +7266,6 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <script src="one.js"></script> <!-- one -->\n' +
             '    <script src="two.js"></script> <!-- two-->\n' +
             '</body>');
-
-
-        //============================================================
-        // underscore.js  formatting
-        reset_options();
-        set_name('underscore.js  formatting');
-        bth(
-            '<div class="col-sm-9">\n' +
-            '    <textarea id="notes" class="form-control" rows="3">\n' +
-            '        <%= notes %>\n' +
-            '    </textarea>\n' +
-            '</div>');
 
 
         //============================================================

@@ -32,7 +32,7 @@ class Directives:
         self.__directives_block_pattern = re.compile(start_block_pattern + r' beautify( \w+[:]\w+)+ ' + end_block_pattern)
         self.__directive_pattern = re.compile(r' (\w+)[:](\w+)')
 
-        self.__directives_end_ignore_pattern = re.compile(r'(?:[\s\S]*?)((?:' + start_block_pattern + r'\sbeautify\signore:end\s' + end_block_pattern + r')|$)')
+        self.__directives_end_ignore_pattern = re.compile(start_block_pattern + r'\sbeautify\signore:end\s' + end_block_pattern)
 
     def get_directives(self, text):
         if not self.__directives_block_pattern.match(text):
@@ -50,4 +50,4 @@ class Directives:
         return directives
 
     def readIgnored(self, input):
-        return input.read(self.__directives_end_ignore_pattern)
+        return input.readUntilAfter(self.__directives_end_ignore_pattern)

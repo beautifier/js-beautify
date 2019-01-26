@@ -121,14 +121,11 @@ OutputLine.prototype.last = function() {
 
 OutputLine.prototype.push = function(item) {
   this.__items.push(item);
-  this.__character_count += item.length;
-};
-
-OutputLine.prototype.push_raw = function(item) {
-  this.push(item);
   var last_newline_index = item.lastIndexOf('\n');
   if (last_newline_index !== -1) {
     this.__character_count = item.length - last_newline_index;
+  } else {
+    this.__character_count += item.length;
   }
 };
 
@@ -341,7 +338,7 @@ Output.prototype.add_raw_token = function(token) {
   }
   this.current_line.set_indent(-1);
   this.current_line.push(token.whitespace_before);
-  this.current_line.push_raw(token.text);
+  this.current_line.push(token.text);
   this.space_before_token = false;
   this.non_breaking_space = false;
   this.previous_token_wrapped = false;

@@ -2835,6 +2835,102 @@ exports.test_data = {
         { unchanged: 'a = <%= external() %>;' }
       ]
     }, {
+      name: "minimal template handling",
+      description: "treated as content.",
+      template: "^^^ $$$",
+      matrix: [
+
+        // Php (<?php ... ?> and <?= ... ?>) =.
+        {
+          s: '<?php',
+          e: '?>'
+        },
+        {
+          s: '<?=',
+          e: '?>'
+        },
+        // erb, ejs, asp: <% ... %>
+        {
+          s: '<%',
+          e: '%>'
+        } //,
+        // django {{ ... }} and {# ... #} and {% ... %}
+        // {
+        //   s: '{{',
+        //   e: '}}'
+        // },
+        // {
+        //   s: '{#',
+        //   e: '#}'
+        // },
+        // {
+        //   s: '{%',
+        //   e: '%}'
+        // },
+        // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
+        // {
+        //   options: [
+        //     { name: "indent_handlebars", value: "false" }
+        //   ],
+        //   s: '{{',
+        //   e: '}}'
+        // },
+        // {
+        //   options: [
+        //     { name: "indent_handlebars", value: "false" }
+        //   ],
+        //   s: '{{#',
+        //   e: '}}'
+        // },
+        // {
+        //   options: [
+        //     { name: "indent_handlebars", value: "false" }
+        //   ],
+        //   s: '{{!',
+        //   e: '}}'
+        // },
+        // {
+        //   options: [
+        //     { name: "indent_handlebars", value: "false" }
+        //   ],
+        //   s: '{{!--',
+        //   e: '--}}'
+        // }
+
+      ],
+      tests: [{
+        input: 'var  a = ^^^s$$$$view["name"]; ^^^e$$$;',
+        output: 'var a = ^^^s$$$$view["name"]; ^^^e$$$;'
+      }, {
+        unchanged: [
+          'a = abc^^^s$$$',
+          'for($i = 1; $i <= 100; $i++;) {',
+          '    #count to 100!',
+          '    echo($i . "</br>");',
+          '}',
+          '^^^e$$$;'
+        ]
+      }, {
+        fragment: true,
+        unchanged: [
+          '^^^s$$$ ^^^e$$$',
+          'test.met^^^s$$$ someValue ^^^e$$$hod();'
+        ]
+      }, {
+        unchanged: [
+          '^^^s$$$ "A" ^^^e$$$abc^^^s$$$ "D" ^^^e$$$;',
+          '^^^s$$$ "B" ^^^e$$$.test();',
+          '" ^^^s$$$   "C" \\\'D\\\'  ^^^e$$$  "'
+        ]
+      }, {
+        unchanged: [
+          '^^^s$$$',
+          'echo "A";',
+          '^^^e$$$;',
+          'test.method();'
+        ]
+      }]
+    }, {
       name: "jslint and space after anon function",
       description: "jslint_happy and space_after_anon_function tests",
       matrix: [{

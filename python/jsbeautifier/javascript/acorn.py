@@ -51,6 +51,13 @@ _identifierChars = six.u("[") + \
 
 identifier = re.compile(_identifierStart + _identifierChars)
 
+identifierStart = re.compile(_identifierStart)
+identifierMatch = re.compile(six.u("[") + \
+    _baseASCIIidentifierChars + \
+    _nonASCIIidentifierStartChars + \
+    _nonASCIIidentifierChars + \
+    six.u("]+"))
+
 _nonASCIIwhitespace = re.compile(
     six.u(r"[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]"))
 

@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.9.0-beta3",
+  "version": "1.9.0-beta4",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -53,12 +53,12 @@
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "jshint": "^2.9.6",
+    "jshint": "^2.9.7",
     "mocha": "^5.2.0",
     "mustache": "^3.0.1",
     "node-static": "^0.7.11",
     "requirejs": "^2.3.6",
-    "webpack": "^4.26.0",
+    "webpack": "^4.28.4",
     "webpack-command": "^0.4.2"
   }
 }

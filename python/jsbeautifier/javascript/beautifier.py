@@ -1250,6 +1250,7 @@ class Beautifier:
 
         # first line always indented
         self.print_token(current_token, lines[0])
+        self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
         if len(lines) > 1:
             lines = lines[1:]
@@ -1262,8 +1263,6 @@ class Beautifier:
                 self._flags.alignment = 1
 
             for line in lines:
-                self.print_newline(preserve_statement_flags=True)
-                self._output.current_line.set_indent(-1)
                 if javadoc:
                     # javadoc: reformat and re-indent
                     self.print_token(current_token, line.lstrip())
@@ -1272,13 +1271,14 @@ class Beautifier:
                     self.print_token(current_token, line[last_indent_length:])
                 else:
                     # normal comments output raw
+                    self._output.current_line.set_indent(-1)
                     self._output.add_token(line)
 
-            self._flags.alignment = 0
+                # for comments on their own line or  more than one line,
+                # make sure there's a new line after
+                self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
-        # for comments on their own line or  more than one line,
-        # make sure there's a new line after
-        self.print_newline(preserve_statement_flags=preserve_statement_flags)
+            self._flags.alignment = 0
 
     def handle_comment(self, current_token, preserve_statement_flags):
         if current_token.newlines:
