@@ -24,8 +24,10 @@
 
 import re
 
+
 class InputScanner:
     def __init__(self, input_string):
+        self.__six = __import__("six")
         if input_string is None:
             input_string = ''
         self.__input = input_string
@@ -115,7 +117,7 @@ class InputScanner:
     def get_regexp(self, pattern, match_from=False):
         result = None
         # strings are converted to regexp
-        if isinstance(pattern, str) and pattern != '':
+        if isinstance(pattern, self.__six.string_types) and pattern != '':
             result = re.compile(pattern)
         elif pattern is not None:
             result = re.compile(pattern.pattern)
