@@ -130,8 +130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 var js_beautify = __webpack_require__(1);
-var css_beautify = __webpack_require__(13);
-var html_beautify = __webpack_require__(16);
+var css_beautify = __webpack_require__(16);
+var html_beautify = __webpack_require__(19);
 
 function style_html(html_source, options, js, css) {
   js = js || js_beautify;
@@ -1552,6 +1552,7 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
 
   // first line always indented
   this.print_token(current_token, lines[0]);
+  this.print_newline(false, preserve_statement_flags);
 
 
   if (lines.length > 1) {
@@ -1564,8 +1565,6 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
     }
 
     for (j = 0; j < lines.length; j++) {
-      this.print_newline(false, true);
-      this._output.current_line.set_indent(-1);
       if (javadoc) {
         // javadoc: reformat and re-indent
         this.print_token(current_token, ltrim(lines[j]));
@@ -1574,16 +1573,16 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
         this.print_token(current_token, lines[j].substring(lastIndentLength));
       } else {
         // normal comments output raw
+        this._output.current_line.set_indent(-1);
         this._output.add_token(lines[j]);
       }
+
+      // for comments on their own line or  more than one line, make sure there's a new line after
+      this.print_newline(false, preserve_statement_flags);
     }
 
     this._flags.alignment = 0;
   }
-
-  // for comments on their own line or  more than one line, make sure there's a new line after
-  this.print_newline(false, preserve_statement_flags);
-
 };
 
 Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
@@ -1770,14 +1769,11 @@ OutputLine.prototype.last = function() {
 
 OutputLine.prototype.push = function(item) {
   this.__items.push(item);
-  this.__character_count += item.length;
-};
-
-OutputLine.prototype.push_raw = function(item) {
-  this.push(item);
   var last_newline_index = item.lastIndexOf('\n');
   if (last_newline_index !== -1) {
     this.__character_count = item.length - last_newline_index;
+  } else {
+    this.__character_count += item.length;
   }
 };
 
@@ -1990,7 +1986,7 @@ Output.prototype.add_raw_token = function(token) {
   }
   this.current_line.set_indent(-1);
   this.current_line.push(token.whitespace_before);
-  this.current_line.push_raw(token.text);
+  this.current_line.push(token.text);
   this.space_before_token = false;
   this.non_breaking_space = false;
   this.previous_token_wrapped = false;
@@ -2173,7 +2169,8 @@ var identifierStart = "[" + baseASCIIidentifierStartChars + nonASCIIidentifierSt
 var identifierChars = "[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]*";
 
 exports.identifier = new RegExp(identifierStart + identifierChars, 'g');
-
+exports.identifierStart = new RegExp(identifierStart);
+exports.identifierMatch = new RegExp("[" + baseASCIIidentifierChars + nonASCIIidentifierStartChars + nonASCIIidentifierChars + "]+");
 
 var nonASCIIwhitespace = /[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]/; // jshint ignore:line
 
@@ -2522,8 +2519,11 @@ module.exports.mergeOpts = _mergeOpts;
 var InputScanner = __webpack_require__(9).InputScanner;
 var BaseTokenizer = __webpack_require__(10).Tokenizer;
 var BASETOKEN = __webpack_require__(10).TOKEN;
-var Directives = __webpack_require__(12).Directives;
+var Directives = __webpack_require__(14).Directives;
 var acorn = __webpack_require__(5);
+var Pattern = __webpack_require__(13).Pattern;
+var TemplatablePattern = __webpack_require__(15).TemplatablePattern;
+
 
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
@@ -2554,7 +2554,7 @@ var TOKEN = {
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
-var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/g;
+var number_pattern = /0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?/;
 
 var digit = /[0-9]/;
 
@@ -2577,30 +2577,50 @@ var punct =
 punct = punct.replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&");
 punct = punct.replace(/ /g, '|');
 
-var punct_pattern = new RegExp(punct, 'g');
-var shebang_pattern = /#![^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
-var include_pattern = /#include[^\n\r\u2028\u2029]*(?:\r\n|[\n\r\u2028\u2029])?/g;
+var punct_pattern = new RegExp(punct);
 
 // words which should always start on new line.
 var line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(',');
 var reserved_words = line_starters.concat(['do', 'in', 'of', 'else', 'get', 'set', 'new', 'catch', 'finally', 'typeof', 'yield', 'async', 'await', 'from', 'as']);
 var reserved_word_pattern = new RegExp('^(?:' + reserved_words.join('|') + ')$');
 
-//  /* ... */ comment ends with nearest */ or end of file
-var block_comment_pattern = /\/\*(?:[\s\S]*?)((?:\*\/)|$)/g;
-
-// comment ends just before nearest linefeed or end of file
-var comment_pattern = /\/\/(?:[^\n\r\u2028\u2029]*)/g;
-
-var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
+// var template_pattern = /(?:(?:<\?php|<\?=)[\s\S]*?\?>)|(?:<%[\s\S]*?%>)/g;
 
 var in_html_comment;
 
 var Tokenizer = function(input_string, options) {
   BaseTokenizer.call(this, input_string, options);
 
-  this._whitespace_pattern = /[\n\r\u2028\u2029\t\u000B\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff ]+/g;
-  this._newline_pattern = /([^\n\r\u2028\u2029]*)(\r\n|[\n\r\u2028\u2029])?/g;
+  this._patterns.whitespace = this._patterns.whitespace.matching(
+    /\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff/.source,
+    /\u2028\u2029/.source);
+
+  var pattern_reader = new Pattern(this._input);
+  var templatable = new TemplatablePattern(this._input);
+  templatable = templatable.disable('handlebars');
+  templatable = templatable.disable('django');
+
+
+  this.__patterns = {
+    template: templatable,
+    identifier: templatable.starting_with(acorn.identifier).matching(acorn.identifierMatch),
+    number: pattern_reader.matching(number_pattern),
+    punct: pattern_reader.matching(punct_pattern),
+    // comment ends just before nearest linefeed or end of file
+    comment: pattern_reader.starting_with(/\/\//).until(/[\n\r\u2028\u2029]/),
+    //  /* ... */ comment ends with nearest */ or end of file
+    block_comment: pattern_reader.starting_with(/\/\*/).until_after(/\*\//),
+    html_comment_start: pattern_reader.matching(/<!--/),
+    html_comment_end: pattern_reader.matching(/-->/),
+    include: pattern_reader.starting_with(/#include/).until_after(acorn.lineBreak),
+    shebang: pattern_reader.starting_with(/#!/).until_after(acorn.lineBreak),
+    xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/),
+    single_quote: templatable.until(/['\\\n\r\u2028\u2029]/),
+    double_quote: templatable.until(/["\\\n\r\u2028\u2029]/),
+    template_text: templatable.until(/[`\\$]/),
+    template_expression: templatable.until(/[`}\\]/)
+  };
+
 };
 Tokenizer.prototype = new BaseTokenizer();
 
@@ -2625,14 +2645,18 @@ Tokenizer.prototype._reset = function() {
 };
 
 Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this._readWhitespace();
   var token = null;
+  this._readWhitespace();
   var c = this._input.peek();
 
-  token = token || this._read_singles(c);
-  token = token || this._read_word(previous_token);
-  token = token || this._read_comment(c);
+  if (c === null) {
+    return this._create_token(TOKEN.EOF, '');
+  }
+
   token = token || this._read_string(c);
+  token = token || this._read_word(previous_token);
+  token = token || this._read_singles(c);
+  token = token || this._read_comment(c);
   token = token || this._read_regexp(c, previous_token);
   token = token || this._read_xml(c, previous_token);
   token = token || this._read_non_javascript(c);
@@ -2644,8 +2668,9 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
 
 Tokenizer.prototype._read_word = function(previous_token) {
   var resulting_string;
-  resulting_string = this._input.read(acorn.identifier);
+  resulting_string = this.__patterns.identifier.read();
   if (resulting_string !== '') {
+    resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
     if (!(previous_token.type === TOKEN.DOT ||
         (previous_token.type === TOKEN.RESERVED && (previous_token.text === 'set' || previous_token.text === 'get'))) &&
       reserved_word_pattern.test(resulting_string)) {
@@ -2654,11 +2679,10 @@ Tokenizer.prototype._read_word = function(previous_token) {
       }
       return this._create_token(TOKEN.RESERVED, resulting_string);
     }
-
     return this._create_token(TOKEN.WORD, resulting_string);
   }
 
-  resulting_string = this._input.read(number_pattern);
+  resulting_string = this.__patterns.number.read();
   if (resulting_string !== '') {
     return this._create_token(TOKEN.WORD, resulting_string);
   }
@@ -2666,9 +2690,7 @@ Tokenizer.prototype._read_word = function(previous_token) {
 
 Tokenizer.prototype._read_singles = function(c) {
   var token = null;
-  if (c === null) {
-    token = this._create_token(TOKEN.EOF, '');
-  } else if (c === '(' || c === '[') {
+  if (c === '(' || c === '[') {
     token = this._create_token(TOKEN.START_EXPR, c);
   } else if (c === ')' || c === ']') {
     token = this._create_token(TOKEN.END_EXPR, c);
@@ -2691,7 +2713,7 @@ Tokenizer.prototype._read_singles = function(c) {
 };
 
 Tokenizer.prototype._read_punctuation = function() {
-  var resulting_string = this._input.read(punct_pattern);
+  var resulting_string = this.__patterns.punct.read();
 
   if (resulting_string !== '') {
     if (resulting_string === '=') {
@@ -2707,7 +2729,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
 
   if (c === '#') {
     if (this._is_first_token()) {
-      resulting_string = this._input.read(shebang_pattern);
+      resulting_string = this.__patterns.shebang.read();
 
       if (resulting_string) {
         return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
@@ -2715,7 +2737,7 @@ Tokenizer.prototype._read_non_javascript = function(c) {
     }
 
     // handles extendscript #includes
-    resulting_string = this._input.read(include_pattern);
+    resulting_string = this.__patterns.include.read();
 
     if (resulting_string) {
       return this._create_token(TOKEN.UNKNOWN, resulting_string.trim() + '\n');
@@ -2747,23 +2769,20 @@ Tokenizer.prototype._read_non_javascript = function(c) {
     this._input.back();
 
   } else if (c === '<') {
-    if (this._input.peek(1) === '?' || this._input.peek(1) === '%') {
-      resulting_string = this._input.read(template_pattern);
-      if (resulting_string) {
-        resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
-        return this._create_token(TOKEN.STRING, resulting_string);
-      }
-    } else if (this._input.match(/<\!--/g)) {
-      c = '<!--';
+    resulting_string = this.__patterns.html_comment_start.read();
+    if (resulting_string) {
       while (this._input.hasNext() && !this._input.testChar(acorn.newline)) {
-        c += this._input.next();
+        resulting_string += this._input.next();
       }
       in_html_comment = true;
-      return this._create_token(TOKEN.COMMENT, c);
+      return this._create_token(TOKEN.COMMENT, resulting_string);
     }
-  } else if (c === '-' && in_html_comment && this._input.match(/-->/g)) {
-    in_html_comment = false;
-    return this._create_token(TOKEN.COMMENT, '-->');
+  } else if (in_html_comment && c === '-') {
+    resulting_string = this.__patterns.html_comment_end.read();
+    if (resulting_string) {
+      in_html_comment = false;
+      return this._create_token(TOKEN.COMMENT, resulting_string);
+    }
   }
 
   return null;
@@ -2775,7 +2794,7 @@ Tokenizer.prototype._read_comment = function(c) {
     var comment = '';
     if (this._input.peek(1) === '*') {
       // peek for comment /* ... */
-      comment = this._input.read(block_comment_pattern);
+      comment = this.__patterns.block_comment.read();
       var directives = directives_core.get_directives(comment);
       if (directives && directives.ignore === 'start') {
         comment += directives_core.readIgnored(this._input);
@@ -2785,7 +2804,7 @@ Tokenizer.prototype._read_comment = function(c) {
       token.directives = directives;
     } else if (this._input.peek(1) === '/') {
       // peek for comment // ...
-      comment = this._input.read(comment_pattern);
+      comment = this.__patterns.comment.read();
       token = this._create_token(TOKEN.COMMENT, comment);
     }
   }
@@ -2806,9 +2825,12 @@ Tokenizer.prototype._read_string = function(c) {
     if (this.has_char_escapes && this._options.unescape_strings) {
       resulting_string = unescape_string(resulting_string);
     }
+
     if (this._input.peek() === c) {
       resulting_string += this._input.next();
     }
+
+    resulting_string = resulting_string.replace(acorn.allLineBreaks, '\n');
 
     return this._create_token(TOKEN.STRING, resulting_string);
   }
@@ -2864,17 +2886,13 @@ Tokenizer.prototype._read_regexp = function(c, previous_token) {
   return null;
 };
 
-
-var startXmlRegExp = /<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-var xmlRegExp = /[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/g;
-
 Tokenizer.prototype._read_xml = function(c, previous_token) {
 
-  if (this._options.e4x && c === "<" && this._input.test(startXmlRegExp) && this._allow_regexp_or_xml(previous_token)) {
+  if (this._options.e4x && c === "<" && this._allow_regexp_or_xml(previous_token)) {
+    var xmlStr = '';
+    var match = this.__patterns.xml.read_match();
     // handle e4x xml literals
     //
-    var xmlStr = '';
-    var match = this._input.match(startXmlRegExp);
     if (match) {
       // Trim root tag to attempt to
       var rootTag = match[2].replace(/^{\s+/, '{').replace(/\s+}$/, '}');
@@ -2896,7 +2914,7 @@ Tokenizer.prototype._read_xml = function(c, previous_token) {
         if (depth <= 0) {
           break;
         }
-        match = this._input.match(xmlRegExp);
+        match = this.__patterns.xml.read_match();
       }
       // if we didn't close correctly, keep unformatted.
       if (!match) {
@@ -2976,51 +2994,53 @@ function unescape_string(s) {
 // handle string
 //
 Tokenizer.prototype._read_string_recursive = function(delimiter, allow_unescaped_newlines, start_sub) {
-  // Template strings can travers lines without escape characters.
-  // Other strings cannot
   var current_char;
-  var resulting_string = '';
-  var esc = false;
+  var pattern;
+  if (delimiter === '\'') {
+    pattern = this.__patterns.single_quote;
+  } else if (delimiter === '"') {
+    pattern = this.__patterns.double_quote;
+  } else if (delimiter === '`') {
+    pattern = this.__patterns.template_text;
+  } else if (delimiter === '}') {
+    pattern = this.__patterns.template_expression;
+  }
+
+  var resulting_string = pattern.read();
+  var next = '';
   while (this._input.hasNext()) {
-    current_char = this._input.peek();
-    if (!(esc || (current_char !== delimiter &&
-        (allow_unescaped_newlines || !acorn.newline.test(current_char))))) {
+    next = this._input.next();
+    if (next === delimiter ||
+      (!allow_unescaped_newlines && acorn.newline.test(next))) {
+      this._input.back();
       break;
-    }
+    } else if (next === '\\' && this._input.hasNext()) {
+      current_char = this._input.peek();
 
-    // Handle \r\n linebreaks after escapes or in template strings
-    if ((esc || allow_unescaped_newlines) && acorn.newline.test(current_char)) {
-      if (current_char === '\r' && this._input.peek(1) === '\n') {
-        this._input.next();
-        current_char = this._input.peek();
-      }
-      resulting_string += '\n';
-    } else {
-      resulting_string += current_char;
-    }
-
-    if (esc) {
       if (current_char === 'x' || current_char === 'u') {
         this.has_char_escapes = true;
+      } else if (current_char === '\r' && this._input.peek(1) === '\n') {
+        this._input.next();
       }
-      esc = false;
-    } else {
-      esc = current_char === '\\';
+      next += this._input.next();
+    } else if (start_sub) {
+      if (start_sub === '${' && next === '$' && this._input.peek() === '{') {
+        next += this._input.next();
+      }
+
+      if (start_sub === next) {
+        if (delimiter === '`') {
+          next += this._read_string_recursive('}', allow_unescaped_newlines, '`');
+        } else {
+          next += this._read_string_recursive('`', allow_unescaped_newlines, '${');
+        }
+        if (this._input.hasNext()) {
+          next += this._input.next();
+        }
+      }
     }
-
-    this._input.next();
-
-    if (start_sub && resulting_string.indexOf(start_sub, resulting_string.length - start_sub.length) !== -1) {
-      if (delimiter === '`') {
-        resulting_string += this._read_string_recursive('}', allow_unescaped_newlines, '`');
-      } else {
-        resulting_string += this._read_string_recursive('`', allow_unescaped_newlines, '${');
-      }
-
-      if (this._input.hasNext()) {
-        resulting_string += this._input.next();
-      }
-    }
+    next += pattern.read();
+    resulting_string += next;
   }
 
   return resulting_string;
@@ -3067,6 +3087,8 @@ module.exports.line_starters = line_starters.slice();
 
 
 
+var regexp_has_sticky = RegExp.prototype.hasOwnProperty('sticky');
+
 function InputScanner(input_string) {
   this.__input = input_string || '';
   this.__input_length = this.__input.length;
@@ -3106,14 +3128,32 @@ InputScanner.prototype.peek = function(index) {
   return val;
 };
 
+// This is a JavaScript only helper function (not in python)
+// Javascript doesn't have a match method
+// and not all implementation support "sticky" flag.
+// If they do not support sticky then both this.match() and this.test() method
+// must get the match and check the index of the match.
+// If sticky is supported and set, this method will use it.
+// Otherwise it will check that global is set, and fall back to the slower method.
+InputScanner.prototype.__match = function(pattern, index) {
+  pattern.lastIndex = index;
+  var pattern_match = pattern.exec(this.__input);
+
+  if (pattern_match && !(regexp_has_sticky && pattern.sticky)) {
+    if (pattern_match.index !== index) {
+      pattern_match = null;
+    }
+  }
+
+  return pattern_match;
+};
+
 InputScanner.prototype.test = function(pattern, index) {
   index = index || 0;
   index += this.__position;
-  pattern.lastIndex = index;
 
   if (index >= 0 && index < this.__input_length) {
-    var pattern_match = pattern.exec(this.__input);
-    return pattern_match && pattern_match.index === index;
+    return !!this.__match(pattern, index);
   } else {
     return false;
   }
@@ -3127,9 +3167,8 @@ InputScanner.prototype.testChar = function(pattern, index) {
 };
 
 InputScanner.prototype.match = function(pattern) {
-  pattern.lastIndex = this.__position;
-  var pattern_match = pattern.exec(this.__input);
-  if (pattern_match && pattern_match.index === this.__position) {
+  var pattern_match = this.__match(pattern, this.__position);
+  if (pattern_match) {
     this.__position += pattern_match[0].length;
   } else {
     pattern_match = null;
@@ -3137,28 +3176,30 @@ InputScanner.prototype.match = function(pattern) {
   return pattern_match;
 };
 
-InputScanner.prototype.read = function(pattern, untilAfterPattern) {
+InputScanner.prototype.read = function(starting_pattern, until_pattern, until_after) {
   var val = '';
-  var match = this.match(pattern);
-  if (match) {
-    val = match[0];
-    if (untilAfterPattern) {
-      val += this.readUntilAfter(untilAfterPattern);
+  var match;
+  if (starting_pattern) {
+    match = this.match(starting_pattern);
+    if (match) {
+      val += match[0];
     }
+  }
+  if (until_pattern && (match || !starting_pattern)) {
+    val += this.readUntil(until_pattern, until_after);
   }
   return val;
 };
 
-InputScanner.prototype.readUntil = function(pattern, include_match) {
+InputScanner.prototype.readUntil = function(pattern, until_after) {
   var val = '';
   var match_index = this.__position;
   pattern.lastIndex = this.__position;
   var pattern_match = pattern.exec(this.__input);
   if (pattern_match) {
-    if (include_match) {
-      match_index = pattern_match.index + pattern_match[0].length;
-    } else {
-      match_index = pattern_match.index;
+    match_index = pattern_match.index;
+    if (until_after) {
+      match_index += pattern_match[0].length;
     }
   } else {
     match_index = this.__input_length;
@@ -3171,6 +3212,26 @@ InputScanner.prototype.readUntil = function(pattern, include_match) {
 
 InputScanner.prototype.readUntilAfter = function(pattern) {
   return this.readUntil(pattern, true);
+};
+
+InputScanner.prototype.get_regexp = function(pattern, match_from) {
+  var result = null;
+  var flags = 'g';
+  if (match_from && regexp_has_sticky) {
+    flags = 'y';
+  }
+  // strings are converted to regexp
+  if (typeof pattern === "string" && pattern !== '') {
+    // result = new RegExp(pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), flags);
+    result = new RegExp(pattern, flags);
+  } else if (pattern) {
+    result = new RegExp(pattern.source, flags);
+  }
+  return result;
+};
+
+InputScanner.prototype.get_literal_regexp = function(literal_string) {
+  return RegExp(literal_string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
 };
 
 /* css beautifier legacy helpers */
@@ -3186,7 +3247,6 @@ InputScanner.prototype.lookBack = function(testVal) {
   return start >= testVal.length && this.__input.substring(start - testVal.length, start)
     .toLowerCase() === testVal;
 };
-
 
 module.exports.InputScanner = InputScanner;
 
@@ -3229,6 +3289,7 @@ module.exports.InputScanner = InputScanner;
 var InputScanner = __webpack_require__(9).InputScanner;
 var Token = __webpack_require__(4).Token;
 var TokenStream = __webpack_require__(11).TokenStream;
+var WhitespacePattern = __webpack_require__(12).WhitespacePattern;
 
 var TOKEN = {
   START: 'TK_START',
@@ -3240,11 +3301,9 @@ var Tokenizer = function(input_string, options) {
   this._input = new InputScanner(input_string);
   this._options = options || {};
   this.__tokens = null;
-  this.__newline_count = 0;
-  this.__whitespace_before_token = '';
 
-  this._whitespace_pattern = /[\n\r\t ]+/g;
-  this._newline_pattern = /([^\n\r]*)(\r\n|[\n\r])?/g;
+  this._patterns = {};
+  this._patterns.whitespace = new WhitespacePattern(this._input);
 };
 
 Tokenizer.prototype.tokenize = function() {
@@ -3323,28 +3382,14 @@ Tokenizer.prototype._is_closing = function(current_token, open_token) { // jshin
 };
 
 Tokenizer.prototype._create_token = function(type, text) {
-  var token = new Token(type, text, this.__newline_count, this.__whitespace_before_token);
-  this.__newline_count = 0;
-  this.__whitespace_before_token = '';
+  var token = new Token(type, text,
+    this._patterns.whitespace.newline_count,
+    this._patterns.whitespace.whitespace_before_token);
   return token;
 };
 
 Tokenizer.prototype._readWhitespace = function() {
-  if (!this._input.testChar(this._whitespace_pattern)) {
-    return;
-  }
-  var resulting_string = this._input.read(this._whitespace_pattern);
-  if (resulting_string === ' ') {
-    this.__whitespace_before_token = resulting_string;
-  } else if (resulting_string !== '') {
-    this._newline_pattern.lastIndex = 0;
-    var nextMatch = this._newline_pattern.exec(resulting_string);
-    while (nextMatch[2]) {
-      this.__newline_count += 1;
-      nextMatch = this._newline_pattern.exec(resulting_string);
-    }
-    this.__whitespace_before_token = nextMatch[1];
-  }
+  return this._patterns.whitespace.read();
 };
 
 
@@ -3473,38 +3518,81 @@ module.exports.TokenStream = TokenStream;
 
 
 
-function Directives(start_block_pattern, end_block_pattern) {
-  start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
-  end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
-  this.__directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
-  this.__directive_pattern = / (\w+)[:](\w+)/g;
+var Pattern = __webpack_require__(13).Pattern;
 
-  this.__directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
+function WhitespacePattern(input_scanner, parent) {
+  Pattern.call(this, input_scanner, parent);
+  if (parent) {
+    this._line_regexp = this._input.get_regexp(parent._line_regexp);
+  } else {
+    this.__set_whitespace_patterns('', '');
+  }
+
+  this.newline_count = 0;
+  this.whitespace_before_token = '';
 }
+WhitespacePattern.prototype = new Pattern();
 
-Directives.prototype.get_directives = function(text) {
-  if (!text.match(this.__directives_block_pattern)) {
-    return null;
-  }
+WhitespacePattern.prototype.__set_whitespace_patterns = function(whitespace_chars, newline_chars) {
+  whitespace_chars += '\\t ';
+  newline_chars += '\\n\\r';
 
-  var directives = {};
-  this.__directive_pattern.lastIndex = 0;
-  var directive_match = this.__directive_pattern.exec(text);
-
-  while (directive_match) {
-    directives[directive_match[1]] = directive_match[2];
-    directive_match = this.__directive_pattern.exec(text);
-  }
-
-  return directives;
+  this._match_pattern = this._input.get_regexp(
+    '[' + whitespace_chars + newline_chars + ']+', true);
+  this._newline_regexp = this._input.get_regexp(
+    '\\r\\n|[' + newline_chars + ']');
 };
 
-Directives.prototype.readIgnored = function(input) {
-  return input.read(this.__directives_end_ignore_pattern);
+WhitespacePattern.prototype.read = function() {
+  this.newline_count = 0;
+  this.whitespace_before_token = '';
+
+  var resulting_string = this._input.read(this._match_pattern);
+  if (resulting_string === ' ') {
+    this.whitespace_before_token = ' ';
+  } else if (resulting_string) {
+    var matches = this.__split(this._newline_regexp, resulting_string);
+    this.newline_count = matches.length - 1;
+    this.whitespace_before_token = matches[this.newline_count];
+  }
+
+  return resulting_string;
+};
+
+WhitespacePattern.prototype.matching = function(whitespace_chars, newline_chars) {
+  var result = this._create();
+  result.__set_whitespace_patterns(whitespace_chars, newline_chars);
+  result._update();
+  return result;
+};
+
+WhitespacePattern.prototype._create = function() {
+  return new WhitespacePattern(this._input, this);
+};
+
+WhitespacePattern.prototype.__split = function(regexp, input_string) {
+  regexp.lastIndex = 0;
+  var start_index = 0;
+  var result = [];
+  var next_match = regexp.exec(input_string);
+  while (next_match) {
+    result.push(input_string.substring(start_index, next_match.index));
+    start_index = next_match.index + next_match[0].length;
+    next_match = regexp.exec(input_string);
+  }
+
+  if (start_index < input_string.length) {
+    result.push(input_string.substring(start_index, input_string.length));
+  } else {
+    result.push('');
+  }
+
+  return result;
 };
 
 
-module.exports.Directives = Directives;
+
+module.exports.WhitespacePattern = WhitespacePattern;
 
 
 /***/ }),
@@ -3542,18 +3630,70 @@ module.exports.Directives = Directives;
 
 
 
-var Beautifier = __webpack_require__(14).Beautifier,
-  Options = __webpack_require__(15).Options;
+function Pattern(input_scanner, parent) {
+  this._input = input_scanner;
+  this._starting_pattern = null;
+  this._match_pattern = null;
+  this._until_pattern = null;
+  this._until_after = false;
 
-function css_beautify(source_text, options) {
-  var beautifier = new Beautifier(source_text, options);
-  return beautifier.beautify();
+  if (parent) {
+    this._starting_pattern = this._input.get_regexp(parent._starting_pattern, true);
+    this._match_pattern = this._input.get_regexp(parent._match_pattern, true);
+    this._until_pattern = this._input.get_regexp(parent._until_pattern);
+    this._until_after = parent._until_after;
+  }
 }
 
-module.exports = css_beautify;
-module.exports.defaultOptions = function() {
-  return new Options();
+Pattern.prototype.read = function() {
+  var result = this._input.read(this._starting_pattern);
+  if (!this._starting_pattern || result) {
+    result += this._input.read(this._match_pattern, this._until_pattern, this._until_after);
+  }
+  return result;
 };
+
+Pattern.prototype.read_match = function() {
+  return this._input.match(this._match_pattern);
+};
+
+Pattern.prototype.until_after = function(pattern) {
+  var result = this._create();
+  result._until_after = true;
+  result._until_pattern = this._input.get_regexp(pattern);
+  result._update();
+  return result;
+};
+
+Pattern.prototype.until = function(pattern) {
+  var result = this._create();
+  result._until_after = false;
+  result._until_pattern = this._input.get_regexp(pattern);
+  result._update();
+  return result;
+};
+
+Pattern.prototype.starting_with = function(pattern) {
+  var result = this._create();
+  result._starting_pattern = this._input.get_regexp(pattern, true);
+  result._update();
+  return result;
+};
+
+Pattern.prototype.matching = function(pattern) {
+  var result = this._create();
+  result._match_pattern = this._input.get_regexp(pattern, true);
+  result._update();
+  return result;
+};
+
+Pattern.prototype._create = function() {
+  return new Pattern(this._input, this);
+};
+
+Pattern.prototype._update = function() {};
+
+module.exports.Pattern = Pattern;
 
 
 /***/ }),
@@ -3591,10 +3731,314 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(15).Options;
+function Directives(start_block_pattern, end_block_pattern) {
+  start_block_pattern = typeof start_block_pattern === 'string' ? start_block_pattern : start_block_pattern.source;
+  end_block_pattern = typeof end_block_pattern === 'string' ? end_block_pattern : end_block_pattern.source;
+  this.__directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
+  this.__directive_pattern = / (\w+)[:](\w+)/g;
+
+  this.__directives_end_ignore_pattern = new RegExp(start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern, 'g');
+}
+
+Directives.prototype.get_directives = function(text) {
+  if (!text.match(this.__directives_block_pattern)) {
+    return null;
+  }
+
+  var directives = {};
+  this.__directive_pattern.lastIndex = 0;
+  var directive_match = this.__directive_pattern.exec(text);
+
+  while (directive_match) {
+    directives[directive_match[1]] = directive_match[2];
+    directive_match = this.__directive_pattern.exec(text);
+  }
+
+  return directives;
+};
+
+Directives.prototype.readIgnored = function(input) {
+  return input.readUntilAfter(this.__directives_end_ignore_pattern);
+};
+
+
+module.exports.Directives = Directives;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+var Pattern = __webpack_require__(13).Pattern;
+
+
+var template_names = {
+  django: false,
+  erb: false,
+  handlebars: false,
+  php: false
+};
+
+// This lets templates appear anywhere we would do a readUntil
+// The cost is higher but it is pay to play.
+function TemplatablePattern(input_scanner, parent) {
+  Pattern.call(this, input_scanner, parent);
+  this.__template_pattern = null;
+  this._disabled = Object.assign({}, template_names);
+  this._excluded = Object.assign({}, template_names);
+
+  if (parent) {
+    this.__template_pattern = this._input.get_regexp(parent.__template_pattern);
+    this._excluded = Object.assign(this._excluded, parent._excluded);
+    this._disabled = Object.assign(this._disabled, parent._disabled);
+  }
+  var pattern = new Pattern(input_scanner);
+  this.__patterns = {
+    handlebars_comment: pattern.starting_with(/{{!--/).until_after(/--}}/),
+    handlebars: pattern.starting_with(/{{/).until_after(/}}/),
+    php: pattern.starting_with(/<\?(?:[=]|php)/).until_after(/\?>/),
+    erb: pattern.starting_with(/<%[^%]/).until_after(/[^%]%>/),
+    // django coflicts with handlebars a bit.
+    django: pattern.starting_with(/{%/).until_after(/%}/),
+    django_value: pattern.starting_with(/{{/).until_after(/}}/),
+    django_comment: pattern.starting_with(/{#/).until_after(/#}/)
+  };
+}
+TemplatablePattern.prototype = new Pattern();
+
+TemplatablePattern.prototype._create = function() {
+  return new TemplatablePattern(this._input, this);
+};
+
+TemplatablePattern.prototype._update = function() {
+  this.__set_templated_pattern();
+};
+
+TemplatablePattern.prototype.disable = function(language) {
+  var result = this._create();
+  result._disabled[language] = true;
+  result._update();
+  return result;
+};
+
+TemplatablePattern.prototype.exclude = function(language) {
+  var result = this._create();
+  result._excluded[language] = true;
+  result._update();
+  return result;
+};
+
+TemplatablePattern.prototype.read = function() {
+  var result = '';
+  if (this._match_pattern) {
+    result = this._input.read(this._starting_pattern);
+  } else {
+    result = this._input.read(this._starting_pattern, this.__template_pattern);
+  }
+  var next = this._read_template();
+  while (next) {
+    if (this._match_pattern) {
+      next += this._input.read(this._match_pattern);
+    } else {
+      next += this._input.readUntil(this.__template_pattern);
+    }
+    result += next;
+    next = this._read_template();
+  }
+
+  if (this._until_after) {
+    result += this._input.readUntilAfter(this._until_pattern);
+  }
+  return result;
+};
+
+TemplatablePattern.prototype.__set_templated_pattern = function() {
+  var items = [];
+
+  if (!this._disabled.php) {
+    items.push(this.__patterns.php._starting_pattern.source);
+  }
+  if (!this._disabled.handlebars) {
+    items.push(this.__patterns.handlebars._starting_pattern.source);
+  }
+  if (!this._disabled.erb) {
+    items.push(this.__patterns.erb._starting_pattern.source);
+  }
+  if (!this._disabled.django) {
+    items.push(this.__patterns.django._starting_pattern.source);
+    items.push(this.__patterns.django_value._starting_pattern.source);
+    items.push(this.__patterns.django_comment._starting_pattern.source);
+  }
+
+  if (this._until_pattern) {
+    items.push(this._until_pattern.source);
+  }
+  this.__template_pattern = this._input.get_regexp('(?:' + items.join('|') + ')');
+};
+
+TemplatablePattern.prototype._read_template = function() {
+  var resulting_string = '';
+  var c = this._input.peek();
+  if (c === '<') {
+    var peek1 = this._input.peek(1);
+    //if we're in a comment, do something special
+    // We treat all comments as literals, even more than preformatted tags
+    // we just look for the appropriate close tag
+    if (!this._disabled.php && !this._excluded.php && peek1 === '?') {
+      resulting_string = resulting_string ||
+        this.__patterns.php.read();
+    }
+    if (!this._disabled.erb && !this._excluded.erb && peek1 === '%') {
+      resulting_string = resulting_string ||
+        this.__patterns.erb.read();
+    }
+  } else if (c === '{') {
+    if (!this._disabled.handlebars && !this._excluded.handlebars) {
+      resulting_string = resulting_string ||
+        this.__patterns.handlebars_comment.read();
+      resulting_string = resulting_string ||
+        this.__patterns.handlebars.read();
+    }
+    if (!this._disabled.django) {
+      // django coflicts with handlebars a bit.
+      if (!this._excluded.django && !this._excluded.handlebars) {
+        resulting_string = resulting_string ||
+          this.__patterns.django_value.read();
+      }
+      if (!this._excluded.django) {
+        resulting_string = resulting_string ||
+          this.__patterns.django_comment.read();
+        resulting_string = resulting_string ||
+          this.__patterns.django.read();
+      }
+    }
+  }
+  return resulting_string;
+};
+
+
+module.exports.TemplatablePattern = TemplatablePattern;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+var Beautifier = __webpack_require__(17).Beautifier,
+  Options = __webpack_require__(18).Options;
+
+function css_beautify(source_text, options) {
+  var beautifier = new Beautifier(source_text, options);
+  return beautifier.beautify();
+}
+
+module.exports = css_beautify;
+module.exports.defaultOptions = function() {
+  return new Options();
+};
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+/*
+
+  The MIT License (MIT)
+
+  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
+
+var Options = __webpack_require__(18).Options;
 var Output = __webpack_require__(3).Output;
 var InputScanner = __webpack_require__(9).InputScanner;
-var Directives = __webpack_require__(12).Directives;
+var Directives = __webpack_require__(14).Directives;
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
@@ -4016,7 +4460,7 @@ module.exports.Beautifier = Beautifier;
 
 
 /***/ }),
-/* 15 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4069,7 +4513,7 @@ module.exports.Options = Options;
 
 
 /***/ }),
-/* 16 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4103,8 +4547,8 @@ module.exports.Options = Options;
 
 
 
-var Beautifier = __webpack_require__(17).Beautifier,
-  Options = __webpack_require__(18).Options;
+var Beautifier = __webpack_require__(20).Beautifier,
+  Options = __webpack_require__(21).Options;
 
 function style_html(html_source, options, js_beautify, css_beautify) {
   var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
@@ -4118,7 +4562,7 @@ module.exports.defaultOptions = function() {
 
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4152,10 +4596,10 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(18).Options;
+var Options = __webpack_require__(21).Options;
 var Output = __webpack_require__(3).Output;
-var Tokenizer = __webpack_require__(19).Tokenizer;
-var TOKEN = __webpack_require__(19).TOKEN;
+var Tokenizer = __webpack_require__(22).Tokenizer;
+var TOKEN = __webpack_require__(22).TOKEN;
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -4911,7 +5355,7 @@ module.exports.Beautifier = Beautifier;
 
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5005,7 +5449,7 @@ module.exports.Options = Options;
 
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5041,8 +5485,9 @@ module.exports.Options = Options;
 
 var BaseTokenizer = __webpack_require__(10).Tokenizer;
 var BASETOKEN = __webpack_require__(10).TOKEN;
-var Directives = __webpack_require__(12).Directives;
-var TemplatableReader = __webpack_require__(20).TemplatableReader;
+var Directives = __webpack_require__(14).Directives;
+var TemplatablePattern = __webpack_require__(15).TemplatablePattern;
+var Pattern = __webpack_require__(13).Pattern;
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
@@ -5066,21 +5511,38 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  var templatable_reader = new TemplatableReader(this._input);
-  this._word = templatable_reader.until(/[\n\r\t <]/g);
+  var templatable_reader = new TemplatablePattern(this._input);
+  var pattern_reader = new Pattern(this._input);
+
+  this.__patterns = {
+    word: templatable_reader.until(/[\n\r\t <]/),
+    single_quote: templatable_reader.until_after(/'/),
+    double_quote: templatable_reader.until_after(/"/),
+    attribute: templatable_reader.until(/[\n\r\t =\/>]/),
+    element_name: templatable_reader.until(/[\n\r\t >\/]/),
+
+    handlebars_comment: pattern_reader.starting_with(/{{!--/).until_after(/--}}/),
+    handlebars: pattern_reader.starting_with(/{{/).until_after(/}}/),
+    handlebars_open: pattern_reader.until(/[\n\r\t }]/),
+    handlebars_raw_close: pattern_reader.until(/}}/),
+    comment: pattern_reader.starting_with(/<!--/).until_after(/-->/),
+    cdata: pattern_reader.starting_with(/<!\[cdata\[/).until_after(/]]>/),
+    // https://en.wikipedia.org/wiki/Conditional_comment
+    conditional_comment: pattern_reader.starting_with(/<!\[/).until_after(/]>/),
+    processing: pattern_reader.starting_with(/<\?/).until_after(/\?>/)
+  };
+
   if (this._options.indent_handlebars) {
-    this._word = this._word.exclude('handlebars');
+    this.__patterns.word = this.__patterns.word.exclude('handlebars');
   }
-  this._single_quote = templatable_reader.until_after(/'/g);
-  this._double_quote = templatable_reader.until_after(/"/g);
-  this._attribute = templatable_reader.until(/[\n\r\t =\/>]/g);
-  this._element_name = templatable_reader.until(/[\n\r\t >\/]/g);
+
   this._unformatted_content_delimiter = null;
 
   if (this._options.unformatted_content_delimiter) {
-    this._unformatted_content_delimiter =
-      new RegExp(this._options.unformatted_content_delimiter
-        .replace(/([[\\^$.|?*+()])/g, '\\$1'), 'g');
+    var literal_regexp = this._input.get_literal_regexp(this._options.unformatted_content_delimiter);
+    this.__patterns.unformatted_content_delimiter =
+      pattern_reader.matching(literal_regexp)
+      .until_after(literal_regexp);
   }
 };
 Tokenizer.prototype = new BaseTokenizer();
@@ -5105,8 +5567,8 @@ Tokenizer.prototype._reset = function() {
 };
 
 Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // jshint unused:false
-  this._readWhitespace();
   var token = null;
+  this._readWhitespace();
   var c = this._input.peek();
 
   if (c === null) {
@@ -5136,7 +5598,7 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
     // We treat all comments as literals, even more than preformatted tags
     // we just look for the appropriate close tag
     if (c === '<' && (peek1 === '!' || peek1 === '?')) {
-      resulting_string = this._input.read(/<!--/g, /-->/g);
+      resulting_string = this.__patterns.comment.read();
 
       // only process directive on html comments
       if (resulting_string) {
@@ -5145,9 +5607,9 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
           resulting_string += directives_core.readIgnored(this._input);
         }
       } else {
-        resulting_string = this._input.read(/<!\[cdata\[/g, /]]>/g);
-        resulting_string = resulting_string || this._input.read(/<!\[/g, /]>/g);
-        resulting_string = resulting_string || this._input.read(/<\?/g, /\?>/g);
+        resulting_string = this.__patterns.cdata.read();
+        resulting_string = resulting_string || this.__patterns.conditional_comment.read();
+        resulting_string = resulting_string || this.__patterns.processing.read();
       }
     }
 
@@ -5170,7 +5632,7 @@ Tokenizer.prototype._read_open = function(c, open_token) {
       if (this._input.peek() === '/') {
         resulting_string += this._input.next();
       }
-      resulting_string += this._element_name.read();
+      resulting_string += this.__patterns.element_name.read();
       token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
     }
   }
@@ -5183,11 +5645,11 @@ Tokenizer.prototype._read_open_handlebars = function(c, open_token) {
   if (!open_token) {
     if (this._options.indent_handlebars && c === '{' && this._input.peek(1) === '{') {
       if (this._input.peek(2) === '!') {
-        resulting_string = this._input.read(/{{!--/g, /--}}/g);
-        resulting_string = resulting_string || this._input.read(/{{/g, /}}/g);
+        resulting_string = this.__patterns.handlebars_comment.read();
+        resulting_string = resulting_string || this.__patterns.handlebars.read();
         token = this._create_token(TOKEN.COMMENT, resulting_string);
       } else {
-        resulting_string = this._input.readUntil(/[\n\r\t }]/g);
+        resulting_string = this.__patterns.handlebars_open.read();
         token = this._create_token(TOKEN.TAG_OPEN, resulting_string);
       }
     }
@@ -5226,13 +5688,13 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
     } else if (c === '"' || c === "'") {
       var content = this._input.next();
       if (c === '"') {
-        content += this._double_quote.read();
+        content += this.__patterns.double_quote.read();
       } else {
-        content += this._single_quote.read();
+        content += this.__patterns.single_quote.read();
       }
       token = this._create_token(TOKEN.VALUE, content);
     } else {
-      resulting_string = this._attribute.read();
+      resulting_string = this.__patterns.attribute.read();
 
       if (resulting_string) {
         if (previous_token.type === TOKEN.EQUALS) {
@@ -5260,7 +5722,7 @@ Tokenizer.prototype._is_content_unformatted = function(tag_name) {
 Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { // jshint unused:false
   var resulting_string = '';
   if (open_token && open_token.text[0] === '{') {
-    resulting_string = this._input.readUntil(/}}/g);
+    resulting_string = this.__patterns.handlebars_raw_close.read();
   } else if (previous_token.type === TOKEN.TAG_CLOSE && (previous_token.opened.text[0] === '<')) {
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
     if (this._is_content_unformatted(tag_name)) {
@@ -5277,19 +5739,14 @@ Tokenizer.prototype._read_raw_content = function(previous_token, open_token) { /
 
 Tokenizer.prototype._read_content_word = function(c) {
   var resulting_string = '';
-  if (this._unformatted_content_delimiter) {
+  if (this._options.unformatted_content_delimiter) {
     if (c === this._options.unformatted_content_delimiter[0]) {
-      resulting_string = this._input.read(this._unformatted_content_delimiter);
+      resulting_string = this.__patterns.unformatted_content_delimiter.read();
     }
   }
 
-  if (resulting_string) {
-    resulting_string += this._input.readUntilAfter(this._unformatted_content_delimiter);
-  } else {
-    // if (c === '{' && !this._options.indent_handlebars) {
-    //   resulting_string += this._input.next();
-    // }
-    resulting_string += this._word.read();
+  if (!resulting_string) {
+    resulting_string = this.__patterns.word.read();
   }
   if (resulting_string) {
     return this._create_token(TOKEN.TEXT, resulting_string);
@@ -5298,219 +5755,6 @@ Tokenizer.prototype._read_content_word = function(c) {
 
 module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/*jshint node:true */
-/*
-
-  The MIT License (MIT)
-
-  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
-
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation files
-  (the "Software"), to deal in the Software without restriction,
-  including without limitation the rights to use, copy, modify, merge,
-  publish, distribute, sublicense, and/or sell copies of the Software,
-  and to permit persons to whom the Software is furnished to do so,
-  subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-*/
-
-
-
-function PatternReader(input_scanner, parent) {
-  this._input = input_scanner;
-  this._until_pattern = parent && parent._until_pattern ? new RegExp(parent._until_pattern) : null;
-  this._from_pattern = parent && parent._from_pattern ? new RegExp(parent._from_pattern) : null;
-  this._include_match = parent ? parent._include_match : false;
-}
-
-PatternReader.prototype._read = function() {
-  var result = '';
-  if (this._from_pattern) {
-    result = this._input.read(this._from_pattern, this._until_pattern, this._include_match);
-  } else {
-    result = this._input.readUntil(this._until_pattern, this._include_match);
-  }
-  return result;
-};
-
-PatternReader.prototype.read = function() {
-  return this._read();
-};
-
-PatternReader.prototype.until_after = function(pattern) {
-  var result = this._create();
-  result.include_match = true;
-  result._until_pattern = pattern;
-  result._update();
-  return result;
-};
-
-PatternReader.prototype.until = function(pattern) {
-  var result = this._create();
-  result.include_match = false;
-  result._until_pattern = pattern;
-  result._update();
-  return result;
-};
-
-PatternReader.prototype.from = function(pattern) {
-  var result = this._create();
-  result._from_pattern = pattern;
-  result._update();
-  return result;
-};
-
-PatternReader.prototype._create = function() {
-  return new PatternReader(this._input, this);
-};
-
-PatternReader.prototype._update = function() {};
-
-// This lets templates appear anywhere we would do a readUntil
-// The cost is higher but it is pay to play.
-function TemplatableReader(input_scanner, parent) {
-  PatternReader.call(this, input_scanner, parent);
-  this.__template_pattern = parent && parent.__template_pattern ? new RegExp(parent.__template_pattern) : null;
-  this._excluded = {
-    django: false,
-    erb: false,
-    handlebars: false,
-    php: false
-  };
-  if (parent) {
-    this._excluded = Object.assign(this._excluded, parent._excluded);
-  }
-  var pattern_reader = new PatternReader(input_scanner);
-  this.__patterns = {
-    handlebars_comment: pattern_reader.from(/{{!--/g).until_after(/--}}/g),
-    handlebars: pattern_reader.from(/{{/g).until_after(/}}/g),
-    php: pattern_reader.from(/<\?(?:[=]|php)/g).until_after(/\?>/g),
-    erb: pattern_reader.from(/<%[^%]/g).until_after(/[^%]%>/g),
-    // django coflicts with handlebars a bit.
-    django: pattern_reader.from(/{%/g).until_after(/%}/g),
-    django_value: pattern_reader.from(/{{/g).until_after(/}}/g),
-    django_comment: pattern_reader.from(/{#/g).until_after(/#}/g)
-  };
-}
-TemplatableReader.prototype = new PatternReader();
-
-TemplatableReader.prototype._create = function() {
-  return new TemplatableReader(this._input, this);
-};
-
-TemplatableReader.prototype._update = function() {
-  this.__set_templated_pattern();
-};
-
-TemplatableReader.prototype.exclude = function(language) {
-  var result = this._create();
-  result._excluded[language] = true;
-  result._update();
-  return result;
-};
-
-TemplatableReader.prototype.read = function() {
-  var result = '';
-  if (this._from_pattern) {
-    result = this._input.read(this._from_pattern, this.__template_pattern);
-    if (!result) {
-      return result;
-    }
-  } else {
-    result = this._input.readUntil(this.__template_pattern);
-  }
-
-  var next = '';
-  do {
-    result += next;
-    next = this.read_template();
-    if (next !== '') {
-      next += this._input.readUntil(this.__template_pattern);
-    }
-  } while (this._input.hasNext() && next !== '');
-  result += next;
-
-  if (this.include_match) {
-    result += this._input.readUntilAfter(this._until_pattern);
-  }
-  return result;
-};
-
-TemplatableReader.prototype.__set_templated_pattern = function() {
-  var items = [];
-
-  items.push(this.__patterns.php._from_pattern.source);
-  items.push(this.__patterns.handlebars._from_pattern.source);
-  items.push(this.__patterns.erb._from_pattern.source);
-  items.push(this.__patterns.django._from_pattern.source);
-  items.push(this.__patterns.django_value._from_pattern.source);
-  items.push(this.__patterns.django_comment._from_pattern.source);
-
-  if (this._until_pattern) {
-    items.push(this._until_pattern.source);
-  }
-  this.__template_pattern = new RegExp('(?:' + items.join('|') + ')', 'g');
-};
-
-TemplatableReader.prototype.read_template = function() {
-  var resulting_string = '';
-  var c = this._input.peek();
-  if (c === '<') {
-    var peek1 = this._input.peek(1);
-    //if we're in a comment, do something special
-    // We treat all comments as literals, even more than preformatted tags
-    // we just look for the appropriate close tag
-    if (!this._excluded.php && peek1 === '?') {
-      resulting_string = resulting_string ||
-        this.__patterns.php.read();
-    }
-    if (!this._excluded.erb && peek1 === '%') {
-      resulting_string = resulting_string ||
-        this.__patterns.erb.read();
-    }
-  } else if (c === '{') {
-    if (!this._excluded.handlebars) {
-      resulting_string = resulting_string ||
-        this.__patterns.handlebars_comment.read();
-      resulting_string = resulting_string ||
-        this.__patterns.handlebars.read();
-    }
-    // django coflicts with handlebars a bit.
-    if (!this._excluded.django && !this._excluded.handlebars) {
-      resulting_string = resulting_string ||
-        this.__patterns.django_value.read();
-    }
-    if (!this._excluded.django) {
-      resulting_string = resulting_string ||
-        this.__patterns.django_comment.read();
-      resulting_string = resulting_string ||
-        this.__patterns.django.read();
-    }
-  }
-  return resulting_string;
-};
-
-
-module.exports.TemplatableReader = TemplatableReader;
 
 
 /***/ })

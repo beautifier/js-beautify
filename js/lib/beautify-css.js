@@ -149,7 +149,7 @@ var legacy_beautify_css =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -282,14 +282,11 @@ OutputLine.prototype.last = function() {
 
 OutputLine.prototype.push = function(item) {
   this.__items.push(item);
-  this.__character_count += item.length;
-};
-
-OutputLine.prototype.push_raw = function(item) {
-  this.push(item);
   var last_newline_index = item.lastIndexOf('\n');
   if (last_newline_index !== -1) {
     this.__character_count = item.length - last_newline_index;
+  } else {
+    this.__character_count += item.length;
   }
 };
 
@@ -502,7 +499,7 @@ Output.prototype.add_raw_token = function(token) {
   }
   this.current_line.set_indent(-1);
   this.current_line.push(token.whitespace_before);
-  this.current_line.push_raw(token.text);
+  this.current_line.push(token.text);
   this.space_before_token = false;
   this.non_breaking_space = false;
   this.previous_token_wrapped = false;
@@ -811,6 +808,8 @@ module.exports.mergeOpts = _mergeOpts;
 
 
 
+var regexp_has_sticky = RegExp.prototype.hasOwnProperty('sticky');
+
 function InputScanner(input_string) {
   this.__input = input_string || '';
   this.__input_length = this.__input.length;
@@ -850,14 +849,32 @@ InputScanner.prototype.peek = function(index) {
   return val;
 };
 
+// This is a JavaScript only helper function (not in python)
+// Javascript doesn't have a match method
+// and not all implementation support "sticky" flag.
+// If they do not support sticky then both this.match() and this.test() method
+// must get the match and check the index of the match.
+// If sticky is supported and set, this method will use it.
+// Otherwise it will check that global is set, and fall back to the slower method.
+InputScanner.prototype.__match = function(pattern, index) {
+  pattern.lastIndex = index;
+  var pattern_match = pattern.exec(this.__input);
+
+  if (pattern_match && !(regexp_has_sticky && pattern.sticky)) {
+    if (pattern_match.index !== index) {
+      pattern_match = null;
+    }
+  }
+
+  return pattern_match;
+};
+
 InputScanner.prototype.test = function(pattern, index) {
   index = index || 0;
   index += this.__position;
-  pattern.lastIndex = index;
 
   if (index >= 0 && index < this.__input_length) {
-    var pattern_match = pattern.exec(this.__input);
-    return pattern_match && pattern_match.index === index;
+    return !!this.__match(pattern, index);
   } else {
     return false;
   }
@@ -871,9 +888,8 @@ InputScanner.prototype.testChar = function(pattern, index) {
 };
 
 InputScanner.prototype.match = function(pattern) {
-  pattern.lastIndex = this.__position;
-  var pattern_match = pattern.exec(this.__input);
-  if (pattern_match && pattern_match.index === this.__position) {
+  var pattern_match = this.__match(pattern, this.__position);
+  if (pattern_match) {
     this.__position += pattern_match[0].length;
   } else {
     pattern_match = null;
@@ -881,28 +897,30 @@ InputScanner.prototype.match = function(pattern) {
   return pattern_match;
 };
 
-InputScanner.prototype.read = function(pattern, untilAfterPattern) {
+InputScanner.prototype.read = function(starting_pattern, until_pattern, until_after) {
   var val = '';
-  var match = this.match(pattern);
-  if (match) {
-    val = match[0];
-    if (untilAfterPattern) {
-      val += this.readUntilAfter(untilAfterPattern);
+  var match;
+  if (starting_pattern) {
+    match = this.match(starting_pattern);
+    if (match) {
+      val += match[0];
     }
+  }
+  if (until_pattern && (match || !starting_pattern)) {
+    val += this.readUntil(until_pattern, until_after);
   }
   return val;
 };
 
-InputScanner.prototype.readUntil = function(pattern, include_match) {
+InputScanner.prototype.readUntil = function(pattern, until_after) {
   var val = '';
   var match_index = this.__position;
   pattern.lastIndex = this.__position;
   var pattern_match = pattern.exec(this.__input);
   if (pattern_match) {
-    if (include_match) {
-      match_index = pattern_match.index + pattern_match[0].length;
-    } else {
-      match_index = pattern_match.index;
+    match_index = pattern_match.index;
+    if (until_after) {
+      match_index += pattern_match[0].length;
     }
   } else {
     match_index = this.__input_length;
@@ -915,6 +933,26 @@ InputScanner.prototype.readUntil = function(pattern, include_match) {
 
 InputScanner.prototype.readUntilAfter = function(pattern) {
   return this.readUntil(pattern, true);
+};
+
+InputScanner.prototype.get_regexp = function(pattern, match_from) {
+  var result = null;
+  var flags = 'g';
+  if (match_from && regexp_has_sticky) {
+    flags = 'y';
+  }
+  // strings are converted to regexp
+  if (typeof pattern === "string" && pattern !== '') {
+    // result = new RegExp(pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), flags);
+    result = new RegExp(pattern, flags);
+  } else if (pattern) {
+    result = new RegExp(pattern.source, flags);
+  }
+  return result;
+};
+
+InputScanner.prototype.get_literal_regexp = function(literal_string) {
+  return RegExp(literal_string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
 };
 
 /* css beautifier legacy helpers */
@@ -931,14 +969,15 @@ InputScanner.prototype.lookBack = function(testVal) {
     .toLowerCase() === testVal;
 };
 
-
 module.exports.InputScanner = InputScanner;
 
 
 /***/ }),
 /* 9 */,
 /* 10 */,
-/* 11 */
+/* 11 */,
+/* 12 */,
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -978,7 +1017,7 @@ function Directives(start_block_pattern, end_block_pattern) {
   this.__directives_block_pattern = new RegExp(start_block_pattern + / beautify( \w+[:]\w+)+ /.source + end_block_pattern, 'g');
   this.__directive_pattern = / (\w+)[:](\w+)/g;
 
-  this.__directives_end_ignore_pattern = new RegExp('(?:[\\s\\S]*?)((?:' + start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern + ')|$)', 'g');
+  this.__directives_end_ignore_pattern = new RegExp(start_block_pattern + /\sbeautify\signore:end\s/.source + end_block_pattern, 'g');
 }
 
 Directives.prototype.get_directives = function(text) {
@@ -999,7 +1038,7 @@ Directives.prototype.get_directives = function(text) {
 };
 
 Directives.prototype.readIgnored = function(input) {
-  return input.read(this.__directives_end_ignore_pattern);
+  return input.readUntilAfter(this.__directives_end_ignore_pattern);
 };
 
 
@@ -1007,7 +1046,8 @@ module.exports.Directives = Directives;
 
 
 /***/ }),
-/* 12 */
+/* 14 */,
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1041,8 +1081,8 @@ module.exports.Directives = Directives;
 
 
 
-var Beautifier = __webpack_require__(13).Beautifier,
-  Options = __webpack_require__(14).Options;
+var Beautifier = __webpack_require__(16).Beautifier,
+  Options = __webpack_require__(17).Options;
 
 function css_beautify(source_text, options) {
   var beautifier = new Beautifier(source_text, options);
@@ -1056,7 +1096,7 @@ module.exports.defaultOptions = function() {
 
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1090,10 +1130,10 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(14).Options;
+var Options = __webpack_require__(17).Options;
 var Output = __webpack_require__(2).Output;
 var InputScanner = __webpack_require__(8).InputScanner;
-var Directives = __webpack_require__(11).Directives;
+var Directives = __webpack_require__(13).Directives;
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
@@ -1515,7 +1555,7 @@ module.exports.Beautifier = Beautifier;
 
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
