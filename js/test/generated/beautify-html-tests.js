@@ -6029,9 +6029,9 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
-        // Handlebars Else If and Each tag indenting
+        // Handlebars Else If, Each, and Inverted Section tag indenting
         reset_options();
-        set_name('Handlebars Else If and Each tag indenting');
+        set_name('Handlebars Else If, Each, and Inverted Section tag indenting');
         opts.indent_handlebars = true;
         bth(
             '{{#if test}}<div></div>{{else}}<div></div>{{/if}}',
@@ -6067,6 +6067,10 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    <p>Unfortunately no clinics found.</p>\n' +
             '{{/each}}');
+        bth(
+            '{{^inverted-condition}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/inverted-condition}}');
 
 
         //============================================================
