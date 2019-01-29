@@ -561,7 +561,7 @@ var TagOpenParserToken = function(parent, raw_token) {
       tag_check_match = raw_token.text.match(/^<([^\s>]*)/);
       this.tag_check = tag_check_match ? tag_check_match[1] : '';
     } else {
-      tag_check_match = raw_token.text.match(/^{{\#?([^\s}]+)/);
+      tag_check_match = raw_token.text.match(/^{{[#\^]?([^\s}]+)/);
       this.tag_check = tag_check_match ? tag_check_match[1] : '';
     }
     this.tag_check = this.tag_check.toLowerCase();
