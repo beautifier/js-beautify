@@ -1393,8 +1393,9 @@ exports.test_data = {
             '{{/each}}'
           ]
         },
-        // Inverted section handling
+        // Inverted section handling.
         {
+          comment: "Issue #1623 - Fix indentation of `^` inverted section tags in Handlebars/Mustache code",
           unchanged: [
             '{{^inverted-condition}}',
             '    <p>Unfortunately this condition is false.</p>',

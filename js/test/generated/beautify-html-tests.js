@@ -6067,6 +6067,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{else}}\n' +
             '    <p>Unfortunately no clinics found.</p>\n' +
             '{{/each}}');
+        
+        // Issue #1623 - Fix indentation of `^` inverted section tags in Handlebars/Mustache code
         bth(
             '{{^inverted-condition}}\n' +
             '    <p>Unfortunately this condition is false.</p>\n' +
