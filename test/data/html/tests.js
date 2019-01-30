@@ -1349,8 +1349,8 @@ exports.test_data = {
         }
       ]
     }, {
-      name: "Handlebars Else If and Each tag indenting",
-      description: "Handlebar Else If and Each Handling tags should be newlined after formatted tags",
+      name: "Handlebars Else If, Each, and Inverted Section tag indenting",
+      description: "Handlebar Else If, Each, and Inverted Section handling tags should be newlined after formatted tags",
       template: "^^^ $$$",
       options: [
         { name: "indent_handlebars", value: "true" }
@@ -1391,6 +1391,15 @@ exports.test_data = {
             '{{else}}',
             '    <p>Unfortunately no clinics found.</p>',
             '{{/each}}'
+          ]
+        },
+        // Inverted section handling.
+        {
+          comment: "Issue #1623 - Fix indentation of `^` inverted section tags in Handlebars/Mustache code",
+          unchanged: [
+            '{{^inverted-condition}}',
+            '    <p>Unfortunately this condition is false.</p>',
+            '{{/inverted-condition}}'
           ]
         }
       ]
