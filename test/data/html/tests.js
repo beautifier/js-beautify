@@ -1577,6 +1577,34 @@ exports.test_data = {
           '            <td>✔',
           '</table>'
         ]
+      }, {
+        comment: 'Regression test for #1213',
+        input: [
+          '<ul><li>ab<li>cd</li><li>cd</li></ul><dl><dt>ef<dt>gh</dt><dt>gh</dt></dl>',
+          '<ul><li>ab</li><li>cd<li>cd</li></ul><dl><dt>ef</dt><dt>gh<dt>gh</dt></dl>'
+        ],
+        output: [
+          '<ul>',
+          '    <li>ab',
+          '    <li>cd</li>',
+          '    <li>cd</li>',
+          '</ul>',
+          '<dl>',
+          '    <dt>ef',
+          '    <dt>gh</dt>',
+          '    <dt>gh</dt>',
+          '</dl>',
+          '<ul>',
+          '    <li>ab</li>',
+          '    <li>cd',
+          '    <li>cd</li>',
+          '</ul>',
+          '<dl>',
+          '    <dt>ef</dt>',
+          '    <dt>gh',
+          '    <dt>gh</dt>',
+          '</dl>'
+        ]
       }]
     }, {
       name: "Unformatted tags",

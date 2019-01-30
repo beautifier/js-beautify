@@ -6284,6 +6284,32 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '            <td>\n' +
             '            <td>✔\n' +
             '</table>');
+        
+        // Regression test for #1213
+        bth(
+            '<ul><li>ab<li>cd</li><li>cd</li></ul><dl><dt>ef<dt>gh</dt><dt>gh</dt></dl>\n' +
+            '<ul><li>ab</li><li>cd<li>cd</li></ul><dl><dt>ef</dt><dt>gh<dt>gh</dt></dl>',
+            //  -- output --
+            '<ul>\n' +
+            '    <li>ab\n' +
+            '    <li>cd</li>\n' +
+            '    <li>cd</li>\n' +
+            '</ul>\n' +
+            '<dl>\n' +
+            '    <dt>ef\n' +
+            '    <dt>gh</dt>\n' +
+            '    <dt>gh</dt>\n' +
+            '</dl>\n' +
+            '<ul>\n' +
+            '    <li>ab</li>\n' +
+            '    <li>cd\n' +
+            '    <li>cd</li>\n' +
+            '</ul>\n' +
+            '<dl>\n' +
+            '    <dt>ef</dt>\n' +
+            '    <dt>gh\n' +
+            '    <dt>gh</dt>\n' +
+            '</dl>');
 
 
         //============================================================
