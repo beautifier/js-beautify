@@ -159,6 +159,14 @@ class TestJSBeautifier(unittest.TestCase):
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};')
         bt(
+            'var \\u00E4\\u0ca0\\u0cA0\\u0Ca0 = {\n' +
+            '    \\u0ca0rgerlich: true\n' +
+            '};')
+        bt(
+            'var \\u00E4add\\u0025 = {\n' +
+            '    \\u0044rgerlich\\u0ca0: true\n' +
+            '};')
+        bt(
             'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
             #  -- output --
             'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";')
