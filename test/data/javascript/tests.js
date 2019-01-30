@@ -45,6 +45,18 @@ exports.test_data = {
           "};"
         ]
       }, {
+        unchanged: [
+          "var \\\\u00E4\\\\u0ca0\\\\u0cA0\\\\u0Ca0 = {",
+          "    \\\\u0ca0rgerlich: true",
+          "};"
+        ]
+      }, {
+        unchanged: [
+          "var \\\\u00E4add\\\\u0025 = {",
+          "    \\\\u0044rgerlich\\\\u0ca0: true",
+          "};"
+        ]
+      }, {
         input_: "var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";",
         output: "var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = \"hi\";"
       }]

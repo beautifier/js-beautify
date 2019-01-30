@@ -39,24 +39,24 @@ _nonASCIIidentifierChars = six.u(r"\u0300-\u036f\u0483-\u0487\u0591-\u05bd\u05bf
 #_nonASCIIidentifierStart = re.compile("[" + _nonASCIIidentifierStartChars + "]")
 #_nonASCIIidentifier = re.compile("[" + _nonASCIIidentifierStartChars + _nonASCIIidentifierChars + "]")
 
-_identifierStart = six.u("[") + \
+_identifierStart = six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
     _baseASCIIidentifierStartChars + \
     _nonASCIIidentifierStartChars + \
-    six.u("]")
-_identifierChars = six.u("[") + \
+    six.u("])")
+_identifierChars = six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
     _baseASCIIidentifierChars + \
     _nonASCIIidentifierStartChars + \
     _nonASCIIidentifierChars + \
-    six.u("]*")
+    six.u("])*")
 
 identifier = re.compile(_identifierStart + _identifierChars)
 
 identifierStart = re.compile(_identifierStart)
-identifierMatch = re.compile(six.u("[") + \
+identifierMatch = re.compile(six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
     _baseASCIIidentifierChars + \
     _nonASCIIidentifierStartChars + \
     _nonASCIIidentifierChars + \
-    six.u("]+"))
+    six.u("])+"))
 
 _nonASCIIwhitespace = re.compile(
     six.u(r"[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]"))
