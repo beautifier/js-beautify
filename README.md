@@ -340,14 +340,34 @@ HTML Beautifier Options:
   --unformatted_content_delimiter    Keep text content together between this string [""]
 ```
 
-## Directives to Ignore or Preserve sections (Javascript beautifier only)
+## Directives
 
-Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
-The example input below will remain changed after beautification
+Directives let you control the behavior of the Beautifier from within your source files. Directives are placed in comments inside the file.  Directives are in the format `/* beautify {name}:{value} */` in CSS and JavaScript. In HTML they are formatted as `<!-- beautify {name}:{value} -->`. 
+
+### Ignore directive
+
+The `ignore` directive makes the beautifier completely ignore part of a file, treating it as literal text that is not parsed.  
+The input below will remain unchanged after beautification:
 
 ```js
-// Use preserve when the content is not javascript, but you don't want it reformatted.
+// Use ignore when the content is not parsable in the current language, JavaScript in this case.
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
+### Preserve directive 
+
+NOTE: this directive only works in HTML and JavaScript, not CSS. 
+
+The `preserve` directive makes the Beautifier parse and then keep the existing formatting of a section of code.
+
+The input below will remain unchanged after beautification:
+
+```js
+// Use preserve when the content is valid syntax in the current language, JavaScript in this case.
+// This will parse the code and preserve the existing formatting.
 /* beautify preserve:start */
 {
     browserName: 'internet explorer',
@@ -355,12 +375,6 @@ The example input below will remain changed after beautification
     version:     '8'
 }
 /* beautify preserve:end */
-
-// Use ignore when the content is not parsable as javascript.
-var a =  1;
-/* beautify ignore:start */
- {This is some strange{template language{using open-braces?
-/* beautify ignore:end */
 ```
 
 # License
