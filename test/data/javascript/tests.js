@@ -4483,6 +4483,56 @@ exports.test_data = {
         // }
       ]
     }, {
+      name: "preserve_empty_lines_indent true",
+      description: "",
+      options: [
+        { name: "preserve_empty_lines_indent", value: "true" }
+      ],
+      // NOTE: all of these tests must be "fragment: true", so that the
+      //       test framework doesn't try additional permutations based
+      //       on these inputs.
+      tests: [{
+          fragment: true,
+          unchanged: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            'var a = 1;',
+            '        ',
+            'var b = 1;'
+          ],
+          output: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '    var a = 1;',
+            '        ',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '    var a = 1;',
+            '    ',
+            '    var b = 1;',
+            '    ',
+            '}'
+          ]
+        }
+      ]
+    }, {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting
