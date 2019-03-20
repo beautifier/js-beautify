@@ -70,6 +70,8 @@ class Options:
         self.wrap_line_length = self._get_number(
             'wrap_line_length', self._get_number('max_char'))
 
+        self.preserve_empty_lines_indent = self._get_boolean('preserve_empty_lines_indent')
+
     def _get_array(self, name, default_value=[]):
         option_value = getattr(self.raw_options, name, default_value)
         result = []
