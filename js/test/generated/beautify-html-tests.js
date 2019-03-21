@@ -8180,6 +8180,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // indent_empty_lines true
+        reset_options();
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
+        test_fragment(
+            '<div>\n' +
+            '\n' +
+            '    <div>\n' +
+            '\n' +
+            '    </div>\n' +
+            '\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    \n' +
+            '    <div>\n' +
+            '        \n' +
+            '    </div>\n' +
+            '    \n' +
+            '</div>');
+
+
+        //============================================================
+        // indent_empty_lines false
+        reset_options();
+        set_name('indent_empty_lines false');
+        opts.indent_empty_lines = false;
+        test_fragment(
+            '<div>\n' +
+            '\n' +
+            '    <div>\n' +
+            '\n' +
+            '    </div>\n' +
+            '\n' +
+            '</div>');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
         set_name('New Test Suite');
