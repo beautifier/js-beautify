@@ -6806,9 +6806,9 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # preserve_empty_lines_indent true
+        # indent_empty_lines true
         self.reset_options()
-        self.options.preserve_empty_lines_indent = true
+        self.options.indent_empty_lines = true
         test_fragment(
             'var a = 1;\n' +
             '\n' +

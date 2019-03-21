@@ -161,7 +161,7 @@ OutputLine.prototype.trim = function() {
 OutputLine.prototype.toString = function() {
   var result = '';
   if (this.is_empty()) {
-    if (this.__parent.preserve_empty_lines_indent) {
+    if (this.__parent.indent_empty_lines) {
       result = this.__parent.get_indent_string(this.__indent_count);
     }
   } else {
@@ -241,7 +241,7 @@ function Output(options, baseIndentString) {
   this._end_with_newline = options.end_with_newline;
   this.indent_size = options.indent_size;
   this.wrap_line_length = options.wrap_line_length;
-  this.preserve_empty_lines_indent = options.preserve_empty_lines_indent;
+  this.indent_empty_lines = options.indent_empty_lines;
   this.__lines = [];
   this.previous_line = null;
   this.current_line = null;

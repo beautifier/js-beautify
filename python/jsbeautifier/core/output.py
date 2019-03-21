@@ -138,7 +138,7 @@ class OutputLine:
     def toString(self):
         result = ''
         if self.is_empty():
-            if self.__parent.preserve_empty_lines_indent:
+            if self.__parent.indent_empty_lines:
                 result = self.__parent.get_indent_string(self.__indent_count)
         else:
             result = self.__parent.get_indent_string(
@@ -206,7 +206,7 @@ class Output:
         self._end_with_newline = options.end_with_newline
         self.indent_size = options.indent_size
         self.wrap_line_length = options.wrap_line_length
-        self.preserve_empty_lines_indent = options.preserve_empty_lines_indent
+        self.indent_empty_lines = options.indent_empty_lines
         self.__lines = []
         self.previous_line = None
         self.current_line = None

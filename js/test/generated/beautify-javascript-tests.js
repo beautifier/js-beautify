@@ -7082,10 +7082,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // preserve_empty_lines_indent true
+        // indent_empty_lines true
         reset_options();
-        set_name('preserve_empty_lines_indent true');
-        opts.preserve_empty_lines_indent = true;
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
         test_fragment(
             'var a = 1;\n' +
             '\n' +

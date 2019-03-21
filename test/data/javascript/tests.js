@@ -4483,10 +4483,10 @@ exports.test_data = {
         // }
       ]
     }, {
-      name: "preserve_empty_lines_indent true",
+      name: "indent_empty_lines true",
       description: "",
       options: [
-        { name: "preserve_empty_lines_indent", value: "true" }
+        { name: "indent_empty_lines", value: "true" }
       ],
       // NOTE: all of these tests must be "fragment: true", so that the
       //       test framework doesn't try additional permutations based
