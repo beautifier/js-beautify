@@ -45,6 +45,8 @@ pytest: depends py python/dist/*
 		$(PYTHON) --version && \
 		./jsbeautifier/tests/shell-test.sh
 
+alltest: jstest pytest
+
 package: js py build/*.tgz python/dist/*
 
 
