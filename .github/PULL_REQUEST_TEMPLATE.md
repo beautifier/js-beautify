@@ -1,9 +1,3 @@
----
-name: Add a new option or feature
-about: You want to add a new feature or option
-
----
-
 # Description
 - [ ] Source branch in your fork has meaningful name (not `master`)
 
