@@ -92,6 +92,7 @@ Output options:
       --disable-newline-between-rules
                                    Do not print empty line between rules.
       --space-around-combinator    Print spaces around combinator.
+      --indent-empty-lines         Keep indentation on empty lines
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
 
@@ -117,7 +118,7 @@ def main():
                                     'indent-size=', 'indent-char=', 'eol=', 'indent-with-tabs',
                                     'preserve-newlines', 'disable-selector-separator-newline',
                                     'end-with-newline', 'disable-newline-between-rules',
-                                    'space-around-combinator'])
+                                    'space-around-combinator', 'indent-empty-lines'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -160,6 +161,8 @@ def main():
             css_options.newline_between_rules = False
         elif opt in ('--space-around-combinator'):
             css_options.space_around_combinator = True
+        elif opt in ('--indent-empty-lines'):
+            css_options.indent_empty_lines = True
 
     if not file:
         file = '-'
