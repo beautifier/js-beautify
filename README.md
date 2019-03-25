@@ -190,6 +190,7 @@ Beautifier Options:
   --good-stuff                      Warm the cockles of Crockford's heart
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
+  --indent-empty-lines              Keep indentation on empty lines
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -219,7 +220,8 @@ Which correspond to the underscored option keys for both library interfaces
     "wrap_line_length": 0,
     "e4x": false,
     "comma_first": false,
-    "operator_position": "before-newline"
+    "operator_position": "before-newline",
+    "indent_empty_lines": false
 }
 ```
 
@@ -316,6 +318,7 @@ CSS Beautifier Options:
   -n, --end-with-newline             End output with newline
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
+  --indent-empty-lines               Keep indentation on empty lines
 
 HTML Beautifier Options:
   -s, --indent-size                  Indentation size [4]
@@ -338,6 +341,7 @@ HTML Beautifier Options:
   --editorconfig                     Use EditorConfig to set up the options
   --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
   --unformatted_content_delimiter    Keep text content together between this string [""]
+  --indent-empty-lines               Keep indentation on empty lines
 ```
 
 ## Directives

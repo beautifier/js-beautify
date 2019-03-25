@@ -10675,6 +10675,46 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // indent_empty_lines true
+        reset_options();
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
+        opts.preserve_newlines = true;
+        test_fragment(
+            'a {\n' +
+            '\n' +
+            'width: auto;\n' +
+            '\n' +
+            'height: auto;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '\t\n' +
+            '\twidth: auto;\n' +
+            '\t\n' +
+            '\theight: auto;\n' +
+            '\t\n' +
+            '}');
+
+
+        //============================================================
+        // indent_empty_lines false
+        reset_options();
+        set_name('indent_empty_lines false');
+        opts.indent_empty_lines = false;
+        opts.preserve_newlines = true;
+        test_fragment(
+            'a {\n' +
+            '\n' +
+            '\twidth: auto;\n' +
+            '\n' +
+            '\theight: auto;\n' +
+            '\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
         set_name('');

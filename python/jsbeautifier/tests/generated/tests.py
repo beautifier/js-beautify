@@ -6806,6 +6806,148 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # indent_empty_lines true
+        self.reset_options()
+        self.options.indent_empty_lines = true
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;')
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            #  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;')
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}')
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    \n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}')
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    function A() {\n' +
+            '        \n' +
+            '    }\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}')
+
+
+        #============================================================
+        # indent_empty_lines false
+        self.reset_options()
+        self.options.indent_empty_lines = false
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;')
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            #  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;')
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}')
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}')
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    function A() {\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}')
+
+
+        #============================================================
         # Old tests
         self.reset_options()
         bt('')

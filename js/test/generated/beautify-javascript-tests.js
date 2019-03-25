@@ -7082,6 +7082,150 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // indent_empty_lines true
+        reset_options();
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            //  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    \n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    function A() {\n' +
+            '        \n' +
+            '    }\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+
+
+        //============================================================
+        // indent_empty_lines false
+        reset_options();
+        set_name('indent_empty_lines false');
+        opts.indent_empty_lines = false;
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            //  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    function A() {\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+
+
+        //============================================================
         // Old tests
         reset_options();
         set_name('Old tests');

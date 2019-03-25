@@ -3012,6 +3012,51 @@ exports.test_data = {
     ]
   }]
 }, {
+  name: "indent_empty_lines true",
+  description: "",
+  options: [
+    { name: "indent_empty_lines", value: "true" }
+  ],
+  tests: [{
+    fragment: true,
+    input: [
+      '<div>',
+      '',
+      '    <div>',
+      '',
+      '    </div>',
+      '',
+      '</div>'
+    ],
+    output: [
+      '<div>',
+      '    ',
+      '    <div>',
+      '        ',
+      '    </div>',
+      '    ',
+      '</div>'
+    ]
+  }]
+}, {
+  name: "indent_empty_lines false",
+  description: "",
+  options: [
+    { name: "indent_empty_lines", value: "false" }
+  ],
+  tests: [{
+    fragment: true,
+    unchanged: [
+      '<div>',
+      '',
+      '    <div>',
+      '',
+      '    </div>',
+      '',
+      '</div>'
+    ]
+  }]
+}, {
   name: "New Test Suite"
 }]
 };

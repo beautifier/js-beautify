@@ -1482,6 +1482,55 @@ exports.test_data = {
         unchanged: 'a {\n\tcolor: blue !important;\n}'
       }]
     }, {
+      name: "indent_empty_lines true",
+      description: "",
+      options: [
+        { name: "indent_empty_lines", value: "true" },
+        //Necessary to test
+        { name: "preserve_newlines", value: "true" }
+      ],
+      tests: [{
+        fragment: true,
+        input: [
+          'a {',
+          '',
+          'width: auto;',
+          '',
+          'height: auto;',
+          '',
+          '}'
+        ],
+        output: [
+          'a {',
+          '\t',
+          '\twidth: auto;',
+          '\t',
+          '\theight: auto;',
+          '\t',
+          '}'
+        ]
+      }]
+    }, {
+      name: "indent_empty_lines false",
+      description: "",
+      options: [
+        { name: "indent_empty_lines", value: "false" },
+        //Necessary to test
+        { name: "preserve_newlines", value: "true" }
+      ],
+      tests: [{
+        fragment: true,
+        unchanged: [
+          'a {',
+          '',
+          '\twidth: auto;',
+          '',
+          '\theight: auto;',
+          '',
+          '}'
+        ]
+      }]
+    }, {
 
     }
   ]
