@@ -1499,6 +1499,30 @@ exports.test_data = {
           '</select>'
         ]
       }, {
+        comment: "Regression test for #1649",
+        unchanged: [
+          '<table>',
+          '    <tbody>',
+          '        <tr>',
+          '            <td>',
+          '                <table>',
+          '                    <thead>',
+          '                        <th>',
+          '                        </th>',
+          '                    </thead>',
+          '                    <tbody>',
+          '                        <tr>',
+          '                            <td>',
+          '                            </td>',
+          '                        </tr>',
+          '                    </tbody>',
+          '                </table>',
+          '            </td>',
+          '        </tr>',
+          '    </tbody>',
+          '</table>'
+        ]
+      }, {
         unchanged: [
           '<table>',
           '    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
@@ -2985,6 +3009,51 @@ exports.test_data = {
       '        <text x="50%" y="50%" text-anchor="middle" stroke="#1b97f3" stroke-width="2px" dy=".3em">1</text>',
       '    </svg> This is a paragraph after an SVG shape.',
       '</p>'
+    ]
+  }]
+}, {
+  name: "indent_empty_lines true",
+  description: "",
+  options: [
+    { name: "indent_empty_lines", value: "true" }
+  ],
+  tests: [{
+    fragment: true,
+    input: [
+      '<div>',
+      '',
+      '    <div>',
+      '',
+      '    </div>',
+      '',
+      '</div>'
+    ],
+    output: [
+      '<div>',
+      '    ',
+      '    <div>',
+      '        ',
+      '    </div>',
+      '    ',
+      '</div>'
+    ]
+  }]
+}, {
+  name: "indent_empty_lines false",
+  description: "",
+  options: [
+    { name: "indent_empty_lines", value: "false" }
+  ],
+  tests: [{
+    fragment: true,
+    unchanged: [
+      '<div>',
+      '',
+      '    <div>',
+      '',
+      '    </div>',
+      '',
+      '</div>'
     ]
   }]
 }, {

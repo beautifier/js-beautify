@@ -10553,6 +10553,44 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # indent_empty_lines true
+        self.reset_options()
+        self.options.indent_empty_lines = true
+        self.options.preserve_newlines = true
+        test_fragment(
+            'a {\n' +
+            '\n' +
+            'width: auto;\n' +
+            '\n' +
+            'height: auto;\n' +
+            '\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '\t\n' +
+            '\twidth: auto;\n' +
+            '\t\n' +
+            '\theight: auto;\n' +
+            '\t\n' +
+            '}')
+
+
+        #============================================================
+        # indent_empty_lines false
+        self.reset_options()
+        self.options.indent_empty_lines = false
+        self.options.preserve_newlines = true
+        test_fragment(
+            'a {\n' +
+            '\n' +
+            '\twidth: auto;\n' +
+            '\n' +
+            '\theight: auto;\n' +
+            '\n' +
+            '}')
+
+
+        #============================================================
         # 
         self.reset_options()
 

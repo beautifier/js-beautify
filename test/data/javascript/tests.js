@@ -4483,6 +4483,203 @@ exports.test_data = {
         // }
       ]
     }, {
+      name: "indent_empty_lines true",
+      description: "",
+      options: [
+        { name: "indent_empty_lines", value: "true" }
+      ],
+      // NOTE: all of these tests must be "fragment: true", so that the
+      //       test framework doesn't try additional permutations based
+      //       on these inputs.
+      tests: [{
+          fragment: true,
+          unchanged: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            'var a = 1;',
+            '        ',
+            'var b = 1;'
+          ],
+          output: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '    var a = 1;',
+            '        ',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '    var a = 1;',
+            '    ',
+            '    var b = 1;',
+            '    ',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '',
+            '    var a = 1;',
+            '',
+            '',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '    ',
+            '    var a = 1;',
+            '    ',
+            '    ',
+            '    ',
+            '    var b = 1;',
+            '    ',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '',
+            '    var a = 1;',
+            '',
+            'function A() {',
+            '',
+            '}',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '    ',
+            '    var a = 1;',
+            '    ',
+            '    function A() {',
+            '        ',
+            '    }',
+            '    ',
+            '    var b = 1;',
+            '    ',
+            '}'
+          ]
+        }
+      ]
+    }, {
+      name: "indent_empty_lines false",
+      description: "",
+      options: [
+        { name: "indent_empty_lines", value: "false" }
+      ],
+      // NOTE: all of these tests must be "fragment: true", so that the
+      //       test framework doesn't try additional permutations based
+      //       on these inputs.
+      tests: [{
+          fragment: true,
+          unchanged: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            'var a = 1;',
+            '        ',
+            'var b = 1;'
+          ],
+          output: [
+            'var a = 1;',
+            '',
+            'var b = 1;'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '    var a = 1;',
+            '        ',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '    var a = 1;',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          unchanged: [
+            '{',
+            '',
+            '    var a = 1;',
+            '',
+            '',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ]
+        },
+        {
+          fragment: true,
+          input: [
+            '{',
+            '',
+            '    var a = 1;',
+            '',
+            'function A() {',
+            '',
+            '}',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ],
+          output: [
+            '{',
+            '',
+            '    var a = 1;',
+            '',
+            '    function A() {',
+            '',
+            '    }',
+            '',
+            '    var b = 1;',
+            '',
+            '}'
+          ]
+        }
+      ]
+    }, {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting

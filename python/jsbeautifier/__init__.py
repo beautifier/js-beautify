@@ -182,6 +182,7 @@ Output options:
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
  -n,  --end-with-newline           End output with newline
+ --indent-empty-lines              Keep indentation on empty lines
  --editorconfig                    Enable setting configuration from EditorConfig
 
 Rarely needed options:
@@ -236,7 +237,7 @@ def main():
                                     'brace-style=', 'indent-level=', 'unescape-strings',
                                     'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
                                     'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
-                                    'keep-array-indentation'])
+                                    'keep-array-indentation', 'indent-empty-lines'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -296,6 +297,8 @@ def main():
             js_options.operator_position = arg
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
+        elif opt in ('--indent-empty-lines'):
+            js_options.indent_empty_lines = True
         elif opt in ('--stdin', '-i'):
             # stdin is the default if no files are passed
             filepath_params = []

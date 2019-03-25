@@ -6207,6 +6207,29 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <option>\n' +
             '            test content\n' +
             '</select>');
+        
+        // Regression test for #1649
+        bth(
+            '<table>\n' +
+            '    <tbody>\n' +
+            '        <tr>\n' +
+            '            <td>\n' +
+            '                <table>\n' +
+            '                    <thead>\n' +
+            '                        <th>\n' +
+            '                        </th>\n' +
+            '                    </thead>\n' +
+            '                    <tbody>\n' +
+            '                        <tr>\n' +
+            '                            <td>\n' +
+            '                            </td>\n' +
+            '                        </tr>\n' +
+            '                    </tbody>\n' +
+            '                </table>\n' +
+            '            </td>\n' +
+            '        </tr>\n' +
+            '    </tbody>\n' +
+            '</table>');
         bth(
             '<table>\n' +
             '    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)\n' +
@@ -8154,6 +8177,44 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '        <text x="50%" y="50%" text-anchor="middle" stroke="#1b97f3" stroke-width="2px" dy=".3em">1</text>\n' +
             '    </svg> This is a paragraph after an SVG shape.\n' +
             '</p>');
+
+
+        //============================================================
+        // indent_empty_lines true
+        reset_options();
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
+        test_fragment(
+            '<div>\n' +
+            '\n' +
+            '    <div>\n' +
+            '\n' +
+            '    </div>\n' +
+            '\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    \n' +
+            '    <div>\n' +
+            '        \n' +
+            '    </div>\n' +
+            '    \n' +
+            '</div>');
+
+
+        //============================================================
+        // indent_empty_lines false
+        reset_options();
+        set_name('indent_empty_lines false');
+        opts.indent_empty_lines = false;
+        test_fragment(
+            '<div>\n' +
+            '\n' +
+            '    <div>\n' +
+            '\n' +
+            '    </div>\n' +
+            '\n' +
+            '</div>');
 
 
         //============================================================

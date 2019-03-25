@@ -1,6 +1,10 @@
 <!doctype html>
-<html lang="en-US" dir="ltr" prefix="og:http://ogp.me/ns# fb:http://ogp.me/ns/fb#">
-<!--
+<html lang="en-US" dir="ltr" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+
+<head>
+  <meta charset="utf-8" /><!-- The <meta> element must be within the first 1024 bytes of the HTML -->
+
+  <!--
   The MIT License (MIT)
 
   Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
@@ -26,10 +30,6 @@
   SOFTWARE.
   -->
 
-<head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-type" content="text/html;charset=utf-8" />
   <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
   <title>Online JavaScript beautifier</title>
   <link rel="icon" href="web/favicon.png" type="image/png">
@@ -53,9 +53,8 @@
   <script src="web/common-function.js"></script>
 </head>
 
-<h1>Online JavaScript Beautifier <span id="version-number"></span></h1>
-
 <body>
+  <h1>Online JavaScript Beautifier <span id="version-number"></span></h1>
 
   <div id="about">
     <p>
@@ -161,6 +160,9 @@
         <br>
         <input class="checkbox" type="checkbox" id="indent-inner-html">
         <label for="indent-inner-html">Indent &lt;head&gt; and &lt;body&gt; sections?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="indent-empty-lines">
+        <label for="indent-empty-lines">Keep indentation on empty lines?</label>
         <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
 
 
@@ -225,7 +227,7 @@
     </div>
     <div class="col-6">
       <ul class="uses">
-        <li><a href="https://marketplace.visualstudio.com/items/HookyQR.beautify">Beautify plugin</a> (<a href="https://github.com/HookyQR/VSCodeBeautify">github</a>) by HookyQR for the <a href="https://code.visualstudio.com/">Visual Studio Code</a> IDE</a>,</li>
+        <li><a href="https://marketplace.visualstudio.com/items/HookyQR.beautify">Beautify plugin</a> (<a href="https://github.com/HookyQR/VSCodeBeautify">github</a>) by HookyQR for the <a href="https://code.visualstudio.com/">Visual Studio Code</a> IDE,</li>
         <li><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,</li>
         <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
         <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
