@@ -1499,6 +1499,30 @@ exports.test_data = {
           '</select>'
         ]
       }, {
+        comment: "Regression test for #1649",
+        unchanged: [
+          '<table>',
+          '    <tbody>',
+          '        <tr>',
+          '            <td>',
+          '                <table>',
+          '                    <thead>',
+          '                        <th>',
+          '                        </th>',
+          '                    </thead>',
+          '                    <tbody>',
+          '                        <tr>',
+          '                            <td>',
+          '                            </td>',
+          '                        </tr>',
+          '                    </tbody>',
+          '                </table>',
+          '            </td>',
+          '        </tr>',
+          '    </tbody>',
+          '</table>'
+        ]
+      }, {
         unchanged: [
           '<table>',
           '    <caption>37547 TEE Electric Powered Rail Car Train Functions (Abbreviated)',
