@@ -454,7 +454,7 @@ class Beautifier:
                 self.print_string('=')
                 if bool(whitespaceChar.search(self._ch)):
                     self._ch = ''
-            elif self._ch == '!':  # !important
+            elif self._ch == '!' and not (self._input.lookBack('\\')):  # !important
                 self.print_string(' ')
                 self.print_string(self._ch)
             else:
