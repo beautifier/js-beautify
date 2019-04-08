@@ -10550,6 +10550,10 @@ class CSSBeautifierTest(unittest.TestCase):
             'a {\n' +
             '\tcolor: blue !important;\n' +
             '}')
+        t(
+            '.blue\\! {\n' +
+            '\tcolor: blue !important;\n' +
+            '}')
 
 
         #============================================================

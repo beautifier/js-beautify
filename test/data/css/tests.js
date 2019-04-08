@@ -1480,6 +1480,8 @@ exports.test_data = {
         output: 'a {\n\tcolor: blue !important;\n}'
       }, {
         unchanged: 'a {\n\tcolor: blue !important;\n}'
+      }, {
+        unchanged: '.blue\\\\! {\n\tcolor: blue !important;\n}'
       }]
     }, {
       name: "indent_empty_lines true",

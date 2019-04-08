@@ -10672,6 +10672,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             'a {\n' +
             '\tcolor: blue !important;\n' +
             '}');
+        t(
+            '.blue\\! {\n' +
+            '\tcolor: blue !important;\n' +
+            '}');
 
 
         //============================================================
