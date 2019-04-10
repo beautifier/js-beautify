@@ -217,7 +217,8 @@ class Tokenizer(BaseTokenizer):
             token = self._create_token(TOKEN.END_BLOCK, c)
         elif c == ';':
             token = self._create_token(TOKEN.SEMICOLON, c)
-        elif c == '.' and bool(dot_pattern.match(self._input.peek(1))):
+        elif c == '.' and self._input.peek(1) is not None and bool(
+            dot_pattern.match(self._input.peek(1))):
             token = self._create_token(TOKEN.DOT, c)
         elif c == ',':
             token = self._create_token(TOKEN.COMMA, c)
