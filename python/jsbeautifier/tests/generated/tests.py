@@ -3486,6 +3486,9 @@ class TestJSBeautifier(unittest.TestCase):
         
         # Regression test #1228
         bt('const module = await import("...")')
+
+        # Regression test #1658
+        bt('.')
         
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
