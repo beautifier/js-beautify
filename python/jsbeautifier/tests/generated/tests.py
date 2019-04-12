@@ -3486,7 +3486,7 @@ class TestJSBeautifier(unittest.TestCase):
         
         # Regression test #1228
         bt('const module = await import("...")')
-
+        
         # Regression test #1658
         bt('.')
         
