@@ -1860,6 +1860,10 @@ exports.test_data = {
           unchanged: 'const module = await import("...")'
         },
         {
+          comment: "Regression test #1658",
+          unchanged: '.'
+        },
+        {
           comment: "ensure that this doesn't break anyone with the async library",
           unchanged: "async.map(function(t) {})"
         },
