@@ -215,6 +215,198 @@ exports.test_data = {
         output: '<html>\n<head>\n    <meta>\n</head>\n<body>\n    <div>\n\n        <p>x\n\n        </p>\n    </div>\n</body>\n</html>'
       }]
     }, {
+      name: "Tests for script and style Commented and cdata wapping (#1641)",
+      description: "Repect comment and cdata wrapping regardless of beautifier",
+      tests: [{
+        input: [
+          '<style><!----></style>'
+        ],
+        output: [
+          '<style>',
+          '    <!--',
+          '    -->',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<style><!--',
+          '--></style>'
+        ],
+        output: [
+          '<style>',
+          '    <!--',
+          '    -->',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<style><!-- the rest of this   line is   ignored',
+          '',
+          '',
+          '',
+          '--></style>'
+        ],
+        output: [
+          '<style>',
+          '    <!-- the rest of this   line is   ignored',
+          '    -->',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<style type="test/null"><!--',
+          '',
+          '\t  ',
+          '',
+          '--></style>'
+        ],
+        output: [
+          '<style type="test/null">',
+          '    <!--',
+          '    -->',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<script><!--',
+          'console.log("</script>" + "</style>");',
+          '--></script>'
+        ],
+        output: [
+          '<script>',
+          '    <!--',
+          '    console.log("</script>" + "</style>");',
+          '    -->',
+          '</script>'
+        ]
+      }, {
+        fragment: true,
+        comment: 'If wrapping is incomplete, print remaining unchanged.',
+        input: [
+          '<div>',
+          '<script><!--',
+          'console.log("</script>" + "</style>");',
+          ' </script>',
+          '</div>'
+        ],
+        output: [
+          '<div>',
+          '    <script><!--',
+          'console.log("</script>" + "</style>");',
+          ' </script>',
+          '</div>'
+        ]
+      }, {
+        input: [
+          '<style><!--',
+          '.selector {',
+          '    font-family: "</script></style>";',
+          '    }',
+          '--></style>'
+        ],
+        output: [
+          '<style>',
+          '    <!--',
+          '    .selector {',
+          '        font-family: "</script></style>";',
+          '    }',
+          '    -->',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<script type="test/null">',
+          '    <!--',
+          '   console.log("</script>" + "</style>");',
+          '    console.log("</script>" + "</style>");',
+          '--></script>'
+        ],
+        output: [
+          '<script type="test/null">',
+          '    <!--',
+          '    console.log("</script>" + "</style>");',
+          '     console.log("</script>" + "</style>");',
+          '    -->',
+          '</script>'
+        ]
+      }, {
+        input: [
+          '<script type="test/null"><!--',
+          ' console.log("</script>" + "</style>");',
+          '      console.log("</script>" + "</style>");',
+          '--></script>'
+        ],
+        output: [
+          '<script type="test/null">',
+          '    <!--',
+          '    console.log("</script>" + "</style>");',
+          '         console.log("</script>" + "</style>");',
+          '    -->',
+          '</script>'
+        ]
+      }, {
+        input: [
+          '<script><![CDATA[',
+          'console.log("</script>" + "</style>");',
+          ']]></script>'
+        ],
+        output: [
+          '<script>',
+          '    <![CDATA[',
+          '    console.log("</script>" + "</style>");',
+          '    ]]>',
+          '</script>'
+        ]
+      }, {
+        input: [
+          '<style><![CDATA[',
+          '.selector {',
+          '    font-family: "</script></style>";',
+          '    }',
+          ']]></style>'
+        ],
+        output: [
+          '<style>',
+          '    <![CDATA[',
+          '    .selector {',
+          '        font-family: "</script></style>";',
+          '    }',
+          '    ]]>',
+          '</style>'
+        ]
+      }, {
+        input: [
+          '<script type="test/null">',
+          '    <![CDATA[',
+          '   console.log("</script>" + "</style>");',
+          '    console.log("</script>" + "</style>");',
+          ']]></script>'
+        ],
+        output: [
+          '<script type="test/null">',
+          '    <![CDATA[',
+          '    console.log("</script>" + "</style>");',
+          '     console.log("</script>" + "</style>");',
+          '    ]]>',
+          '</script>'
+        ]
+      }, {
+        input: [
+          '<script type="test/null"><![CDATA[',
+          ' console.log("</script>" + "</style>");',
+          '      console.log("</script>" + "</style>");',
+          ']]></script>'
+        ],
+        output: [
+          '<script type="test/null">',
+          '    <![CDATA[',
+          '    console.log("</script>" + "</style>");',
+          '         console.log("</script>" + "</style>");',
+          '    ]]>',
+          '</script>'
+        ]
+      }]
+    }, {
       name: "Tests for script and style types (issue 453, 821)",
       description: "Only format recognized script types",
       tests: [{
