@@ -1533,6 +1533,20 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "LESS mixins",
+      description: "",
+      tests: [{
+        fragment: true,
+        unchanged: [
+          '.btn {',
+          '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);',
+          '}',
+          '.mymixin(@color: #ccc; @border-width: 1px) {',
+          '    border: @border-width solid @color;',
+          '}'
+        ]
+      }]
+    }, {
 
     }
   ]

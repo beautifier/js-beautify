@@ -10595,6 +10595,18 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # LESS mixins
+        self.reset_options()
+        test_fragment(
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
+            '}')
+
+
+        #============================================================
         # 
         self.reset_options()
 

@@ -10719,6 +10719,19 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // LESS mixins
+        reset_options();
+        set_name('LESS mixins');
+        test_fragment(
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
         set_name('');

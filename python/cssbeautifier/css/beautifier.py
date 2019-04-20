@@ -388,20 +388,25 @@ class Beautifier:
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ';':
-                if insidePropertyValue:
-                    self.outdent()
-                    insidePropertyValue = False
-                insideAtExtend = False
-                insideAtImport = False
-                self.print_string(self._ch)
-                self.eatWhitespace(True)
+                if parenLevel < 1:
+                    if insidePropertyValue:
+                        self.outdent()
+                        insidePropertyValue = False
+                    insideAtExtend = False
+                    insideAtImport = False
+                    self.print_string(self._ch)
+                    self.eatWhitespace(True)
 
-                # This maintains single line comments on the same
-                # line. Block comments are also affected, but
-                # a new line is always output before one inside
-                # that section
-                if self._input.peek() is not '/':
-                    self._output.add_new_line()
+                    # This maintains single line comments on the same
+                    # line. Block comments are also affected, but
+                    # a new line is always output before one inside
+                    # that section
+                    if self._input.peek() is not '/':
+                        self._output.add_new_line()
+                else:
+                    self.print_string(self._ch)
+                    self.eatWhitespace(True)
+                    self._output.space_before_token = True
             elif self._ch == '(':
                 # may be a url
                 if self._input.lookBack("url"):
