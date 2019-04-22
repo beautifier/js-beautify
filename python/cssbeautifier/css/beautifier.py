@@ -359,7 +359,7 @@ class Beautifier:
                         not (self._input.lookBack('&') or
                              self.foundNestedPseudoClass()) and \
                         not self._input.lookBack('(') and not insideAtExtend and \
-                        parenLevel < 1:
+                        parenLevel == 0:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     self.print_string(":")
@@ -389,7 +389,7 @@ class Beautifier:
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ';':
-                if parenLevel < 1:
+                if parenLevel == 0:
                     if insidePropertyValue:
                         self.outdent()
                         insidePropertyValue = False
@@ -426,18 +426,18 @@ class Beautifier:
                     self.eatWhitespace()
             elif self._ch == ')':
                 self.print_string(self._ch)
-                parenLevel -= 1
+                parenLevel = max(parenLevel - 1, 0)
             elif self._ch == ',':
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
                 if self._options.selector_separator_newline and \
-                        not insidePropertyValue and parenLevel < 1 and \
+                        not insidePropertyValue and parenLevel == 0 and \
                         not insideAtImport:
                     self._output.add_new_line()
                 else:
                     self._output.space_before_token = True
             elif (self._ch == '>' or self._ch == '+' or self._ch == '~') and \
-                    not insidePropertyValue and parenLevel < 1:
+                    not insidePropertyValue and parenLevel == 0:
                 # handle combinator spacing
                 if self._options.space_around_combinator:
                     self._output.space_before_token = True

@@ -334,7 +334,7 @@ Beautifier.prototype.beautify = function() {
         }
       }
     } else if (this._ch === ":") {
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel < 1) {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');
@@ -366,7 +366,7 @@ Beautifier.prototype.beautify = function() {
       this.print_string(this._ch + this.eatString(this._ch));
       this.eatWhitespace(true);
     } else if (this._ch === ';') {
-      if (parenLevel < 1) {
+      if (parenLevel === 0) {
         if (insidePropertyValue) {
           this.outdent();
           insidePropertyValue = false;
@@ -407,16 +407,16 @@ Beautifier.prototype.beautify = function() {
       }
     } else if (this._ch === ')') {
       this.print_string(this._ch);
-      parenLevel--;
+      parenLevel = Math.max(parenLevel - 1, 0);
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
+      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel === 0 && !insideAtImport) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;
       }
-    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel < 1) {
+    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel === 0) {
       //handle combinator spacing
       if (this._options.space_around_combinator) {
         this._output.space_before_token = true;
