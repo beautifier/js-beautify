@@ -10603,6 +10603,9 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
             '    border: @border-width solid @color;\n' +
+            '}\n' +
+            'strong {\n' +
+            '    &:extend(a:hover);\n' +
             '}')
 
 

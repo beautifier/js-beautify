@@ -334,7 +334,7 @@ Beautifier.prototype.beautify = function() {
         }
       }
     } else if (this._ch === ":") {
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend) {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel < 1) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');

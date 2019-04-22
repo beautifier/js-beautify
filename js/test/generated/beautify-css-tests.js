@@ -10728,6 +10728,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
             '    border: @border-width solid @color;\n' +
+            '}\n' +
+            'strong {\n' +
+            '    &:extend(a:hover);\n' +
             '}');
 
 

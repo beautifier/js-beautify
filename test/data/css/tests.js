@@ -1543,6 +1543,9 @@ exports.test_data = {
           '}',
           '.mymixin(@color: #ccc; @border-width: 1px) {',
           '    border: @border-width solid @color;',
+          '}',
+          'strong {',
+          '    &:extend(a:hover);',
           '}'
         ]
       }]

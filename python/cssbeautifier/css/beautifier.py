@@ -358,7 +358,8 @@ class Beautifier:
                 if (insideRule or enteringConditionalGroup) and \
                         not (self._input.lookBack('&') or
                              self.foundNestedPseudoClass()) and \
-                        not self._input.lookBack('(') and not insideAtExtend:
+                        not self._input.lookBack('(') and not insideAtExtend and \
+                        parenLevel < 1:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     self.print_string(":")
