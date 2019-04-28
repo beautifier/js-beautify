@@ -10379,8 +10379,8 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '.set {\n' +
             '    each(@set, {\n' +
-            '        @{key}-@{index}: @value;\n' +
-            '    }\n' +
+            '            @{key}-@{index}: @value;\n' +
+            '        }\n' +
             '    );\n' +
             '}')
         t('@light-blue: @nice-blue + #111;')
@@ -10591,6 +10591,63 @@ class CSSBeautifierTest(unittest.TestCase):
             '\n' +
             '    height: auto;\n' +
             '\n' +
+            '}')
+
+
+        #============================================================
+        # LESS mixins
+        self.reset_options()
+        t(
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
+            '}\n' +
+            'strong {\n' +
+            '    &:extend(a:hover);\n' +
+            '}')
+        
+        # Ensure simple closing parens do not break behavior
+        t(
+            'strong {\n' +
+            '    &:extend(a:hover));\n' +
+            '}\n' +
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
+            '}\n' +
+            'strong {\n' +
+            '    &:extend(a:hover);\n' +
+            '}')
+        
+        # indent multi-line parens
+        t(
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s,\n' +
+            '        .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc;\n' +
+            '    @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
+            '}')
+        
+        # format inside mixin parens
+        t(
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes,1.4s,.5s,1,ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color:#ccc;@border-width:1px) {\n' +
+            '    border:@border-width solid @color;\n' +
+            '}',
+            #  -- output --
+            '.btn {\n' +
+            '    .generate-animation(@mykeyframes, 1.4s, .5s, 1, ease-out);\n' +
+            '}\n' +
+            '.mymixin(@color: #ccc; @border-width: 1px) {\n' +
+            '    border: @border-width solid @color;\n' +
             '}')
 
 

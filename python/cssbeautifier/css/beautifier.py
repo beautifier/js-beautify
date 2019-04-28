@@ -358,7 +358,8 @@ class Beautifier:
                 if (insideRule or enteringConditionalGroup) and \
                         not (self._input.lookBack('&') or
                              self.foundNestedPseudoClass()) and \
-                        not self._input.lookBack('(') and not insideAtExtend:
+                        not self._input.lookBack('(') and not insideAtExtend and \
+                        parenLevel == 0:
                     # 'property: value' delimiter
                     # which could be in a conditional group query
                     self.print_string(":")
@@ -388,50 +389,62 @@ class Beautifier:
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ';':
-                if insidePropertyValue:
-                    self.outdent()
-                    insidePropertyValue = False
-                insideAtExtend = False
-                insideAtImport = False
-                self.print_string(self._ch)
-                self.eatWhitespace(True)
+                if parenLevel == 0:
+                    if insidePropertyValue:
+                        self.outdent()
+                        insidePropertyValue = False
+                    insideAtExtend = False
+                    insideAtImport = False
+                    self.print_string(self._ch)
+                    self.eatWhitespace(True)
 
-                # This maintains single line comments on the same
-                # line. Block comments are also affected, but
-                # a new line is always output before one inside
-                # that section
-                if self._input.peek() is not '/':
-                    self._output.add_new_line()
+                    # This maintains single line comments on the same
+                    # line. Block comments are also affected, but
+                    # a new line is always output before one inside
+                    # that section
+                    if self._input.peek() is not '/':
+                        self._output.add_new_line()
+                else:
+                    self.print_string(self._ch)
+                    self.eatWhitespace(True)
+                    self._output.space_before_token = True
             elif self._ch == '(':
                 # may be a url
                 if self._input.lookBack("url"):
                     self.print_string(self._ch)
                     self.eatWhitespace()
+                    parenLevel += 1
+                    self.indent()
                     self._ch = self._input.next()
                     if self._ch in {')', '"', '\''}:
                         self._input.back()
-                        parenLevel += 1
                     elif self._ch is not None:
                         self.print_string(self._ch + self.eatString(')'))
+                        if parenLevel:
+                            parenLevel -= 1
+                            self.outdent()
                 else:
-                    parenLevel += 1
                     self.preserveSingleSpace(isAfterSpace)
                     self.print_string(self._ch)
                     self.eatWhitespace()
+                    parenLevel += 1
+                    self.indent()
             elif self._ch == ')':
+                if parenLevel:
+                    parenLevel -= 1
+                    self.outdent()
                 self.print_string(self._ch)
-                parenLevel -= 1
             elif self._ch == ',':
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
                 if self._options.selector_separator_newline and \
-                        not insidePropertyValue and parenLevel < 1 and \
+                        not insidePropertyValue and parenLevel == 0 and \
                         not insideAtImport:
                     self._output.add_new_line()
                 else:
                     self._output.space_before_token = True
             elif (self._ch == '>' or self._ch == '+' or self._ch == '~') and \
-                    not insidePropertyValue and parenLevel < 1:
+                    not insidePropertyValue and parenLevel == 0:
                 # handle combinator spacing
                 if self._options.space_around_combinator:
                     self._output.space_before_token = True
