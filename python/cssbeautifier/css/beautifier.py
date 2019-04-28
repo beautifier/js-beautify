@@ -413,20 +413,27 @@ class Beautifier:
                 if self._input.lookBack("url"):
                     self.print_string(self._ch)
                     self.eatWhitespace()
+                    parenLevel += 1
+                    self.indent()
                     self._ch = self._input.next()
                     if self._ch in {')', '"', '\''}:
                         self._input.back()
-                        parenLevel += 1
                     elif self._ch is not None:
                         self.print_string(self._ch + self.eatString(')'))
+                        if parenLevel:
+                            parenLevel -= 1
+                            self.outdent()
                 else:
-                    parenLevel += 1
                     self.preserveSingleSpace(isAfterSpace)
                     self.print_string(self._ch)
                     self.eatWhitespace()
+                    parenLevel += 1
+                    self.indent()
             elif self._ch == ')':
+                if parenLevel:
+                    parenLevel -= 1
+                    self.outdent()
                 self.print_string(self._ch)
-                parenLevel = max(parenLevel - 1, 0)
             elif self._ch == ',':
                 self.print_string(self._ch)
                 self.eatWhitespace(True)

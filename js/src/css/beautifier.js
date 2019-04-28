@@ -392,22 +392,31 @@ Beautifier.prototype.beautify = function() {
       if (this._input.lookBack("url")) {
         this.print_string(this._ch);
         this.eatWhitespace();
+        parenLevel++;
+        this.indent();
         this._ch = this._input.next();
         if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
-          parenLevel++;
         } else if (this._ch) {
           this.print_string(this._ch + this.eatString(')'));
+          if (parenLevel) {
+            parenLevel--;
+            this.outdent();
+          }
         }
       } else {
-        parenLevel++;
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
         this.eatWhitespace();
+        parenLevel++;
+        this.indent();
       }
     } else if (this._ch === ')') {
+      if (parenLevel) {
+        parenLevel--;
+        this.outdent();
+      }
       this.print_string(this._ch);
-      parenLevel = Math.max(parenLevel - 1, 0);
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);

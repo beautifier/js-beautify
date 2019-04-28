@@ -10379,8 +10379,8 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '.set {\n' +
             '    each(@set, {\n' +
-            '        @{key}-@{index}: @value;\n' +
-            '    }\n' +
+            '            @{key}-@{index}: @value;\n' +
+            '        }\n' +
             '    );\n' +
             '}')
         t('@light-blue: @nice-blue + #111;')

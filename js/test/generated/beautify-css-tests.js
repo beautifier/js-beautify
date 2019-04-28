@@ -10494,8 +10494,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '.set {\n' +
             '    each(@set, {\n' +
-            '        @{key}-@{index}: @value;\n' +
-            '    }\n' +
+            '            @{key}-@{index}: @value;\n' +
+            '        }\n' +
             '    );\n' +
             '}');
         t('@light-blue: @nice-blue + #111;');

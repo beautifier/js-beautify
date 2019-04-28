@@ -1297,9 +1297,8 @@ exports.test_data = {
             '}',
             '.set {',
             '    each(@set, {',
-            '        @{key}-@{index}: @value;',
-            '    }',
-            // This is not optimal formatting, included to document current behavior.
+            '            @{key}-@{index}: @value;',
+            '        }',
             '    );',
             '}'
           ]
