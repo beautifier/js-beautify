@@ -8709,8 +8709,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var x = set\n\na() {}", "var x = set\n\na() {}")
         bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}")
 
-        bt('<!-- foo\nbar();\n-->')
-        bt('<!-- dont crash') # -->
         bt('for () /abc/.test()')
         bt('if (k) /aaa/m.test(v) && l();')
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}')

@@ -412,7 +412,7 @@ class Tokenizer(BaseTokenizer):
 
             self._input.back()
 
-        elif c == '<':
+        elif c == '<' and self._is_first_token():
 
             if self._patterns.html_comment_start.read():
                 c = '<!--'
