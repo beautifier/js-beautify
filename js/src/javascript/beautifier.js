@@ -400,7 +400,7 @@ Beautifier.prototype.print_token_line_indentation = function(current_token) {
   }
 };
 
-Beautifier.prototype.print_token = function(current_token, printable_token) {
+Beautifier.prototype.print_token = function(current_token) {
   if (this._output.raw) {
     this._output.add_raw_token(current_token);
     return;
@@ -426,10 +426,9 @@ Beautifier.prototype.print_token = function(current_token, printable_token) {
     }
   }
 
-  printable_token = printable_token || current_token.text;
   this.print_token_line_indentation(current_token);
   this._output.non_breaking_space = true;
-  this._output.add_token(printable_token);
+  this._output.add_token(current_token.text);
   if (this._output.previous_token_wrapped) {
     this._flags.multiline_frame = true;
   }
@@ -1337,8 +1336,12 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
     this.print_token(current_token);
     this._output.space_before_token = true;
     return;
+  } else {
+    this.print_block_commment(current_token, preserve_statement_flags);
   }
+};
 
+Beautifier.prototype.print_block_commment = function(current_token, preserve_statement_flags) {
   var lines = split_linebreaks(current_token.text);
   var j; // iterator for this case
   var javadoc = false;
@@ -1350,7 +1353,8 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
   this.print_newline(false, preserve_statement_flags);
 
   // first line always indented
-  this.print_token(current_token, lines[0]);
+  this.print_token_line_indentation(current_token);
+  this._output.add_token(lines[0]);
   this.print_newline(false, preserve_statement_flags);
 
 
@@ -1366,10 +1370,12 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
     for (j = 0; j < lines.length; j++) {
       if (javadoc) {
         // javadoc: reformat and re-indent
-        this.print_token(current_token, ltrim(lines[j]));
+        this.print_token_line_indentation(current_token);
+        this._output.add_token(ltrim(lines[j]));
       } else if (starless && lines[j]) {
         // starless: re-indent non-empty content, avoiding trim
-        this.print_token(current_token, lines[j].substring(lastIndentLength));
+        this.print_token_line_indentation(current_token);
+        this._output.add_token(lines[j].substring(lastIndentLength));
       } else {
         // normal comments output raw
         this._output.current_line.set_indent(-1);
@@ -1383,6 +1389,7 @@ Beautifier.prototype.handle_block_comment = function(current_token, preserve_sta
     this._flags.alignment = 0;
   }
 };
+
 
 Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
   if (current_token.newlines) {

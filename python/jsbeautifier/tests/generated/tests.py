@@ -5471,6 +5471,14 @@ class TestJSBeautifier(unittest.TestCase):
             '        bar: 2\n' +
             '    });\n' +
             'var test = 1;')
+        
+        # Issue #1663
+        bt(
+            '{\n' +
+            '    /* howdy\n' +
+            '    \n' +
+            '    */\n' +
+            '}')
         bt(
             'obj\n' +
             '    .last(a, function() {\n' +

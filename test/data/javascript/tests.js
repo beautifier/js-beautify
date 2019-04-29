@@ -3136,6 +3136,15 @@ exports.test_data = {
             '    });',
             'var test = 1;'
           ]
+        }, {
+          comment: "Issue #1663",
+          unchanged: [
+            '{',
+            '    /* howdy',
+            '    ',
+            '    */',
+            '}'
+          ]
         },
         {
           unchanged: [
