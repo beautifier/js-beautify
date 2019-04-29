@@ -108,7 +108,7 @@ xmlRegExp = re.compile(
     r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
 
 class TokenizerPatterns(BaseTokenizerPatterns):
-    def __init__(self, input_scanner, acorn):
+    def __init__(self, input_scanner, acorn, options):
         BaseTokenizerPatterns.__init__(self, input_scanner)
 
         # This is not pretty, but given how we did the version import
@@ -122,9 +122,8 @@ class TokenizerPatterns(BaseTokenizerPatterns):
             six.u(r'\u2028\u2029'))
 
         pattern = Pattern(input_scanner)
-        templatable = TemplatablePattern(input_scanner)
-        templatable = templatable.disable('handlebars')
-        templatable = templatable.disable('django')
+        templatable = TemplatablePattern(input_scanner) \
+                .read_options(options)
 
         self.identifier = templatable.starting_with(acorn.identifier \
             ).matching(acorn.identifierMatch)
@@ -162,7 +161,7 @@ class Tokenizer(BaseTokenizer):
         self.in_html_comment = False
         self.has_char_escapes = False
 
-        self._patterns = TokenizerPatterns(self._input, self.acorn)
+        self._patterns = TokenizerPatterns(self._input, self.acorn, opts)
 
 
     def _reset(self):

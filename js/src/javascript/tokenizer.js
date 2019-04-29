@@ -108,10 +108,8 @@ var Tokenizer = function(input_string, options) {
     /\u2028\u2029/.source);
 
   var pattern_reader = new Pattern(this._input);
-  var templatable = new TemplatablePattern(this._input);
-  templatable = templatable.disable('handlebars');
-  templatable = templatable.disable('django');
-
+  var templatable = new TemplatablePattern(this._input)
+    .read_options(this._options);
 
   this.__patterns = {
     template: templatable,

@@ -68,6 +68,14 @@ class TemplatablePattern(Pattern):
     def _update(self):
         self.__set_templated_pattern()
 
+    def read_options(self, options):
+        result = self._create()
+        for language in ['django', 'erb', 'handlebars', 'php']:
+            setattr(result._disabled, language,
+                not (language in options.templating))
+        result._update()
+        return result
+
     def disable(self, language):
         result = self._create()
         setattr(result._disabled, language, True)

@@ -56,7 +56,7 @@ var Tokenizer = function(input_string, options) {
 
   // Words end at whitespace or when a tag starts
   // if we are indenting handlebars, they are considered tags
-  var templatable_reader = new TemplatablePattern(this._input);
+  var templatable_reader = new TemplatablePattern(this._input).read_options(this._options);
   var pattern_reader = new Pattern(this._input);
 
   this.__patterns = {

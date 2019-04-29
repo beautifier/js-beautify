@@ -26,6 +26,69 @@
 
 var inputlib = require('./inputlib');
 
+var templating_matrix = [
+  // Php (<?php ... ?> and <?= ... ?>) =.
+  {
+    s: '<?php',
+    e: '?>'
+  },
+  {
+    s: '<?=',
+    e: '?>'
+  },
+  // erb, ejs, asp: <% ... %>
+  {
+    s: '<%',
+    e: '%>'
+  },
+  {
+    s: '<%=',
+    e: '%>'
+  },
+  // django {{ ... }} and {# ... #} and {% ... %}
+  {
+    s: '{{',
+    e: '}}'
+  },
+  {
+    s: '{#',
+    e: '#}'
+  },
+  {
+    s: '{%',
+    e: '%}'
+  },
+  // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
+  {
+    // options: [
+    //   { name: "indent_handlebars", value: "false" }
+    // ],
+    s: '{{',
+    e: '}}'
+  },
+  {
+    // options: [
+    //   { name: "indent_handlebars", value: "false" }
+    // ],
+    s: '{{#',
+    e: '}}'
+  },
+  {
+    //   options: [
+    //     { name: "indent_handlebars", value: "false" }
+    //   ],
+    s: '{{!',
+    e: '}}'
+  },
+  {
+    //   options: [
+    //     { name: "indent_handlebars", value: "false" }
+    //   ],
+    s: '{{!--',
+    e: '--}}'
+  }
+];
+
 exports.test_data = {
   default_options: [
     { name: "indent_size", value: "4" },
@@ -2832,88 +2895,13 @@ exports.test_data = {
 
       ]
     }, {
-      name: "Template Formatting",
-      description: "Php (<?php ... ?>) and underscore.js templating treated as strings.",
-      options: [],
-      tests: [
-        { unchanged: '<?=$view["name"]; ?>' },
-        { unchanged: 'a = <?= external() ?>;' },
-        {
-          unchanged: [
-            '<?php',
-            'for($i = 1; $i <= 100; $i++;) {',
-            '    #count to 100!',
-            '    echo($i . "</br>");',
-            '}',
-            '?>'
-          ]
-        },
-        { unchanged: 'a = <%= external() %>;' }
-      ]
-    }, {
       name: "minimal template handling",
       description: "treated as content.",
       template: "^^^ $$$",
-      matrix: [
-
-        // Php (<?php ... ?> and <?= ... ?>) =.
-        {
-          s: '<?php',
-          e: '?>'
-        },
-        {
-          s: '<?=',
-          e: '?>'
-        },
-        // erb, ejs, asp: <% ... %>
-        {
-          s: '<%',
-          e: '%>'
-        } //,
-        // django {{ ... }} and {# ... #} and {% ... %}
-        // {
-        //   s: '{{',
-        //   e: '}}'
-        // },
-        // {
-        //   s: '{#',
-        //   e: '#}'
-        // },
-        // {
-        //   s: '{%',
-        //   e: '%}'
-        // },
-        // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
-        // {
-        //   options: [
-        //     { name: "indent_handlebars", value: "false" }
-        //   ],
-        //   s: '{{',
-        //   e: '}}'
-        // },
-        // {
-        //   options: [
-        //     { name: "indent_handlebars", value: "false" }
-        //   ],
-        //   s: '{{#',
-        //   e: '}}'
-        // },
-        // {
-        //   options: [
-        //     { name: "indent_handlebars", value: "false" }
-        //   ],
-        //   s: '{{!',
-        //   e: '}}'
-        // },
-        // {
-        //   options: [
-        //     { name: "indent_handlebars", value: "false" }
-        //   ],
-        //   s: '{{!--',
-        //   e: '--}}'
-        // }
-
+      options: [
+        { name: "templating", value: "['django', 'erb', 'handlebars', 'php']" }
       ],
+      matrix: templating_matrix,
       tests: [{
         input: 'var  a = ^^^s$$$$view["name"]; ^^^e$$$;',
         output: 'var a = ^^^s$$$$view["name"]; ^^^e$$$;'
@@ -2944,6 +2932,36 @@ exports.test_data = {
           'echo "A";',
           '^^^e$$$;',
           'test.method();'
+        ]
+      }, {
+        unchanged: [
+          '"^^^s$$$";if(0){}"^^^e$$$";'
+        ]
+      }]
+    }, {
+      name: "Templating disabled - ensure formatting",
+      description: "",
+      template: "^^^ $$$",
+      options: [
+        { name: "templating", value: "['auto']" }
+      ],
+      matrix: templating_matrix,
+      tests: [{
+        input: [
+          '"^^^s$$$";if(0){}"^^^e$$$";'
+        ],
+        output: [
+          '"^^^s$$$";',
+          'if (0) {}',
+          '"^^^e$$$";'
+        ]
+      }, {
+        input: [
+          '"^^^s$$$";if(0){}'
+        ],
+        output: [
+          '"^^^s$$$";',
+          'if (0) {}'
         ]
       }]
     }, {

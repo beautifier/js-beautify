@@ -16,5 +16,6 @@
     "eval_code": false,
     "unescape_strings": false,
     "wrap_line_length": 0,
-    "indent_empty_lines": false
+    "indent_empty_lines": false,
+    "templating": ["auto"]
 }

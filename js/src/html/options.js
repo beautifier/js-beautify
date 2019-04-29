@@ -32,6 +32,9 @@ var BaseOptions = require('../core/options').Options;
 
 function Options(options) {
   BaseOptions.call(this, options, 'html');
+  if (this.templating.length === 1 && this.templating[0] === 'auto') {
+    this.templating = ['django', 'erb', 'handlebars', 'php'];
+  }
 
   this.indent_inner_html = this._get_boolean('indent_inner_html');
   this.indent_body_inner_html = this._get_boolean('indent_body_inner_html', true);
@@ -79,6 +82,7 @@ function Options(options) {
   ]);
   this.unformatted_content_delimiter = this._get_characters('unformatted_content_delimiter');
   this.indent_scripts = this._get_selection('indent_scripts', ['normal', 'keep', 'separate']);
+
 }
 Options.prototype = new BaseOptions();
 

@@ -4680,25 +4680,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Template Formatting
-        reset_options();
-        set_name('Template Formatting');
-        bt('<?=$view["name"]; ?>');
-        bt('a = <?= external() ?>;');
-        bt(
-            '<?php\n' +
-            'for($i = 1; $i <= 100; $i++;) {\n' +
-            '    #count to 100!\n' +
-            '    echo($i . "</br>");\n' +
-            '}\n' +
-            '?>');
-        bt('a = <%= external() %>;');
-
-
-        //============================================================
         // minimal template handling - ()
         reset_options();
         set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
         bt('var  a = <?php$view["name"]; ?>;', 'var a = <?php$view["name"]; ?>;');
         bt(
             'a = abc<?php\n' +
@@ -4719,10 +4704,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'echo "A";\n' +
             '?>;\n' +
             'test.method();');
+        bt('"<?php";if(0){}"?>";');
 
         // minimal template handling - ()
         reset_options();
         set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
         bt('var  a = <?=$view["name"]; ?>;', 'var a = <?=$view["name"]; ?>;');
         bt(
             'a = abc<?=\n' +
@@ -4743,10 +4730,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'echo "A";\n' +
             '?>;\n' +
             'test.method();');
+        bt('"<?=";if(0){}"?>";');
 
         // minimal template handling - ()
         reset_options();
         set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
         bt('var  a = <%$view["name"]; %>;', 'var a = <%$view["name"]; %>;');
         bt(
             'a = abc<%\n' +
@@ -4767,6 +4756,393 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'echo "A";\n' +
             '%>;\n' +
             'test.method();');
+        bt('"<%";if(0){}"%>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = <%=$view["name"]; %>;', 'var a = <%=$view["name"]; %>;');
+        bt(
+            'a = abc<%=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>;');
+        test_fragment(
+            '<%= %>\n' +
+            'test.met<%= someValue %>hod();');
+        bt(
+            '<%= "A" %>abc<%= "D" %>;\n' +
+            '<%= "B" %>.test();\n' +
+            '" <%=   "C" \'D\'  %>  "');
+        bt(
+            '<%=\n' +
+            'echo "A";\n' +
+            '%>;\n' +
+            'test.method();');
+        bt('"<%=";if(0){}"%>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};');
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();');
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "');
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {#$view["name"]; #};', 'var a = {#$view["name"]; #};');
+        bt(
+            'a = abc{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '#};');
+        test_fragment(
+            '{# #}\n' +
+            'test.met{# someValue #}hod();');
+        bt(
+            '{# "A" #}abc{# "D" #};\n' +
+            '{# "B" #}.test();\n' +
+            '" {#   "C" \'D\'  #}  "');
+        bt(
+            '{#\n' +
+            'echo "A";\n' +
+            '#};\n' +
+            'test.method();');
+        bt('"{#";if(0){}"#}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {%$view["name"]; %};', 'var a = {%$view["name"]; %};');
+        bt(
+            'a = abc{%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%};');
+        test_fragment(
+            '{% %}\n' +
+            'test.met{% someValue %}hod();');
+        bt(
+            '{% "A" %}abc{% "D" %};\n' +
+            '{% "B" %}.test();\n' +
+            '" {%   "C" \'D\'  %}  "');
+        bt(
+            '{%\n' +
+            'echo "A";\n' +
+            '%};\n' +
+            'test.method();');
+        bt('"{%";if(0){}"%}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};');
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();');
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "');
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{#$view["name"]; }};', 'var a = {{#$view["name"]; }};');
+        bt(
+            'a = abc{{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{# }}\n' +
+            'test.met{{# someValue }}hod();');
+        bt(
+            '{{# "A" }}abc{{# "D" }};\n' +
+            '{{# "B" }}.test();\n' +
+            '" {{#   "C" \'D\'  }}  "');
+        bt(
+            '{{#\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{#";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{!$view["name"]; }};', 'var a = {{!$view["name"]; }};');
+        bt(
+            'a = abc{{!\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{! }}\n' +
+            'test.met{{! someValue }}hod();');
+        bt(
+            '{{! "A" }}abc{{! "D" }};\n' +
+            '{{! "B" }}.test();\n' +
+            '" {{!   "C" \'D\'  }}  "');
+        bt(
+            '{{!\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{!";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{!--$view["name"]; --}};', 'var a = {{!--$view["name"]; --}};');
+        bt(
+            'a = abc{{!--\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '--}};');
+        test_fragment(
+            '{{!-- --}}\n' +
+            'test.met{{!-- someValue --}}hod();');
+        bt(
+            '{{!-- "A" --}}abc{{!-- "D" --}};\n' +
+            '{{!-- "B" --}}.test();\n' +
+            '" {{!--   "C" \'D\'  --}}  "');
+        bt(
+            '{{!--\n' +
+            'echo "A";\n' +
+            '--}};\n' +
+            'test.method();');
+        bt('"{{!--";if(0){}"--}}";');
+
+
+        //============================================================
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<?php";if(0){}"?>";',
+            //  -- output --
+            '"<?php";\n' +
+            'if (0) {}\n' +
+            '"?>";');
+        bt(
+            '"<?php";if(0){}',
+            //  -- output --
+            '"<?php";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<?=";if(0){}"?>";',
+            //  -- output --
+            '"<?=";\n' +
+            'if (0) {}\n' +
+            '"?>";');
+        bt(
+            '"<?=";if(0){}',
+            //  -- output --
+            '"<?=";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<%";if(0){}"%>";',
+            //  -- output --
+            '"<%";\n' +
+            'if (0) {}\n' +
+            '"%>";');
+        bt(
+            '"<%";if(0){}',
+            //  -- output --
+            '"<%";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<%=";if(0){}"%>";',
+            //  -- output --
+            '"<%=";\n' +
+            'if (0) {}\n' +
+            '"%>";');
+        bt(
+            '"<%=";if(0){}',
+            //  -- output --
+            '"<%=";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{";if(0){}"}}";',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{";if(0){}',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{#";if(0){}"#}";',
+            //  -- output --
+            '"{#";\n' +
+            'if (0) {}\n' +
+            '"#}";');
+        bt(
+            '"{#";if(0){}',
+            //  -- output --
+            '"{#";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{%";if(0){}"%}";',
+            //  -- output --
+            '"{%";\n' +
+            'if (0) {}\n' +
+            '"%}";');
+        bt(
+            '"{%";if(0){}',
+            //  -- output --
+            '"{%";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{";if(0){}"}}";',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{";if(0){}',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{#";if(0){}"}}";',
+            //  -- output --
+            '"{{#";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{#";if(0){}',
+            //  -- output --
+            '"{{#";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{!";if(0){}"}}";',
+            //  -- output --
+            '"{{!";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{!";if(0){}',
+            //  -- output --
+            '"{{!";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{!--";if(0){}"--}}";',
+            //  -- output --
+            '"{{!--";\n' +
+            'if (0) {}\n' +
+            '"--}}";');
+        bt(
+            '"{{!--";if(0){}',
+            //  -- output --
+            '"{{!--";\n' +
+            'if (0) {}');
 
 
         //============================================================

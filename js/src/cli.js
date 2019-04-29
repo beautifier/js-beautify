@@ -93,6 +93,7 @@ var path = require('path'),
         "comma_first": Boolean,
         "operator_position": ["before-newline", "after-newline", "preserve-newline"],
         "indent_empty_lines": Boolean,
+        "templating": [String, Array],
         // CSS-only
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
@@ -179,6 +180,7 @@ var path = require('path'),
         // no shorthand for "config"
         // no shorthand for "editorconfig"
         // no shorthand for "indent_empty_lines"
+        // not shorthad for "templating"
     });
 
 function verifyExists(fullPath) {
@@ -349,6 +351,7 @@ function usage(err) {
         '                                    [first newline in file, otherwise "\\n]',
         '  -n, --end-with-newline            End output with newline',
         '  --indent-empty-lines              Keep indentation on empty lines',
+        '  --templating                      List of templating languages (auto,none,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html',
         '  --editorconfig                    Use EditorConfig to set up the options'
     ];
 
