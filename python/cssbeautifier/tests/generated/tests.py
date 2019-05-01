@@ -10528,7 +10528,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Important 
+        # Important
         self.reset_options()
         t(
             'a {\n' +
@@ -10554,6 +10554,21 @@ class CSSBeautifierTest(unittest.TestCase):
             '.blue\\! {\n' +
             '    color: blue !important;\n' +
             '}')
+
+
+        #============================================================
+        # Escape
+        self.reset_options()
+        t(
+            'a:not(.color\\:blue) {\n' +
+            '    color: blue !important;\n' +
+            '}')
+        t(
+            '.blue\\:very {\n' +
+            '    color: blue !important;\n' +
+            '}')
+        test_fragment('a:not(.color\\')
+        test_fragment('a:not\\')
 
 
         #============================================================

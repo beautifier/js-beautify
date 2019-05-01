@@ -10649,9 +10649,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
-        // Important 
+        // Important
         reset_options();
-        set_name('Important ');
+        set_name('Important');
         t(
             'a {\n' +
             '    color: blue  !important;\n' +
@@ -10676,6 +10676,22 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.blue\\! {\n' +
             '    color: blue !important;\n' +
             '}');
+
+
+        //============================================================
+        // Escape
+        reset_options();
+        set_name('Escape');
+        t(
+            'a:not(.color\\:blue) {\n' +
+            '    color: blue !important;\n' +
+            '}');
+        t(
+            '.blue\\:very {\n' +
+            '    color: blue !important;\n' +
+            '}');
+        test_fragment('a:not(.color\\');
+        test_fragment('a:not\\');
 
 
         //============================================================

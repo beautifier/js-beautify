@@ -1468,7 +1468,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "Important ",
+      name: "Important",
       description: "Spacing of !important",
       options: [],
       tests: [{
@@ -1481,6 +1481,21 @@ exports.test_data = {
         unchanged: 'a {\n    color: blue !important;\n}'
       }, {
         unchanged: '.blue\\\\! {\n    color: blue !important;\n}'
+      }]
+    }, {
+      name: "Escape",
+      description: "",
+      options: [],
+      tests: [{
+        unchanged: 'a:not(.color\\\\:blue) {\n    color: blue !important;\n}'
+      }, {
+        unchanged: '.blue\\\\:very {\n    color: blue !important;\n}'
+      }, {
+        fragment: true,
+        unchanged: 'a:not(.color\\\\'
+      }, {
+        fragment: true,
+        unchanged: 'a:not\\\\'
       }]
     }, {
       name: "indent_empty_lines true",

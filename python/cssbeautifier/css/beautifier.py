@@ -230,6 +230,8 @@ class Beautifier:
             isAfterSpace = whitespace != ''
             previous_ch = topCharacter
             self._ch = self._input.next()
+            if self._ch == '\\' and self._input.hasNext():
+                self._ch += self._input.next()
             topCharacter = self._ch
 
             if not self._ch:
