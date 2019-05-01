@@ -10555,6 +10555,23 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             'div [attr] :not(.class) {\n' +
             '    color: red;\n' +
             '}');
+        
+        // Issue #1233
+        t(
+            '.one {\n' +
+            '    color: #FFF;\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================
@@ -10578,9 +10595,9 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
-        // Issue #645
+        // Issue #645, #1233
         reset_options();
-        set_name('Issue #645');
+        set_name('Issue #645, #1233');
         opts.selector_separator_newline = true;
         opts.preserve_newlines = true;
         opts.newline_between_rules = true;
@@ -10602,6 +10619,39 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '\n' +
             '/* Comment after last rule */');
+        t(
+            '.one  {\n' +
+            '    color: #FFF;\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}',
+            //  -- output --
+            '.one {\n' +
+            '    color: #FFF;\n' +
+            '\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================

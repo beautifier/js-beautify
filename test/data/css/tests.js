@@ -1361,6 +1361,25 @@ exports.test_data = {
             '    color: red;',
             '}'
           ]
+        },
+        {
+          comment: "Issue #1233",
+          unchanged: [
+            '.one {',
+            '    color: #FFF;',
+            '    // pseudo-element',
+            '    span:not(*::selection) {',
+            '        margin-top: 0;',
+            '    }',
+            '}',
+            '.two {',
+            '    color: #000;',
+            '    // pseudo-class',
+            '    span:not(*:active) {',
+            '        margin-top: 0;',
+            '    }',
+            '}'
+          ]
         }
       ]
     }, {
@@ -1386,7 +1405,7 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "Issue #645",
+      name: "Issue #645, #1233",
       description: "",
       options: [
         { name: "selector_separator_newline", value: "true" },
@@ -1395,26 +1414,64 @@ exports.test_data = {
 
       ],
       tests: [{
-        unchanged: [
-          '/* Comment above first rule */',
-          '',
-          'body {',
-          '    display: none;',
-          '}',
-          '',
-          '/* Comment between rules */',
-          '',
-          'ul,',
-          '',
-          '/* Comment between selectors */',
-          '',
-          'li {',
-          '    display: none;',
-          '}',
-          '',
-          '/* Comment after last rule */'
-        ]
-      }]
+          unchanged: [
+            '/* Comment above first rule */',
+            '',
+            'body {',
+            '    display: none;',
+            '}',
+            '',
+            '/* Comment between rules */',
+            '',
+            'ul,',
+            '',
+            '/* Comment between selectors */',
+            '',
+            'li {',
+            '    display: none;',
+            '}',
+            '',
+            '/* Comment after last rule */'
+          ]
+        },
+        {
+          input: [
+            '.one  {',
+            '    color: #FFF;',
+            '    // pseudo-element',
+            '    span:not(*::selection) {',
+            '        margin-top: 0;',
+            '    }',
+            '}',
+            '.two {',
+            '    color: #000;',
+            '    // pseudo-class',
+            '    span:not(*:active) {',
+            '        margin-top: 0;',
+            '    }',
+            '}'
+          ],
+          output: [
+            '.one {',
+            '    color: #FFF;',
+            '',
+            '    // pseudo-element',
+            '    span:not(*::selection) {',
+            '        margin-top: 0;',
+            '    }',
+            '}',
+            '',
+            '.two {',
+            '    color: #000;',
+            '',
+            '    // pseudo-class',
+            '    span:not(*:active) {',
+            '        margin-top: 0;',
+            '    }',
+            '}'
+          ]
+        }
+      ]
     }, {
       name: "Extend Tests",
       description: "Test for '@extend'",

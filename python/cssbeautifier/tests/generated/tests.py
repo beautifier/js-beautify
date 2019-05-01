@@ -10438,6 +10438,23 @@ class CSSBeautifierTest(unittest.TestCase):
             'div [attr] :not(.class) {\n' +
             '    color: red;\n' +
             '}')
+        
+        # Issue #1233
+        t(
+            '.one {\n' +
+            '    color: #FFF;\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}')
 
 
         #============================================================
@@ -10460,7 +10477,7 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
-        # Issue #645
+        # Issue #645, #1233
         self.reset_options()
         self.options.selector_separator_newline = true
         self.options.preserve_newlines = true
@@ -10483,6 +10500,39 @@ class CSSBeautifierTest(unittest.TestCase):
             '}\n' +
             '\n' +
             '/* Comment after last rule */')
+        t(
+            '.one  {\n' +
+            '    color: #FFF;\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            '.one {\n' +
+            '    color: #FFF;\n' +
+            '\n' +
+            '    // pseudo-element\n' +
+            '    span:not(*::selection) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            '.two {\n' +
+            '    color: #000;\n' +
+            '\n' +
+            '    // pseudo-class\n' +
+            '    span:not(*:active) {\n' +
+            '        margin-top: 0;\n' +
+            '    }\n' +
+            '}')
 
 
         #============================================================
