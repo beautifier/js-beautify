@@ -1,4 +1,30 @@
 # Changelog
+## v1.10.0
+
+### Description
+# Description
+* Added `templating` setting to control when template languages are recognized.  All languages are off by default in Javascript and on by default in HTML. 
+* Thanks to @HanabishiRecca, @averydev, @kalbasit, @asteinha  for contributions
+
+https://github.com/beautify-web/js-beautify/compare/v1.9.1...v1.10.0
+
+
+
+### Closed Issues
+* beautifying scss selector with colon in it adds space ([#1667](https://github.com/beautify-web/js-beautify/issues/1667))
+* Javascript multiline comments duplicates ([#1663](https://github.com/beautify-web/js-beautify/issues/1663))
+* Tokenizer crashes if the input terminates with a dot character. ([#1658](https://github.com/beautify-web/js-beautify/issues/1658))
+* stop reformatting valid css \\! into invalid \\ ! ([#1656](https://github.com/beautify-web/js-beautify/pull/1656))
+* wrong indent for unclosed <? - need to support disabling templating ([#1647](https://github.com/beautify-web/js-beautify/issues/1647))
+* Beautify inserts space before exclamation mark in comment <!-- in css <style> ([#1641](https://github.com/beautify-web/js-beautify/issues/1641))
+* 'less' mixins parameter formatting problem ([#1582](https://github.com/beautify-web/js-beautify/issues/1582))
+* Change css tests to use 4 space indenting instead of tabs ([#1527](https://github.com/beautify-web/js-beautify/issues/1527))
+* Braces after case get pushed onto new line ([#1357](https://github.com/beautify-web/js-beautify/issues/1357))
+* Extra space in pseudo-elements and pseudo-classes selectors ([#1233](https://github.com/beautify-web/js-beautify/issues/1233))
+* LESS formatting - mixins with multiple variables ([#1018](https://github.com/beautify-web/js-beautify/issues/1018))
+* Bug in less format ([#842](https://github.com/beautify-web/js-beautify/issues/842))
+
+
 ## v1.9.1
 
 ### Description
