@@ -656,6 +656,11 @@ function Options(options, merge_child_field) {
   this.wrap_line_length = this._get_number('wrap_line_length', this._get_number('max_char'));
 
   this.indent_empty_lines = this._get_boolean('indent_empty_lines');
+
+  // valid templating languages ['django', 'erb', 'handlebars', 'php']
+  // For now, 'auto' = all off for javascript, all on for html (and inline javascript).
+  // other values ignored
+  this.templating = this._get_selection_list('templating', ['auto', 'none', 'django', 'erb', 'handlebars', 'php'], ['auto']);
 }
 
 Options.prototype._get_array = function(name, default_value) {
@@ -1310,6 +1315,9 @@ Beautifier.prototype.beautify = function() {
     isAfterSpace = whitespace !== '';
     previous_ch = topCharacter;
     this._ch = this._input.next();
+    if (this._ch === '\\' && this._input.hasNext()) {
+      this._ch += this._input.next();
+    }
     topCharacter = this._ch;
 
     if (!this._ch) {
@@ -1442,7 +1450,7 @@ Beautifier.prototype.beautify = function() {
         }
       }
     } else if (this._ch === ":") {
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend) {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');
@@ -1474,51 +1482,66 @@ Beautifier.prototype.beautify = function() {
       this.print_string(this._ch + this.eatString(this._ch));
       this.eatWhitespace(true);
     } else if (this._ch === ';') {
-      if (insidePropertyValue) {
-        this.outdent();
-        insidePropertyValue = false;
-      }
-      insideAtExtend = false;
-      insideAtImport = false;
-      this.print_string(this._ch);
-      this.eatWhitespace(true);
+      if (parenLevel === 0) {
+        if (insidePropertyValue) {
+          this.outdent();
+          insidePropertyValue = false;
+        }
+        insideAtExtend = false;
+        insideAtImport = false;
+        this.print_string(this._ch);
+        this.eatWhitespace(true);
 
-      // This maintains single line comments on the same
-      // line. Block comments are also affected, but
-      // a new line is always output before one inside
-      // that section
-      if (this._input.peek() !== '/') {
-        this._output.add_new_line();
+        // This maintains single line comments on the same
+        // line. Block comments are also affected, but
+        // a new line is always output before one inside
+        // that section
+        if (this._input.peek() !== '/') {
+          this._output.add_new_line();
+        }
+      } else {
+        this.print_string(this._ch);
+        this.eatWhitespace(true);
+        this._output.space_before_token = true;
       }
     } else if (this._ch === '(') { // may be a url
       if (this._input.lookBack("url")) {
         this.print_string(this._ch);
         this.eatWhitespace();
+        parenLevel++;
+        this.indent();
         this._ch = this._input.next();
         if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
-          parenLevel++;
         } else if (this._ch) {
           this.print_string(this._ch + this.eatString(')'));
+          if (parenLevel) {
+            parenLevel--;
+            this.outdent();
+          }
         }
       } else {
-        parenLevel++;
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
         this.eatWhitespace();
+        parenLevel++;
+        this.indent();
       }
     } else if (this._ch === ')') {
+      if (parenLevel) {
+        parenLevel--;
+        this.outdent();
+      }
       this.print_string(this._ch);
-      parenLevel--;
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel < 1 && !insideAtImport) {
+      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel === 0 && !insideAtImport) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;
       }
-    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel < 1) {
+    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel === 0) {
       //handle combinator spacing
       if (this._options.space_around_combinator) {
         this._output.space_before_token = true;
@@ -1543,7 +1566,7 @@ Beautifier.prototype.beautify = function() {
       if (whitespaceChar.test(this._ch)) {
         this._ch = '';
       }
-    } else if (this._ch === '!') { // !important
+    } else if (this._ch === '!' && !this._input.lookBack("\\")) { // !important
       this.print_string(' ');
       this.print_string(this._ch);
     } else {
