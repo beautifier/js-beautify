@@ -614,6 +614,8 @@ class Beautifier:
                 self._flags.last_token.type == TOKEN.END_EXPR:
             self.set_mode(MODE.BlockStatement)
             self._flags.in_case_statement = True
+        elif self._flags.case_body:
+            self.set_mode(MODE.BlockStatement)
         elif second_token is not None and (
             (second_token.text in [
                 ':',
@@ -794,9 +796,10 @@ class Beautifier:
 
         if self._flags.in_case_statement and reserved_array(current_token, ['case', 'default']):
             self.print_newline()
-            if self._flags.case_body or self._options.jslint_happy:
-                self._flags.case_body = False
+            if self._flags.last_token.type != TOKEN.END_BLOCK and (
+                    self._flags.case_body or self._options.jslint_happy):
                 self.deindent()
+            self._flags.case_body = False
             self.print_token(current_token)
             self._flags.in_case = True
             return
@@ -1071,11 +1074,15 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(current_token)
 
         if current_token.text == ':' and self._flags.in_case:
-            self._flags.case_body = True
-            self.indent()
             self.print_token(current_token)
-            self.print_newline()
             self._flags.in_case = False
+            self._flags.case_body = True
+            if self._tokens.peek().type != TOKEN.START_BLOCK:
+                self.indent()
+                self.print_newline()
+            else:
+                self._output.space_before_token = True
+
             return
 
         space_before = True

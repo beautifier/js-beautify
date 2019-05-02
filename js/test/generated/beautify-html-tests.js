@@ -413,6 +413,161 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Tests for script and style Commented and cdata wapping (#1641)
+        reset_options();
+        set_name('Tests for script and style Commented and cdata wapping (#1641)');
+        bth(
+            '<style><!----></style>',
+            //  -- output --
+            '<style>\n' +
+            '    <!--\n' +
+            '    -->\n' +
+            '</style>');
+        bth(
+            '<style><!--\n' +
+            '--></style>',
+            //  -- output --
+            '<style>\n' +
+            '    <!--\n' +
+            '    -->\n' +
+            '</style>');
+        bth(
+            '<style><!-- the rest of this   line is   ignored\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '--></style>',
+            //  -- output --
+            '<style>\n' +
+            '    <!-- the rest of this   line is   ignored\n' +
+            '    -->\n' +
+            '</style>');
+        bth(
+            '<style type="test/null"><!--\n' +
+            '\n' +
+            '\t  \n' +
+            '\n' +
+            '--></style>',
+            //  -- output --
+            '<style type="test/null">\n' +
+            '    <!--\n' +
+            '    -->\n' +
+            '</style>');
+        bth(
+            '<script><!--\n' +
+            'console.log("</script>" + "</style>");\n' +
+            '--></script>',
+            //  -- output --
+            '<script>\n' +
+            '    <!--\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '    -->\n' +
+            '</script>');
+        
+        // If wrapping is incomplete, print remaining unchanged.
+        test_fragment(
+            '<div>\n' +
+            '<script><!--\n' +
+            'console.log("</script>" + "</style>");\n' +
+            ' </script>\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <script><!--\n' +
+            'console.log("</script>" + "</style>");\n' +
+            ' </script>\n' +
+            '</div>');
+        bth(
+            '<style><!--\n' +
+            '.selector {\n' +
+            '    font-family: "</script></style>";\n' +
+            '    }\n' +
+            '--></style>',
+            //  -- output --
+            '<style>\n' +
+            '    <!--\n' +
+            '    .selector {\n' +
+            '        font-family: "</script></style>";\n' +
+            '    }\n' +
+            '    -->\n' +
+            '</style>');
+        bth(
+            '<script type="test/null">\n' +
+            '    <!--\n' +
+            '   console.log("</script>" + "</style>");\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '--></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <!--\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '     console.log("</script>" + "</style>");\n' +
+            '    -->\n' +
+            '</script>');
+        bth(
+            '<script type="test/null"><!--\n' +
+            ' console.log("</script>" + "</style>");\n' +
+            '      console.log("</script>" + "</style>");\n' +
+            '--></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <!--\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '         console.log("</script>" + "</style>");\n' +
+            '    -->\n' +
+            '</script>');
+        bth(
+            '<script><![CDATA[\n' +
+            'console.log("</script>" + "</style>");\n' +
+            ']]></script>',
+            //  -- output --
+            '<script>\n' +
+            '    <![CDATA[\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '    ]]>\n' +
+            '</script>');
+        bth(
+            '<style><![CDATA[\n' +
+            '.selector {\n' +
+            '    font-family: "</script></style>";\n' +
+            '    }\n' +
+            ']]></style>',
+            //  -- output --
+            '<style>\n' +
+            '    <![CDATA[\n' +
+            '    .selector {\n' +
+            '        font-family: "</script></style>";\n' +
+            '    }\n' +
+            '    ]]>\n' +
+            '</style>');
+        bth(
+            '<script type="test/null">\n' +
+            '    <![CDATA[\n' +
+            '   console.log("</script>" + "</style>");\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            ']]></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <![CDATA[\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '     console.log("</script>" + "</style>");\n' +
+            '    ]]>\n' +
+            '</script>');
+        bth(
+            '<script type="test/null"><![CDATA[\n' +
+            ' console.log("</script>" + "</style>");\n' +
+            '      console.log("</script>" + "</style>");\n' +
+            ']]></script>',
+            //  -- output --
+            '<script type="test/null">\n' +
+            '    <![CDATA[\n' +
+            '    console.log("</script>" + "</style>");\n' +
+            '         console.log("</script>" + "</style>");\n' +
+            '    ]]>\n' +
+            '</script>');
+
+
+        //============================================================
         // Tests for script and style types (issue 453, 821)
         reset_options();
         set_name('Tests for script and style types (issue 453, 821)');

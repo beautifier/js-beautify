@@ -95,12 +95,16 @@ main()
     local NEW_VERSION=$1
     NEW_VERSION=$1
 
+    git checkout master || exit 1
+
     update_versions
     update_release_branch
 
     release_python
     release_node
     release_web
+
+    git checkout master
 }
 
 (main $*)

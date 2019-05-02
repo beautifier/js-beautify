@@ -23,11 +23,11 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Familiarize yourself with the folder structure and code style before you dive in.
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
-  * Run `make js` to build and and run unit tests
+  * Run `make js` to build and run unit tests
   * Run `make static` to manually test changes locally at `http://localhost:8080`
   * To load a debug (human readable) version of the beautifier source, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
-  * Run `make py` to build and and run unit tests 
+  * Run `make py` to build and run unit tests 
 * Add tests to `/test/data/*/test.js`.
 * Run `make jstest` or `make pytest` to run style checks, and to generate and run tests.
 * Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.

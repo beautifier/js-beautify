@@ -3487,6 +3487,9 @@ class TestJSBeautifier(unittest.TestCase):
         # Regression test #1228
         bt('const module = await import("...")')
         
+        # Regression test #1658
+        bt('.')
+        
         # ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})')
         
@@ -4421,23 +4424,9 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # Template Formatting
-        self.reset_options()
-        bt('<?=$view["name"]; ?>')
-        bt('a = <?= external() ?>;')
-        bt(
-            '<?php\n' +
-            'for($i = 1; $i <= 100; $i++;) {\n' +
-            '    #count to 100!\n' +
-            '    echo($i . "</br>");\n' +
-            '}\n' +
-            '?>')
-        bt('a = <%= external() %>;')
-
-
-        #============================================================
         # minimal template handling - ()
         self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
         bt('var  a = <?php$view["name"]; ?>;', 'var a = <?php$view["name"]; ?>;')
         bt(
             'a = abc<?php\n' +
@@ -4458,9 +4447,11 @@ class TestJSBeautifier(unittest.TestCase):
             'echo "A";\n' +
             '?>;\n' +
             'test.method();')
+        bt('"<?php";if(0){}"?>";')
 
         # minimal template handling - ()
         self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
         bt('var  a = <?=$view["name"]; ?>;', 'var a = <?=$view["name"]; ?>;')
         bt(
             'a = abc<?=\n' +
@@ -4481,9 +4472,11 @@ class TestJSBeautifier(unittest.TestCase):
             'echo "A";\n' +
             '?>;\n' +
             'test.method();')
+        bt('"<?=";if(0){}"?>";')
 
         # minimal template handling - ()
         self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
         bt('var  a = <%$view["name"]; %>;', 'var a = <%$view["name"]; %>;')
         bt(
             'a = abc<%\n' +
@@ -4504,6 +4497,374 @@ class TestJSBeautifier(unittest.TestCase):
             'echo "A";\n' +
             '%>;\n' +
             'test.method();')
+        bt('"<%";if(0){}"%>";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = <%=$view["name"]; %>;', 'var a = <%=$view["name"]; %>;')
+        bt(
+            'a = abc<%=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>;')
+        test_fragment(
+            '<%= %>\n' +
+            'test.met<%= someValue %>hod();')
+        bt(
+            '<%= "A" %>abc<%= "D" %>;\n' +
+            '<%= "B" %>.test();\n' +
+            '" <%=   "C" \'D\'  %>  "')
+        bt(
+            '<%=\n' +
+            'echo "A";\n' +
+            '%>;\n' +
+            'test.method();')
+        bt('"<%=";if(0){}"%>";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};')
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};')
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();')
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "')
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();')
+        bt('"{{";if(0){}"}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {#$view["name"]; #};', 'var a = {#$view["name"]; #};')
+        bt(
+            'a = abc{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '#};')
+        test_fragment(
+            '{# #}\n' +
+            'test.met{# someValue #}hod();')
+        bt(
+            '{# "A" #}abc{# "D" #};\n' +
+            '{# "B" #}.test();\n' +
+            '" {#   "C" \'D\'  #}  "')
+        bt(
+            '{#\n' +
+            'echo "A";\n' +
+            '#};\n' +
+            'test.method();')
+        bt('"{#";if(0){}"#}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {%$view["name"]; %};', 'var a = {%$view["name"]; %};')
+        bt(
+            'a = abc{%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%};')
+        test_fragment(
+            '{% %}\n' +
+            'test.met{% someValue %}hod();')
+        bt(
+            '{% "A" %}abc{% "D" %};\n' +
+            '{% "B" %}.test();\n' +
+            '" {%   "C" \'D\'  %}  "')
+        bt(
+            '{%\n' +
+            'echo "A";\n' +
+            '%};\n' +
+            'test.method();')
+        bt('"{%";if(0){}"%}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};')
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};')
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();')
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "')
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();')
+        bt('"{{";if(0){}"}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{#$view["name"]; }};', 'var a = {{#$view["name"]; }};')
+        bt(
+            'a = abc{{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};')
+        test_fragment(
+            '{{# }}\n' +
+            'test.met{{# someValue }}hod();')
+        bt(
+            '{{# "A" }}abc{{# "D" }};\n' +
+            '{{# "B" }}.test();\n' +
+            '" {{#   "C" \'D\'  }}  "')
+        bt(
+            '{{#\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();')
+        bt('"{{#";if(0){}"}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{!$view["name"]; }};', 'var a = {{!$view["name"]; }};')
+        bt(
+            'a = abc{{!\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};')
+        test_fragment(
+            '{{! }}\n' +
+            'test.met{{! someValue }}hod();')
+        bt(
+            '{{! "A" }}abc{{! "D" }};\n' +
+            '{{! "B" }}.test();\n' +
+            '" {{!   "C" \'D\'  }}  "')
+        bt(
+            '{{!\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();')
+        bt('"{{!";if(0){}"}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{!--$view["name"]; --}};', 'var a = {{!--$view["name"]; --}};')
+        bt(
+            'a = abc{{!--\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '--}};')
+        test_fragment(
+            '{{!-- --}}\n' +
+            'test.met{{!-- someValue --}}hod();')
+        bt(
+            '{{!-- "A" --}}abc{{!-- "D" --}};\n' +
+            '{{!-- "B" --}}.test();\n' +
+            '" {{!--   "C" \'D\'  --}}  "')
+        bt(
+            '{{!--\n' +
+            'echo "A";\n' +
+            '--}};\n' +
+            'test.method();')
+        bt('"{{!--";if(0){}"--}}";')
+
+
+        #============================================================
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"<?php";if(0){}"?>";',
+            #  -- output --
+            '"<?php";\n' +
+            'if (0) {}\n' +
+            '"?>";')
+        bt(
+            '"<?php";if(0){}',
+            #  -- output --
+            '"<?php";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"<?=";if(0){}"?>";',
+            #  -- output --
+            '"<?=";\n' +
+            'if (0) {}\n' +
+            '"?>";')
+        bt(
+            '"<?=";if(0){}',
+            #  -- output --
+            '"<?=";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"<%";if(0){}"%>";',
+            #  -- output --
+            '"<%";\n' +
+            'if (0) {}\n' +
+            '"%>";')
+        bt(
+            '"<%";if(0){}',
+            #  -- output --
+            '"<%";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"<%=";if(0){}"%>";',
+            #  -- output --
+            '"<%=";\n' +
+            'if (0) {}\n' +
+            '"%>";')
+        bt(
+            '"<%=";if(0){}',
+            #  -- output --
+            '"<%=";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{";if(0){}"}}";',
+            #  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";')
+        bt(
+            '"{{";if(0){}',
+            #  -- output --
+            '"{{";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{#";if(0){}"#}";',
+            #  -- output --
+            '"{#";\n' +
+            'if (0) {}\n' +
+            '"#}";')
+        bt(
+            '"{#";if(0){}',
+            #  -- output --
+            '"{#";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{%";if(0){}"%}";',
+            #  -- output --
+            '"{%";\n' +
+            'if (0) {}\n' +
+            '"%}";')
+        bt(
+            '"{%";if(0){}',
+            #  -- output --
+            '"{%";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{";if(0){}"}}";',
+            #  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";')
+        bt(
+            '"{{";if(0){}',
+            #  -- output --
+            '"{{";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{#";if(0){}"}}";',
+            #  -- output --
+            '"{{#";\n' +
+            'if (0) {}\n' +
+            '"}}";')
+        bt(
+            '"{{#";if(0){}',
+            #  -- output --
+            '"{{#";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{!";if(0){}"}}";',
+            #  -- output --
+            '"{{!";\n' +
+            'if (0) {}\n' +
+            '"}}";')
+        bt(
+            '"{{!";if(0){}',
+            #  -- output --
+            '"{{!";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{!--";if(0){}"--}}";',
+            #  -- output --
+            '"{{!--";\n' +
+            'if (0) {}\n' +
+            '"--}}";')
+        bt(
+            '"{{!--";if(0){}',
+            #  -- output --
+            '"{{!--";\n' +
+            'if (0) {}')
 
 
         #============================================================
@@ -4579,6 +4940,32 @@ class TestJSBeautifier(unittest.TestCase):
             '    break;\n' +
             'case !y:\n' +
             '    break;\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
             '}')
         
         # typical greasemonkey start
@@ -4768,6 +5155,32 @@ class TestJSBeautifier(unittest.TestCase):
             '    break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -4953,6 +5366,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '    case !y:\n' +
             '        break;\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
             '}')
         
         # typical greasemonkey start
@@ -5147,6 +5586,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5334,6 +5799,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5468,6 +5959,14 @@ class TestJSBeautifier(unittest.TestCase):
             '        bar: 2\n' +
             '    });\n' +
             'var test = 1;')
+        
+        # Issue #1663
+        bt(
+            '{\n' +
+            '    /* howdy\n' +
+            '    \n' +
+            '    */\n' +
+            '}')
         bt(
             'obj\n' +
             '    .last(a, function() {\n' +
@@ -8706,8 +9205,6 @@ class TestJSBeautifier(unittest.TestCase):
         bt("var x = set\n\na() {}", "var x = set\n\na() {}")
         bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}")
 
-        bt('<!-- foo\nbar();\n-->')
-        bt('<!-- dont crash') # -->
         bt('for () /abc/.test()')
         bt('if (k) /aaa/m.test(v) && l();')
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}')
