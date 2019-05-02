@@ -13,7 +13,7 @@ var legacy = {
   output: {
     library: 'legacy_[name]',
     filename: 'legacy_[name].js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'build/legacy')
   }
 };
 

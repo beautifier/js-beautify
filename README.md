@@ -1,6 +1,5 @@
 # JS Beautifier
-[![Build Status](https://api.travis-ci.org/beautify-web/js-beautify.svg?branch=master)](http://travis-ci.org/beautify-web/js-beautify)
-[![Build status](https://ci.appveyor.com/api/projects/status/5bxmpvew5n3e58te/branch/master?svg=true)](https://ci.appveyor.com/project/beautify-web/js-beautify/branch/master)
+[![Build Status](https://dev.azure.com/beautifier-io/js-beautify/_apis/build/status/beautify-web.js-beautify)](https://dev.azure.com/beautifier-io/js-beautify/_build/latest?definitionId=1)
 
 [![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
 [![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
@@ -15,10 +14,10 @@
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
-as well as deobfuscate scripts processed by
-[javascriptobfuscator.com](http://javascriptobfuscator.com/).
+as well as partly deobfuscate scripts processed by the npm package
+[javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
-Open [jsbeautifier.org](http://jsbeautifier.org/) to try it out.  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
 
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
@@ -62,17 +61,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.8.0-rc4/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/gh-pages/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -92,7 +91,7 @@ $ pip install jsbeautifier
 You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
 
 ## Web Browser
-Open [jsbeautifier.org](http://jsbeautifier.org/).  Options are available via the UI.
+Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Libary
 The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
@@ -160,7 +159,7 @@ CLI Options:
   -r, --replace    Write output in-place, replacing input
   -o, --outfile    Write output to file (default stdout)
   --config         Path to config file
-  --type           [js|css|html] ["js"]
+  --type           [js|css|html] ["js"] Select beautifier type (NOTE: Does *not* filter files, only defines which beautifier type to run)
   -q, --quiet      Suppress logging to stdout
   -h, --help       Show this help
   -v, --version    Show the version
@@ -180,16 +179,19 @@ Beautifier Options:
   -E, --space-in-empty-paren        Add a single space inside empty paren, ie. f( )
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
+  --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
   -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]
   -u, --unindent-chained-methods    Don't indent chained method calls
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation
   -x, --unescape-strings            Decode printable characters encoded in xNN notation
-  -w, --wrap-line-length            Wrap lines at next opportunity after N characters [0]
+  -w, --wrap-line-length            Wrap lines that exceed N characters [0]
   -X, --e4x                         Pass E4X xml literals through untouched
   --good-stuff                      Warm the cockles of Crockford's heart
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
+  --indent-empty-lines              Keep indentation on empty lines
+  --templating                      List of templating languages (auto,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -200,6 +202,7 @@ Which correspond to the underscored option keys for both library interfaces
     "indent_size": 4,
     "indent_char": " ",
     "indent_with_tabs": false,
+    "editorconfig": false,
     "eol": "\n",
     "end_with_newline": false,
     "indent_level": 0,
@@ -209,6 +212,7 @@ Which correspond to the underscored option keys for both library interfaces
     "space_in_empty_paren": false,
     "jslint_happy": false,
     "space_after_anon_function": false,
+    "space_after_named_function": false,
     "brace_style": "collapse",
     "unindent_chained_methods": false,
     "break_chained_methods": false,
@@ -217,7 +221,9 @@ Which correspond to the underscored option keys for both library interfaces
     "wrap_line_length": 0,
     "e4x": false,
     "comma_first": false,
-    "operator_position": "before-newline"
+    "operator_position": "before-newline",
+    "indent_empty_lines": false,
+    "templating": ["auto"]
 }
 ```
 
@@ -314,6 +320,7 @@ CSS Beautifier Options:
   -n, --end-with-newline             End output with newline
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
+  --indent-empty-lines               Keep indentation on empty lines
 
 HTML Beautifier Options:
   -s, --indent-size                  Indentation size [4]
@@ -327,23 +334,47 @@ HTML Beautifier Options:
   -b, --brace-style                  [collapse-preserve-inline|collapse|expand|end-expand|none] ["collapse"]
   -S, --indent-scripts               [keep|separate|normal] ["normal"]
   -w, --wrap-line-length             Maximum characters per line (0 disables) [250]
-  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple] ["auto"]
+  -A, --wrap-attributes              Wrap attributes to new lines [auto|force|force-aligned|force-expand-multiline|aligned-multiple|preserve|preserve-aligned] ["auto"]
   -i, --wrap-attributes-indent-size  Indent wrapped attributes to after N characters [indent-size] (ignored if wrap-attributes is "aligned")
   -d, --inline                       List of tags to be considered inline tags
   -U, --unformatted                  List of tags (defaults to inline) that should not be reformatted
   -T, --content_unformatted          List of tags (defaults to pre) whose content should not be reformatted
   -E, --extra_liners                 List of tags (defaults to [head,body,/html] that should have an extra newline before them.
   --editorconfig                     Use EditorConfig to set up the options
+  --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
+  --unformatted_content_delimiter    Keep text content together between this string [""]
+  --indent-empty-lines               Keep indentation on empty lines
+  --templating                       List of templating languages (auto,none,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html
 ```
 
-## Directives to Ignore or Preserve sections (Javascript beautifier only)
+## Directives
 
-Beautifier for  supports directives in comments inside the file.
-This allows you to tell the beautifier to preserve the formatting of or completely ignore part of a file.
-The example input below will remain changed after beautification
+Directives let you control the behavior of the Beautifier from within your source files. Directives are placed in comments inside the file.  Directives are in the format `/* beautify {name}:{value} */` in CSS and JavaScript. In HTML they are formatted as `<!-- beautify {name}:{value} -->`.
+
+### Ignore directive
+
+The `ignore` directive makes the beautifier completely ignore part of a file, treating it as literal text that is not parsed.
+The input below will remain unchanged after beautification:
 
 ```js
-// Use preserve when the content is not javascript, but you don't want it reformatted.
+// Use ignore when the content is not parsable in the current language, JavaScript in this case.
+var a =  1;
+/* beautify ignore:start */
+ {This is some strange{template language{using open-braces?
+/* beautify ignore:end */
+```
+
+### Preserve directive
+
+NOTE: this directive only works in HTML and JavaScript, not CSS.
+
+The `preserve` directive makes the Beautifier parse and then keep the existing formatting of a section of code.
+
+The input below will remain unchanged after beautification:
+
+```js
+// Use preserve when the content is valid syntax in the current language, JavaScript in this case.
+// This will parse the code and preserve the existing formatting.
 /* beautify preserve:start */
 {
     browserName: 'internet explorer',
@@ -351,12 +382,6 @@ The example input below will remain changed after beautification
     version:     '8'
 }
 /* beautify preserve:end */
-
-// Use ignore when the content is not parsable as javascript.
-var a =  1;
-/* beautify ignore:start */
- {This is some strange{template language{using open-braces?
-/* beautify ignore:end */
 ```
 
 # License
@@ -365,13 +390,13 @@ You are free to use this in any way you want, in case you find this useful or wo
 
 # Credits
 
-* Created by Einar Lielmanis, <einar@jsbeautifier.org>
+* Created by Einar Lielmanis, <einar@beautifier.io>
 * Python version flourished by Stefano Sanfilippo <a.little.coder@gmail.com>
 * Command-line for node.js by Daniel Stockman <daniel.stockman@gmail.com>
-* Maintained and expanded by Liam Newman <bitwiseman@gmail.com>
+* Maintained and expanded by Liam Newman <bitwiseman@beautifier.io>
 
 Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, Dave
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.8.0-rc4)
+(README.md: js-beautify@1.10.0)

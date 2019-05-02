@@ -7,6 +7,15 @@ If you find a bug, please report it, including environment and examples of curre
 ## How to Make Changes (Implement Fixes and New Features)
 Fixes and enhancements are totally welcome.  We prefer you to file an issue before filing a PR, as this gives us chance to discuss design details, but feel free to dive right in.
 
+### 0. Prereqisites for development
+
+* bash
+* make
+* nodejs - v10.x (with npm)
+* python - v2.7.x or v3.x (with pip)
+
+If you encounter issues and cannot build, come chat on gitter.im.  We're happy to help.
+
 ### 1. Build and Test Locally
 This repository holds two mostly identical implementations of the beautifiers: a JavaScript implementation and a Python implementation.
 While developing, you may locally build and test the JavaScript or Python (or both). The HTML beautifier is only implemented in JavaScript.
@@ -14,10 +23,11 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Familiarize yourself with the folder structure and code style before you dive in.
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
-  * Run `make static` to see changes served locally at `http://localhost:8080`
-  * To load a debug (human readable) version of the beautifier, open `http://localhost:8080/?debug`
+  * Run `make js` to build and run unit tests
+  * Run `make static` to manually test changes locally at `http://localhost:8080`
+  * To load a debug (human readable) version of the beautifier source, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
-  * Run `make py`
+  * Run `make py` to build and run unit tests 
 * Add tests to `/test/data/*/test.js`.
 * Run `make jstest` or `make pytest` to run style checks, and to generate and run tests.
 * Include all changed files in your commit - The generated test files are checked in along with changes to the test data files.
@@ -53,7 +63,7 @@ Files related to the JavaScript implementations of the beautifiers.
 Files related to the Python implementations of the beautifiers.
 
 ## `web`
-Files related to http://jsbeautifier.org/.
+Files related to https://beautifier.io/.
 
 ## `test`
 Test data files and support files used to generate implementation-specific test files.
@@ -64,8 +74,11 @@ Test data files and support files used to generate implementation-specific test 
 ## Master
 We use the `master` branch as the primary development branch.
 
-## Milestone Release Tags
-Each release is has a tag created for it when it is released.  The latest release is linked from the `README.md`.
+## Release
+We use the `release` branch to hold releases, including built files for bower and the website.
+
+# Tags
+Each release is has a tag created for it in the `release` branch when it is published.  The latest release is linked from the `README.md`.
 
 ## Attic
 This project has been around for a while.  While some parts have improved significantly over time, others fell
@@ -110,6 +123,7 @@ This is script will:
 
 * Update README.md with correct cdn links
 * Update CHANGLOG.md with the milestone description and a list of closed issues
+* Commit the built files to the `release` branch
 * Publish the python version to PyPI
 * Publish the javascript version to npm
 * Merge the changes and publish them on the gh-pages branch

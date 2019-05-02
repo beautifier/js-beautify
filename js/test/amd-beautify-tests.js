@@ -1,5 +1,7 @@
 /*jshint node:true */
 
+'use strict';
+
 var requirejs = require('requirejs'),
   SanityTest = require('./sanitytest'),
   Urlencoded = require('../lib/unpackers/urlencode_unpacker'),

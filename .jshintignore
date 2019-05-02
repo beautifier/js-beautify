@@ -6,8 +6,7 @@ node_modules/**
 python/**
 target/**
 tools/**
-test/resources/underscore-min.js
-test/resources/underscore.js
+test/resources/*
 web/lib/**
 build/**
 

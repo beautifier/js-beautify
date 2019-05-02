@@ -26,9 +26,15 @@
   SOFTWARE.
 */
 
+'use strict';
+
 var fs = require('fs');
 var mustache = require('mustache');
 var path = require('path');
+
+mustache.escape = function(text) {
+  return text;
+};
 
 function generate_tests() {
   // javascript
@@ -100,13 +106,11 @@ function set_formatters(data, test_method, comment_mark) {
     return function(text, render) {
       var outputs = [];
       // text is ignored for this
-      for (var name in context) {
-        if (name === 'options') {
-          continue;
-        }
-
-        if (context.hasOwnProperty(name)) {
-          outputs.push(name + ' = "' + context[name].replace(/\n/g, '\\n').replace(/\t/g, '\\t') + '"');
+      if (context.options) {
+        var item;
+        for (var x = 0; x < context.options.length; x++) {
+          item = context.options[x];
+          outputs.push(item.name + ' = "' + item.value.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/[']/g, "\"") + '"');
         }
       }
       return render(outputs.join(', '));
@@ -161,20 +165,12 @@ function set_formatters(data, test_method, comment_mark) {
         throw "Test strings are identical.  Omit 'output' and use 'unchanged': " + input;
       }
 
-      if (output && output.indexOf('<%') !== -1) {
-        mustache.tags = ['<%', '%>'];
-      }
-
       input = getTestString(render(input));
 
       if (output) {
         output = getTestString(render(output));
       } else {
         output = '';
-      }
-
-      if (output && output.indexOf('<%') !== -1) {
-        mustache.tags = ['{{', '}}'];
       }
 
       if (this.input_ || input.indexOf('\n') !== -1 || output.indexOf('\n') !== -1) {

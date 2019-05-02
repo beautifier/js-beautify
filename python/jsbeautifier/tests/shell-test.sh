@@ -2,6 +2,15 @@
 
 REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/../../..\" && pwd )`"
+
+case "$OSTYPE" in
+    darwin*) PLATFORM="OSX" ;;
+    linux*)  PLATFORM="LINUX" ;;
+    bsd*)    PLATFORM="BSD" ;;
+    *)       PLATFORM="UNKNOWN" ;;
+esac
+
 
 test_cli_common()
 {
@@ -12,13 +21,23 @@ test_cli_common()
     echo Script: $CLI_SCRIPT
 
     # should find the minimal help output
-    $CLI_SCRIPT 2>&1 | grep -q "Must pipe input or define at least one file\." || {
-        $CLI_SCRIPT 2>&1
+    $CLI_SCRIPT 2>&1 < /dev/null | grep -q "Must pipe input or define at least one file\." || {
+        $CLI_SCRIPT 2>&1 < /dev/null
         echo "[$CLI_SCRIPT_NAME] Output should be help message."
         exit 1
     }
 
-    $CLI_SCRIPT 2> /dev/null && {
+    # unicode error - only happens in python
+    # Note: different exceptions are thrown on different platforms.
+    if [[ "$PLATFORM" == "OSX" || "$PLATFORM" == "BSD" || "$PLATFORM" == "LINUX" ]]; then
+        $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1 | grep -q "Error while decoding input or encoding output:" || {
+            $CLI_SCRIPT ../test/resources/unicode-error.js 2>&1
+            echo "[$CLI_SCRIPT_NAME] Output should be unicode error message."
+            exit 1
+        }
+    fi
+
+    $CLI_SCRIPT 2> /dev/null < /dev/null && {
         echo "[$CLI_SCRIPT_NAME (with no parameters)] Return code should be error."
         exit 1
     }
@@ -85,30 +104,42 @@ test_cli_js_beautify()
         exit 1
     }
 
+    setup_temp
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-file.js || {
+        $CLI_SCRIPT -o $TEST_TEMP/js-beautify-file.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-file.js | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        cleanup 1
+    }
+
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js || {
+        cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
+        cleanup 1
+    }
+
     $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
+        cleanup 1
     }
 
     cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
+        cleanup 1
     }
 
     cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT - | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
         $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
         echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
-        exit 1
-    }
-
-    setup_temp
-    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -o $TEST_TEMP/js-beautify-pipe.js - || diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify-pipe.js || {
-        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js should have been created in $TEST_TEMP/js-beautify-pipe.js."
         cleanup 1
     }
 
+    cat $SCRIPT_DIR/../../../js/bin/js-beautify.js | $CLI_SCRIPT -f - | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - || {
+        $CLI_SCRIPT $SCRIPT_DIR/../../../js/bin/js-beautify.js | diff $SCRIPT_DIR/../../../js/bin/js-beautify.js - | cat -t -e
+        echo "js-beautify output for $SCRIPT_DIR/../../../js/bin/js-beautify.js was expected to be unchanged."
+        cleanup 1
+    }
 
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js || {
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify.js $SCRIPT_DIR/../../../js/bin/js-beautify.js && diff $SCRIPT_DIR/../../../js/bin/js-beautify.js $TEST_TEMP/js-beautify.js | cat -t -e
@@ -143,6 +174,51 @@ test_cli_js_beautify()
     $CLI_SCRIPT -e 'auto' $TEST_TEMP/js-beautify-rn.js | diff -q $TEST_TEMP/js-beautify-rn.js - || {
         echo "js-beautify output for $TEST_TEMP/js-beautify-rn.js was expected to be unchanged."
         cleanup 1
+    }
+
+    # Glob related tests
+    cp -r $PROJECT_DIR/js/src  $TEST_TEMP/
+    FILE_RCOUNT=$(find $PROJECT_DIR/js/src -name 't*.js' | grep -c .)
+    FILE_COUNT=$(ls $PROJECT_DIR/js/src/*.js | grep -c .)
+
+    $CLI_SCRIPT '*/*/missing_file' > /dev/null || {
+        echo "[$CLI_SCRIPT_NAME $MISSING_FILE_GLOB] Return code should be success for globs."
+        exit 1
+    }
+
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT 'src/*.js' | grep -c .)" ]; then
+        echo "js-beautify output for 'src/*.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT 'src/*.js')
+        cleanup 1
+    fi
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/*.js' | grep -c .)" ]; then
+        echo "js-beautify output for 'src/*.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/*.js')
+        cleanup 1
+    fi
+
+    if [ "$FILE_COUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/??dex.js' | grep -c .)" ]; then
+        echo "js-beautify output for --file 'src/cl?.js' --file 'src/??dex.js' was expected have $FILE_COUNT files."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/??dex.js')
+        cleanup 1
+    fi
+
+    if [ "1" != "$(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/c??.js' 'src/cli.js'  | grep -c .)" ]; then
+        echo "js-beautify output for --file 'src/cl?.js' --file 'src/cl?.js' was expected have 1 file."
+        echo $(cd $TEST_TEMP && $CLI_SCRIPT --file 'src/cl?.js' --file 'src/c??.js' 'src/cli.js')
+        cleanup 1
+    fi
+
+    # recursive wildcard not supported in python 3.4 or less
+    # only run this test if the script doesn't report failure.
+    $CLI_SCRIPT 'src/**/t*.js' && {
+        if [ "$FILE_RCOUNT" != "$(cd $TEST_TEMP && $CLI_SCRIPT 'src/**/t*.js' | grep -c .)" ]; then
+            echo "js-beautify output for 'src/**/t*.js' was expected have $FILE_RCOUNT files."
+            echo $(cd $TEST_TEMP && $CLI_SCRIPT 'src/**/t*.js')
+            cleanup 1
+        fi
     }
 
     # EditorConfig related tests
@@ -294,7 +370,7 @@ test_cli_js_beautify()
         echo "[$CLI_SCRIPT_NAME --brace-style=invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
         cleanup 1
     }
-    $CLI_SCRIPT --brace-style=expand,preserve-inline,invalid 'expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
+    $CLI_SCRIPT --brace-style='expand,preserve-inline,invalid' $TEST_TEMP/example.js > /dev/null && {
         echo "[$CLI_SCRIPT_NAME --brace-style=expand,preserve-inline,invalid $TEST_TEMP/example.js] Return code for invalid brace_style meta-parameter should be error."
         cleanup 1
     }
@@ -305,7 +381,6 @@ test_cli_js_beautify()
 
     cleanup
 }
-
 
 main() {
     #test_cli_common css-beautify

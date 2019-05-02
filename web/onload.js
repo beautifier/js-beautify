@@ -1,3 +1,4 @@
+/*jshint node:false, jquery:true, strict:false */
 $(function() {
 
   read_settings_from_cookie();

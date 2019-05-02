@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import io
 import os
 import copy
 import jsbeautifier
@@ -17,10 +18,13 @@ def beautifier_test_underscore():
 def beautifier_test_underscore_min():
     jsbeautifier.beautify(data_min, options)
 
+def beautifier_test_github_min():
+    jsbeautifier.beautify(github_min, options)
+
 
 def report_perf(fn):
     import timeit
-    iter = 50
+    iter = 5
     time = timeit.timeit(
         fn +
         "()",
@@ -37,12 +41,17 @@ if __name__ == '__main__':
         dirname, "../", "test/resources/underscore.js")
     underscore_min_file = os.path.join(
         dirname, "../", "test/resources/underscore-min.js")
-    data = copy.copy(''.join(open(underscore_file).readlines()))
-    data_min = copy.copy(''.join(open(underscore_min_file).readlines()))
+    github_min_file = os.path.join(
+        dirname, "../", "test/resources/github-min.js")
+    data = copy.copy(''.join(io.open(underscore_file, encoding="UTF-8").readlines()))
+    data_min = copy.copy(''.join(io.open(underscore_min_file, encoding="UTF-8").readlines()))
+    github_min = copy.copy(''.join(io.open(github_min_file, encoding="UTF-8").readlines()))
 
     # warm up
     beautifier_test_underscore()
     beautifier_test_underscore_min()
+    beautifier_test_github_min()
 
     report_perf("beautifier_test_underscore")
     report_perf("beautifier_test_underscore_min")
+    report_perf("beautifier_test_github_min")

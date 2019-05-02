@@ -1,0 +1,96 @@
+# https://aka.ms/yaml
+jobs:
+- job: 'Windows'
+  pool:
+    vmImage: 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python34_Node8:
+        python.version: '3.4'
+        python.architecture: 'x86'
+        node_version: 8.x
+      Python36_Node10:
+        python.version: '3.6'
+        python.architecture: 'x64'
+        node_version: 10.x
+      Python37_Node11:
+        python.version: '3.7'
+        python.architecture: 'x64'
+        node_version: 11.x
+    maxParallel: 6
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: '$(python.architecture)'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+
+# change this to make ci after addressing git CRLF issue
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: 'make all'
+
+- job: 'Linux'
+  pool:
+    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python27_Node6:
+        python.version: '2.7'
+        node_version: 6.x
+      Python34_Node8:
+        python.version: '3.4'
+        node_version: 8.x
+      Python36_Node10:
+        python.version: '3.6'
+        node_version: 10.x
+      Python37_Node11:
+        python.version: '3.7'
+        node_version: 11.x
+    maxParallel: 6
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: 'make ci'
+
+- job: 'MacOS'
+  pool:
+    vmImage: 'macOS-10.13'
+  strategy:
+    matrix:
+      Python27_Node6:
+        python.version: '2.7'
+        node_version: 6.x
+      Python37_Node11:
+        python.version: '3.7'
+        node_version: 11.x
+    maxParallel: 6
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: 'make ci'
+

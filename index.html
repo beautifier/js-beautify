@@ -1,6 +1,10 @@
 <!doctype html>
-<html lang="en-US" dir="ltr" prefix="og:http://ogp.me/ns# fb:http://ogp.me/ns/fb#">
-<!--
+<html lang="en-US" dir="ltr" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+
+<head>
+  <meta charset="utf-8" /><!-- The <meta> element must be within the first 1024 bytes of the HTML -->
+
+  <!--
   The MIT License (MIT)
 
   Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
@@ -25,252 +29,254 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
   -->
-<head>
-    <meta charset="utf-8" /><meta http-equiv="Content-type" content="text/html;charset=utf-8" />
-    <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
-    <title>Online JavaScript beautifier</title>
-    <link rel="icon" href="web/favicon.png" type="image/png">
-    <link rel="stylesheet" href="web/lib/codemirror/lib/codemirror.css">
 
-    <script src="web/lib/codemirror/lib/codemirror.js"></script>
-    <script src="web/lib/codemirror/mode/javascript/javascript.js"></script>
+  <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
+  <title>Online JavaScript beautifier</title>
+  <link rel="icon" href="web/favicon.png" type="image/png">
+  <link rel="stylesheet" href="web/lib/codemirror/lib/codemirror.css">
 
-    <link rel="stylesheet" href="web/common-style.css"></style>
+  <script src="web/lib/codemirror/lib/codemirror.js"></script>
+  <script src="web/lib/codemirror/mode/javascript/javascript.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"
-        integrity="sha256-9Nt2r+tJnSd2A2CRUvnjgsD+ES1ExvjbjBNqidm9doI="
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"
-        integrity="sha256-0SGl1PJNDyJwcV5T+weg2zpEMrh7xvlwO4oXgvZCeZk="
-        crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="web/common-style.css">
 
-    <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
-    <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
-    <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
-    <script src="js/lib/unpackers/myobfuscate_unpacker.js"></script>
-    <script src="web/common-function.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js" integrity="sha256-9Nt2r+tJnSd2A2CRUvnjgsD+ES1ExvjbjBNqidm9doI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js" integrity="sha256-0SGl1PJNDyJwcV5T+weg2zpEMrh7xvlwO4oXgvZCeZk=" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default&flags=gated"></script>
+
+  <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
+  <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
+  <script src="js/lib/unpackers/p_a_c_k_e_r_unpacker.js"></script>
+  <script src="js/lib/unpackers/myobfuscate_unpacker.js"></script>
+  <script src="web/common-function.js"></script>
 </head>
 
-<h1>Online JavaScript Beautifier <span id="version-number"></span></h1>
-
 <body>
+  <h1>Online JavaScript Beautifier <span id="version-number"></span></h1>
 
-    <div id="about">
-        <p>
-            <a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a>
-        </p>
-        <p>
-            All of the source code is completely free and open, available on <a href="https://github.com/beautify-web/js-beautify">GitHub</a> under MIT licence,
-            <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
-        </p>
-    </div>
-
-
-    <table id="options">
-        <tr>
-            <td>
-                <select name="tabsize" id="tabsize">
-                    <option value="1">Indent with a tab character</option>
-                    <option value="2">Indent with 2 spaces</option>
-                    <option value="3">Indent with 3 spaces</option>
-                    <option value="4">Indent with 4 spaces</option>
-                    <option value="8">Indent with 8 spaces</option>
-                </select>
-                <br>
-
-                <select name="max-preserve-newlines" id="max-preserve-newlines">
-                    <option value="-1">Remove all extra newlines</option>
-                    <option value="1">Allow 1 newline between tokens</option>
-                    <option value="2">Allow 2 newlines between tokens</option>
-                    <option value="5">Allow 5 newlines between tokens</option>
-                    <option value="10">Allow 10 newlines between tokens</option>
-                    <option value="0">Allow unlimited newlines between tokens</option>
-                </select>
-                <br>
-
-                <select name="wrap-line-length" id="wrap-line-length">
-                    <option value="0">Do not wrap lines</option>
-                    <option value="40">Wrap lines near 40 characters</option>
-                    <option value="70">Wrap lines near 70 characters</option>
-                    <option value="80">Wrap lines near 80 characters</option>
-                    <option value="110">Wrap lines near 110 characters</option>
-                    <option value="120">Wrap lines near 120 characters</option>
-                    <option value="160">Wrap lines near 160 characters</option>
-                </select>
-                <br>
-
-                <select id="brace-style">
-                    <option value="collapse">Braces with control statement</option>
-                    <option value="expand">Braces on own line</option>
-                    <option value="end-expand">End braces on own line</option>
-                    <option value="none">Attempt to keep braces where they are</option>
-                </select>
-
-                <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p>
-                <select id="indent-scripts">
-                    <option value="keep">Keep indent level of the tag</option>
-                    <option value="normal">Add one indent level</option>
-                    <option value="separate">Separate indentation</option>
-                </select>
-
-                <p style="margin:6px 0 0 0">Additional Settings (JSON):</p>
-                <textarea id="additional-options" rows="5" cols="32">{}</textarea>
-
-                <p id ="additional-options-error" hidden style="margin:6px 0 0 0; color:red ">Could Not Parse JSON!</p>
-
-            </td>
-            <td>
-                <input class="checkbox" type="checkbox" id="end-with-newline">
-                <label for="end-with-newline">End script and style with newline?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="e4x">
-                <label for="e4x">Support e4x/jsx syntax</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="comma-first">
-                <label for="comma-first">Use comma-first list style?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="detect-packers">
-                <label for="detect-packers">Detect packers and obfuscators?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="brace-preserve-inline">
-                <label for="brace-preserve-inline">Preserve inline braces/code blocks?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="keep-array-indentation">
-                <label for="keep-array-indentation">Keep array indentation?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="break-chained-methods">
-                <label for="break-chained-methods">Break lines on chained methods?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="space-before-conditional">
-                <label for="space-before-conditional">Space before conditional: "if(x)" / "if (x)"</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="unescape-strings">
-                <label for="unescape-strings">Unescape printable chars encoded as \xNN or \uNNNN?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="jslint-happy">
-                <label for="jslint-happy">Use JSLint-happy formatting tweaks?</label>
-                <br>
-                <input class="checkbox" type="checkbox" id="indent-inner-html">
-                <label for="indent-inner-html">Indent &lt;head&gt; and &lt;body&gt; sections?</label>
-                <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
+  <div id="about">
+    <p>
+      <a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a>
+    </p>
+    <p>
+      All of the source code is completely free and open, available on <a href="https://github.com/beautify-web/js-beautify">GitHub</a> under MIT licence,
+      <br>and we have a command-line version, python library and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+    </p>
+    <p>
+      <select name="language" id="language">
+        <option value="css">Beautify CSS</option>
+        <option value="html">Beautify HTML</option>
+        <option value="js">Beautify JavaScript</option>
+      </select>
+    </p>
+  </div>
 
 
-            </td>
-        </tr>
-    </table>
-
-    <div style="line-height: 0">
-        <select name="language" id="language">
-            <option value="auto">Auto Detect</option>
-            <option value="css">CSS</option>
-            <option value="html">HTML</option>
-            <option value="js">JavaScript</option>
+  <table id="options">
+    <tr>
+      <td>
+        <select name="tabsize" id="tabsize">
+          <option value="1">Indent with a tab character</option>
+          <option value="2">Indent with 2 spaces</option>
+          <option value="3">Indent with 3 spaces</option>
+          <option value="4">Indent with 4 spaces</option>
+          <option value="8">Indent with 8 spaces</option>
         </select>
-        <button class="submit"><strong>Beautify JavaScript or HTML</strong>  <em>(ctrl-enter)</em>
-        </button>
-        <textarea id="source" rows="30" cols="160"></textarea>
-        <button class="submit"><strong>Beautify JavaScript or HTML</strong>  <em>(ctrl-enter)</em>
-        </button>
-    </div>
+        <br>
 
-    <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
-    <div style="line-height: 0">
-        <textarea readonly id="options-selected" rows="10" cols="40"></textarea>
-    </div>
+        <select name="max-preserve-newlines" id="max-preserve-newlines">
+          <option value="-1">Remove all extra newlines</option>
+          <option value="1">Allow 1 newline between tokens</option>
+          <option value="2">Allow 2 newlines between tokens</option>
+          <option value="5">Allow 5 newlines between tokens</option>
+          <option value="10">Allow 10 newlines between tokens</option>
+          <option value="0">Allow unlimited newlines between tokens</option>
+        </select>
+        <br>
 
-    <p id="open-issue" hidden>Not pretty enough for you?
+        <select name="wrap-line-length" id="wrap-line-length">
+          <option value="0">Do not wrap lines</option>
+          <option value="40">Wrap lines near 40 characters</option>
+          <option value="70">Wrap lines near 70 characters</option>
+          <option value="80">Wrap lines near 80 characters</option>
+          <option value="110">Wrap lines near 110 characters</option>
+          <option value="120">Wrap lines near 120 characters</option>
+          <option value="160">Wrap lines near 160 characters</option>
+        </select>
+        <br>
+
+        <select id="brace-style">
+          <option value="collapse">Braces with control statement</option>
+          <option value="expand">Braces on own line</option>
+          <option value="end-expand">End braces on own line</option>
+          <option value="none">Attempt to keep braces where they are</option>
+        </select>
+
+        <p style="margin:6px 0 0 0">HTML &lt;style&gt;, &lt;script&gt; formatting:</p>
+        <select id="indent-scripts">
+          <option value="keep">Keep indent level of the tag</option>
+          <option value="normal">Add one indent level</option>
+          <option value="separate">Separate indentation</option>
+        </select>
+
+        <p style="margin:6px 0 0 0">Additional Settings (JSON):</p>
+        <textarea id="additional-options" rows="5" cols="32">{}</textarea>
+
+        <p id="additional-options-error" hidden style="margin:6px 0 0 0; color:red ">Could Not Parse JSON!</p>
+
+      </td>
+      <td>
+        <input class="checkbox" type="checkbox" id="end-with-newline">
+        <label for="end-with-newline">End script and style with newline?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="e4x">
+        <label for="e4x">Support e4x/jsx syntax</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="comma-first">
+        <label for="comma-first">Use comma-first list style?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="detect-packers">
+        <label for="detect-packers">Detect packers and obfuscators?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="brace-preserve-inline">
+        <label for="brace-preserve-inline">Preserve inline braces/code blocks?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="keep-array-indentation">
+        <label for="keep-array-indentation">Keep array indentation?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="break-chained-methods">
+        <label for="break-chained-methods">Break lines on chained methods?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="space-before-conditional">
+        <label for="space-before-conditional">Space before conditional: "if(x)" / "if (x)"</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="unescape-strings">
+        <label for="unescape-strings">Unescape printable chars encoded as \xNN or \uNNNN?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="jslint-happy">
+        <label for="jslint-happy">Use JSLint-happy formatting tweaks?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="indent-inner-html">
+        <label for="indent-inner-html">Indent &lt;head&gt; and &lt;body&gt; sections?</label>
+        <br>
+        <input class="checkbox" type="checkbox" id="indent-empty-lines">
+        <label for="indent-empty-lines">Keep indentation on empty lines?</label>
+        <br><a href="?without-codemirror" class="turn-off-codemirror">Use a simple textarea for code input?</a>
+
+
+      </td>
+    </tr>
+  </table>
+
+  <div style="line-height: 0">
+    <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em>
+    </button>
+    <textarea id="source" rows="30" cols="160"></textarea>
+    <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em>
+    </button>
+  </div>
+
+  <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
+  <div style="line-height: 0">
+    <textarea readonly id="options-selected" rows="10" cols="40"></textarea>
+  </div>
+
+  <p id="open-issue" hidden>Not pretty enough for you?
     <button type="button" onclick="submitIssue()" name="issue-button">Report an issue</button>
+  </p>
+
+  <div class="blurb">
+
+    <h2>Browser extensions and other uses</h2>
+    <div class="col-6">
+      <ul class="uses">
+
+        <li>A
+          <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;https://beautifier.io/js/lib/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();">
+            <strong>bookmarklet</strong></a>
+          (drag it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
+
+        <li><strong>Chrome</strong>, in case the built-in CSS and javascript formatting isn't enough for you:<br>
+          — <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),<br>
+          — <a href="https://chrome.google.com/webstore/detail/javascript-and-css-code-b/iiglodndmmefofehaibmaignglbpdald">Javascript and CSS Code beautifier</a> by c7sky,<br>
+          — <a href="https://chrome.google.com/webstore/detail/jsbeautify-for-google-chr/kkioiolcacgoihiiekambdciinadbpfk">jsbeautify-for-chrome</a> by Tom Rix (<a href="https://github.com/rixth/jsbeautify-for-chrome">github</a>),<br>
+          — <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney<br>
+          — <a href="https://chrome.google.com/webstore/detail/stackoverflow-code-beauti/pljeafjjkkbacckkollfejkciddacmeb">Stackoverflow Code Beautify</a> by Making Odd Edit Studios (<a href="https://github.com/MakingOddEdit/CodeBeautify">github</a>).
+        </li>
+        <li><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy, to be
+          used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
+        <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
+        <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a>
+          (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
+        <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
+        <li><strong>Sublime Text 2/3:</strong> <a href="https://github.com/akalongman/sublimetext-codeformatter">CodeFormatter</a>, a python plugin by Avtandil Kikabidze, supports HTML, CSS, JS and a bunch of other languages,</li>
+        <li><strong>Sublime Text 2/3:</strong> <a href="https://github.com/victorporof/Sublime-HTMLPrettify">HTMLPrettify</a>, a javascript plugin by Victor Porof,</li>
+        <li><strong>Sublime Text 2:</strong> <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis
+          Clark,</li>
+        <li><strong>vim:</strong> <a href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey
+          or cscript js engine),</li>
+        <li><strong>vim:</strong> <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
+
+        <li><strong>Emacs:</strong> <a href="https://github.com/yasuyk/web-beautify">Web-beautify</a> formatting package by Yasuyuki Oka,</li>
+        <li><strong>Komodo IDE:</strong> <a href="http://komodoide.com/packages/addons/beautify-js/">Beautify-js</a> addon by Bob de Haas (<a href="https://github.com/babobski/Beautify-js">github</a>),</li>
+        <li><strong>C#:</strong> ghost6991 <a href="https://github.com/ghost6991/Jsbeautifier">ported the javascript formatter to C#</a>,</li>
+        <li><strong>Go:</strong> ditashi has <a href="https://github.com/ditashi/jsbeautifier-go">ported the javascript formatter to golang</a>,</li>
+      </ul>
+    </div>
+    <div class="col-6">
+      <ul class="uses">
+        <li><a href="https://marketplace.visualstudio.com/items/HookyQR.beautify">Beautify plugin</a> (<a href="https://github.com/HookyQR/VSCodeBeautify">github</a>) by HookyQR for the <a href="https://code.visualstudio.com/">Visual Studio Code</a> IDE,</li>
+        <li><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,</li>
+        <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
+        <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
+        <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
+        <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
+        <li><a href="https://www.comment-devenir-un-hacker.com/app.html">Devenir Hacker App</a>, a non-free JavaScript packer for Mac,</li>
+        <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
+        <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
+        <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a>
+          (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
+        <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="https://github.com/irsdl/BurpSuiteJSBeautifier/">beautfier extension</a>,
+          thanks to Soroush Dalili,</li>
+        <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett
+          (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
+        <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets</a> by Drew
+          Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>),</li>
+        <li><a href="http://codecaddy.net/">codecaddy.net</a>, a collection of webdev-related tools, assembled by Darik Hall,</li>
+        <li><a href="http://www.editey.com/">editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier,</li>
+        <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,</li>
+        <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),</li>
+        <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library,</li>
+      </ul>
+    </div>
+    <p>Doing anything interesting? Write us to <b>team@beautifier.io</b> so we can add your project to the list.</p>
+
+    <p class="contributor-sep">Written by <a href="https://github.com/einars">Einar Lielmanis</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
+    <p>We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.
+    </p>
+    <p class="contributors">Made with a great help of Jason&nbsp;Diamond, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider,
+      <br>Dave&nbsp;Vasilevsky,
+      <a href="https://moikrug.ru/vital">Vital&nbsp;Batmanov</a>, Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison,
+      <a href="http://shullian.com">Chris J. Shull</a>,
+      <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
+      <br>
+      <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
+      <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
+      <a href="https://github.com/evocateur">Daniel Stockman</a>.
     </p>
 
-    <div class="blurb">
+    <p style="text-align:right">
+      <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
+    </p>
 
-        <h2>Browser extensions and other uses</h2>
-        <div class="col-6">
-          <ul class="uses">
-
-              <li>A <a href="javascript:(function(){s=document.getElementsByTagName('SCRIPT');tx='';sr=[];for(i=0;i<s.length;i++){with(s.item(i)){t=text;if(t){tx+=t;}else{sr.push(src)};}};with(window.open()){document.write('<textarea id=&quot;t&quot;>'+(sr.join(&quot;\n&quot;))+&quot;\n\n-----\n\n&quot;+tx+'</textarea><script src=&quot;http://jsbeautifier.org/beautify.js&quot;></script><script>with(document.getElementById(&quot;t&quot;)){value=js_beautify(value);with(style){width=&quot;99%&quot;;height=&quot;99%&quot;;borderStyle=&quot;none&quot;;}};</script>');document.close();}})();"><strong>bookmarklet</strong></a> (drag
-                  it to your bookmarks) by Ichiro Hiroshi to see all scripts used on the page,</li>
-
-              <li><strong>Chrome</strong>, in case the built-in CSS and javascript formatting isn't enough for you:<br>
-                — <a href="https://chrome.google.com/webstore/detail/cfmcghennfbpmhemnnfjhkdmnbidpanb">Quick source viewer</a> by Tomi Mickelsson (<a href="https://github.com/tomimick/chrome-ext-view-src">github</a>, <a href="http://tomicloud.com/2012/07/viewsrc-chrome-ext">blog</a>),<br>
-                — <a href="https://chrome.google.com/webstore/detail/javascript-and-css-code-b/iiglodndmmefofehaibmaignglbpdald">Javascript and CSS Code beautifier</a> by c7sky,<br>
-                — <a href="https://chrome.google.com/webstore/detail/jsbeautify-for-google-chr/kkioiolcacgoihiiekambdciinadbpfk">jsbeautify-for-chrome</a> by Tom Rix (<a href="https://github.com/rixth/jsbeautify-for-chrome">github</a>),<br>
-                — <a href="https://chrome.google.com/webstore/detail/piekbefgpgdecckjcpffhnacjflfoddg">Pretty Beautiful JavaScript</a> by Will McSweeney<br>
-                — <a href="https://chrome.google.com/webstore/detail/stackoverflow-code-beauti/pljeafjjkkbacckkollfejkciddacmeb">Stackoverflow Code Beautify</a> by Making Odd Edit Studios (<a href="https://github.com/MakingOddEdit/CodeBeautify">github</a>).
-              </li>
-              <li><strong>Firefox</strong>: <a href="https://addons.mozilla.org/en-US/firefox/addon/javascript-deminifier/">Javascript deminifier</a> by Ben Murphy, to be
-                  used together with the firebug (<a href="https://github.com/benmmurphy/jsdeminifier_xpi/">github</a>),</li>
-              <li><strong>Safari</strong>: <a href="http://spadin.github.com/js-beautify-safari-extension">Safari extension</a> by Sandro Padin,</li>
-              <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/readable-javascript/">Readable JavaScript</a>
-                  (<a href="https://github.com/Dither/readable-javascript">github</a>) by Dither,</li>
-              <li><strong>Opera</strong>: <a href="https://addons.opera.com/addons/extensions/details/source/">Source</a> extension by Deathamns,</li>
-              <li><strong>Sublime Text 2/3:</strong>  <a href="https://github.com/akalongman/sublimetext-codeformatter">CodeFormatter</a>, a python plugin by Avtandil Kikabidze, supports HTML, CSS, JS and a bunch of other languages,</li>
-              <li><strong>Sublime Text 2/3:</strong>  <a href="https://github.com/victorporof/Sublime-HTMLPrettify">HTMLPrettify</a>, a javascript plugin by Victor Porof,</li>
-              <li><strong>Sublime Text 2:</strong>  <a href="https://github.com/jdc0589/JsFormat">JsFormat</a>, a javascript formatting plugin for this nice editor by Davis
-                  Clark,</li>
-              <li><strong>vim:</strong>  <a href="https://github.com/michalliu/sourcebeautify.vim">sourcebeautify.vim</a>, a plugin by michalliu (requires node.js, V8, SpiderMonkey
-                  or cscript js engine),</li>
-              <li><strong>vim:</strong>  <a href="https://github.com/maksimr/vim-jsbeautify">vim-jsbeautify</a>, a plugin by Maksim Ryzhikov (node.js or V8 required),</li>
-
-              <li><strong>Emacs:</strong> <a href="https://github.com/yasuyk/web-beautify">Web-beautify</a> formatting package by Yasuyuki Oka,</li>
-              <li><strong>Komodo IDE:</strong> <a href="http://komodoide.com/packages/addons/beautify-js/">Beautify-js</a> addon by Bob de Haas (<a href="https://github.com/babobski/Beautify-js">github</a>),</li>
-              <li><strong>C#:</strong> ghost6991 <a href="https://github.com/ghost6991/Jsbeautifier">ported the javascript formatter to C#</a>,
-              <li><strong>Go:</strong> ditashi has <a href="https://github.com/ditashi/jsbeautifier-go">ported the javascript formatter to golang</a>,
-            </ul>
-          </div>
-          <div class="col-6">
-            <ul class="uses">
-              <li><a href="https://marketplace.visualstudio.com/items/HookyQR.beautify">Beautify plugin</a> (<a href="https://github.com/HookyQR/VSCodeBeautify">github</a>) by HookyQR for the <a href="https://code.visualstudio.com/">Visual Studio Code</a> IDE</a>,
-              <li><a href="http://fiddler2.com/">Fiddler</a> proxy: <a href="http://fiddler2.com/Fiddler2/extensions.asp">JavaScript Formatter addon</a>,
-              <li><a href="https://github.com/nagaozen/gedit-tunnings/">gEdit tips</a> by Fabio Nagao,</li>
-              <li><a href="http://akelpad.sourceforge.net/forum/viewtopic.php?p=11246#11246">Akelpad extension</a> by Infocatcher,</li>
-              <li>Beautifier in <a href="http://sethmason.com/2011/04/28/jsbeautify-in-emacs.html">Emacs</a> write-up by Seth Mason,</li>
-              <li><a href="http://c9.io">Cloud9</a>, a lovely IDE running in a browser, working in the node/cloud, uses jsbeautifier (<a href="https://github.com/ajaxorg/cloud9">github</a>),</li>
-              <li><a href="https://www.comment-devenir-un-hacker.com/app.html">Devenir Hacker App</a>, a non-free JavaScript packer for Mac,</li>
-              <li><a href="http://www.restconsole.com/">REST Console</a>, a request debugging tool for Chrome, beautifies JSON responses (<a href="https://github.com/codeinchaos/rest-console">github</a>),</li>
-              <li><a href="http://mitmproxy.org/">mitmproxy</a>, a nifty SSL-capable HTTP proxy, provides pretty javascript responses (<a href="https://github.com/cortesi/mitmproxy">github</a>).</li>
-              <li><a href="http://www.wakanda.org/">wakanda</a>, a neat IDE for web and mobile applications has a <a href="http://forum.wakanda.org/showthread.php?1483-3-new-extensions-JSLint-Beautifier-and-Snippet">Beautifier extension</a>
-                  (<a href="https://github.com/Wakanda/wakanda-extensions/tree/master/Beautifier">github</a>).</li>
-              <li><a href="http://portswigger.net/burp/">Burp Suite</a> now has a <a href="https://github.com/irsdl/BurpSuiteJSBeautifier/">beautfier extension</a>,
-                  thanks to Soroush Dalili,</li>
-              <li><a href="http://plugins.netbeans.org/plugin/43263/jsbeautify">Netbeans jsbeautify</a> plugin by Drew Hamlett
-                  (<a href="https://github.com/drewhjava/netbeans-jsbeautify">github</a>).</li>
-              <li><a href="https://github.com/drewhjava/brackets-beautify">brackets-beautify-extension</a> for <a href="http://brackets.io">Adobe Brackets</a> by Drew
-                  Hamlett (<a href="https://github.com/drewhjava/brackets-beautify">github</a>),</li>
-              <li><a href="http://codecaddy.net/">codecaddy.net</a>, a collection of webdev-related tools, assembled by Darik Hall,
-              <li><a href="http://www.editey.com/">editey.com</a>, an interesting and free Google-Drive oriented editor uses this beautifier,
-              <li><a href="https://github.com/vkadam/grunt-jsbeautifier">a beautifier plugin for Grunt</a> by Vishal Kadam,
-              <li><a href="http://www.uvviewsoft.com/synwrite/">SynWrite</a> editor has a JsFormat plugin (<a href="https://sourceforge.net/projects/synwrite-addons/files/PyPlugins/Alexey.JsFormat/">rar</a>, <a href="http://synwrite.sourceforge.net/forums/viewtopic.php?f=19&t=865">readme</a>),
-              <li><a href="http://liveditor.com/">LIVEditor</a>, a live-editing HTML/CSS/JS IDE (commercial, Windows-only) uses the library,
-          </ul>
-        </div>
-        <p>Doing anything interesting? Write us to <b>team@jsbeautifier.org</b> so we can add your project to the list.</p>
-
-        <p class="contributor-sep">Written by <a href="https://github.com/einars">Einar Lielmanis</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
-        <p>We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.
-        </p>
-        <p class="contributors">Made with a great help of Jason&nbsp;Diamond, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider,
-            <br>Dave&nbsp;Vasilevsky,
-            <a href="https://moikrug.ru/vital">Vital&nbsp;Batmanov</a>, Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison,
-            <a href="http://shullian.com">Chris J. Shull</a>,
-            <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
-            <br>
-            <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
-            <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
-            <a href="https://github.com/evocateur">Daniel Stockman</a>.
-        </p>
-
-        <p style="text-align:right">
-            <a href="#" style="color: #ccc; border-bottom: 1px dashed #ccc; text-decoration: none;" onclick="run_tests(); return false;">Run the tests</a>
-        </p>
-
-    </div>
-    <div id="testresults"></div>
-    <script src="web/onload.js"></script>
-    <script src="web/google-analytics.js"></script>
+  </div>
+  <div id="testresults"></div>
+  <script src="web/onload.js">
+  </script>
+  <script src="web/google-analytics.js">
+  </script>
 </body>
 
 </html>

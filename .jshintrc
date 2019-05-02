@@ -4,8 +4,10 @@
   "eqeqeq": true,
   "noarg": true,
   "nocomma": true,
+  "node": true,
   "nonbsp": true,
   "nonew": true,
+  "strict": true,
   "unused": true,
   "esversion": 3
 }

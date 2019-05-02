@@ -25,10 +25,10 @@
 import re
 import string
 import copy
+from ..core.token import Token
 from .tokenizer import Tokenizer
 from .tokenizer import TOKEN
 from .options import BeautifierOptions
-from ..core.options import mergeOpts
 from ..core.output import Output
 
 
@@ -40,7 +40,7 @@ class BeautifierFlags:
     def __init__(self, mode):
         self.mode = mode
         self.parent = None
-        self.last_text = ''
+        self.last_token = Token(TOKEN.START_BLOCK, '')
         self.last_word = ''
         self.declaration_statement = False
         self.declaration_assignment = False
@@ -55,6 +55,7 @@ class BeautifierFlags:
         self.in_case_statement = False
         self.case_body = False
         self.indentation_level = 0
+        self.alignment = 0
         self.line_indent_level = 0
         self.start_line_index = 0
         self.ternary_depth = 0
@@ -66,7 +67,7 @@ class BeautifierFlags:
             next_indent_level = flags_base.line_indent_level
 
         self.parent = flags_base
-        self.last_text = flags_base.last_text
+        self.last_token = flags_base.last_token
         self.last_word = flags_base.last_word
         self.indentation_level = next_indent_level
 
@@ -81,21 +82,6 @@ OPERATOR_POSITION_BEFORE_OR_PRESERVE = [
     OPERATOR_POSITION['preserve_newline']]
 
 
-def sanitizeOperatorPosition(opPosition):
-    if not opPosition:
-        return OPERATOR_POSITION['before_newline']
-    elif opPosition not in OPERATOR_POSITION.values():
-        raise ValueError(
-            "Invalid Option Value: The option 'operator_position' must be one of the following values\n" +
-            str(
-                OPERATOR_POSITION.values()) +
-            "\nYou passed in: '" +
-            opPosition +
-            "'")
-
-    return opPosition
-
-
 class MODE:
     BlockStatement, Statement, ObjectLiteral, ArrayLiteral, \
         ForInitializer, Conditional, Expression = range(7)
@@ -107,167 +93,160 @@ def remove_redundant_indentation(output, frame):
     #           after wrap points are calculated
     # These issues are minor compared to ugly indentation.
 
-    if frame.multiline_frame or frame.mode == MODE.ForInitializer or frame.mode == MODE.Conditional:
+    if frame.multiline_frame or \
+            frame.mode == MODE.ForInitializer or \
+            frame.mode == MODE.Conditional:
         return
 
     # remove one indent from each line inside this section
-    index = frame.start_line_index
-    while index < len(output.lines):
-        output.lines[index].remove_indent()
-        index += 1
+    output.remove_indent(frame.start_line_index)
+
+
+def reserved_word(token, word):
+    return token and token.type == TOKEN.RESERVED and token.text == word
+
+
+def reserved_array(token, words):
+    return token and token.type == TOKEN.RESERVED and token.text in words
+
+
+_special_word_set = frozenset([
+    'case',
+    'return',
+    'do',
+    'if',
+    'throw',
+    'else',
+    'await',
+    'break',
+    'continue',
+    'async'])
 
 
 class Beautifier:
 
-    def __init__(self, opts=default_options()):
-        import jsbeautifier.core.acorn as acorn
+    def __init__(self, opts=None):
+        import jsbeautifier.javascript.acorn as acorn
         self.acorn = acorn
-        self.opts = copy.copy(opts)
-        self.blank_state()
+        self._options = BeautifierOptions(opts)
 
-    def blank_state(self, js_source_text=None):
+        self._blank_state()
+
+    def _blank_state(self, js_source_text=None):
         if js_source_text is None:
             js_source_text = ''
 
         # internal flags
-        self.flags = None
-        self.previous_flags = None
-        self.flag_store = []
-        self.tokens = []
-        self.token_pos = 0
+        self._flags = None
+        self._previous_flags = None
+        self._flag_store = []
+        self._tokens = None
 
-        # force opts.space_after_anon_function to true if opts.jslint_happy
-        if self.opts.jslint_happy:
-            self.opts.space_after_anon_function = True
-
-        if self.opts.indent_with_tabs:
-            self.opts.indent_char = "\t"
-            self.opts.indent_size = 1
-
-        if self.opts.eol == 'auto':
-            self.opts.eol = '\n'
+        if self._options.eol == 'auto':
+            self._options.eol = '\n'
             if self.acorn.lineBreak.search(js_source_text or ''):
-                self.opts.eol = self.acorn.lineBreak.search(
+                self._options.eol = self.acorn.lineBreak.search(
                     js_source_text).group()
 
-        self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
 
-        self.indent_string = self.opts.indent_char * self.opts.indent_size
+        baseIndentString = re.search("^[\t ]*", js_source_text).group(0)
+        self._last_last_text = ''         # pre-last token text
 
-        self.baseIndentString = ''
-        self.last_type = TOKEN.START_BLOCK  # last token type
-        self.last_last_text = ''         # pre-last token text
 
-        preindent_index = 0
-        if js_source_text is not None and len(js_source_text) > 0:
-            while preindent_index < len(js_source_text) and \
-                    js_source_text[preindent_index] in [' ', '\t']:
-                self.baseIndentString += js_source_text[preindent_index]
-                preindent_index += 1
-            js_source_text = js_source_text[preindent_index:]
-
-        self.output = Output(self.indent_string, self.baseIndentString)
+        self._output = Output(self._options, baseIndentString)
         # If testing the ignore directive, start with output disable set to
         # true
-        self.output.raw = self.opts.test_output_raw
+        self._output.raw = self._options.test_output_raw
 
         self.set_mode(MODE.BlockStatement)
         return js_source_text
 
-    def beautify(self, s, opts=None):
+    def beautify(self, source_text='', opts=None):
         if opts is not None:
-            opts = mergeOpts(opts, 'js')
-            self.opts = copy.copy(opts)
+            self._options = BeautifierOptions(opts)
 
-        # Compat with old form
-        if self.opts.brace_style == 'collapse-preserve-inline':
-            self.opts.brace_style = 'collapse,preserve-inline'
 
-        # split always returns at least one value
-        split = re.compile(r"[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
-        # preserve-inline in delimited string will trigger brace_preserve_inline
-        # Everything else is considered a brace_style and the last one only will
-        # have an effect
-        # specify defaults in case one half of meta-option is missing
-        self.opts.brace_style = "collapse"
-        self.opts.brace_preserve_inline = False
-        for bs in split:
-            if bs == "preserve-inline":
-                self.opts.brace_preserve_inline = True
-            else:
-                # validate each brace_style that's not a preserve-inline
-                # (results in very similar validation as js version)
-                if bs not in ['expand', 'collapse', 'end-expand', 'none']:
-                    raise(Exception(
-                        'opts.brace_style must be "expand", "collapse", "end-expand", or "none".'))
-                self.opts.brace_style = bs
+        source_text = source_text or ''
+        if self._options.disabled:
+            return source_text
 
-        s = self.blank_state(s)
+        source_text = self._blank_state(source_text)
 
-        input = self.unpack(s, self.opts.eval_code)
+        source_text = self.unpack(source_text, self._options.eval_code)
 
-        self.handlers = {
-            TOKEN.START_EXPR: self.handle_start_expr,
-            TOKEN.END_EXPR: self.handle_end_expr,
-            TOKEN.START_BLOCK: self.handle_start_block,
-            TOKEN.END_BLOCK: self.handle_end_block,
-            TOKEN.WORD: self.handle_word,
-            TOKEN.RESERVED: self.handle_word,
-            TOKEN.SEMICOLON: self.handle_semicolon,
-            TOKEN.STRING: self.handle_string,
-            TOKEN.EQUALS: self.handle_equals,
-            TOKEN.OPERATOR: self.handle_operator,
-            TOKEN.COMMA: self.handle_comma,
-            TOKEN.BLOCK_COMMENT: self.handle_block_comment,
-            TOKEN.COMMENT: self.handle_comment,
-            TOKEN.DOT: self.handle_dot,
-            TOKEN.UNKNOWN: self.handle_unknown,
-            TOKEN.EOF: self.handle_eof
-        }
+        self._tokens = Tokenizer(source_text, self._options).tokenize()
 
-        self.tokens = Tokenizer(
-            input, self.opts, self.indent_string).tokenize()
-        self.token_pos = 0
+        for current_token in self._tokens:
+            self.handle_token(current_token)
 
-        current_token = self.get_token()
-        while current_token is not None:
-            self.handlers[current_token.type](current_token)
+            self._last_last_text = self._flags.last_token.text
+            self._flags.last_token = current_token
 
-            self.last_last_text = self.flags.last_text
-            self.last_type = current_token.type
-            self.flags.last_text = current_token.text
-            self.token_pos += 1
-            current_token = self.get_token()
-
-        sweet_code = self.output.get_code(
-            self.opts.end_with_newline, self.opts.eol)
+        sweet_code = self._output.get_code(self._options.eol)
 
         return sweet_code
 
-    def handle_whitespace_and_comments(
-            self, local_token, preserve_statement_flags=False):
-        newlines = local_token.newlines
-        keep_whitespace = self.opts.keep_array_indentation and self.is_array(
-            self.flags.mode)
+    def handle_token(self, current_token, preserve_statement_flags=False):
+        if current_token.type == TOKEN.START_EXPR:
+            self.handle_start_expr(current_token)
+        elif current_token.type == TOKEN.END_EXPR:
+            self.handle_end_expr(current_token)
+        elif current_token.type == TOKEN.START_BLOCK:
+            self.handle_start_block(current_token)
+        elif current_token.type == TOKEN.END_BLOCK:
+            self.handle_end_block(current_token)
+        elif current_token.type == TOKEN.WORD:
+            self.handle_word(current_token)
+        elif current_token.type == TOKEN.RESERVED:
+            self.handle_word(current_token)
+        elif current_token.type == TOKEN.SEMICOLON:
+            self.handle_semicolon(current_token)
+        elif current_token.type == TOKEN.STRING:
+            self.handle_string(current_token)
+        elif current_token.type == TOKEN.EQUALS:
+            self.handle_equals(current_token)
+        elif current_token.type == TOKEN.OPERATOR:
+            self.handle_operator(current_token)
+        elif current_token.type == TOKEN.COMMA:
+            self.handle_comma(current_token)
+        elif current_token.type == TOKEN.BLOCK_COMMENT:
+            self.handle_block_comment(current_token, preserve_statement_flags)
+        elif current_token.type == TOKEN.COMMENT:
+            self.handle_comment(current_token, preserve_statement_flags)
+        elif current_token.type == TOKEN.DOT:
+            self.handle_dot(current_token)
+        elif current_token.type == TOKEN.EOF:
+            self.handle_eof(current_token)
+        elif current_token.type == TOKEN.UNKNOWN:
+            self.handle_unknown(current_token, preserve_statement_flags)
+        else:
+            self.handle_unknown(current_token, preserve_statement_flags)
 
-        for comment_token in local_token.comments_before:
-            # The cleanest handling of inline comments is to treat them as though they aren't there.
-            # Just continue formatting and the behavior should be logical.
-            # Also ignore unknown tokens.  Again, this should result in better
-            # behavior.
-            self.handle_whitespace_and_comments(
-                comment_token, preserve_statement_flags)
-            self.handlers[comment_token.type](
-                comment_token, preserve_statement_flags)
+    def handle_whitespace_and_comments(
+            self, current_token, preserve_statement_flags=False):
+        newlines = current_token.newlines
+        keep_whitespace = self._options.keep_array_indentation and self.is_array(
+            self._flags.mode)
+
+        if current_token.comments_before is not None:
+            for comment_token in current_token.comments_before:
+                    # The cleanest handling of inline comments is to treat them
+                    # as though they aren't there.
+                # Just continue formatting and the behavior should be logical.
+                # Also ignore unknown tokens.  Again, this should result in better
+                # behavior.
+                self.handle_whitespace_and_comments(
+                    comment_token, preserve_statement_flags)
+                self.handle_token(comment_token, preserve_statement_flags)
 
         if keep_whitespace:
             for i in range(newlines):
                 self.print_newline(i > 0, preserve_statement_flags)
         else:  # not keep_whitespace
-            if self.opts.max_preserve_newlines != 0 and newlines > self.opts.max_preserve_newlines:
-                newlines = self.opts.max_preserve_newlines
+            if self._options.max_preserve_newlines != 0 and newlines > self._options.max_preserve_newlines:
+                newlines = self._options.max_preserve_newlines
 
-            if self.opts.preserve_newlines and newlines > 1:
+            if self._options.preserve_newlines and newlines > 1:
                 self.print_newline(False, preserve_statement_flags)
                 for i in range(1, newlines):
                     self.print_newline(True, preserve_statement_flags)
@@ -279,176 +258,178 @@ class Beautifier:
         except unpackers.UnpackingError:
             return source
 
-    def is_special_word(self, s):
-        return s in [
-            'case',
-            'return',
-            'do',
-            'if',
-            'throw',
-            'else',
-            'await',
-            'break',
-            'continue',
-            'async']
-
     def is_array(self, mode):
         return mode == MODE.ArrayLiteral
 
     def is_expression(self, mode):
-        return mode in [MODE.Expression, MODE.ForInitializer, MODE.Conditional]
+        return mode == MODE.Expression or mode == MODE.ForInitializer or mode == MODE.Conditional
 
-    _newline_restricted_tokens = [
+    _newline_restricted_tokens = frozenset([
         'async',
-        'await',
         'break',
         'continue',
         'return',
         'throw',
-        'yield']
+        'yield'])
 
     def allow_wrap_or_preserved_newline(
             self, current_token, force_linewrap=False):
         # never wrap the first token of a line.
-        if self.output.just_added_newline():
+        if self._output.just_added_newline():
             return
 
         shouldPreserveOrForce = (
-            self.opts.preserve_newlines and current_token.wanted_newline) or force_linewrap
-        operatorLogicApplies = self.flags.last_text in Tokenizer.positionable_operators or current_token.text in Tokenizer.positionable_operators
+            self._options.preserve_newlines and current_token.newlines) or force_linewrap
+        operatorLogicApplies = self._flags.last_token.text in Tokenizer.positionable_operators or current_token.text in Tokenizer.positionable_operators
 
         if operatorLogicApplies:
-            shouldPrintOperatorNewline = (self.flags.last_text in Tokenizer.positionable_operators and self.opts.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE) \
+            shouldPrintOperatorNewline = (self._flags.last_token.text in Tokenizer.positionable_operators and self._options.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE) \
                 or current_token.text in Tokenizer.positionable_operators
             shouldPreserveOrForce = shouldPreserveOrForce and shouldPrintOperatorNewline
 
         if shouldPreserveOrForce:
             self.print_newline(preserve_statement_flags=True)
-        elif self.opts.wrap_line_length > 0:
-            if self.last_type == TOKEN.RESERVED and self.flags.last_text in self._newline_restricted_tokens:
+        elif self._options.wrap_line_length > 0:
+            if reserved_array(self._flags.last_token, self._newline_restricted_tokens):
                 # These tokens should never have a newline inserted between
                 # them and the following expression.
                 return
-            proposed_line_length = self.output.current_line.get_character_count() + \
-                len(current_token.text)
-            if self.output.space_before_token:
-                proposed_line_length += 1
-
-            if proposed_line_length >= self.opts.wrap_line_length:
-                self.print_newline(preserve_statement_flags=True)
+            self._output.set_wrap_point()
 
     def print_newline(
             self,
             force_newline=False,
             preserve_statement_flags=False):
         if not preserve_statement_flags:
-            if self.flags.last_text != ';' and self.flags.last_text != ',' and self.flags.last_text != '=' and (
-                    self.last_type != TOKEN.OPERATOR or self.flags.last_text == '--' or self.flags.last_text == '++'):
-                next_token = self.get_token(1)
-                while (self.flags.mode == MODE.Statement and not (self.flags.if_block and next_token and next_token.type ==
-                                                                  TOKEN.RESERVED and next_token.text == 'else') and not self.flags.do_block):
+            if self._flags.last_token.text != ';' and self._flags.last_token.text != ',' and self._flags.last_token.text != '=' and (
+                    self._flags.last_token.type != TOKEN.OPERATOR or self._flags.last_token.text == '--' or self._flags.last_token.text == '++'):
+                next_token = self._tokens.peek()
+                while (self._flags.mode == MODE.Statement and \
+                        not (self._flags.if_block and reserved_word(next_token, 'else')) and \
+                        not self._flags.do_block):
                     self.restore_mode()
 
-        if self.output.add_new_line(force_newline):
-            self.flags.multiline_frame = True
+        if self._output.add_new_line(force_newline):
+            self._flags.multiline_frame = True
 
     def print_token_line_indentation(self, current_token):
-        if self.output.just_added_newline():
-            line = self.output.current_line
-            if self.opts.keep_array_indentation and self.is_array(
-                    self.flags.mode) and current_token.wanted_newline:
+        if self._output.just_added_newline():
+            line = self._output.current_line
+            if self._options.keep_array_indentation and \
+                current_token.newlines and \
+                (self.is_array(self._flags.mode) or
+                        current_token.text == '['):
+                line.set_indent(-1)
                 line.push(current_token.whitespace_before)
-                self.output.space_before_token = False
-            elif self.output.set_indent(self.flags.indentation_level):
-                self.flags.line_indent_level = self.flags.indentation_level
+                self._output.space_before_token = False
+            elif self._output.set_indent(self._flags.indentation_level,
+                            self._flags.alignment):
+                self._flags.line_indent_level = self._flags.indentation_level
 
     def print_token(self, current_token, s=None):
-        if self.output.raw:
-            self.output.add_raw_token(current_token)
+        if self._output.raw:
+            self._output.add_raw_token(current_token)
             return
 
-        if self.opts.comma_first and self.last_type == TOKEN.COMMA and self.output.just_added_newline():
-            if self.output.previous_line.last() == ',':
+        if self._options.comma_first and current_token.previous and \
+            current_token.previous.type == TOKEN.COMMA and \
+                self._output.just_added_newline():
+            if self._output.previous_line.last() == ',':
                 # if the comma was already at the start of the line,
                 # pull back onto that line and reprint the indentation
-                popped = self.output.previous_line.pop()
-                if self.output.previous_line.is_empty():
-                    self.output.previous_line.push(popped)
-                    self.output.trim(True)
-                    self.output.current_line.pop()
-                    self.output.trim()
+                popped = self._output.previous_line.pop()
+                if self._output.previous_line.is_empty():
+                    self._output.previous_line.push(popped)
+                    self._output.trim(True)
+                    self._output.current_line.pop()
+                    self._output.trim()
 
                 # add the comma in front of the next token
                 self.print_token_line_indentation(current_token)
-                self.output.add_token(',')
-                self.output.space_before_token = True
+                self._output.add_token(',')
+                self._output.space_before_token = True
 
         if s is None:
             s = current_token.text
 
         self.print_token_line_indentation(current_token)
-        self.output.add_token(s)
+        self._output.non_breaking_space = True
+        self._output.add_token(s)
+        if self._output.previous_token_wrapped:
+            self._flags.multiline_frame = True
 
     def indent(self):
-        self.flags.indentation_level += 1
+        self._flags.indentation_level += 1
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
 
     def deindent(self):
-        allow_deindent = self.flags.indentation_level > 0 and (
-            (self.flags.parent is None) or self.flags.indentation_level > self.flags.parent.indentation_level)
+        allow_deindent = self._flags.indentation_level > 0 and (
+            (self._flags.parent is None) or self._flags.indentation_level > self._flags.parent.indentation_level)
 
         if allow_deindent:
-            self.flags.indentation_level -= 1
+            self._flags.indentation_level -= 1
+
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
+
 
     def set_mode(self, mode):
-        if self.flags:
-            self.flag_store.append(self.flags)
-            self.previous_flags = self.flags
+        if self._flags:
+            self._flag_store.append(self._flags)
+            self._previous_flags = self._flags
         else:
-            self.previous_flags = BeautifierFlags(mode)
+            self._previous_flags = BeautifierFlags(mode)
 
-        self.flags = BeautifierFlags(mode)
-        self.flags.apply_base(
-            self.previous_flags,
-            self.output.just_added_newline())
-        self.flags.start_line_index = self.output.get_line_number()
+        self._flags = BeautifierFlags(mode)
+        self._flags.apply_base(
+            self._previous_flags,
+            self._output.just_added_newline())
+        self._flags.start_line_index = self._output.get_line_number()
+
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
 
     def restore_mode(self):
-        if len(self.flag_store) > 0:
-            self.previous_flags = self.flags
-            self.flags = self.flag_store.pop()
-            if self.previous_flags.mode == MODE.Statement:
-                remove_redundant_indentation(self.output, self.previous_flags)
+        if len(self._flag_store) > 0:
+            self._previous_flags = self._flags
+            self._flags = self._flag_store.pop()
+            if self._previous_flags.mode == MODE.Statement:
+                remove_redundant_indentation(self._output, self._previous_flags)
+
+        self._output.set_indent(self._flags.indentation_level,
+            self._flags.alignment)
 
     def start_of_object_property(self):
-        return self.flags.parent.mode == MODE.ObjectLiteral and self.flags.mode == MODE.Statement and (
-            (self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (
-                self.last_type == TOKEN.RESERVED and self.flags.last_text in [
-                    'get', 'set']))
+        return self._flags.parent.mode == MODE.ObjectLiteral and self._flags.mode == MODE.Statement and (
+            (self._flags.last_token.text == ':' and self._flags.ternary_depth == 0) or (
+                reserved_array(self._flags.last_token, ['get', 'set'])))
 
     def start_of_statement(self, current_token):
         start = False
-        start = start or (self.last_type == TOKEN.RESERVED and self.flags.last_text in [
-                          'var', 'let', 'const'] and current_token.type == TOKEN.WORD)
         start = start or (
-            self.last_type == TOKEN.RESERVED and self.flags.last_text == 'do')
+            reserved_array(self._flags.last_token, ['var', 'let', 'const']) and
+            current_token.type == TOKEN.WORD)
+        start = start or reserved_word(self._flags.last_token, 'do')
         start = start or (
-            self.last_type == TOKEN.RESERVED and self.flags.last_text in self._newline_restricted_tokens and not current_token.wanted_newline)
+            not (self._flags.parent.mode == MODE.ObjectLiteral and self._flags.mode == MODE.Statement) and
+            reserved_array(self._flags.last_token, self._newline_restricted_tokens) and
+            not current_token.newlines)
         start = start or (
-            self.last_type == TOKEN.RESERVED and self.flags.last_text == 'else' and not (
-                current_token.type == TOKEN.RESERVED and current_token.text == 'if' and not len(
-                    current_token.comments_before)))
-        start = start or (self.last_type == TOKEN.END_EXPR and (
-            self.previous_flags.mode == MODE.ForInitializer or self.previous_flags.mode == MODE.Conditional))
-        start = start or (self.last_type == TOKEN.WORD and self.flags.mode == MODE.BlockStatement
-                          and not self.flags.in_case
+            reserved_word(self._flags.last_token, 'else') and not (
+                reserved_word(current_token, 'if') and \
+                    current_token.comments_before is None))
+        start = start or (self._flags.last_token.type == TOKEN.END_EXPR and (
+            self._previous_flags.mode == MODE.ForInitializer or self._previous_flags.mode == MODE.Conditional))
+        start = start or (self._flags.last_token.type == TOKEN.WORD and self._flags.mode == MODE.BlockStatement
+                          and not self._flags.in_case
                           and not (current_token.text == '--' or current_token.text == '++')
-                          and self.last_last_text != 'function'
+                          and self._last_last_text != 'function'
                           and current_token.type != TOKEN.WORD and current_token.type != TOKEN.RESERVED)
         start = start or (
-            self.flags.mode == MODE.ObjectLiteral and (
-                (self.flags.last_text == ':' and self.flags.ternary_depth == 0) or (
-                    self.last_type == TOKEN.RESERVED and self.flags.last_text in [
-                        'get', 'set'])))
+            self._flags.mode == MODE.ObjectLiteral and (
+                (self._flags.last_token.text == ':' and self._flags.ternary_depth == 0) or (
+                    reserved_array(self._flags.last_token, ['get', 'set']))))
 
         if (start):
             self.set_mode(MODE.Statement)
@@ -461,19 +442,10 @@ class Beautifier:
             # if (a) if (b) if(c) d(); else e(); else f();
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(
-                    current_token, current_token.type == TOKEN.RESERVED and current_token.text in [
-                        'do', 'for', 'if', 'while'])
-
+                    current_token, reserved_array(current_token, ['do', 'for', 'if', 'while']))
             return True
         else:
             return False
-
-    def get_token(self, offset=0):
-        index = self.token_pos + offset
-        if index < 0 or index >= len(self.tokens):
-            return None
-        else:
-            return self.tokens[index]
 
     def handle_start_expr(self, current_token):
         if self.start_of_statement(current_token):
@@ -485,59 +457,81 @@ class Beautifier:
         next_mode = MODE.Expression
 
         if current_token.text == '[':
-            if self.last_type == TOKEN.WORD or self.flags.last_text == ')':
-                if self.last_type == TOKEN.RESERVED and self.flags.last_text in Tokenizer.line_starters:
-                    self.output.space_before_token = True
-                self.set_mode(next_mode)
+            if self._flags.last_token.type == TOKEN.WORD or self._flags.last_token.text == ')':
+                if reserved_array(self._flags.last_token, Tokenizer.line_starters):
+                    self._output.space_before_token = True
                 self.print_token(current_token)
+                self.set_mode(next_mode)
                 self.indent()
-                if self.opts.space_in_paren:
-                    self.output.space_before_token = True
+                if self._options.space_in_paren:
+                    self._output.space_before_token = True
                 return
 
             next_mode = MODE.ArrayLiteral
 
-            if self.is_array(self.flags.mode):
-                if self.flags.last_text == '[' or (
-                    self.flags.last_text == ',' and (
-                        self.last_last_text == ']' or self.last_last_text == '}')):
+            if self.is_array(self._flags.mode):
+                if self._flags.last_token.text == '[' or (
+                    self._flags.last_token.text == ',' and (
+                        self._last_last_text == ']' or self._last_last_text == '}')):
                     # ], [ goes to a new line
                     # }, [ goes to a new line
-                    if not self.opts.keep_array_indentation:
+                    if not self._options.keep_array_indentation:
                         self.print_newline()
 
-            if self.last_type not in [
+            if self._flags.last_token.type not in [
                     TOKEN.START_EXPR,
                     TOKEN.END_EXPR,
                     TOKEN.WORD,
                     TOKEN.OPERATOR]:
-                self.output.space_before_token = True
+                self._output.space_before_token = True
 
         else:
-            if self.last_type == TOKEN.RESERVED:
-                if self.flags.last_text == 'for':
-                    self.output.space_before_token = self.opts.space_before_conditional
+            if self._flags.last_token.type == TOKEN.RESERVED:
+                if self._flags.last_token.text == 'for':
+                    self._output.space_before_token = self._options.space_before_conditional
                     next_mode = MODE.ForInitializer
-                elif self.flags.last_text in ['if', 'while']:
-                    self.output.space_before_token = self.opts.space_before_conditional
+                elif self._flags.last_token.text in ['if', 'while']:
+                    self._output.space_before_token = self._options.space_before_conditional
                     next_mode = MODE.Conditional
-                elif self.flags.last_word in ['await', 'async']:
+                elif self._flags.last_word in ['await', 'async']:
                     # Should be a space between await and an IIFE, or async and
                     # an arrow function
-                    self.output.space_before_token = True
-                elif self.flags.last_text == 'import' and current_token.whitespace_before == '':
-                    self.output.space_before_token = False
-                elif self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == 'catch':
-                    self.output.space_before_token = True
+                    self._output.space_before_token = True
+                elif self._flags.last_token.text == 'import' and current_token.whitespace_before == '':
+                    self._output.space_before_token = False
+                elif self._flags.last_token.text in Tokenizer.line_starters or self._flags.last_token.text == 'catch':
+                    self._output.space_before_token = True
 
-            elif self.last_type in [TOKEN.EQUALS, TOKEN.OPERATOR]:
+            elif self._flags.last_token.type in [TOKEN.EQUALS, TOKEN.OPERATOR]:
                 # Support of this kind of newline preservation:
                 # a = (b &&
                 #     (c || d));
                 if not self.start_of_object_property():
                     self.allow_wrap_or_preserved_newline(current_token)
-            elif self.last_type == TOKEN.WORD:
-                self.output.space_before_token = False
+            elif self._flags.last_token.type == TOKEN.WORD:
+                self._output.space_before_token = False
+                # function name() vs function name ()
+                # function* name() vs function* name ()
+                # async name() vs async name ()
+                # In ES6, you can also define the method properties of an object
+                # var obj = {a: function() {}}
+                # It can be abbreviated
+                # var obj = {a() {}}
+                # var obj = { a() {}} vs var obj = { a () {}}
+                # var obj = { * a() {}} vs var obj = { * a () {}}
+                peek_back_two = self._tokens.peek(-3)
+                if self._options.space_after_named_function and peek_back_two:
+                    # peek starts at next character so -1 is current token
+                    peek_back_three = self._tokens.peek(-4)
+                    if reserved_array(peek_back_two, ['async', 'function']) or (
+                        peek_back_two.text == '*' and
+                            reserved_array(peek_back_three, ['async', 'function'])):
+                        self._output.space_before_token = True
+                    elif self._flags.mode == MODE.ObjectLiteral:
+                        if (peek_back_two.text == '{' or peek_back_two.text == ',') or (
+                            peek_back_two.text == '*' and (
+                                peek_back_three.text == '{' or peek_back_three.text == ',')):
+                            self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -548,29 +542,29 @@ class Beautifier:
             # function() vs function (), typeof() vs typeof ()
             # function*() vs function* (), yield*() vs yield* ()
             if (
-                self.last_type == TOKEN.RESERVED and (
-                    self.flags.last_word == 'function' or self.flags.last_word == 'typeof')) or (
-                self.flags.last_text == '*' and (
-                    self.last_last_text in [
+                self._flags.last_token.type == TOKEN.RESERVED and (
+                    self._flags.last_word == 'function' or self._flags.last_word == 'typeof')) or (
+                self._flags.last_token.text == '*' and (
+                    self._last_last_text in [
                     'function', 'yield'] or (
-                        self.flags.mode == MODE.ObjectLiteral and self.last_last_text in [
+                        self._flags.mode == MODE.ObjectLiteral and self._last_last_text in [
                             '{', ',']))):
-                self.output.space_before_token = self.opts.space_after_anon_function
+                self._output.space_before_token = self._options.space_after_anon_function
 
-        if self.flags.last_text == ';' or self.last_type == TOKEN.START_BLOCK:
+        if self._flags.last_token.text == ';' or self._flags.last_token.type == TOKEN.START_BLOCK:
             self.print_newline()
-        elif self.last_type in [TOKEN.END_EXPR, TOKEN.START_EXPR, TOKEN.END_BLOCK, TOKEN.COMMA] or self.flags.last_text == '.':
+        elif self._flags.last_token.type in [TOKEN.END_EXPR, TOKEN.START_EXPR, TOKEN.END_BLOCK, TOKEN.COMMA] or self._flags.last_token.text == '.':
             # do nothing on (( and )( and ][ and ]( and .(
             # TODO: Consider whether forcing this is required.  Review failing
             # tests when removed.
             self.allow_wrap_or_preserved_newline(
-                current_token, current_token.wanted_newline)
+                current_token, current_token.newlines)
 
-        self.set_mode(next_mode)
         self.print_token(current_token)
+        self.set_mode(next_mode)
 
-        if self.opts.space_in_paren:
-            self.output.space_before_token = True
+        if self._options.space_in_paren:
+            self._output.space_before_token = True
 
         # In all cases, if we newline while inside an expression it should be
         # indented.
@@ -579,47 +573,50 @@ class Beautifier:
     def handle_end_expr(self, current_token):
         # statements inside expressions are not valid syntax, but...
         # statements must all be closed when their container closes
-        while self.flags.mode == MODE.Statement:
+        while self._flags.mode == MODE.Statement:
             self.restore_mode()
 
         self.handle_whitespace_and_comments(current_token)
 
-        if self.flags.multiline_frame:
+        if self._flags.multiline_frame:
             self.allow_wrap_or_preserved_newline(
                 current_token, current_token.text == ']' and self.is_array(
-                    self.flags.mode) and not self.opts.keep_array_indentation)
+                    self._flags.mode) and not self._options.keep_array_indentation)
 
-        if self.opts.space_in_paren:
-            if self.last_type == TOKEN.START_EXPR and not self.opts.space_in_empty_paren:
+        if self._options.space_in_paren:
+            if self._flags.last_token.type == TOKEN.START_EXPR and not self._options.space_in_empty_paren:
                 # empty parens are always "()" and "[]", not "( )" or "[ ]"
-                self.output.space_before_token = False
-                self.output.trim()
+                self._output.space_before_token = False
+                self._output.trim()
             else:
-                self.output.space_before_token = True
+                self._output.space_before_token = True
 
-        if current_token.text == ']' and self.opts.keep_array_indentation:
-            self.print_token(current_token)
-            self.restore_mode()
-        else:
-            self.restore_mode()
-            self.print_token(current_token)
+        self.deindent()
+        self.print_token(current_token)
+        self.restore_mode()
 
-        remove_redundant_indentation(self.output, self.previous_flags)
+        remove_redundant_indentation(self._output, self._previous_flags)
 
         # do {} while () // no statement required after
-        if self.flags.do_while and self.previous_flags.mode == MODE.Conditional:
-            self.previous_flags.mode = MODE.Expression
-            self.flags.do_block = False
-            self.flags.do_while = False
+        if self._flags.do_while and self._previous_flags.mode == MODE.Conditional:
+            self._previous_flags.mode = MODE.Expression
+            self._flags.do_block = False
+            self._flags.do_while = False
 
     def handle_start_block(self, current_token):
         self.handle_whitespace_and_comments(current_token)
 
         # Check if this is a BlockStatement that should be treated as a
         # ObjectLiteral
-        next_token = self.get_token(1)
-        second_token = self.get_token(2)
-        if second_token is not None and (
+        next_token = self._tokens.peek()
+        second_token = self._tokens.peek(1)
+        if self._flags.last_word == 'switch' and \
+                self._flags.last_token.type == TOKEN.END_EXPR:
+            self.set_mode(MODE.BlockStatement)
+            self._flags.in_case_statement = True
+        elif self._flags.case_body:
+            self.set_mode(MODE.BlockStatement)
+        elif second_token is not None and (
             (second_token.text in [
                 ':',
                 ','] and next_token.type in [
@@ -634,15 +631,15 @@ class Beautifier:
                     TOKEN.RESERVED])):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
-            if self.last_last_text not in ['class', 'interface']:
+            if self._last_last_text not in ['class', 'interface']:
                 self.set_mode(MODE.ObjectLiteral)
             else:
                 self.set_mode(MODE.BlockStatement)
-        elif self.last_type == TOKEN.OPERATOR and self.flags.last_text == '=>':
+        elif self._flags.last_token.type == TOKEN.OPERATOR and self._flags.last_token.text == '=>':
             # arrow function: (param1, paramN) => { statements }
             self.set_mode(MODE.BlockStatement)
-        elif self.last_type in [TOKEN.EQUALS, TOKEN.START_EXPR, TOKEN.COMMA, TOKEN.OPERATOR] or \
-                (self.last_type == TOKEN.RESERVED and self.flags.last_text in ['return', 'throw', 'import', 'default']):
+        elif self._flags.last_token.type in [TOKEN.EQUALS, TOKEN.START_EXPR, TOKEN.COMMA, TOKEN.OPERATOR] or \
+                reserved_array(self._flags.last_token, ['return', 'throw', 'import', 'default']):
             # Detecting shorthand function syntax is difficult by scanning forward,
             #     so check the surrounding context.
             # If the block is being returned, imported, export default, passed as arg,
@@ -652,82 +649,88 @@ class Beautifier:
         else:
             self.set_mode(MODE.BlockStatement)
 
-        empty_braces = (next_token is not None) and len(
-            next_token.comments_before) == 0 and next_token.text == '}'
-        empty_anonymous_function = empty_braces and self.flags.last_word == 'function' and \
-            self.last_type == TOKEN.END_EXPR
+        empty_braces = (next_token is not None) and \
+            next_token.comments_before is None and next_token.text == '}'
+        empty_anonymous_function = empty_braces and self._flags.last_word == 'function' and \
+            self._flags.last_token.type == TOKEN.END_EXPR
 
-        if self.opts.brace_preserve_inline:  # check for inline, set inline_frame if so
+        if self._options.brace_preserve_inline:  # check for inline, set inline_frame if so
             # search forward for newline wanted inside this block
             index = 0
             check_token = None
-            self.flags.inline_frame = True
+            self._flags.inline_frame = True
             do_loop = True
             while (do_loop):
                 index += 1
-                check_token = self.get_token(index)
-                if check_token.wanted_newline:
-                    self.flags.inline_frame = False
+                check_token = self._tokens.peek(index - 1)
+                if check_token.newlines:
+                    self._flags.inline_frame = False
 
                 do_loop = (
     check_token.type != TOKEN.EOF and not (
          check_token.type == TOKEN.END_BLOCK and check_token.opened == current_token))
 
-        if (self.opts.brace_style == 'expand' or (self.opts.brace_style ==
-                                                  'none' and current_token.wanted_newline)) and not self.flags.inline_frame:
-            if self.last_type != TOKEN.OPERATOR and (
-                empty_anonymous_function or self.last_type == TOKEN.EQUALS or (
-                    self.last_type == TOKEN.RESERVED and self.is_special_word(
-                        self.flags.last_text) and self.flags.last_text != 'else')):
-                self.output.space_before_token = True
+        if (self._options.brace_style == 'expand' or (self._options.brace_style ==
+                                                  'none' and current_token.newlines)) and not self._flags.inline_frame:
+            if self._flags.last_token.type != TOKEN.OPERATOR and (
+                empty_anonymous_function or self._flags.last_token.type == TOKEN.EQUALS or (
+                    reserved_array(self._flags.last_token, _special_word_set) and self._flags.last_token.text != 'else')):
+                self._output.space_before_token = True
             else:
                 self.print_newline(preserve_statement_flags=True)
         else:  # collapse || inline_frame
             if self.is_array(
-    self.previous_flags.mode) and (
-         self.last_type == TOKEN.START_EXPR or self.last_type == TOKEN.COMMA):
+    self._previous_flags.mode) and (
+         self._flags.last_token.type == TOKEN.START_EXPR or self._flags.last_token.type == TOKEN.COMMA):
                 # if we're preserving inline,
                 # allow newline between comma and next brace.
-                if self.flags.inline_frame:
+                if self._flags.inline_frame:
                     self.allow_wrap_or_preserved_newline(current_token)
-                    self.flags.inline_frame = True
-                    self.previous_flags.multiline_frame = self.previous_flags.multiline_frame or self.flags.multiline_frame
-                    self.flags.multiline_frame = False
-                elif self.last_type == TOKEN.COMMA:
-                    self.output.space_before_token = True
+                    self._flags.inline_frame = True
+                    self._previous_flags.multiline_frame = self._previous_flags.multiline_frame or self._flags.multiline_frame
+                    self._flags.multiline_frame = False
+                elif self._flags.last_token.type == TOKEN.COMMA:
+                    self._output.space_before_token = True
 
-            elif self.last_type not in [TOKEN.OPERATOR, TOKEN.START_EXPR]:
-                if self.last_type == TOKEN.START_BLOCK and not self.flags.inline_frame:
+            elif self._flags.last_token.type not in [TOKEN.OPERATOR, TOKEN.START_EXPR]:
+                if self._flags.last_token.type == TOKEN.START_BLOCK and not self._flags.inline_frame:
                     self.print_newline()
                 else:
-                    self.output.space_before_token = True
+                    self._output.space_before_token = True
 
         self.print_token(current_token)
         self.indent()
+
+        # Except for specific cases, open braces are followed by a new line.
+        if not empty_braces and not (
+                self._options.brace_preserve_inline and
+                    self._flags.inline_frame):
+            self.print_newline()
+
 
     def handle_end_block(self, current_token):
         # statements must all be closed when their container closes
         self.handle_whitespace_and_comments(current_token)
 
-        while self.flags.mode == MODE.Statement:
+        while self._flags.mode == MODE.Statement:
             self.restore_mode()
 
-        empty_braces = self.last_type == TOKEN.START_BLOCK
+        empty_braces = self._flags.last_token.type == TOKEN.START_BLOCK
 
         # try inline_frame (only set if opt.braces-preserve-inline) first
-        if self.flags.inline_frame and not empty_braces:
-            self.output.space_before_token = True
-        elif self.opts.brace_style == 'expand':
+        if self._flags.inline_frame and not empty_braces:
+            self._output.space_before_token = True
+        elif self._options.brace_style == 'expand':
             if not empty_braces:
                 self.print_newline()
         else:
             # skip {}
             if not empty_braces:
                 if self.is_array(
-                        self.flags.mode) and self.opts.keep_array_indentation:
-                    self.opts.keep_array_indentation = False
+                        self._flags.mode) and self._options.keep_array_indentation:
+                    self._options.keep_array_indentation = False
                     self.print_newline()
-                    self.opts.keep_array_indentation = True
+                    self._options.keep_array_indentation = True
                 else:
                     self.print_newline()
 
@@ -737,71 +740,71 @@ class Beautifier:
     def handle_word(self, current_token):
         if current_token.type == TOKEN.RESERVED:
             if current_token.text in [
-                    'set', 'get'] and self.flags.mode != MODE.ObjectLiteral:
+                    'set', 'get'] and self._flags.mode != MODE.ObjectLiteral:
                 current_token.type = TOKEN.WORD
-            elif current_token.text in ['as', 'from'] and not self.flags.import_block:
+            elif current_token.text == 'import' and self._tokens.peek().text == '(':
                 current_token.type = TOKEN.WORD
-            elif self.flags.mode == MODE.ObjectLiteral:
-                next_token = self.get_token(1)
+            elif current_token.text in ['as', 'from'] and not self._flags.import_block:
+                current_token.type = TOKEN.WORD
+            elif self._flags.mode == MODE.ObjectLiteral:
+                next_token = self._tokens.peek()
                 if next_token.text == ':':
                     current_token.type = TOKEN.WORD
 
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
-            if self.last_type == TOKEN.RESERVED and self.flags.last_text in [
-                    'var', 'let', 'const'] and current_token.type == TOKEN.WORD:
-                self.flags.declaration_statement = True
+            if reserved_array(self._flags.last_token, ['var', 'let', 'const']) and \
+                    current_token.type == TOKEN.WORD:
+                self._flags.declaration_statement = True
 
-        elif current_token.wanted_newline and \
-                not self.is_expression(self.flags.mode) and \
-                (self.last_type != TOKEN.OPERATOR or (self.flags.last_text == '--' or self.flags.last_text == '++')) and \
-                self.last_type != TOKEN.EQUALS and \
-                (self.opts.preserve_newlines or not (self.last_type == TOKEN.RESERVED and self.flags.last_text in ['var', 'let', 'const', 'set', 'get'])):
+        elif current_token.newlines and \
+                not self.is_expression(self._flags.mode) and \
+                (self._flags.last_token.type != TOKEN.OPERATOR or (self._flags.last_token.text == '--' or self._flags.last_token.text == '++')) and \
+                self._flags.last_token.type != TOKEN.EQUALS and \
+                (self._options.preserve_newlines or not reserved_array(self._flags.last_token, ['var', 'let', 'const', 'set', 'get'])):
             self.handle_whitespace_and_comments(current_token)
             self.print_newline()
         else:
             self.handle_whitespace_and_comments(current_token)
 
-        if self.flags.do_block and not self.flags.do_while:
-            if current_token.type == TOKEN.RESERVED and current_token.text == 'while':
+        if self._flags.do_block and not self._flags.do_while:
+            if reserved_word(current_token, 'while'):
                 # do {} ## while ()
-                self.output.space_before_token = True
+                self._output.space_before_token = True
                 self.print_token(current_token)
-                self.output.space_before_token = True
-                self.flags.do_while = True
+                self._output.space_before_token = True
+                self._flags.do_while = True
                 return
             else:
                 # do {} should always have while as the next word.
                 # if we don't see the expected while, recover
                 self.print_newline()
-                self.flags.do_block = False
+                self._flags.do_block = False
 
         # if may be followed by else, or not
         # Bare/inline ifs are tricky
         # Need to unwind the modes correctly: if (a) if (b) c(); else d(); else
         # e();
-        if self.flags.if_block:
-            if (not self.flags.else_block) and (current_token.type ==
-                                                TOKEN.RESERVED and current_token.text == 'else'):
-                self.flags.else_block = True
+        if self._flags.if_block:
+            if (not self._flags.else_block) and reserved_word(current_token, 'else'):
+                self._flags.else_block = True
             else:
-                while self.flags.mode == MODE.Statement:
+                while self._flags.mode == MODE.Statement:
                     self.restore_mode()
 
-                self.flags.if_block = False
+                self._flags.if_block = False
 
-        if current_token.type == TOKEN.RESERVED and (current_token.text == 'case' or (
-                current_token.text == 'default' and self.flags.in_case_statement)):
+        if self._flags.in_case_statement and reserved_array(current_token, ['case', 'default']):
             self.print_newline()
-            if self.flags.case_body or self.opts.jslint_happy:
-                self.flags.case_body = False
+            if self._flags.last_token.type != TOKEN.END_BLOCK and (
+                    self._flags.case_body or self._options.jslint_happy):
                 self.deindent()
+            self._flags.case_body = False
             self.print_token(current_token)
-            self.flags.in_case = True
-            self.flags.in_case_statement = True
+            self._flags.in_case = True
             return
 
-        if self.last_type in [
+        if self._flags.last_token.type in [
                 TOKEN.COMMA,
                 TOKEN.START_EXPR,
                 TOKEN.EQUALS,
@@ -809,153 +812,160 @@ class Beautifier:
             if not self.start_of_object_property():
                 self.allow_wrap_or_preserved_newline(current_token)
 
-        if current_token.type == TOKEN.RESERVED and current_token.text == 'function':
-            if (self.flags.last_text in ['}', ';'] or (self.output.just_added_newline() and not (
-                    self.flags.last_text in ['(', '[', '{', ':', '=', ','] or self.last_type == TOKEN.OPERATOR))):
+        if reserved_word(current_token, 'function'):
+            if (self._flags.last_token.text in ['}', ';'] or (self._output.just_added_newline() and not (
+                    self._flags.last_token.text in ['(', '[', '{', ':', '=', ','] or self._flags.last_token.type == TOKEN.OPERATOR))):
                 # make sure there is a nice clean space of at least one blank line
                 # before a new function definition, except in arrays
-                if not self.output.just_added_blankline() and len(
-                        current_token.comments_before) == 0:
+                if not self._output.just_added_blankline() and \
+                        current_token.comments_before is None:
                     self.print_newline()
                     self.print_newline(True)
 
-            if self.last_type == TOKEN.RESERVED or self.last_type == TOKEN.WORD:
-                if self.last_type == TOKEN.RESERVED and (
-                    self.flags.last_text in ['get', 'set', 'new', 'export'] or
-                    self.flags.last_text in self._newline_restricted_tokens
-                ):
-                    self.output.space_before_token = True
-                elif self.last_type == TOKEN.RESERVED and self.flags.last_text == 'default' and self.last_last_text == 'export':
-                    self.output.space_before_token = True
+            if self._flags.last_token.type == TOKEN.RESERVED or self._flags.last_token.type == TOKEN.WORD:
+                if reserved_array(self._flags.last_token, ['get', 'set', 'new', 'export']) or \
+                        reserved_array(self._flags.last_token, self._newline_restricted_tokens):
+                    self._output.space_before_token = True
+                elif reserved_word(self._flags.last_token, 'default') and self._last_last_text == 'export':
+                    self._output.space_before_token = True
+                elif self._flags.last_token.text == 'declare':
+                    # accomodates Typescript declare function formatting
+                    self._output.space_before_token = True
                 else:
                     self.print_newline()
-            elif self.last_type == TOKEN.OPERATOR or self.flags.last_text == '=':
+            elif self._flags.last_token.type == TOKEN.OPERATOR or self._flags.last_token.text == '=':
                 # foo = function
-                self.output.space_before_token = True
-            elif not self.flags.multiline_frame and (self.is_expression(self.flags.mode) or self.is_array(self.flags.mode)):
+                self._output.space_before_token = True
+            elif not self._flags.multiline_frame and (self.is_expression(self._flags.mode) or self.is_array(self._flags.mode)):
                 # (function
                 pass
             else:
                 self.print_newline()
 
             self.print_token(current_token)
-            self.flags.last_word = current_token.text
+            self._flags.last_word = current_token.text
             return
 
         prefix = 'NONE'
 
-        if self.last_type == TOKEN.END_BLOCK:
-            if self.previous_flags.inline_frame:
+        if self._flags.last_token.type == TOKEN.END_BLOCK:
+            if self._previous_flags.inline_frame:
                 prefix = 'SPACE'
-            elif not (current_token.type == TOKEN.RESERVED and current_token.text in ['else', 'catch', 'finally', 'from']):
+            elif not reserved_array(current_token, ['else', 'catch', 'finally', 'from']):
                 prefix = 'NEWLINE'
             else:
-                if self.opts.brace_style in ['expand', 'end-expand'] or (
-                        self.opts.brace_style == 'none' and current_token.wanted_newline):
+                if self._options.brace_style in ['expand', 'end-expand'] or (
+                        self._options.brace_style == 'none' and current_token.newlines):
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
-                    self.output.space_before_token = True
-        elif self.last_type == TOKEN.SEMICOLON and self.flags.mode == MODE.BlockStatement:
+                    self._output.space_before_token = True
+        elif self._flags.last_token.type == TOKEN.SEMICOLON and self._flags.mode == MODE.BlockStatement:
             # TODO: Should this be for STATEMENT as well?
             prefix = 'NEWLINE'
-        elif self.last_type == TOKEN.SEMICOLON and self.is_expression(self.flags.mode):
+        elif self._flags.last_token.type == TOKEN.SEMICOLON and self.is_expression(self._flags.mode):
             prefix = 'SPACE'
-        elif self.last_type == TOKEN.STRING:
+        elif self._flags.last_token.type == TOKEN.STRING:
             prefix = 'NEWLINE'
-        elif self.last_type == TOKEN.RESERVED or self.last_type == TOKEN.WORD or \
-            (self.flags.last_text == '*' and (
-                self.last_last_text in ['function', 'yield'] or
-                (self.flags.mode == MODE.ObjectLiteral and self.last_last_text in ['{', ',']))):
+        elif self._flags.last_token.type == TOKEN.RESERVED or self._flags.last_token.type == TOKEN.WORD or \
+            (self._flags.last_token.text == '*' and (
+                self._last_last_text in ['function', 'yield'] or
+                (self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']))):
             prefix = 'SPACE'
-        elif self.last_type == TOKEN.START_BLOCK:
-            if self.flags.inline_frame:
+        elif self._flags.last_token.type == TOKEN.START_BLOCK:
+            if self._flags.inline_frame:
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
-        elif self.last_type == TOKEN.END_EXPR:
-            self.output.space_before_token = True
+        elif self._flags.last_token.type == TOKEN.END_EXPR:
+            self._output.space_before_token = True
             prefix = 'NEWLINE'
 
-        if current_token.type == TOKEN.RESERVED and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
-            if self.flags.inline_frame or self.flags.last_text == 'else ' or self.flags.last_text == 'export':
+        if reserved_array(current_token, Tokenizer.line_starters) and self._flags.last_token.text != ')':
+            if self._flags.inline_frame or self._flags.last_token.text == 'else ' or self._flags.last_token.text == 'export':
                 prefix = 'SPACE'
             else:
                 prefix = 'NEWLINE'
 
-        if current_token.type == TOKEN.RESERVED and current_token.text in [
-                'else', 'catch', 'finally']:
-            if ((not (self.last_type == TOKEN.END_BLOCK and self.previous_flags.mode == MODE.BlockStatement))
-                or self.opts.brace_style == 'expand'
-                or self.opts.brace_style == 'end-expand'
-                or (self.opts.brace_style == 'none' and current_token.wanted_newline)) \
-               and not self.flags.inline_frame:
+        if reserved_array(current_token, ['else', 'catch', 'finally']):
+            if ((not (self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement))
+                or self._options.brace_style == 'expand'
+                or self._options.brace_style == 'end-expand'
+                or (self._options.brace_style == 'none' and current_token.newlines)) \
+               and not self._flags.inline_frame:
                 self.print_newline()
             else:
-                self.output.trim(True)
+                self._output.trim(True)
                 # If we trimmed and there's something other than a close block before us
                 # put a newline back in.  Handles '} // comment' scenario.
-                if self.output.current_line.last() != '}':
+                if self._output.current_line.last() != '}':
                     self.print_newline()
 
-                self.output.space_before_token = True
+                self._output.space_before_token = True
 
         elif prefix == 'NEWLINE':
-            if self.last_type == TOKEN.RESERVED and self.is_special_word(
-                    self.flags.last_text):
+            if reserved_array(self._flags.last_token, _special_word_set):
                 # no newline between return nnn
-                self.output.space_before_token = True
-            elif self.last_type != TOKEN.END_EXPR:
+                self._output.space_before_token = True
+            elif self._flags.last_token.text == 'declare' and reserved_array(current_token, [
+                    'var',
+                    'let',
+                    'const']):
+                # accomodates Typescript declare formatting
+                self._output.space_before_token = True
+            elif self._flags.last_token.type != TOKEN.END_EXPR:
                 if (
-                    self.last_type != TOKEN.START_EXPR or not (
-                        current_token.type == TOKEN.RESERVED and current_token.text in [
+                    self._flags.last_token.type != TOKEN.START_EXPR or not (
+                        reserved_array(current_token, [
                             'var',
                             'let',
-                            'const'])) and self.flags.last_text != ':':
+                            'const']))) and self._flags.last_token.text != ':':
                     # no need to force newline on VAR -
                     # for (var x = 0...
-                    if current_token.type == TOKEN.RESERVED and current_token.text == 'if' and self.flags.last_text == 'else':
-                        self.output.space_before_token = True
+                    if reserved_word(current_token, 'if') and self._flags.last_token.text == 'else':
+                        self._output.space_before_token = True
                     else:
                         self.print_newline()
-            elif current_token.type == TOKEN.RESERVED and current_token.text in Tokenizer.line_starters and self.flags.last_text != ')':
+            elif reserved_array(current_token, Tokenizer.line_starters) and self._flags.last_token.text != ')':
                 self.print_newline()
-        elif self.flags.multiline_frame and self.is_array(self.flags.mode) and self.flags.last_text == ',' and self.last_last_text == '}':
+        elif self._flags.multiline_frame and self.is_array(self._flags.mode) and self._flags.last_token.text == ',' and self._last_last_text == '}':
             self.print_newline()  # }, in lists get a newline
         elif prefix == 'SPACE':
-            self.output.space_before_token = True
+            self._output.space_before_token = True
 
-        if self.last_type == TOKEN.WORD or self.last_type == TOKEN.RESERVED:
-            self.output.space_before_token = True
+        if current_token.previous and (current_token.previous.type == TOKEN.WORD or
+                    current_token.previous.type == TOKEN.RESERVED):
+            self._output.space_before_token = True
 
         self.print_token(current_token)
-        self.flags.last_word = current_token.text
+        self._flags.last_word = current_token.text
 
         if current_token.type == TOKEN.RESERVED:
             if current_token.text == 'do':
-                self.flags.do_block = True
+                self._flags.do_block = True
             elif current_token.text == 'if':
-                self.flags.if_block = True
+                self._flags.if_block = True
             elif current_token.text == 'import':
-                self.flags.import_block = True
-            elif current_token.text == 'from' and self.flags.import_block:
-                self.flags.import_block = False
+                self._flags.import_block = True
+            elif current_token.text == 'from' and self._flags.import_block:
+                self._flags.import_block = False
 
     def handle_semicolon(self, current_token):
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             # Semicolon can be the start (and end) of a statement
-            self.output.space_before_token = False
+            self._output.space_before_token = False
         else:
             self.handle_whitespace_and_comments(current_token)
 
-        next_token = self.get_token(1)
-        while (self.flags.mode == MODE.Statement and not (self.flags.if_block and next_token and next_token.type ==
-                                                          TOKEN.RESERVED and next_token.text == 'else') and not self.flags.do_block):
+        next_token = self._tokens.peek()
+        while (self._flags.mode == MODE.Statement and
+                not (self._flags.if_block and reserved_word(next_token, 'else')) and
+                not self._flags.do_block):
             self.restore_mode()
 
-        if self.flags.import_block:
-            self.flags.import_block = False
+        if self._flags.import_block:
+            self._flags.import_block = False
 
         self.print_token(current_token)
 
@@ -963,13 +973,13 @@ class Beautifier:
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             # One difference - strings want at least a space before
-            self.output.space_before_token = True
+            self._output.space_before_token = True
         else:
             self.handle_whitespace_and_comments(current_token)
 
-            if self.last_type == TOKEN.RESERVED or self.last_type == TOKEN.WORD or self.flags.inline_frame:
-                self.output.space_before_token = True
-            elif self.last_type in [TOKEN.COMMA, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]:
+            if self._flags.last_token.type == TOKEN.RESERVED or self._flags.last_token.type == TOKEN.WORD or self._flags.inline_frame:
+                self._output.space_before_token = True
+            elif self._flags.last_token.type in [TOKEN.COMMA, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]:
                 if not self.start_of_object_property():
                     self.allow_wrap_or_preserved_newline(current_token)
             else:
@@ -984,43 +994,43 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token)
 
-        if self.flags.declaration_statement:
+        if self._flags.declaration_statement:
             # just got an '=' in a var-line, different line breaking rules will
             # apply
-            self.flags.declaration_assignment = True
+            self._flags.declaration_assignment = True
 
-        self.output.space_before_token = True
+        self._output.space_before_token = True
         self.print_token(current_token)
-        self.output.space_before_token = True
+        self._output.space_before_token = True
 
     def handle_comma(self, current_token):
         self.handle_whitespace_and_comments(current_token, True)
 
         self.print_token(current_token)
-        self.output.space_before_token = True
+        self._output.space_before_token = True
 
-        if self.flags.declaration_statement:
-            if self.is_expression(self.flags.parent.mode):
+        if self._flags.declaration_statement:
+            if self.is_expression(self._flags.parent.mode):
                 # do not break on comma, for ( var a = 1, b = 2
-                self.flags.declaration_assignment = False
+                self._flags.declaration_assignment = False
 
-            if self.flags.declaration_assignment:
-                self.flags.declaration_assignment = False
+            if self._flags.declaration_assignment:
+                self._flags.declaration_assignment = False
                 self.print_newline(preserve_statement_flags=True)
-            elif self.opts.comma_first:
+            elif self._options.comma_first:
                 # for comma-first, we want to allow a newline before the comma
                 # to turn into a newline after the comma, which we will fixup
                 # later
                 self.allow_wrap_or_preserved_newline(current_token)
 
-        elif self.flags.mode == MODE.ObjectLiteral \
-                or (self.flags.mode == MODE.Statement and self.flags.parent.mode == MODE.ObjectLiteral):
-            if self.flags.mode == MODE.Statement:
+        elif self._flags.mode == MODE.ObjectLiteral \
+                or (self._flags.mode == MODE.Statement and self._flags.parent.mode == MODE.ObjectLiteral):
+            if self._flags.mode == MODE.Statement:
                 self.restore_mode()
 
-            if not self.flags.inline_frame:
+            if not self._flags.inline_frame:
                 self.print_newline()
-        elif self.opts.comma_first:
+        elif self._options.comma_first:
             # EXPR or DO_BLOCK
             # for comma-first, we want to allow a newline before the comma
             # to turn into a newline after the comma, which we will fixup later
@@ -1028,11 +1038,11 @@ class Beautifier:
 
     def handle_operator(self, current_token):
         isGeneratorAsterisk = current_token.text == '*' and \
-            ((self.last_type == TOKEN.RESERVED and self.flags.last_text in ['function', 'yield']) or
-                (self.last_type in [TOKEN.START_BLOCK, TOKEN.COMMA, TOKEN.END_BLOCK, TOKEN.SEMICOLON]))
+            (reserved_array(self._flags.last_token, ['function', 'yield']) or
+                (self._flags.last_token.type in [TOKEN.START_BLOCK, TOKEN.COMMA, TOKEN.END_BLOCK, TOKEN.SEMICOLON]))
         isUnary = current_token.text in ['+', '-'] \
-            and (self.last_type in [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]
-                 or self.flags.last_text in Tokenizer.line_starters or self.flags.last_text == ',')
+            and (self._flags.last_token.type in [TOKEN.START_BLOCK, TOKEN.START_EXPR, TOKEN.EQUALS, TOKEN.OPERATOR]
+                 or self._flags.last_token.text in Tokenizer.line_starters or self._flags.last_token.text == ',')
 
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
@@ -1042,15 +1052,14 @@ class Beautifier:
             self.handle_whitespace_and_comments(
                 current_token, preserve_statement_flags)
 
-        if self.last_type == TOKEN.RESERVED and self.is_special_word(
-                self.flags.last_text):
+        if reserved_array(self._flags.last_token, _special_word_set):
             # return had a special handling in TK_WORD
-            self.output.space_before_token = True
+            self._output.space_before_token = True
             self.print_token(current_token)
             return
 
         # hack for actionscript's import .*;
-        if current_token.text == '*' and self.last_type == TOKEN.DOT:
+        if current_token.text == '*' and self._flags.last_token.type == TOKEN.DOT:
             self.print_token(current_token)
             return
 
@@ -1061,15 +1070,19 @@ class Beautifier:
 
         # Allow line wrapping between operators when operator_position is
         #   set to before or preserve
-        if self.last_type == TOKEN.OPERATOR and self.opts.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE:
+        if self._flags.last_token.type == TOKEN.OPERATOR and self._options.operator_position in OPERATOR_POSITION_BEFORE_OR_PRESERVE:
             self.allow_wrap_or_preserved_newline(current_token)
 
-        if current_token.text == ':' and self.flags.in_case:
-            self.flags.case_body = True
-            self.indent()
+        if current_token.text == ':' and self._flags.in_case:
             self.print_token(current_token)
-            self.print_newline()
-            self.flags.in_case = False
+            self._flags.in_case = False
+            self._flags.case_body = True
+            if self._tokens.peek().type != TOKEN.START_BLOCK:
+                self.indent()
+                self.print_newline()
+            else:
+                self._output.space_before_token = True
+
             return
 
         space_before = True
@@ -1077,83 +1090,83 @@ class Beautifier:
         in_ternary = False
 
         if current_token.text == ':':
-            if self.flags.ternary_depth == 0:
+            if self._flags.ternary_depth == 0:
                 # Colon is invalid javascript outside of ternary and object,
                 # but do our best to guess what was meant.
                 space_before = False
             else:
-                self.flags.ternary_depth -= 1
+                self._flags.ternary_depth -= 1
                 in_ternary = True
         elif current_token.text == '?':
-            self.flags.ternary_depth += 1
+            self._flags.ternary_depth += 1
 
         # let's handle the operator_position option prior to any conflicting
         # logic
         if (not isUnary) and (not isGeneratorAsterisk) and \
-                self.opts.preserve_newlines and current_token.text in Tokenizer.positionable_operators:
+                self._options.preserve_newlines and current_token.text in Tokenizer.positionable_operators:
 
             isColon = current_token.text == ':'
             isTernaryColon = isColon and in_ternary
             isOtherColon = isColon and not in_ternary
 
-            if self.opts.operator_position == OPERATOR_POSITION['before_newline']:
+            if self._options.operator_position == OPERATOR_POSITION['before_newline']:
                 # if the current token is : and it's not a ternary statement
                 # then we set space_before to false
-                self.output.space_before_token = not isOtherColon
+                self._output.space_before_token = not isOtherColon
 
                 self.print_token(current_token)
 
                 if (not isColon) or isTernaryColon:
                     self.allow_wrap_or_preserved_newline(current_token)
 
-                self.output.space_before_token = True
+                self._output.space_before_token = True
 
                 return
 
-            elif self.opts.operator_position == OPERATOR_POSITION['after_newline']:
+            elif self._options.operator_position == OPERATOR_POSITION['after_newline']:
                 # if the current token is anything but colon, or (via deduction) it's a colon and in a ternary statement,
                 #   then print a newline.
-                self.output.space_before_token = True
+                self._output.space_before_token = True
 
                 if (not isColon) or isTernaryColon:
-                    if self.get_token(1).wanted_newline:
+                    if self._tokens.peek().newlines:
                         self.print_newline(preserve_statement_flags=True)
                     else:
                         self.allow_wrap_or_preserved_newline(current_token)
                 else:
-                    self.output.space_before_token = False
+                    self._output.space_before_token = False
 
                 self.print_token(current_token)
 
-                self.output.space_before_token = True
+                self._output.space_before_token = True
                 return
 
-            elif self.opts.operator_position == OPERATOR_POSITION['preserve_newline']:
+            elif self._options.operator_position == OPERATOR_POSITION['preserve_newline']:
                 if not isOtherColon:
                     self.allow_wrap_or_preserved_newline(current_token)
 
                 # if we just added a newline, or the current token is : and it's not a ternary statement,
                 #   then we set space_before to false
-                self.output.space_before_token = not (
-                    self.output.just_added_newline() or isOtherColon)
+                self._output.space_before_token = not (
+                    self._output.just_added_newline() or isOtherColon)
 
                 self.print_token(current_token)
 
-                self.output.space_before_token = True
+                self._output.space_before_token = True
                 return
 
         if isGeneratorAsterisk:
             self.allow_wrap_or_preserved_newline(current_token)
             space_before = False
-            next_token = self.get_token(1)
+            next_token = self._tokens.peek()
             space_after = next_token and next_token.type in [
                 TOKEN.WORD, TOKEN.RESERVED]
         elif current_token.text == '...':
             self.allow_wrap_or_preserved_newline(current_token)
-            space_before = self.last_type == TOKEN.START_BLOCK
+            space_before = self._flags.last_token.type == TOKEN.START_BLOCK
             space_after = False
         elif current_token.text in ['--', '++', '!', '~'] or isUnary:
-            if self.last_type == TOKEN.COMMA or self.last_type == TOKEN.START_EXPR:
+            if self._flags.last_token.type == TOKEN.COMMA or self._flags.last_token.type == TOKEN.START_EXPR:
                 self.allow_wrap_or_preserved_newline(current_token)
 
             space_before = False
@@ -1162,57 +1175,57 @@ class Beautifier:
             # http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
-            if current_token.wanted_newline and (
+            if current_token.newlines and (
                     current_token.text == '--' or current_token.text == '++'):
                 self.print_newline(preserve_statement_flags=True)
 
-            if self.flags.last_text == ';' and self.is_expression(
-                    self.flags.mode):
+            if self._flags.last_token.text == ';' and self.is_expression(
+                    self._flags.mode):
                 # for (;; ++i)
                 #         ^^
                 space_before = True
 
-            if self.last_type == TOKEN.RESERVED:
+            if self._flags.last_token.type == TOKEN.RESERVED:
                 space_before = True
-            elif self.last_type == TOKEN.END_EXPR:
+            elif self._flags.last_token.type == TOKEN.END_EXPR:
                 space_before = not (
-                    self.flags.last_text == ']' and current_token.text in [
+                    self._flags.last_token.text == ']' and current_token.text in [
                         '--', '++'])
-            elif self.last_type == TOKEN.OPERATOR:
+            elif self._flags.last_token.type == TOKEN.OPERATOR:
                 # a++ + ++b
                 # a - -b
                 space_before = current_token.text in [
-                    '--', '-', '++', '+'] and self.flags.last_text in ['--', '-', '++', '+']
+                    '--', '-', '++', '+'] and self._flags.last_token.text in ['--', '-', '++', '+']
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
                 # a - -b
                 if current_token.text in [
-                        '-', '+'] and self.flags.last_text in ['--', '++']:
+                        '-', '+'] and self._flags.last_token.text in ['--', '++']:
                     space_after = True
 
-            if (((self.flags.mode == MODE.BlockStatement and not self.flags.inline_frame)
-                 or self.flags.mode == MODE.Statement) and self.flags.last_text in ['{', ';']):
+            if (((self._flags.mode == MODE.BlockStatement and not self._flags.inline_frame)
+                 or self._flags.mode == MODE.Statement) and self._flags.last_token.text in ['{', ';']):
                 # { foo: --i }
                 # foo(): --bar
                 self.print_newline()
 
         if space_before:
-            self.output.space_before_token = True
+            self._output.space_before_token = True
 
         self.print_token(current_token)
 
         if space_after:
-            self.output.space_before_token = True
+            self._output.space_before_token = True
 
     def handle_block_comment(self, current_token, preserve_statement_flags):
-        if self.output.raw:
-            self.output.add_raw_token(current_token)
+        if self._output.raw:
+            self._output.add_raw_token(current_token)
             if current_token.directives and current_token.directives.get(
                     'preserve') == 'end':
                 # If we're testing the raw output behavior, do not allow a
                 # directive to turn it off.
-                self.output.raw = self.opts.test_output_raw
+                self._output.raw = self._options.test_output_raw
             return
 
         if current_token.directives:
@@ -1220,17 +1233,17 @@ class Beautifier:
                 preserve_statement_flags=preserve_statement_flags)
             self.print_token(current_token)
             if current_token.directives.get('preserve') == 'start':
-                self.output.raw = True
+                self._output.raw = True
 
             self.print_newline(preserve_statement_flags=True)
             return
 
         # inline block
         if not self.acorn.newline.search(
-                current_token.text) and not current_token.wanted_newline:
-            self.output.space_before_token = True
+                current_token.text) and not current_token.newlines:
+            self._output.space_before_token = True
             self.print_token(current_token)
-            self.output.space_before_token = True
+            self._output.space_before_token = True
             return
 
         lines = self.acorn.allLineBreaks.split(current_token.text)
@@ -1241,37 +1254,48 @@ class Beautifier:
 
         # block comment starts with a new line
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
-        if len(lines) > 1:
-            javadoc = not any(l for l in lines[1:] if (
-                l.strip() == '' or (l.lstrip())[0] != '*'))
-            starless = all(l.startswith(last_indent)
-                           or l.strip() == '' for l in lines[1:])
 
         # first line always indented
         self.print_token(current_token, lines[0])
-        for line in lines[1:]:
-            self.print_newline(preserve_statement_flags=True)
-            if javadoc:
-                # javadoc: reformat and re-indent
-                self.print_token(current_token, ' ' + line.lstrip())
-            elif starless and len(line) > last_indent_length:
-                # starless: re-indent non-empty content, avoiding trim
-                self.print_token(current_token, line[last_indent_length:])
-            else:
-                # normal comments output raw
-                self.output.add_token(line)
-
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
+        if len(lines) > 1:
+            lines = lines[1:]
+            javadoc = not any(l for l in lines if (
+                l.strip() == '' or (l.lstrip())[0] != '*'))
+            starless = all(l.startswith(last_indent)
+                           or l.strip() == '' for l in lines)
+
+            if javadoc:
+                self._flags.alignment = 1
+
+            for line in lines:
+                if javadoc:
+                    # javadoc: reformat and re-indent
+                    self.print_token(current_token, line.lstrip())
+                elif starless and len(line) > last_indent_length:
+                    # starless: re-indent non-empty content, avoiding trim
+                    self.print_token(current_token, line[last_indent_length:])
+                else:
+                    # normal comments output raw
+                    self._output.current_line.set_indent(-1)
+                    self._output.add_token(line)
+
+                # for comments on their own line or  more than one line,
+                # make sure there's a new line after
+                self.print_newline(preserve_statement_flags=preserve_statement_flags)
+
+            self._flags.alignment = 0
+
     def handle_comment(self, current_token, preserve_statement_flags):
-        if current_token.wanted_newline:
+        if current_token.newlines:
             self.print_newline(
                 preserve_statement_flags=preserve_statement_flags)
 
-        if not current_token.wanted_newline:
-            self.output.trim(True)
+        if not current_token.newlines:
+            self._output.trim(True)
 
-        self.output.space_before_token = True
+        self._output.space_before_token = True
         self.print_token(current_token)
         self.print_newline(preserve_statement_flags=preserve_statement_flags)
 
@@ -1282,18 +1306,22 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token, True)
 
-        if self.opts.unindent_chained_methods:
-            self.deindent()
-
-        if self.last_type == TOKEN.RESERVED and self.is_special_word(
-                self.flags.last_text):
-            self.output.space_before_token = False
+        if reserved_array(self._flags.last_token, _special_word_set):
+            self._output.space_before_token = False
         else:
             # allow preserved newlines before dots in general
             # force newlines on dots after close paren when break_chained - for
             # bar().baz()
             self.allow_wrap_or_preserved_newline(
-                current_token, self.flags.last_text == ')' and self.opts.break_chained_methods)
+                current_token, self._flags.last_token.text == ')' and
+                    self._options.break_chained_methods)
+
+        # Only unindent chained method dot if this dot starts a new line.
+        # Otherwise the automatic extra indentation removal
+        # will handle any over indent
+        if self._options.unindent_chained_methods and \
+                self._output.just_added_newline():
+            self.deindent()
 
         self.print_token(current_token)
 
@@ -1305,7 +1333,7 @@ class Beautifier:
 
     def handle_eof(self, current_token):
         # Unwind any open statements
-        while self.flags.mode == MODE.Statement:
+        while self._flags.mode == MODE.Statement:
             self.restore_mode()
 
         self.handle_whitespace_and_comments(current_token)

@@ -1,6 +1,6 @@
 //
 // simple testing interface
-// written by Einar Lielmanis, einar@jsbeautifier.org
+// written by Einar Lielmanis, einar@beautifier.io
 //
 // usage:
 //
@@ -10,8 +10,8 @@
 // output_somewhere(t.results()); // good for <pre>, html safe-ish
 // alert(t.results_raw());        // html unescaped
 
-
 function SanityTest(func, name_of_test) {
+  'use strict';
 
   var test_func = func || function(x) {
     return x;
@@ -39,9 +39,11 @@ function SanityTest(func, name_of_test) {
     // proper array checking is a pain. i'll maybe do it later, compare strings representations instead
     if ((result === expected_value) || (expected_value instanceof Array && result.join(', ') === expected_value.join(', '))) {
       n_succeeded += 1;
+      return true;
     } else {
       n_failed += 1;
       failures.push([test_name, parameters, expected_value, result]);
+      return false;
     }
   };
 

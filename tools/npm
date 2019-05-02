@@ -1,3 +1,21 @@
 #!/usr/bin/env bash
 
-/usr/bin/env npm $@
+REL_SCRIPT_DIR="`dirname \"$0\"`"
+SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
+
+if [ ! -f ${PROJECT_DIR}/node_modules/.bin/npm ]; then
+    /usr/bin/env npm i npm --no-save
+fi
+
+${PROJECT_DIR}/node_modules/.bin/npm $@
+
+# until this is fixed we ned to sed.
+# https://npm.community/t/some-packages-have-dist-tarball-as-http-and-not-https/285/16
+if [ -f package-lock.json ]; then
+    if [ "`uname`" = "Darwin" ]; then
+        sed -i '' -e 's/http:\/\//https:\/\//g' package-lock.json
+    else
+        sed -i -e 's/http:\/\//https:\/\//g' package-lock.json
+    fi
+fi

@@ -29,6 +29,7 @@
   SOFTWARE.
 */
 /*jshint unused:false */
+/*jshint strict:false */
 
 function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_beautify)
 {
@@ -38,8 +39,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         indent_char: ' ',
         preserve_newlines: true,
         jslint_happy: false,
-        keep_array_indentation: false,
-        brace_style: 'collapse',
         space_before_conditional: true,
         break_chained_methods: false,
         selector_separator: '\n',
@@ -51,64 +50,79 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     default_opts.indent_char = ' ';
     default_opts.preserve_newlines = true;
     default_opts.jslint_happy = false;
-    default_opts.keep_array_indentation = false;
-    default_opts.brace_style = 'collapse';
-    default_opts.operator_position = 'before-newline';
 
     function reset_options()
     {
         opts = JSON.parse(JSON.stringify(default_opts));
+        test_name = 'js-beautify';
     }
 
-    function test_js_beautifier(input)
+    function test_beautifier(input)
     {
         return js_beautify(input, opts);
     }
 
     var sanitytest;
+    var test_name = '';
+
+    function set_name(name)
+    {
+        name = (name || '').trim();
+        if (name) {
+            test_name = name.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+        }
+    }
 
     // test the input on beautifier with the current flag settings
     // does not check the indentation / surroundings as bt() does
     function test_fragment(input, expected)
     {
+        var success = true;
+        sanitytest.test_function(test_beautifier, test_name);
         expected = expected || expected === '' ? expected : input;
-        sanitytest.expect(input, expected);
+        success = success && sanitytest.expect(input, expected);
         // if the expected is different from input, run it again
         // expected output should be unchanged when run twice.
-        if (expected !== input) {
-            sanitytest.expect(expected, expected);
+        if (success && expected !== input) {
+            success = success && sanitytest.expect(expected, expected);
         }
 
         // Everywhere we do newlines, they should be replaced with opts.eol
+        sanitytest.test_function(test_beautifier, 'eol ' + test_name);
         opts.eol = '\r\\n';
         expected = expected.replace(/[\n]/g, '\r\n');
-        sanitytest.expect(input, expected);
-        if (input && input.indexOf('\n') !== -1) {
+        opts.disabled = true;
+        success = success && sanitytest.expect(input, input || '');
+        success = success && sanitytest.expect('\n\n' + expected, '\n\n' + expected);
+        opts.disabled = false;
+        success = success && sanitytest.expect(input, expected);
+        if (success && input && input.indexOf('\n') !== -1) {
             input = input.replace(/[\n]/g, '\r\n');
             sanitytest.expect(input, expected);
             // Ensure support for auto eol detection
             opts.eol = 'auto';
-            sanitytest.expect(input, expected);
+            success = success && sanitytest.expect(input, expected);
         }
         opts.eol = '\n';
+        return success;
     }
-
 
 
     // test the input on beautifier with the current flag settings
     // test both the input as well as { input } wrapping
     function bt(input, expectation)
     {
+        var success = true;
+
         var wrapped_input, wrapped_expectation;
 
         expectation = expectation || expectation === '' ? expectation : input;
-        sanitytest.test_function(test_js_beautifier, 'js_beautify');
-        test_fragment(input, expectation);
+        success = success && test_fragment(input, expectation);
 
         // If we set raw, input should be unchanged
         opts.test_output_raw = true;
         if (!opts.end_with_newline) {
-            test_fragment(input, input);
+            success = success && test_fragment(input, input);
         }
         opts.test_output_raw = false;
 
@@ -125,16 +139,16 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         if (current_indent_size === 4 && input) {
             wrapped_input = '{\n' + input.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
             wrapped_expectation = '{\n' + expectation.replace(/^(.+)$/mg, '    $1') + '\n    foo = bar;\n}';
-            test_fragment(wrapped_input, wrapped_expectation);
+            success = success && test_fragment(wrapped_input, wrapped_expectation);
 
             // If we set raw, input should be unchanged
             opts.test_output_raw = true;
             if (!opts.end_with_newline) {
-                test_fragment(wrapped_input, wrapped_input);
+                success = success && test_fragment(wrapped_input, wrapped_input);
             }
             opts.test_output_raw = false;
         }
-
+        return success;
     }
 
     // run all tests for the given brace style ("collapse", "expand", "end-expand", or "none").
@@ -292,20 +306,68 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
     {
         sanitytest = test_obj;
 
+        //============================================================
+        // Line wrap test inputs
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        var wrap_input_1=(
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token + 12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap + but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '}');
+
+        //...---------1---------2---------3---------4---------5---------6---------7
+        //...1234567890123456789012345678901234567890123456789012345678901234567890
+        var wrap_input_2=(
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token + 12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap + but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '    }' +
+            '}');
+
 
         //============================================================
         // Unicode Support
         reset_options();
+        set_name('Unicode Support');
         bt('var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
         bt(
             'var ' + unicode_char(228) + 'x = {\n' +
             '    ' + unicode_char(228) + 'rgerlich: true\n' +
             '};');
+        bt(
+            'var \\u00E4\\u0ca0\\u0cA0\\u0Ca0 = {\n' +
+            '    \\u0ca0rgerlich: true\n' +
+            '};');
+        bt(
+            'var \\u00E4add\\u0025 = {\n' +
+            '    \\u0044rgerlich\\u0ca0: true\n' +
+            '};');
+        bt(
+            'var' + unicode_char(160) + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";',
+            //  -- output --
+            'var ' + unicode_char(3232) + '_' + unicode_char(3232) + ' = "hi";');
 
 
         //============================================================
         // Test template and continuation strings
         reset_options();
+        set_name('Test template and continuation strings');
         bt('`This is a ${template} string.`');
         bt(
             '`This\n' +
@@ -345,6 +407,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // ES7 Decorators
         reset_options();
+        set_name('ES7 Decorators');
         bt('@foo');
         bt('@foo(bar)');
         bt(
@@ -356,6 +419,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // ES7 exponential
         reset_options();
+        set_name('ES7 exponential');
         bt('x ** 2');
         bt('x ** -2');
 
@@ -363,6 +427,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Spread operator
         reset_options();
+        set_name('Spread operator');
         opts.brace_style = "collapse,preserve-inline";
         bt('const m = { ...item, c: 3 };');
         bt(
@@ -378,6 +443,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Object literal shorthand functions
         reset_options();
+        set_name('Object literal shorthand functions');
         bt(
             'return {\n' +
             '    foo() {\n' +
@@ -426,8 +492,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // End With Newline - (eof = "\n")
+        // End With Newline - (end_with_newline = "true")
         reset_options();
+        set_name('End With Newline - (end_with_newline = "true")');
         opts.end_with_newline = true;
         test_fragment('', '\n');
         test_fragment('   return .5', '   return .5\n');
@@ -442,8 +509,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '   return .5\n');
         test_fragment('\n');
 
-        // End With Newline - (eof = "")
+        // End With Newline - (end_with_newline = "false")
         reset_options();
+        set_name('End With Newline - (end_with_newline = "false")');
         opts.end_with_newline = false;
         test_fragment('');
         test_fragment('   return .5');
@@ -460,8 +528,155 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Support simple language specific option inheritance/overriding - (j = "   ")
+        // Support Indent Level Options and Base Indent Autodetection - ()
         reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - ()');
+        test_fragment('   a');
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
+        opts.indent_level = 0;
+        test_fragment('   a');
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '   // This is a random comment\n' +
+            '   function test() {\n' +
+            '       console.log("this is a test");\n' +
+            '   }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "1")');
+        opts.indent_level = 1;
+        test_fragment('   a', '    a');
+        test_fragment(
+            '   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }');
+        test_fragment(
+            '   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '    // This is a random comment\n' +
+            '    function test() {\n' +
+            '        console.log("this is a test");\n' +
+            '    }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "2")');
+        opts.indent_level = 2;
+        test_fragment('a', '        a');
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }');
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '        // This is a random comment\n' +
+            '        function test() {\n' +
+            '            console.log("this is a test");\n' +
+            '        }');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_with_tabs = "true", indent_level = "2")');
+        opts.indent_with_tabs = true;
+        opts.indent_level = 2;
+        test_fragment('a', '\t\ta');
+        test_fragment(
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}');
+        test_fragment(
+            '// This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '\t\t// This is a random comment\n' +
+            '\t\tfunction test() {\n' +
+            '\t\t\tconsole.log("this is a test");\n' +
+            '\t\t}');
+
+        // Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")
+        reset_options();
+        set_name('Support Indent Level Options and Base Indent Autodetection - (indent_level = "0")');
+        opts.indent_level = 0;
+        test_fragment('\t   a');
+        test_fragment(
+            '\t   function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }');
+        test_fragment(
+            '\t   // This is a random comment\n' +
+            'function test(){\n' +
+            '  console.log("this is a test");\n' +
+            '}',
+            //  -- output --
+            '\t   // This is a random comment\n' +
+            '\t   function test() {\n' +
+            '\t       console.log("this is a test");\n' +
+            '\t   }');
+
+
+        //============================================================
+        // Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")
+        reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (js = "{ "indent_size": 3 }", css = "{ "indent_size": 5 }")');
         opts.js = { 'indent_size': 3 };
         opts.css = { 'indent_size': 5 };
         bt(
@@ -469,16 +684,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '   test();\n' +
             '}');
 
-        // Support simple language specific option inheritance/overriding - (j = "    ")
+        // Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")
         reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 } }")');
         opts.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 } };
         bt(
             'if (a == b) {\n' +
             '    test();\n' +
             '}');
 
-        // Support simple language specific option inheritance/overriding - (j = "    ")
+        // Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")
         reset_options();
+        set_name('Support simple language specific option inheritance/overriding - (indent_size = "9", html = "{ "js": { "indent_size": 3 }, "css": { "indent_size": 5 }, "indent_size": 2}", js = "{ "indent_size": 4 }", css = "{ "indent_size": 3 }")');
         opts.indent_size = 9;
         opts.html = { 'js': { 'indent_size': 3 }, 'css': { 'indent_size': 5 }, 'indent_size': 2};
         opts.js = { 'indent_size': 4 };
@@ -490,8 +707,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = " ", obc = " ", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt(
             'var a ={a: 2};\n' +
@@ -512,8 +730,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('if(1){2}else{3}', 'if (1) { 2 } else { 3 }');
         bt('try{a();}catch(b){c();}catch(d){}finally{e();}', 'try { a(); } catch (b) { c(); } catch (d) {} finally { e(); }');
 
-        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt(
             'var a =\n' +
@@ -584,8 +803,51 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    e();\n' +
             '}');
 
-        // Brace style permutations - (ibo = "", iao = "", ibc = "", iac = "", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - ()
         reset_options();
+        set_name('Brace style permutations - ()');
+        bt(
+            'var a ={a: 2};\n' +
+            'var a ={a: 2};',
+            //  -- output --
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};\n' +
+            'var a = {\n' +
+            '    a: 2\n' +
+            '};');
+        bt(
+            '//case 1\n' +
+            'if (a == 1){}\n' +
+            '//case 2\n' +
+            'else if (a == 2){}',
+            //  -- output --
+            '//case 1\n' +
+            'if (a == 1) {}\n' +
+            '//case 2\n' +
+            'else if (a == 2) {}');
+        bt(
+            'if(1){2}else{3}',
+            //  -- output --
+            'if (1) {\n' +
+            '    2\n' +
+            '} else {\n' +
+            '    3\n' +
+            '}');
+        bt(
+            'try{a();}catch(b){c();}catch(d){}finally{e();}',
+            //  -- output --
+            'try {\n' +
+            '    a();\n' +
+            '} catch (b) {\n' +
+            '    c();\n' +
+            '} catch (d) {} finally {\n' +
+            '    e();\n' +
+            '}');
+
+        // Brace style permutations - (brace_style = ""collapse"")
+        reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse"")');
         opts.brace_style = 'collapse';
         bt(
             'var a ={a: 2};\n' +
@@ -626,8 +888,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    e();\n' +
             '}');
 
-        // Brace style permutations - (ibo = "\n", iao = "\n", ibc = "\n", iac = "\n", obo = " ", oao = "\n    ", obc = "\n", oac = " ")
+        // Brace style permutations - (brace_style = ""collapse"")
         reset_options();
+        set_name('Brace style permutations - (brace_style = ""collapse"")');
         opts.brace_style = 'collapse';
         bt(
             'var a =\n' +
@@ -700,8 +963,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Comma-first option - (c0 = ",\n", c1 = ",\n    ", c2 = ",\n        ", c3 = ",\n            ", f1 = "    ,\n    ")
+        // Comma-first option - (comma_first = "false")
         reset_options();
+        set_name('Comma-first option - (comma_first = "false")');
         opts.comma_first = false;
         bt(
             '{a:1, b:2}',
@@ -832,8 +1096,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }\n' +
             ');');
 
-        // Comma-first option - (c0 = "\n, ", c1 = "\n    , ", c2 = "\n        , ", c3 = "\n            , ", f1 = ", ")
+        // Comma-first option - (comma_first = "true")
         reset_options();
+        set_name('Comma-first option - (comma_first = "true")');
         opts.comma_first = true;
         bt(
             '{a:1, b:2}',
@@ -969,8 +1234,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Unindent chained functions - ()
+        // Unindent chained functions - (unindent_chained_methods = "true")
         reset_options();
+        set_name('Unindent chained functions - (unindent_chained_methods = "true")');
         opts.unindent_chained_methods = true;
         bt(
             'f().f().f()\n' +
@@ -1022,11 +1288,27 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    .f()\n' +
             '    .f();\n' +
             '});');
+        
+        // regression test for fix #1533
+        bt(
+            'angular.module("test").controller("testCtrl", function($scope) {\n' +
+            '    $scope.tnew;\n' +
+            '    $scope.toggle_tnew = function() {\n' +
+            '        $scope.mode = 0;\n' +
+            '        if (!$scope.tnew) {\n' +
+            '            $scope.tnew = {};\n' +
+            '        } else $scope.tnew = null;\n' +
+            '    }\n' +
+            '    $scope.fn = function() {\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '});');
 
 
         //============================================================
-        // Space in parens tests - (s = "", e = "")
+        // Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "false")');
         opts.space_in_paren = false;
         opts.space_in_empty_paren = false;
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);');
@@ -1075,8 +1357,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }]\n' +
             '}');
 
-        // Space in parens tests - (s = "", e = "")
+        // Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "false", space_in_empty_paren = "true")');
         opts.space_in_paren = false;
         opts.space_in_empty_paren = true;
         bt('if(p) foo(a,b);', 'if (p) foo(a, b);');
@@ -1125,8 +1408,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    }]\n' +
             '}');
 
-        // Space in parens tests - (s = " ", e = "")
+        // Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "false")');
         opts.space_in_paren = true;
         opts.space_in_empty_paren = false;
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );');
@@ -1175,8 +1459,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    } ]\n' +
             '}');
 
-        // Space in parens tests - (s = " ", e = " ")
+        // Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")
         reset_options();
+        set_name('Space in parens tests - (space_in_paren = "true", space_in_empty_paren = "true")');
         opts.space_in_paren = true;
         opts.space_in_empty_paren = true;
         bt('if(p) foo(a,b);', 'if ( p ) foo( a, b );');
@@ -1227,8 +1512,1557 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // general preserve_newlines tests - (preserve_newlines = "false")
         reset_options();
+        set_name('general preserve_newlines tests - (preserve_newlines = "false")');
+        opts.preserve_newlines = false;
+        bt(
+            'if (foo) // comment\n' +
+            '    bar();');
+        bt(
+            'if (foo) // comment\n' +
+            '    bar();');
+        bt(
+            'if (foo) // comment\n' +
+            '    (bar());');
+        bt(
+            'if (foo) // comment\n' +
+            '    (bar());');
+        bt(
+            'if (foo) // comment\n' +
+            '    /asdf/;');
+        bt(
+            'this.oa = new OAuth(\n' +
+            '    _requestToken,\n' +
+            '    _accessToken,\n' +
+            '    consumer_key\n' +
+            ');',
+            //  -- output --
+            'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
+        bt(
+            'foo = {\n' +
+            '    x: y, // #44\n' +
+            '    w: z // #44\n' +
+            '}');
+        bt(
+            'switch (x) {\n' +
+            '    case "a":\n' +
+            '        // comment on newline\n' +
+            '        break;\n' +
+            '    case "b": // comment on same line\n' +
+            '        break;\n' +
+            '}');
+        bt(
+            'this.type =\n' +
+            '    this.options =\n' +
+            '    // comment\n' +
+            '    this.enabled null;',
+            //  -- output --
+            'this.type = this.options =\n' +
+            '    // comment\n' +
+            '    this.enabled null;');
+        bt(
+            'someObj\n' +
+            '    .someFunc1()\n' +
+            '    // This comment should not break the indent\n' +
+            '    .someFunc2();',
+            //  -- output --
+            'someObj.someFunc1()\n' +
+            '    // This comment should not break the indent\n' +
+            '    .someFunc2();');
+        bt(
+            'if (true ||\n' +
+            '!true) return;',
+            //  -- output --
+            'if (true || !true) return;');
+        bt(
+            'if\n' +
+            '(foo)\n' +
+            'if\n' +
+            '(bar)\n' +
+            'if\n' +
+            '(baz)\n' +
+            'whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if\n' +
+            '(foo)\n' +
+            'if\n' +
+            '(bar)\n' +
+            'if\n' +
+            '(baz)\n' +
+            'whee();\n' +
+            'else\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz) whee();\n' +
+            '        else a();');
+        bt(
+            'if (foo)\n' +
+            'bar();\n' +
+            'else\n' +
+            'car();',
+            //  -- output --
+            'if (foo) bar();\n' +
+            'else car();');
+        bt(
+            'if (foo) if (bar) if (baz);\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz);\n' +
+            'a();');
+        bt(
+            'if (foo) if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (foo) a()\n' +
+            'if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo) a()\n' +
+            'if (bar)\n' +
+            '    if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (foo);\n' +
+            'if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo);\n' +
+            'if (bar)\n' +
+            '    if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (options)\n' +
+            '    for (var p in options)\n' +
+            '        this[p] = options[p];',
+            //  -- output --
+            'if (options)\n' +
+            '    for (var p in options) this[p] = options[p];');
+        bt(
+            'if (options) for (var p in options) this[p] = options[p];',
+            //  -- output --
+            'if (options)\n' +
+            '    for (var p in options) this[p] = options[p];');
+        bt(
+            'if (options) do q(); while (b());',
+            //  -- output --
+            'if (options)\n' +
+            '    do q(); while (b());');
+        bt(
+            'if (options) while (b()) q();',
+            //  -- output --
+            'if (options)\n' +
+            '    while (b()) q();');
+        bt(
+            'if (options) do while (b()) q(); while (a());',
+            //  -- output --
+            'if (options)\n' +
+            '    do\n' +
+            '        while (b()) q(); while (a());');
+        bt(
+            'function f(a, b, c,\n' +
+            'd, e) {}',
+            //  -- output --
+            'function f(a, b, c, d, e) {}');
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            //  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}');
+        bt(
+            'function f(a,b) {if(a) b()}\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'function g(a,b) {if(!a) b()}',
+            //  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}');
+        bt(
+            '(if(a) b())(if(a) b())',
+            //  -- output --
+            '(\n' +
+            '    if (a) b())(\n' +
+            '    if (a) b())');
+        bt(
+            '(if(a) b())\n' +
+            '\n' +
+            '\n' +
+            '(if(a) b())',
+            //  -- output --
+            '(\n' +
+            '    if (a) b())\n' +
+            '(\n' +
+            '    if (a) b())');
+        bt(
+            'if\n' +
+            '(a)\n' +
+            'b();',
+            //  -- output --
+            'if (a) b();');
+        bt(
+            'var a =\n' +
+            'foo',
+            //  -- output --
+            'var a = foo');
+        bt(
+            'var a = {\n' +
+            '"a":1,\n' +
+            '"b":2}',
+            //  -- output --
+            'var a = {\n' +
+            '    "a": 1,\n' +
+            '    "b": 2\n' +
+            '}');
+        bt(
+            'var a = {\n' +
+            '\'a\':1,\n' +
+            '\'b\':2}',
+            //  -- output --
+            'var a = {\n' +
+            '    \'a\': 1,\n' +
+            '    \'b\': 2\n' +
+            '}');
+        bt('var a = /*i*/ "b";');
+        bt(
+            'var a = /*i*/\n' +
+            '"b";',
+            //  -- output --
+            'var a = /*i*/ "b";');
+        bt(
+            '{\n' +
+            '\n' +
+            '\n' +
+            '"x"\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    "x"\n' +
+            '}');
+        bt(
+            'if(a &&\n' +
+            'b\n' +
+            '||\n' +
+            'c\n' +
+            '||d\n' +
+            '&&\n' +
+            'e) e = f',
+            //  -- output --
+            'if (a && b || c || d && e) e = f');
+        bt(
+            'if(a &&\n' +
+            '(b\n' +
+            '||\n' +
+            'c\n' +
+            '||d)\n' +
+            '&&\n' +
+            'e) e = f',
+            //  -- output --
+            'if (a && (b || c || d) && e) e = f');
+        test_fragment(
+            '\n' +
+            '\n' +
+            '"x"',
+            //  -- output --
+            '"x"');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '"x"\n' +
+            'h=5;\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    "x"\n' +
+            '    h = 5;\n' +
+            '}');
+        bt(
+            'var a = "foo" +\n' +
+            '    "bar";',
+            //  -- output --
+            'var a = "foo" + "bar";');
+        bt(
+            'var a = 42; // foo\n' +
+            '\n' +
+            'var b;',
+            //  -- output --
+            'var a = 42; // foo\n' +
+            'var b;');
+        bt(
+            'var a = 42; // foo\n' +
+            '\n' +
+            '\n' +
+            'var b;',
+            //  -- output --
+            'var a = 42; // foo\n' +
+            'var b;');
+        bt(
+            'a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'b = 2;',
+            //  -- output --
+            'a = 1;\n' +
+            'b = 2;');
+
+        // general preserve_newlines tests - (preserve_newlines = "true")
+        reset_options();
+        set_name('general preserve_newlines tests - (preserve_newlines = "true")');
+        opts.preserve_newlines = true;
+        bt(
+            'if (foo) // comment\n' +
+            '    bar();');
+        bt(
+            'if (foo) // comment\n' +
+            '    bar();');
+        bt(
+            'if (foo) // comment\n' +
+            '    (bar());');
+        bt(
+            'if (foo) // comment\n' +
+            '    (bar());');
+        bt(
+            'if (foo) // comment\n' +
+            '    /asdf/;');
+        bt(
+            'this.oa = new OAuth(\n' +
+            '    _requestToken,\n' +
+            '    _accessToken,\n' +
+            '    consumer_key\n' +
+            ');');
+        bt(
+            'foo = {\n' +
+            '    x: y, // #44\n' +
+            '    w: z // #44\n' +
+            '}');
+        bt(
+            'switch (x) {\n' +
+            '    case "a":\n' +
+            '        // comment on newline\n' +
+            '        break;\n' +
+            '    case "b": // comment on same line\n' +
+            '        break;\n' +
+            '}');
+        bt(
+            'this.type =\n' +
+            '    this.options =\n' +
+            '    // comment\n' +
+            '    this.enabled null;');
+        bt(
+            'someObj\n' +
+            '    .someFunc1()\n' +
+            '    // This comment should not break the indent\n' +
+            '    .someFunc2();');
+        bt(
+            'if (true ||\n' +
+            '!true) return;',
+            //  -- output --
+            'if (true ||\n' +
+            '    !true) return;');
+        bt(
+            'if\n' +
+            '(foo)\n' +
+            'if\n' +
+            '(bar)\n' +
+            'if\n' +
+            '(baz)\n' +
+            'whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz)\n' +
+            '            whee();\n' +
+            'a();');
+        bt(
+            'if\n' +
+            '(foo)\n' +
+            'if\n' +
+            '(bar)\n' +
+            'if\n' +
+            '(baz)\n' +
+            'whee();\n' +
+            'else\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz)\n' +
+            '            whee();\n' +
+            '        else\n' +
+            '            a();');
+        bt(
+            'if (foo)\n' +
+            'bar();\n' +
+            'else\n' +
+            'car();',
+            //  -- output --
+            'if (foo)\n' +
+            '    bar();\n' +
+            'else\n' +
+            '    car();');
+        bt(
+            'if (foo) if (bar) if (baz);\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz);\n' +
+            'a();');
+        bt(
+            'if (foo) if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo)\n' +
+            '    if (bar)\n' +
+            '        if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (foo) a()\n' +
+            'if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo) a()\n' +
+            'if (bar)\n' +
+            '    if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (foo);\n' +
+            'if (bar) if (baz) whee();\n' +
+            'a();',
+            //  -- output --
+            'if (foo);\n' +
+            'if (bar)\n' +
+            '    if (baz) whee();\n' +
+            'a();');
+        bt(
+            'if (options)\n' +
+            '    for (var p in options)\n' +
+            '        this[p] = options[p];');
+        bt(
+            'if (options) for (var p in options) this[p] = options[p];',
+            //  -- output --
+            'if (options)\n' +
+            '    for (var p in options) this[p] = options[p];');
+        bt(
+            'if (options) do q(); while (b());',
+            //  -- output --
+            'if (options)\n' +
+            '    do q(); while (b());');
+        bt(
+            'if (options) while (b()) q();',
+            //  -- output --
+            'if (options)\n' +
+            '    while (b()) q();');
+        bt(
+            'if (options) do while (b()) q(); while (a());',
+            //  -- output --
+            'if (options)\n' +
+            '    do\n' +
+            '        while (b()) q(); while (a());');
+        bt(
+            'function f(a, b, c,\n' +
+            'd, e) {}',
+            //  -- output --
+            'function f(a, b, c,\n' +
+            '    d, e) {}');
+        bt(
+            'function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
+            //  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}');
+        bt(
+            'function f(a,b) {if(a) b()}\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'function g(a,b) {if(!a) b()}',
+            //  -- output --
+            'function f(a, b) {\n' +
+            '    if (a) b()\n' +
+            '}\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'function g(a, b) {\n' +
+            '    if (!a) b()\n' +
+            '}');
+        bt(
+            '(if(a) b())(if(a) b())',
+            //  -- output --
+            '(\n' +
+            '    if (a) b())(\n' +
+            '    if (a) b())');
+        bt(
+            '(if(a) b())\n' +
+            '\n' +
+            '\n' +
+            '(if(a) b())',
+            //  -- output --
+            '(\n' +
+            '    if (a) b())\n' +
+            '\n' +
+            '\n' +
+            '(\n' +
+            '    if (a) b())');
+        bt(
+            'if\n' +
+            '(a)\n' +
+            'b();',
+            //  -- output --
+            'if (a)\n' +
+            '    b();');
+        bt(
+            'var a =\n' +
+            'foo',
+            //  -- output --
+            'var a =\n' +
+            '    foo');
+        bt(
+            'var a = {\n' +
+            '"a":1,\n' +
+            '"b":2}',
+            //  -- output --
+            'var a = {\n' +
+            '    "a": 1,\n' +
+            '    "b": 2\n' +
+            '}');
+        bt(
+            'var a = {\n' +
+            '\'a\':1,\n' +
+            '\'b\':2}',
+            //  -- output --
+            'var a = {\n' +
+            '    \'a\': 1,\n' +
+            '    \'b\': 2\n' +
+            '}');
+        bt('var a = /*i*/ "b";');
+        bt(
+            'var a = /*i*/\n' +
+            '"b";',
+            //  -- output --
+            'var a = /*i*/\n' +
+            '    "b";');
+        bt(
+            '{\n' +
+            '\n' +
+            '\n' +
+            '"x"\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '\n' +
+            '\n' +
+            '    "x"\n' +
+            '}');
+        bt(
+            'if(a &&\n' +
+            'b\n' +
+            '||\n' +
+            'c\n' +
+            '||d\n' +
+            '&&\n' +
+            'e) e = f',
+            //  -- output --
+            'if (a &&\n' +
+            '    b ||\n' +
+            '    c ||\n' +
+            '    d &&\n' +
+            '    e) e = f');
+        bt(
+            'if(a &&\n' +
+            '(b\n' +
+            '||\n' +
+            'c\n' +
+            '||d)\n' +
+            '&&\n' +
+            'e) e = f',
+            //  -- output --
+            'if (a &&\n' +
+            '    (b ||\n' +
+            '        c ||\n' +
+            '        d) &&\n' +
+            '    e) e = f');
+        test_fragment(
+            '\n' +
+            '\n' +
+            '"x"',
+            //  -- output --
+            '"x"');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '"x"\n' +
+            'h=5;\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '\n' +
+            '    "x"\n' +
+            '    h = 5;\n' +
+            '}');
+        bt(
+            'var a = "foo" +\n' +
+            '    "bar";');
+        bt(
+            'var a = 42; // foo\n' +
+            '\n' +
+            'var b;');
+        bt(
+            'var a = 42; // foo\n' +
+            '\n' +
+            '\n' +
+            'var b;');
+        bt(
+            'a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'b = 2;');
+
+
+        //============================================================
+        // break chained methods - (break_chained_methods = "false", preserve_newlines = "false")
+        reset_options();
+        set_name('break chained methods - (break_chained_methods = "false", preserve_newlines = "false")');
+        opts.break_chained_methods = false;
+        opts.preserve_newlines = false;
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar().baz().cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat); foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar().baz().cucumber(fat);\n' +
+            'foo.bar().baz().cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)\n' +
+            ' foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar().baz().cucumber(fat)\n' +
+            'foo.bar().baz().cucumber(fat)');
+        bt(
+            'this\n' +
+            '.something = foo.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'this.something = foo.bar().baz().cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt(
+            'this\n' +
+            '.something\n' +
+            '.xxx = foo.moo\n' +
+            '.bar()',
+            //  -- output --
+            'this.something.xxx = foo.moo.bar()');
+
+        // break chained methods - (break_chained_methods = "false", preserve_newlines = "true")
+        reset_options();
+        set_name('break chained methods - (break_chained_methods = "false", preserve_newlines = "true")');
+        opts.break_chained_methods = false;
+        opts.preserve_newlines = true;
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz().cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat); foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz().cucumber(fat);\n' +
+            'foo.bar().baz().cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)\n' +
+            ' foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz().cucumber(fat)\n' +
+            'foo.bar().baz().cucumber(fat)');
+        bt(
+            'this\n' +
+            '.something = foo.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'this\n' +
+            '    .something = foo.bar()\n' +
+            '    .baz().cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt(
+            'this\n' +
+            '.something\n' +
+            '.xxx = foo.moo\n' +
+            '.bar()',
+            //  -- output --
+            'this\n' +
+            '    .something\n' +
+            '    .xxx = foo.moo\n' +
+            '    .bar()');
+
+        // break chained methods - (break_chained_methods = "true", preserve_newlines = "false")
+        reset_options();
+        set_name('break chained methods - (break_chained_methods = "true", preserve_newlines = "false")');
+        opts.break_chained_methods = true;
+        opts.preserve_newlines = false;
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat); foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat);\n' +
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)\n' +
+            ' foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)\n' +
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'this\n' +
+            '.something = foo.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'this.something = foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt(
+            'this\n' +
+            '.something\n' +
+            '.xxx = foo.moo\n' +
+            '.bar()',
+            //  -- output --
+            'this.something.xxx = foo.moo.bar()');
+
+        // break chained methods - (break_chained_methods = "true", preserve_newlines = "true")
+        reset_options();
+        set_name('break chained methods - (break_chained_methods = "true", preserve_newlines = "true")');
+        opts.break_chained_methods = true;
+        opts.preserve_newlines = true;
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat); foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat);\n' +
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'foo\n' +
+            '.bar()\n' +
+            '.baz().cucumber(fat)\n' +
+            ' foo.bar().baz().cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    .bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)\n' +
+            'foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt(
+            'this\n' +
+            '.something = foo.bar()\n' +
+            '.baz().cucumber(fat)',
+            //  -- output --
+            'this\n' +
+            '    .something = foo.bar()\n' +
+            '    .baz()\n' +
+            '    .cucumber(fat)');
+        bt('this.something.xxx = foo.moo.bar()');
+        bt(
+            'this\n' +
+            '.something\n' +
+            '.xxx = foo.moo\n' +
+            '.bar()',
+            //  -- output --
+            'this\n' +
+            '    .something\n' +
+            '    .xxx = foo.moo\n' +
+            '    .bar()');
+
+
+        //============================================================
+        // line wrapping 0
+        reset_options();
+        set_name('line wrapping 0');
+        opts.preserve_newlines = false;
+        opts.wrap_line_length = 0;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token + 12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap + but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            '    if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token + 12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap + but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 70
+        reset_options();
+        set_name('line wrapping 70');
+        opts.preserve_newlines = false;
+        opts.wrap_line_length = 70;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token + 12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap + but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            '    if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token + 12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap + but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 40
+        reset_options();
+        set_name('line wrapping 40');
+        opts.preserve_newlines = false;
+        opts.wrap_line_length = 40;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f &&\n' +
+            '    "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur &&\n' +
+            '    inside_an_if_block) that_is_.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f &&\n' +
+            '        "sass") || (leans &&\n' +
+            '        mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 41
+        reset_options();
+        set_name('line wrapping 41');
+        opts.preserve_newlines = false;
+        opts.wrap_line_length = 41;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") ||\n' +
+            '    (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur &&\n' +
+            '    inside_an_if_block) that_is_.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f &&\n' +
+            '        "sass") || (leans &&\n' +
+            '        mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 45
+        reset_options();
+        set_name('line wrapping 45');
+        opts.preserve_newlines = false;
+        opts.wrap_line_length = 45;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (\n' +
+            '    leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block)\n' +
+            '    that_is_.okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") ||\n' +
+            '        (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_.okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 0
+        reset_options();
+        set_name('line wrapping 0');
+        opts.preserve_newlines = true;
+        opts.wrap_line_length = 0;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+            '    .okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token + 12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap + but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            '    if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token + 12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap + but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 70
+        reset_options();
+        set_name('line wrapping 70');
+        opts.preserve_newlines = true;
+        opts.wrap_line_length = 70;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap.but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+            '    .okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token + 12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap + but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") || (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
+            '    if (wraps_can_occur && inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token + 12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap + but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 40
+        reset_options();
+        set_name('line wrapping 40');
+        opts.preserve_newlines = true;
+        opts.wrap_line_length = 40;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f &&\n' +
+            '    "sass") || (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur &&\n' +
+            '    inside_an_if_block) that_is_\n' +
+            '    .okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f &&\n' +
+            '        "sass") || (leans &&\n' +
+            '        mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 41
+        reset_options();
+        set_name('line wrapping 41');
+        opts.preserve_newlines = true;
+        opts.wrap_line_length = 41;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") ||\n' +
+            '    (leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur &&\n' +
+            '    inside_an_if_block) that_is_\n' +
+            '    .okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f &&\n' +
+            '        "sass") || (leans &&\n' +
+            '        mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // line wrapping 45
+        reset_options();
+        set_name('line wrapping 45');
+        opts.preserve_newlines = true;
+        opts.wrap_line_length = 45;
+        test_fragment(
+            '' + wrap_input_1 + '',
+            //  -- output --
+            'foo.bar().baz().cucumber((f && "sass") || (\n' +
+            '    leans && mean));\n' +
+            'Test_very_long_variable_name_this_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'return between_return_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'throw between_throw_and_expression_should_never_wrap\n' +
+            '    .but_this_can\n' +
+            'if (wraps_can_occur && inside_an_if_block)\n' +
+            '    that_is_\n' +
+            '    .okay();\n' +
+            'object_literal = {\n' +
+            '    propertx: first_token +\n' +
+            '        12345678.99999E-6,\n' +
+            '    property: first_token_should_never_wrap +\n' +
+            '        but_this_can,\n' +
+            '    propertz: first_token_should_never_wrap +\n' +
+            '        !but_this_can,\n' +
+            '    proper: "first_token_should_never_wrap" +\n' +
+            '        "but_this_can"\n' +
+            '}');
+        test_fragment(
+            '' + wrap_input_2 + '',
+            //  -- output --
+            '{\n' +
+            '    foo.bar().baz().cucumber((f && "sass") ||\n' +
+            '        (leans && mean));\n' +
+            '    Test_very_long_variable_name_this_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    return between_return_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    throw between_throw_and_expression_should_never_wrap\n' +
+            '        .but_this_can\n' +
+            '    if (wraps_can_occur &&\n' +
+            '        inside_an_if_block) that_is_\n' +
+            '        .okay();\n' +
+            '    object_literal = {\n' +
+            '        propertx: first_token +\n' +
+            '            12345678.99999E-6,\n' +
+            '        property: first_token_should_never_wrap +\n' +
+            '            but_this_can,\n' +
+            '        propertz: first_token_should_never_wrap +\n' +
+            '            !but_this_can,\n' +
+            '        proper: "first_token_should_never_wrap" +\n' +
+            '            "but_this_can"\n' +
+            '    }\n' +
+            '}');
+
+
+        //============================================================
+        // general preserve_newlines tests preserve limit
+        reset_options();
+        set_name('general preserve_newlines tests preserve limit');
+        opts.preserve_newlines = true;
+        opts.max_preserve_newlines = 8;
+        bt(
+            'a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'b = 2;',
+            //  -- output --
+            'a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'b = 2;');
+
+
+        //============================================================
+        // more random test
+        reset_options();
+        set_name('more random test');
+        bt('return function();');
+        bt('var a = function();');
+        bt('var a = 5 + function();');
+        
+        // actionscript import
+        bt('import foo.*;');
+        
+        // actionscript
+        bt('function f(a: a, b: b)');
+        bt(
+            'function a(a) {} function b(b) {} function c(c) {}',
+            //  -- output --
+            'function a(a) {}\n' +
+            '\n' +
+            'function b(b) {}\n' +
+            '\n' +
+            'function c(c) {}');
+        bt('foo(a, function() {})');
+        bt('foo(a, /regex/)');
+        bt(
+            '/* foo */\n' +
+            '"x"');
+        test_fragment(
+            'roo = {\n' +
+            '    /*\n' +
+            '    ****\n' +
+            '      FOO\n' +
+            '    ****\n' +
+            '    */\n' +
+            '    BAR: 0\n' +
+            '};');
+        test_fragment(
+            'if (zz) {\n' +
+            '    // ....\n' +
+            '}\n' +
+            '(function');
+        bt(
+            'a = //comment\n' +
+            '    /regex/;');
+        bt('var a = new function();');
+        bt('new function');
+        bt(
+            'if (a)\n' +
+            '{\n' +
+            'b;\n' +
+            '}\n' +
+            'else\n' +
+            '{\n' +
+            'c;\n' +
+            '}',
+            //  -- output --
+            'if (a) {\n' +
+            '    b;\n' +
+            '} else {\n' +
+            '    c;\n' +
+            '}');
+
+
+        //============================================================
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")
+        reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")');
+        opts.preserve_newlines = false;
+        bt(
+            'var res = a + b - c / d * e % f;\n' +
+            'var res = g & h | i ^ j;\n' +
+            'var res = (k && l || m) ? n : o;\n' +
+            'var res = p >> q << r >>> s;\n' +
+            'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'ac + -ad');
+        bt(
+            'var res = a + b\n' +
+            '- c /\n' +
+            'd  *     e\n' +
+            '%\n' +
+            'f;\n' +
+            '   var res = g & h\n' +
+            '| i ^\n' +
+            'j;\n' +
+            'var res = (k &&\n' +
+            'l\n' +
+            '|| m) ?\n' +
+            'n\n' +
+            ': o\n' +
+            ';\n' +
+            'var res = p\n' +
+            '>> q <<\n' +
+            'r\n' +
+            '>>> s;\n' +
+            'var res\n' +
+            '  = t\n' +
+            '\n' +
+            ' === u !== v\n' +
+            ' !=\n' +
+            'w\n' +
+            '== x >=\n' +
+            'y <= z > aa <\n' +
+            'ab;\n' +
+            'ac +\n' +
+            '-ad',
+            //  -- output --
+            'var res = a + b - c / d * e % f;\n' +
+            'var res = g & h | i ^ j;\n' +
+            'var res = (k && l || m) ? n : o;\n' +
+            'var res = p >> q << r >>> s;\n' +
+            'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'ac + -ad');
+
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
+        reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")');
         opts.operator_position = 'before-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1276,8 +3110,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")');
         opts.operator_position = 'after-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1325,8 +3160,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - ()
+        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         reset_options();
+        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")');
         opts.operator_position = 'preserve-newline';
         opts.preserve_newlines = false;
         bt(
@@ -1376,8 +3212,131 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'before-newline' (default value)
+        // operator_position option - set to "before-newline" (default value) - ()
         reset_options();
+        set_name('operator_position option - set to "before-newline" (default value) - ()');
+        
+        // comprehensive, various newlines
+        bt(
+            'var res = a + b\n' +
+            '- c /\n' +
+            'd  *     e\n' +
+            '%\n' +
+            'f;\n' +
+            '   var res = g & h\n' +
+            '| i ^\n' +
+            'j;\n' +
+            'var res = (k &&\n' +
+            'l\n' +
+            '|| m) ?\n' +
+            'n\n' +
+            ': o\n' +
+            ';\n' +
+            'var res = p\n' +
+            '>> q <<\n' +
+            'r\n' +
+            '>>> s;\n' +
+            'var res\n' +
+            '  = t\n' +
+            '\n' +
+            ' === u !== v\n' +
+            ' !=\n' +
+            'w\n' +
+            '== x >=\n' +
+            'y <= z > aa <\n' +
+            'ab;\n' +
+            'ac +\n' +
+            '-ad',
+            //  -- output --
+            'var res = a + b -\n' +
+            '    c /\n' +
+            '    d * e %\n' +
+            '    f;\n' +
+            'var res = g & h |\n' +
+            '    i ^\n' +
+            '    j;\n' +
+            'var res = (k &&\n' +
+            '        l ||\n' +
+            '        m) ?\n' +
+            '    n :\n' +
+            '    o;\n' +
+            'var res = p >>\n' +
+            '    q <<\n' +
+            '    r >>>\n' +
+            '    s;\n' +
+            'var res = t\n' +
+            '\n' +
+            '    ===\n' +
+            '    u !== v !=\n' +
+            '    w ==\n' +
+            '    x >=\n' +
+            '    y <= z > aa <\n' +
+            '    ab;\n' +
+            'ac +\n' +
+            '    -ad');
+        
+        // colon special case
+        bt(
+            'var a = {\n' +
+            '    b\n' +
+            ': bval,\n' +
+            '    c:\n' +
+            'cval\n' +
+            '    ,d: dval\n' +
+            '};\n' +
+            'var e = f ? g\n' +
+            ': h;\n' +
+            'var i = j ? k :\n' +
+            'l;',
+            //  -- output --
+            'var a = {\n' +
+            '    b: bval,\n' +
+            '    c: cval,\n' +
+            '    d: dval\n' +
+            '};\n' +
+            'var e = f ? g :\n' +
+            '    h;\n' +
+            'var i = j ? k :\n' +
+            '    l;');
+        
+        // catch-all, includes brackets and other various code
+        bt(
+            'var d = 1;\n' +
+            'if (a === b\n' +
+            '    && c) {\n' +
+            '    d = (c * everything\n' +
+            '            / something_else) %\n' +
+            '        b;\n' +
+            '    e\n' +
+            '        += d;\n' +
+            '\n' +
+            '} else if (!(complex && simple) ||\n' +
+            '    (emotion && emotion.name === "happy")) {\n' +
+            '    cryTearsOfJoy(many ||\n' +
+            '        anOcean\n' +
+            '        || aRiver);\n' +
+            '}',
+            //  -- output --
+            'var d = 1;\n' +
+            'if (a === b &&\n' +
+            '    c) {\n' +
+            '    d = (c * everything /\n' +
+            '            something_else) %\n' +
+            '        b;\n' +
+            '    e\n' +
+            '        += d;\n' +
+            '\n' +
+            '} else if (!(complex && simple) ||\n' +
+            '    (emotion && emotion.name === "happy")) {\n' +
+            '    cryTearsOfJoy(many ||\n' +
+            '        anOcean ||\n' +
+            '        aRiver);\n' +
+            '}');
+
+        // operator_position option - set to "before-newline" (default value) - (operator_position = ""before-newline"")
+        reset_options();
+        set_name('operator_position option - set to "before-newline" (default value) - (operator_position = ""before-newline"")');
+        opts.operator_position = 'before-newline';
         
         // comprehensive, various newlines
         bt(
@@ -1498,8 +3457,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'after_newline'
+        // operator_position option - set to "after_newline"
         reset_options();
+        set_name('operator_position option - set to "after_newline"');
         opts.operator_position = 'after-newline';
         
         // comprehensive, various newlines
@@ -1620,8 +3580,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - set to 'preserve-newline'
+        // operator_position option - set to "preserve-newline"
         reset_options();
+        set_name('operator_position option - set to "preserve-newline"');
         opts.operator_position = 'preserve-newline';
         
         // comprehensive, various newlines
@@ -1730,6 +3691,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Yield tests
         reset_options();
+        set_name('Yield tests');
         bt('yield /foo\\//;');
         bt('result = yield pgClient.query_(queryString);');
         bt('yield [1, 2]');
@@ -1746,6 +3708,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Async / await tests
         reset_options();
+        set_name('Async / await tests');
         bt('async function foo() {}');
         bt('let w = async function foo() {}');
         bt(
@@ -1771,6 +3734,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         
         // Regression test #1228
         bt('const module = await import("...")');
+        
+        // Regression test #1658
+        bt('.');
         
         // ensure that this doesn't break anyone with the async library
         bt('async.map(function(t) {})');
@@ -1812,11 +3778,45 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '}');
         bt('async () => 5;');
         bt('async x => x * 2;');
+        bt(
+            'async function() {\n' +
+            '    const obj = {\n' +
+            '        a: 1,\n' +
+            '        b: await fn(),\n' +
+            '        c: 2\n' +
+            '    };\n' +
+            '}');
+        bt(
+            'const a = 1,\n' +
+            '    b = a ? await foo() : b,\n' +
+            '    c = await foo(),\n' +
+            '    d = 3,\n' +
+            '    e = (await foo()),\n' +
+            '    f = 4;');
+        bt(
+            'a = {\n' +
+            '    myVar: async function() {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async function() {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
+        bt(
+            'a = {\n' +
+            '    myVar: async () => {\n' +
+            '        return a;\n' +
+            '    },\n' +
+            '    myOtherVar: async async () => {\n' +
+            '        yield b;\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================
         // e4x - Test that e4x literals passed through when e4x-option is enabled
         reset_options();
+        set_name('e4x - Test that e4x literals passed through when e4x-option is enabled');
         opts.e4x = true;
         bt(
             'xml=<a b="c"><d/><e>\n' +
@@ -2189,11 +4189,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // 
         reset_options();
+        set_name('');
 
 
         //============================================================
         // e4x disabled
         reset_options();
+        set_name('e4x disabled');
         opts.e4x = false;
         bt(
             'xml=<a b="c"><d/><e>\n' +
@@ -2206,6 +4208,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Multiple braces
         reset_options();
+        set_name('Multiple braces');
         bt(
             '{{}/z/}',
             //  -- output --
@@ -2216,8 +4219,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Space before conditional - (s = "")
+        // Space before conditional - (space_before_conditional = "false")
         reset_options();
+        set_name('Space before conditional - (space_before_conditional = "false")');
         opts.space_before_conditional = false;
         bt('if(a) b()');
         bt('while(a) b()');
@@ -2248,8 +4252,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('return [];');
         bt('return ();');
 
-        // Space before conditional - (s = " ")
+        // Space before conditional - (space_before_conditional = "true")
         reset_options();
+        set_name('Space before conditional - (space_before_conditional = "true")');
         opts.space_before_conditional = true;
         bt('if (a) b()');
         bt('while (a) b()');
@@ -2284,6 +4289,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Beautify preserve formatting
         reset_options();
+        set_name('Beautify preserve formatting');
         bt(
             '/* beautify preserve:start */\n' +
             '/* beautify preserve:end */');
@@ -2402,23 +4408,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */');
+            '  /* beautify ignore:end */');
         bt(
             'var a = 1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a = 1;\n' +
             '/* beautify ignore:end */');
+        
+        // ignore starts _after_ the start comment, ends after the end comment
         bt('/* beautify ignore:start */     {asdklgh;y;+++;dd2d}/* beautify ignore:end */');
+        bt('/* beautify ignore:start */  {asdklgh;y;+++;dd2d}    /* beautify ignore:end */');
         bt(
             'var a =  1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */',
+            '/*beautify ignore:end*/',
             //  -- output --
             'var a = 1;\n' +
             '/* beautify ignore:start */\n' +
             '   var a,,,{ 1;\n' +
-            '/* beautify ignore:end */');
+            '/*beautify ignore:end*/');
         bt(
             'var a = 1;\n' +
             ' /* beautify ignore:start */\n' +
@@ -2589,6 +4598,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Comments and  tests
         reset_options();
+        set_name('Comments and  tests');
         
         // #913
         bt(
@@ -2670,23 +4680,475 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // Template Formatting
+        // minimal template handling - ()
         reset_options();
-        bt('<?=$view["name"]; ?>');
-        bt('a = <?= external() ?>;');
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = <?php$view["name"]; ?>;', 'var a = <?php$view["name"]; ?>;');
         bt(
-            '<?php\n' +
+            'a = abc<?php\n' +
             'for($i = 1; $i <= 100; $i++;) {\n' +
             '    #count to 100!\n' +
             '    echo($i . "</br>");\n' +
             '}\n' +
-            '?>');
-        bt('a = <%= external() %>;');
+            '?>;');
+        test_fragment(
+            '<?php ?>\n' +
+            'test.met<?php someValue ?>hod();');
+        bt(
+            '<?php "A" ?>abc<?php "D" ?>;\n' +
+            '<?php "B" ?>.test();\n' +
+            '" <?php   "C" \'D\'  ?>  "');
+        bt(
+            '<?php\n' +
+            'echo "A";\n' +
+            '?>;\n' +
+            'test.method();');
+        bt('"<?php";if(0){}"?>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = <?=$view["name"]; ?>;', 'var a = <?=$view["name"]; ?>;');
+        bt(
+            'a = abc<?=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>;');
+        test_fragment(
+            '<?= ?>\n' +
+            'test.met<?= someValue ?>hod();');
+        bt(
+            '<?= "A" ?>abc<?= "D" ?>;\n' +
+            '<?= "B" ?>.test();\n' +
+            '" <?=   "C" \'D\'  ?>  "');
+        bt(
+            '<?=\n' +
+            'echo "A";\n' +
+            '?>;\n' +
+            'test.method();');
+        bt('"<?=";if(0){}"?>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = <%$view["name"]; %>;', 'var a = <%$view["name"]; %>;');
+        bt(
+            'a = abc<%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>;');
+        test_fragment(
+            '<% %>\n' +
+            'test.met<% someValue %>hod();');
+        bt(
+            '<% "A" %>abc<% "D" %>;\n' +
+            '<% "B" %>.test();\n' +
+            '" <%   "C" \'D\'  %>  "');
+        bt(
+            '<%\n' +
+            'echo "A";\n' +
+            '%>;\n' +
+            'test.method();');
+        bt('"<%";if(0){}"%>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = <%=$view["name"]; %>;', 'var a = <%=$view["name"]; %>;');
+        bt(
+            'a = abc<%=\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%>;');
+        test_fragment(
+            '<%= %>\n' +
+            'test.met<%= someValue %>hod();');
+        bt(
+            '<%= "A" %>abc<%= "D" %>;\n' +
+            '<%= "B" %>.test();\n' +
+            '" <%=   "C" \'D\'  %>  "');
+        bt(
+            '<%=\n' +
+            'echo "A";\n' +
+            '%>;\n' +
+            'test.method();');
+        bt('"<%=";if(0){}"%>";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};');
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();');
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "');
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {#$view["name"]; #};', 'var a = {#$view["name"]; #};');
+        bt(
+            'a = abc{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '#};');
+        test_fragment(
+            '{# #}\n' +
+            'test.met{# someValue #}hod();');
+        bt(
+            '{# "A" #}abc{# "D" #};\n' +
+            '{# "B" #}.test();\n' +
+            '" {#   "C" \'D\'  #}  "');
+        bt(
+            '{#\n' +
+            'echo "A";\n' +
+            '#};\n' +
+            'test.method();');
+        bt('"{#";if(0){}"#}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {%$view["name"]; %};', 'var a = {%$view["name"]; %};');
+        bt(
+            'a = abc{%\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '%};');
+        test_fragment(
+            '{% %}\n' +
+            'test.met{% someValue %}hod();');
+        bt(
+            '{% "A" %}abc{% "D" %};\n' +
+            '{% "B" %}.test();\n' +
+            '" {%   "C" \'D\'  %}  "');
+        bt(
+            '{%\n' +
+            'echo "A";\n' +
+            '%};\n' +
+            'test.method();');
+        bt('"{%";if(0){}"%}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{$view["name"]; }};', 'var a = {{$view["name"]; }};');
+        bt(
+            'a = abc{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{ }}\n' +
+            'test.met{{ someValue }}hod();');
+        bt(
+            '{{ "A" }}abc{{ "D" }};\n' +
+            '{{ "B" }}.test();\n' +
+            '" {{   "C" \'D\'  }}  "');
+        bt(
+            '{{\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{#$view["name"]; }};', 'var a = {{#$view["name"]; }};');
+        bt(
+            'a = abc{{#\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{# }}\n' +
+            'test.met{{# someValue }}hod();');
+        bt(
+            '{{# "A" }}abc{{# "D" }};\n' +
+            '{{# "B" }}.test();\n' +
+            '" {{#   "C" \'D\'  }}  "');
+        bt(
+            '{{#\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{#";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{!$view["name"]; }};', 'var a = {{!$view["name"]; }};');
+        bt(
+            'a = abc{{!\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};');
+        test_fragment(
+            '{{! }}\n' +
+            'test.met{{! someValue }}hod();');
+        bt(
+            '{{! "A" }}abc{{! "D" }};\n' +
+            '{{! "B" }}.test();\n' +
+            '" {{!   "C" \'D\'  }}  "');
+        bt(
+            '{{!\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();');
+        bt('"{{!";if(0){}"}}";');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
+        opts.templating = ['django', 'erb', 'handlebars', 'php'];
+        bt('var  a = {{!--$view["name"]; --}};', 'var a = {{!--$view["name"]; --}};');
+        bt(
+            'a = abc{{!--\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '--}};');
+        test_fragment(
+            '{{!-- --}}\n' +
+            'test.met{{!-- someValue --}}hod();');
+        bt(
+            '{{!-- "A" --}}abc{{!-- "D" --}};\n' +
+            '{{!-- "B" --}}.test();\n' +
+            '" {{!--   "C" \'D\'  --}}  "');
+        bt(
+            '{{!--\n' +
+            'echo "A";\n' +
+            '--}};\n' +
+            'test.method();');
+        bt('"{{!--";if(0){}"--}}";');
 
 
         //============================================================
-        // jslint and space after anon function - (f = " ", c = "")
+        // Templating disabled - ensure formatting - ()
         reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<?php";if(0){}"?>";',
+            //  -- output --
+            '"<?php";\n' +
+            'if (0) {}\n' +
+            '"?>";');
+        bt(
+            '"<?php";if(0){}',
+            //  -- output --
+            '"<?php";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<?=";if(0){}"?>";',
+            //  -- output --
+            '"<?=";\n' +
+            'if (0) {}\n' +
+            '"?>";');
+        bt(
+            '"<?=";if(0){}',
+            //  -- output --
+            '"<?=";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<%";if(0){}"%>";',
+            //  -- output --
+            '"<%";\n' +
+            'if (0) {}\n' +
+            '"%>";');
+        bt(
+            '"<%";if(0){}',
+            //  -- output --
+            '"<%";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"<%=";if(0){}"%>";',
+            //  -- output --
+            '"<%=";\n' +
+            'if (0) {}\n' +
+            '"%>";');
+        bt(
+            '"<%=";if(0){}',
+            //  -- output --
+            '"<%=";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{";if(0){}"}}";',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{";if(0){}',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{#";if(0){}"#}";',
+            //  -- output --
+            '"{#";\n' +
+            'if (0) {}\n' +
+            '"#}";');
+        bt(
+            '"{#";if(0){}',
+            //  -- output --
+            '"{#";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{%";if(0){}"%}";',
+            //  -- output --
+            '"{%";\n' +
+            'if (0) {}\n' +
+            '"%}";');
+        bt(
+            '"{%";if(0){}',
+            //  -- output --
+            '"{%";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{";if(0){}"}}";',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{";if(0){}',
+            //  -- output --
+            '"{{";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{#";if(0){}"}}";',
+            //  -- output --
+            '"{{#";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{#";if(0){}',
+            //  -- output --
+            '"{{#";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{!";if(0){}"}}";',
+            //  -- output --
+            '"{{!";\n' +
+            'if (0) {}\n' +
+            '"}}";');
+        bt(
+            '"{{!";if(0){}',
+            //  -- output --
+            '"{{!";\n' +
+            'if (0) {}');
+
+        // Templating disabled - ensure formatting - ()
+        reset_options();
+        set_name('Templating disabled - ensure formatting - ()');
+        opts.templating = ['auto'];
+        bt(
+            '"{{!--";if(0){}"--}}";',
+            //  -- output --
+            '"{{!--";\n' +
+            'if (0) {}\n' +
+            '"--}}";');
+        bt(
+            '"{{!--";if(0){}',
+            //  -- output --
+            '"{{!--";\n' +
+            'if (0) {}');
+
+
+        //============================================================
+        // jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")
+        reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "true")');
         opts.jslint_happy = true;
         opts.space_after_anon_function = true;
         bt(
@@ -2704,6 +5166,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}');
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2712,6 +5182,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}');
         bt(
             'function () {\n' +
@@ -2739,6 +5221,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -2748,6 +5256,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var a2, b2, c2, d2 = 0,\n' +
             '    c = function () {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
             '    d = \'\';');
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
@@ -2765,6 +5279,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    alert(x);\n' +
             '}');
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2773,12 +5295,74 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
 
-        // jslint and space after anon function - (f = " ", c = "")
+        // jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "true", space_after_anon_function = "false")');
         opts.jslint_happy = true;
         opts.space_after_anon_function = false;
         bt(
@@ -2796,6 +5380,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}');
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2804,6 +5396,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}');
         bt(
             'function () {\n' +
@@ -2831,6 +5435,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -2840,6 +5470,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var a2, b2, c2, d2 = 0,\n' +
             '    c = function () {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
             '    d = \'\';');
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
@@ -2857,6 +5493,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    alert(x);\n' +
             '}');
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2865,12 +5509,74 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
 
-        // jslint and space after anon function - (f = " ", c = "    ")
+        // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "true")');
         opts.jslint_happy = false;
         opts.space_after_anon_function = true;
         bt(
@@ -2888,6 +5594,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}');
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2896,6 +5610,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\n' +
             'var x = {\n' +
             '    x: function () {}\n' +
+            '}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}');
         bt(
             'function () {\n' +
@@ -2923,6 +5649,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -2932,6 +5684,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var a2, b2, c2, d2 = 0,\n' +
             '    c = function () {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
             '    d = \'\';');
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
@@ -2949,6 +5707,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    alert(x);\n' +
             '}');
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
             'function*() {\n' +
             '    yield 1;\n' +
             '}',
@@ -2957,12 +5723,74 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    yield 1;\n' +
             '}');
         bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
 
-        // jslint and space after anon function - (f = "", c = "    ")
+        // jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")
         reset_options();
+        set_name('jslint and space after anon function - (jslint_happy = "false", space_after_anon_function = "false")');
         opts.jslint_happy = false;
         opts.space_after_anon_function = false;
         bt(
@@ -2980,6 +5808,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt(
             'x();\n' +
             '\n' +
+            'function y(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function y() {}');
+        bt(
+            'x();\n' +
+            '\n' +
             'var x = {\n' +
             'x: function(){}\n' +
             '}',
@@ -2988,6 +5824,18 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '\n' +
             'var x = {\n' +
             '    x: function() {}\n' +
+            '}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y() {}\n' +
             '}');
         bt(
             'function () {\n' +
@@ -3020,6 +5868,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -3029,6 +5903,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var a2, b2, c2, d2 = 0,\n' +
             '    c = function() {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo() {},\n' +
             '    d = \'\';');
         bt(
             'var a2, b2, c2, d2 = 0, c = function() {},\n' +
@@ -3046,18 +5926,314 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    alert(x);\n' +
             '}');
         bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo() {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
             'function*() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'function* yoohoo() {\n' +
             '    yield 1;\n' +
             '}');
         bt(
             'function* x() {\n' +
             '    yield 1;\n' +
             '}');
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data() {},\n' +
+            '    data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data() {},\n' +
+            '    data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data() {},\n' +
+            '    * data2() {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data() {},\n' +
+            '    * data2() {},\n' +
+            '    a: 1\n' +
+            '}');
+
+        // jslint and space after anon function - (space_after_named_function = "true")
+        reset_options();
+        set_name('jslint and space after anon function - (space_after_named_function = "true")');
+        opts.space_after_named_function = true;
+        bt(
+            'a=typeof(x)',
+            //  -- output --
+            'a = typeof(x)');
+        bt(
+            'x();\n' +
+            '\n' +
+            'function(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function() {}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'function y(){}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'function y () {}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function() {}\n' +
+            '}');
+        bt(
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            'x: function y(){}\n' +
+            '}',
+            //  -- output --
+            'x();\n' +
+            '\n' +
+            'var x = {\n' +
+            '    x: function y () {}\n' +
+            '}');
+        bt(
+            'function () {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}',
+            //  -- output --
+            'function() {\n' +
+            '    var a, b, c, d, e = [],\n' +
+            '        f;\n' +
+            '}');
+        bt(
+            'switch(x) {case 0: case 1: a(); break; default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        bt(
+            'switch(x){case -1:break;case !y:break;}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y:\n' +
+            '        break;\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}');
+        
+        // typical greasemonkey start
+        test_fragment(
+            '// comment 2\n' +
+            '(function()');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function yoohoo() {}, d = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function yoohoo () {},\n' +
+            '    d = \'\';');
+        bt(
+            'var a2, b2, c2, d2 = 0, c = function() {},\n' +
+            'd = \'\';',
+            //  -- output --
+            'var a2, b2, c2, d2 = 0,\n' +
+            '    c = function() {},\n' +
+            '    d = \'\';');
+        bt(
+            'var o2=$.extend(a);function(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function() {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
+            'var o2=$.extend(a);function yoohoo(){alert(x);}',
+            //  -- output --
+            'var o2 = $.extend(a);\n' +
+            '\n' +
+            'function yoohoo () {\n' +
+            '    alert(x);\n' +
+            '}');
+        bt(
+            'function*() {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'function* yoohoo() {\n' +
+            '    yield 1;\n' +
+            '}',
+            //  -- output --
+            'function* yoohoo () {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'function* x() {\n' +
+            '    yield 1;\n' +
+            '}',
+            //  -- output --
+            'function* x () {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'async x() {\n' +
+            '    yield 1;\n' +
+            '}',
+            //  -- output --
+            'async x () {\n' +
+            '    yield 1;\n' +
+            '}');
+        bt(
+            'var a={data(){},\n' +
+            'data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    data () {},\n' +
+            '    data2 () {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            'data(){},\n' +
+            'data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    data () {},\n' +
+            '    data2 () {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {data(){},\n' +
+            'data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    data () {},\n' +
+            '    data2 () {},\n' +
+            '    a: 1\n' +
+            '}');
+        bt(
+            'var a={*data(){},*data2(){}}',
+            //  -- output --
+            'var a = {\n' +
+            '    * data () {},\n' +
+            '    * data2 () {}\n' +
+            '}');
+        bt(
+            'new Vue({\n' +
+            '*data(){},*data2(){}, a:1})',
+            //  -- output --
+            'new Vue({\n' +
+            '    * data () {},\n' +
+            '    * data2 () {},\n' +
+            '    a: 1\n' +
+            '})');
+        bt(
+            'export default {*data(){},*data2(){},\n' +
+            'a:1}',
+            //  -- output --
+            'export default {\n' +
+            '    * data () {},\n' +
+            '    * data2 () {},\n' +
+            '    a: 1\n' +
+            '}');
 
 
         //============================================================
         // Regression tests
         reset_options();
+        set_name('Regression tests');
         
         // Issue 241
         bt(
@@ -3067,6 +6243,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        bar: 2\n' +
             '    });\n' +
             'var test = 1;');
+        
+        // Issue #1663
+        bt(
+            '{\n' +
+            '    /* howdy\n' +
+            '    \n' +
+            '    */\n' +
+            '}');
         bt(
             'obj\n' +
             '    .last(a, function() {\n' +
@@ -3294,6 +6478,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        return 0;\n' +
             '    }\n' +
             '}');
+        
+        // Issue 1544 - Typescript declare formatting (no newline).
+        bt(
+            'declare const require: any;\n' +
+            'declare function greet(greeting: string): void;\n' +
+            'declare var foo: number;\n' +
+            'declare namespace myLib {\n' +
+            '    function makeGreeting(s: string): string;\n' +
+            '    let numberOfGreetings: number;\n' +
+            '}\n' +
+            'declare let test: any;');
         bt(
             'interface Test {\n' +
             '    blah: string[];\n' +
@@ -3554,6 +6749,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Test non-positionable-ops
         reset_options();
+        set_name('Test non-positionable-ops');
         bt('a += 2;');
         bt('a -= 2;');
         bt('a *= 2;');
@@ -3570,6 +6766,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // 
         reset_options();
+        set_name('');
         
         // exponent literals
         bt('a = 1e10');
@@ -3674,8 +6871,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""collapse,preserve-inline"")');
         opts.brace_style = 'collapse,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3718,8 +6916,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = "\n", obot = "    ", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        // brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""expand,preserve-inline"")');
         opts.brace_style = 'expand,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3780,8 +6979,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = "\n", oact = "    ")
+        // brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""end-expand,preserve-inline"")');
         opts.brace_style = 'end-expand,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3828,8 +7028,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""none,preserve-inline"")');
         opts.brace_style = 'none,preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3872,8 +7073,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    };\n' +
             '}');
 
-        // brace_style ,preserve-inline tests - (obo = " ", obot = "", oao = "\n", oaot = "    ", obc = "\n", oac = " ", oact = "")
+        // brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")
         reset_options();
+        set_name('brace_style ,preserve-inline tests - (brace_style = ""collapse-preserve-inline"")');
         opts.brace_style = 'collapse-preserve-inline';
         bt('import { asdf } from "asdf";');
         bt('import { get } from "asdf";');
@@ -3920,6 +7122,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         //============================================================
         // Destructured and related
         reset_options();
+        set_name('Destructured and related');
         opts.brace_style = 'collapse,preserve-inline';
         
         // Issue 382 - import destructured 
@@ -3946,6 +7149,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '} else {\n' +
             '    import("otherdynamic");\n' +
             '}');
+        
+        // Issue #1197 - dynamic import() arrow syntax
+        bt('frontend = Async(() => import("../frontend").then(m => m.default      ))', 'frontend = Async(() => import("../frontend").then(m => m.default))');
         
         // Issue 858 - from is a keyword only after import
         bt(
@@ -4053,8 +7259,493 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // keep_array_indentation false
+        reset_options();
+        set_name('keep_array_indentation false');
+        opts.keep_array_indentation = false;
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '   "d", "e", "f"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '    "d", "e", "f"\n' +
+            ']');
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '   "d", "e", "f",\n' +
+            '        "g", "h", "i"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '    "d", "e", "f",\n' +
+            '    "g", "h", "i"\n' +
+            ']');
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '       "d", "e", "f",\n' +
+            '            "g", "h", "i"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '    "d", "e", "f",\n' +
+            '    "g", "h", "i"\n' +
+            ']');
+        bt(
+            'var  x = [{}\n' +
+            ']',
+            //  -- output --
+            'var x = [{}]');
+        bt(
+            'var x = [{foo:bar}\n' +
+            ']',
+            //  -- output --
+            'var x = [{\n' +
+            '    foo: bar\n' +
+            '}]');
+        bt(
+            'a  = ["something",\n' +
+            '    "completely",\n' +
+            '    "different"];\n' +
+            'if (x);',
+            //  -- output --
+            'a = ["something",\n' +
+            '    "completely",\n' +
+            '    "different"\n' +
+            '];\n' +
+            'if (x);');
+        bt('a = ["a","b","c"]', 'a = ["a", "b", "c"]');
+        bt('a = ["a",   "b","c"]', 'a = ["a", "b", "c"]');
+        bt(
+            'x = [{"a":0}]',
+            //  -- output --
+            'x = [{\n' +
+            '    "a": 0\n' +
+            '}]');
+        bt(
+            '{a([[a1]], {b;});}',
+            //  -- output --
+            '{\n' +
+            '    a([\n' +
+            '        [a1]\n' +
+            '    ], {\n' +
+            '        b;\n' +
+            '    });\n' +
+            '}');
+        bt(
+            'a ();\n' +
+            '   [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();',
+            //  -- output --
+            'a();\n' +
+            '[\n' +
+            '    ["sdfsdfsd"],\n' +
+            '    ["sdfsdfsdf"]\n' +
+            '].toString();');
+        bt(
+            'a ();\n' +
+            'a = [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();',
+            //  -- output --
+            'a();\n' +
+            'a = [\n' +
+            '    ["sdfsdfsd"],\n' +
+            '    ["sdfsdfsdf"]\n' +
+            '].toString();');
+        bt(
+            'function()  {\n' +
+            '    Foo([\n' +
+            '        ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '    ]);\n' +
+            '}',
+            //  -- output --
+            'function() {\n' +
+            '    Foo([\n' +
+            '        ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '    ]);\n' +
+            '}');
+        bt(
+            'function  foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}',
+            //  -- output --
+            'function foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}');
+        bt(
+            'function foo() {\n' +
+            '    return [\n' +
+            '        {\n' +
+            '            one: "x",\n' +
+            '            two: [\n' +
+            '                {\n' +
+            '                    id: "a",\n' +
+            '                    name: "apple"\n' +
+            '                }, {\n' +
+            '                    id: "b",\n' +
+            '                    name: "banana"\n' +
+            '                }\n' +
+            '            ]\n' +
+            '        }\n' +
+            '    ];\n' +
+            '}',
+            //  -- output --
+            'function foo() {\n' +
+            '    return [{\n' +
+            '        one: "x",\n' +
+            '        two: [{\n' +
+            '            id: "a",\n' +
+            '            name: "apple"\n' +
+            '        }, {\n' +
+            '            id: "b",\n' +
+            '            name: "banana"\n' +
+            '        }]\n' +
+            '    }];\n' +
+            '}');
+        bt(
+            'function foo() {\n' +
+            '   return [\n' +
+            '      {\n' +
+            '         one: "x",\n' +
+            '         two: [\n' +
+            '            {\n' +
+            '               id: "a",\n' +
+            '               name: "apple"\n' +
+            '            }, {\n' +
+            '               id: "b",\n' +
+            '               name: "banana"\n' +
+            '            }\n' +
+            '         ]\n' +
+            '      }\n' +
+            '   ];\n' +
+            '}',
+            //  -- output --
+            'function foo() {\n' +
+            '    return [{\n' +
+            '        one: "x",\n' +
+            '        two: [{\n' +
+            '            id: "a",\n' +
+            '            name: "apple"\n' +
+            '        }, {\n' +
+            '            id: "b",\n' +
+            '            name: "banana"\n' +
+            '        }]\n' +
+            '    }];\n' +
+            '}');
+
+
+        //============================================================
+        // keep_array_indentation true
+        reset_options();
+        set_name('keep_array_indentation true');
+        opts.keep_array_indentation = true;
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '   "d", "e", "f"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '   "d", "e", "f"]');
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '   "d", "e", "f",\n' +
+            '        "g", "h", "i"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '   "d", "e", "f",\n' +
+            '        "g", "h", "i"]');
+        bt(
+            'a  = ["a", "b", "c",\n' +
+            '       "d", "e", "f",\n' +
+            '            "g", "h", "i"]',
+            //  -- output --
+            'a = ["a", "b", "c",\n' +
+            '       "d", "e", "f",\n' +
+            '            "g", "h", "i"]');
+        bt(
+            'var  x = [{}\n' +
+            ']',
+            //  -- output --
+            'var x = [{}\n' +
+            ']');
+        bt(
+            'var x = [{foo:bar}\n' +
+            ']',
+            //  -- output --
+            'var x = [{\n' +
+            '        foo: bar\n' +
+            '    }\n' +
+            ']');
+        bt(
+            'a  = ["something",\n' +
+            '    "completely",\n' +
+            '    "different"];\n' +
+            'if (x);',
+            //  -- output --
+            'a = ["something",\n' +
+            '    "completely",\n' +
+            '    "different"];\n' +
+            'if (x);');
+        bt('a = ["a","b","c"]', 'a = ["a", "b", "c"]');
+        bt('a = ["a",   "b","c"]', 'a = ["a", "b", "c"]');
+        bt(
+            'x = [{"a":0}]',
+            //  -- output --
+            'x = [{\n' +
+            '    "a": 0\n' +
+            '}]');
+        bt(
+            '{a([[a1]], {b;});}',
+            //  -- output --
+            '{\n' +
+            '    a([[a1]], {\n' +
+            '        b;\n' +
+            '    });\n' +
+            '}');
+        bt(
+            'a ();\n' +
+            '   [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();',
+            //  -- output --
+            'a();\n' +
+            '   [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();');
+        bt(
+            'a ();\n' +
+            'a = [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();',
+            //  -- output --
+            'a();\n' +
+            'a = [\n' +
+            '   ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '   ].toString();');
+        bt(
+            'function()  {\n' +
+            '    Foo([\n' +
+            '        ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '    ]);\n' +
+            '}',
+            //  -- output --
+            'function() {\n' +
+            '    Foo([\n' +
+            '        ["sdfsdfsd"],\n' +
+            '        ["sdfsdfsdf"]\n' +
+            '    ]);\n' +
+            '}');
+        bt(
+            'function  foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}',
+            //  -- output --
+            'function foo() {\n' +
+            '    return [\n' +
+            '        "one",\n' +
+            '        "two"\n' +
+            '    ];\n' +
+            '}');
+        bt(
+            'function  foo() {\n' +
+            '    return [\n' +
+            '        {\n' +
+            '            one: "x",\n' +
+            '            two: [\n' +
+            '                {\n' +
+            '                    id: "a",\n' +
+            '                    name: "apple"\n' +
+            '                }, {\n' +
+            '                    id: "b",\n' +
+            '                    name: "banana"\n' +
+            '                }\n' +
+            '            ]\n' +
+            '        }\n' +
+            '    ];\n' +
+            '}',
+            //  -- output --
+            'function foo() {\n' +
+            '    return [\n' +
+            '        {\n' +
+            '            one: "x",\n' +
+            '            two: [\n' +
+            '                {\n' +
+            '                    id: "a",\n' +
+            '                    name: "apple"\n' +
+            '                }, {\n' +
+            '                    id: "b",\n' +
+            '                    name: "banana"\n' +
+            '                }\n' +
+            '            ]\n' +
+            '        }\n' +
+            '    ];\n' +
+            '}');
+
+
+        //============================================================
+        // indent_empty_lines true
+        reset_options();
+        set_name('indent_empty_lines true');
+        opts.indent_empty_lines = true;
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            //  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    \n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    \n' +
+            '    var a = 1;\n' +
+            '    \n' +
+            '    function A() {\n' +
+            '        \n' +
+            '    }\n' +
+            '    \n' +
+            '    var b = 1;\n' +
+            '    \n' +
+            '}');
+
+
+        //============================================================
+        // indent_empty_lines false
+        reset_options();
+        set_name('indent_empty_lines false');
+        opts.indent_empty_lines = false;
+        test_fragment(
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            'var a = 1;\n' +
+            '        \n' +
+            'var b = 1;',
+            //  -- output --
+            'var a = 1;\n' +
+            '\n' +
+            'var b = 1;');
+        test_fragment(
+            '{\n' +
+            '    var a = 1;\n' +
+            '        \n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+        test_fragment(
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            'function A() {\n' +
+            '\n' +
+            '}\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}',
+            //  -- output --
+            '{\n' +
+            '\n' +
+            '    var a = 1;\n' +
+            '\n' +
+            '    function A() {\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '    var b = 1;\n' +
+            '\n' +
+            '}');
+
+
+        //============================================================
         // Old tests
         reset_options();
+        set_name('Old tests');
         bt('');
         test_fragment('   return .5');
         test_fragment(
@@ -4322,6 +8013,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        a();\n' +
             '        break;\n' +
             '    default:\n' +
+            '        break\n' +
+            '}');
+        bt(
+            'switch(x) {default: case 1: a(); break; case 0: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    default:\n' +
+            '    case 1:\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    case 0:\n' +
             '        break\n' +
             '}');
         bt(
@@ -4737,6 +8439,21 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '/* comment */');
         test_fragment('#');
         test_fragment('#!');
+        test_fragment('#include');
+        test_fragment('#include "settings.jsxinc"');
+        test_fragment(
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '/* comment */');
+        test_fragment(
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '#include "settings.jsxinc"\n' +
+            '\n' +
+            '\n' +
+            '/* comment */');
         bt('function namespace::something()');
         test_fragment(
             '<!--\n' +
@@ -5327,6 +9044,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
+        // Test user pebkac protection, converts dash names to underscored names
+        opts["end-with-newline"] = true;
+        test_fragment(null, '\n');
+
+        reset_options();
+        //============================================================
         opts.indent_size = 1;
         opts.indent_char = ' ';
         bt('{ one_char() }', "{\n one_char()\n}");
@@ -5356,187 +9079,15 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
-        opts.preserve_newlines = false;
-
-        bt('var\na=dont_preserve_newlines;', 'var a = dont_preserve_newlines;');
-
-        // make sure the blank line between function definitions stays
-        // even when preserve_newlines = false
-        bt('function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}');
-        bt('function foo() {\n    return 1;\n}\nfunction foo() {\n    return 1;\n}',
-           'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
-          );
-        bt('function foo() {\n    return 1;\n}\n\n\nfunction foo() {\n    return 1;\n}',
-           'function foo() {\n    return 1;\n}\n\nfunction foo() {\n    return 1;\n}'
-          );
-
-        opts.preserve_newlines = true;
-        bt('var\na=do_preserve_newlines;', 'var\n    a = do_preserve_newlines;');
-        bt('if (foo) //  comment\n{\n    bar();\n}');
-
-
-        reset_options();
-        //============================================================
-        opts.keep_array_indentation = false;
-        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']",
-            "a = ['a', 'b', 'c',\n    'd', 'e', 'f'\n]");
-        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f',\n        'g', 'h', 'i']",
-            "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
-        bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']",
-            "a = ['a', 'b', 'c',\n    'd', 'e', 'f',\n    'g', 'h', 'i'\n]");
-        bt('var x = [{}\n]', 'var x = [{}]');
-        bt('var x = [{foo:bar}\n]', 'var x = [{\n    foo: bar\n}]');
-        bt("a = ['something',\n    'completely',\n    'different'];\nif (x);",
-            "a = ['something',\n    'completely',\n    'different'\n];\nif (x);");
-        bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
-
-        bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
-        bt("x = [{'a':0}]",
-            "x = [{\n    'a': 0\n}]");
-        bt('{a([[a1]], {b;});}',
-            '{\n    a([\n        [a1]\n    ], {\n        b;\n    });\n}');
-        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
-            "a();\n[\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
-        bt("a();\na = [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
-            "a();\na = [\n    ['sdfsdfsd'],\n    ['sdfsdfsdf']\n].toString();");
-        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
-            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
-        bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
-        // 4 spaces per indent input, processed with 4-spaces per indent
-        bt( "function foo() {\n" +
-            "    return [\n" +
-            "        {\n" +
-            "            one: 'x',\n" +
-            "            two: [\n" +
-            "                {\n" +
-            "                    id: 'a',\n" +
-            "                    name: 'apple'\n" +
-            "                }, {\n" +
-            "                    id: 'b',\n" +
-            "                    name: 'banana'\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        }\n" +
-            "    ];\n" +
-            "}",
-            "function foo() {\n" +
-            "    return [{\n" +
-            "        one: 'x',\n" +
-            "        two: [{\n" +
-            "            id: 'a',\n" +
-            "            name: 'apple'\n" +
-            "        }, {\n" +
-            "            id: 'b',\n" +
-            "            name: 'banana'\n" +
-            "        }]\n" +
-            "    }];\n" +
-            "}");
-        // 3 spaces per indent input, processed with 4-spaces per indent
-        bt( "function foo() {\n" +
-            "   return [\n" +
-            "      {\n" +
-            "         one: 'x',\n" +
-            "         two: [\n" +
-            "            {\n" +
-            "               id: 'a',\n" +
-            "               name: 'apple'\n" +
-            "            }, {\n" +
-            "               id: 'b',\n" +
-            "               name: 'banana'\n" +
-            "            }\n" +
-            "         ]\n" +
-            "      }\n" +
-            "   ];\n" +
-            "}",
-            "function foo() {\n" +
-            "    return [{\n" +
-            "        one: 'x',\n" +
-            "        two: [{\n" +
-            "            id: 'a',\n" +
-            "            name: 'apple'\n" +
-            "        }, {\n" +
-            "            id: 'b',\n" +
-            "            name: 'banana'\n" +
-            "        }]\n" +
-            "    }];\n" +
-            "}");
-
-        opts.keep_array_indentation = true;
-        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f']");
-        bt("a = ['a', 'b', 'c',\n   'd', 'e', 'f',\n        'g', 'h', 'i']");
-        bt("a = ['a', 'b', 'c',\n       'd', 'e', 'f',\n            'g', 'h', 'i']");
-        bt('var x = [{}\n]', 'var x = [{}\n]');
-        bt('var x = [{foo:bar}\n]', 'var x = [{\n        foo: bar\n    }\n]');
-        bt("a = ['something',\n    'completely',\n    'different'];\nif (x);");
-        bt("a = ['a','b','c']", "a = ['a', 'b', 'c']");
-        bt("a = ['a',   'b','c']", "a = ['a', 'b', 'c']");
-        bt("x = [{'a':0}]",
-            "x = [{\n    'a': 0\n}]");
-        bt('{a([[a1]], {b;});}',
-            '{\n    a([[a1]], {\n        b;\n    });\n}');
-        bt("a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
-            "a();\n   [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
-        bt("a();\na = [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();",
-            "a();\na = [\n   ['sdfsdfsd'],\n        ['sdfsdfsdf']\n   ].toString();");
-        bt("function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}",
-            "function() {\n    Foo([\n        ['sdfsdfsd'],\n        ['sdfsdfsdf']\n    ]);\n}");
-        bt('function foo() {\n    return [\n        "one",\n        "two"\n    ];\n}');
-        // 4 spaces per indent input, processed with 4-spaces per indent
-        bt( "function foo() {\n" +
-            "    return [\n" +
-            "        {\n" +
-            "            one: 'x',\n" +
-            "            two: [\n" +
-            "                {\n" +
-            "                    id: 'a',\n" +
-            "                    name: 'apple'\n" +
-            "                }, {\n" +
-            "                    id: 'b',\n" +
-            "                    name: 'banana'\n" +
-            "                }\n" +
-            "            ]\n" +
-            "        }\n" +
-            "    ];\n" +
-            "}");
-        // 3 spaces per indent input, processed with 4-spaces per indent
-        // Should be unchanged, but is not - #445
-//         bt( "function foo() {\n" +
-//             "   return [\n" +
-//             "      {\n" +
-//             "         one: 'x',\n" +
-//             "         two: [\n" +
-//             "            {\n" +
-//             "               id: 'a',\n" +
-//             "               name: 'apple'\n" +
-//             "            }, {\n" +
-//             "               id: 'b',\n" +
-//             "               name: 'banana'\n" +
-//             "            }\n" +
-//             "         ]\n" +
-//             "      }\n" +
-//             "   ];\n" +
-//             "}");
-
-
-        reset_options();
-        //============================================================
-        bt('a = //comment\n    /regex/;');
-
-        bt('if (a)\n{\nb;\n}\nelse\n{\nc;\n}', 'if (a) {\n    b;\n} else {\n    c;\n}');
-
         // tests for brace positioning
         beautify_brace_tests('expand');
         beautify_brace_tests('collapse');
         beautify_brace_tests('end-expand');
         beautify_brace_tests('none');
 
-        test_fragment('roo = {\n    /*\n    ****\n      FOO\n    ****\n    */\n    BAR: 0\n};');
 
         bt('"foo""bar""baz"', '"foo"\n"bar"\n"baz"');
         bt("'foo''bar''baz'", "'foo'\n'bar'\n'baz'");
-
-
-        test_fragment("if (zz) {\n    // ....\n}\n(function");
 
         bt("{\n    get foo() {}\n}");
         bt("{\n    var a = get\n    foo();\n}");
@@ -5549,8 +9100,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt("var x = set\n\na() {}", "var x = set\n\na() {}");
         bt("var x = set\n\nfunction() {}", "var x = set\n\nfunction() {}");
 
-        bt('<!-- foo\nbar();\n-->');
-        bt('<!-- dont crash'); // -->
         bt('for () /abc/.test()');
         bt('if (k) /aaa/m.test(v) && l();');
         bt('switch (true) {\n    case /swf/i.test(foo):\n        bar();\n}');
@@ -5560,15 +9109,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         reset_options();
         //============================================================
         opts.preserve_newlines = true;
-        bt('var a = 42; // foo\n\nvar b;');
-        bt('var a = 42; // foo\n\n\nvar b;');
         bt("var a = 'foo' +\n    'bar';");
-        bt("var a = \"foo\" +\n    \"bar\";");
-        bt('this.oa = new OAuth(\n' +
-           '    _requestToken,\n' +
-           '    _accessToken,\n' +
-           '    consumer_key\n' +
-           ');');
 
 
         reset_options();
@@ -5601,511 +9142,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
         reset_options();
         //============================================================
-        bt('return function();');
-        bt('var a = function();');
-        bt('var a = 5 + function();');
-
-        bt('import foo.*;', 'import foo.*;'); // actionscript's import
-        test_fragment('function f(a: a, b: b)'); // actionscript
-
-        bt('{\n    foo // something\n    ,\n    bar // something\n    baz\n}');
-        bt('function a(a) {} function b(b) {} function c(c) {}', 'function a(a) {}\n\nfunction b(b) {}\n\nfunction c(c) {}');
-        bt('foo(a, function() {})');
-
-        bt('foo(a, /regex/)');
-
-        bt('/* foo */\n"x"');
-
-        reset_options();
-        //============================================================
-        opts.break_chained_methods = false;
-        opts.preserve_newlines = false;
-        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat);\nfoo.bar().baz().cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar().baz().cucumber(fat)\nfoo.bar().baz().cucumber(fat)');
-        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this.something = foo.bar().baz().cucumber(fat)');
-        bt('this.something.xxx = foo.moo.bar()');
-        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this.something.xxx = foo.moo.bar()');
-
-        opts.break_chained_methods = false;
-        opts.preserve_newlines = true;
-        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat);\nfoo.bar().baz().cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz().cucumber(fat)\nfoo.bar().baz().cucumber(fat)');
-        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this\n    .something = foo.bar()\n    .baz().cucumber(fat)');
-        bt('this.something.xxx = foo.moo.bar()');
-        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this\n    .something\n    .xxx = foo.moo\n    .bar()');
-
-        opts.break_chained_methods = true;
-        opts.preserve_newlines = false;
-        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo.bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this.something = foo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('this.something.xxx = foo.moo.bar()');
-        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this.something.xxx = foo.moo.bar()');
-
-        opts.break_chained_methods = true;
-        opts.preserve_newlines = true;
-        bt('foo\n.bar()\n.baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat); foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat);\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('foo\n.bar()\n.baz().cucumber(fat)\n foo.bar().baz().cucumber(fat)', 'foo\n    .bar()\n    .baz()\n    .cucumber(fat)\nfoo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('this\n.something = foo.bar()\n.baz().cucumber(fat)', 'this\n    .something = foo.bar()\n    .baz()\n    .cucumber(fat)');
-        bt('this.something.xxx = foo.moo.bar()');
-        bt('this\n.something\n.xxx = foo.moo\n.bar()', 'this\n    .something\n    .xxx = foo.moo\n    .bar()');
-
-        reset_options();
-        //============================================================
-        // Line wrap test intputs
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        wrap_input_1=('foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      'if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token + 12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap + but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}');
-
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        wrap_input_2=('{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      '    Test_very_long_variable_name_this_should_never_wrap\n.but_this_can\n' +
-                      '    return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      '    throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      '    if (wraps_can_occur && inside_an_if_block) that_is_\n.okay();\n' +
-                      '    object_literal = {\n' +
-                      '        propertx: first_token + 12345678.99999E-6,\n' +
-                      '        property: first_token_should_never_wrap + but_this_can,\n' +
-                      '        propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '        proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '    }' +
-                      '}');
-
-        opts.preserve_newlines = false;
-        opts.wrap_line_length = 0;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token + 12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap + but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 70;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap.but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      'if (wraps_can_occur && inside_an_if_block) that_is_.okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token + 12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap + but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 40;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'if (wraps_can_occur &&\n' +
-                      '    inside_an_if_block) that_is_.okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token +\n' +
-                      '        12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap +\n' +
-                      '        but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap +\n' +
-                      '        !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" +\n' +
-                      '        "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 41;
-        // NOTE: wrap is only best effort - line continues until next wrap point is found.
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
-                      '    (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'if (wraps_can_occur &&\n' +
-                      '    inside_an_if_block) that_is_.okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token +\n' +
-                      '        12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap +\n' +
-                      '        but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap +\n' +
-                      '        !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" +\n' +
-                      '        "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 45;
-        // NOTE: wrap is only best effort - line continues until next wrap point is found.
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_2,
-                      /* expected */
-                      '{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
-                      '        (leans && mean));\n' +
-                      '    Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    return between_return_and_expression_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    throw between_throw_and_expression_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    if (wraps_can_occur &&\n' +
-                      '        inside_an_if_block) that_is_.okay();\n' +
-                      '    object_literal = {\n' +
-                      '        propertx: first_token +\n' +
-                      '            12345678.99999E-6,\n' +
-                      '        property: first_token_should_never_wrap +\n' +
-                      '            but_this_can,\n' +
-                      '        propertz: first_token_should_never_wrap +\n' +
-                      '            !but_this_can,\n' +
-                      '        proper: "first_token_should_never_wrap" +\n' +
-                      '            "but_this_can"\n' +
-                      '    }\n'+
-                      '}');
-
-        opts.preserve_newlines = true;
-        opts.wrap_line_length = 0;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '    .okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token + 12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap + but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 70;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap.but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap.but_this_can\n' +
-                      'if (wraps_can_occur && inside_an_if_block) that_is_\n' +
-                      '    .okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token + 12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap + but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap + !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" + "but_this_can"\n' +
-                      '}');
-
-
-        opts.wrap_line_length = 40;
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat &&\n' +
-                      '    "sassy") || (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'if (wraps_can_occur &&\n' +
-                      '    inside_an_if_block) that_is_\n' +
-                      '    .okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token +\n' +
-                      '        12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap +\n' +
-                      '        but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap +\n' +
-                      '        !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" +\n' +
-                      '        "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 41;
-        // NOTE: wrap is only best effort - line continues until next wrap point is found.
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_1,
-                      /* expected */
-                      'foo.bar().baz().cucumber((fat && "sassy") ||\n' +
-                      '    (leans && mean));\n' +
-                      'Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'return between_return_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'throw between_throw_and_expression_should_never_wrap\n' +
-                      '    .but_this_can\n' +
-                      'if (wraps_can_occur &&\n' +
-                      '    inside_an_if_block) that_is_\n' +
-                      '    .okay();\n' +
-                      'object_literal = {\n' +
-                      '    propertx: first_token +\n' +
-                      '        12345678.99999E-6,\n' +
-                      '    property: first_token_should_never_wrap +\n' +
-                      '        but_this_can,\n' +
-                      '    propertz: first_token_should_never_wrap +\n' +
-                      '        !but_this_can,\n' +
-                      '    proper: "first_token_should_never_wrap" +\n' +
-                      '        "but_this_can"\n' +
-                      '}');
-
-        opts.wrap_line_length = 45;
-        // NOTE: wrap is only best effort - line continues until next wrap point is found.
-        //.............---------1---------2---------3---------4---------5---------6---------7
-        //.............1234567890123456789012345678901234567890123456789012345678901234567890
-        test_fragment(wrap_input_2,
-                      /* expected */
-                      '{\n' +
-                      '    foo.bar().baz().cucumber((fat && "sassy") ||\n' +
-                      '        (leans && mean));\n' +
-                      '    Test_very_long_variable_name_this_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    return between_return_and_expression_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    throw between_throw_and_expression_should_never_wrap\n' +
-                      '        .but_this_can\n' +
-                      '    if (wraps_can_occur &&\n' +
-                      '        inside_an_if_block) that_is_\n' +
-                      '        .okay();\n' +
-                      '    object_literal = {\n' +
-                      '        propertx: first_token +\n' +
-                      '            12345678.99999E-6,\n' +
-                      '        property: first_token_should_never_wrap +\n' +
-                      '            but_this_can,\n' +
-                      '        propertz: first_token_should_never_wrap +\n' +
-                      '            !but_this_can,\n' +
-                      '        proper: "first_token_should_never_wrap" +\n' +
-                      '            "but_this_can"\n' +
-                      '    }\n'+
-                      '}');
-
-        reset_options();
-        //============================================================
-        opts.preserve_newlines = false;
-        bt('if (foo) // comment\n    bar();');
-        bt('if (foo) // comment\n    (bar());');
-        bt('if (foo) // comment\n    (bar());');
-        bt('if (foo) // comment\n    /asdf/;');
-        bt('this.oa = new OAuth(\n' +
-           '    _requestToken,\n' +
-           '    _accessToken,\n' +
-           '    consumer_key\n' +
-           ');',
-           'this.oa = new OAuth(_requestToken, _accessToken, consumer_key);');
-        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
-        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
-        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;',
-           'this.type = this.options =\n    // comment\n    this.enabled null;');
-        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();',
-           'someObj.someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
-
-        bt('if (true ||\n!true) return;', 'if (true || !true) return;');
-
-        // these aren't ready yet.
-        //bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
-            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
-            'if (foo)\n    if (bar)\n        if (baz) whee();\n        else a();');
-        bt('if (foo)\nbar();\nelse\ncar();',
-            'if (foo) bar();\nelse car();');
-
-        bt('if (foo) if (bar) if (baz);\na();',
-            'if (foo)\n    if (bar)\n        if (baz);\na();');
-        bt('if (foo) if (bar) if (baz) whee();\na();',
-            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
-        bt('if (foo) a()\nif (bar) if (baz) whee();\na();',
-            'if (foo) a()\nif (bar)\n    if (baz) whee();\na();');
-        bt('if (foo);\nif (bar) if (baz) whee();\na();',
-            'if (foo);\nif (bar)\n    if (baz) whee();\na();');
-        bt('if (options)\n' +
-           '    for (var p in options)\n' +
-           '        this[p] = options[p];',
-           'if (options)\n'+
-           '    for (var p in options) this[p] = options[p];');
-        bt('if (options) for (var p in options) this[p] = options[p];',
-           'if (options)\n    for (var p in options) this[p] = options[p];');
-
-        bt('if (options) do q(); while (b());',
-           'if (options)\n    do q(); while (b());');
-        bt('if (options) while (b()) q();',
-           'if (options)\n    while (b()) q();');
-        bt('if (options) do while (b()) q(); while (a());',
-           'if (options)\n    do\n        while (b()) q(); while (a());');
-
-        bt('function f(a, b, c,\nd, e) {}',
-            'function f(a, b, c, d, e) {}');
-
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
-        bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
-
-        // This is not valid syntax, but still want to behave reasonably and not side-effect
-        bt('(if(a) b())(if(a) b())',
-            '(\n    if (a) b())(\n    if (a) b())');
-        bt('(if(a) b())\n\n\n(if(a) b())',
-            '(\n    if (a) b())\n(\n    if (a) b())');
-
-
-
-        bt("if\n(a)\nb();", "if (a) b();");
-        bt('var a =\nfoo', 'var a = foo');
-        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
-        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
-        bt('var a = /*i*/ "b";');
-        bt('var a = /*i*/\n"b";', 'var a = /*i*/ "b";');
-        bt('var a = /*i*/\nb;', 'var a = /*i*/ b;');
-        bt('{\n\n\n"x"\n}', '{\n    "x"\n}');
-        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a && b || c || d && e) e = f');
-        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a && (b || c || d) && e) e = f');
-        test_fragment('\n\n"x"', '"x"');
-        bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
-                'a = 1;\nb = 2;');
-
-        opts.preserve_newlines = true;
-        bt('if (foo) // comment\n    bar();');
-        bt('if (foo) // comment\n    (bar());');
-        bt('if (foo) // comment\n    (bar());');
-        bt('if (foo) // comment\n    /asdf/;');
-        bt('foo = {\n    x: y, // #44\n    w: z // #44\n}');
-        bt('switch (x) {\n    case "a":\n        // comment on newline\n        break;\n    case "b": // comment on same line\n        break;\n}');
-        bt('this.type =\n    this.options =\n    // comment\n    this.enabled null;');
-        bt('someObj\n    .someFunc1()\n    // This comment should not break the indent\n    .someFunc2();');
-
-        bt('if (true ||\n!true) return;', 'if (true ||\n    !true) return;');
-
-        // these aren't ready yet.
-        // bt('if (foo) // comment\n    bar() /*i*/ + baz() /*j\n*/ + asdf();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\na();',
-            'if (foo)\n    if (bar)\n        if (baz)\n            whee();\na();');
-        bt('if\n(foo)\nif\n(bar)\nif\n(baz)\nwhee();\nelse\na();',
-            'if (foo)\n    if (bar)\n        if (baz)\n            whee();\n        else\n            a();');
-        bt('if (foo)\nbar();\nelse\ncar();',
-            'if (foo)\n    bar();\nelse\n    car();');
-        bt('if (foo) bar();\nelse\ncar();',
-            'if (foo) bar();\nelse\n    car();');
-
-        bt('if (foo) if (bar) if (baz);\na();',
-            'if (foo)\n    if (bar)\n        if (baz);\na();');
-        bt('if (foo) if (bar) if (baz) whee();\na();',
-            'if (foo)\n    if (bar)\n        if (baz) whee();\na();');
-        bt('if (foo) a()\nif (bar) if (baz) whee();\na();',
-            'if (foo) a()\nif (bar)\n    if (baz) whee();\na();');
-        bt('if (foo);\nif (bar) if (baz) whee();\na();',
-            'if (foo);\nif (bar)\n    if (baz) whee();\na();');
-        bt('if (options)\n' +
-           '    for (var p in options)\n' +
-           '        this[p] = options[p];');
-        bt('if (options) for (var p in options) this[p] = options[p];',
-           'if (options)\n    for (var p in options) this[p] = options[p];');
-
-        bt('if (options) do q(); while (b());',
-           'if (options)\n    do q(); while (b());');
-        bt('if (options) do; while (b());',
-           'if (options)\n    do; while (b());');
-        bt('if (options) while (b()) q();',
-           'if (options)\n    while (b()) q();');
-        bt('if (options) do while (b()) q(); while (a());',
-           'if (options)\n    do\n        while (b()) q(); while (a());');
-
-        bt('function f(a, b, c,\nd, e) {}',
-            'function f(a, b, c,\n    d, e) {}');
-
-        bt('function f(a,b) {if(a) b()}function g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\n\nfunction g(a, b) {\n    if (!a) b()\n}');
-        bt('function f(a,b) {if(a) b()}\n\n\n\nfunction g(a,b) {if(!a) b()}',
-            'function f(a, b) {\n    if (a) b()\n}\n\n\n\nfunction g(a, b) {\n    if (!a) b()\n}');
-        // This is not valid syntax, but still want to behave reasonably and not side-effect
-        bt('(if(a) b())(if(a) b())',
-            '(\n    if (a) b())(\n    if (a) b())');
-        bt('(if(a) b())\n\n\n(if(a) b())',
-            '(\n    if (a) b())\n\n\n(\n    if (a) b())');
-
-        // space between functions
-        bt('/*\n * foo\n */\nfunction foo() {}');
-        bt('// a nice function\nfunction foo() {}');
-        bt('function foo() {}\nfunction foo() {}',
-            'function foo() {}\n\nfunction foo() {}'
-        );
-
-        bt('[\n    function() {}\n]');
-
-
-
-        bt("if\n(a)\nb();", "if (a)\n    b();");
-        bt('var a =\nfoo', 'var a =\n    foo');
-        bt('var a = {\n"a":1,\n"b":2}', "var a = {\n    \"a\": 1,\n    \"b\": 2\n}");
-        bt("var a = {\n'a':1,\n'b':2}", "var a = {\n    'a': 1,\n    'b': 2\n}");
-        bt('var a = /*i*/ "b";');
-        bt('var a = /*i*/\n"b";', 'var a = /*i*/\n    "b";');
-        bt('var a = /*i*/\nb;', 'var a = /*i*/\n    b;');
-        bt('{\n\n\n"x"\n}', '{\n\n\n    "x"\n}');
-        bt('if(a &&\nb\n||\nc\n||d\n&&\ne) e = f', 'if (a &&\n    b ||\n    c ||\n    d &&\n    e) e = f');
-        bt('if(a &&\n(b\n||\nc\n||d)\n&&\ne) e = f', 'if (a &&\n    (b ||\n        c ||\n        d) &&\n    e) e = f');
-        test_fragment('\n\n"x"', '"x"');
-
-        // this beavior differs between js and python, defaults to unlimited in js, 10 in python
-        bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
-            'a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;');
-        opts.max_preserve_newlines = 8;
-        bt('a = 1;\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb = 2;',
-            'a = 1;\n\n\n\n\n\n\n\nb = 2;');
-
-        reset_options();
-        //============================================================
-
-
         Urlencoded.run_tests(sanitytest);
     }
 

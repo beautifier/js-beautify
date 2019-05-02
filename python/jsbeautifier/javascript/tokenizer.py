@@ -24,10 +24,18 @@
 
 import re
 from ..core.inputscanner import InputScanner
-from ..core.token import Token
+from ..core.tokenizer import TokenTypes as BaseTokenTypes
+from ..core.tokenizer import Tokenizer as BaseTokenizer
+from ..core.tokenizer import TokenizerPatterns as BaseTokenizerPatterns
+from ..core.directives import Directives
+
+from ..core.pattern import Pattern
+from ..core.templatablepattern import TemplatablePattern
 
 
-class TokenTypes:
+__all__ = ["TOKEN", "Tokenizer", "TokenTypes"]
+
+class TokenTypes(BaseTokenTypes):
     START_EXPR = 'TK_START_EXPR'
     END_EXPR = 'TK_END_EXPR'
     START_BLOCK = 'TK_START_BLOCK'
@@ -43,7 +51,6 @@ class TokenTypes:
     COMMENT = 'TK_COMMENT'
     DOT = 'TK_DOT'
     UNKNOWN = 'TK_UNKNOWN'
-    EOF = 'TK_EOF'
 
     def __init__(self):
         pass
@@ -51,316 +58,283 @@ class TokenTypes:
 
 TOKEN = TokenTypes()
 
+dot_pattern = re.compile(r'[^\d\.]')
 
-class Tokenizer:
+number_pattern = re.compile(
+    r'0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?')
+digit = re.compile(r'[0-9]')
 
-    number_pattern = re.compile(
-        r'0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?')
-    digit = re.compile(r'[0-9]')
 
-    startXmlRegExp = re.compile(
-        r'<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
-    xmlRegExp = re.compile(
-        r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+positionable_operators = frozenset(
+    (">>> === !== " +
+    "<< && >= ** != == <= >> || " +
+    "< / - + > : & % ? ^ | *").split(' '))
 
-    positionable_operators = '!= !== % & && * ** + - / : < << <= == === > >= >> >>> ? ^ | ||'.split(
-        ' ')
-    punct = (positionable_operators +
-             # non-positionable operators - these do not follow operator
-             # position settings
-             '! %= &= *= **= ++ += , -- -= /= :: <<= = => >>= >>>= ^= |= ~ ...'.split(' '))
+punct =  (">>>= " +
+    "... >>= <<= === >>> !== **= " +
+    "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
+    "= ! ? > < : / ^ - + * & % ~ |")
 
-    # Words which always should start on a new line
-    line_starters = 'continue,try,throw,return,var,let,const,if,switch,case,default,for,while,break,function,import,export'.split(
-        ',')
-    reserved_words = line_starters + ['do',
-                                      'in',
-                                      'of',
-                                      'else',
-                                      'get',
-                                      'set',
-                                      'new',
-                                      'catch',
-                                      'finally',
-                                      'typeof',
-                                      'yield',
-                                      'async',
-                                      'await',
-                                      'from',
-                                      'as']
+punct = re.compile(r'([-[\]{}()*+?.,\\^$|#])').sub(r'\\\1', punct)
+punct = punct.replace(' ', '|')
 
-    def __init__(self, input_string, opts, indent_string):
-        import jsbeautifier.core.acorn as acorn
+punct_pattern = re.compile(punct)
+
+# Words which always should start on a new line
+line_starters = frozenset(
+    ('continue,try,throw,return,var,let,const,if,switch,case,default,for,' +
+    'while,break,function,import,export').split(','))
+reserved_words = line_starters | frozenset(['do',
+                                    'in',
+                                    'of',
+                                    'else',
+                                    'get',
+                                    'set',
+                                    'new',
+                                    'catch',
+                                    'finally',
+                                    'typeof',
+                                    'yield',
+                                    'async',
+                                    'await',
+                                    'from',
+                                    'as'])
+
+reserved_word_pattern = re.compile(r'^(?:' + '|'.join(reserved_words) + r')$')
+
+directives_core = Directives(r'/\*', r'\*/')
+
+xmlRegExp = re.compile(
+    r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+
+class TokenizerPatterns(BaseTokenizerPatterns):
+    def __init__(self, input_scanner, acorn, options):
+        BaseTokenizerPatterns.__init__(self, input_scanner)
+
+        # This is not pretty, but given how we did the version import
+        # it is the only way to do this without having setup.py fail on a missing
+        # six dependency.
+        six = __import__("six")
+
+        # IMPORTANT: This string must be run through six to handle \u chars
+        self.whitespace = self.whitespace.matching(
+            six.u(r'\u00A0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff'),
+            six.u(r'\u2028\u2029'))
+
+        pattern = Pattern(input_scanner)
+        templatable = TemplatablePattern(input_scanner) \
+                .read_options(options)
+
+        self.identifier = templatable.starting_with(acorn.identifier \
+            ).matching(acorn.identifierMatch)
+        self.number = pattern.matching(number_pattern)
+        self.punct = pattern.matching(punct_pattern)
+        self.comment = pattern.starting_with(r'//').until(
+            six.u(r'[\n\r\u2028\u2029]'))
+        self.block_comment = pattern.starting_with(r'/\*').until_after(r'\*/')
+        self.html_comment_start = pattern.matching(r'<!--')
+        self.html_comment_end = pattern.matching(r'-->')
+        self.include = pattern.starting_with(r'#include' \
+            ).until_after(acorn.lineBreak)
+        self.shebang = pattern.starting_with(r'#!' \
+            ).until_after(acorn.lineBreak)
+
+        self.xml = pattern.matching(xmlRegExp)
+
+        self.single_quote = templatable.until(six.u(r"['\\\n\r\u2028\u2029]"))
+        self.double_quote = templatable.until(six.u(r'["\\\n\r\u2028\u2029]'))
+        self.template_text = templatable.until(r'[`\\$]')
+        self.template_expression = templatable.until(r'[`}\\]')
+
+
+
+class Tokenizer(BaseTokenizer):
+    positionable_operators = positionable_operators
+    line_starters = line_starters
+
+    def __init__(self, input_string, opts):
+        BaseTokenizer.__init__(self, input_string, opts)
+
+        import jsbeautifier.javascript.acorn as acorn
         self.acorn = acorn
 
-        self.input = InputScanner(input_string)
-        self.opts = opts
-        self.indent_string = indent_string
-        #  /* ... */ comment ends with nearest */ or end of file
-        self.block_comment_pattern = re.compile(r'([\s\S]*?)((?:\*\/)|$)')
-
-        # comment ends just before nearest linefeed or end of file
-        self.comment_pattern = re.compile(
-            self.acorn.six.u(r'([^\n\r\u2028\u2029]*)'))
-
-        self.directives_block_pattern = re.compile(
-            r'\/\* beautify( \w+[:]\w+)+ \*\/')
-        self.directive_pattern = re.compile(r' (\w+)[:](\w+)')
-        self.directives_end_ignore_pattern = re.compile(
-            r'([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
-
-        self.template_pattern = re.compile(
-            r'((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
-
-        self.whitespacePattern = re.compile(
-            self.acorn.six.u(r'[\n\r\u2028\u2029\t ]+'))
-        self.newlinePattern = re.compile(
-            self.acorn.six.u(r'([\t ]*)(\r\n|[\n\r\u2028\u2029])?'))
-
-    def tokenize(self):
         self.in_html_comment = False
-        self.tokens = []
-
-        next = None
-        last = None
-        open_token = None
-        open_stack = []
-        comments = []
-
-        while not (last is not None and last.type == TOKEN.EOF):
-            token_values = self.__tokenize_next()
-            next = Token(
-                token_values[1],
-                token_values[0],
-                self.n_newlines,
-                self.whitespace_before_token)
-
-            while next.type == TOKEN.COMMENT or next.type == TOKEN.BLOCK_COMMENT or next.type == TOKEN.UNKNOWN:
-                if next.type == TOKEN.BLOCK_COMMENT:
-                    next.directives = token_values[2]
-
-                comments.append(next)
-                token_values = self.__tokenize_next()
-                next = Token(
-                    token_values[1],
-                    token_values[0],
-                    self.n_newlines,
-                    self.whitespace_before_token)
-
-            if len(comments) > 0:
-                next.comments_before = comments
-                comments = []
-
-            if next.type == TOKEN.START_BLOCK or next.type == TOKEN.START_EXPR:
-                next.parent = last
-                open_stack.append(open_token)
-                open_token = next
-            elif (next.type == TOKEN.END_BLOCK or next.type == TOKEN.END_EXPR) and \
-                    (open_token is not None and (
-                            (next.text == ']' and open_token.text == '[') or
-                            (next.text == ')' and open_token.text == '(') or
-                            (next.text == '}' and open_token.text == '{'))):
-                next.parent = open_token.parent
-                next.opened = open_token
-                open_token = open_stack.pop()
-
-            self.tokens.append(next)
-            last = next
-        return self.tokens
-
-    def get_directives(self, text):
-        if not self.directives_block_pattern.match(text):
-            return None
-
-        directives = {}
-        directive_match = self.directive_pattern.search(text)
-        while directive_match:
-            directives[directive_match.group(1)] = directive_match.group(2)
-            directive_match = self.directive_pattern.search(
-                text, directive_match.end())
-
-        return directives
-
-    def __tokenize_next(self):
-
-        self.n_newlines = 0
-        self.whitespace_before_token = ''
-
-        if len(self.tokens) > 0:
-            last_token = self.tokens[-1]
-        else:
-            # For the sake of tokenizing we can pretend that there was on open
-            # brace to start
-            last_token = Token(TOKEN.START_BLOCK, '{')
-
-        resulting_string = self.input.readWhile(self.whitespacePattern)
-        if resulting_string != '':
-            if resulting_string == ' ':
-                self.whitespace_before_token = resulting_string
-            else:
-                for nextMatch in self.newlinePattern.findall(resulting_string):
-                    if nextMatch[1] != '':
-                        self.n_newlines += 1
-                    else:
-                        self.whitespace_before_token = nextMatch[0]
-                        break
-
-        resulting_string = self.input.readWhile(self.acorn.identifier)
-        if resulting_string != '':
-            if not (last_token.type == TOKEN.DOT or (
-                    last_token.type == TOKEN.RESERVED and last_token.text in [
-                        'set',
-                        'get'])) and resulting_string in self.reserved_words:
-                if resulting_string in ['in', 'of']:  # in and of are operators, need to hack
-                    return resulting_string, TOKEN.OPERATOR
-
-                return resulting_string, TOKEN.RESERVED
-
-            return resulting_string, TOKEN.WORD
-
-        resulting_string = self.input.readWhile(self.number_pattern)
-        if resulting_string != '':
-            return resulting_string, TOKEN.WORD
-
-        c = self.input.next()
-
-        if c is None:
-            return '', TOKEN.EOF
-
-        if c in '([':
-            return c, TOKEN.START_EXPR
-
-        if c in ')]':
-            return c, TOKEN.END_EXPR
-
-        if c == '{':
-            return c, TOKEN.START_BLOCK
-
-        if c == '}':
-            return c, TOKEN.END_BLOCK
-
-        if c == ';':
-            return c, TOKEN.SEMICOLON
-
-        if c == '/':
-            comment = ''
-            if self.input.peek() == '*':  # peek /* .. */ comment
-                self.input.next()
-                comment_match = self.input.match(self.block_comment_pattern)
-                comment = '/*' + comment_match.group(0)
-
-                directives = self.get_directives(comment)
-                if directives and directives.get('ignore') == 'start':
-                    comment_match = self.input.match(
-                        self.directives_end_ignore_pattern)
-                    comment += comment_match.group(0)
-                comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
-                return comment, TOKEN.BLOCK_COMMENT, directives
-
-            if self.input.peek() == '/':  # peek // comment
-                self.input.next()
-                comment_match = self.input.match(self.comment_pattern)
-                comment = '//' + comment_match.group(0)
-                return comment, TOKEN.COMMENT
-
-        def allowRegExOrXML(self):
-            return (last_token.type == TOKEN.RESERVED and last_token.text in ['return', 'case', 'throw', 'else', 'do', 'typeof', 'yield']) or \
-                (last_token.type == TOKEN.END_EXPR and last_token.text == ')' and
-                 last_token.parent and last_token.parent.type == TOKEN.RESERVED and last_token.parent.text in ['if', 'while', 'for']) or \
-                (last_token.type in [TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK, TOKEN.END_BLOCK, TOKEN.OPERATOR,
-                                     TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA])
-
         self.has_char_escapes = False
 
-        isString = (c == '`' or c == "'" or c == '"')
-        isRegExp = (c == '/' and allowRegExOrXML(self))
-        isXML = (self.opts.e4x and c == "<" and self.input.test(
-            self.startXmlRegExp, -1) and allowRegExOrXML(self))
+        self._patterns = TokenizerPatterns(self._input, self.acorn, opts)
 
-        sep = c
-        esc = False
-        resulting_string = c
-        in_char_class = False
 
-        if isString:
-            # handle string
-            def parse_string(
-                    self,
-                    resulting_string,
-                    delimiter,
-                    allow_unescaped_newlines=False,
-                    start_sub=None):
-                esc = False
-                while self.input.hasNext():
-                    current_char = self.input.peek()
-                    if not (esc or (current_char != delimiter and (
-                            allow_unescaped_newlines or not bool(
-                                self.acorn.newline.match(current_char))))):
-                        break
+    def _reset(self):
+        self.in_html_comment = False
 
-                    # Handle \r\n linebreaks after escapes or in template
-                    # strings
-                    if (esc or allow_unescaped_newlines) and bool(
-                            self.acorn.newline.match(current_char)):
-                        if current_char == '\r' and self.input.peek(1) == '\n':
-                            self.input.next()
-                            current_char = self.input.peek()
+    def _is_comment(self, current_token):
+        return current_token.type == TOKEN.COMMENT or \
+            current_token.type == TOKEN.BLOCK_COMMENT or \
+            current_token.type == TOKEN.UNKNOWN
 
-                        resulting_string += '\n'
-                    else:
-                        resulting_string += current_char
 
-                    if esc:
-                        if current_char == 'x' or current_char == 'u':
-                            self.has_char_escapes = True
+    def _is_opening(self, current_token):
+        return current_token.type == TOKEN.START_BLOCK or current_token.type == TOKEN.START_EXPR
 
-                        esc = False
-                    else:
-                        esc = current_char == '\\'
+    def _is_closing(self, current_token, open_token):
+        return (current_token.type == TOKEN.END_BLOCK or current_token.type == TOKEN.END_EXPR) and \
+                    (open_token is not None and (
+                            (current_token.text == ']' and open_token.text == '[') or
+                            (current_token.text == ')' and open_token.text == '(') or
+                            (current_token.text == '}' and open_token.text == '{')))
 
-                    self.input.next()
+    def _get_next_token(self, previous_token, open_token):
+        token = None
+        self._readWhitespace()
 
-                    if start_sub and resulting_string.endswith(start_sub):
-                        if delimiter == '`':
-                            resulting_string = parse_string(
-                                self, resulting_string, '}', allow_unescaped_newlines, '`')
-                        else:
-                            resulting_string = parse_string(
-                                self, resulting_string, '`', allow_unescaped_newlines, '${')
+        c = self._input.peek()
+        if c is None:
+            token = self._create_token(TOKEN.EOF, '')
 
-                        if self.input.hasNext():
-                            resulting_string += self.input.next()
+        token = token or self._read_string(c)
+        token = token or self._read_word(previous_token)
+        token = token or self._read_singles(c)
+        token = token or self._read_comment(c)
+        token = token or self._read_regexp(c, previous_token)
+        token = token or self._read_xml(c, previous_token)
+        token = token or self._read_non_javascript(c)
+        token = token or self._read_punctuation()
+        token = token or self._create_token(TOKEN.UNKNOWN, self._input.next())
 
-                return resulting_string
+        return token
 
-            if sep == '`':
-                resulting_string = parse_string(
-                    self, resulting_string, '`', True, '${')
+    def _read_singles(self, c):
+        token = None
+
+        if c == '(' or c == '[':
+            token = self._create_token(TOKEN.START_EXPR, c)
+        elif c == ')' or c == ']':
+            token = self._create_token(TOKEN.END_EXPR, c)
+        elif c == '{':
+            token = self._create_token(TOKEN.START_BLOCK, c)
+        elif c == '}':
+            token = self._create_token(TOKEN.END_BLOCK, c)
+        elif c == ';':
+            token = self._create_token(TOKEN.SEMICOLON, c)
+        elif c == '.' and self._input.peek(1) is not None and \
+                bool(dot_pattern.match(self._input.peek(1))):
+            token = self._create_token(TOKEN.DOT, c)
+        elif c == ',':
+            token = self._create_token(TOKEN.COMMA, c)
+
+        if token is not None:
+            self._input.next()
+
+        return token
+
+    def _read_word(self, previous_token):
+        resulting_string = self._patterns.identifier.read()
+
+        if bool(resulting_string):
+            resulting_string = re.sub(self.acorn.allLineBreaks, '\n', resulting_string)
+            if not (previous_token.type == TOKEN.DOT or (
+                    previous_token.type == TOKEN.RESERVED and (
+                        previous_token.text == 'set' or previous_token.text == 'get')
+                        )) and reserved_word_pattern.match(resulting_string):
+                if resulting_string == 'in' or resulting_string == 'of':
+                    # in and of are operators, need to hack
+                    return self._create_token(TOKEN.OPERATOR, resulting_string)
+
+                return self._create_token(TOKEN.RESERVED, resulting_string)
+
+            return self._create_token(TOKEN.WORD, resulting_string)
+
+        resulting_string = self._patterns.number.read()
+        if resulting_string != '':
+            return self._create_token(TOKEN.WORD, resulting_string)
+
+    def _read_comment(self, c):
+        token = None
+        if c == '/':
+            comment = ''
+            if self._input.peek(1) == '*':  # peek /* .. */ comment
+                comment = self._patterns.block_comment.read()
+
+                directives = directives_core.get_directives(comment)
+                if directives and directives.get('ignore') == 'start':
+                    comment += directives_core.readIgnored(self._input)
+                comment = re.sub(self.acorn.allLineBreaks, '\n', comment)
+                token = self._create_token(TOKEN.BLOCK_COMMENT, comment)
+                token.directives = directives
+
+            elif self._input.peek(1) == '/':  # peek // comment
+                comment = self._patterns.comment.read()
+                token = self._create_token(TOKEN.COMMENT, comment)
+
+        return token
+
+
+    def _read_string(self, c):
+        if c == '`' or c == "'" or c == '"':
+            resulting_string = self._input.next()
+            self.has_char_escapes = False
+
+            if c == '`':
+                resulting_string += self.parse_string('`', True, '${')
             else:
-                resulting_string = parse_string(self, resulting_string, sep)
-        elif isRegExp:
+                resulting_string += self.parse_string(c)
+
+            if self.has_char_escapes and self._options.unescape_strings:
+                resulting_string = self.unescape_string(resulting_string)
+
+            if self._input.peek() == c:
+                resulting_string += self._input.next()
+
+            resulting_string = re.sub(
+                self.acorn.allLineBreaks, '\n', resulting_string)
+
+            return self._create_token(TOKEN.STRING, resulting_string)
+
+        return None
+
+    def _read_regexp(self, c, previous_token):
+
+        if c == '/' and self.allowRegExOrXML(previous_token):
             # handle regexp
+            resulting_string = self._input.next()
+            esc = False
+
             in_char_class = False
-            while self.input.hasNext() and \
-                    (esc or in_char_class or self.input.peek() != sep) and \
-                    not self.input.testChar(self.acorn.newline):
-                resulting_string += self.input.peek()
+            while self._input.hasNext() and \
+                    (esc or in_char_class or self._input.peek() != c) and \
+                    not self._input.testChar(self.acorn.newline):
+                resulting_string += self._input.peek()
                 if not esc:
-                    esc = self.input.peek() == '\\'
-                    if self.input.peek() == '[':
+                    esc = self._input.peek() == '\\'
+                    if self._input.peek() == '[':
                         in_char_class = True
-                    elif self.input.peek() == ']':
+                    elif self._input.peek() == ']':
                         in_char_class = False
                 else:
                     esc = False
-                self.input.next()
+                self._input.next()
 
-        elif isXML:
+            if self._input.peek() == c:
+                resulting_string += self._input.next()
+
+                if c == '/':
+                    # regexps may have modifiers /regexp/MOD, so fetch those too
+                    # Only [gim] are valid, but if the user puts in garbage, do
+                    # what we can to take it.
+                    resulting_string += self._input.read(
+                        self.acorn.identifier)
+
+            return self._create_token(TOKEN.STRING, resulting_string)
+
+        return None
+
+
+    def _read_xml(self, c, previous_token):
+        if self._options.e4x and c == "<" and self.allowRegExOrXML(previous_token):
             # handle e4x xml literals
-            self.input.back()
             xmlStr = ""
-            match = self.input.match(self.xmlRegExp)
-            if match:
+            match = self._patterns.xml.read_match()
+            if match and not match.group(1):
                 rootTag = match.group(2)
                 rootTag = re.sub(r'^{\s+', '{', re.sub(r'\s+}$', '}', rootTag))
                 isCurlyRoot = rootTag.startswith('{')
@@ -381,109 +355,149 @@ class Tokenizer:
                     if depth <= 0:
                         break
 
-                    match = self.input.match(self.xmlRegExp)
+                    match = self._patterns.xml.read_match()
 
                 # if we didn't close correctly, keep unformatted.
                 if not match:
-                    xmlStr += self.input.match(re.compile(r'[\s\S]*')).group(0)
+                    xmlStr += self._input.match(re.compile(r'[\s\S]*')).group(0)
 
                 xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
-                return xmlStr, TOKEN.STRING
+                return self._create_token(TOKEN.STRING, xmlStr)
 
-        if isRegExp or isString:
-            if self.has_char_escapes and self.opts.unescape_strings:
-                resulting_string = self.unescape_string(resulting_string)
+        return None
 
-            if self.input.peek() == sep:
-                resulting_string += self.input.next()
-
-                if sep == '/':
-                    # regexps may have modifiers /regexp/MOD, so fetch those too
-                    # Only [gim] are valid, but if the user puts in garbage, do
-                    # what we can to take it.
-                    resulting_string += self.input.readWhile(
-                        self.acorn.identifier)
-
-            resulting_string = re.sub(
-                self.acorn.allLineBreaks, '\n', resulting_string)
-
-            return resulting_string, TOKEN.STRING
+    def _read_non_javascript(self, c):
+        resulting_string = ''
 
         if c == '#':
 
             # she-bang
-            if len(self.tokens) == 0 and self.input.peek() == '!':
-                resulting_string = c
-                while self.input.hasNext() and c != '\n':
-                    c = self.input.next()
-                    resulting_string += c
-                return resulting_string.strip() + '\n', TOKEN.UNKNOWN
+            if self._is_first_token():
+                resulting_string = self._patterns.shebang.read()
+                if resulting_string:
+                    return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+
+            # handles extendscript #includes
+            resulting_string = self._patterns.include.read()
+
+            if resulting_string:
+                return self._create_token(TOKEN.UNKNOWN, resulting_string.strip() + '\n')
+
+            c = self._input.next()
 
             # Spidermonkey-specific sharp variables for circular references
             # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             # http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp
             # around line 1935
             sharp = '#'
-            if self.input.hasNext() and self.input.testChar(self.digit):
+            if self._input.hasNext() and self._input.testChar(digit):
                 while True:
-                    c = self.input.next()
+                    c = self._input.next()
                     sharp += c
-                    if (not self.input.hasNext()) or c == '#' or c == '=':
+                    if (not self._input.hasNext()) or c == '#' or c == '=':
                         break
-            if c == '#':
-                pass
-            elif self.input.peek() == '[' and self.input.peek(1) == ']':
-                sharp += '[]'
-                self.input.next()
-                self.input.next()
-            elif self.input.peek() == '{' and self.input.peek(1) == '}':
-                sharp += '{}'
-                self.input.next()
-                self.input.next()
-            return sharp, TOKEN.WORD
+                if c == '#':
+                    pass
+                elif self._input.peek() == '[' and self._input.peek(1) == ']':
+                    sharp += '[]'
+                    self._input.next()
+                    self._input.next()
+                elif self._input.peek() == '{' and self._input.peek(1) == '}':
+                    sharp += '{}'
+                    self._input.next()
+                    self._input.next()
 
-        if c == '<' and self.input.peek() in ['?', '%']:
-            self.input.back()
-            template_match = self.input.match(self.template_pattern)
-            if template_match:
-                c = template_match.group(0)
-                c = re.sub(self.acorn.allLineBreaks, '\n', c)
-                return c, TOKEN.STRING
+                return self._create_token(TOKEN.WORD, sharp)
 
-        if c == '<' and self.input.match(re.compile(r'\!--')):
-            c = '<!--'
-            while self.input.hasNext() and not self.input.testChar(self.acorn.newline):
-                c += self.input.next()
+            self._input.back()
 
-            self.in_html_comment = True
-            return c, TOKEN.COMMENT
+        elif c == '<' and self._is_first_token():
 
-        if c == '-' and self.in_html_comment and self.input.match(
-                re.compile('->')):
+            if self._patterns.html_comment_start.read():
+                c = '<!--'
+                while self._input.hasNext() and not self._input.testChar(self.acorn.newline):
+                    c += self._input.next()
+
+                self.in_html_comment = True
+                return self._create_token(TOKEN.COMMENT, c)
+
+        elif c == '-' and self.in_html_comment and \
+                self._patterns.html_comment_end.read():
             self.in_html_comment = False
-            return '-->', TOKEN.COMMENT
+            return self._create_token(TOKEN.COMMENT, '-->')
 
-        if c == '.':
-            if self.input.peek() == '.' and self.input.peek(1) == '.':
-                c += self.input.next() + self.input.next()
-                return c, TOKEN.OPERATOR
+        return None
 
-            return c, TOKEN.DOT
+    def _read_punctuation(self):
+        token = None
+        resulting_string = self._patterns.punct.read()
+        if resulting_string != '':
+            if resulting_string == '=':
+                token = self._create_token(TOKEN.EQUALS, resulting_string)
+            else:
+                token = self._create_token(TOKEN.OPERATOR, resulting_string)
 
-        if c in self.punct:
-            while self.input.hasNext() and c + self.input.peek() in self.punct:
-                c += self.input.next()
-                if not self.input.hasNext():
-                    break
+        return token
 
-            if c == ',':
-                return c, TOKEN.COMMA
-            if c == '=':
-                return c, TOKEN.EQUALS
+    __regexTokens = { TOKEN.COMMENT, TOKEN.START_EXPR, TOKEN.START_BLOCK,
+        TOKEN.START, TOKEN.END_BLOCK, TOKEN.OPERATOR,
+        TOKEN.EQUALS, TOKEN.EOF, TOKEN.SEMICOLON, TOKEN.COMMA }
+    def allowRegExOrXML(self, previous_token):
+        return (previous_token.type == TOKEN.RESERVED and previous_token.text in {'return', 'case', 'throw', 'else', 'do', 'typeof', 'yield'}) or \
+            (previous_token.type == TOKEN.END_EXPR and previous_token.text == ')' and
+                previous_token.opened.previous.type == TOKEN.RESERVED and previous_token.opened.previous.text in {'if', 'while', 'for'}) or \
+            (previous_token.type in self.__regexTokens )
 
-            return c, TOKEN.OPERATOR
+    def parse_string(
+            self,
+            delimiter,
+            allow_unescaped_newlines=False,
+            start_sub=None):
+        if delimiter == '\'':
+            pattern = self._patterns.single_quote
+        elif delimiter == '"':
+            pattern = self._patterns.double_quote
+        elif delimiter == '`':
+            pattern = self._patterns.template_text
+        elif delimiter == '}':
+            pattern = self._patterns.template_expression
+        resulting_string = pattern.read()
+        next = ''
+        while self._input.hasNext():
+            next = self._input.next()
+            if next == delimiter or \
+                (not allow_unescaped_newlines and
+                    self.acorn.newline.match(next)):
+                self._input.back()
+                break
+            elif next == '\\' and self._input.hasNext():
+                current_char = self._input.peek()
+                if current_char == 'x' or current_char == 'u':
+                    self.has_char_escapes = True
+                elif current_char == '\r' and self._input.peek(1) == '\n':
+                    self._input.next()
 
-        return c, TOKEN.UNKNOWN
+                next += self._input.next()
+            elif start_sub is not None:
+                if start_sub == '${' and next == '$' and \
+                        self._input.peek() == '{':
+                    next += self._input.next()
+
+                if start_sub == next:
+                    if delimiter == '`':
+                        next += self.parse_string(
+                            '}', allow_unescaped_newlines, '`')
+                    else:
+                        next += self.parse_string(
+                            '`', allow_unescaped_newlines, '${')
+
+                    if self._input.hasNext():
+                        next += self._input.next()
+
+            next += pattern.read()
+            resulting_string += next
+        return resulting_string
+
 
     def unescape_string(self, s):
         # You think that a regex would work for this

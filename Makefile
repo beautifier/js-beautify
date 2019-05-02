@@ -32,30 +32,36 @@ py: generate-tests $(BUILD_DIR)/python
 	@echo Testing python beautify functionality...
 	$(SCRIPT_DIR)/python-dev python python/js-beautify-test.py || exit 1
 
-jstest: depends js package
+jstest: depends js build/*.tgz
 	@echo Testing javascript implementation...
 	@$(NODE) js/test/node-beautify-tests.js || exit 1
 	@$(NODE) js/test/amd-beautify-tests.js || exit 1
 	@$(NODE) --version && \
 		./js/test/shell-test.sh
 
-pytest: depends py package
+pytest: depends py python/dist/*
 	@echo Testing python implementation...
 	@cd python && \
 		$(PYTHON) --version && \
 		./jsbeautifier/tests/shell-test.sh
+
+alltest: jstest pytest
 
 package: js py build/*.tgz python/dist/*
 
 
 perf:
 	@echo ----------------------------------------
-	@echo Testing beautify performance...
+	@echo Testing node js beautify performance...
 	$(NODE) js/test/node-beautify-perf-tests.js || exit 1
+	@echo Testing node css beautify performance...
+	$(NODE) js/test/node-beautify-css-perf-tests.js || exit 1
 	@echo Testing html-beautify performance...
 	$(NODE) js/test/node-beautify-html-perf-tests.js || exit 1
-	@echo Testing python beautify performance...
+	@echo Testing python js beautify performance...
 	$(SCRIPT_DIR)/python-dev python python/test-perf-jsbeautifier.py || exit 1
+	@echo Testing python css beautify performance...
+	$(SCRIPT_DIR)/python-dev python python/test-perf-cssbeautifier.py || exit 1
 	@echo ----------------------------------------
 
 generate-tests: $(BUILD_DIR)/generate
@@ -67,7 +73,7 @@ beautify:
 #######################################################
 
 # javascript bundle generation
-js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/**/*) js/index.js tools/template/* webpack.config.js
+js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/*) $(wildcard js/src/**/*) $(wildcard web/*.js) js/index.js tools/template/* webpack.config.js
 	$(SCRIPT_DIR)/build.sh js
 
 
@@ -111,6 +117,7 @@ update: depends
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	@$(NODE) --version
 	$(NPM) install
+	$(NPM) --version
 	@touch $(BUILD_DIR)/node
 
 $(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv

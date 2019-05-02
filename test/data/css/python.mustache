@@ -46,8 +46,8 @@ class CSSBeautifierTest(unittest.TestCase):
         true = True
 
         default_options = cssbeautifier.default_options()
-        default_options.indent_size = 1
-        default_options.indent_char = '\t'
+        default_options.indent_size = 4
+        default_options.indent_char = ' '
         default_options.selector_separator_newline = true
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
@@ -109,46 +109,55 @@ class CSSBeautifierTest(unittest.TestCase):
         #============================================================
         t(None, "")
 
+        self.reset_options()
+        #============================================================
+        # Test user pebkac protection, converts dash names to underscored names
+        setattr(self.options, 'end-with-newline', True)
+        t(None, '\n')
+        
+        self.reset_options()
+        #============================================================
+
         t("", "")
         t("\n", "")
         t(".tabs{}\n", ".tabs {}")
         t(".tabs{}", ".tabs {}")
-        t(".tabs{color:red}", ".tabs {\n\tcolor: red\n}")
-        t(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n\tcolor: rgb(255, 255, 0)\n}")
-        t(".tabs{background:url('back.jpg')}", ".tabs {\n\tbackground: url('back.jpg')\n}")
-        t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
-        t("@media print {.tab{}}", "@media print {\n\t.tab {}\n}")
-        t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n\t.tab {\n\t\tbackground-image: url(foo@2x.png)\n\t}\n}")
+        t(".tabs{color:red}", ".tabs {\n    color: red\n}")
+        t(".tabs{color:rgb(255, 255, 0)}", ".tabs {\n    color: rgb(255, 255, 0)\n}")
+        t(".tabs{background:url('back.jpg')}", ".tabs {\n    background: url('back.jpg')\n}")
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}")
+        t("@media print {.tab{}}", "@media print {\n    .tab {}\n}")
+        t("@media print {.tab{background-image:url(foo@2x.png)}}", "@media print {\n    .tab {\n        background-image: url(foo@2x.png)\n    }\n}")
 
         t("a:before {\n" +
-            "\tcontent: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
+            "    content: 'a{color:black;}\"\"\\'\\'\"\\n\\n\\na{color:black}\';\n" +
             "}")
 
         # may not eat the space before "["
-        t('html.js [data-custom="123"] {\n\topacity: 1.00;\n}')
-        t('html.js *[data-custom="123"] {\n\topacity: 1.00;\n}')
+        t('html.js [data-custom="123"] {\n    opacity: 1.00;\n}')
+        t('html.js *[data-custom="123"] {\n    opacity: 1.00;\n}')
 
         # lead-in whitespace determines base-indent.
         # lead-in newlines are stripped.
-        t("\n\na, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
-        t("   a, img {padding: 0.2px}", "   a,\n   img {\n   \tpadding: 0.2px\n   }")
-        t(" \t \na, img {padding: 0.2px}", " \t a,\n \t img {\n \t \tpadding: 0.2px\n \t }")
-        t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
+        t("\n\na, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
+        t("   a, img {padding: 0.2px}", "   a,\n   img {\n       padding: 0.2px\n   }")
+        t("      \na, img {padding: 0.2px}", "      a,\n      img {\n          padding: 0.2px\n      }")
+        t("\n\n     a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
 
     def testSeperateSelectors(self):
         self.reset_options()
         t = self.decodesto
 
-        t("#bla, #foo{color:red}", "#bla,\n#foo {\n\tcolor: red\n}")
-        t("a, img {padding: 0.2px}", "a,\nimg {\n\tpadding: 0.2px\n}")
+        t("#bla, #foo{color:red}", "#bla,\n#foo {\n    color: red\n}")
+        t("a, img {padding: 0.2px}", "a,\nimg {\n    padding: 0.2px\n}")
 
 
     def testBlockNesting(self):
         self.reset_options()
         t = self.decodesto
 
-        t("#foo {\n\tbackground-image: url(foo@2x.png);\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
-        t("@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo@2x.png);\n\t}\n\t@font-face {\n\t\tfont-family: 'Bitstream Vera Serif Bold';\n\t\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n\t}\n}")
+        t("#foo {\n    background-image: url(foo@2x.png);\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}")
+        t("@media screen {\n    #foo:hover {\n        background-image: url(foo@2x.png);\n    }\n    @font-face {\n        font-family: 'Bitstream Vera Serif Bold';\n        src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n    }\n}")
 
 # @font-face {
 #     font-family: 'Bitstream Vera Serif Bold';
@@ -167,7 +176,7 @@ class CSSBeautifierTest(unittest.TestCase):
 #         }
 #     }
 # }
-        t("@font-face {\n\tfont-family: 'Bitstream Vera Serif Bold';\n\tsrc: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n\t#foo:hover {\n\t\tbackground-image: url(foo.png);\n\t}\n\t@media screen and (min-device-pixel-ratio: 2) {\n\t\t@font-face {\n\t\t\tfont-family: 'Helvetica Neue'\n\t\t}\n\t\t#foo:hover {\n\t\t\tbackground-image: url(foo@2x.png);\n\t\t}\n\t}\n}")
+        t("@font-face {\n    font-family: 'Bitstream Vera Serif Bold';\n    src: url('http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf');\n}\n@media screen {\n    #foo:hover {\n        background-image: url(foo.png);\n    }\n    @media screen and (min-device-pixel-ratio: 2) {\n        @font-face {\n            font-family: 'Helvetica Neue'\n        }\n        #foo:hover {\n            background-image: url(foo@2x.png);\n        }\n    }\n}")
 
 
     def testOptions(self):
@@ -193,29 +202,29 @@ class CSSBeautifierTest(unittest.TestCase):
         self.reset_options()
         t = self.decodesto
 
-        t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n\t@well-bg: @bg-color;\n\t@well-fg: @fg-color;\n}')
+        t('.well{   \n    @well-bg:@bg-color;@well-fg:@fg-color;}','.well {\n    @well-bg: @bg-color;\n    @well-fg: @fg-color;\n}')
         t('.well {&.active {\nbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;}}',
             '.well {\n' +
-            '\t&.active {\n' +
-            '\t\tbox-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
-            '\t}\n' +
+            '    &.active {\n' +
+            '        box-shadow: 0 1px 1px @border-color, 1px 0 1px @border-color;\n' +
+            '    }\n' +
             '}')
         t('a {\n' +
-            '\tcolor: blue;\n' +
-            '\t&:hover {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
-            '\t& & &&&.active {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
+            '    color: blue;\n' +
+            '    &:hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
+            '    & & &&&.active {\n' +
+            '        color: green;\n' +
+            '    }\n' +
             '}')
 
         # Not sure if this is sensible
         # but I believe it is correct to not remove the space in "&: hover".
         t('a {\n' +
-            '\t&: hover {\n' +
-            '\t\tcolor: green;\n' +
-            '\t}\n' +
+            '    &: hover {\n' +
+            '        color: green;\n' +
+            '    }\n' +
             '}')
 
         # import
@@ -223,24 +232,24 @@ class CSSBeautifierTest(unittest.TestCase):
 
         # don't break nested pseudo-classes
         t("a:first-child{color:red;div:first-child{color:black;}}",
-            "a:first-child {\n\tcolor: red;\n\tdiv:first-child {\n\t\tcolor: black;\n\t}\n}")
+            "a:first-child {\n    color: red;\n    div:first-child {\n        color: black;\n    }\n}")
 
         # handle SASS/LESS parent reference
         t("div{&:first-letter {text-transform: uppercase;}}",
-            "div {\n\t&:first-letter {\n\t\ttext-transform: uppercase;\n\t}\n}")
+            "div {\n    &:first-letter {\n        text-transform: uppercase;\n    }\n}")
 
         # nested modifiers (&:hover etc)
-        t(".tabs{&:hover{width:10px;}}", ".tabs {\n\t&:hover {\n\t\twidth: 10px;\n\t}\n}")
-        t(".tabs{&.big{width:10px;}}", ".tabs {\n\t&.big {\n\t\twidth: 10px;\n\t}\n}")
-        t(".tabs{&>big{width:10px;}}", ".tabs {\n\t&>big {\n\t\twidth: 10px;\n\t}\n}")
-        t(".tabs{&+.big{width:10px;}}", ".tabs {\n\t&+.big {\n\t\twidth: 10px;\n\t}\n}")
+        t(".tabs{&:hover{width:10px;}}", ".tabs {\n    &:hover {\n        width: 10px;\n    }\n}")
+        t(".tabs{&.big{width:10px;}}", ".tabs {\n    &.big {\n        width: 10px;\n    }\n}")
+        t(".tabs{&>big{width:10px;}}", ".tabs {\n    &>big {\n        width: 10px;\n    }\n}")
+        t(".tabs{&+.big{width:10px;}}", ".tabs {\n    &+.big {\n        width: 10px;\n    }\n}")
 
         # nested rules
-        t(".tabs{.child{width:10px;}}", ".tabs {\n\t.child {\n\t\twidth: 10px;\n\t}\n}")
+        t(".tabs{.child{width:10px;}}", ".tabs {\n    .child {\n        width: 10px;\n    }\n}")
 
         # variables
-        t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}")
-        t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n\twidth: 10px;\n}")
+        t("@myvar:10px;.tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}")
+        t("@myvar:10px; .tabs{width:10px;}", "@myvar: 10px;\n.tabs {\n    width: 10px;\n}")
 
     def decodesto(self, input, expectation=None):
         if expectation == None:
@@ -258,6 +267,12 @@ class CSSBeautifierTest(unittest.TestCase):
         # Everywhere we do newlines, they should be replaced with opts.eol
         self.options.eol = '\r\\n'
         expectation = expectation.replace('\n', '\r\n')
+        self.options.disabled = True
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify(input, self.options), input or '')
+        self.assertMultiLineEqual(
+            cssbeautifier.beautify('\n\n' + expectation, self.options), '\n\n' + expectation)
+        self.options.disabled = False;
         self.assertMultiLineEqual(
             cssbeautifier.beautify(input, self.options), expectation)
         if input and input.find('\n') != -1:

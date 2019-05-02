@@ -1,15 +1,17 @@
 from __future__ import print_function
 import sys
 import os
+import platform
 import io
 import getopt
 import re
 import string
 import errno
 import copy
+import glob
 from jsbeautifier.__version__ import __version__
 from jsbeautifier.javascript.options import BeautifierOptions
-from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosition
+from jsbeautifier.javascript.beautifier import Beautifier
 
 #
 # The MIT License (MIT)
@@ -37,9 +39,9 @@ from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosit
 # SOFTWARE.
 #
 # Originally written by Einar Lielmanis et al.,
-# Conversion to python by Einar Lielmanis, einar@jsbeautifier.org,
+# Conversion to python by Einar Lielmanis, einar@beautifier.io,
 # Parsing improvement for brace-less and semicolon-less statements
-#    by Liam Newman <bitwiseman@gmail.com>
+#    by Liam Newman <bitwiseman@beautifier.io>
 # Python is not my native language, feel free to push things around.
 #
 # Use either from command line (script displays its usage when run
@@ -61,6 +63,9 @@ from jsbeautifier.javascript.beautifier import Beautifier, sanitizeOperatorPosit
 #
 # Here are the available options: (read source)
 
+
+class MissingInputStreamError(Exception):
+    pass
 
 def default_options():
     return BeautifierOptions()
@@ -108,25 +113,32 @@ def set_file_editorconfig_opts(filename, js_options):
         # do not error on bad editor config
         print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
 
-
 def beautify_file(file_name, opts=default_options()):
     input_string = ''
     if file_name == '-':  # stdin
-        try:
-            if sys.stdin.isatty():
-                raise Exception()
+        if sys.stdin.isatty():
+            raise MissingInputStreamError()
 
-            stream = sys.stdin
-            input_string = ''.join(stream.readlines())
-        except Exception:
-            print(
-                "Must pipe input or define at least one file.\n",
-                file=sys.stderr)
-            usage(sys.stderr)
-            raise
+        stream = sys.stdin
+        if platform.platform().lower().startswith('windows'):
+            if sys.version_info.major >= 3:
+                # for python 3 on windows this prevents conversion
+                stream = io.TextIOWrapper(sys.stdin.buffer, newline='')
+            elif platform.architecture()[0] == '32bit':
+                # for python 2 x86 on windows this prevents conversion
+                import msvcrt
+                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+            else:
+                raise 'Pipe to stdin not supported on Windows with Python 2.x 64-bit.'
+
+        input_string = stream.read()
+
+        # if you pipe an empty string, that is a failure
+        if input_string == '':
+            raise MissingInputStreamError()
     else:
         stream = io.open(file_name, 'rt', newline='')
-        input_string = ''.join(stream.readlines())
+        input_string = stream.read()
 
     return beautify(input_string, opts)
 
@@ -135,7 +147,7 @@ def usage(stream=sys.stdout):
 
     print("jsbeautifier.py@" + __version__ + """
 
-Javascript beautifier (http://jsbeautifier.org/)
+Javascript beautifier (https://beautifier.io/)
 
 Usage: jsbeautifier.py [options] <infile>
 
@@ -157,6 +169,7 @@ Output options:
  -E,  --space-in-empty-paren       Add a single space inside empty paren, ie. f( )
  -j,  --jslint-happy               More jslint-compatible output
  -a,  --space-after-anon-function  Add a space before an anonymous function's parens, ie. function ()
+ --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
  -r,  --replace                    Write output in-place, replacing input
@@ -169,6 +182,8 @@ Output options:
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
  -n,  --end-with-newline           End output with newline
+ --indent-empty-lines              Keep indentation on empty lines
+ --templating                      List of templating languages (auto,none,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html
  --editorconfig                    Enable setting configuration from EditorConfig
 
 Rarely needed options:
@@ -217,31 +232,34 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "s:c:e:o:rdEPjabkil:xhtfvXnCO:w:",
-                                   ['indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
+        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjabkil:xhtvXnCO:w:",
+                                   ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
                                     'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-                                    'brace-style=', 'keep-array-indentation', 'indent-level=', 'unescape-strings',
+                                    'brace-style=', 'indent-level=', 'unescape-strings',
                                     'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig'])
+                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
+                                    'keep-array-indentation', 'indent-empty-lines', 'templating'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
 
     js_options = default_options()
 
-    file = None
-    outfile = 'stdout'
+    filepath_params = []
+    filepath_params.extend(args)
+
+    outfile_param = 'stdout'
     replace = False
-    if len(args) == 1:
-        file = args[0]
 
     for opt, arg in opts:
-        if opt in ('--keep-array-indentation', '-k'):
+        if opt in ('--file', '-f'):
+            filepath_params.append(arg)
+        elif opt in ('--keep-array-indentation', '-k'):
             js_options.keep_array_indentation = True
-        if opt in ('--keep-function-indentation', '-f'):
+        elif opt in ('--keep-function-indentation'):
             js_options.keep_function_indentation = True
         elif opt in ('--outfile', '-o'):
-            outfile = arg
+            outfile_param = arg
         elif opt in ('--replace', '-r'):
             replace = True
         elif opt in ('--indent-size', '-s'):
@@ -262,6 +280,8 @@ def main():
             js_options.jslint_happy = True
         elif opt in ('--space_after_anon_function', '-a'):
             js_options.space_after_anon_function = True
+        elif opt in ('--space_after_named_function'):
+            js_options.space_after_named_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
         elif opt in ('--brace-style', '-b'):
@@ -275,11 +295,16 @@ def main():
         elif opt in ('--comma-first', '-C'):
             js_options.comma_first = True
         elif opt in ('--operator-position', '-O'):
-            js_options.operator_position = sanitizeOperatorPosition(arg)
+            js_options.operator_position = arg
         elif opt in ('--wrap-line-length ', '-w'):
             js_options.wrap_line_length = int(arg)
+        elif opt in ('--indent-empty-lines'):
+            js_options.indent_empty_lines = True
+        elif opt in ('--templating'):
+            js_options.templating = arg.split(',')
         elif opt in ('--stdin', '-i'):
-            file = '-'
+            # stdin is the default if no files are passed
+            filepath_params = []
         elif opt in ('--editorconfig'):
             js_options.editorconfig = True
         elif opt in ('--version', '-v'):
@@ -287,54 +312,119 @@ def main():
         elif opt in ('--help', '--usage', '-h'):
             return usage()
 
-    if not file:
-        file = '-'
-
     try:
-        if outfile == 'stdout' and replace and not file == '-':
-            outfile = file
+        filepaths = []
+        if not filepath_params or (
+                len(filepath_params) == 1 and filepath_params[0] == '-'):
+            # default to stdin
+            filepath_params = []
+            filepaths.append('-')
 
-        # Editorconfig used only on files, not stdin
-        if getattr(js_options, 'editorconfig'):
-            editorconfig_filepath = file
 
-            if editorconfig_filepath == '-':
-                if outfile != 'stdout':
-                    editorconfig_filepath = outfile
+        for filepath_param in filepath_params:
+            # ignore stdin setting if files are specified
+            if '-' == filepath_param:
+                continue
+
+            # Check if each literal filepath exists
+            if os.path.isfile(filepath_param):
+                filepaths.append(filepath_param)
+            elif '*' in filepath_param or '?' in filepath_param:
+                # handle globs
+                # empty result is okay
+                if sys.version_info.major == 2 or (
+                        sys.version_info.major == 3 and
+                        sys.version_info.minor <= 4):
+                    if '**' in filepath_param:
+                        raise 'Recursive globs not supported on Python <= 3.4.'
+                    filepaths.extend(glob.glob(filepath_param))
                 else:
-                    fileType = 'js'
-                    editorconfig_filepath = 'stdin.' + fileType
+                    filepaths.extend(glob.glob(filepath_param, recursive=True))
+            else:
+                # not a glob and not a file
+                raise OSError(errno.ENOENT, os.strerror(errno.ENOENT),
+                    filepath_param)
 
-            # debug("EditorConfig is enabled for ", editorconfig_filepath);
-            js_options = copy.copy(js_options)
-            set_file_editorconfig_opts(editorconfig_filepath, js_options)
+        if len(filepaths) > 1:
+            replace = True
+        elif filepaths and filepaths[0] == '-':
+            replace = False
 
-        pretty = beautify_file(file, js_options)
+        # remove duplicates
+        filepaths = set(filepaths)
 
-        if outfile == 'stdout':
-            # python automatically converts newlines in text to "\r\n" when on windows
-            # switch to binary to prevent this
-            if sys.platform == "win32":
-                import msvcrt
-                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+        for filepath in filepaths:
+            if not replace:
+                outfile = outfile_param
+            else:
+                outfile = filepath
 
-            sys.stdout.write(pretty)
-        else:
-            if isFileDifferent(outfile, pretty):
-                mkdir_p(os.path.dirname(outfile))
+            # Editorconfig used only on files, not stdin
+            if getattr(js_options, 'editorconfig'):
+                editorconfig_filepath = filepath
+
+                if editorconfig_filepath == '-':
+                    if outfile != 'stdout':
+                        editorconfig_filepath = outfile
+                    else:
+                        fileType = 'js'
+                        editorconfig_filepath = 'stdin.' + fileType
+
+                # debug("EditorConfig is enabled for ", editorconfig_filepath);
+                js_options = copy.copy(js_options)
+                set_file_editorconfig_opts(editorconfig_filepath, js_options)
+
+            pretty = beautify_file(filepath, js_options)
+
+            if outfile == 'stdout':
+                stream = sys.stdout
 
                 # python automatically converts newlines in text to "\r\n" when on windows
-                # set newline to empty to prevent this
-                with io.open(outfile, 'wt', newline='') as f:
-                    print('writing ' + outfile, file=sys.stderr)
-                    try:
-                        f.write(pretty)
-                    except TypeError:
-                        # This is not pretty, but given how we did the version import
-                        # it is the only way to do this without having setup.py
-                        # fail on a missing six dependency.
-                        six = __import__("six")
-                        f.write(six.u(pretty))
+                # switch to binary to prevent this
+                if platform.platform().lower().startswith('windows'):
+                    if sys.version_info.major >= 3:
+                        # for python 3 on windows this prevents conversion
+                        stream = io.TextIOWrapper(sys.stdout.buffer, newline='')
+                    elif platform.architecture()[0] == '32bit':
+                        # for python 2 x86 on windows this prevents conversion
+                        import msvcrt
+                        msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+                    else:
+                        raise 'Pipe to stdout not supported on Windows with Python 2.x 64-bit.'
+
+                stream.write(pretty)
+            else:
+                if isFileDifferent(outfile, pretty):
+                    mkdir_p(os.path.dirname(outfile))
+
+                    # python automatically converts newlines in text to "\r\n" when on windows
+                    # set newline to empty to prevent this
+                    with io.open(outfile, 'wt', newline='') as f:
+                        print('beautified ' + outfile, file=sys.stdout)
+                        try:
+                            f.write(pretty)
+                        except TypeError:
+                            # This is not pretty, but given how we did the version import
+                            # it is the only way to do this without having setup.py
+                            # fail on a missing six dependency.
+                            six = __import__("six")
+                            f.write(six.u(pretty))
+                else:
+                    print('beautified ' + outfile + ' - unchanged', file=sys.stdout)
+
+
+    except MissingInputStreamError:
+        print(
+            "Must pipe input or define at least one file.\n",
+            file=sys.stderr)
+        usage(sys.stderr)
+        return 1
+
+    except UnicodeError as ex:
+        print("Error while decoding input or encoding output:",
+            file=sys.stderr)
+        print(ex, file=sys.stderr)
+        return 1
 
     except Exception as ex:
         print(ex, file=sys.stderr)
