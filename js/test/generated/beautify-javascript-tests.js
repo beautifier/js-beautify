@@ -5221,6 +5221,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5409,6 +5435,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5595,6 +5647,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        break;\n' +
             '    case !y:\n' +
             '        break;\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
             '}');
         
         // typical greasemonkey start
@@ -5790,6 +5868,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        break;\n' +
             '}');
         
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}');
+        
         // typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5976,6 +6080,32 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        break;\n' +
             '    case !y:\n' +
             '        break;\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}');
+        
+        // Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            //  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
             '}');
         
         // typical greasemonkey start

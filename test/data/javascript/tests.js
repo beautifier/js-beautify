@@ -3034,7 +3034,6 @@ exports.test_data = {
           input_: 'function () {\n    var a, b, c, d, e = [],\n        f;\n}',
           output: 'function{{f}}() {\n    var a, b, c, d, e = [],\n        f;\n}'
         },
-
         {
           input_: 'switch(x) {case 0: case 1: a(); break; default: break}',
           output: 'switch (x) {\n{{c}}case 0:\n{{c}}case 1:\n{{c}}    a();\n{{c}}    break;\n{{c}}default:\n{{c}}    break\n}'
@@ -3042,6 +3041,16 @@ exports.test_data = {
         {
           input: 'switch(x){case -1:break;case !y:break;}',
           output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y:\n{{c}}    break;\n}'
+        },
+        {
+          comment: "Issue #1357",
+          input_: 'switch(x) {case 0: case 1:{a(); break;} default: break}',
+          output: 'switch (x) {\n{{c}}case 0:\n{{c}}case 1: {\n{{c}}    a();\n{{c}}    break;\n{{c}}\}\n{{c}}default:\n{{c}}    break\n}'
+        },
+        {
+          comment: "Issue #1357",
+          input: 'switch(x){case -1:break;case !y:{break;}}',
+          output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y: {\n{{c}}    break;\n{{c}}\}\n}'
         },
         {
           comment: 'typical greasemonkey start',

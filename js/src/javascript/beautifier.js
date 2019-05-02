@@ -682,6 +682,8 @@ Beautifier.prototype.handle_start_block = function(current_token) {
   if (this._flags.last_word === 'switch' && this._flags.last_token.type === TOKEN.END_EXPR) {
     this.set_mode(MODE.BlockStatement);
     this._flags.in_case_statement = true;
+  } else if (this._flags.case_body) {
+    this.set_mode(MODE.BlockStatement);
   } else if (second_token && (
       (in_array(second_token.text, [':', ',']) && in_array(next_token.type, [TOKEN.STRING, TOKEN.WORD, TOKEN.RESERVED])) ||
       (in_array(next_token.text, ['get', 'set', '...']) && in_array(second_token.type, [TOKEN.WORD, TOKEN.RESERVED]))
@@ -867,11 +869,12 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
     this.print_newline();
-    if (this._flags.case_body || this._options.jslint_happy) {
+    if (this._flags.last_token.type !== TOKEN.END_BLOCK && (this._flags.case_body || this._options.jslint_happy)) {
       // switch cases following one another
       this.deindent();
-      this._flags.case_body = false;
     }
+    this._flags.case_body = false;
+
     this.print_token(current_token);
     this._flags.in_case = true;
     return;
@@ -1169,11 +1172,16 @@ Beautifier.prototype.handle_operator = function(current_token) {
   }
 
   if (current_token.text === ':' && this._flags.in_case) {
-    this._flags.case_body = true;
-    this.indent();
     this.print_token(current_token);
-    this.print_newline();
+
     this._flags.in_case = false;
+    this._flags.case_body = true;
+    if (this._tokens.peek().type !== TOKEN.START_BLOCK) {
+      this.indent();
+      this.print_newline();
+    } else {
+      this._output.space_before_token = true;
+    }
     return;
   }
 

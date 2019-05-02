@@ -4942,6 +4942,32 @@ class TestJSBeautifier(unittest.TestCase):
             '    break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5129,6 +5155,32 @@ class TestJSBeautifier(unittest.TestCase):
             '    break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case 0:\n' +
+            'case 1: {\n' +
+            '    a();\n' +
+            '    break;\n' +
+            '}\n' +
+            'default:\n' +
+            '    break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            'case -1:\n' +
+            '    break;\n' +
+            'case !y: {\n' +
+            '    break;\n' +
+            '}\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5314,6 +5366,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '    case !y:\n' +
             '        break;\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
             '}')
         
         # typical greasemonkey start
@@ -5508,6 +5586,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '}')
         
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
+            '}')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5693,6 +5797,32 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '    case !y:\n' +
             '        break;\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x) {case 0: case 1:{a(); break;} default: break}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '    case 1: {\n' +
+            '        a();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '    default:\n' +
+            '        break\n' +
+            '}')
+        
+        # Issue #1357
+        bt(
+            'switch(x){case -1:break;case !y:{break;}}',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case -1:\n' +
+            '        break;\n' +
+            '    case !y: {\n' +
+            '        break;\n' +
+            '    }\n' +
             '}')
         
         # typical greasemonkey start
