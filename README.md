@@ -93,7 +93,7 @@ You can beautify javascript using JS Beautifier in your web browser, or on the c
 ## Web Browser
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
-## Web Libary
+## Web Library
 The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
 
 ## Node.js JavaScript
