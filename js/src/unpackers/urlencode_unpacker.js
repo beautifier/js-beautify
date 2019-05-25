@@ -5,7 +5,7 @@
 
   The MIT License (MIT)
 
-  Copyright (c) 2007-2018 Einar Lielmanis, Liam Newman, and contributors.
+  Copyright (c) 2007-2019 Einar Lielmanis, Liam Newman, and contributors.
 
   Permission is hereby granted, free of charge, to any person
   obtaining a copy of this software and associated documentation files
