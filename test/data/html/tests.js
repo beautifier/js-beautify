@@ -2994,7 +2994,8 @@ exports.test_data = {
         '<div>',
         '    <br>',
         '    <br />',
-        '    <br></div>'
+        '    <br>',
+        '</div>'
       ]
     }, {
       comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
@@ -3025,11 +3026,13 @@ exports.test_data = {
         '</div>'
       ]
     }, {
+      comment: "pre tag is _not_ unformatted_content here",
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',
         '    <pre>var a=1;',
-        '        var b=a;</pre>',
+        '        var b=a;',
+        '    </pre>',
         '</div>'
       ]
     }, {
@@ -3119,6 +3122,7 @@ exports.test_data = {
         '</div>'
       ]
     }, {
+      comment: "pre tag is unformatted_content",
       input: '<div><pre>var a=1;\nvar b=a;</pre></div>',
       output: [
         '<div>',

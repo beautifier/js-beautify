@@ -8136,7 +8136,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>\n' +
             '    <br>\n' +
             '    <br />\n' +
-            '    <br></div>');
+            '    <br>\n' +
+            '</div>');
         
         // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
         bth(
@@ -8161,13 +8162,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <meta />\n' +
             '    <meta>\n' +
             '</div>');
+        
+        // pre tag is _not_ unformatted_content here
         bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',
             //  -- output --
             '<div>\n' +
             '    <pre>var a=1;\n' +
-            '        var b=a;</pre>\n' +
+            '        var b=a;\n' +
+            '    </pre>\n' +
             '</div>');
         bth(
             '<?php\n' +
@@ -8253,6 +8257,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '    </span>\n' +
             '</div>');
+        
+        // pre tag is unformatted_content
         bth(
             '<div><pre>var a=1;\n' +
             'var b=a;</pre></div>',

@@ -100,6 +100,10 @@ Printer.prototype.print_newline = function(force) {
   this._output.add_new_line(force);
 };
 
+Printer.prototype.just_added_newline = function() {
+  return this._output.just_added_newline();
+};
+
 Printer.prototype.print_token = function(token) {
   if (token.text) {
     this._output.set_indent(this.indent_level, this.alignment_size);
@@ -425,6 +429,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
 
 Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token) {
   var parser_token = {
+    parent: this._tag_stack.get_parser_token(),
     text: raw_token.text,
     type: 'TK_CONTENT'
   };
@@ -434,7 +439,13 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
+    if (parser_token.parent && printer.just_added_newline()) {
+      parser_token.parent.multiline_content = true;
+    }
     printer.print_token(raw_token);
+    if (parser_token.parent && printer.previous_token_wrapped()) {
+      parser_token.parent.multiline_content = true;
+    }
   }
   return parser_token;
 };
@@ -552,11 +563,19 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
     printer.add_raw_token(raw_token);
   } else {
     printer.traverse_whitespace(raw_token);
+
     this._set_tag_position(printer, raw_token, parser_token, last_tag_token, last_token);
     if (!parser_token.is_inline_element) {
       printer.set_wrap_point();
     }
+    if (parser_token.parent && printer.just_added_newline()) {
+      parser_token.parent.multiline_content = true;
+    }
     printer.print_token(raw_token);
+    if (parser_token.parent && printer.previous_token_wrapped()) {
+      parser_token.parent.multiline_content = true;
+    }
+
   }
 
   //indent attributes an auto, forced, aligned or forced-align line-wrap
@@ -572,7 +591,7 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
 };
 
 var TagOpenParserToken = function(parent, raw_token) {
-  this.parent = parent || null;
+  this.parent = parent;
   this.text = '';
   this.type = 'TK_TAG_OPEN';
   this.tag_name = '';
@@ -703,13 +722,28 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
       printer.print_newline(false);
     }
   } else if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending
-    if ((parser_token.start_tag_token && parser_token.start_tag_token.multiline_content) ||
-      !(parser_token.is_inline_element ||
-        (last_tag_token.is_inline_element) ||
-        (last_token.type === TOKEN.TAG_CLOSE &&
-          parser_token.start_tag_token === last_tag_token) ||
-        (last_token.type === 'TK_CONTENT')
-      )) {
+    var newline = false;
+    if (parser_token.start_tag_token && parser_token.start_tag_token.multiline_content){
+      if (!parser_token.is_inline_element) {
+        newline = true;
+      } else {
+        if (!(last_token.type === TOKEN.TAG_CLOSE &&
+               parser_token.start_tag_token === last_tag_token)) {
+        // if (last_token.type === TOKEN.TAG_CLOSE &&
+        //     last_token.start_tag_token &&
+        //     !last_token.start_tag_token.is_inline_element) {
+          newline = true;
+        } else if (raw_token.whitespace_before) {
+          newline = true;
+        }
+      }
+      //   (last_token.type === TOKEN.TAG_CLOSE &&
+      //     parser_token.start_tag_token === last_tag_token) ||
+      //   (last_token.type === 'TK_CONTENT')
+      // ) {
+    }
+
+    if (newline) {
       printer.print_newline(false);
     }
   } else { // it's a start-tag
@@ -726,11 +760,9 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
     }
 
     if (!parser_token.is_inline_element && last_token.type !== 'TK_CONTENT') {
-      if (parser_token.parent) {
-        parser_token.parent.multiline_content = true;
-      }
       printer.print_newline(false);
     }
+
   }
 };
 
