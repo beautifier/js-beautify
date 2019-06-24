@@ -58,7 +58,7 @@
     "mustache": "^3.0.1",
     "node-static": "^0.7.11",
     "requirejs": "^2.3.6",
-    "webpack": "^4.29.6",
-    "webpack-command": "^0.4.2"
+    "webpack": "^4.35.0",
+    "webpack-cli": "^3.3.5"
   }
 }
