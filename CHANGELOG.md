@@ -1,4 +1,14 @@
 # Changelog
+## v1.10.1
+
+### Description
+
+
+### Closed Issues
+* javascript fails to format when <?php > is first text inside <script> tag ([#1687](https://github.com/beautify-web/js-beautify/issues/1687))
+* 414 Request-URI Too Large ([#1640](https://github.com/beautify-web/js-beautify/issues/1640))
+
+
 ## v1.10.0
 
 ### Description
