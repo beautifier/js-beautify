@@ -217,6 +217,9 @@ exports.test_data = {
   }, {
     name: "Tests for script and style Commented and cdata wapping (#1641)",
     description: "Repect comment and cdata wrapping regardless of beautifier",
+    options: [
+      { name: "templating", value: "'php'" }
+    ],
     tests: [{
       input: [
         '<style><!----></style>'
@@ -403,6 +406,28 @@ exports.test_data = {
         '    console.log("</script>" + "</style>");',
         '         console.log("</script>" + "</style>");',
         '    ]]>',
+        '</script>'
+      ]
+    }, {
+      comment: "Issue #1687 - start with <?php ?>",
+      input: [
+        '<script>',
+        '<?php ?>',
+        'var b={',
+        'a:function _test( ){',
+        'return 1;',
+        '}',
+        '}',
+        '</script>'
+      ],
+      output: [
+        '<script>',
+        '    <?php ?>',
+        '    var b = {',
+        '        a: function _test() {',
+        '            return 1;',
+        '        }',
+        '    }',
         '</script>'
       ]
     }]
