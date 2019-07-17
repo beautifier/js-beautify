@@ -205,10 +205,10 @@ function beautify() {
     $('#source').val(output);
   }
 
-  $('#open-issue').show();
-
   the.lastOutput = output;
   the.lastOpts = selectedOptions;
+
+  $('#open-issue').show();
 
   the.beautify_in_progress = false;
 }
@@ -228,49 +228,74 @@ function mergeObjects(allOptions, additionalOptions) {
 
 function submitIssue() {
   var url = 'https://github.com/beautify-web/js-beautify/issues/new?';
+
+  var encoded = encodeURIComponent(getSubmitIssueBody()).replace(/%20/g, "+");
+  if (encoded.length > 7168) {
+    var confirmText = [
+      'The sample text is too long for automatic template creation.',
+      '',
+      'Click OK to continue and create an issue starting with template defaults.',
+      'Click CANCEL to return to the beautifier and try beautifying a shorter sample.'
+    ];
+
+    if (!confirm(confirmText.join('\n'))) {
+      $('#open-issue').hide();
+      return;
+    }
+    encoded = encodeURIComponent(getSubmitIssueBody(true)).replace(/%20/g, "+");
+  }
+  url += 'body=' + encoded;
+
+  console.log(url);
+  console.log(url.length);
+
+  window.open(url, '_blank').focus();
+}
+
+function getSubmitIssueBody(trucate) {
+  var input = the.lastInput;
+  var output = the.lastOutput;
+
+  if (trucate) {
+    input = '/* Your input text */';
+    output = '/* Output text currently returned by the beautifier */';
+  }
+
   var submit_body = [
     '# Description',
-    '> NOTE:',
-    '> * Check the list of open issues before filing a new issue.',
-    '> * Please update the expect output section to match how you would prefer the code to look.',
+    '<!-- Describe your scenario here -->',
     '',
-    '# Input',
+    '## Input',
     'The code looked like this before beautification:',
     '```',
-    the.lastInput,
+    input,
     '```',
     '',
-    '# Current Output',
+    '## Current Output',
     'The  code actually looked like this after beautification:',
     '```',
-    the.lastOutput,
+    output,
     '```',
     '',
-    '# Expected Output',
+    '## Expected Output',
     'The code should have looked like this after beautification:',
     '```',
-    '/*Adjust the code to look how you prefer the output to be.*/',
-    the.lastInput,
+    '/* Your desired output text */',
     '```',
     '',
-    '## Environment',
-    'Browser User Agent:',
+    '# Environment',
+    '',
+    '## Browser User Agent:',
     navigator.userAgent,
     '',
     'Language Selected:',
     the.language,
     '',
     '## Settings',
-    'Example:',
     '```json',
     the.lastOpts,
     '```',
     ''
   ];
-
-  var encoded = encodeURIComponent(submit_body.join('\n'));
-  url += 'body=' + encoded;
-
-  console.log(url);
-  window.open(url, '_blank').focus();
+  return submit_body.join('\n');
 }

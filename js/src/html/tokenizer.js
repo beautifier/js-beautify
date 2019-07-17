@@ -71,7 +71,7 @@ var Tokenizer = function(input_string, options) {
     handlebars_open: pattern_reader.until(/[\n\r\t }]/),
     handlebars_raw_close: pattern_reader.until(/}}/),
     comment: pattern_reader.starting_with(/<!--/).until_after(/-->/),
-    cdata: pattern_reader.starting_with(/<!\[cdata\[/).until_after(/]]>/),
+    cdata: pattern_reader.starting_with(/<!\[CDATA\[/).until_after(/]]>/),
     // https://en.wikipedia.org/wiki/Conditional_comment
     conditional_comment: pattern_reader.starting_with(/<!\[/).until_after(/]>/),
     processing: pattern_reader.starting_with(/<\?/).until_after(/\?>/)
@@ -125,24 +125,24 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   token = token || this._read_raw_content(c, previous_token, open_token);
   token = token || this._read_close(c, open_token);
   token = token || this._read_content_word(c);
-  token = token || this._read_comment(c);
+  token = token || this._read_comment_or_cdata(c);
+  token = token || this._read_processing(c);
   token = token || this._read_open(c, open_token);
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
   return token;
 };
 
-Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
+Tokenizer.prototype._read_comment_or_cdata = function(c) { // jshint unused:false
   var token = null;
   var resulting_string = null;
   var directives = null;
 
   if (c === '<') {
     var peek1 = this._input.peek(1);
-    //if we're in a comment, do something special
     // We treat all comments as literals, even more than preformatted tags
-    // we just look for the appropriate close tag
-    if (c === '<' && (peek1 === '!' || peek1 === '?')) {
+    // we only look for the appropriate closing marker
+    if (peek1 === '!') {
       resulting_string = this.__patterns.comment.read();
 
       // only process directive on html comments
@@ -153,9 +153,28 @@ Tokenizer.prototype._read_comment = function(c) { // jshint unused:false
         }
       } else {
         resulting_string = this.__patterns.cdata.read();
-        resulting_string = resulting_string || this.__patterns.conditional_comment.read();
-        resulting_string = resulting_string || this.__patterns.processing.read();
       }
+    }
+
+    if (resulting_string) {
+      token = this._create_token(TOKEN.COMMENT, resulting_string);
+      token.directives = directives;
+    }
+  }
+
+  return token;
+};
+
+Tokenizer.prototype._read_processing = function(c) { // jshint unused:false
+  var token = null;
+  var resulting_string = null;
+  var directives = null;
+
+  if (c === '<') {
+    var peek1 = this._input.peek(1);
+    if (peek1 === '!' || peek1 === '?') {
+      resulting_string = this.__patterns.conditional_comment.read();
+      resulting_string = resulting_string || this.__patterns.processing.read();
     }
 
     if (resulting_string) {
@@ -272,7 +291,7 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     if (tag_name === 'script' || tag_name === 'style') {
       // Script and style tags are allowed to have comments wrapping their content
       // or just have regular content.
-      var token = this._read_comment(c);
+      var token = this._read_comment_or_cdata(c);
       if (token) {
         token.type = TOKEN.TEXT;
         return token;

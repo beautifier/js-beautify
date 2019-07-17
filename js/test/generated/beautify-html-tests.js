@@ -416,6 +416,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Tests for script and style Commented and cdata wapping (#1641)
         reset_options();
         set_name('Tests for script and style Commented and cdata wapping (#1641)');
+        opts.templating = 'php';
         bth(
             '<style><!----></style>',
             //  -- output --
@@ -564,6 +565,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    console.log("</script>" + "</style>");\n' +
             '         console.log("</script>" + "</style>");\n' +
             '    ]]>\n' +
+            '</script>');
+        
+        // Issue #1687 - start with <?php ?>
+        bth(
+            '<script>\n' +
+            '<?php ?>\n' +
+            'var b={\n' +
+            'a:function _test( ){\n' +
+            'return 1;\n' +
+            '}\n' +
+            '}\n' +
+            '</script>',
+            //  -- output --
+            '<script>\n' +
+            '    <?php ?>\n' +
+            '    var b = {\n' +
+            '        a: function _test() {\n' +
+            '            return 1;\n' +
+            '        }\n' +
+            '    }\n' +
             '</script>');
 
 
