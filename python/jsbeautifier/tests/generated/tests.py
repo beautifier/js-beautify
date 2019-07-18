@@ -4627,6 +4627,56 @@ class TestJSBeautifier(unittest.TestCase):
         # minimal template handling - ()
         self.reset_options()
         self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{{$view["name"]; }}};', 'var a = {{{$view["name"]; }}};')
+        bt(
+            'a = abc{{{\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}}};')
+        test_fragment(
+            '{{{ }}}\n' +
+            'test.met{{{ someValue }}}hod();')
+        bt(
+            '{{{ "A" }}}abc{{{ "D" }}};\n' +
+            '{{{ "B" }}}.test();\n' +
+            '" {{{   "C" \'D\'  }}}  "')
+        bt(
+            '{{{\n' +
+            'echo "A";\n' +
+            '}}};\n' +
+            'test.method();')
+        bt('"{{{";if(0){}"}}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
+        bt('var  a = {{^$view["name"]; }};', 'var a = {{^$view["name"]; }};')
+        bt(
+            'a = abc{{^\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '}};')
+        test_fragment(
+            '{{^ }}\n' +
+            'test.met{{^ someValue }}hod();')
+        bt(
+            '{{^ "A" }}abc{{^ "D" }};\n' +
+            '{{^ "B" }}.test();\n' +
+            '" {{^   "C" \'D\'  }}  "')
+        bt(
+            '{{^\n' +
+            'echo "A";\n' +
+            '}};\n' +
+            'test.method();')
+        bt('"{{^";if(0){}"}}";')
+
+        # minimal template handling - ()
+        self.reset_options()
+        self.options.templating = ['django', 'erb', 'handlebars', 'php']
         bt('var  a = {{#$view["name"]; }};', 'var a = {{#$view["name"]; }};')
         bt(
             'a = abc{{#\n' +
@@ -4819,6 +4869,36 @@ class TestJSBeautifier(unittest.TestCase):
             '"{{";if(0){}',
             #  -- output --
             '"{{";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{{";if(0){}"}}}";',
+            #  -- output --
+            '"{{{";\n' +
+            'if (0) {}\n' +
+            '"}}}";')
+        bt(
+            '"{{{";if(0){}',
+            #  -- output --
+            '"{{{";\n' +
+            'if (0) {}')
+
+        # Templating disabled - ensure formatting - ()
+        self.reset_options()
+        self.options.templating = ['auto']
+        bt(
+            '"{{^";if(0){}"}}";',
+            #  -- output --
+            '"{{^";\n' +
+            'if (0) {}\n' +
+            '"}}";')
+        bt(
+            '"{{^";if(0){}',
+            #  -- output --
+            '"{{^";\n' +
             'if (0) {}')
 
         # Templating disabled - ensure formatting - ()
