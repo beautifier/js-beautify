@@ -33,18 +33,24 @@
   <!-- if you feel an urge to move this to bootstrap or something, you're most welcome -->
   <title>Online JavaScript beautifier</title>
   <link rel="icon" href="web/favicon.png" type="image/png">
-  <link rel="stylesheet" href="web/lib/codemirror/lib/codemirror.css">
-
-  <script src="web/lib/codemirror/lib/codemirror.js"></script>
-  <script src="web/lib/codemirror/mode/javascript/javascript.js"></script>
-
   <link rel="stylesheet" href="web/common-style.css">
 
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js" integrity="sha256-9Nt2r+tJnSd2A2CRUvnjgsD+ES1ExvjbjBNqidm9doI=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js" integrity="sha256-0SGl1PJNDyJwcV5T+weg2zpEMrh7xvlwO4oXgvZCeZk=" crossorigin="anonymous"></script>
-
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default&flags=gated"></script>
+
+  <!-- Codemirror from https://cdnjs.com/libraries/codemirror -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/codemirror.min.css" integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs=" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/codemirror.min.js" integrity="sha256-uK6j71U9ymYrRIqjU7kDGGudavJyAoHV6cdNgpcoymM=" crossorigin="anonymous"></script>
+
+  <!-- Codemirror Modes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/mode/xml/xml.min.js" integrity="sha256-cphnEddX56MtGJsi1PoCPLds+dlnDj1QQkAlCWeJYDo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/mode/javascript/javascript.min.js" integrity="sha256-7AjEsHnW7cpq2raC/uxnGCP2G4zIKmCdz7OAv6LN00o=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/mode/css/css.min.js" integrity="sha256-mjhvNBMExwa2AtP0mBlK9NkzJ7sgRSyZdgw9sPhhtb0=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.2/mode/htmlmixed/htmlmixed.min.js" integrity="sha256-qfS6ZUe6JhPU75/Sc1ftiWzC2N9IxGEjlRwpKB78Ico=" crossorigin="anonymous"></script>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js" integrity="sha256-9Nt2r+tJnSd2A2CRUvnjgsD+ES1ExvjbjBNqidm9doI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha256-1fEPhSsRKlFKGfK3eO710tEweHh1fwokU5wFGDHO+vg=" crossorigin="anonymous"></script>
 
   <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
   <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
@@ -72,7 +78,6 @@
       </select>
     </p>
   </div>
-
 
   <table id="options">
     <tr>
@@ -170,7 +175,7 @@
     </tr>
   </table>
 
-  <div style="line-height: 0">
+  <div>
     <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em>
     </button>
     <textarea id="source" rows="30" cols="160"></textarea>
@@ -179,7 +184,7 @@
   </div>
 
   <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
-  <div style="line-height: 0">
+  <div>
     <textarea readonly id="options-selected" rows="10" cols="40"></textarea>
   </div>
 

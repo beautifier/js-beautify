@@ -53,6 +53,8 @@
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
+    "codemirror": "^5.48.2",
+    "jquery": "^3.4.1",
     "jshint": "^2.10.2",
     "mocha": "^6.1.4",
     "mustache": "^3.0.1",
