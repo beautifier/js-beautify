@@ -1,4 +1,24 @@
 # Changelog
+## v1.10.2
+
+### Description
+
+
+### Closed Issues
+* Please update CodeMirror Addon ([#1695](https://github.com/beautify-web/js-beautify/issues/1695))
+* Nested braces indentation ([#223](https://github.com/beautify-web/js-beautify/issues/223))
+
+
+## v1.10.1
+
+### Description
+
+
+### Closed Issues
+* javascript fails to format when <?php > is first text inside <script> tag ([#1687](https://github.com/beautify-web/js-beautify/issues/1687))
+* 414 Request-URI Too Large ([#1640](https://github.com/beautify-web/js-beautify/issues/1640))
+
+
 ## v1.10.0
 
 ### Description
@@ -479,7 +499,7 @@ Added `content_unformatted` option (Thanks @arai-a)
 * Add handlebars support on cli for html ([#935](https://github.com/beautify-web/js-beautify/pull/935))
 * Do not put a space within `yield*` generator functions. ([#920](https://github.com/beautify-web/js-beautify/issues/920))
 * Possible to add an indent_inner_inner_html option? (Prevent indenting second-level tags) ([#917](https://github.com/beautify-web/js-beautify/issues/917))
-* Messing up jsx formatting ([#914](https://github.com/beautify-web/js-beautify/issues/914))
+* Messing up jsx formatting multi-line attribute ([#914](https://github.com/beautify-web/js-beautify/issues/914))
 * Bug report: Closing 'body' tag isn't formatted correctly ([#900](https://github.com/beautify-web/js-beautify/issues/900))
 * { throw … } not working with collapse-preserve-inline ([#898](https://github.com/beautify-web/js-beautify/issues/898))
 * ES6 concise method not propely indented ([#889](https://github.com/beautify-web/js-beautify/issues/889))

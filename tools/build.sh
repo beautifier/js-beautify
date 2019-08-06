@@ -45,19 +45,6 @@ build_beautify()
   build_js
 }
 
-build_update-codemirror()
-{
-  rm -rf node_modules/codemirror
-  npm install codemirror
-  rm -rf ./web/third-party/codemirror/*
-  cp ./node_modules/codemirror/LICENSE ./web/third-party/codemirror/
-  cp ./node_modules/codemirror/README.md ./web/third-party/codemirror/
-  cp -r ./node_modules/codemirror/lib ./web/third-party/codemirror/
-  mkdir -p ./web/third-party/codemirror/mode
-  cp -r ./node_modules/codemirror/mode/javascript ./web/third-party/codemirror/mode/
-  git add -Av ./web/third-party/codemirror
-}
-
 main() {
   cd $PROJECT_DIR
   local ACTION

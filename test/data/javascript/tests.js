@@ -58,12 +58,27 @@ var templating_matrix = [
     s: '{%',
     e: '%}'
   },
-  // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
+  // handlebars {{{ ... }}} and {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}} 
+  // mustache adds {{^ ... }}
   {
     // options: [
     //   { name: "indent_handlebars", value: "false" }
     // ],
     s: '{{',
+    e: '}}'
+  },
+  {
+    // options: [
+    //   { name: "indent_handlebars", value: "false" }
+    // ],
+    s: '{{{',
+    e: '}}}'
+  },
+  {
+    // options: [
+    //   { name: "indent_handlebars", value: "false" }
+    // ],
+    s: '{{^',
     e: '}}'
   },
   {

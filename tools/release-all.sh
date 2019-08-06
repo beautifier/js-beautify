@@ -96,7 +96,17 @@ main()
     NEW_VERSION=$1
 
     git checkout master || exit 1
+    
+    npm --version > /dev/null || {
+        echo ERROR: npm must be installed before attempting release
+        exit 1
+    }
 
+    twine -h > /dev/null || {
+        echo ERROR: twine must be installed before attempting release
+        exit 1
+    }
+    
     update_versions
     update_release_branch
 

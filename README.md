@@ -9,7 +9,7 @@
 [![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Twitter Follow](https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow)](https://twitter.com/intent/user?screen_name=js_beautifier)
 
-[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
+[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
 
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
@@ -61,17 +61,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.0/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.0/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.2/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.2/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.10.2/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -93,7 +93,7 @@ You can beautify javascript using JS Beautifier in your web browser, or on the c
 ## Web Browser
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
-## Web Libary
+## Web Library
 The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
 
 ## Node.js JavaScript
@@ -399,4 +399,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.10.0)
+(README.md: js-beautify@1.10.2)

@@ -416,6 +416,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // Tests for script and style Commented and cdata wapping (#1641)
         reset_options();
         set_name('Tests for script and style Commented and cdata wapping (#1641)');
+        opts.templating = 'php';
         bth(
             '<style><!----></style>',
             //  -- output --
@@ -564,6 +565,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    console.log("</script>" + "</style>");\n' +
             '         console.log("</script>" + "</style>");\n' +
             '    ]]>\n' +
+            '</script>');
+        
+        // Issue #1687 - start with <?php ?>
+        bth(
+            '<script>\n' +
+            '<?php ?>\n' +
+            'var b={\n' +
+            'a:function _test( ){\n' +
+            'return 1;\n' +
+            '}\n' +
+            '}\n' +
+            '</script>',
+            //  -- output --
+            '<script>\n' +
+            '    <?php ?>\n' +
+            '    var b = {\n' +
+            '        a: function _test() {\n' +
+            '            return 1;\n' +
+            '        }\n' +
+            '    }\n' +
             '</script>');
 
 
@@ -3675,6 +3696,291 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<div class="{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}"></div>');
         bth('<div class=\'{{#if thingIs "value"}}{{!-- comment--}}{{/if}}\'></div>');
         bth('<div class=\'{{#if thingIs \'value\'}}{{!-- comment--}}{{/if}}\'></div>');
+        bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
+        bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
+
+        // Handlebars Indenting On - (indent_handlebars = "true")
+        reset_options();
+        set_name('Handlebars Indenting On - (indent_handlebars = "true")');
+        opts.indent_handlebars = true;
+        bth('{{page-title}}');
+        bth(
+            '{{page-title}}\n' +
+            '{{a}}\n' +
+            '{{value-title}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{{unescaped_variable}}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some">{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{{unescaped_variable}}}');
+        bth(
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{#if condition}}\n' +
+            '    <div  class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{{unescaped_variable}}}',
+            //  -- output --
+            '{{textarea value=someContent}}\n' +
+            '\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{#if condition}}\n' +
+            '    <div class="some-class-detail">{{helper "hello"}}<strong>{{helper "world"}}</strong>{{helper "hello"}}<strong>{{helper "world"}}</strong></div>\n' +
+            '{{/if}}\n' +
+            '{{{unescaped_variable}}}');
+        
+        // error case
+        bth(
+            '{{page-title}}\n' +
+            '{{ myHelper someValue}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{value-title}}');
+        
+        // Issue #1469 - preserve newlines inside handlebars, including first one. BUG: does not fix indenting inside handlebars.
+        bth(
+            '{{em-input\n' +
+            '  label="Some Labe" property="amt"\n' +
+            '  type="text" placeholder=""}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '   {{em-input label="Type*"\n' +
+            'property="type" type="text" placeholder="(LTD)"}}\n' +
+            '       {{em-input label="Place*" property="place" type="text" placeholder=""}}',
+            //  -- output --
+            '{{em-input\n' +
+            '  label="Some Labe" property="amt"\n' +
+            '  type="text" placeholder=""}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{em-input label="Type*"\n' +
+            'property="type" type="text" placeholder="(LTD)"}}\n' +
+            '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
+        bth(
+            '{{em-input label="Some Labe" property="amt" type="text" placeholder=""}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{em-input label="Type*" property="type" type="text" placeholder="(LTD)"}}\n' +
+            '{{em-input label="Place*" property="place" type="text" placeholder=""}}');
+        bth('{{#if 0}}{{/if}}');
+        bth('{{#if 0}}{{{unescaped_variable}}}{{/if}}');
+        bth(
+            '{{#if 0}}\n' +
+            '{{/if}}');
+        bth(
+            '{{#if     words}}{{/if}}',
+            //  -- output --
+            '{{#if words}}{{/if}}');
+        bth(
+            '{{#if     words}}{{{unescaped_variable}}}{{/if}}',
+            //  -- output --
+            '{{#if words}}{{{unescaped_variable}}}{{/if}}');
+        bth(
+            '{{#if     words}}{{{unescaped_variable}}}{{/if}}',
+            //  -- output --
+            '{{#if words}}{{{unescaped_variable}}}{{/if}}');
+        bth(
+            '{{#if 1}}\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            '{{/if}}');
+        bth(
+            '{{#if 1}}\n' +
+            '<div>\n' +
+            '</div>\n' +
+            '{{/if}}',
+            //  -- output --
+            '{{#if 1}}\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            '{{/if}}');
+        bth(
+            '<div>\n' +
+            '    {{#if 1}}\n' +
+            '    {{/if}}\n' +
+            '</div>');
+        bth(
+            '<div>\n' +
+            '{{#if 1}}\n' +
+            '{{/if}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    {{#if 1}}\n' +
+            '    {{/if}}\n' +
+            '</div>');
+        bth(
+            '{{#if}}\n' +
+            '{{#each}}\n' +
+            '{{#if}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{/if}}\n' +
+            '{{#if}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{/if}}\n' +
+            '{{/each}}\n' +
+            '{{/if}}',
+            //  -- output --
+            '{{#if}}\n' +
+            '    {{#each}}\n' +
+            '        {{#if}}\n' +
+            '            {{{unescaped_variable}}}\n' +
+            '        {{/if}}\n' +
+            '        {{#if}}\n' +
+            '            {{{unescaped_variable}}}\n' +
+            '        {{/if}}\n' +
+            '    {{/each}}\n' +
+            '{{/if}}');
+        bth(
+            '{{#if 1}}\n' +
+            '    <div>\n' +
+            '    </div>\n' +
+            '{{/if}}');
+        bth(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '    <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>',
+            //  -- output --
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        bth(
+            '<div>\n' +
+            '    <small>SMALL TEXT</small>\n' +
+            '    <span>\n' +
+            '        {{#if isOwner}}\n' +
+            '            <span><i class="fa fa-close"></i></span>\n' +
+            '        {{else}}\n' +
+            '            <span><i class="fa fa-bolt"></i></span>\n' +
+            '        {{/if}}\n' +
+            '    </span>\n' +
+            '    <strong>{{userName}}:&nbsp;</strong>{{text}}\n' +
+            '</div>');
+        bth(
+            '{{#if `this.customerSegment == "Active"`}}\n' +
+            '    ...\n' +
+            '{{/if}}');
+        bth(
+            '{{#isDealLink}}\n' +
+            '&nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}',
+            //  -- output --
+            '{{#isDealLink}}\n' +
+            '    &nbsp;&nbsp;<a target="_blank" href="{{dealLink}}" class="weak">See</a>\n' +
+            '{{/isDealLink}}');
+        bth(
+            '{{#if 1}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '    {{else}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '{{/if}}',
+            //  -- output --
+            '{{#if 1}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '{{else}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '{{/if}}');
+        bth(
+            '{{#if 1}}\n' +
+            '    {{else}}\n' +
+            '    {{/if}}',
+            //  -- output --
+            '{{#if 1}}\n' +
+            '{{else}}\n' +
+            '{{/if}}');
+        bth(
+            '{{#if thing}}\n' +
+            '{{#if otherthing}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '    {{else}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '    {{/if}}\n' +
+            '       {{else}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '{{/if}}',
+            //  -- output --
+            '{{#if thing}}\n' +
+            '    {{#if otherthing}}\n' +
+            '        {{{unescaped_variable}}}\n' +
+            '    {{else}}\n' +
+            '        {{{unescaped_variable}}}\n' +
+            '    {{/if}}\n' +
+            '{{else}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '{{/if}}');
+        
+        // ISSUE #800 and #1123: else if and #unless
+        bth(
+            '{{#if callOn}}\n' +
+            '{{#unless callOn}}\n' +
+            '      {{{unescaped_variable}}}\n' +
+            '   {{else}}\n' +
+            '{{translate "offText"}}\n' +
+            '{{/unless callOn}}\n' +
+            '   {{else if (eq callOn false)}}\n' +
+            '{{{unescaped_variable}}}\n' +
+            '        {{/if}}',
+            //  -- output --
+            '{{#if callOn}}\n' +
+            '    {{#unless callOn}}\n' +
+            '        {{{unescaped_variable}}}\n' +
+            '    {{else}}\n' +
+            '        {{translate "offText"}}\n' +
+            '    {{/unless callOn}}\n' +
+            '{{else if (eq callOn false)}}\n' +
+            '    {{{unescaped_variable}}}\n' +
+            '{{/if}}');
+        bth(
+            '<div {{someStyle}}>  </div>',
+            //  -- output --
+            '<div {{someStyle}}> </div>');
+        
+        // only partial support for complex templating in attributes
+        bth(
+            '<dIv {{#if test}}class="foo"{{/if}}>{{{unescaped_variable}}}</dIv>',
+            //  -- output --
+            '<dIv {{#if test}}class="foo" {{/if}}>{{{unescaped_variable}}}</dIv>');
+        test_fragment(
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}"{{else}}class="{{class2}}"{{/if}}>{{{unescaped_variable}}}</diV>',
+            //  -- output --
+            '<diV {{#if thing}}{{somestyle}}class_spacing_for="{{class}}" {{else}}class="{{class2}}" {{/if}}>{{{unescaped_variable}}}</diV>');
+        
+        // partiial support for templating in attributes
+        bth(
+            '<span {{#if condition}}class="foo"{{/if}}>{{{unescaped_variable}}}</span>',
+            //  -- output --
+            '<span {{#if condition}}class="foo" {{/if}}>{{{unescaped_variable}}}</span>');
+        bth('<{{ele}} unformatted="{{#if}}{{{unescaped_variable}}}{{/if}}">{{{unescaped_variable}}}</{{ele}}>');
+        bth('<div unformatted="{{#if}}{{{unescaped_variable}}}{{/if}}">{{{unescaped_variable}}}</div>');
+        bth('<div unformatted="{{#if  }}    {{{unescaped_variable}}}{{/if}}">{{{unescaped_variable}}}</div>');
+        bth('<div class="{{#if thingIs "value"}}{{{unescaped_variable}}}{{/if}}"></div>');
+        bth('<div class="{{#if thingIs \'value\'}}{{{unescaped_variable}}}{{/if}}"></div>');
+        bth('<div class=\'{{#if thingIs "value"}}{{{unescaped_variable}}}{{/if}}\'></div>');
+        bth('<div class=\'{{#if thingIs \'value\'}}{{{unescaped_variable}}}{{/if}}\'></div>');
         bth('<span>{{condition < 0 ? "result1" : "result2"}}</span>');
         bth('<span>{{condition1 && condition2 && condition3 && condition4 < 0 ? "resForTrue" : "resForFalse"}}</span>');
 
