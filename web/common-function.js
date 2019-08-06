@@ -26,6 +26,21 @@ function any(a, b) {
   return a || b;
 }
 
+function set_editor_mode() {
+  if (the.editor) {
+    var language = $('#language').val();
+    var mode = 'javascript';
+    if (language === 'js') {
+      mode = 'javascript';
+    } else if (language === 'html') {
+      mode = 'htmlmixed';
+    } else if (language === 'css') {
+      mode = 'css';
+    }
+    the.editor.setOption("mode", mode);
+  }
+}
+
 function run_tests() {
   $.when($.getScript("js/test/sanitytest.js"),
       $.getScript("js/test/generated/beautify-javascript-tests.js"),
@@ -68,7 +83,7 @@ function read_settings_from_cookie() {
   $('#indent-inner-html').prop('checked', Cookies.get('indent-inner-html') === 'on');
   $('#comma-first').prop('checked', Cookies.get('comma-first') === 'on');
   $('#e4x').prop('checked', Cookies.get('e4x') === 'on');
-  $('#language').val(any(Cookies.get('language'), 'auto'));
+  $('#language').val(any(Cookies.get('language'), 'js'));
   $('#indent-empty-lines').prop('checked', Cookies.get('indent-empty-lines') === 'on');
 }
 
@@ -209,6 +224,7 @@ function beautify() {
   the.lastOpts = selectedOptions;
 
   $('#open-issue').show();
+  set_editor_mode();
 
   the.beautify_in_progress = false;
 }

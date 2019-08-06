@@ -1264,6 +1264,12 @@ exports.test_data = {
       options: [
         { name: "indent_handlebars", value: "true" }
       ],
+      content: '{{{unescaped_variable}}}',
+      indent_over80: ' '
+    }, {
+      options: [
+        { name: "indent_handlebars", value: "true" }
+      ],
       content: '{{Hello "woRld"}} {{!-- comment--}} {{heLloWorlD}}',
       indent_over80: ' '
     }, {

@@ -38,6 +38,7 @@ class TemplatePatterns:
     def __init__(self, input_scanner):
         pattern = Pattern(input_scanner)
         self.handlebars_comment = pattern.starting_with(r'{{!--').until_after(r'--}}')
+        self.handlebars_unescaped = pattern.starting_with(r'{{{').until_after(r'}}}')
         self.handlebars = pattern.starting_with(r'{{').until_after(r'}}')
         self.php = pattern.starting_with(r'<\?(?:[=]|php)').until_after(r'\?>')
         self.erb = pattern.starting_with(r'<%[^%]').until_after(r'[^%]%>')
@@ -156,6 +157,8 @@ class TemplatablePattern(Pattern):
                     not self._excluded.handlebars:
                 resulting_string = resulting_string or \
                     self.__patterns.handlebars_comment.read()
+                resulting_string = resulting_string or \
+                    self.__patterns.handlebars_unescaped.read()
                 resulting_string = resulting_string or \
                     self.__patterns.handlebars.read()
             if not self._disabled.django:
