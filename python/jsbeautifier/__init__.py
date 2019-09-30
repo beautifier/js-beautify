@@ -129,7 +129,7 @@ def beautify_file(file_name, opts=default_options()):
                 import msvcrt
                 msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
             else:
-                raise 'Pipe to stdin not supported on Windows with Python 2.x 64-bit.'
+                raise Exception('Pipe to stdin not supported on Windows with Python 2.x 64-bit.')
 
         input_string = stream.read()
 
@@ -137,7 +137,7 @@ def beautify_file(file_name, opts=default_options()):
         if input_string == '':
             raise MissingInputStreamError()
     else:
-        stream = io.open(file_name, 'rt', newline='')
+        stream = io.open(file_name, 'rt', newline='', encoding='UTF-8')
         input_string = stream.read()
 
     return beautify(input_string, opts)
@@ -232,7 +232,7 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjabkil:xhtvXnCO:w:",
+        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjabkil:xhtvXnCO:w:m:",
                                    ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
                                     'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
                                     'brace-style=', 'indent-level=', 'unescape-strings',
@@ -272,15 +272,17 @@ def main():
             js_options.indent_with_tabs = True
         elif opt in ('--disable-preserve-newlines', '-d'):
             js_options.preserve_newlines = False
+        elif opt in ('--max-preserve-newlines', '-m'):
+            js_options.max_preserve_newlines = int(arg)
         elif opt in ('--space-in-paren', '-P'):
             js_options.space_in_paren = True
         elif opt in ('--space-in-empty-paren', '-E'):
             js_options.space_in_empty_paren = True
         elif opt in ('--jslint-happy', '-j'):
             js_options.jslint_happy = True
-        elif opt in ('--space_after_anon_function', '-a'):
+        elif opt in ('--space-after-anon-function', '-a'):
             js_options.space_after_anon_function = True
-        elif opt in ('--space_after_named_function'):
+        elif opt in ('--space-after-named-function'):
             js_options.space_after_named_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
@@ -336,7 +338,7 @@ def main():
                         sys.version_info.major == 3 and
                         sys.version_info.minor <= 4):
                     if '**' in filepath_param:
-                        raise 'Recursive globs not supported on Python <= 3.4.'
+                        raise Exception('Recursive globs not supported on Python <= 3.4.')
                     filepaths.extend(glob.glob(filepath_param))
                 else:
                     filepaths.extend(glob.glob(filepath_param, recursive=True))
@@ -390,7 +392,7 @@ def main():
                         import msvcrt
                         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
                     else:
-                        raise 'Pipe to stdout not supported on Windows with Python 2.x 64-bit.'
+                        raise Exception('Pipe to stdout not supported on Windows with Python 2.x 64-bit.')
 
                 stream.write(pretty)
             else:
@@ -399,7 +401,7 @@ def main():
 
                     # python automatically converts newlines in text to "\r\n" when on windows
                     # set newline to empty to prevent this
-                    with io.open(outfile, 'wt', newline='') as f:
+                    with io.open(outfile, 'wt', newline='', encoding='UTF-8') as f:
                         print('beautified ' + outfile, file=sys.stdout)
                         try:
                             f.write(pretty)
