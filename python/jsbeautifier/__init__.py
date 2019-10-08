@@ -232,7 +232,7 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjabkil:xhtvXnCO:w:m:",
+        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjab:kil:xhtvXnCO:w:m:",
                                    ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
                                     'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
                                     'brace-style=', 'indent-level=', 'unescape-strings',
