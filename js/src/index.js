@@ -31,6 +31,7 @@
 var js_beautify = require('./javascript/index');
 var css_beautify = require('./css/index');
 var html_beautify = require('./html/index');
+var options = require('./core/options');
 
 function style_html(html_source, options, js, css) {
   js = js || js_beautify;
@@ -42,3 +43,4 @@ style_html.defaultOptions = html_beautify.defaultOptions;
 module.exports.js = js_beautify;
 module.exports.css = css_beautify;
 module.exports.html = style_html;
+module.exports.options = options;

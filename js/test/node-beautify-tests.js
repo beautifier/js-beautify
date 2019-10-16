@@ -19,6 +19,7 @@ function test_legacy_names() {
   results.expect(typeof beautify.html, 'function');
 
   console.log('Ensure defaultOptions are defined');
+  results.expect(typeof beautify.defaultOptions, 'function');
   results.expect(typeof beautify.js.defaultOptions, 'function');
   results.expect(typeof beautify.css.defaultOptions, 'function');
   results.expect(typeof beautify.html.defaultOptions, 'function');

@@ -45,10 +45,20 @@ var beautify_html = require('js-beautify').html_beautify;
 All methods returned accept two arguments, the source string and an options object.
 **/
 
-function get_beautify(js_beautify, css_beautify, html_beautify) {
+function get_beautify(js_beautify, css_beautify, html_beautify, options) {
   // the default is js
   var beautify = function(src, config) {
     return js_beautify.js_beautify(src, config);
+  };
+
+  var defaultOptions = new options.Options();
+  delete defaultOptions.raw_options;
+  defaultOptions = options.addChildOpts(defaultOptions, js_beautify.js_beautify.defaultOptions(), 'js');
+  defaultOptions = options.addChildOpts(defaultOptions, css_beautify.css_beautify.defaultOptions(), 'css');
+  defaultOptions = options.addChildOpts(defaultOptions, html_beautify.html_beautify.defaultOptions(), 'html');
+
+  beautify.defaultOptions = function() {
+    return defaultOptions;
   };
 
   // short aliases
@@ -80,7 +90,6 @@ if (typeof define === "function" && define.amd) {
     beautifier.css_beautify = beautifier.css;
     beautifier.html_beautify = beautifier.html;
 
-    mod.exports = get_beautify(beautifier, beautifier, beautifier);
-
+    mod.exports = get_beautify(beautifier, beautifier, beautifier, beautifier.options);
   })(module);
 }

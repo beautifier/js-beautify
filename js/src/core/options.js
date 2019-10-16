@@ -188,6 +188,27 @@ function _normalizeOpts(options) {
   return convertedOpts;
 }
 
+/**
+ * Add child options (except "raw_options") under a child prefix.
+ * Only new options or options with different values get added.
+ * Example: ({a: 1, b: 2}, {a: 1, b: 1, c: 1}, "z")
+ *         =>{a: 1, b: 2, z: {b: 1, c: 1}}
+ * @param {Options} options
+ * @param {Options} childOptions
+ * @param {string} childFieldName
+ */
+function _addChildOpts(options, childOptions, childFieldName) {
+  options[childFieldName] = {};
+  var name;
+  for (name in childOptions) {
+    if (name !== "raw_options" && options[name] !== childOptions[name]) {
+      options[childFieldName][name] = childOptions[name];
+    }
+  }
+  return options;
+}
+
 module.exports.Options = Options;
 module.exports.normalizeOpts = _normalizeOpts;
 module.exports.mergeOpts = _mergeOpts;
+module.exports.addChildOpts = _addChildOpts;
