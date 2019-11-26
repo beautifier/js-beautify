@@ -6518,13 +6518,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         // Issue 508
         bt('set["name"]');
         bt('get["name"]');
-        bt(
+        test_fragment(
             'a = {\n' +
             '    set b(x) {},\n' +
             '    c: 1,\n' +
             '    d: function() {}\n' +
             '};');
-        bt(
+        test_fragment(
             'a = {\n' +
             '    get b() {\n' +
             '        retun 0;\n' +
