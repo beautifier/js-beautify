@@ -3421,7 +3421,7 @@ exports.test_data = {
           unchanged: 'get["name"]'
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    set b(x) {},',
@@ -3431,7 +3431,7 @@ exports.test_data = {
           ]
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    get b() {',
