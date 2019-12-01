@@ -408,6 +408,11 @@ class Tokenizer(BaseTokenizer):
                     self._input.next()
 
                 return self._create_token(TOKEN.WORD, sharp)
+            elif self._input.hasNext():
+                # Handle private field (ie. #privateExample)
+                resulting_string = self._patterns.identifier.read()
+                if resulting_string:
+                    return self._create_token(TOKEN.WORD, sharp + resulting_string)
 
             self._input.back()
 

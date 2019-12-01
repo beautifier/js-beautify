@@ -274,6 +274,12 @@ Tokenizer.prototype._read_non_javascript = function(c) {
         this._input.next();
       }
       return this._create_token(TOKEN.WORD, sharp);
+    } else if (this._input.hasNext()) {
+      // Handle private field (ie. #privateExample)
+      resulting_string = this.__patterns.identifier.read();
+      if (resulting_string) {
+        return this._create_token(TOKEN.WORD, sharp + resulting_string);
+      }
     }
 
     this._input.back();
