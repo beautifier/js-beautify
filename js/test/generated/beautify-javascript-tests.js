@@ -405,9 +405,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // ES5 Class Private Fields
+        // Private Class Fields
         reset_options();
-        set_name('ES5 Class Private Fields');
+        set_name('Private Class Fields');
         bt('#foo');
         bt(
             'class X {\n' +
@@ -415,6 +415,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    get foo() {\n' +
             '        return this.#foo;\n' +
             '    }\n' +
+            '}');
+        bt(
+            'class X {#foo=null;}',
+            //  -- output --
+            'class X {\n' +
+            '    #foo = null;\n' +
             '}');
 
 

@@ -170,8 +170,8 @@ exports.test_data = {
         }
       ]
     }, {
-      name: "ES5 Class Private Fields",
-      description: "Permit ES5 private class fields which are declared with a leading \"#\".",
+      name: "Private Class Fields",
+      description: "Permit private class fields which are declared with a leading \"#\".",
       tests: [
         { unchanged: '#foo' },
         {
@@ -181,6 +181,14 @@ exports.test_data = {
             '    get foo() {',
             '        return this.#foo;',
             '    }',
+            '}'
+          ]
+        },
+        {
+          input: 'class X {#foo=null;}',
+          output: [
+            'class X {',
+            '    #foo = null;',
             '}'
           ]
         }
