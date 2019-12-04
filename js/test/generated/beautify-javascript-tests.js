@@ -405,6 +405,26 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
+        // Private Class Fields
+        reset_options();
+        set_name('Private Class Fields');
+        bt('#foo');
+        bt(
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '    get foo() {\n' +
+            '        return this.#foo;\n' +
+            '    }\n' +
+            '}');
+        bt(
+            'class X {#foo=null;}',
+            //  -- output --
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '}');
+
+
+        //============================================================
         // ES7 Decorators
         reset_options();
         set_name('ES7 Decorators');

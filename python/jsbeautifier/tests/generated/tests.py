@@ -212,6 +212,25 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Private Class Fields
+        self.reset_options()
+        bt('#foo')
+        bt(
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '    get foo() {\n' +
+            '        return this.#foo;\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'class X {#foo=null;}',
+            #  -- output --
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '}')
+
+
+        #============================================================
         # ES7 Decorators
         self.reset_options()
         bt('@foo')
