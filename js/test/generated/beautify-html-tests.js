@@ -6968,6 +6968,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</a>\n' +
             '\n' +
             '<?php include_once $_SERVER[\'DOCUMENT_ROOT\'] . "/shared/helpModal.php";  ?>');
+        
+        // #1736 - unquoted attribute with slashes
+        bth(
+            '<div>\n' +
+            '    <a href=http://www.example.com></a>\n' +
+            '</div>');
 
 
         //============================================================
