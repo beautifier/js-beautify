@@ -2008,6 +2008,13 @@ exports.test_data = {
           '',
           '<?php include_once $_SERVER[\\\'DOCUMENT_ROOT\\\'] . "/shared/helpModal.php";  ?>'
         ]
+      }, {
+        comment: '#1736 - unquoted attribute with slashes',
+        unchanged: [
+          '<div>',
+          '    <a href=http://www.example.com></a>',
+          '</div>'
+        ]
       }
     ]
   }, {

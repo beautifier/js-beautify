@@ -170,6 +170,30 @@ exports.test_data = {
         }
       ]
     }, {
+      name: "Private Class Fields",
+      description: "Permit private class fields which are declared with a leading \"#\".",
+      tests: [
+        { unchanged: '#foo' },
+        {
+          unchanged: [
+            'class X {',
+            '    #foo = null;',
+            '    get foo() {',
+            '        return this.#foo;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          input: 'class X {#foo=null;}',
+          output: [
+            'class X {',
+            '    #foo = null;',
+            '}'
+          ]
+        }
+      ]
+    }, {
       name: "ES7 Decorators",
       description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
       tests: [
@@ -3421,7 +3445,7 @@ exports.test_data = {
           unchanged: 'get["name"]'
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    set b(x) {},',
@@ -3431,7 +3455,7 @@ exports.test_data = {
           ]
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    get b() {',
