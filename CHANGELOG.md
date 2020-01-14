@@ -1,4 +1,16 @@
 # Changelog
+## v1.10.3
+
+### Description
+
+
+### Closed Issues
+* Unquoted href causes wrong indentation ([#1736](https://github.com/beautify-web/js-beautify/issues/1736))
+* Broken private fields in classes (JS) ([#1734](https://github.com/beautify-web/js-beautify/issues/1734))
+* Fix for python 2.7 and cli parameters ([#1712](https://github.com/beautify-web/js-beautify/pull/1712))
+* Search (ctrl+f) works only in view field in CodeMirror ([#1696](https://github.com/beautify-web/js-beautify/issues/1696))
+
+
 ## v1.10.2
 
 ### Description
