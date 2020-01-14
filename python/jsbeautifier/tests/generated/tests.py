@@ -212,6 +212,25 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Private Class Fields
+        self.reset_options()
+        bt('#foo')
+        bt(
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '    get foo() {\n' +
+            '        return this.#foo;\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'class X {#foo=null;}',
+            #  -- output --
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '}')
+
+
+        #============================================================
         # ES7 Decorators
         self.reset_options()
         bt('@foo')
@@ -6230,13 +6249,13 @@ class TestJSBeautifier(unittest.TestCase):
         # Issue 508
         bt('set["name"]')
         bt('get["name"]')
-        bt(
+        test_fragment(
             'a = {\n' +
             '    set b(x) {},\n' +
             '    c: 1,\n' +
             '    d: function() {}\n' +
             '};')
-        bt(
+        test_fragment(
             'a = {\n' +
             '    get b() {\n' +
             '        retun 0;\n' +

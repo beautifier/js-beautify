@@ -191,13 +191,13 @@ class Tokenizer(BaseTokenizer):
         if c is None:
             token = self._create_token(TOKEN.EOF, '')
 
+        token = token or self._read_non_javascript(c)
         token = token or self._read_string(c)
         token = token or self._read_word(previous_token)
         token = token or self._read_singles(c)
         token = token or self._read_comment(c)
         token = token or self._read_regexp(c, previous_token)
         token = token or self._read_xml(c, previous_token)
-        token = token or self._read_non_javascript(c)
         token = token or self._read_punctuation()
         token = token or self._create_token(TOKEN.UNKNOWN, self._input.next())
 
