@@ -53,14 +53,14 @@
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "codemirror": "^5.48.2",
+    "codemirror": "^5.50.2",
     "jquery": "^3.4.1",
-    "jshint": "^2.10.2",
-    "mocha": "^6.1.4",
-    "mustache": "^3.0.1",
+    "jshint": "^2.11.0",
+    "mocha": "^6.2.2",
+    "mustache": "^3.2.1",
     "node-static": "^0.7.11",
     "requirejs": "^2.3.6",
-    "webpack": "^4.36.1",
-    "webpack-cli": "^3.3.5"
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   }
 }
