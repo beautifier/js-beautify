@@ -9,6 +9,7 @@ python/MANIFEST
 python/build
 python/dist
 python/jsbeautifier.egg-info
+python/cssbeautifier.egg-info
 .nvmrc
 .nvm/
 
