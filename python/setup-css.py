@@ -3,28 +3,22 @@
 import os
 import sys
 
+from setup import PyTest  # from setyp.py, not setuptools!
+
 from setuptools import setup
 from jsbeautifier.__version__ import __version__
 
 from setuptools.command.test import test as TestCommand
 
-DIR = 'cssbeautifier/tests/'
+DIR_CSS = 'cssbeautifier/tests/'
 
 
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
+class PyTestCSS(PyTest):
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.pytest_args = ['--assert=plain'] + \
-            [DIR + x for x in os.listdir(DIR)
+            [DIR_CSS + x for x in os.listdir(DIR_CSS)
              if x.endswith('.py') and x[0] not in '._']
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
 
 
 setup(name='cssbeautifier',
@@ -47,6 +41,6 @@ setup(name='cssbeautifier',
                         "editorconfig>=0.12.2"],
       license='MIT',
       test_suite='pytest.collector',
-      cmdclass={'test': PyTest},
+      cmdclass={'test': PyTestCSS},
 
       )
