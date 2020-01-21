@@ -233,12 +233,11 @@ def main():
 
     try:
         opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjab:kil:xhtvXnCO:w:m:",
-                                   ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
-                                    'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-                                    'brace-style=', 'indent-level=', 'unescape-strings',
-                                    'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
-                                    'keep-array-indentation', 'indent-empty-lines', 'templating'])
+                                   [ 'brace-style=', 'comma-first', 'disable-preserve-newlines', 'e4x', 'editorconfig', 'end-with-newline',
+                                   'eol=', 'eval-code', 'file=', 'help',  'indent-char=', 'indent-empty-lines',
+                                   'indent-level=', 'indent-size=', 'indent-with-tabs', 'jslint-happy', 'keep-array-indentation', 'keep-function-indentation',
+                                   'operator-position=', 'outfile=', 'replace', 'space-after-anon-function', 'space-after-named-function', 'space-in-empty-paren',
+                                   'space-in-paren',  'stdin', 'templating', 'unescape-strings', 'usage', 'version', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
