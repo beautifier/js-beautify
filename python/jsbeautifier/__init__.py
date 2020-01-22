@@ -178,6 +178,8 @@ Output options:
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
  -C,  --comma-first                Put commas at the beginning of new line instead of end.
+ -m,
+ --max-preserve-newlines=NUMBER    Number of line-breaks to be preserved in one chunk (default 10)
  -O,  --operator-position=STRING   Set operator position (before-newline, after-newline, preserve-newline)
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
@@ -236,8 +238,9 @@ def main():
                                    [ 'brace-style=', 'comma-first', 'disable-preserve-newlines', 'e4x', 'editorconfig', 'end-with-newline',
                                    'eol=', 'eval-code', 'file=', 'help',  'indent-char=', 'indent-empty-lines',
                                    'indent-level=', 'indent-size=', 'indent-with-tabs', 'jslint-happy', 'keep-array-indentation', 'keep-function-indentation',
-                                   'operator-position=', 'outfile=', 'replace', 'space-after-anon-function', 'space-after-named-function', 'space-in-empty-paren',
-                                   'space-in-paren',  'stdin', 'templating', 'unescape-strings', 'usage', 'version', 'wrap-line-length'])
+                                   'max-preserve-newlines=', 'operator-position=', 'outfile=', 'replace', 'space-after-anon-function', 'space-after-named-function',
+                                   'space-in-empty-paren', 'space-in-paren',  'stdin', 'templating', 'unescape-strings', 'usage',
+                                   'version', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
