@@ -91,4 +91,5 @@ class BeautifierOptions(BaseOptions):
         if self.jslint_happy:
             self.space_after_anon_function = True
 
+        self.keep_quiet = False
         self.eval_code = False

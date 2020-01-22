@@ -172,6 +172,7 @@ Output options:
  --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
+ --quiet                           Suppress info about a file if nothing was changed.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
@@ -238,9 +239,9 @@ def main():
                                    [ 'brace-style=', 'comma-first', 'disable-preserve-newlines', 'e4x', 'editorconfig', 'end-with-newline',
                                    'eol=', 'eval-code', 'file=', 'help',  'indent-char=', 'indent-empty-lines',
                                    'indent-level=', 'indent-size=', 'indent-with-tabs', 'jslint-happy', 'keep-array-indentation', 'keep-function-indentation',
-                                   'max-preserve-newlines=', 'operator-position=', 'outfile=', 'replace', 'space-after-anon-function', 'space-after-named-function',
-                                   'space-in-empty-paren', 'space-in-paren',  'stdin', 'templating', 'unescape-strings', 'usage',
-                                   'version', 'wrap-line-length'])
+                                   'max-preserve-newlines=', 'operator-position=', 'outfile=', 'quiet', 'replace', 'space-after-anon-function',
+                                   'space-after-named-function', 'space-in-empty-paren', 'space-in-paren',  'stdin', 'templating', 'unescape-strings',
+                                   'usage', 'version', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -288,6 +289,8 @@ def main():
             js_options.space_after_named_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
+        elif opt in ('--quiet'):
+            js_options.keep_quiet = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
         elif opt in ('--unescape-strings', '-x'):
@@ -413,7 +416,7 @@ def main():
                             # fail on a missing six dependency.
                             six = __import__("six")
                             f.write(six.u(pretty))
-                else:
+                elif not js_options.keep_quiet:
                     print('beautified ' + outfile + ' - unchanged', file=sys.stdout)
 
 
