@@ -85,7 +85,7 @@ To install the Python version of the beautifier:
 ```bash
 $ pip install jsbeautifier
 ```
-Unlike the JavaScript version, the Python version can only reformat JavaScript. It does not work against HTML or CSS files, but you can install _css-beautify_ for CSS (installs _jsbeautifier_ automatically)
+Unlike the JavaScript version, the Python version can only reformat JavaScript. It does not work against HTML or CSS files, but you can install _css-beautify_ for CSS (_jsbeautifier_ needs to be installed already)
 
 ```bash
 $ pip install cssbeautifier
