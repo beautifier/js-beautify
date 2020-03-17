@@ -56,7 +56,7 @@
     "codemirror": "^5.50.2",
     "jquery": "^3.4.1",
     "jshint": "^2.11.0",
-    "mocha": "^6.2.2",
+    "mocha": "^7.0.1",
     "mustache": "^4.0.0",
     "node-static": "^0.7.11",
     "requirejs": "^2.3.6",
