@@ -1716,7 +1716,7 @@ exports.test_data = {
         '    <optgroup>',
         '        test content',
         '        <option>',
-        '            test content',
+        '            <p>test content',
         '        <option>',
         '            test content',
         '</select>'
@@ -1779,7 +1779,8 @@ exports.test_data = {
         '                    <thead>',
         '                        <tr>',
         '                            <th>Function',
-        '                            <th>Control Unit',
+        '                            <th>',
+        '                                <p>Control Unit',
         '                            <th>Central Station',
         '                    <tbody>',
         '                        <tr>',
@@ -1851,6 +1852,28 @@ exports.test_data = {
         '    <dt>gh',
         '    <dt>gh</dt>',
         '</dl>'
+      ]
+    }, {
+      comment: 'P element optional closing tag - #1503',
+      input: [
+        '<p><p><dl><dt>ef<dt><p>gh</dt><dt>gh</dt></dl><p><h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea><p>.<p>.</p>'
+      ],
+      output: [
+        '<p>',
+        '<p>',
+        '<dl>',
+        '    <dt>ef',
+        '    <dt>',
+        '        <p>gh',
+        '    </dt>',
+        '    <dt>gh</dt>',
+        '</dl>',
+        '<p>',
+        '<h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea>',
+        '<p>.',
+        '<p>.</p>'
       ]
     }]
   }, {
@@ -3125,7 +3148,7 @@ exports.test_data = {
         '    <p>Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p>But not me</p>',
+        '<p>But not me</p>',
         '</p>'
       ]
     }, {
@@ -3135,7 +3158,7 @@ exports.test_data = {
         '    <p class="beauty-me">Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p class="iamalreadybeauty">But not me</p>',
+        '<p class="iamalreadybeauty">But not me</p>',
         '</p>'
       ]
     }, {
