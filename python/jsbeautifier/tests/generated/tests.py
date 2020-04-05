@@ -2025,6 +2025,43 @@ class TestJSBeautifier(unittest.TestCase):
             '.bar()',
             #  -- output --
             'this.something.xxx = foo.moo.bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this?.something = foo?.bar()?.baz()?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()')
 
         # break chained methods - (break_chained_methods = "false", preserve_newlines = "true")
         self.reset_options()
@@ -2076,6 +2113,54 @@ class TestJSBeautifier(unittest.TestCase):
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()')
 
         # break chained methods - (break_chained_methods = "true", preserve_newlines = "false")
         self.reset_options()
@@ -2128,6 +2213,55 @@ class TestJSBeautifier(unittest.TestCase):
             '.bar()',
             #  -- output --
             'this.something.xxx = foo.moo.bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()')
 
         # break chained methods - (break_chained_methods = "true", preserve_newlines = "true")
         self.reset_options()
@@ -2187,6 +2321,62 @@ class TestJSBeautifier(unittest.TestCase):
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()')
 
 
         #============================================================
@@ -6441,6 +6631,9 @@ class TestJSBeautifier(unittest.TestCase):
             '        b();\n' +
             '    }\n' +
             '})')
+        
+        # Issue 1727 - Optional chaining
+        bt('true?.1:.2', 'true ? .1 : .2')
         
         # Issue 406 - Multiline array
         bt(
