@@ -516,10 +516,18 @@ exports.test_data = {
           '<input type="submit"></input>'
         ]
       }, {
-        input: '<script type="text/javascript">var foo = "bar";</script>',
+        input: '<script type="text/javascript">console.log(1  +  1);</script>',
         output: [
           '<script type="text/javascript">',
-          '    var foo = "bar";',
+          '    console.log(1 + 1);',
+          '</script>'
+        ]
+      }, {
+        comment: 'Issue #1706 - es script module',
+        input: '<script type="module">console.log(1  +  1);</script>',
+        output: [
+          '<script type="module">',
+          '    console.log(1 + 1);',
           '</script>'
         ]
       }, {
@@ -1624,6 +1632,22 @@ exports.test_data = {
           '    <p>Unfortunately this condition is false.</p>',
           '{{/inverted-condition}}'
         ]
+      },
+      // Indentation of partials
+      {
+        comment: "Issue #1756 - Fix indentation of partials",
+        unchanged: [
+          '{{#*inline "myPartial"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/inline}}'
+        ]
+      },
+      {
+        unchanged: [
+          '{{#> myPartial}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
       }
     ]
   }, {
@@ -1716,7 +1740,7 @@ exports.test_data = {
         '    <optgroup>',
         '        test content',
         '        <option>',
-        '            test content',
+        '            <p>test content',
         '        <option>',
         '            test content',
         '</select>'
@@ -1779,7 +1803,8 @@ exports.test_data = {
         '                    <thead>',
         '                        <tr>',
         '                            <th>Function',
-        '                            <th>Control Unit',
+        '                            <th>',
+        '                                <p>Control Unit',
         '                            <th>Central Station',
         '                    <tbody>',
         '                        <tr>',
@@ -1851,6 +1876,28 @@ exports.test_data = {
         '    <dt>gh',
         '    <dt>gh</dt>',
         '</dl>'
+      ]
+    }, {
+      comment: 'P element optional closing tag - #1503',
+      input: [
+        '<p><p><dl><dt>ef<dt><p>gh</dt><dt>gh</dt></dl><p><h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea><p>.<p>.</p>'
+      ],
+      output: [
+        '<p>',
+        '<p>',
+        '<dl>',
+        '    <dt>ef',
+        '    <dt>',
+        '        <p>gh',
+        '    </dt>',
+        '    <dt>gh</dt>',
+        '</dl>',
+        '<p>',
+        '<h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea>',
+        '<p>.',
+        '<p>.</p>'
       ]
     }]
   }, {
@@ -3125,7 +3172,7 @@ exports.test_data = {
         '    <p>Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p>But not me</p>',
+        '<p>But not me</p>',
         '</p>'
       ]
     }, {
@@ -3135,7 +3182,7 @@ exports.test_data = {
         '    <p class="beauty-me">Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p class="iamalreadybeauty">But not me</p>',
+        '<p class="iamalreadybeauty">But not me</p>',
         '</p>'
       ]
     }, {

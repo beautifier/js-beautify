@@ -1,4 +1,17 @@
 # Changelog
+## v1.11.0
+
+### Description
+
+
+### Closed Issues
+* Please bump mkdirp to fix mkdirp@0.5.1 vulnerability ([#1768](https://github.com/beautify-web/js-beautify/issues/1768))
+* Support optional-chaining ([#1727](https://github.com/beautify-web/js-beautify/issues/1727))
+* Please support es module ([#1706](https://github.com/beautify-web/js-beautify/issues/1706))
+* Support new js proposals: optional-chaining & pipeline-operator ([#1530](https://github.com/beautify-web/js-beautify/issues/1530))
+* Optional <p> closing not implemented ([#1503](https://github.com/beautify-web/js-beautify/issues/1503))
+
+
 ## v1.10.3
 
 ### Description
