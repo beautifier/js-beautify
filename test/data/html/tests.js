@@ -516,10 +516,18 @@ exports.test_data = {
           '<input type="submit"></input>'
         ]
       }, {
-        input: '<script type="text/javascript">var foo = "bar";</script>',
+        input: '<script type="text/javascript">console.log(1  +  1);</script>',
         output: [
           '<script type="text/javascript">',
-          '    var foo = "bar";',
+          '    console.log(1 + 1);',
+          '</script>'
+        ]
+      }, {
+        comment: 'Issue #1706 - es script module',
+        input: '<script type="module">console.log(1  +  1);</script>',
+        output: [
+          '<script type="module">',
+          '    console.log(1 + 1);',
           '</script>'
         ]
       }, {

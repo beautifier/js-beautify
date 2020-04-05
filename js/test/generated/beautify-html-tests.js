@@ -670,10 +670,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '<input type="submit"></input>');
         bth(
-            '<script type="text/javascript">var foo = "bar";</script>',
+            '<script type="text/javascript">console.log(1  +  1);</script>',
             //  -- output --
             '<script type="text/javascript">\n' +
-            '    var foo = "bar";\n' +
+            '    console.log(1 + 1);\n' +
+            '</script>');
+        
+        // Issue #1706 - es script module
+        bth(
+            '<script type="module">console.log(1  +  1);</script>',
+            //  -- output --
+            '<script type="module">\n' +
+            '    console.log(1 + 1);\n' +
             '</script>');
         bth(
             '<script type="application/javascript">var foo = "bar";</script>',

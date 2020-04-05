@@ -159,7 +159,7 @@ var get_custom_beautifier_name = function(tag_check, raw_token) {
   // For those without a type attribute use default;
   if (typeAttribute.search('text/css') > -1) {
     result = 'css';
-  } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect)/) > -1) {
+  } else if (typeAttribute.search(/module|((text|application|dojo)\/(x-)?(javascript|ecmascript|jscript|livescript|(ld\+)?json|method|aspect))/) > -1) {
     result = 'javascript';
   } else if (typeAttribute.search(/(text|application|dojo)\/(x-)?(html)/) > -1) {
     result = 'html';
