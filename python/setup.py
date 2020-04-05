@@ -16,8 +16,9 @@ class PyTest(TestCommand):
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.pytest_args = ['--assert=plain'] + [DIR + \
-            x for x in os.listdir(DIR) if x.endswith('.py') and x[0] not in '._']
+        self.pytest_args = ['--assert=plain'] + \
+            [DIR + x for x in os.listdir(DIR)
+             if x.endswith('.py') and x[0] not in '._']
 
     def run_tests(self):
         # import here, cause outside the eggs aren't loaded

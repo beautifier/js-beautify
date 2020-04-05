@@ -670,10 +670,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '<input type="submit"></input>');
         bth(
-            '<script type="text/javascript">var foo = "bar";</script>',
+            '<script type="text/javascript">console.log(1  +  1);</script>',
             //  -- output --
             '<script type="text/javascript">\n' +
-            '    var foo = "bar";\n' +
+            '    console.log(1 + 1);\n' +
+            '</script>');
+        
+        // Issue #1706 - es script module
+        bth(
+            '<script type="module">console.log(1  +  1);</script>',
+            //  -- output --
+            '<script type="module">\n' +
+            '    console.log(1 + 1);\n' +
             '</script>');
         bth(
             '<script type="application/javascript">var foo = "bar";</script>',
@@ -6534,6 +6542,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{^inverted-condition}}\n' +
             '    <p>Unfortunately this condition is false.</p>\n' +
             '{{/inverted-condition}}');
+        
+        // Issue #1756 - Fix indentation of partials
+        bth(
+            '{{#*inline "myPartial"}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/inline}}');
+        bth(
+            '{{#> myPartial}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/myPartial}}');
 
 
         //============================================================
@@ -6664,7 +6682,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <optgroup>\n' +
             '        test content\n' +
             '        <option>\n' +
-            '            test content\n' +
+            '            <p>test content\n' +
             '        <option>\n' +
             '            test content\n' +
             '</select>');
@@ -6724,7 +6742,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '                    <thead>\n' +
             '                        <tr>\n' +
             '                            <th>Function\n' +
-            '                            <th>Control Unit\n' +
+            '                            <th>\n' +
+            '                                <p>Control Unit\n' +
             '                            <th>Central Station\n' +
             '                    <tbody>\n' +
             '                        <tr>\n' +
@@ -6794,6 +6813,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <dt>gh\n' +
             '    <dt>gh</dt>\n' +
             '</dl>');
+        
+        // P element optional closing tag - #1503
+        bth(
+            '<p><p><dl><dt>ef<dt><p>gh</dt><dt>gh</dt></dl><p><h3>headers are outside paragraphs</h3>\n' +
+            '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea><p>.<p>.</p>',
+            //  -- output --
+            '<p>\n' +
+            '<p>\n' +
+            '<dl>\n' +
+            '    <dt>ef\n' +
+            '    <dt>\n' +
+            '        <p>gh\n' +
+            '    </dt>\n' +
+            '    <dt>gh</dt>\n' +
+            '</dl>\n' +
+            '<p>\n' +
+            '<h3>headers are outside paragraphs</h3>\n' +
+            '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea>\n' +
+            '<p>.\n' +
+            '<p>.</p>');
 
 
         //============================================================
@@ -8535,7 +8574,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <p>Beautify me</p>\n' +
             '</div>\n' +
             '<p>\n' +
-            '    <p>But not me</p>\n' +
+            '<p>But not me</p>\n' +
             '</p>');
         bth(
             '<div><p\n' +
@@ -8548,7 +8587,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <p class="beauty-me">Beautify me</p>\n' +
             '</div>\n' +
             '<p>\n' +
-            '    <p class="iamalreadybeauty">But not me</p>\n' +
+            '<p class="iamalreadybeauty">But not me</p>\n' +
             '</p>');
         bth('<div><span>blabla<div>something here</div></span></div>');
         bth('<div><br /></div>');

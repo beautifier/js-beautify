@@ -67,15 +67,17 @@ digit = re.compile(r'[0-9]')
 
 positionable_operators = frozenset(
     (">>> === !== " +
-    "<< && >= ** != == <= >> || " +
+    "<< && >= ** != == <= >> || |> " +
     "< / - + > : & % ? ^ | *").split(' '))
 
 punct =  (">>>= " +
     "... >>= <<= === >>> !== **= " +
-    "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= " +
+    "=> ^= :: /= << <= == && -= >= >> != -- += ** || ++ %= &= *= |= |> " +
     "= ! ? > < : / ^ - + * & % ~ |")
 
 punct = re.compile(r'([-[\]{}()*+?.,\\^$|#])').sub(r'\\\1', punct)
+# ?. but not if followed by a number
+punct = '\\?\\.(?!\\d) ' + punct
 punct = punct.replace(' ', '|')
 
 punct_pattern = re.compile(punct)
@@ -434,6 +436,8 @@ class Tokenizer(BaseTokenizer):
         if resulting_string != '':
             if resulting_string == '=':
                 token = self._create_token(TOKEN.EQUALS, resulting_string)
+            elif resulting_string == '?.':
+                token = self._create_token(TOKEN.DOT, resulting_string)
             else:
                 token = self._create_token(TOKEN.OPERATOR, resulting_string)
 
