@@ -1632,6 +1632,22 @@ exports.test_data = {
           '    <p>Unfortunately this condition is false.</p>',
           '{{/inverted-condition}}'
         ]
+      },
+      // Indentation of partials
+      {
+        comment: "Issue #1756 - Fix indentation of partials",
+        unchanged: [
+          '{{#*inline "myPartial"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/inline}}'
+        ]
+      },
+      {
+        unchanged: [
+          '{{#> myPartial}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
       }
     ]
   }, {

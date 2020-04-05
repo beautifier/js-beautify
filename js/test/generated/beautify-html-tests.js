@@ -6542,6 +6542,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{^inverted-condition}}\n' +
             '    <p>Unfortunately this condition is false.</p>\n' +
             '{{/inverted-condition}}');
+        
+        // Issue #1756 - Fix indentation of partials
+        bth(
+            '{{#*inline "myPartial"}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/inline}}');
+        bth(
+            '{{#> myPartial}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/myPartial}}');
 
 
         //============================================================
