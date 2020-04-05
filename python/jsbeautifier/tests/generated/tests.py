@@ -2987,7 +2987,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3000,7 +3000,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3024,7 +3025,7 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3036,7 +3037,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3049,7 +3050,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3073,7 +3075,7 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3085,7 +3087,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3098,7 +3100,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3122,7 +3125,7 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3134,7 +3137,7 @@ class TestJSBeautifier(unittest.TestCase):
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3147,7 +3150,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3171,7 +3175,7 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
             'var res = (k && l || m) ? n : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
@@ -3191,7 +3195,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3220,7 +3225,8 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h |\n' +
             '    i ^\n' +
-            '    j;\n' +
+            '    j |>\n' +
+            '    console.log;\n' +
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
@@ -3312,7 +3318,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3341,7 +3348,8 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h |\n' +
             '    i ^\n' +
-            '    j;\n' +
+            '    j |>\n' +
+            '    console.log;\n' +
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
@@ -3435,7 +3443,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3464,7 +3473,8 @@ class TestJSBeautifier(unittest.TestCase):
             '    % f;\n' +
             'var res = g & h\n' +
             '    | i\n' +
-            '    ^ j;\n' +
+            '    ^ j\n' +
+            '    |> console.log;\n' +
             'var res = (k\n' +
             '        && l\n' +
             '        || m)\n' +
@@ -3557,7 +3567,8 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
@@ -3587,7 +3598,8 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h\n' +
             '    | i ^\n' +
-            '    j;\n' +
+            '    j\n' +
+            '    |> console.log;\n' +
             'var res = (k &&\n' +
             '        l\n' +
             '        || m) ?\n' +
