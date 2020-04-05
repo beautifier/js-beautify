@@ -2249,6 +2249,43 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '.bar()',
             //  -- output --
             'this.something.xxx = foo.moo.bar()');
+        
+        // optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)');
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'this?.something = foo?.bar()?.baz()?.cucumber(fat)');
+        bt('this?.something?.xxx = foo?.moo?.bar()');
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            //  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()');
 
         // break chained methods - (break_chained_methods = "false", preserve_newlines = "true")
         reset_options();
@@ -2301,6 +2338,54 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()');
+        
+        // optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)');
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)');
+        bt('this?.something?.xxx = foo?.moo?.bar()');
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            //  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()');
 
         // break chained methods - (break_chained_methods = "true", preserve_newlines = "false")
         reset_options();
@@ -2354,6 +2439,55 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '.bar()',
             //  -- output --
             'this.something.xxx = foo.moo.bar()');
+        
+        // optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'this?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt('this?.something?.xxx = foo?.moo?.bar()');
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            //  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()');
 
         // break chained methods - (break_chained_methods = "true", preserve_newlines = "true")
         reset_options();
@@ -2414,6 +2548,62 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()');
+        
+        // optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            //  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            //  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)');
+        bt('this?.something?.xxx = foo?.moo?.bar()');
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            //  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()');
 
 
         //============================================================
@@ -6730,6 +6920,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        b();\n' +
             '    }\n' +
             '})');
+        
+        // Issue 1727 - Optional chaining
+        bt('true?.1:.2', 'true ? .1 : .2');
         
         // Issue 406 - Multiline array
         bt(

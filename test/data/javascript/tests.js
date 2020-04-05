@@ -1049,6 +1049,30 @@ exports.test_data = {
         {
           input: 'this\n.something\n.xxx = foo.moo\n.bar()',
           output: 'this<pn1>.something<pn1>.xxx = foo.moo<pn1>.bar()'
+        },
+        {
+          comment: 'optional chaining operator',
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat);\nfoo?.bar()<n1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat)\n foo?.bar()?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat)\nfoo?.bar()<n1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'this\n?.something = foo?.bar()\n?.baz()?.cucumber(fat)',
+          output: 'this<pn1>?.something = foo?.bar()<pon1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          unchanged: 'this?.something?.xxx = foo?.moo?.bar()'
+        },
+        {
+          input: 'this\n?.something\n?.xxx = foo?.moo\n?.bar()',
+          output: 'this<pn1>?.something<pn1>?.xxx = foo?.moo<pn1>?.bar()'
         }
       ]
     }, {
@@ -3685,6 +3709,15 @@ exports.test_data = {
             '        b();',
             '    }',
             '})'
+          ]
+        },
+        {
+          comment: "Issue 1727 - Optional chaining",
+          input: [
+            'true?.1:.2'
+          ],
+          output: [
+            'true ? .1 : .2'
           ]
         },
         {
