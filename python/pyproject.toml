@@ -14,5 +14,6 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | generated
 )/
 '''
