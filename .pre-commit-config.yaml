@@ -5,4 +5,4 @@ repos:
     hooks:
       - id: black
         language_version: python3.6
-        entry: black --config python/pyproject.toml
+        args: ["--config=python/pyproject.toml"]
