@@ -54,7 +54,7 @@ class BeautifierOptions(BaseOptions):
         # preserve-inline in delimited string will trigger brace_preserve_inline, everything
         # else is considered a brace_style and the last one only will have an effect
 
-        brace_style_split = self._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline'])
+        brace_style_split = self._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline', 'expand-all'])
 
         # preserve-inline in delimited string will trigger brace_preserve_inline
         # Everything else is considered a brace_style and the last one only will

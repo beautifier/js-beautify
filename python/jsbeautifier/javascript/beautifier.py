@@ -331,6 +331,12 @@ class Beautifier:
             self._output.add_raw_token(current_token)
             return
 
+        if self._options.brace_style == "expand-all" and \
+                self.is_array(self._flags.mode) and \
+                current_token.previous and \
+                current_token.previous.type == TOKEN.COMMA:
+            self.print_newline() # array items get a newline treatment
+
         if self._options.comma_first and current_token.previous and \
             current_token.previous.type == TOKEN.COMMA and \
                 self._output.just_added_newline():
@@ -457,6 +463,9 @@ class Beautifier:
         next_mode = MODE.Expression
 
         if current_token.text == '[':
+            if self._options.brace_style == "expand-all":
+                self.print_newline()
+
             if self._flags.last_token.type == TOKEN.WORD or self._flags.last_token.text == ')':
                 if reserved_array(self._flags.last_token, Tokenizer.line_starters):
                     self._output.space_before_token = True
@@ -476,6 +485,10 @@ class Beautifier:
                     # ], [ goes to a new line
                     # }, [ goes to a new line
                     if not self._options.keep_array_indentation:
+                        self.print_newline()
+                else:
+                    if self._options.brace_style == "expand-all" and \
+                            self._flags.last_token.text == ',':
                         self.print_newline()
 
             if self._flags.last_token.type not in [
@@ -561,6 +574,9 @@ class Beautifier:
                 current_token, current_token.newlines)
 
         self.print_token(current_token)
+        if current_token.text == '[' and \
+                self._options.brace_style == "expand-all":
+            self.print_newline();
         self.set_mode(next_mode)
 
         if self._options.space_in_paren:
@@ -582,6 +598,11 @@ class Beautifier:
             self.allow_wrap_or_preserved_newline(
                 current_token, current_token.text == ']' and self.is_array(
                     self._flags.mode) and not self._options.keep_array_indentation)
+
+        if self._options.brace_style == "expand-all" and \
+                current_token.text == ']' and \
+                self.is_array(self._flags.mode):
+            self.print_newline();
 
         if self._options.space_in_paren:
             if self._flags.last_token.type == TOKEN.START_EXPR and not self._options.space_in_empty_paren:
@@ -670,8 +691,8 @@ class Beautifier:
     check_token.type != TOKEN.EOF and not (
          check_token.type == TOKEN.END_BLOCK and check_token.opened == current_token))
 
-        if (self._options.brace_style == 'expand' or (self._options.brace_style ==
-                                                  'none' and current_token.newlines)) and not self._flags.inline_frame:
+        if (self._options.brace_style == 'expand' or self._options.brace_style == 'expand-all' or
+            (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
             if self._flags.last_token.type != TOKEN.OPERATOR and (
                 empty_anonymous_function or self._flags.last_token.type == TOKEN.EQUALS or (
                     reserved_array(self._flags.last_token, _special_word_set) and self._flags.last_token.text != 'else')):
@@ -720,7 +741,7 @@ class Beautifier:
         # try inline_frame (only set if opt.braces-preserve-inline) first
         if self._flags.inline_frame and not empty_braces:
             self._output.space_before_token = True
-        elif self._options.brace_style == 'expand':
+        elif self._options.brace_style == 'expand' or self._options.brace_style == 'expand-all':
             if not empty_braces:
                 self.print_newline()
         else:
@@ -854,7 +875,7 @@ class Beautifier:
             elif not reserved_array(current_token, ['else', 'catch', 'finally', 'from']):
                 prefix = 'NEWLINE'
             else:
-                if self._options.brace_style in ['expand', 'end-expand'] or (
+                if self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or (
                         self._options.brace_style == 'none' and current_token.newlines):
                     prefix = 'NEWLINE'
                 else:
@@ -890,6 +911,7 @@ class Beautifier:
         if reserved_array(current_token, ['else', 'catch', 'finally']):
             if ((not (self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement))
                 or self._options.brace_style == 'expand'
+                or self._options.brace_style == 'expand-all'
                 or self._options.brace_style == 'end-expand'
                 or (self._options.brace_style == 'none' and current_token.newlines)) \
                and not self._flags.inline_frame:
