@@ -877,12 +877,11 @@ class Beautifier:
                 prefix = 'SPACE'
             elif not token_reserved_word:
                 prefix = 'NEWLINE'
-            else:
-                if self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or no_brace_style_nl:
+            elif self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or no_brace_style_nl:
                     prefix = 'NEWLINE'
-                else:
-                    prefix = 'SPACE'
-                    self._output.space_before_token = True
+            else:
+                prefix = 'SPACE'
+                self._output.space_before_token = True
         elif self._flags.last_token.type == TOKEN.SEMICOLON and self._flags.mode == MODE.BlockStatement:
             # TODO: Should this be for STATEMENT as well?
             prefix = 'NEWLINE'
