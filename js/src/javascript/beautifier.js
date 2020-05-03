@@ -542,7 +542,7 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
           this.print_newline();
         }
       } else if (this._options.brace_style === "expand-all" && this._flags.last_token.text === ',') {
-          this.print_newline();
+        this.print_newline();
       }
     }
 
