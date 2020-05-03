@@ -335,7 +335,7 @@ class Beautifier:
                 self.is_array(self._flags.mode) and \
                 current_token.previous and \
                 current_token.previous.type == TOKEN.COMMA:
-            self.print_newline() # array items get a newline treatment
+            self.print_newline()  # array items get a newline treatment
 
         if self._options.comma_first and current_token.previous and \
             current_token.previous.type == TOKEN.COMMA and \
@@ -576,7 +576,7 @@ class Beautifier:
         self.print_token(current_token)
         if current_token.text == '[' and \
                 self._options.brace_style == "expand-all":
-            self.print_newline();
+            self.print_newline()
         self.set_mode(next_mode)
 
         if self._options.space_in_paren:
@@ -602,7 +602,7 @@ class Beautifier:
         if self._options.brace_style == "expand-all" and \
                 current_token.text == ']' and \
                 self.is_array(self._flags.mode):
-            self.print_newline();
+            self.print_newline()
 
         if self._options.space_in_paren:
             if self._flags.last_token.type == TOKEN.START_EXPR and not self._options.space_in_empty_paren:
@@ -692,7 +692,7 @@ class Beautifier:
          check_token.type == TOKEN.END_BLOCK and check_token.opened == current_token))
 
         if (self._options.brace_style == 'expand' or self._options.brace_style == 'expand-all' or
-            (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
+                (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
             if self._flags.last_token.type != TOKEN.OPERATOR and (
                 empty_anonymous_function or self._flags.last_token.type == TOKEN.EQUALS or (
                     reserved_array(self._flags.last_token, _special_word_set) and self._flags.last_token.text != 'else')):
@@ -910,9 +910,7 @@ class Beautifier:
 
         if reserved_array(current_token, ['else', 'catch', 'finally']):
             if ((not (self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement))
-                or self._options.brace_style == 'expand'
-                or self._options.brace_style == 'expand-all'
-                or self._options.brace_style == 'end-expand'
+                or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
                 or (self._options.brace_style == 'none' and current_token.newlines)) \
                and not self._flags.inline_frame:
                 self.print_newline()

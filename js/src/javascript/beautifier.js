@@ -405,11 +405,9 @@ Beautifier.prototype.print_token = function(current_token) {
     this._output.add_raw_token(current_token);
     return;
   }
-
   if (this._options.brace_style === "expand-all" && is_array(this._flags.mode) && current_token.previous && current_token.previous.type === TOKEN.COMMA) {
     this.print_newline(); // array items get a newline treatment
   }
-
   if (this._options.comma_first && current_token.previous && current_token.previous.type === TOKEN.COMMA &&
     this._output.just_added_newline()) {
     if (this._output.previous_line.last() === ',') {
@@ -433,9 +431,7 @@ Beautifier.prototype.print_token = function(current_token) {
   this.print_token_line_indentation(current_token);
   this._output.non_breaking_space = true;
   this._output.add_token(current_token.text);
-  if (this._output.previous_token_wrapped) {
-    this._flags.multiline_frame = true;
-  }
+  if (this._output.previous_token_wrapped) { this._flags.multiline_frame = true; }
 };
 
 Beautifier.prototype.indent = function() {
@@ -660,11 +656,9 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
     this.allow_wrap_or_preserved_newline(current_token,
       current_token.text === ']' && is_array(this._flags.mode) && !this._options.keep_array_indentation);
   }
-
   if (this._options.brace_style === "expand-all" && current_token.text === ']' && is_array(this._flags.mode)) {
     this.print_newline();
   }
-
   if (this._options.space_in_paren) {
     if (this._flags.last_token.type === TOKEN.START_EXPR && !this._options.space_in_empty_paren) {
       // () [] no inner space in empty parens like these, ever, ref #320
@@ -677,7 +671,6 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
   this.deindent();
   this.print_token(current_token);
   this.restore_mode();
-
   remove_redundant_indentation(this._output, this._previous_flags);
 
   // do {} while () // no statement required after
@@ -685,7 +678,6 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
     this._previous_flags.mode = MODE.Expression;
     this._flags.do_block = false;
     this._flags.do_while = false;
-
   }
 };
 
@@ -989,11 +981,9 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (reserved_array(current_token, ['else', 'catch', 'finally'])) {
-    if ((!(this._flags.last_token.type === TOKEN.END_BLOCK && this._previous_flags.mode === MODE.BlockStatement) ||
-        this._options.brace_style === "expand" || this._options.brace_style === "expand-all" ||
-        this._options.brace_style === "end-expand" ||
-        (this._options.brace_style === "none" && current_token.newlines)) &&
-      !this._flags.inline_frame) {
+    var blockStatementEnds = this._flags.last_token.type === TOKEN.END_BLOCK && this._previous_flags.mode === MODE.BlockStatement;
+    if ((!blockStatementEnds || in_array(this._options.brace_style, ["expand", 'end-expand', 'expand-all']) ||
+        (this._options.brace_style === "none" && current_token.newlines)) && !this._flags.inline_frame) {
       this.print_newline();
     } else {
       this._output.trim(true);
