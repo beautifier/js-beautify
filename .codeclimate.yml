@@ -3,6 +3,15 @@ engines:
    enabled: true
  pep8:
    enabled: true
+checks:
+  complex-logic:
+    enabled: false
+  method-lines:
+    enabled: false
+  nested-control-flow:
+    enabled: false
+  similar-code:
+    enabled: false
 ratings:
  paths:
  - "**.js"
