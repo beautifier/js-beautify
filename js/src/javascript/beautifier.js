@@ -405,9 +405,7 @@ Beautifier.prototype.print_token = function(current_token) {
     this._output.add_raw_token(current_token);
     return;
   }
-  if (this._options.brace_style === "expand-all" && is_array(this._flags.mode) && current_token.previous && current_token.previous.type === TOKEN.COMMA) {
-    this.print_newline(); // array items get a newline treatment
-  }
+  if (this._options.brace_style === "expand-all" && is_array(this._flags.mode) && current_token.previous && current_token.previous.type === TOKEN.COMMA) { this.print_newline(); } // array items get a newline treatment
   if (this._options.comma_first && current_token.previous && current_token.previous.type === TOKEN.COMMA &&
     this._output.just_added_newline()) {
     if (this._output.previous_line.last() === ',') {

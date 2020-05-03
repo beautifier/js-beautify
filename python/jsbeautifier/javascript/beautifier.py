@@ -871,13 +871,14 @@ class Beautifier:
 
         if self._flags.last_token.type == TOKEN.END_BLOCK:
             token_reserved_word = reserved_array(current_token, ['else', 'catch', 'finally', 'from'])
+            no_brace_style_nl = self._options.brace_style == 'none' and current_token.newlines
+            is_literal_sbrk_cma = self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']
             if self._previous_flags.inline_frame:
                 prefix = 'SPACE'
             elif not token_reserved_word:
                 prefix = 'NEWLINE'
             else:
-                if self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or (
-                        self._options.brace_style == 'none' and current_token.newlines):
+                if self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or no_brace_style_nl:
                     prefix = 'NEWLINE'
                 else:
                     prefix = 'SPACE'
@@ -891,8 +892,7 @@ class Beautifier:
             prefix = 'NEWLINE'
         elif self._flags.last_token.type == TOKEN.RESERVED or self._flags.last_token.type == TOKEN.WORD or \
             (self._flags.last_token.text == '*' and (
-                self._last_last_text in ['function', 'yield'] or
-                (self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']))):
+                self._last_last_text in ['function', 'yield'] or is_literal_sbrk_cma)):
             prefix = 'SPACE'
         elif self._flags.last_token.type == TOKEN.START_BLOCK:
             if self._flags.inline_frame:
@@ -910,9 +910,9 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if reserved_array(current_token, ['else', 'catch', 'finally']):
-            block_statement_ends = self._flags.last_token.type == TOKEN.END_BLOCK and \
-                self._previous_flags.mode == MODE.BlockStatement
-            if ((not block_statement_ends) or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
+            blk_stmt_ends = self._flags.last_token.type == TOKEN.END_BLOCK
+            blk_stmt_ends = blk_stmt_ends and self._previous_flags.mode == MODE.BlockStatement
+            if ((not blk_stmt_ends) or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
                     or (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
                 self.print_newline()
             else:
