@@ -869,10 +869,10 @@ class Beautifier:
 
         prefix = 'NONE'
 
+        is_literal_sbrk_cma = self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']
         if self._flags.last_token.type == TOKEN.END_BLOCK:
             token_reserved_word = reserved_array(current_token, ['else', 'catch', 'finally', 'from'])
             no_brace_style_nl = self._options.brace_style == 'none' and current_token.newlines
-            is_literal_sbrk_cma = self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']
             if self._previous_flags.inline_frame:
                 prefix = 'SPACE'
             elif not token_reserved_word:
