@@ -870,9 +870,10 @@ class Beautifier:
         prefix = 'NONE'
 
         if self._flags.last_token.type == TOKEN.END_BLOCK:
+            token_reserved_word = reserved_array(current_token, ['else', 'catch', 'finally', 'from'])
             if self._previous_flags.inline_frame:
                 prefix = 'SPACE'
-            elif not reserved_array(current_token, ['else', 'catch', 'finally', 'from']):
+            elif not token_reserved_word:
                 prefix = 'NEWLINE'
             else:
                 if self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or (
@@ -909,7 +910,8 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if reserved_array(current_token, ['else', 'catch', 'finally']):
-            block_statement_ends = self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement
+            block_statement_ends = self._flags.last_token.type == TOKEN.END_BLOCK and \
+                self._previous_flags.mode == MODE.BlockStatement
             if ((not block_statement_ends) or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
                     or (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
                 self.print_newline()

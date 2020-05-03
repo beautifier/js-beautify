@@ -412,8 +412,7 @@ Beautifier.prototype.print_token = function(current_token) {
     this._output.just_added_newline()) {
     if (this._output.previous_line.last() === ',') {
       var popped = this._output.previous_line.pop();
-      // if the comma was already at the start of the line,
-      // pull back onto that line and reprint the indentation
+      // if the comma was already at the start of the line, pull back onto that line and reprint the indentation
       if (this._output.previous_line.is_empty()) {
         this._output.previous_line.push(popped);
         this._output.trim(true);
