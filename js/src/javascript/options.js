@@ -50,7 +50,7 @@ function Options(options) {
   //preserve-inline in delimited string will trigger brace_preserve_inline, everything
   //else is considered a brace_style and the last one only will have an effect
 
-  var brace_style_split = this._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline']);
+  var brace_style_split = this._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline', 'expand-all']);
 
   this.brace_preserve_inline = false; //Defaults in case one or other was not specified in meta-option
   this.brace_style = "collapse";

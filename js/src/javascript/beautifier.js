@@ -406,6 +406,10 @@ Beautifier.prototype.print_token = function(current_token) {
     return;
   }
 
+  if (this._options.brace_style === "expand-all" && is_array(this._flags.mode) && current_token.previous && current_token.previous.type === TOKEN.COMMA) {
+    this.print_newline(); // array items get a newline treatment
+  }
+
   if (this._options.comma_first && current_token.previous && current_token.previous.type === TOKEN.COMMA &&
     this._output.just_added_newline()) {
     if (this._output.previous_line.last() === ',') {
@@ -518,6 +522,9 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
 
   var next_mode = MODE.Expression;
   if (current_token.text === '[') {
+    if (this._options.brace_style === "expand-all") {
+      this.print_newline();
+    }
 
     if (this._flags.last_token.type === TOKEN.WORD || this._flags.last_token.text === ')') {
       // this is array index specifier, break immediately
@@ -543,6 +550,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
         if (!this._options.keep_array_indentation) {
           this.print_newline();
         }
+      } else if (this._options.brace_style === "expand-all" && this._flags.last_token.text === ',') {
+          this.print_newline();
       }
     }
 
@@ -626,6 +635,9 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
   }
 
   this.print_token(current_token);
+  if (current_token.text === '[' && this._options.brace_style === "expand-all") {
+    this.print_newline();
+  }
   this.set_mode(next_mode);
   if (this._options.space_in_paren) {
     this._output.space_before_token = true;
@@ -647,6 +659,10 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
   if (this._flags.multiline_frame) {
     this.allow_wrap_or_preserved_newline(current_token,
       current_token.text === ']' && is_array(this._flags.mode) && !this._options.keep_array_indentation);
+  }
+
+  if (this._options.brace_style === "expand-all" && current_token.text === ']' && is_array(this._flags.mode)) {
+    this.print_newline();
   }
 
   if (this._options.space_in_paren) {
@@ -731,7 +747,7 @@ Beautifier.prototype.handle_start_block = function(current_token) {
       !(check_token.type === TOKEN.END_BLOCK && check_token.opened === current_token));
   }
 
-  if ((this._options.brace_style === "expand" ||
+  if ((this._options.brace_style === "expand" || this._options.brace_style === "expand-all" ||
       (this._options.brace_style === "none" && current_token.newlines)) &&
     !this._flags.inline_frame) {
     if (this._flags.last_token.type !== TOKEN.OPERATOR &&
@@ -783,7 +799,7 @@ Beautifier.prototype.handle_end_block = function(current_token) {
 
   if (this._flags.inline_frame && !empty_braces) { // try inline_frame (only set if this._options.braces-preserve-inline) first
     this._output.space_before_token = true;
-  } else if (this._options.brace_style === "expand") {
+  } else if (this._options.brace_style === "expand" || this._options.brace_style === "expand-all") {
     if (!empty_braces) {
       this.print_newline();
     }
@@ -931,7 +947,7 @@ Beautifier.prototype.handle_word = function(current_token) {
     } else if (!reserved_array(current_token, ['else', 'catch', 'finally', 'from'])) {
       prefix = 'NEWLINE';
     } else {
-      if (this._options.brace_style === "expand" ||
+      if (this._options.brace_style === "expand" || this._options.brace_style === "expand-all" ||
         this._options.brace_style === "end-expand" ||
         (this._options.brace_style === "none" && current_token.newlines)) {
         prefix = 'NEWLINE';
@@ -974,7 +990,7 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   if (reserved_array(current_token, ['else', 'catch', 'finally'])) {
     if ((!(this._flags.last_token.type === TOKEN.END_BLOCK && this._previous_flags.mode === MODE.BlockStatement) ||
-        this._options.brace_style === "expand" ||
+        this._options.brace_style === "expand" || this._options.brace_style === "expand-all" ||
         this._options.brace_style === "end-expand" ||
         (this._options.brace_style === "none" && current_token.newlines)) &&
       !this._flags.inline_frame) {
