@@ -909,10 +909,9 @@ class Beautifier:
                 prefix = 'NEWLINE'
 
         if reserved_array(current_token, ['else', 'catch', 'finally']):
-            if ((not (self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement))
-                or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
-                or (self._options.brace_style == 'none' and current_token.newlines)) \
-               and not self._flags.inline_frame:
+            block_statement_ends = self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.mode == MODE.BlockStatement
+            if ((not block_statement_ends) or self._options.brace_style in ['expand', 'end-expand', 'expand-all']
+                    or (self._options.brace_style == 'none' and current_token.newlines)) and not self._flags.inline_frame:
                 self.print_newline()
             else:
                 self._output.trim(True)

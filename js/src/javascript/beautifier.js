@@ -420,14 +420,12 @@ Beautifier.prototype.print_token = function(current_token) {
         this._output.current_line.pop();
         this._output.trim();
       }
-
       // add the comma in front of the next token
       this.print_token_line_indentation(current_token);
       this._output.add_token(',');
       this._output.space_before_token = true;
     }
   }
-
   this.print_token_line_indentation(current_token);
   this._output.non_breaking_space = true;
   this._output.add_token(current_token.text);
@@ -646,15 +644,10 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
 Beautifier.prototype.handle_end_expr = function(current_token) {
   // statements inside expressions are not valid syntax, but...
   // statements must all be closed when their container closes
-  while (this._flags.mode === MODE.Statement) {
-    this.restore_mode();
-  }
-
+  while (this._flags.mode === MODE.Statement) { this.restore_mode(); }
   this.handle_whitespace_and_comments(current_token);
-
   if (this._flags.multiline_frame) {
-    this.allow_wrap_or_preserved_newline(current_token,
-      current_token.text === ']' && is_array(this._flags.mode) && !this._options.keep_array_indentation);
+    this.allow_wrap_or_preserved_newline(current_token, current_token.text === ']' && is_array(this._flags.mode) && !this._options.keep_array_indentation);
   }
   if (this._options.brace_style === "expand-all" && current_token.text === ']' && is_array(this._flags.mode)) {
     this.print_newline();
@@ -664,15 +657,12 @@ Beautifier.prototype.handle_end_expr = function(current_token) {
       // () [] no inner space in empty parens like these, ever, ref #320
       this._output.trim();
       this._output.space_before_token = false;
-    } else {
-      this._output.space_before_token = true;
-    }
+    } else { this._output.space_before_token = true; }
   }
   this.deindent();
   this.print_token(current_token);
   this.restore_mode();
   remove_redundant_indentation(this._output, this._previous_flags);
-
   // do {} while () // no statement required after
   if (this._flags.do_while && this._previous_flags.mode === MODE.Conditional) {
     this._previous_flags.mode = MODE.Expression;
