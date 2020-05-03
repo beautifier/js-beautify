@@ -872,12 +872,12 @@ class Beautifier:
         is_literal_sbrk_cma = self._flags.mode == MODE.ObjectLiteral and self._last_last_text in ['{', ',']
         token_reserved_word = reserved_array(current_token, ['else', 'catch', 'finally', 'from'])
         no_brace_style_nl = self._options.brace_style == 'none' and current_token.newlines
+        brace_style_in_exp = self._options.brace_style in ['expand', 'end-expand', 'expand-all']
         if self._flags.last_token.type == TOKEN.END_BLOCK and self._previous_flags.inline_frame:
             prefix = 'SPACE'
         elif self._flags.last_token.type == TOKEN.END_BLOCK and not token_reserved_word:
             prefix = 'NEWLINE'
-        elif self._flags.last_token.type == TOKEN.END_BLOCK and \
-                self._options.brace_style in ['expand', 'end-expand', 'expand-all'] or no_brace_style_nl:
+        elif self._flags.last_token.type == TOKEN.END_BLOCK and brace_style_in_exp or no_brace_style_nl:
             prefix = 'NEWLINE'
         elif self._flags.last_token.type == TOKEN.END_BLOCK:
             prefix = 'SPACE'
@@ -890,8 +890,8 @@ class Beautifier:
         elif self._flags.last_token.type == TOKEN.STRING:
             prefix = 'NEWLINE'
         elif self._flags.last_token.type == TOKEN.RESERVED or self._flags.last_token.type == TOKEN.WORD or \
-            (self._flags.last_token.text == '*' and (
-                self._last_last_text in ['function', 'yield'] or is_literal_sbrk_cma)):
+                (self._flags.last_token.text == '*' and (
+                        self._last_last_text in ['function', 'yield'] or is_literal_sbrk_cma)):
             prefix = 'SPACE'
         elif self._flags.last_token.type == TOKEN.START_BLOCK:
             if self._flags.inline_frame:
