@@ -184,7 +184,7 @@ Beautifier Options:
   -j, --jslint-happy                Enable jslint-stricter mode
   -a, --space-after-anon-function   Add a space before an anonymous function's parens, ie. function ()
   --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
-  -b, --brace-style                 [collapse|expand|end-expand|none][,preserve-inline] [collapse,preserve-inline]
+  -b, --brace-style                 [collapse|expand|end-expand|expand-all|none][,preserve-inline] [collapse,preserve-inline]
   -u, --unindent-chained-methods    Don't indent chained method calls
   -B, --break-chained-methods       Break chained method calls across subsequent lines
   -k, --keep-array-indentation      Preserve array indentation

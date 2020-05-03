@@ -61,8 +61,8 @@
     space_after_anon_function (default false) - should the space before an anonymous function's parens be added, "function()" vs "function ()",
           NOTE: This option is overriden by jslint_happy (i.e. if jslint_happy is true, space_after_anon_function is true by design)
 
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "none" | any of the former + ",preserve-inline"
-            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or attempt to keep them where they are.
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "expand-all" | "none" | any of the former + ",preserve-inline"
+            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line, or put braces/brackets/array-items on own line or attempt to keep them where they are.
             preserve-inline will try to preserve inline blocks of curly braces
 
     space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
