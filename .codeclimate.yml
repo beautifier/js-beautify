@@ -6,6 +6,8 @@ engines:
 checks:
   complex-logic:
     enabled: false
+  file-lines:
+    enabled: false
   method-lines:
     enabled: false
   nested-control-flow:
