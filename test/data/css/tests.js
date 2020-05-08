@@ -29,6 +29,7 @@ exports.test_data = {
     { name: "indent_size", value: "4" },
     { name: "indent_char", value: "' '" },
     { name: "selector_separator_newline", value: "true" },
+    { name: "brace_style", value: "'collapse'" },
     { name: "end_with_newline", value: "false" },
     { name: "newline_between_rules", value: "false" },
     { name: "space_around_combinator", value: "false" },
@@ -289,6 +290,8 @@ exports.test_data = {
         ],
         separator: ' ',
         separator1: ' ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
         new_rule: '\n',
         first_nested_rule: ''
       }, {
@@ -299,6 +302,8 @@ exports.test_data = {
         ],
         separator: ' ',
         separator1: ' ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
         new_rule: '',
         first_nested_rule: ''
       }, {
@@ -310,6 +315,8 @@ exports.test_data = {
         // BUG: #713
         separator: ' ',
         separator1: ' ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
         new_rule: '',
         first_nested_rule: ''
       }, {
@@ -320,6 +327,8 @@ exports.test_data = {
         ],
         separator: '\\n',
         separator1: '\\n\    ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
         new_rule: '\n',
         first_nested_rule: '\n' // bug #1489
       }, {
@@ -330,6 +339,8 @@ exports.test_data = {
         ],
         separator: '\\n',
         separator1: '\\n\    ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
         new_rule: '',
         first_nested_rule: ''
       }, {
@@ -340,27 +351,79 @@ exports.test_data = {
         ],
         separator: '\\n',
         separator1: '\\n\    ',
+        curly_separator: ' ',
+        curly_separator2: ' ',
+        new_rule: '',
+        new_rule_bug: ''
+      }, {
+        options: [
+          { name: 'selector_separator_newline', value: 'true' },
+          { name: 'selector_separator', value: '"  "' },
+          { name: 'brace_style', value: '"expand"' },
+          { name: 'newline_between_rules', value: 'false' }
+        ],
+        separator: '\\n',
+        separator1: '\\n\    ',
+        curly_separator: '\\n',
+        curly_separator2: '\\n    ',
         new_rule: '',
         new_rule_bug: ''
       }],
-      tests: [
-        { input: '#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n    color: green\n}' },
-        { input: '#bla, #foo{color:green}\n#bla, #foo{color:green}', output: '#bla,{{separator}}#foo {\n    color: green\n}{{new_rule}}\n#bla,{{separator}}#foo {\n    color: green\n}' },
-        { input: '@media print {.tab{}}', output: '@media print {\n    .tab {}\n}' },
-
+      tests: [{
+          input: '#bla, #foo{color:green}',
+          output: '#bla,{{separator}}#foo{{curly_separator}}{\n    color: green\n}'
+        },
+        {
+          input: '#bla, #foo{color:green}\n#bla, #foo{color:green}',
+          output: [
+            '#bla,{{separator}}#foo{{curly_separator}}{',
+            '    color: green',
+            '}{{new_rule}}',
+            '#bla,{{separator}}#foo{{curly_separator}}{',
+            '    color: green',
+            '}'
+          ]
+        },
+        {
+          input: '@media print {.tab{}}',
+          output: '@media print{{curly_separator}}{\n    .tab{{curly_separator2}}{}\n}'
+        },
         {
           comment: 'This is bug #1489',
           input: '@media print {.tab,.bat{}}',
-          output: '@media print {\n{{first_nested_rule}}    .tab,{{separator1}}.bat {}\n}'
+          output: '@media print{{curly_separator}}{\n{{first_nested_rule}}    .tab,{{separator1}}.bat{{curly_separator2}}{}\n}'
         },
         {
           comment: 'This is bug #1489',
           input: '@media print {// comment\n//comment 2\n.bat{}}',
-          output: '@media print {\n{{new_rule}}    // comment\n    //comment 2\n    .bat {}\n}'
+          output: [
+            '@media print{{curly_separator}}{',
+            '{{new_rule}}    // comment',
+            '    //comment 2',
+            '    .bat{{curly_separator2}}{}',
+            '}'
+          ]
         },
-        { input: '#bla, #foo{color:black}', output: '#bla,{{separator}}#foo {\n    color: black\n}' }, {
+        {
+          input: '#bla, #foo{color:black}',
+          output: '#bla,{{separator}}#foo{{curly_separator}}{\n    color: black\n}'
+        },
+        {
           input: 'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\na:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
-          output: 'a:first-child,{{separator}}a:first-child {\n    color: red;{{new_rule}}\n    div:first-child,{{separator1}}div:hover {\n        color: black;\n    }\n}\n{{new_rule}}a:first-child,{{separator}}a:first-child {\n    color: red;{{new_rule}}\n    div:first-child,{{separator1}}div:hover {\n        color: black;\n    }\n}'
+          output: [
+            'a:first-child,{{separator}}a:first-child{{curly_separator}}{',
+            '    color: red;{{new_rule}}',
+            '    div:first-child,{{separator1}}div:hover{{curly_separator2}}{',
+            '        color: black;',
+            '    }',
+            '}',
+            '{{new_rule}}a:first-child,{{separator}}a:first-child{{curly_separator}}{',
+            '    color: red;{{new_rule}}',
+            '    div:first-child,{{separator1}}div:hover{{curly_separator2}}{',
+            '        color: black;',
+            '    }',
+            '}'
+          ]
         }
       ]
     }, {
@@ -1601,6 +1664,77 @@ exports.test_data = {
           '    height: auto;',
           '',
           '}'
+        ]
+      }]
+    }, {
+      name: "brace_style = expand",
+      description: "",
+      matrix: [{
+        options: [
+          { name: "brace_style", value: "'expand'" },
+          { name: "selector_separator_newline", value: "false" },
+          { name: "newline_between_rules", value: "true" }
+        ],
+        empty_line_indent: '',
+        newline: '\n'
+      }, {
+        options: [
+          { name: "brace_style", value: "'expand'" },
+          { name: "indent_empty_lines", value: "true" },
+          { name: "selector_separator_newline", value: "false" },
+          { name: "preserve_newlines", value: "true" }
+        ],
+        empty_line_indent: '    \\n',
+        newline: ''
+      }, {
+        options: [
+          { name: "brace_style", value: "'expand'" },
+          { name: "indent_empty_lines", value: "false" },
+          { name: "selector_separator_newline", value: "false" },
+          { name: "preserve_newlines", value: "true" }
+        ],
+        empty_line_indent: '\\n',
+        newline: ''
+      }],
+
+      tests: [{
+        input: [
+          'a, b, .c {',
+          '    width: auto;',
+          '  ',
+          '    height: auto;',
+          '}'
+        ],
+        output: [
+          'a, b, .c',
+          '{',
+          '    width: auto;',
+          '{{empty_line_indent}}    height: auto;',
+          '}'
+        ]
+      }, {
+        comment: 'edge case - empty line after { should not be indented without indent_empty_lines',
+        input: [
+          'a, b, .c {',
+          '',
+          '    width: auto;',
+          '}'
+        ],
+        output: [
+          'a, b, .c',
+          '{',
+          '{{empty_line_indent}}    width: auto;',
+          '}'
+        ]
+      }, {
+        comment: 'integration test of newline_between_rules, imports, and brace_style="expand"',
+        input: '.a{} @import "custom.css";.rule{}',
+        output: [
+          '.a',
+          '{}',
+          '{{newline}}@import "custom.css";',
+          '{{newline}}.rule',
+          '{}'
         ]
       }]
     }, {

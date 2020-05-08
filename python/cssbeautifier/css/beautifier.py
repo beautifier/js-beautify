@@ -314,24 +314,35 @@ class Beautifier:
                 if insidePropertyValue:
                     insidePropertyValue = False
                     self.outdent()
-                self.indent()
-                self._output.space_before_token = True
-                self.print_string(self._ch)
 
                 # when entering conditional groups, only rulesets are
                 # allowed
                 if enteringConditionalGroup:
                     enteringConditionalGroup = False
-                    insideRule = self._indentLevel > self._nestedLevel
+                    insideRule = self._indentLevel >= self._nestedLevel
                 else:
                     # otherwise, declarations are also allowed
-                    insideRule = self._indentLevel >= self._nestedLevel
+                    insideRule = self._indentLevel >= self._nestedLevel - 1
 
                 if self._options.newline_between_rules and insideRule:
                     if self._output.previous_line and \
                             not self._output.previous_line.is_empty() and \
                             self._output.previous_line.item(-1) != '{':
                         self._output.ensure_empty_line_above('/', ',')
+
+                self._output.space_before_token = True
+
+                # The difference in print_string and indent order
+                # is necessary to indent the '{' correctly
+                if self._options.brace_style == 'expand':
+                    self._output.add_new_line()
+                    self.print_string(self._ch)
+                    self.indent()
+                    self._output.set_indent(self._indentLevel)
+                else:
+                    self.indent()
+                    self.print_string(self._ch)
+
                 self.eatWhitespace(True)
                 self._output.add_new_line()
             elif self._ch == '}':

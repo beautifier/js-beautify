@@ -392,6 +392,7 @@ function usage(err) {
             msg.push('  --unformatted_content_delimiter    Keep text content together between this string [""]');
             break;
         case "css":
+            msg.push('  -b, --brace-style                       [collapse|expand] ["collapse"]');
             msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
             msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
     }
