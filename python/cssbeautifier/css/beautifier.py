@@ -441,7 +441,7 @@ class Beautifier:
                 self.eatWhitespace(True)
                 if self._options.selector_separator_newline and \
                         not insidePropertyValue and parenLevel == 0 and \
-                        not insideAtImport:
+                        not insideAtImport and not insideAtExtend:
                     self._output.add_new_line()
                 else:
                     self._output.space_before_token = True
