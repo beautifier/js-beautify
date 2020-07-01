@@ -61,7 +61,8 @@ def unpack(source):
         word = match.group(0)
         return symtab[unbase(word)] or word
 
-    source = re.sub(r'\b\w+\b', lookup, payload)
+    payload = payload.replace("\\\\", "\\").replace("\\'", "'")
+    source = re.sub(r'\b\w+\b', lookup, payload, flags=re.ASCII)
     return _replacestrings(source)
 
 
