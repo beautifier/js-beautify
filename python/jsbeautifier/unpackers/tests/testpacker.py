@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 #     written by Stefano Sanfilippo <a.little.coder@gmail.com>
 #
@@ -39,9 +40,9 @@ class TestPacker(unittest.TestCase):
               "eval(function(p,a,c,k,e,r){e=String;if(!''.replace(/^/,String))"
               "{while(c--)r[c]=k[c]||c;k=[function(e){return r[e]}];e=function"
               "(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp("
-              "'\\b'+e(c)+'\\b','g'),k[c]);return p}('0 2=1',3,3,"
+              "'\\b'+e(c)+'\\b','g'),k[c]);return p}('0 2=\\\'{Íâ–+›ï;ã†Ù¥#\\\'',3,3,"
               "'var||a'.split('|'),0,{}))",
-              "function test (){alert ('This is a test!')}; var a=1")
+              "function test (){alert ('This is a test!')}; var a='{Íâ–+›ï;ã†Ù¥#'")
 
         check("eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('2 0=\"4 3!\";2 1=0.5(/b/6);a.9(\"8\").7=1;',12,12,'str|n|var|W3Schools|Visit|search|i|innerHTML|demo|getElementById|document|w3Schools'.split('|'),0,{}))",
             "var str=\"Visit W3Schools!\";var n=str.search(/w3Schools/i);document.getElementById(\"demo\").innerHTML=n;")
