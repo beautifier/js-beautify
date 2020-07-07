@@ -172,12 +172,15 @@ Output options:
  --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
+ --quiet                           Suppress info about a file if nothing was changed.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
  -C,  --comma-first                Put commas at the beginning of new line instead of end.
+ -m,
+ --max-preserve-newlines=NUMBER    Number of line-breaks to be preserved in one chunk (default 10)
  -O,  --operator-position=STRING   Set operator position (before-newline, after-newline, preserve-newline)
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
@@ -233,12 +236,12 @@ def main():
 
     try:
         opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjab:kil:xhtvXnCO:w:m:",
-                                   ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
-                                    'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-                                    'brace-style=', 'indent-level=', 'unescape-strings',
-                                    'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
-                                    'keep-array-indentation', 'indent-empty-lines', 'templating'])
+                                   [ 'brace-style=', 'comma-first', 'disable-preserve-newlines', 'e4x', 'editorconfig', 'end-with-newline',
+                                   'eol=', 'eval-code', 'file=', 'help',  'indent-char=', 'indent-empty-lines',
+                                   'indent-level=', 'indent-size=', 'indent-with-tabs', 'jslint-happy', 'keep-array-indentation', 'keep-function-indentation',
+                                   'max-preserve-newlines=', 'operator-position=', 'outfile=', 'quiet', 'replace', 'space-after-anon-function',
+                                   'space-after-named-function', 'space-in-empty-paren', 'space-in-paren',  'stdin', 'templating', 'unescape-strings',
+                                   'usage', 'version', 'wrap-line-length'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -286,6 +289,8 @@ def main():
             js_options.space_after_named_function = True
         elif opt in ('--eval-code'):
             js_options.eval_code = True
+        elif opt in ('--quiet'):
+            js_options.keep_quiet = True
         elif opt in ('--brace-style', '-b'):
             js_options.brace_style = arg
         elif opt in ('--unescape-strings', '-x'):
@@ -411,7 +416,7 @@ def main():
                             # fail on a missing six dependency.
                             six = __import__("six")
                             f.write(six.u(pretty))
-                else:
+                elif not js_options.keep_quiet:
                     print('beautified ' + outfile + ' - unchanged', file=sys.stdout)
 
 
