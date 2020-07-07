@@ -62,7 +62,10 @@ def unpack(source):
         return symtab[unbase(word)] or word
 
     payload = payload.replace("\\\\", "\\").replace("\\'", "'")
-    source = re.sub(r'\b\w+\b', lookup, payload, flags=re.ASCII)
+    if sys.version_info.major == 2:
+        source = re.sub(r'\b\w+\b', lookup, payload)    
+    else:
+        source = re.sub(r'\b\w+\b', lookup, payload, flags=re.ASCII)
     return _replacestrings(source)
 
 
