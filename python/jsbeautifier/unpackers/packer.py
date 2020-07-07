@@ -14,6 +14,7 @@
 
 import re
 import string
+import sys
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
@@ -61,7 +62,11 @@ def unpack(source):
         word = match.group(0)
         return symtab[unbase(word)] or word
 
-    source = re.sub(r'\b\w+\b', lookup, payload)
+    payload = payload.replace("\\\\", "\\").replace("\\'", "'")
+    if sys.version_info.major == 2:
+        source = re.sub(r'\b\w+\b', lookup, payload)    
+    else:
+        source = re.sub(r'\b\w+\b', lookup, payload, flags=re.ASCII)
     return _replacestrings(source)
 
 
