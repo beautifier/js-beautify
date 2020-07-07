@@ -14,6 +14,7 @@
 
 import re
 import string
+import sys
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
