@@ -58,6 +58,7 @@ class CSSBeautifierTest(unittest.TestCase):
         default_options.indent_size = 4
         default_options.indent_char = ' '
         default_options.selector_separator_newline = true
+        default_options.brace_style = 'collapse'
         default_options.end_with_newline = false
         default_options.newline_between_rules = false
         default_options.space_around_combinator = false
@@ -901,6 +902,77 @@ class CSSBeautifierTest(unittest.TestCase):
             'a:first-child,\na:first-child {\n' +
             '    color: red;\n' +
             '    div:first-child,\n    div:hover {\n' +
+            '        color: black;\n' +
+            '    }\n' +
+            '}')
+
+        # Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", brace_style = ""expand"", newline_between_rules = "false")
+        self.reset_options()
+        self.options.selector_separator_newline = true
+        self.options.selector_separator = "  "
+        self.options.brace_style = "expand"
+        self.options.newline_between_rules = false
+        t(
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}')
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            #  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}\n' +
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}')
+        t(
+            '@media print {.tab{}}',
+            #  -- output --
+            '@media print\n{\n' +
+            '    .tab\n    {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            #  -- output --
+            '@media print\n{\n' +
+            '    .tab,\n    .bat\n    {}\n' +
+            '}')
+        
+        # This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            #  -- output --
+            '@media print\n{\n' +
+            '    // comment\n' +
+            '    //comment 2\n' +
+            '    .bat\n    {}\n' +
+            '}')
+        t(
+            '#bla, #foo{color:black}',
+            #  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: black\n' +
+            '}')
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            #  -- output --
+            'a:first-child,\na:first-child\n{\n' +
+            '    color: red;\n' +
+            '    div:first-child,\n    div:hover\n    {\n' +
+            '        color: black;\n' +
+            '    }\n' +
+            '}\n' +
+            'a:first-child,\na:first-child\n{\n' +
+            '    color: red;\n' +
+            '    div:first-child,\n    div:hover\n    {\n' +
             '        color: black;\n' +
             '    }\n' +
             '}')
@@ -10657,6 +10729,132 @@ class CSSBeautifierTest(unittest.TestCase):
             '    height: auto;\n' +
             '\n' +
             '}')
+
+
+        #============================================================
+        # brace_style = expand - (brace_style = ""expand"", selector_separator_newline = "false", newline_between_rules = "true")
+        self.reset_options()
+        self.options.brace_style = 'expand'
+        self.options.selector_separator_newline = false
+        self.options.newline_between_rules = true
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '    height: auto;\n' +
+            '}')
+        
+        # edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '}')
+        
+        # integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            #  -- output --
+            '.a\n' +
+            '{}\n' +
+            '\n' +
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule\n' +
+            '{}')
+
+        # brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "true", selector_separator_newline = "false", preserve_newlines = "true")
+        self.reset_options()
+        self.options.brace_style = 'expand'
+        self.options.indent_empty_lines = true
+        self.options.selector_separator_newline = false
+        self.options.preserve_newlines = true
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '    \n    height: auto;\n' +
+            '}')
+        
+        # edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    \n    width: auto;\n' +
+            '}')
+        
+        # integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            #  -- output --
+            '.a\n' +
+            '{}\n' +
+            '@import "custom.css";\n' +
+            '.rule\n' +
+            '{}')
+
+        # brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "false", selector_separator_newline = "false", preserve_newlines = "true")
+        self.reset_options()
+        self.options.brace_style = 'expand'
+        self.options.indent_empty_lines = false
+        self.options.selector_separator_newline = false
+        self.options.preserve_newlines = true
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '\n    height: auto;\n' +
+            '}')
+        
+        # edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            #  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '\n    width: auto;\n' +
+            '}')
+        
+        # integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            #  -- output --
+            '.a\n' +
+            '{}\n' +
+            '@import "custom.css";\n' +
+            '.rule\n' +
+            '{}')
 
 
         #============================================================

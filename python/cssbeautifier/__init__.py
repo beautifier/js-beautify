@@ -88,6 +88,7 @@ Output options:
       --preserve-newlines          Preserve existing line breaks.
       --disable-selector-separator-newline
                                    Do not print each selector on a separate line.
+ -b,  --brace-style=collapse       Brace style (collapse, expand)
  -n,  --end-with-newline           End output with newline
       --disable-newline-between-rules
                                    Do not print empty line between rules.
@@ -113,11 +114,12 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "hvio:rs:c:e:tn",
+        opts, args = getopt.getopt(argv, "hvio:rs:c:e:tnb:",
                                    ['help', 'usage', 'version', 'stdin', 'outfile=', 'replace',
                                     'indent-size=', 'indent-char=', 'eol=', 'indent-with-tabs',
-                                    'preserve-newlines', 'disable-selector-separator-newline',
-                                    'end-with-newline', 'disable-newline-between-rules',
+                                    'preserve-newlines', 'brace-style=',
+                                    'disable-selector-separator-newline', 'end-with-newline',
+                                    'disable-newline-between-rules',
                                     'space-around-combinator', 'indent-empty-lines'])
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
@@ -155,6 +157,8 @@ def main():
             css_options.preserve_newlines = True
         elif opt in ('--disable-selector-separator-newline'):
             css_options.selector_separator_newline = False
+        elif opt in ('--brace-style', '-b'):
+            css_options.brace_style = arg
         elif opt in ('--end-with-newline', '-n'):
             css_options.end_with_newline = True
         elif opt in ('--disable-newline-between-rules'):
