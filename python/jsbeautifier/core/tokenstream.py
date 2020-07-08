@@ -26,8 +26,8 @@ import re
 from ..core.inputscanner import InputScanner
 from ..core.token import Token
 
-class TokenStream:
 
+class TokenStream:
     def __init__(self, parent_token=None):
         self.__tokens = []
         self.__tokens_length = len(self.__tokens)

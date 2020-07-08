@@ -25,15 +25,12 @@
 
 from ..core.options import Options as BaseOptions
 
-OPERATOR_POSITION = [
-    'before-newline',
-    'after-newline',
-    'preserve-newline'
-]
+OPERATOR_POSITION = ["before-newline", "after-newline", "preserve-newline"]
+
 
 class BeautifierOptions(BaseOptions):
     def __init__(self, options=None):
-        BaseOptions.__init__(self, options, 'js')
+        BaseOptions.__init__(self, options, "js")
 
         self.css = None
         self.js = None
@@ -41,11 +38,13 @@ class BeautifierOptions(BaseOptions):
 
         # compatibility, re
 
-        raw_brace_style = getattr(self.raw_options, 'brace_style', None)
-        if raw_brace_style == "expand-strict": # graceful handling of deprecated option
-            setattr(self.raw_options, 'brace_style', "expand")
-        elif raw_brace_style == "collapse-preserve-inline": # graceful handling of deprecated option
-            setattr(self.raw_options, 'brace_style', "collapse,preserve-inline")
+        raw_brace_style = getattr(self.raw_options, "brace_style", None)
+        if raw_brace_style == "expand-strict":  # graceful handling of deprecated option
+            setattr(self.raw_options, "brace_style", "expand")
+        elif (
+            raw_brace_style == "collapse-preserve-inline"
+        ):  # graceful handling of deprecated option
+            setattr(self.raw_options, "brace_style", "collapse,preserve-inline")
         # elif bool(self.raw_options.braces_on_own_line): # graceful handling of deprecated option
         #     raw_brace_style = "expand": "collapse"
         # elif raw_brace_style is None: # Nothing exists to set it
@@ -54,7 +53,10 @@ class BeautifierOptions(BaseOptions):
         # preserve-inline in delimited string will trigger brace_preserve_inline, everything
         # else is considered a brace_style and the last one only will have an effect
 
-        brace_style_split = self._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline'])
+        brace_style_split = self._get_selection_list(
+            "brace_style",
+            ["collapse", "expand", "end-expand", "none", "preserve-inline"],
+        )
 
         # preserve-inline in delimited string will trigger brace_preserve_inline
         # Everything else is considered a brace_style and the last one only will
@@ -69,19 +71,25 @@ class BeautifierOptions(BaseOptions):
             else:
                 self.brace_style = bs
 
-        self.unindent_chained_methods = self._get_boolean('unindent_chained_methods')
-        self.break_chained_methods = self._get_boolean('break_chained_methods')
-        self.space_in_paren = self._get_boolean('space_in_paren')
-        self.space_in_empty_paren = self._get_boolean('space_in_empty_paren')
-        self.jslint_happy = self._get_boolean('jslint_happy')
-        self.space_after_anon_function = self._get_boolean('space_after_anon_function')
-        self.space_after_named_function = self._get_boolean('space_after_named_function')
-        self.keep_array_indentation = self._get_boolean('keep_array_indentation')
-        self.space_before_conditional = self._get_boolean('space_before_conditional', True)
-        self.unescape_strings = self._get_boolean('unescape_strings')
-        self.e4x = self._get_boolean('e4x')
-        self.comma_first = self._get_boolean('comma_first')
-        self.operator_position = self._get_selection('operator_position', OPERATOR_POSITION)
+        self.unindent_chained_methods = self._get_boolean("unindent_chained_methods")
+        self.break_chained_methods = self._get_boolean("break_chained_methods")
+        self.space_in_paren = self._get_boolean("space_in_paren")
+        self.space_in_empty_paren = self._get_boolean("space_in_empty_paren")
+        self.jslint_happy = self._get_boolean("jslint_happy")
+        self.space_after_anon_function = self._get_boolean("space_after_anon_function")
+        self.space_after_named_function = self._get_boolean(
+            "space_after_named_function"
+        )
+        self.keep_array_indentation = self._get_boolean("keep_array_indentation")
+        self.space_before_conditional = self._get_boolean(
+            "space_before_conditional", True
+        )
+        self.unescape_strings = self._get_boolean("unescape_strings")
+        self.e4x = self._get_boolean("e4x")
+        self.comma_first = self._get_boolean("comma_first")
+        self.operator_position = self._get_selection(
+            "operator_position", OPERATOR_POSITION
+        )
 
         # For testing of beautify preserve:start directive
         self.test_output_raw = False
