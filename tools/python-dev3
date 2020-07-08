@@ -8,10 +8,6 @@ PYTHON_VERSION="`$PROJECT_DIR/build/$PYTHON_ENV/bin/python --version 2>&1`"
 
 # only run the command on python3 
 if [ -z "${PYTHON_VERSION##Python 3.*}" ]; then
-    # Don't run on python 3.5 
-    if [ -z "${PYTHON_VERSION##Python 3.5.*}" ]; then
-        exit 0
-    fi
     $SCRIPT_DIR/python-dev $@
 fi 
 
