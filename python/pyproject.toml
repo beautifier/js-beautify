@@ -1,7 +1,5 @@
 [tool.black]
-line-length = 88
-target-version = ['py36', 'py37', 'py38']
-include = '\.pyi?$'
+target-version = ['py27', 'py36', 'py37', 'py38']
 exclude = '''
 /(
     \.eggs
