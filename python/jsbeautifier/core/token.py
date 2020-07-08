@@ -24,12 +24,7 @@
 
 
 class Token:
-    def __init__(
-            self,
-            type,
-            text,
-            newlines=0,
-            whitespace_before=''):
+    def __init__(self, type, text, newlines=0, whitespace_before=""):
         self.type = type
         self.text = text
         self.comments_before = None

@@ -42,8 +42,8 @@ jobs:
       Python27_Node8:
         python.version: '2.7'
         node_version: 8.x
-      Python35_Node10:
-        python.version: '3.5'
+      Python36_Node10:
+        python.version: '3.6'
         node_version: 10.x
       Python37_Node12:
         python.version: '3.7'
