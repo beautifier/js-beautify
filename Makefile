@@ -30,7 +30,7 @@ js: generate-tests js/lib/*.js
 
 py: generate-tests $(BUILD_DIR)/python
 	@echo Testing python beautify functionality...
-	$(SCRIPT_DIR)/python-dev black --config=python/pyproject.toml python
+	$(SCRIPT_DIR)/python-dev3 black --config=python/pyproject.toml python
 	$(SCRIPT_DIR)/python-dev python python/js-beautify-test.py || exit 1
 
 jstest: depends js build/*.tgz
@@ -130,7 +130,7 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
-	$(SCRIPT_DIR)/python-dev pip install black
+	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 
 
