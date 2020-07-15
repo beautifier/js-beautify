@@ -6,7 +6,7 @@ import sys
 from setup import PyTest  # from setyp.py, not setuptools!
 
 from setuptools import setup
-from jsbeautifier.__version__ import __version__
+from cssbeautifier.__version__ import __version__
 
 from setuptools.command.test import test as TestCommand
 
