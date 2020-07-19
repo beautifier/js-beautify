@@ -70,6 +70,31 @@ exports.test_data = {
         '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />',
         '</svg>'
       ]
+    }, {
+      // Issue #1365 -- Inline tags with newlines should break block parent ending tags into another line
+      fragment: true,
+      input: [
+        '<div class="col-xs-2">',
+        '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />',
+        '<label for="coli" class="control-label">Collision</label></div>'
+      ],
+      output: [
+        '<div class="col-xs-2">',
+        '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />',
+        '    <label for="coli" class="control-label">Collision</label>',
+        '</div>'
+      ]
+    }, {
+      // Issue #1365 -- Inline tags with newlines should not break inline parent ending tags into another line
+      fragment: true,
+      input: [
+        '<label class="col-xs-2">Collision',
+        '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>'
+      ],
+      output: [
+        '<label class="col-xs-2">Collision',
+        '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>'
+      ]
     }]
   }, {
     name: "End With Newline",

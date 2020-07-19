@@ -172,6 +172,21 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
             '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />\n' +
             '</svg>');
+        test_fragment(
+            '<div class="col-xs-2">\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '<label for="coli" class="control-label">Collision</label></div>',
+            //  -- output --
+            '<div class="col-xs-2">\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '    <label for="coli" class="control-label">Collision</label>\n' +
+            '</div>');
+        test_fragment(
+            '<label class="col-xs-2">Collision\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>',
+            //  -- output --
+            '<label class="col-xs-2">Collision\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>');
 
 
         //============================================================

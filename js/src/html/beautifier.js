@@ -734,11 +734,16 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
       }
     }
 
-    if (!parser_token.is_inline_element && last_token.type !== 'TK_CONTENT') {
-      if (parser_token.parent) {
-        parser_token.parent.multiline_content = true;
-      }
+    var do_set_parent_multiline;
+    if (parser_token.is_inline_element) {
+      do_set_parent_multiline = raw_token.newlines && parser_token.parent && !parser_token.parent.is_inline_element;
+    } else if (last_token.type !== 'TK_CONTENT') {
+      do_set_parent_multiline = parser_token.parent;
       printer.print_newline(false);
+    }
+
+    if (do_set_parent_multiline) {
+      parser_token.parent.multiline_content = true;
     }
   }
 };
