@@ -703,6 +703,9 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
       //Do nothing. Leave comments on same line.
     } else if (!parser_token.is_inline_element && !parser_token.is_unformatted) {
       printer.print_newline(false);
+      if (parser_token.parent) {
+        parser_token.parent.multiline_content = true;
+      }
     }
   } else if (parser_token.is_unformatted || parser_token.is_content_unformatted) {
     if (!parser_token.is_inline_element && !parser_token.is_unformatted) {

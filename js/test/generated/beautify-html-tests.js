@@ -163,6 +163,15 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <h1>Block</h1>\n' +
             '</body>');
         test_fragment('<body><i>Inline</i></body>');
+        test_fragment(
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '<circle id="mycircle" \n' +
+            'cx="182.901" cy="91.4841" \n' +
+            'style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" /></svg>',
+            //  -- output --
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />\n' +
+            '</svg>');
 
 
         //============================================================
@@ -7918,7 +7927,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>----1---------2---------3---------4---------5---------6---------7-----<hr />-</div>',
             //  -- output --
             '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
-            '    <hr />-</div>');
+            '    <hr />-\n' +
+            '</div>');
         bth(
             '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6---------7-----</div>',
             //  -- output --

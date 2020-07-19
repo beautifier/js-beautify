@@ -56,6 +56,20 @@ exports.test_data = {
     }, {
       fragment: true,
       unchanged: '<body><i>Inline</i></body>'
+    }, {
+      // Issue #1718 - Empty, non-inline tags with newlines should break parent ending tag into another line
+      fragment: true,
+      input: [
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">',
+        '<circle id="mycircle" ',
+        'cx="182.901" cy="91.4841" ',
+        'style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" /></svg>'
+      ],
+      output: [
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">',
+        '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />',
+        '</svg>'
+      ]
     }]
   }, {
     name: "End With Newline",
@@ -2537,7 +2551,8 @@ exports.test_data = {
         //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
         output: [
           '<div>----1---------2---------3---------4---------5---------6---------7-----',
-          '    <hr />-</div>'
+          '    <hr />-',
+          '</div>'
         ]
       }, {
         input: [
