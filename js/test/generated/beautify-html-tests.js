@@ -163,6 +163,37 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <h1>Block</h1>\n' +
             '</body>');
         test_fragment('<body><i>Inline</i></body>');
+        bth(
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '<circle id="mycircle" \n' +
+            'cx="182.901" cy="91.4841" \n' +
+            'style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" /></svg>',
+            //  -- output --
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />\n' +
+            '</svg>');
+        bth(
+            '<div class="col-xs-2">\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '<label for="coli" class="control-label">Collision</label></div>',
+            //  -- output --
+            '<div class="col-xs-2">\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '    <label for="coli" class="control-label">Collision</label>\n' +
+            '</div>');
+        bth(
+            '<label class="col-xs-2">Collision\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>',
+            //  -- output --
+            '<label class="col-xs-2">Collision\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>');
+        bth(
+            '<div class="col-xs-2">Collision\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></div>',
+            //  -- output --
+            '<div class="col-xs-2">Collision\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '</div>');
 
 
         //============================================================
@@ -7918,7 +7949,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>----1---------2---------3---------4---------5---------6---------7-----<hr />-</div>',
             //  -- output --
             '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
-            '    <hr />-</div>');
+            '    <hr />-\n' +
+            '</div>');
         bth(
             '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6---------7-----</div>',
             //  -- output --
@@ -8391,9 +8423,63 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // unformatted to prevent formatting changes
         reset_options();
         set_name('unformatted to prevent formatting changes');
-        opts.unformatted = ['u', 'span', 'textarea'];
+        opts.unformatted = ['h1', 'br', 'u', 'span', 'textarea'];
         bth('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
-        bth('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
+        bth('<div><u>Do not wrap unformatted regions with extra newlines</u></div>');
+        bth(
+            '<div>\n' +
+            '<u>Do not wrap unformatted regions with extra newlines</u></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <u>Do not wrap unformatted regions with extra newlines</u>\n' +
+            '</div>');
+        bth('<div><br /></div>');
+        bth(
+            '<div>\n' +
+            '<br /></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <br />\n' +
+            '</div>');
+        bth('<div><h1 /></div>');
+        bth(
+            '<div>\n' +
+            '<h1 /></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <h1 />\n' +
+            '</div>');
+        bth('<label><br /></label>');
+        
+        // Inline parent should not add newline unlike block
+        bth(
+            '<label>\n' +
+            '<br /></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <br /></label>');
+        
+        // Inline parent with unformatted non-inline child
+        bth('<label><h1>Unformatted non-inline</h1></label>');
+        
+        // Inline parent with unformatted non-inline child
+        bth(
+            '<label>\n' +
+            '<h1>Unformatted non-inline</h1></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <h1>Unformatted non-inline</h1></label>');
+        
+        // Inline parent with unformatted non-inline empty child
+        bth('<label><h1 /></label>');
+        
+        // Inline parent with unformatted non-inline empty child
+        bth(
+            '<label>\n' +
+            '<h1 /></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <h1 /></label>');
         bth(
             '<u>  \n' +
             '\n' +
@@ -8487,7 +8573,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>\n' +
             '    <br>\n' +
             '    <br />\n' +
-            '    <br></div>');
+            '    <br>\n' +
+            '</div>');
         
         // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
         bth(
