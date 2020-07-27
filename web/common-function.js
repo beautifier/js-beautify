@@ -317,19 +317,28 @@ function getSubmitIssueBody(trucate) {
 }
 
 function copyText() {
-  var currentText = the.editor.getValue();
+  if (the.editor) {
+    the.editor.execCommand('selectAll');
+    var currentText = the.editor.getValue();
+    var copyArea = $('<textarea />')
+      .text(currentText)
+      .attr('readonly', '')
+      .css({ 'position': 'absolute', 'left': '-9999px' });
 
-  var copyArea = $('<textarea />')
-    .text(currentText)
-    .attr('readonly', '')
-    .css({ 'position': 'absolute', 'left': '-9999px' });
-  $('body').append(copyArea);
-
-  copyArea.select();
-  document.execCommand('copy');
-  copyArea.remove();
+    $('body').append(copyArea);
+    copyArea.select();
+    document.execCommand('copy');
+    copyArea.remove();
+  } else {
+    $('#source').select();
+    document.execCommand('copy');
+  }
 }
 
 function selectAll() {
-  the.editor.execCommand('selectAll');
+  if (the.editor) {
+    the.editor.execCommand('selectAll');
+  } else {
+    $('#source').select();
+  }
 }
