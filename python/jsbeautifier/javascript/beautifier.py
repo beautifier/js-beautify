@@ -542,6 +542,7 @@ class Beautifier:
                 TOKEN.END_EXPR,
                 TOKEN.WORD,
                 TOKEN.OPERATOR,
+                TOKEN.DOT
             ]:
                 self._output.space_before_token = True
 

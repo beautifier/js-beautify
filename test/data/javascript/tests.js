@@ -3724,6 +3724,13 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1801 - Optional chaining w/ obj?.[expr] syntax",
+          unchanged: [
+            'let nestedProp = obj?.["prop" + "Name"];',
+            'let arrayItem = arr?.[42];'
+          ]
+        },
+        {
           comment: "Issue 406 - Multiline array",
           unchanged: [
             'var tempName = [',

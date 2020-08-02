@@ -6647,6 +6647,11 @@ class TestJSBeautifier(unittest.TestCase):
         # Issue 1727 - Optional chaining
         bt('true?.1:.2', 'true ? .1 : .2')
         
+        # Issue 1801 - Optional chaining w/ obj?.[expr] syntax
+        bt(
+            'let nestedProp = obj?.["prop" + "Name"];\n' +
+            'let arrayItem = arr?.[42];')
+        
         # Issue 406 - Multiline array
         bt(
             'var tempName = [\n' +
