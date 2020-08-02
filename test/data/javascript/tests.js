@@ -3735,6 +3735,13 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1801 - Optional chaining w/ obj?.[expr] syntax",
+          unchanged: [
+            'let nestedProp = obj?.["prop" + "Name"];',
+            'let arrayItem = arr?.[42];'
+          ]
+        },
+        {
           comment: "Issue 1374 - Parameters starting with ! or [ merged into single line",
           unchanged: [
             'fn(',
