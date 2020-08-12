@@ -3806,6 +3806,12 @@ exports.test_data = {
           ]
         },
         {
+          comment: 'Issue #1794 - support nullish-coalescing',
+          unchanged: [
+            'a = b ?? c'
+          ]
+        },
+        {
           comment: "Issue #569 - function should not have blank line in a number of cases",
           unchanged: [
             '(function(global) {',

@@ -7001,6 +7001,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        return x;\n' +
             '    };');
         
+        // Issue #1794 - support nullish-coalescing
+        bt('a = b ?? c');
+        
         // Issue #569 - function should not have blank line in a number of cases
         bt(
             '(function(global) {\n' +
