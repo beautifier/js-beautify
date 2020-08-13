@@ -1711,7 +1711,7 @@ exports.test_data = {
         }
       ]
     }, {
-      name: "operator_position option - ensure no neswlines if preserve_newlines is false",
+      name: "operator_position option - ensure no newlines if preserve_newlines is false",
       matrix: [{
         options: [
           // test for default
@@ -1767,7 +1767,8 @@ exports.test_data = {
           'var res = (k &&',
           '        l ||',
           '        m) ?',
-          '    n :',
+          '    n ??',
+          '    nn :',
           '    o;',
           'var res = p >>',
           '    q <<',
@@ -1841,6 +1842,7 @@ exports.test_data = {
           '        && l',
           '        || m)',
           '    ? n',
+          '    ?? nn',
           '    : o;',
           'var res = p',
           '    >> q',
@@ -1914,6 +1916,7 @@ exports.test_data = {
           '        l',
           '        || m) ?',
           '    n',
+          '    ?? nn',
           '    : o;',
           'var res = p',
           '    >> q <<',

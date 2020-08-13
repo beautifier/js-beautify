@@ -2982,13 +2982,13 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (preserve_newlines = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -3006,6 +3006,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3026,19 +3027,19 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'before-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -3056,6 +3057,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3076,19 +3078,19 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'after-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -3106,6 +3108,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3126,19 +3129,19 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -3156,6 +3159,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3176,7 +3180,7 @@ class TestJSBeautifier(unittest.TestCase):
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -3201,6 +3205,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3230,7 +3235,8 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3324,6 +3330,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3353,7 +3360,8 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3449,6 +3457,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3479,6 +3488,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        && l\n' +
             '        || m)\n' +
             '    ? n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q\n' +
@@ -3573,6 +3583,7 @@ class TestJSBeautifier(unittest.TestCase):
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3604,6 +3615,7 @@ class TestJSBeautifier(unittest.TestCase):
             '        l\n' +
             '        || m) ?\n' +
             '    n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q <<\n' +
