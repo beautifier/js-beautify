@@ -68,8 +68,8 @@ update_versions()
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's/\((README\.md:.js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
 
-    echo "__version__ = '$NEW_VERSION'" > python/jsbeautifier/__version__.py
-    echo "__version__ = '$NEW_VERSION'" > python/cssbeautifier/__version__.py
+    echo "__version__ = \"$NEW_VERSION\"" > python/jsbeautifier/__version__.py
+    echo "__version__ = \"$NEW_VERSION\"" > python/cssbeautifier/__version__.py
     git add .
     git commit -am "Bump version numbers for $NEW_VERSION"
     git push
