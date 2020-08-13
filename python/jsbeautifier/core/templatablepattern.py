@@ -27,6 +27,7 @@ from ..core.pattern import Pattern
 
 __all__ = ["TemplatablePattern"]
 
+
 class TemplateNames:
     def __init__(self):
         self.django = False
@@ -34,21 +35,22 @@ class TemplateNames:
         self.handlebars = False
         self.php = False
 
+
 class TemplatePatterns:
     def __init__(self, input_scanner):
         pattern = Pattern(input_scanner)
-        self.handlebars_comment = pattern.starting_with(r'{{!--').until_after(r'--}}')
-        self.handlebars_unescaped = pattern.starting_with(r'{{{').until_after(r'}}}')
-        self.handlebars = pattern.starting_with(r'{{').until_after(r'}}')
-        self.php = pattern.starting_with(r'<\?(?:[=]|php)').until_after(r'\?>')
-        self.erb = pattern.starting_with(r'<%[^%]').until_after(r'[^%]%>')
+        self.handlebars_comment = pattern.starting_with(r"{{!--").until_after(r"--}}")
+        self.handlebars_unescaped = pattern.starting_with(r"{{{").until_after(r"}}}")
+        self.handlebars = pattern.starting_with(r"{{").until_after(r"}}")
+        self.php = pattern.starting_with(r"<\?(?:[=]|php)").until_after(r"\?>")
+        self.erb = pattern.starting_with(r"<%[^%]").until_after(r"[^%]%>")
         # django coflicts with handlebars a bit.
-        self.django = pattern.starting_with(r'{%').until_after(r'%}')
-        self.django_value = pattern.starting_with(r'{{').until_after(r'}}')
-        self.django_comment = pattern.starting_with(r'{#').until_after(r'#}')
+        self.django = pattern.starting_with(r"{%").until_after(r"%}")
+        self.django_value = pattern.starting_with(r"{{").until_after(r"}}")
+        self.django_comment = pattern.starting_with(r"{#").until_after(r"#}")
+
 
 class TemplatablePattern(Pattern):
-
     def __init__(self, input_scanner, parent=None):
         Pattern.__init__(self, input_scanner, parent)
         self.__template_pattern = None
@@ -56,8 +58,7 @@ class TemplatablePattern(Pattern):
         self._excluded = TemplateNames()
 
         if parent is not None:
-            self.__template_pattern = \
-                self._input.get_regexp(parent.__template_pattern)
+            self.__template_pattern = self._input.get_regexp(parent.__template_pattern)
             self._disabled = copy.copy(parent._disabled)
             self._excluded = copy.copy(parent._excluded)
 
@@ -71,9 +72,8 @@ class TemplatablePattern(Pattern):
 
     def read_options(self, options):
         result = self._create()
-        for language in ['django', 'erb', 'handlebars', 'php']:
-            setattr(result._disabled, language,
-                not (language in options.templating))
+        for language in ["django", "erb", "handlebars", "php"]:
+            setattr(result._disabled, language, not (language in options.templating))
         result._update()
         return result
 
@@ -90,16 +90,15 @@ class TemplatablePattern(Pattern):
         return result
 
     def read(self):
-        result = ''
+        result = ""
         if bool(self._match_pattern):
             result = self._input.read(self._starting_pattern)
         else:
-            result = self._input.read(self._starting_pattern,
-                self.__template_pattern)
+            result = self._input.read(self._starting_pattern, self.__template_pattern)
 
         next = self._read_template()
 
-        while (bool(next)):
+        while bool(next):
             if self._match_pattern is not None:
                 next += self._input.read(self._match_pattern)
             else:
@@ -133,45 +132,38 @@ class TemplatablePattern(Pattern):
         if self._until_pattern:
             items.append(self._until_pattern.pattern)
 
-        self.__template_pattern = self._input.get_regexp(
-            r'(?:' + '|'.join(items) + ')')
+        self.__template_pattern = self._input.get_regexp(r"(?:" + "|".join(items) + ")")
 
     def _read_template(self):
-        resulting_string = ''
+        resulting_string = ""
         c = self._input.peek()
-        if c == '<':
+        if c == "<":
             peek1 = self._input.peek(1)
-            if not self._disabled.php and \
-                    not self._excluded.php and \
-                    peek1 == '?':
-                resulting_string = resulting_string or \
-                    self.__patterns.php.read()
+            if not self._disabled.php and not self._excluded.php and peek1 == "?":
+                resulting_string = resulting_string or self.__patterns.php.read()
 
-            if not self._disabled.erb and \
-                    not self._excluded.erb and \
-                    peek1 == '%':
-                resulting_string = resulting_string or \
-                    self.__patterns.erb.read()
-        elif c == '{':
-            if not self._disabled.handlebars and \
-                    not self._excluded.handlebars:
-                resulting_string = resulting_string or \
-                    self.__patterns.handlebars_comment.read()
-                resulting_string = resulting_string or \
-                    self.__patterns.handlebars_unescaped.read()
-                resulting_string = resulting_string or \
-                    self.__patterns.handlebars.read()
+            if not self._disabled.erb and not self._excluded.erb and peek1 == "%":
+                resulting_string = resulting_string or self.__patterns.erb.read()
+        elif c == "{":
+            if not self._disabled.handlebars and not self._excluded.handlebars:
+                resulting_string = (
+                    resulting_string or self.__patterns.handlebars_comment.read()
+                )
+                resulting_string = (
+                    resulting_string or self.__patterns.handlebars_unescaped.read()
+                )
+                resulting_string = resulting_string or self.__patterns.handlebars.read()
             if not self._disabled.django:
                 # django coflicts with handlebars a bit.
-                if not self._excluded.django and \
-                        not self._excluded.handlebars:
-                    resulting_string = resulting_string or \
-                        self.__patterns.django_value.read()
+                if not self._excluded.django and not self._excluded.handlebars:
+                    resulting_string = (
+                        resulting_string or self.__patterns.django_value.read()
+                    )
                 if not self._excluded.django:
 
-                    resulting_string = resulting_string or \
-                        self.__patterns.django_comment.read()
-                    resulting_string = resulting_string or \
-                        self.__patterns.django.read()
+                    resulting_string = (
+                        resulting_string or self.__patterns.django_comment.read()
+                    )
+                    resulting_string = resulting_string or self.__patterns.django.read()
 
         return resulting_string

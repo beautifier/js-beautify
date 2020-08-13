@@ -51,6 +51,7 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
     default_opts.indent_size = 4;
     default_opts.indent_char = ' ';
     default_opts.selector_separator_newline = true;
+    default_opts.brace_style = 'collapse';
     default_opts.end_with_newline = false;
     default_opts.newline_between_rules = false;
     default_opts.space_around_combinator = false;
@@ -988,6 +989,78 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             'a:first-child,\na:first-child {\n' +
             '    color: red;\n' +
             '    div:first-child,\n    div:hover {\n' +
+            '        color: black;\n' +
+            '    }\n' +
+            '}');
+
+        // Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", brace_style = ""expand"", newline_between_rules = "false")
+        reset_options();
+        set_name('Selector Separator - (selector_separator_newline = "true", selector_separator = ""  "", brace_style = ""expand"", newline_between_rules = "false")');
+        opts.selector_separator_newline = true;
+        opts.selector_separator = "  ";
+        opts.brace_style = "expand";
+        opts.newline_between_rules = false;
+        t(
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}');
+        t(
+            '#bla, #foo{color:green}\n' +
+            '#bla, #foo{color:green}',
+            //  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}\n' +
+            '#bla,\n#foo\n{\n' +
+            '    color: green\n' +
+            '}');
+        t(
+            '@media print {.tab{}}',
+            //  -- output --
+            '@media print\n{\n' +
+            '    .tab\n    {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {.tab,.bat{}}',
+            //  -- output --
+            '@media print\n{\n' +
+            '    .tab,\n    .bat\n    {}\n' +
+            '}');
+        
+        // This is bug #1489
+        t(
+            '@media print {// comment\n' +
+            '//comment 2\n' +
+            '.bat{}}',
+            //  -- output --
+            '@media print\n{\n' +
+            '    // comment\n' +
+            '    //comment 2\n' +
+            '    .bat\n    {}\n' +
+            '}');
+        t(
+            '#bla, #foo{color:black}',
+            //  -- output --
+            '#bla,\n#foo\n{\n' +
+            '    color: black\n' +
+            '}');
+        t(
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}\n' +
+            'a:first-child,a:first-child{color:red;div:first-child,div:hover{color:black;}}',
+            //  -- output --
+            'a:first-child,\na:first-child\n{\n' +
+            '    color: red;\n' +
+            '    div:first-child,\n    div:hover\n    {\n' +
+            '        color: black;\n' +
+            '    }\n' +
+            '}\n' +
+            'a:first-child,\na:first-child\n{\n' +
+            '    color: red;\n' +
+            '    div:first-child,\n    div:hover\n    {\n' +
             '        color: black;\n' +
             '    }\n' +
             '}');
@@ -10782,6 +10855,135 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '    height: auto;\n' +
             '\n' +
             '}');
+
+
+        //============================================================
+        // brace_style = expand - (brace_style = ""expand"", selector_separator_newline = "false", newline_between_rules = "true")
+        reset_options();
+        set_name('brace_style = expand - (brace_style = ""expand"", selector_separator_newline = "false", newline_between_rules = "true")');
+        opts.brace_style = 'expand';
+        opts.selector_separator_newline = false;
+        opts.newline_between_rules = true;
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '    height: auto;\n' +
+            '}');
+        
+        // edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '}');
+        
+        // integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            //  -- output --
+            '.a\n' +
+            '{}\n' +
+            '\n' +
+            '@import "custom.css";\n' +
+            '\n' +
+            '.rule\n' +
+            '{}');
+
+        // brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "true", selector_separator_newline = "false", preserve_newlines = "true")
+        reset_options();
+        set_name('brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "true", selector_separator_newline = "false", preserve_newlines = "true")');
+        opts.brace_style = 'expand';
+        opts.indent_empty_lines = true;
+        opts.selector_separator_newline = false;
+        opts.preserve_newlines = true;
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '    \n    height: auto;\n' +
+            '}');
+        
+        // edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    \n    width: auto;\n' +
+            '}');
+        
+        // integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            //  -- output --
+            '.a\n' +
+            '{}\n' +
+            '@import "custom.css";\n' +
+            '.rule\n' +
+            '{}');
+
+        // brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "false", selector_separator_newline = "false", preserve_newlines = "true")
+        reset_options();
+        set_name('brace_style = expand - (brace_style = ""expand"", indent_empty_lines = "false", selector_separator_newline = "false", preserve_newlines = "true")');
+        opts.brace_style = 'expand';
+        opts.indent_empty_lines = false;
+        opts.selector_separator_newline = false;
+        opts.preserve_newlines = true;
+        t(
+            'a, b, .c {\n' +
+            '    width: auto;\n' +
+            '  \n' +
+            '    height: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '    width: auto;\n' +
+            '\n    height: auto;\n' +
+            '}');
+        
+        // edge case - empty line after { should not be indented without indent_empty_lines
+        t(
+            'a, b, .c {\n' +
+            '\n' +
+            '    width: auto;\n' +
+            '}',
+            //  -- output --
+            'a, b, .c\n' +
+            '{\n' +
+            '\n    width: auto;\n' +
+            '}');
+        
+        // integration test of newline_between_rules, imports, and brace_style="expand"
+        t(
+            '.a{} @import "custom.css";.rule{}',
+            //  -- output --
+            '.a\n' +
+            '{}\n' +
+            '@import "custom.css";\n' +
+            '.rule\n' +
+            '{}');
 
 
         //============================================================

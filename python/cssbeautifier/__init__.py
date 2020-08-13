@@ -46,7 +46,7 @@ def beautify(string, opts=default_options()):
 
 
 def beautify_file(file_name, opts=default_options()):
-    if file_name == '-':  # stdin
+    if file_name == "-":  # stdin
         try:
             if sys.stdin.isatty():
                 raise Exception()
@@ -59,14 +59,17 @@ def beautify_file(file_name, opts=default_options()):
     else:
         stream = open(file_name)
 
-    content = ''.join(stream.readlines())
+    content = "".join(stream.readlines())
     b = Beautifier(content, opts)
     return b.beautify()
 
 
 def usage(stream=sys.stdout):
 
-    print("cssbeautifier.py@" + __version__ + """
+    print(
+        "cssbeautifier.py@"
+        + __version__
+        + """
 
 CSS beautifier (https://beautifier.io/)
 
@@ -88,6 +91,7 @@ Output options:
       --preserve-newlines          Preserve existing line breaks.
       --disable-selector-separator-newline
                                    Do not print each selector on a separate line.
+ -b,  --brace-style=collapse       Brace style (collapse, expand)
  -n,  --end-with-newline           End output with newline
       --disable-newline-between-rules
                                    Do not print empty line between rules.
@@ -101,7 +105,9 @@ Rarely needed options:
  -h,  --help, --usage              Prints this help statement.
  -v,  --version                    Show the version
 
-""", file=stream)
+""",
+        file=stream,
+    )
     if stream == sys.stderr:
         return 1
     else:
@@ -113,12 +119,29 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "hvio:rs:c:e:tn",
-                                   ['help', 'usage', 'version', 'stdin', 'outfile=', 'replace',
-                                    'indent-size=', 'indent-char=', 'eol=', 'indent-with-tabs',
-                                    'preserve-newlines', 'disable-selector-separator-newline',
-                                    'end-with-newline', 'disable-newline-between-rules',
-                                    'space-around-combinator', 'indent-empty-lines'])
+        opts, args = getopt.getopt(
+            argv,
+            "hvio:rs:c:e:tnb:",
+            [
+                "help",
+                "usage",
+                "version",
+                "stdin",
+                "outfile=",
+                "replace",
+                "indent-size=",
+                "indent-char=",
+                "eol=",
+                "indent-with-tabs",
+                "preserve-newlines",
+                "brace-style=",
+                "disable-selector-separator-newline",
+                "end-with-newline",
+                "disable-newline-between-rules",
+                "space-around-combinator",
+                "indent-empty-lines",
+            ],
+        )
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -126,58 +149,61 @@ def main():
     css_options = default_options()
 
     file = None
-    outfile = 'stdout'
+    outfile = "stdout"
     replace = False
     if len(args) == 1:
         file = args[0]
 
     for opt, arg in opts:
-        if opt in ('--stdin', '-i'):
-            file = '-'
-        elif opt in ('--outfile', '-o'):
+        if opt in ("--stdin", "-i"):
+            file = "-"
+        elif opt in ("--outfile", "-o"):
             outfile = arg
-        elif opt in ('--replace', '-r'):
+        elif opt in ("--replace", "-r"):
             replace = True
-        elif opt in ('--version', '-v'):
+        elif opt in ("--version", "-v"):
             return print(__version__)
-        elif opt in ('--help', '--usage', '-h'):
+        elif opt in ("--help", "--usage", "-h"):
             return usage()
 
-        elif opt in ('--indent-size', '-s'):
+        elif opt in ("--indent-size", "-s"):
             css_options.indent_size = int(arg)
-        elif opt in ('--indent-char', '-c'):
+        elif opt in ("--indent-char", "-c"):
             css_options.indent_char = arg
-        elif opt in ('--eol', '-e'):
+        elif opt in ("--eol", "-e"):
             css_options.eol = arg
-        elif opt in ('--indent-with-tabs', '-t'):
+        elif opt in ("--indent-with-tabs", "-t"):
             css_options.indent_with_tabs = True
-        elif opt in ('--preserve-newlines'):
+        elif opt in ("--preserve-newlines"):
             css_options.preserve_newlines = True
-        elif opt in ('--disable-selector-separator-newline'):
+        elif opt in ("--disable-selector-separator-newline"):
             css_options.selector_separator_newline = False
-        elif opt in ('--end-with-newline', '-n'):
+        elif opt in ("--brace-style", "-b"):
+            css_options.brace_style = arg
+        elif opt in ("--end-with-newline", "-n"):
             css_options.end_with_newline = True
-        elif opt in ('--disable-newline-between-rules'):
+        elif opt in ("--disable-newline-between-rules"):
             css_options.newline_between_rules = False
-        elif opt in ('--space-around-combinator'):
+        elif opt in ("--space-around-combinator"):
             css_options.space_around_combinator = True
-        elif opt in ('--indent-empty-lines'):
+        elif opt in ("--indent-empty-lines"):
             css_options.indent_empty_lines = True
 
     if not file:
-        file = '-'
+        file = "-"
 
     try:
-        if outfile == 'stdout' and replace and not file == '-':
+        if outfile == "stdout" and replace and not file == "-":
             outfile = file
 
         pretty = beautify_file(file, css_options)
 
-        if outfile == 'stdout':
+        if outfile == "stdout":
             # python automatically converts newlines in text to "\r\n" when on windows
             # switch to binary to prevent this
             if sys.platform == "win32":
                 import msvcrt
+
                 msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
             sys.stdout.write(pretty)
@@ -187,8 +213,8 @@ def main():
 
                 # python automatically converts newlines in text to "\r\n" when on windows
                 # set newline to empty to prevent this
-                with io.open(outfile, 'wt', newline='') as f:
-                    print('writing ' + outfile, file=sys.stderr)
+                with io.open(outfile, "wt", newline="") as f:
+                    print("writing " + outfile, file=sys.stderr)
                     try:
                         f.write(pretty)
                     except TypeError:

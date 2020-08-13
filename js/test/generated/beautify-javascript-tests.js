@@ -3221,14 +3221,14 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
 
 
         //============================================================
-        // operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")
+        // operator_position option - ensure no newlines if preserve_newlines is false - (preserve_newlines = "false")
         reset_options();
-        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")');
+        set_name('operator_position option - ensure no newlines if preserve_newlines is false - (preserve_newlines = "false")');
         opts.preserve_newlines = false;
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
@@ -3246,6 +3246,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3266,20 +3267,20 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
+        // operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         reset_options();
-        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")');
+        set_name('operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")');
         opts.operator_position = 'before-newline';
         opts.preserve_newlines = false;
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
@@ -3297,6 +3298,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3317,20 +3319,20 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
+        // operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         reset_options();
-        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")');
+        set_name('operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")');
         opts.operator_position = 'after-newline';
         opts.preserve_newlines = false;
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
@@ -3348,6 +3350,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3368,20 +3371,20 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
 
-        // operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
+        // operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         reset_options();
-        set_name('operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")');
+        set_name('operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")');
         opts.operator_position = 'preserve-newline';
         opts.preserve_newlines = false;
         bt(
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
@@ -3399,6 +3402,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3419,7 +3423,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             //  -- output --
             'var res = a + b - c / d * e % f;\n' +
             'var res = g & h | i ^ j |> console.log;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad');
@@ -3445,6 +3449,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3474,7 +3479,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3569,6 +3575,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3598,7 +3605,8 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3695,6 +3703,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3725,6 +3734,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        && l\n' +
             '        || m)\n' +
             '    ? n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q\n' +
@@ -3820,6 +3830,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3851,6 +3862,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '        l\n' +
             '        || m) ?\n' +
             '    n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q <<\n' +
@@ -7000,6 +7012,9 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    function(x) {\n' +
             '        return x;\n' +
             '    };');
+        
+        // Issue #1794 - support nullish-coalescing
+        bt('a = b ?? c');
         
         // Issue #569 - function should not have blank line in a number of cases
         bt(
