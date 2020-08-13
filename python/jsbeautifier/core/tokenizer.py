@@ -31,24 +31,25 @@ from ..core.whitespacepattern import WhitespacePattern
 
 __all__ = ["TOKEN", "Tokenizer", "TokenizerPatterns", "TokenTypes"]
 
+
 class TokenTypes:
-    START = 'TK_START'
-    RAW = 'TK_RAW'
-    EOF = 'TK_EOF'
+    START = "TK_START"
+    RAW = "TK_RAW"
+    EOF = "TK_EOF"
 
     def __init__(self):
         pass
 
+
 TOKEN = TokenTypes()
+
 
 class TokenizerPatterns:
     def __init__(self, input_scanner):
         self.whitespace = WhitespacePattern(input_scanner)
 
 
-
 class Tokenizer:
-
     def __init__(self, input_string, options):
         self._input = InputScanner(input_string)
         self._options = options
@@ -61,7 +62,7 @@ class Tokenizer:
         self.__tokens = TokenStream()
 
         current = None
-        previous = Token(TOKEN.START,'')
+        previous = Token(TOKEN.START, "")
         open_token = None
         open_stack = []
         comments = TokenStream()
@@ -72,8 +73,7 @@ class Tokenizer:
             if self._is_opening(current):
                 open_stack.append(open_token)
                 open_token = current
-            elif open_token is not None and \
-                    self._is_closing(current, open_token):
+            elif open_token is not None and self._is_closing(current, open_token):
                 current.opened = open_token
                 open_token.closed = current
                 open_token = open_stack.pop()
@@ -110,11 +110,11 @@ class Tokenizer:
 
     def _get_next_token(self, previous_token, open_token):
         self._readWhitespace()
-        resulting_string = self._input.read(re.compile(r'.+'))
+        resulting_string = self._input.read(re.compile(r".+"))
         if resulting_string:
             return self._create_token(TOKEN.RAW, resulting_string)
         else:
-            return self._create_token(TOKEN.EOF, '')
+            return self._create_token(TOKEN.EOF, "")
 
     def _is_comment(self, current_token):
         return False
@@ -126,9 +126,12 @@ class Tokenizer:
         return False
 
     def _create_token(self, token_type, text):
-        token = Token(token_type, text,
-                self._patterns.whitespace.newline_count,
-                self._patterns.whitespace.whitespace_before_token)
+        token = Token(
+            token_type,
+            text,
+            self._patterns.whitespace.newline_count,
+            self._patterns.whitespace.whitespace_before_token,
+        )
         return token
 
     def _readWhitespace(self):

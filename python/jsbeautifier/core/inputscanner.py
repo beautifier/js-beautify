@@ -29,7 +29,7 @@ class InputScanner:
     def __init__(self, input_string):
         self.__six = __import__("six")
         if input_string is None:
-            input_string = ''
+            input_string = ""
         self.__input = input_string
         self.__input_length = len(self.__input)
         self.__position = 0
@@ -62,8 +62,11 @@ class InputScanner:
 
     def test(self, pattern, index=0):
         index += self.__position
-        return index >= 0 and index < self.__input_length and bool(
-            pattern.match(self.__input, index))
+        return (
+            index >= 0
+            and index < self.__input_length
+            and bool(pattern.match(self.__input, index))
+        )
 
     def testChar(self, pattern, index=0):
         # test one character regex match
@@ -79,21 +82,20 @@ class InputScanner:
         return pattern_match
 
     def read(self, starting_pattern, until_pattern=None, until_after=False):
-        val = ''
+        val = ""
         pattern_match = None
         if bool(starting_pattern):
             pattern_match = self.match(starting_pattern)
             if bool(pattern_match):
                 val = pattern_match.group(0)
 
-        if bool(until_pattern) and \
-                (bool(pattern_match) or not bool(starting_pattern)):
+        if bool(until_pattern) and (bool(pattern_match) or not bool(starting_pattern)):
             val += self.readUntil(until_pattern, until_after)
 
         return val
 
     def readUntil(self, pattern, include_match=False):
-        val = ''
+        val = ""
         pattern_match = None
         match_index = self.__position
         if self.hasNext():
@@ -106,7 +108,7 @@ class InputScanner:
             else:
                 match_index = self.__input_length
 
-            val = self.__input[self.__position:match_index]
+            val = self.__input[self.__position : match_index]
             self.__position = match_index
 
         return val
@@ -117,7 +119,7 @@ class InputScanner:
     def get_regexp(self, pattern, match_from=False):
         result = None
         # strings are converted to regexp
-        if isinstance(pattern, self.__six.string_types) and pattern != '':
+        if isinstance(pattern, self.__six.string_types) and pattern != "":
             result = re.compile(pattern)
         elif pattern is not None:
             result = re.compile(pattern.pattern)
@@ -132,5 +134,7 @@ class InputScanner:
 
     def lookBack(self, testVal):
         start = self.__position - 1
-        return start >= len(testVal) and \
-            self.__input[start - len(testVal):start].lower() == testVal
+        return (
+            start >= len(testVal)
+            and self.__input[start - len(testVal) : start].lower() == testVal
+        )

@@ -67,6 +67,7 @@ from jsbeautifier.javascript.beautifier import Beautifier
 class MissingInputStreamError(Exception):
     pass
 
+
 def default_options():
     return BeautifierOptions()
 
@@ -78,6 +79,7 @@ def beautify(string, opts=default_options()):
 
 def set_file_editorconfig_opts(filename, js_options):
     from editorconfig import get_properties, EditorConfigError
+
     try:
         _ecoptions = get_properties(os.path.abspath(filename))
 
@@ -93,51 +95,54 @@ def set_file_editorconfig_opts(filename, js_options):
             if _ecoptions.get("max_line_length") == "off":
                 js_options.wrap_line_length = 0
             else:
-                js_options.wrap_line_length = int(
-                    _ecoptions["max_line_length"])
+                js_options.wrap_line_length = int(_ecoptions["max_line_length"])
 
-        if _ecoptions.get("insert_final_newline") == 'true':
+        if _ecoptions.get("insert_final_newline") == "true":
             js_options.end_with_newline = True
-        elif _ecoptions.get("insert_final_newline") == 'false':
+        elif _ecoptions.get("insert_final_newline") == "false":
             js_options.end_with_newline = False
 
         if _ecoptions.get("end_of_line"):
             if _ecoptions["end_of_line"] == "cr":
-                js_options.eol = '\r'
+                js_options.eol = "\r"
             elif _ecoptions["end_of_line"] == "lf":
-                js_options.eol = '\n'
+                js_options.eol = "\n"
             elif _ecoptions["end_of_line"] == "crlf":
-                js_options.eol = '\r\n'
+                js_options.eol = "\r\n"
 
     except EditorConfigError:
         # do not error on bad editor config
         print("Error loading EditorConfig.  Ignoring.", file=sys.stderr)
 
+
 def beautify_file(file_name, opts=default_options()):
-    input_string = ''
-    if file_name == '-':  # stdin
+    input_string = ""
+    if file_name == "-":  # stdin
         if sys.stdin.isatty():
             raise MissingInputStreamError()
 
         stream = sys.stdin
-        if platform.platform().lower().startswith('windows'):
+        if platform.platform().lower().startswith("windows"):
             if sys.version_info.major >= 3:
                 # for python 3 on windows this prevents conversion
-                stream = io.TextIOWrapper(sys.stdin.buffer, newline='')
-            elif platform.architecture()[0] == '32bit':
+                stream = io.TextIOWrapper(sys.stdin.buffer, newline="")
+            elif platform.architecture()[0] == "32bit":
                 # for python 2 x86 on windows this prevents conversion
                 import msvcrt
+
                 msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
             else:
-                raise Exception('Pipe to stdin not supported on Windows with Python 2.x 64-bit.')
+                raise Exception(
+                    "Pipe to stdin not supported on Windows with Python 2.x 64-bit."
+                )
 
         input_string = stream.read()
 
         # if you pipe an empty string, that is a failure
-        if input_string == '':
+        if input_string == "":
             raise MissingInputStreamError()
     else:
-        stream = io.open(file_name, 'rt', newline='', encoding='UTF-8')
+        stream = io.open(file_name, "rt", newline="", encoding="UTF-8")
         input_string = stream.read()
 
     return beautify(input_string, opts)
@@ -145,7 +150,10 @@ def beautify_file(file_name, opts=default_options()):
 
 def usage(stream=sys.stdout):
 
-    print("jsbeautifier.py@" + __version__ + """
+    print(
+        "jsbeautifier.py@"
+        + __version__
+        + """
 
 Javascript beautifier (https://beautifier.io/)
 
@@ -172,12 +180,15 @@ Output options:
  --space-after-named-function      Add a space before a named function's parens, i.e. function example ()
  -b,  --brace-style=collapse       Brace style (collapse, expand, end-expand, none)(,preserve-inline)
  -k,  --keep-array-indentation     Keep array indentation.
+ --quiet                           Suppress info about a file if nothing was changed.
  -r,  --replace                    Write output in-place, replacing input
  -o,  --outfile=FILE               Specify a file to output to (default stdout)
  -f,  --keep-function-indentation  Do not re-indent function bodies defined in var lines.
  -x,  --unescape-strings           Decode printable chars encoded in \\xNN notation.
  -X,  --e4x                        Pass E4X xml literals through untouched
  -C,  --comma-first                Put commas at the beginning of new line instead of end.
+ -m,
+ --max-preserve-newlines=NUMBER    Number of line-breaks to be preserved in one chunk (default 10)
  -O,  --operator-position=STRING   Set operator position (before-newline, after-newline, preserve-newline)
  -w,  --wrap-line-length           Attempt to wrap line when it exceeds this length.
                                    NOTE: Line continues until next wrap point is found.
@@ -197,7 +208,9 @@ Rarely needed options:
  -h,  --help, --usage              Prints this help statement.
  -v,  --version                    Show the version
 
-""", file=stream)
+""",
+        file=stream,
+    )
     if stream == sys.stderr:
         return 1
     else:
@@ -217,12 +230,7 @@ def mkdir_p(path):
 
 def isFileDifferent(filepath, expected):
     try:
-        return (
-            ''.join(
-                io.open(
-                    filepath,
-                    'rt',
-                    newline='').readlines()) != expected)
+        return "".join(io.open(filepath, "rt", newline="").readlines()) != expected
     except BaseException:
         return True
 
@@ -232,13 +240,45 @@ def main():
     argv = sys.argv[1:]
 
     try:
-        opts, args = getopt.getopt(argv, "f:s:c:e:o:rdEPjab:kil:xhtvXnCO:w:m:",
-                                   ['file=', 'indent-size=', 'indent-char=', 'eol=', 'outfile=', 'replace', 'disable-preserve-newlines',
-                                    'space-in-paren', 'space-in-empty-paren', 'jslint-happy', 'space-after-anon-function',
-                                    'brace-style=', 'indent-level=', 'unescape-strings',
-                                    'help', 'usage', 'stdin', 'eval-code', 'indent-with-tabs', 'keep-function-indentation', 'version',
-                                    'e4x', 'end-with-newline', 'comma-first', 'operator-position=', 'wrap-line-length', 'editorconfig', 'space-after-named-function',
-                                    'keep-array-indentation', 'indent-empty-lines', 'templating'])
+        opts, args = getopt.getopt(
+            argv,
+            "f:s:c:e:o:rdEPjab:kil:xhtvXnCO:w:m:",
+            [
+                "brace-style=",
+                "comma-first",
+                "disable-preserve-newlines",
+                "e4x",
+                "editorconfig",
+                "end-with-newline",
+                "eol=",
+                "eval-code",
+                "file=",
+                "help",
+                "indent-char=",
+                "indent-empty-lines",
+                "indent-level=",
+                "indent-size=",
+                "indent-with-tabs",
+                "jslint-happy",
+                "keep-array-indentation",
+                "keep-function-indentation",
+                "max-preserve-newlines=",
+                "operator-position=",
+                "outfile=",
+                "quiet",
+                "replace",
+                "space-after-anon-function",
+                "space-after-named-function",
+                "space-in-empty-paren",
+                "space-in-paren",
+                "stdin",
+                "templating",
+                "unescape-strings",
+                "usage",
+                "version",
+                "wrap-line-length",
+            ],
+        )
     except getopt.GetoptError as ex:
         print(ex, file=sys.stderr)
         return usage(sys.stderr)
@@ -248,108 +288,111 @@ def main():
     filepath_params = []
     filepath_params.extend(args)
 
-    outfile_param = 'stdout'
+    outfile_param = "stdout"
     replace = False
 
     for opt, arg in opts:
-        if opt in ('--file', '-f'):
+        if opt in ("--file", "-f"):
             filepath_params.append(arg)
-        elif opt in ('--keep-array-indentation', '-k'):
+        elif opt in ("--keep-array-indentation", "-k"):
             js_options.keep_array_indentation = True
-        elif opt in ('--keep-function-indentation'):
+        elif opt in ("--keep-function-indentation"):
             js_options.keep_function_indentation = True
-        elif opt in ('--outfile', '-o'):
+        elif opt in ("--outfile", "-o"):
             outfile_param = arg
-        elif opt in ('--replace', '-r'):
+        elif opt in ("--replace", "-r"):
             replace = True
-        elif opt in ('--indent-size', '-s'):
+        elif opt in ("--indent-size", "-s"):
             js_options.indent_size = int(arg)
-        elif opt in ('--indent-char', '-c'):
+        elif opt in ("--indent-char", "-c"):
             js_options.indent_char = arg
-        elif opt in ('--eol', '-e'):
+        elif opt in ("--eol", "-e"):
             js_options.eol = arg
-        elif opt in ('--indent-with-tabs', '-t'):
+        elif opt in ("--indent-with-tabs", "-t"):
             js_options.indent_with_tabs = True
-        elif opt in ('--disable-preserve-newlines', '-d'):
+        elif opt in ("--disable-preserve-newlines", "-d"):
             js_options.preserve_newlines = False
-        elif opt in ('--max-preserve-newlines', '-m'):
+        elif opt in ("--max-preserve-newlines", "-m"):
             js_options.max_preserve_newlines = int(arg)
-        elif opt in ('--space-in-paren', '-P'):
+        elif opt in ("--space-in-paren", "-P"):
             js_options.space_in_paren = True
-        elif opt in ('--space-in-empty-paren', '-E'):
+        elif opt in ("--space-in-empty-paren", "-E"):
             js_options.space_in_empty_paren = True
-        elif opt in ('--jslint-happy', '-j'):
+        elif opt in ("--jslint-happy", "-j"):
             js_options.jslint_happy = True
-        elif opt in ('--space-after-anon-function', '-a'):
+        elif opt in ("--space-after-anon-function", "-a"):
             js_options.space_after_anon_function = True
-        elif opt in ('--space-after-named-function'):
+        elif opt in ("--space-after-named-function"):
             js_options.space_after_named_function = True
-        elif opt in ('--eval-code'):
+        elif opt in ("--eval-code"):
             js_options.eval_code = True
-        elif opt in ('--brace-style', '-b'):
+        elif opt in ("--quiet"):
+            js_options.keep_quiet = True
+        elif opt in ("--brace-style", "-b"):
             js_options.brace_style = arg
-        elif opt in ('--unescape-strings', '-x'):
+        elif opt in ("--unescape-strings", "-x"):
             js_options.unescape_strings = True
-        elif opt in ('--e4x', '-X'):
+        elif opt in ("--e4x", "-X"):
             js_options.e4x = True
-        elif opt in ('--end-with-newline', '-n'):
+        elif opt in ("--end-with-newline", "-n"):
             js_options.end_with_newline = True
-        elif opt in ('--comma-first', '-C'):
+        elif opt in ("--comma-first", "-C"):
             js_options.comma_first = True
-        elif opt in ('--operator-position', '-O'):
+        elif opt in ("--operator-position", "-O"):
             js_options.operator_position = arg
-        elif opt in ('--wrap-line-length ', '-w'):
+        elif opt in ("--wrap-line-length ", "-w"):
             js_options.wrap_line_length = int(arg)
-        elif opt in ('--indent-empty-lines'):
+        elif opt in ("--indent-empty-lines"):
             js_options.indent_empty_lines = True
-        elif opt in ('--templating'):
-            js_options.templating = arg.split(',')
-        elif opt in ('--stdin', '-i'):
+        elif opt in ("--templating"):
+            js_options.templating = arg.split(",")
+        elif opt in ("--stdin", "-i"):
             # stdin is the default if no files are passed
             filepath_params = []
-        elif opt in ('--editorconfig'):
+        elif opt in ("--editorconfig"):
             js_options.editorconfig = True
-        elif opt in ('--version', '-v'):
+        elif opt in ("--version", "-v"):
             return print(__version__)
-        elif opt in ('--help', '--usage', '-h'):
+        elif opt in ("--help", "--usage", "-h"):
             return usage()
 
     try:
         filepaths = []
         if not filepath_params or (
-                len(filepath_params) == 1 and filepath_params[0] == '-'):
+            len(filepath_params) == 1 and filepath_params[0] == "-"
+        ):
             # default to stdin
             filepath_params = []
-            filepaths.append('-')
-
+            filepaths.append("-")
 
         for filepath_param in filepath_params:
             # ignore stdin setting if files are specified
-            if '-' == filepath_param:
+            if "-" == filepath_param:
                 continue
 
             # Check if each literal filepath exists
             if os.path.isfile(filepath_param):
                 filepaths.append(filepath_param)
-            elif '*' in filepath_param or '?' in filepath_param:
+            elif "*" in filepath_param or "?" in filepath_param:
                 # handle globs
                 # empty result is okay
                 if sys.version_info.major == 2 or (
-                        sys.version_info.major == 3 and
-                        sys.version_info.minor <= 4):
-                    if '**' in filepath_param:
-                        raise Exception('Recursive globs not supported on Python <= 3.4.')
+                    sys.version_info.major == 3 and sys.version_info.minor <= 4
+                ):
+                    if "**" in filepath_param:
+                        raise Exception(
+                            "Recursive globs not supported on Python <= 3.4."
+                        )
                     filepaths.extend(glob.glob(filepath_param))
                 else:
                     filepaths.extend(glob.glob(filepath_param, recursive=True))
             else:
                 # not a glob and not a file
-                raise OSError(errno.ENOENT, os.strerror(errno.ENOENT),
-                    filepath_param)
+                raise OSError(errno.ENOENT, os.strerror(errno.ENOENT), filepath_param)
 
         if len(filepaths) > 1:
             replace = True
-        elif filepaths and filepaths[0] == '-':
+        elif filepaths and filepaths[0] == "-":
             replace = False
 
         # remove duplicates
@@ -362,15 +405,15 @@ def main():
                 outfile = filepath
 
             # Editorconfig used only on files, not stdin
-            if getattr(js_options, 'editorconfig'):
+            if getattr(js_options, "editorconfig"):
                 editorconfig_filepath = filepath
 
-                if editorconfig_filepath == '-':
-                    if outfile != 'stdout':
+                if editorconfig_filepath == "-":
+                    if outfile != "stdout":
                         editorconfig_filepath = outfile
                     else:
-                        fileType = 'js'
-                        editorconfig_filepath = 'stdin.' + fileType
+                        fileType = "js"
+                        editorconfig_filepath = "stdin." + fileType
 
                 # debug("EditorConfig is enabled for ", editorconfig_filepath);
                 js_options = copy.copy(js_options)
@@ -378,21 +421,24 @@ def main():
 
             pretty = beautify_file(filepath, js_options)
 
-            if outfile == 'stdout':
+            if outfile == "stdout":
                 stream = sys.stdout
 
                 # python automatically converts newlines in text to "\r\n" when on windows
                 # switch to binary to prevent this
-                if platform.platform().lower().startswith('windows'):
+                if platform.platform().lower().startswith("windows"):
                     if sys.version_info.major >= 3:
                         # for python 3 on windows this prevents conversion
-                        stream = io.TextIOWrapper(sys.stdout.buffer, newline='')
-                    elif platform.architecture()[0] == '32bit':
+                        stream = io.TextIOWrapper(sys.stdout.buffer, newline="")
+                    elif platform.architecture()[0] == "32bit":
                         # for python 2 x86 on windows this prevents conversion
                         import msvcrt
+
                         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
                     else:
-                        raise Exception('Pipe to stdout not supported on Windows with Python 2.x 64-bit.')
+                        raise Exception(
+                            "Pipe to stdout not supported on Windows with Python 2.x 64-bit."
+                        )
 
                 stream.write(pretty)
             else:
@@ -401,8 +447,8 @@ def main():
 
                     # python automatically converts newlines in text to "\r\n" when on windows
                     # set newline to empty to prevent this
-                    with io.open(outfile, 'wt', newline='', encoding='UTF-8') as f:
-                        print('beautified ' + outfile, file=sys.stdout)
+                    with io.open(outfile, "wt", newline="", encoding="UTF-8") as f:
+                        print("beautified " + outfile, file=sys.stdout)
                         try:
                             f.write(pretty)
                         except TypeError:
@@ -411,20 +457,16 @@ def main():
                             # fail on a missing six dependency.
                             six = __import__("six")
                             f.write(six.u(pretty))
-                else:
-                    print('beautified ' + outfile + ' - unchanged', file=sys.stdout)
-
+                elif not js_options.keep_quiet:
+                    print("beautified " + outfile + " - unchanged", file=sys.stdout)
 
     except MissingInputStreamError:
-        print(
-            "Must pipe input or define at least one file.\n",
-            file=sys.stderr)
+        print("Must pipe input or define at least one file.\n", file=sys.stderr)
         usage(sys.stderr)
         return 1
 
     except UnicodeError as ex:
-        print("Error while decoding input or encoding output:",
-            file=sys.stderr)
+        print("Error while decoding input or encoding output:", file=sys.stderr)
         print(ex, file=sys.stderr)
         return 1
 

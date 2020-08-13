@@ -36,25 +36,25 @@ class Options:
         self.raw_options = _mergeOpts(options, merge_child_field)
 
         # Support passing the source text back with no change
-        self.disabled = self._get_boolean('disabled')
+        self.disabled = self._get_boolean("disabled")
 
-        self.eol = self._get_characters('eol', 'auto')
-        self.end_with_newline = self._get_boolean('end_with_newline')
-        self.indent_size = self._get_number('indent_size', 4)
-        self.indent_char = self._get_characters('indent_char', ' ')
-        self.indent_level = self._get_number('indent_level')
+        self.eol = self._get_characters("eol", "auto")
+        self.end_with_newline = self._get_boolean("end_with_newline")
+        self.indent_size = self._get_number("indent_size", 4)
+        self.indent_char = self._get_characters("indent_char", " ")
+        self.indent_level = self._get_number("indent_level")
 
-        self.preserve_newlines = self._get_boolean('preserve_newlines', True)
-        self.max_preserve_newlines = self._get_number(
-            'max_preserve_newlines', 32786)
+        self.preserve_newlines = self._get_boolean("preserve_newlines", True)
+        self.max_preserve_newlines = self._get_number("max_preserve_newlines", 32786)
 
         if not self.preserve_newlines:
             self.max_preserve_newlines = 0
 
         self.indent_with_tabs = self._get_boolean(
-            'indent_with_tabs', self.indent_char == '\t')
+            "indent_with_tabs", self.indent_char == "\t"
+        )
         if self.indent_with_tabs:
-            self.indent_char = '\t'
+            self.indent_char = "\t"
 
             # indent_size behavior changed after 1.8.6
             # It used to be that indent_size would be
@@ -68,17 +68,19 @@ class Options:
 
         # Backwards compat with 1.3.x
         self.wrap_line_length = self._get_number(
-            'wrap_line_length', self._get_number('max_char'))
+            "wrap_line_length", self._get_number("max_char")
+        )
 
-        self.indent_empty_lines = self._get_boolean('indent_empty_lines')
-
+        self.indent_empty_lines = self._get_boolean("indent_empty_lines")
 
         # valid templating languages ['django', 'erb', 'handlebars', 'php']
         # For now, 'auto' = all off for javascript, all on for html (and inline javascript).
         # other values ignored
-        self.templating = self._get_selection_list('templating',
-            ['auto', 'none', 'django', 'erb', 'handlebars', 'php'], ['auto'])
-
+        self.templating = self._get_selection_list(
+            "templating",
+            ["auto", "none", "django", "erb", "handlebars", "php"],
+            ["auto"],
+        )
 
     def _get_array(self, name, default_value=[]):
         option_value = getattr(self.raw_options, name, default_value)
@@ -100,12 +102,15 @@ class Options:
 
         return result
 
-    def _get_characters(self, name, default_value=''):
+    def _get_characters(self, name, default_value=""):
         option_value = getattr(self.raw_options, name, default_value)
-        result = ''
+        result = ""
         if isinstance(option_value, str):
-            result = option_value.replace('\\r', '\r').replace(
-                '\\n', '\n').replace('\\t', '\t')
+            result = (
+                option_value.replace("\\r", "\r")
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+            )
 
         return result
 
@@ -123,11 +128,14 @@ class Options:
         result = self._get_selection_list(name, selection_list, default_value)
         if len(result) != 1:
             raise ValueError(
-                "Invalid Option Value: The option '" + name + "' can only be one of the following values:\n" +
-                str(selection_list) +
-                "\nYou passed in: '" +
-                str(getattr(self.raw_options, name, None)) +
-                "'")
+                "Invalid Option Value: The option '"
+                + name
+                + "' can only be one of the following values:\n"
+                + str(selection_list)
+                + "\nYou passed in: '"
+                + str(getattr(self.raw_options, name, None))
+                + "'"
+            )
 
         return result[0]
 
@@ -143,11 +151,14 @@ class Options:
         result = self._get_array(name, default_value)
         if not self._is_valid_selection(result, selection_list):
             raise ValueError(
-                "Invalid Option Value: The option '" + name + "' can contain only the following values:\n" +
-                str(selection_list) +
-                "\nYou passed in: '" +
-                str(getattr(self.raw_options, name, None)) +
-                "'")
+                "Invalid Option Value: The option '"
+                + name
+                + "' can contain only the following values:\n"
+                + str(selection_list)
+                + "\nYou passed in: '"
+                + str(getattr(self.raw_options, name, None))
+                + "'"
+            )
 
         return result
 
@@ -181,11 +192,10 @@ def _mergeOpts(options, childFieldName):
     if isinstance(options, dict):
         local = finalOpts.get(childFieldName, None)
         if local:
-            del(finalOpts[childFieldName])
+            del finalOpts[childFieldName]
             for key in local:
                 finalOpts[key] = local[key]
-        finalOpts = namedtuple("CustomOptions", finalOpts.keys())(
-            *finalOpts.values())
+        finalOpts = namedtuple("CustomOptions", finalOpts.keys())(*finalOpts.values())
 
     if isinstance(options, Options):
         local = getattr(finalOpts, childFieldName, None)
@@ -202,15 +212,16 @@ def _normalizeOpts(options):
     if isinstance(convertedOpts, dict):
         option_keys = list(convertedOpts.keys())
         for key in option_keys:
-            if '-' in key:
+            if "-" in key:
                 del convertedOpts[key]
-                convertedOpts[key.replace('-', '_')] = options[key]
+                convertedOpts[key.replace("-", "_")] = options[key]
     else:
-        option_keys = list(getattr(convertedOpts, '__dict__', {}))
+        option_keys = list(getattr(convertedOpts, "__dict__", {}))
         for key in option_keys:
-            if '-' in key:
+            if "-" in key:
                 delattr(convertedOpts, key)
-                setattr(convertedOpts, key.replace(
-                    '-', '_'), getattr(options, key, None))
+                setattr(
+                    convertedOpts, key.replace("-", "_"), getattr(options, key, None)
+                )
 
     return convertedOpts

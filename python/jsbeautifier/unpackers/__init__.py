@@ -10,12 +10,13 @@ import re
 from jsbeautifier.unpackers import evalbased
 
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
-BLACKLIST = ['jsbeautifier.unpackers.evalbased']
+BLACKLIST = ["jsbeautifier.unpackers.evalbased"]
 
 
 class UnpackingError(Exception):
     """Badly packed source or general error. Argument is a
     meaningful description."""
+
     pass
 
 
@@ -25,15 +26,15 @@ def getunpackers():
     adhere to naming conventions) and it is not blacklisted (i.e. inserted
     into BLACKLIST."""
     path = __path__
-    prefix = __name__ + '.'
+    prefix = __name__ + "."
     unpackers = []
-    interface = ['unpack', 'detect', 'PRIORITY']
+    interface = ["unpack", "detect", "PRIORITY"]
     for _importer, modname, _ispkg in pkgutil.iter_modules(path, prefix):
-        if 'tests' not in modname and modname not in BLACKLIST:
+        if "tests" not in modname and modname not in BLACKLIST:
             try:
                 module = __import__(modname, fromlist=interface)
             except ImportError:
-                raise UnpackingError('Bad unpacker: %s' % modname)
+                raise UnpackingError("Bad unpacker: %s" % modname)
             else:
                 unpackers.append(module)
 
@@ -58,15 +59,15 @@ def filtercomments(source):
     comment = True
 
     while comment:
-        if re.search(r'^\s*\/\*', source):
-            comment = source[0, source.index('*/') + 2]
-        elif re.search(r'^\s*\/\/', source):
-            comment = re.search(r'^\s*\/\/', source).group(0)
+        if re.search(r"^\s*\/\*", source):
+            comment = source[0, source.index("*/") + 2]
+        elif re.search(r"^\s*\/\/", source):
+            comment = re.search(r"^\s*\/\/", source).group(0)
         else:
             comment = None
 
         if comment:
-            source = re.sub(r'^\s+', '', source[len(comment):])
+            source = re.sub(r"^\s+", "", source[len(comment) :])
             trailing_comments.append(comment)
 
-    return '\n'.join(trailing_comments) + source
+    return "\n".join(trailing_comments) + source

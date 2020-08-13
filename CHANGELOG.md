@@ -1,4 +1,22 @@
 # Changelog
+## v1.12.0
+
+### Description
+
+
+### Closed Issues
+* Python jsbeautifier fails for special chars ([#1809](https://github.com/beautify-web/js-beautify/issues/1809))
+* pip install cssbeautifier fails ([#1808](https://github.com/beautify-web/js-beautify/issues/1808))
+* Add expand brace-style option to css beautifier ([#1796](https://github.com/beautify-web/js-beautify/pull/1796))
+* Support nullish-coalescing ([#1794](https://github.com/beautify-web/js-beautify/issues/1794))
+* Upgrade ga.js to analytics.js ([#1777](https://github.com/beautify-web/js-beautify/issues/1777))
+* Newline rule not working with css-like files ([#1776](https://github.com/beautify-web/js-beautify/issues/1776))
+* no new line after self closing tag ([#1718](https://github.com/beautify-web/js-beautify/issues/1718))
+* HTML format, no break after <label>? ([#1365](https://github.com/beautify-web/js-beautify/issues/1365))
+* Does this extension still supports applying Allman style to CSS? ([#1353](https://github.com/beautify-web/js-beautify/issues/1353))
+* Add brace_style option for CSS ([#1259](https://github.com/beautify-web/js-beautify/issues/1259))
+
+
 ## v1.11.0
 
 ### Description
@@ -6,6 +24,7 @@
 
 ### Closed Issues
 * Please bump mkdirp to fix mkdirp@0.5.1 vulnerability ([#1768](https://github.com/beautify-web/js-beautify/issues/1768))
+* Incorrect indentation of Handlebars inline partials ([#1756](https://github.com/beautify-web/js-beautify/issues/1756))
 * Support optional-chaining ([#1727](https://github.com/beautify-web/js-beautify/issues/1727))
 * Please support es module ([#1706](https://github.com/beautify-web/js-beautify/issues/1706))
 * Support new js proposals: optional-chaining & pipeline-operator ([#1530](https://github.com/beautify-web/js-beautify/issues/1530))
