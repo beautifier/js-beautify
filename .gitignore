@@ -4,6 +4,7 @@ gh-pages
 gh
 
 *.pyc
+python/setup.py
 python/*/__pycache__
 python/MANIFEST
 python/build
