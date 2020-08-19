@@ -81,16 +81,18 @@ js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/*) $(wild
 # python package generation
 python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/* python/cssbeautifier/*
 	@echo Building python package...
-	rm -f python/dist/*
-	@cd python && \
-		cp setup-js.py setup.py && \
-		$(PYTHON) setup.py sdist && \
-		rm setup.py
+	@rm -f python/dist/*
 	@cd python && \
 		cp setup-css.py setup.py && \
 		$(PYTHON) setup.py sdist && \
 		rm setup.py
-	$(SCRIPT_DIR)/python-rel pip install -U python/dist/*
+	@cd python && \
+		cp setup-js.py setup.py && \
+		$(PYTHON) setup.py sdist && \
+		rm setup.py
+	# Order matters here! Install css then js to make sure the local dist version of js is used
+	$(SCRIPT_DIR)/python-rel pip install -U python/dist/cssbeautifier*
+	$(SCRIPT_DIR)/python-rel pip install -U python/dist/jsbeautifier*
 
 # python package generation
 build/*.tgz: js/lib/*.js
@@ -129,6 +131,9 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 
 $(BUILD_DIR)/python: python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
+	# Order matters here! Install css then js to make sure the local dist version of js is used
+	@cp ./python/setup-css.py ./python/setup.py
+	$(SCRIPT_DIR)/python-dev pip install -e ./python
 	@cp ./python/setup-js.py ./python/setup.py
 	$(SCRIPT_DIR)/python-dev pip install -e ./python
 	@rm ./python/setup.py

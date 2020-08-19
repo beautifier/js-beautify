@@ -383,8 +383,10 @@ test_cli_js_beautify()
 }
 
 main() {
-    #test_cli_common css-beautify
-    #test_cli_common html-beautify
+
+    test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-dev css-beautify"
+    test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-rel css-beautify"
+
     test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-dev js-beautify"
     test_cli_common js-beautify "$SCRIPT_DIR/../../../tools/python-rel js-beautify"
 

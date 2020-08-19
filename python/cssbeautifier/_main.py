@@ -31,7 +31,7 @@ import re
 import copy
 import getopt
 from cssbeautifier.__version__ import __version__
-from jsbeautifier import isFileDifferent, mkdir_p
+from jsbeautifier.cli import *
 from cssbeautifier.css.options import BeautifierOptions
 from cssbeautifier.css.beautifier import Beautifier
 
@@ -48,22 +48,7 @@ def beautify(string, opts=None):
 
 
 def beautify_file(file_name, opts=None):
-    if file_name == "-":  # stdin
-        try:
-            if sys.stdin.isatty():
-                raise Exception()
-
-            stream = sys.stdin
-        except Exception:
-            print("Must pipe input or define input file.\n", file=sys.stderr)
-            usage(sys.stderr)
-            raise Exception()
-    else:
-        stream = open(file_name)
-
-    content = "".join(stream.readlines())
-    b = Beautifier(content, opts)
-    return b.beautify()
+    return process_file(file_name, opts, beautify)
 
 
 def usage(stream=sys.stdout):
@@ -125,6 +110,7 @@ def main():
             argv,
             "hvio:rs:c:e:tnb:",
             [
+                "editorconfig",
                 "help",
                 "usage",
                 "version",
@@ -150,11 +136,11 @@ def main():
 
     css_options = default_options()
 
-    file = None
-    outfile = "stdout"
+    filepath_params = []
+    filepath_params.extend(args)
+
+    outfile_param = "stdout"
     replace = False
-    if len(args) == 1:
-        file = args[0]
 
     for opt, arg in opts:
         if opt in ("--stdin", "-i"):
@@ -190,41 +176,34 @@ def main():
             css_options.space_around_combinator = True
         elif opt in ("--indent-empty-lines"):
             css_options.indent_empty_lines = True
-
-    if not file:
-        file = "-"
+        elif opt in ("--editorconfig"):
+            css_options.editorconfig = True
 
     try:
-        if outfile == "stdout" and replace and not file == "-":
-            outfile = file
+        filepaths, replace = get_filepaths_from_params(filepath_params, replace)
+        for filepath in filepaths:
+            if not replace:
+                outfile = outfile_param
+            else:
+                outfile = filepath
 
-        pretty = beautify_file(file, css_options)
+            css_options = integrate_editorconfig_options(
+                filepath, css_options, outfile, "js"
+            )
 
-        if outfile == "stdout":
-            # python automatically converts newlines in text to "\r\n" when on windows
-            # switch to binary to prevent this
-            if sys.platform == "win32":
-                import msvcrt
+            pretty = beautify_file(filepath, css_options)
 
-                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            write_beautified_output(pretty, css_options, outfile)
 
-            sys.stdout.write(pretty)
-        else:
-            if isFileDifferent(outfile, pretty):
-                mkdir_p(os.path.dirname(outfile))
+    except MissingInputStreamError:
+        print("Must pipe input or define at least one file.\n", file=sys.stderr)
+        usage(sys.stderr)
+        return 1
 
-                # python automatically converts newlines in text to "\r\n" when on windows
-                # set newline to empty to prevent this
-                with io.open(outfile, "wt", newline="") as f:
-                    print("writing " + outfile, file=sys.stderr)
-                    try:
-                        f.write(pretty)
-                    except TypeError:
-                        # This is not pretty, but given how we did the version import
-                        # it is the only way to do this without having setup.py
-                        # fail on a missing six dependency.
-                        six = __import__("six")
-                        f.write(six.u(pretty))
+    except UnicodeError as ex:
+        print("Error while decoding input or encoding output:", file=sys.stderr)
+        print(ex, file=sys.stderr)
+        return 1
 
     except Exception as ex:
         print(ex, file=sys.stderr)
