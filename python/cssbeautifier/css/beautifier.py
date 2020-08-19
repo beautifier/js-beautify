@@ -6,7 +6,7 @@ from .options import BeautifierOptions
 from jsbeautifier.core.output import Output
 from jsbeautifier.core.inputscanner import InputScanner
 from jsbeautifier.core.directives import Directives
-from jsbeautifier.__version__ import __version__
+from cssbeautifier.__version__ import __version__
 
 # This is not pretty, but given how we did the version import
 # it is the only way to do this without having setup.py fail on a missing
@@ -419,7 +419,7 @@ class Beautifier:
                     # line. Block comments are also affected, but
                     # a new line is always output before one inside
                     # that section
-                    if self._input.peek() is not "/":
+                    if self._input.peek() != "/":
                         self._output.add_new_line()
                 else:
                     self.print_string(self._ch)

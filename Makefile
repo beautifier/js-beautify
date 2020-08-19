@@ -79,11 +79,17 @@ js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/*) $(wild
 
 
 # python package generation
-python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/*
+python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/* python/cssbeautifier/*
 	@echo Building python package...
 	rm -f python/dist/*
 	@cd python && \
-		$(PYTHON) setup.py sdist
+		cp setup-js.py setup.py && \
+		$(PYTHON) setup.py sdist && \
+		rm setup.py
+	@cd python && \
+		cp setup-css.py setup.py && \
+		$(PYTHON) setup.py sdist && \
+		rm setup.py
 	$(SCRIPT_DIR)/python-rel pip install -U python/dist/*
 
 # python package generation
@@ -121,9 +127,11 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	$(NPM) --version
 	@touch $(BUILD_DIR)/node
 
-$(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
+$(BUILD_DIR)/python: python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
+	@cp ./python/setup-js.py ./python/setup.py
 	$(SCRIPT_DIR)/python-dev pip install -e ./python
+	@rm ./python/setup.py
 	@touch $(BUILD_DIR)/python
 
 $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
