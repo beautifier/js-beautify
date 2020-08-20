@@ -11,7 +11,7 @@ all: depends generate-tests js beautify py package jstest pytest perf
 help:
 	@echo "make <action>"
 	@echo "    all       - build both implementations"
-	@echo "    static    - serve static version of site locally"
+	@echo "    serve    - serve site locally from localhost:8080"
 	@echo "    js        - build javascript"
 	@echo "    py        - build python"
 	@echo "    alltest   - test both implementations, js and python"
@@ -20,8 +20,8 @@ help:
 
 ci: all git-status-clear
 
-static: js/lib/*.js
-	@./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
+serve: js/lib/*.js
+	@./node_modules/.bin/serve
 
 js: generate-tests js/lib/*.js
 	@echo Testing node beautify functionality...
@@ -155,5 +155,5 @@ clean:
 	git clean -xfd
 #######################################################
 
-.PHONY: all beautify clean depends generate-tests git-status-clear help static update
+.PHONY: all beautify clean depends generate-tests git-status-clear help serve update
 
