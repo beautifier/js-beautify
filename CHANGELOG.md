@@ -1,4 +1,19 @@
 # Changelog
+## v1.13.0
+
+### Description
+This release truly fixes the python cssbeautifier installation and updates cssbeautifier cli to use the same general code as jsbeautifier. 
+
+Also, as of this release Node.js 8.x is no longer guaranteed to work. Node.js 8.x LTS reached end-of-life in January 2020. 
+Parts of our test infrastructure no longer support Node.js 8.x. The js-beautifier should still run on Node.js 8.x, but it is not part of the CI system and so not guaranteed to work. 
+
+
+### Closed Issues
+* (internal) Refactor python cssbeautifier to reuse jsbeautifier CLI methods ([#1832](https://github.com/beautify-web/js-beautify/pull/1832))
+* (internal) Switch from node-static to serve ([#1831](https://github.com/beautify-web/js-beautify/pull/1831))
+* Fixed pip install cssbeautifier ([#1830](https://github.com/beautify-web/js-beautify/pull/1830))
+
+
 ## v1.12.0
 
 ### Description

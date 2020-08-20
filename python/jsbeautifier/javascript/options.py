@@ -93,7 +93,6 @@ class BeautifierOptions(BaseOptions):
 
         # For testing of beautify preserve:start directive
         self.test_output_raw = False
-        self.editorconfig = False
 
         # force opts.space_after_anon_function to true if opts.jslint_happy
         if self.jslint_happy:

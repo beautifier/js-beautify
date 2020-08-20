@@ -45,6 +45,7 @@ setup(
         "jsbeautifier.tests",
         "jsbeautifier.tests.generated",
         "jsbeautifier.core",
+        "jsbeautifier.cli",
         "jsbeautifier.javascript",
         "jsbeautifier.unpackers",
         "jsbeautifier.unpackers.tests",
