@@ -71,6 +71,9 @@ class Options:
             "wrap_line_length", self._get_number("max_char")
         )
 
+        # Support editor config setting
+        self.editorconfig = False
+
         self.indent_empty_lines = self._get_boolean("indent_empty_lines")
 
         # valid templating languages ['django', 'erb', 'handlebars', 'php']

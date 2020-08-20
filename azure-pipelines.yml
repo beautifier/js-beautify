@@ -39,15 +39,15 @@ jobs:
     vmImage: 'ubuntu-latest'
   strategy:
     matrix:
-      Python27_Node8:
+      Python27_Node10:
         python.version: '2.7'
-        node_version: 8.x
-      Python36_Node10:
-        python.version: '3.6'
         node_version: 10.x
-      Python37_Node12:
-        python.version: '3.7'
+      Python36_Node12:
+        python.version: '3.6'
         node_version: 12.x
+      Python37_Node13:
+        python.version: '3.7'
+        node_version: 13.x
       Python38_Node13:
         python.version: '3.8'
         node_version: 13.x
@@ -72,12 +72,15 @@ jobs:
     vmImage: 'macOS-latest'
   strategy:
     matrix:
-      Python27_Node8:
+      Python27_Node10:
         python.version: '2.7'
-        node_version: 8.x
+        node_version: 10.x
       Python37_Node12:
         python.version: '3.7'
         node_version: 12.x
+      Python38_Node13:
+        python.version: '3.8'
+        node_version: 13.x
     maxParallel: 6
 
   steps:
