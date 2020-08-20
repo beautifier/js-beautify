@@ -17,9 +17,9 @@ release_python()
     git clean -xfd || exit 1
     cd python
     # python setup.py register -r pypi
-    cp setup-js.py setup.py sdist || exit 1
+    cp setup-js.py setup.py || exit 1
     python setup.py sdist || exit 1
-    cp setup-css.py setup.py sdist || exit 1
+    cp setup-css.py setup.py || exit 1
     python setup.py sdist || exit 1
     rm setup.py || exit 1
     python -m twine upload dist/* || exit 1
