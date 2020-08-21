@@ -11,7 +11,7 @@ all: depends generate-tests js beautify py package jstest pytest perf
 help:
 	@echo "make <action>"
 	@echo "    all       - build both implementations"
-	@echo "    static    - serve static version of site locally"
+	@echo "    serve    - serve site locally from localhost:8080"
 	@echo "    js        - build javascript"
 	@echo "    py        - build python"
 	@echo "    alltest   - test both implementations, js and python"
@@ -20,8 +20,8 @@ help:
 
 ci: all git-status-clear
 
-static: js/lib/*.js
-	@./node_modules/.bin/static -H '{"Cache-Control": "no-cache, must-revalidate"}'
+serve: js/lib/*.js
+	@./node_modules/.bin/serve
 
 js: generate-tests js/lib/*.js
 	@echo Testing node beautify functionality...
@@ -30,6 +30,7 @@ js: generate-tests js/lib/*.js
 
 py: generate-tests $(BUILD_DIR)/python
 	@echo Testing python beautify functionality...
+	$(SCRIPT_DIR)/python-dev3 black --config=python/pyproject.toml python
 	$(SCRIPT_DIR)/python-dev python python/js-beautify-test.py || exit 1
 
 jstest: depends js build/*.tgz
@@ -78,12 +79,20 @@ js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/*) $(wild
 
 
 # python package generation
-python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/*
+python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/* python/cssbeautifier/*
 	@echo Building python package...
-	rm -f python/dist/*
+	@rm -f python/dist/*
 	@cd python && \
-		$(PYTHON) setup.py sdist
-	$(SCRIPT_DIR)/python-rel pip install -U python/dist/*
+		cp setup-css.py setup.py && \
+		$(PYTHON) setup.py sdist && \
+		rm setup.py
+	@cd python && \
+		cp setup-js.py setup.py && \
+		$(PYTHON) setup.py sdist && \
+		rm setup.py
+	# Order matters here! Install css then js to make sure the local dist version of js is used
+	$(SCRIPT_DIR)/python-rel pip install -U python/dist/cssbeautifier*
+	$(SCRIPT_DIR)/python-rel pip install -U python/dist/jsbeautifier*
 
 # python package generation
 build/*.tgz: js/lib/*.js
@@ -120,15 +129,21 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	$(NPM) --version
 	@touch $(BUILD_DIR)/node
 
-$(BUILD_DIR)/python: python/setup.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
+$(BUILD_DIR)/python: python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
+	# Order matters here! Install css then js to make sure the local dist version of js is used
+	@cp ./python/setup-css.py ./python/setup.py
 	$(SCRIPT_DIR)/python-dev pip install -e ./python
+	@cp ./python/setup-js.py ./python/setup.py
+	$(SCRIPT_DIR)/python-dev pip install -e ./python
+	@rm ./python/setup.py
 	@touch $(BUILD_DIR)/python
 
 $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
+	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 
 
@@ -145,5 +160,5 @@ clean:
 	git clean -xfd
 #######################################################
 
-.PHONY: all beautify clean depends generate-tests git-status-clear help static update
+.PHONY: all beautify clean depends generate-tests git-status-clear help serve update
 

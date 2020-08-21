@@ -60,36 +60,39 @@ class OutputLine:
             self.__indent_count = indent
             self.__alignment_count = alignment
             self.__character_count = self.__parent.get_indent_size(
-                self.__indent_count, self.__alignment_count)
+                self.__indent_count, self.__alignment_count
+            )
 
     def _set_wrap_point(self):
         if self.__parent.wrap_line_length:
             self.__wrap_point_index = len(self.__items)
             self.__wrap_point_character_count = self.__character_count
-            self.__wrap_point_indent_count = \
-                self.__parent.next_line.__indent_count
-            self.__wrap_point_alignment_count = \
+            self.__wrap_point_indent_count = self.__parent.next_line.__indent_count
+            self.__wrap_point_alignment_count = (
                 self.__parent.next_line.__alignment_count
+            )
 
     def _should_wrap(self):
-        return self.__wrap_point_index and \
-                self.__character_count > \
-                    self.__parent.wrap_line_length and \
-                self.__wrap_point_character_count > \
-                    self.__parent.next_line.__character_count
-
+        return (
+            self.__wrap_point_index
+            and self.__character_count > self.__parent.wrap_line_length
+            and self.__wrap_point_character_count
+            > self.__parent.next_line.__character_count
+        )
 
     def _allow_wrap(self):
         if self._should_wrap():
             self.__parent.add_new_line()
             next = self.__parent.current_line
-            next.set_indent(self.__wrap_point_indent_count,
-                self.__wrap_point_alignment_count)
-            next.__items = self.__items[self.__wrap_point_index:]
-            self.__items = self.__items[:self.__wrap_point_index]
+            next.set_indent(
+                self.__wrap_point_indent_count, self.__wrap_point_alignment_count
+            )
+            next.__items = self.__items[self.__wrap_point_index :]
+            self.__items = self.__items[: self.__wrap_point_index]
 
-            next.__character_count += self.__character_count - \
-                self.__wrap_point_character_count
+            next.__character_count += (
+                self.__character_count - self.__wrap_point_character_count
+            )
             self.__character_count = self.__wrap_point_character_count
 
             if next.__items[0] == " ":
@@ -108,7 +111,7 @@ class OutputLine:
 
     def push(self, item):
         self.__items.append(item)
-        last_newline_index = item.rfind('\n')
+        last_newline_index = item.rfind("\n")
         if last_newline_index != -1:
             self.__character_count = len(item) - last_newline_index
         else:
@@ -131,32 +134,33 @@ class OutputLine:
             self.__wrap_point_indent_count -= 1
 
     def trim(self):
-        while self.last() == ' ':
+        while self.last() == " ":
             self.__items.pop()
             self.__character_count -= 1
 
     def toString(self):
-        result = ''
+        result = ""
         if self.is_empty():
             if self.__parent.indent_empty_lines:
                 result = self.__parent.get_indent_string(self.__indent_count)
         else:
             result = self.__parent.get_indent_string(
-                self.__indent_count, self.__alignment_count)
-            result += ''.join(self.__items)
+                self.__indent_count, self.__alignment_count
+            )
+            result += "".join(self.__items)
         return result
 
 
 class IndentStringCache:
     def __init__(self, options, base_string):
-        self.__cache = ['']
+        self.__cache = [""]
         self.__indent_size = options.indent_size
         self.__indent_string = options.indent_char
         if not options.indent_with_tabs:
             self.__indent_string = options.indent_char * options.indent_size
 
         # Set to null to continue support of auto detection of base indent
-        base_string = base_string or ''
+        base_string = base_string or ""
         if options.indent_level > 0:
             base_string = options.indent_level * self.__indent_string
 
@@ -175,7 +179,7 @@ class IndentStringCache:
         result = self.__base_string
         if indent_level < 0:
             indent_level = 0
-            result = ''
+            result = ""
         column += indent_level * self.__indent_size
         self.__ensure_cache(column)
         result += self.__cache[column]
@@ -188,18 +192,18 @@ class IndentStringCache:
     def __add_column(self):
         column = len(self.__cache)
         indent = 0
-        result = ''
+        result = ""
         if self.__indent_size and column >= self.__indent_size:
             indent = int(math.floor(column / self.__indent_size))
             column -= indent * self.__indent_size
             result = indent * self.__indent_string
         if column:
-            result += column * ' '
+            result += column * " "
         self.__cache.append(result)
 
 
 class Output:
-    def __init__(self, options, baseIndentString=''):
+    def __init__(self, options, baseIndentString=""):
 
         self.__indent_cache = IndentStringCache(options, baseIndentString)
         self.raw = False
@@ -237,8 +241,7 @@ class Output:
     def add_new_line(self, force_newline=False):
         # never newline at the start of file
         # otherwise, newline only if we didn't just add one or we're forced
-        if self.is_empty() or \
-                (not force_newline and self.just_added_newline()):
+        if self.is_empty() or (not force_newline and self.just_added_newline()):
             return False
 
         # if raw output is enabled, don't print additional newlines,
@@ -254,8 +257,8 @@ class Output:
         # has text that ends with newline(s)
         last_item = self.current_line.pop()
         if last_item:
-            if last_item[-1] == '\n':
-                last_item = re.sub(r'[\n]+$', '', last_item)
+            if last_item[-1] == "\n":
+                last_item = re.sub(r"[\n]+$", "", last_item)
             self.current_line.push(last_item)
 
         if self._end_with_newline:
@@ -263,8 +266,8 @@ class Output:
 
         sweet_code = "\n".join(line.toString() for line in self.__lines)
 
-        if not eol == '\n':
-            sweet_code = sweet_code.replace('\n', eol)
+        if not eol == "\n":
+            sweet_code = sweet_code.replace("\n", eol)
 
         return sweet_code
 
@@ -304,7 +307,7 @@ class Output:
         if self.space_before_token and not self.just_added_newline():
             if not self.non_breaking_space:
                 self.set_wrap_point()
-            self.current_line.push(' ')
+            self.current_line.push(" ")
         self.space_before_token = False
 
     def remove_indent(self, index):
@@ -316,8 +319,7 @@ class Output:
     def trim(self, eat_newlines=False):
         self.current_line.trim()
 
-        while eat_newlines and len(
-                self.__lines) > 1 and self.current_line.is_empty():
+        while eat_newlines and len(self.__lines) > 1 and self.current_line.is_empty():
             self.__lines.pop()
             self.current_line = self.__lines[-1]
             self.current_line.trim()
@@ -331,8 +333,9 @@ class Output:
         return self.current_line.is_empty()
 
     def just_added_blankline(self):
-        return self.is_empty() or \
-            (self.current_line.is_empty() and self.previous_line.is_empty())
+        return self.is_empty() or (
+            self.current_line.is_empty() and self.previous_line.is_empty()
+        )
 
     def ensure_empty_line_above(self, starts_with, ends_with):
         index = len(self.__lines) - 2
@@ -340,8 +343,10 @@ class Output:
             potentialEmptyLine = self.__lines[index]
             if potentialEmptyLine.is_empty():
                 break
-            elif not potentialEmptyLine.item(0).startswith(starts_with) and \
-                    potentialEmptyLine.item(-1) != ends_with:
+            elif (
+                not potentialEmptyLine.item(0).startswith(starts_with)
+                and potentialEmptyLine.item(-1) != ends_with
+            ):
                 self.__lines.insert(index + 1, OutputLine(self))
                 self.previous_line = self.__lines[-2]
                 break

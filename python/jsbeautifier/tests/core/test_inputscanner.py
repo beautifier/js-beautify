@@ -4,13 +4,12 @@ from ...core.inputscanner import InputScanner
 
 
 class TestInputScanner(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         pass
 
     def setUp(self):
-        self.value = 'howdy'
+        self.value = "howdy"
         self.inputscanner = InputScanner(self.value)
 
     def test_new(self):
@@ -32,17 +31,17 @@ class TestInputScanner(unittest.TestCase):
         self.assertEqual(self.inputscanner.peek(), self.value[1])
 
     def test_pattern(self):
-        pattern = re.compile(r'how')
+        pattern = re.compile(r"how")
         index = 0
         self.assertEqual(self.inputscanner.test(pattern, index), True)
         self.inputscanner.next()
         self.assertEqual(self.inputscanner.test(pattern, index), False)
 
     def test_Char(self):
-        pattern = re.compile(r'o')
+        pattern = re.compile(r"o")
         index = 1
         self.assertEqual(self.inputscanner.testChar(pattern, index), True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

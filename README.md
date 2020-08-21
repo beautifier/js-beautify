@@ -61,17 +61,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.11.0/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.0/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.11.0/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.11.0/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.11.0/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.0/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.0/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.0/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -85,7 +85,7 @@ To install the Python version of the beautifier:
 ```bash
 $ pip install jsbeautifier
 ```
-Unlike the JavaScript version, the Python version can only reformat JavaScript. It does not work against HTML or CSS files, but you can install _css-beautify_ for CSS (_jsbeautifier_ needs to be installed already)
+Unlike the JavaScript version, the Python version can only reformat JavaScript. It does not work against HTML or CSS files, but you can install _css-beautify_ for CSS:
 
 ```bash
 $ pip install cssbeautifier
@@ -322,6 +322,7 @@ CSS Beautifier Options:
   -t, --indent-with-tabs             Indent with tabs, overrides -s and -c
   -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
   -n, --end-with-newline             End output with newline
+  -b, --brace-style                  [collapse|expand] ["collapse"]
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
   --indent-empty-lines               Keep indentation on empty lines
@@ -403,4 +404,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.11.0)
+(README.md: js-beautify@1.13.0)

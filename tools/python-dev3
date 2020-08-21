@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+REL_SCRIPT_DIR="`dirname \"$0\"`"
+SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
+PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
+PYTHON_ENV=python-dev
+PYTHON_VERSION="`$PROJECT_DIR/build/$PYTHON_ENV/bin/python --version 2>&1`"
+
+# only run the command on python3 
+if [ -z "${PYTHON_VERSION##Python 3.*}" ]; then
+    $SCRIPT_DIR/python-dev $@
+fi 
+

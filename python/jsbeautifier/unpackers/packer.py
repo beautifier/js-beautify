@@ -14,6 +14,7 @@
 
 import re
 import string
+import sys
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
@@ -22,26 +23,29 @@ PRIORITY = 1
 def detect(source):
     global beginstr
     global endstr
-    beginstr = ''
-    endstr = ''
+    beginstr = ""
+    endstr = ""
     begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c['
-                      ' ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*', source)
-    if(mystr):
+    mystr = re.search(
+        "eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c["
+        " ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*",
+        source,
+    )
+    if mystr:
         begin_offset = mystr.start()
         beginstr = source[:begin_offset]
-    if(begin_offset != -1):
+    if begin_offset != -1:
         """ Find endstr"""
         source_end = source[begin_offset:]
-        if(source_end.split("')))", 1)[0] == source_end):
+        if source_end.split("')))", 1)[0] == source_end:
             try:
                 endstr = source_end.split("}))", 1)[1]
             except IndexError:
-                endstr = ''
+                endstr = ""
         else:
             endstr = source_end.split("')))", 1)[1]
-    return (mystr is not None)
+    return mystr is not None
 
 
 def unpack(source):
@@ -49,19 +53,23 @@ def unpack(source):
     payload, symtab, radix, count = _filterargs(source)
 
     if count != len(symtab):
-        raise UnpackingError('Malformed p.a.c.k.e.r. symtab.')
+        raise UnpackingError("Malformed p.a.c.k.e.r. symtab.")
 
     try:
         unbase = Unbaser(radix)
     except TypeError:
-        raise UnpackingError('Unknown p.a.c.k.e.r. encoding.')
+        raise UnpackingError("Unknown p.a.c.k.e.r. encoding.")
 
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
         word = match.group(0)
         return symtab[unbase(word)] or word
 
-    source = re.sub(r'\b\w+\b', lookup, payload)
+    payload = payload.replace("\\\\", "\\").replace("\\'", "'")
+    if sys.version_info.major == 2:
+        source = re.sub(r"\b\w+\b", lookup, payload)
+    else:
+        source = re.sub(r"\b\w+\b", lookup, payload, flags=re.ASCII)
     return _replacestrings(source)
 
 
@@ -80,13 +88,14 @@ def _filterargs(source):
                 a[1] = 62
                 a = tuple(a)
             try:
-                return a[0], a[3].split('|'), int(a[1]), int(a[2])
+                return a[0], a[3].split("|"), int(a[1]), int(a[2])
             except ValueError:
-                raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
+                raise UnpackingError("Corrupted p.a.c.k.e.r. data.")
 
     # could not find a satisfying regex
     raise UnpackingError(
-        'Could not make sense of p.a.c.k.e.r data (unexpected code structure)')
+        "Could not make sense of p.a.c.k.e.r data (unexpected code structure)"
+    )
 
 
 def _replacestrings(source):
@@ -99,7 +108,7 @@ def _replacestrings(source):
         varname, strings = match.groups()
         startpoint = len(match.group(0))
         lookup = strings.split('","')
-        variable = '%s[%%d]' % varname
+        variable = "%s[%%d]" % varname
         for index, value in enumerate(lookup):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
@@ -109,10 +118,13 @@ def _replacestrings(source):
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
+
     ALPHABET = {
-        62: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        95: (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-             '[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
+        62: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        95: (
+            " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+        ),
     }
 
     def __init__(self, base):
@@ -131,10 +143,10 @@ class Unbaser(object):
             # Build conversion dictionary cache
             try:
                 self.dictionary = dict(
-                    (cipher, index) for index, cipher in enumerate(
-                        self.ALPHABET[base]))
+                    (cipher, index) for index, cipher in enumerate(self.ALPHABET[base])
+                )
             except KeyError:
-                raise TypeError('Unsupported base encoding.')
+                raise TypeError("Unsupported base encoding.")
 
             self.unbase = self._dictunbaser
 

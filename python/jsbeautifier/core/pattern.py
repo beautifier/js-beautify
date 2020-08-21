@@ -24,6 +24,7 @@
 
 __all__ = ["Pattern"]
 
+
 class Pattern:
     def __init__(self, input_scanner, parent=None):
         self._input = input_scanner
@@ -41,8 +42,9 @@ class Pattern:
     def read(self):
         result = self._input.read(self._starting_pattern)
         if (self._starting_pattern is None) or result:
-            result += self._input.read(self._match_pattern,
-                self._until_pattern, self._until_after)
+            result += self._input.read(
+                self._match_pattern, self._until_pattern, self._until_after
+            )
         return result
 
     def read_match(self):
@@ -79,4 +81,3 @@ class Pattern:
 
     def _update(self):
         pass
-

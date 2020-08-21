@@ -4,14 +4,14 @@ import os
 import sys
 
 from setuptools import setup
-from cssbeautifier.__version__ import __version__
+from jsbeautifier.__version__ import __version__
 
 from setuptools.command.test import test as TestCommand
 
-DIR_CSS = "cssbeautifier/tests/"
+DIR = "jsbeautifier/tests/"
 
 
-class PyTestCSS(TestCommand):
+class PyTest(TestCommand):
     user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
     def initialize_options(self):
@@ -29,22 +29,29 @@ class PyTestCSS(TestCommand):
 
 
 setup(
-    name="cssbeautifier",
+    name="jsbeautifier",
     version=__version__,
-    description="CSS unobfuscator and beautifier.",
-    long_description=("Beautify, unpack or deobfuscate CSS"),
+    description="JavaScript unobfuscator and beautifier.",
+    long_description=(
+        "Beautify, unpack or deobfuscate JavaScript. "
+        "Handles popular online obfuscators."
+    ),
     author="Liam Newman, Einar Lielmanis, et al.",
     author_email="team@beautifier.io",
     url="https://beautifier.io",
-    entry_points={"console_scripts": ["css-beautify = cssbeautifier:main"]},
+    entry_points={"console_scripts": ["js-beautify = jsbeautifier:main"]},
     packages=[
-        "cssbeautifier",
-        "cssbeautifier.tests",
-        "cssbeautifier.tests.generated",
-        "cssbeautifier.css",
+        "jsbeautifier",
+        "jsbeautifier.tests",
+        "jsbeautifier.tests.generated",
+        "jsbeautifier.core",
+        "jsbeautifier.cli",
+        "jsbeautifier.javascript",
+        "jsbeautifier.unpackers",
+        "jsbeautifier.unpackers.tests",
     ],
-    install_requires=["jsbeautifier", "six>=1.13.0", "editorconfig>=0.12.2"],
+    install_requires=["six>=1.13.0", "editorconfig>=0.12.2"],
     license="MIT",
     test_suite="pytest.collector",
-    cmdclass={"test": PyTestCSS},
+    cmdclass={"test": PyTest},
 )

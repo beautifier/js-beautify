@@ -291,23 +291,34 @@ Beautifier.prototype.beautify = function() {
         insidePropertyValue = false;
         this.outdent();
       }
-      this.indent();
-      this._output.space_before_token = true;
-      this.print_string(this._ch);
 
       // when entering conditional groups, only rulesets are allowed
       if (enteringConditionalGroup) {
         enteringConditionalGroup = false;
-        insideRule = (this._indentLevel > this._nestedLevel);
+        insideRule = (this._indentLevel >= this._nestedLevel);
       } else {
         // otherwise, declarations are also allowed
-        insideRule = (this._indentLevel >= this._nestedLevel);
+        insideRule = (this._indentLevel >= this._nestedLevel - 1);
       }
       if (this._options.newline_between_rules && insideRule) {
         if (this._output.previous_line && this._output.previous_line.item(-1) !== '{') {
           this._output.ensure_empty_line_above('/', ',');
         }
       }
+
+      this._output.space_before_token = true;
+
+      // The difference in print_string and indent order is necessary to indent the '{' correctly
+      if (this._options.brace_style === 'expand') {
+        this._output.add_new_line();
+        this.print_string(this._ch);
+        this.indent();
+        this._output.set_indent(this._indentLevel);
+      } else {
+        this.indent();
+        this.print_string(this._ch);
+      }
+
       this.eatWhitespace(true);
       this._output.add_new_line();
     } else if (this._ch === '}') {
