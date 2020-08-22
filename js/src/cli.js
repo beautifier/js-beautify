@@ -40,7 +40,6 @@ var debug = process.env.DEBUG_JSBEAUTIFY || process.env.JSBEAUTIFY_DEBUG ? funct
 var fs = require('fs'),
     cc = require('config-chain'),
     beautify = require('../index'),
-    mkdirp = require('mkdirp'),
     nopt = require('nopt'),
     glob = require('glob');
 
@@ -485,7 +484,7 @@ function writePretty(err, pretty, outfile, config) {
     }
 
     if (outfile) {
-        mkdirp.sync(path.dirname(outfile));
+        fs.mkdirSync(path.dirname(outfile), { recursive: true });
 
         if (isFileDifferent(outfile, pretty)) {
             try {
