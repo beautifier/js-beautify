@@ -44,6 +44,9 @@
     "Liam Newman <bitwiseman@beautifier.io>"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=10"
+  },
   "dependencies": {
     "config-chain": "^1.1.12",
     "editorconfig": "^0.15.3",
