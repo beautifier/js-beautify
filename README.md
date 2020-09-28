@@ -113,7 +113,7 @@ To use `js-beautify` as a `node` library (after install locally), import and cal
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
 
 ```js
-var beautify = require('js-beautify').js,
+var beautify = require('js-beautify/js').js,
     fs = require('fs');
 
 fs.readFile('foo.js', 'utf8', function (err, data) {
