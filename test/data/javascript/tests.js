@@ -3981,6 +3981,8 @@ exports.test_data = {
         },
         { unchanged: 'a = 0B010011;' },
         { unchanged: 'a = 0b01001100001111;' },
+        { unchanged: 'a = 0B010_0_11;' },
+        { unchanged: 'a = 0b01_0011_0000_1111;' },
         { input: 'a=0b10e-5', output: 'a = 0b10 e - 5' },
         { input: 'a=0b10+4', output: 'a = 0b10 + 4' },
         { input: 'a=0B11+4', output: 'a = 0B11 + 4' },
@@ -4803,7 +4805,7 @@ exports.test_data = {
           ]
         }
       ]
-    }, {
+    },{
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting

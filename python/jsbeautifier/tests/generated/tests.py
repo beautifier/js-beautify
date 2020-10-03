@@ -6879,6 +6879,8 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a = 0b010011;')
         bt('a = 0B010011;')
         bt('a = 0b01001100001111;')
+        bt('a = 0B010_0_11;')
+        bt('a = 0b01_0011_0000_1111;')
         bt('a=0b10e-5', 'a = 0b10 e - 5')
         bt('a=0b10+4', 'a = 0b10 + 4')
         bt('a=0B11+4', 'a = 0B11 + 4')
