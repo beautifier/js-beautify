@@ -4805,7 +4805,7 @@ exports.test_data = {
           ]
         }
       ]
-    }, {
+    },{
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting
