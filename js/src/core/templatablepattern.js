@@ -35,7 +35,8 @@ var template_names = {
   django: false,
   erb: false,
   handlebars: false,
-  php: false
+  php: false,
+  smarty: false
 };
 
 // This lets templates appear anywhere we would do a readUntil
@@ -61,7 +62,9 @@ function TemplatablePattern(input_scanner, parent) {
     // django coflicts with handlebars a bit.
     django: pattern.starting_with(/{%/).until_after(/%}/),
     django_value: pattern.starting_with(/{{/).until_after(/}}/),
-    django_comment: pattern.starting_with(/{#/).until_after(/#}/)
+    django_comment: pattern.starting_with(/{#/).until_after(/#}/),
+    smarty: pattern.starting_with(/{(?=[^}\s\n])/).until_after(/}/),
+    smarty_comment: pattern.starting_with(/{\*/).until_after(/\*}/)
   };
 }
 TemplatablePattern.prototype = new Pattern();
@@ -138,6 +141,10 @@ TemplatablePattern.prototype.__set_templated_pattern = function() {
     items.push(this.__patterns.django_value._starting_pattern.source);
     items.push(this.__patterns.django_comment._starting_pattern.source);
   }
+  if (!this._disabled.smarty) {
+    items.push(this.__patterns.smarty._starting_pattern.source);
+    items.push(this.__patterns.smarty_comment._starting_pattern.source);
+  }
 
   if (this._until_pattern) {
     items.push(this._until_pattern.source);
@@ -181,6 +188,14 @@ TemplatablePattern.prototype._read_template = function() {
           this.__patterns.django_comment.read();
         resulting_string = resulting_string ||
           this.__patterns.django.read();
+      }
+    }
+    if (!this._disabled.smarty) {
+      if (!this._excluded.smarty && !this._excluded.handlebars) {
+        resulting_string = resulting_string ||
+          this.__patterns.smarty_comment.read();
+        resulting_string = resulting_string ||
+          this.__patterns.smarty.read();
       }
     }
   }

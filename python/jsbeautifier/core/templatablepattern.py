@@ -34,6 +34,7 @@ class TemplateNames:
         self.erb = False
         self.handlebars = False
         self.php = False
+        self.smarty = False
 
 
 class TemplatePatterns:
@@ -48,6 +49,8 @@ class TemplatePatterns:
         self.django = pattern.starting_with(r"{%").until_after(r"%}")
         self.django_value = pattern.starting_with(r"{{").until_after(r"}}")
         self.django_comment = pattern.starting_with(r"{#").until_after(r"#}")
+        self.smarty_value = pattern.starting_with(r"{(?=[^}\s\n])").until_after(r"}")
+        self.smarty_comment = pattern.starting_with(r"{\*").until_after(r"\*}")
 
 
 class TemplatablePattern(Pattern):
@@ -72,7 +75,7 @@ class TemplatablePattern(Pattern):
 
     def read_options(self, options):
         result = self._create()
-        for language in ["django", "erb", "handlebars", "php"]:
+        for language in ["django", "erb", "handlebars", "php", "smarty"]:
             setattr(result._disabled, language, not (language in options.templating))
         result._update()
         return result
@@ -129,6 +132,10 @@ class TemplatablePattern(Pattern):
             items.append(self.__patterns.django_value._starting_pattern.pattern)
             items.append(self.__patterns.django_comment._starting_pattern.pattern)
 
+        if not self._disabled.smarty:
+            items.append(self.__patterns.smarty._starting_pattern.pattern)
+            items.append(self.__patterns.smarty_comment._starting_pattern.pattern)
+
         if self._until_pattern:
             items.append(self._until_pattern.pattern)
 
@@ -165,5 +172,10 @@ class TemplatablePattern(Pattern):
                         resulting_string or self.__patterns.django_comment.read()
                     )
                     resulting_string = resulting_string or self.__patterns.django.read()
+            if not self._disabled.smarty and not self._excluded.smarty:
+                resulting_string = (
+                    resulting_string or self.__patterns.smarty_comment.read()
+                )
+                resulting_string = resulting_string or self.__patterns.smarty.read()
 
         return resulting_string

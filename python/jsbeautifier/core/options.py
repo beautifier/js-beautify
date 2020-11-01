@@ -76,12 +76,12 @@ class Options:
 
         self.indent_empty_lines = self._get_boolean("indent_empty_lines")
 
-        # valid templating languages ['django', 'erb', 'handlebars', 'php']
+        # valid templating languages ['django', 'erb', 'handlebars', 'php', 'smarty']
         # For now, 'auto' = all off for javascript, all on for html (and inline javascript).
         # other values ignored
         self.templating = self._get_selection_list(
             "templating",
-            ["auto", "none", "django", "erb", "handlebars", "php"],
+            ["auto", "none", "django", "erb", "handlebars", "php", "smarty"],
             ["auto"],
         )
 
