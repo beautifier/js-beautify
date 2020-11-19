@@ -34,6 +34,7 @@ class BeautifierOptions(BaseOptions):
             "selector_separator_newline", True
         )
         self.newline_between_rules = self._get_boolean("newline_between_rules", True)
+        self.space_in_paren = self._get_boolean("space_in_paren", False)
 
         brace_style_split = self._get_selection_list(
             "brace_style",

@@ -11045,6 +11045,40 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // space_in_paren true
+        reset_options();
+        set_name('space_in_paren true');
+        opts.space_in_paren = true;
+        test_fragment(
+            'a {\n' +
+            'width: min(100%,100vw);\n' +
+            'height: calc( 100vh - 100px );\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '    width: min( 100%, 100vw );\n' +
+            '    height: calc( 100vh - 100px );\n' +
+            '}');
+
+
+        //============================================================
+        // space_in_paren false
+        reset_options();
+        set_name('space_in_paren false');
+        opts.space_in_paren = false;
+        test_fragment(
+            'a {\n' +
+            'width: min(100%,100vw);\n' +
+            'height: calc( 100vh - 100px );\n' +
+            '}',
+            //  -- output --
+            'a {\n' +
+            '    width: min(100%, 100vw);\n' +
+            '    height: calc(100vh - 100px);\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
         set_name('');

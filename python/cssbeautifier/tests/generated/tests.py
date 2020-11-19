@@ -10915,6 +10915,38 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # space_in_paren true
+        self.reset_options()
+        self.options.space_in_paren = true
+        test_fragment(
+            'a {\n' +
+            'width: min(100%,100vw);\n' +
+            'height: calc( 100vh - 100px );\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '    width: min( 100%, 100vw );\n' +
+            '    height: calc( 100vh - 100px );\n' +
+            '}')
+
+
+        #============================================================
+        # space_in_paren false
+        self.reset_options()
+        self.options.space_in_paren = false
+        test_fragment(
+            'a {\n' +
+            'width: min(100%,100vw);\n' +
+            'height: calc( 100vh - 100px );\n' +
+            '}',
+            #  -- output --
+            'a {\n' +
+            '    width: min(100%, 100vw);\n' +
+            '    height: calc(100vh - 100px);\n' +
+            '}')
+
+
+        #============================================================
         # 
         self.reset_options()
 
