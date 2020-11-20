@@ -407,8 +407,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
         if (this._options.space_in_paren) {
           this._output.space_before_token = true;
-        }
-        else {
+        } else {
           this.eatWhitespace();
         }
         parenLevel++;
@@ -418,9 +417,8 @@ Beautifier.prototype.beautify = function() {
           this._input.back();
         } else if (this._ch) {
           if(this._options.space_in_paren) {
-            this.print_string(this._ch + this.eatString(')').slice(0, -1) + ' )' );
-          }
-          else {
+            this.print_string(this._ch + this.eatString(')').slice(0, -1) + ' )');
+          } else {
             this.print_string(this._ch + this.eatString(')'));
           }
           if (parenLevel) {
@@ -431,10 +429,9 @@ Beautifier.prototype.beautify = function() {
       } else {
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
-        if (this._options.space_in_paren){
+        if (this._options.space_in_paren) {
           this._output.space_before_token = true;
-        }
-        else {
+        } else {
           this.eatWhitespace();
         }
         parenLevel++;
@@ -445,7 +442,7 @@ Beautifier.prototype.beautify = function() {
         parenLevel--;
         this.outdent();
       }
-      if (this._options.space_in_paren){
+      if (this._options.space_in_paren) {
         this._output.space_before_token = true;
       }
       this.print_string(this._ch);
