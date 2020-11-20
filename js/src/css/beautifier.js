@@ -416,7 +416,7 @@ Beautifier.prototype.beautify = function() {
         if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
         } else if (this._ch) {
-          if(this._options.space_in_paren) {
+          if (this._options.space_in_paren) {
             this.print_string(this._ch + this.eatString(')').slice(0, -1) + ' )');
           } else {
             this.print_string(this._ch + this.eatString(')'));
