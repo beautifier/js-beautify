@@ -1061,17 +1061,16 @@ Beautifier.prototype.handle_string = function(current_token) {
   if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
     // One difference - strings want at least a space before
-    if ((backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')){
-        //Conditional for detectign backtick strings
-    } else{
+    if ((backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')) {
+      //Conditional for detectign backtick strings
+    } else {
     this._output.space_before_token = true;
     }
   } else {
     this.handle_whitespace_and_comments(current_token);
-    if ((backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')){
-      //
-    }
-    else if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD || this._flags.inline_frame) {
+    if ((backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')) {
+      //Conditional for detectign backtick strings
+    } else if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD || this._flags.inline_frame) {
       this._output.space_before_token = true;
     } else if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
       if (!this.start_of_object_property()) {
