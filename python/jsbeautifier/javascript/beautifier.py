@@ -1186,8 +1186,11 @@ class Beautifier:
     def handle_string(self, current_token):
         if self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
-            # One difference - strings want at least a space before
-            self._output.space_before_token = True
+            # One difference - strings want at least a space before 
+            if current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and current_token.whitespace_before == '':
+                pass
+            else:
+                self._output.space_before_token = True
         else:
             self.handle_whitespace_and_comments(current_token)
 
@@ -1196,7 +1199,10 @@ class Beautifier:
                 or self._flags.last_token.type == TOKEN.WORD
                 or self._flags.inline_frame
             ):
-                self._output.space_before_token = True
+                if current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and current_token.whitespace_before == '':
+                    pass
+                else:
+                    self._output.space_before_token = True
             elif self._flags.last_token.type in [
                 TOKEN.COMMA,
                 TOKEN.START_EXPR,
@@ -1206,7 +1212,10 @@ class Beautifier:
                 if not self.start_of_object_property():
                     self.allow_wrap_or_preserved_newline(current_token)
             else:
-                self.print_newline()
+                if current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and current_token.whitespace_before == '':
+                    pass
+                else:
+                    self.print_newline()
 
         self.print_token(current_token)
 
