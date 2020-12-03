@@ -1449,14 +1449,14 @@ class Beautifier:
                 # a++ + ++b
                 # a - -b
                 space_before = (
-                    current_token.text 
+                    current_token.text
                     in [
                         "--",
                         "-",
                         "++",
                         "+",
-                ] 
-                and self._flags.last_token.text in ["--", "-", "++", "+"]
+                    ]
+                    and self._flags.last_token.text in ["--", "-", "++", "+"]
                 )
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
