@@ -1185,8 +1185,8 @@ class Beautifier:
 
     def handle_string(self, current_token):
         if (
-            current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and
-            self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and current_token.whitespace_before == ''):
+            current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' 
+            and self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and current_token.whitespace_before == ''):
             # This conditionial checks backtick strings and makes no changes
                 pass
         elif self.start_of_statement(current_token):
