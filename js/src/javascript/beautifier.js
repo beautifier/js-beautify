@@ -1057,19 +1057,24 @@ Beautifier.prototype.handle_semicolon = function(current_token) {
 };
 
 Beautifier.prototype.handle_string = function(current_token) {
+  var backtickRegex = /^[`].+[`]$/gm;
   if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
     // One difference - strings want at least a space before
-    this._output.space_before_token = true;
+    if (!(backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')) {
+      this._output.space_before_token = true;
+    }
   } else {
     this.handle_whitespace_and_comments(current_token);
     if (this._flags.last_token.type === TOKEN.RESERVED || this._flags.last_token.type === TOKEN.WORD || this._flags.inline_frame) {
-      this._output.space_before_token = true;
+      if (!(backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')) {
+        this._output.space_before_token = true;
+      }
     } else if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
       if (!this.start_of_object_property()) {
         this.allow_wrap_or_preserved_newline(current_token);
       }
-    } else {
+    } else if ((backtickRegex.test(current_token.text) && (this._flags.last_token.type === TOKEN.END_EXPR || this._flags.last_token.type === TOKEN.WORD) && current_token.whitespace_before === '')) {} else {
       this.print_newline();
     }
   }
