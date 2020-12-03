@@ -1187,9 +1187,9 @@ class Beautifier:
         if (
             current_token.text[0]
             == current_token.text[len(current_token.text) - 1]
-            == '`'
+            == "`"
             and self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR]
-            and current_token.whitespace_before == ''
+            and current_token.whitespace_before == ""
         ):
             # This conditionial checks backtick strings and makes no changes
             pass
@@ -1448,12 +1448,16 @@ class Beautifier:
             elif self._flags.last_token.type == TOKEN.OPERATOR:
                 # a++ + ++b
                 # a - -b
-                space_before = current_token.text in [
-                    "--",
-                    "-",
-                    "++",
-                    "+",
-                ] and self._flags.last_token.text in ["--", "-", "++", "+"]
+                space_before = (
+                    current_token.text 
+                    in [
+                        "--",
+                        "-",
+                        "++",
+                        "+",
+                ] 
+                and self._flags.last_token.text in ["--", "-", "++", "+"]
+                )
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
