@@ -1184,23 +1184,20 @@ class Beautifier:
         self.print_token(current_token)
 
     def handle_string(self, current_token):
-        if self.start_of_statement(current_token):
+        if (
+                current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and
+                self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and
+                current_token.whitespace_before == ''
+            ):
+                # This conditionial checks backtick strings and makes no changes
+                pass
+        elif self.start_of_statement(current_token):
             # The conditional starts the statement if appropriate.
             # One difference - strings want at least a space before 
-            if (current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and
-             self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and
-              current_token.whitespace_before == ''):
-                pass
-            else:
-                self._output.space_before_token = True
+            self._output.space_before_token = True
         else:
             self.handle_whitespace_and_comments(current_token)
-            if (current_token.text[0] == current_token.text[len(current_token.text) - 1] == '`' and
-                self._flags.last_token.type in [TOKEN.WORD, TOKEN.END_EXPR] and 
-                current_token.whitespace_before == ''):
-                #This conditionial checks backtick strings and makes no changes
-                pass
-            elif (
+            if (
                 self._flags.last_token.type == TOKEN.RESERVED
                 or self._flags.last_token.type == TOKEN.WORD
                 or self._flags.inline_frame
