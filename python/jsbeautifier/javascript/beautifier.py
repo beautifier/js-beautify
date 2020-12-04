@@ -1186,15 +1186,12 @@ class Beautifier:
     def handle_string(self, current_token):
         if (
             current_token.text[0] == "`"
-            and (
-                self._flags.last_token.type == TOKEN.WORD
-                or (
-                    self._flags.last_token.type == TOKEN.END_EXPR
-                    and current_token.previous.text == ")"
-                )
-            )
             and current_token.newlines == 0
             and current_token.whitespace_before == ""
+            and (
+                self._flags.last_token.type == TOKEN.WORD
+                or current_token.previous.text == ")"
+            )
         ):
             # This conditionial checks backtick strings and makes no changes
             pass
@@ -1205,8 +1202,7 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token)
             if (
-                self._flags.last_token.type == TOKEN.RESERVED
-                or self._flags.last_token.type == TOKEN.WORD
+                self._flags.last_token.type in [TOKEN.RESERVED, TOKEN.WORD]
                 or self._flags.inline_frame
             ):
                 self._output.space_before_token = True
