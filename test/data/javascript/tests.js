@@ -1720,6 +1720,18 @@ exports.test_data = {
         },
         {
           unchanged: 'fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`'
+        },
+        {
+          input: '`untagged`+`untagged`',
+          output: '`untagged` + `untagged`'
+        },
+        {
+          input: "fun() `taggedd`",
+          output: "fun()\n`taggedd`"
+        },
+        {
+          input: 'fn[0]`tagged`',
+          output: 'fn[0] `tagged`'
         }
       ]
     }, {
