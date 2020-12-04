@@ -1219,7 +1219,7 @@ class Beautifier:
                 if not self.start_of_object_property():
                     self.allow_wrap_or_preserved_newline(current_token)
             elif (
-                current_token.text[0] == '`'
+                current_token.text[0] == "`"
                 and self._flags.last_token.type == TOKEN.END_EXPR
                 and current_token.previous.text == "]"
                 and current_token.newlines == 0
