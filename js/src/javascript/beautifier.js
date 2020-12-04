@@ -1057,7 +1057,7 @@ Beautifier.prototype.handle_semicolon = function(current_token) {
 };
 
 Beautifier.prototype.handle_string = function(current_token) {
-  if (current_token.text.startsWith("`") && ((this._flags.last_token.type === TOKEN.END_EXPR && (current_token.previous.text === ')')) || this._flags.last_token.type === TOKEN.WORD || this._flags.last_token.type === TOKEN.OPERATOR) && current_token.newlines === 0 && current_token.whitespace_before === '') {
+  if (current_token.text.startsWith("`") && ((this._flags.last_token.type === TOKEN.END_EXPR && current_token.previous.text === ')') || this._flags.last_token.type === TOKEN.WORD) && current_token.newlines === 0 && current_token.whitespace_before === '') {
     //Conditional for detectign backtick strings
   } else if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.

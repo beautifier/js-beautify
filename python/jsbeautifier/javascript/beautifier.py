@@ -1185,17 +1185,16 @@ class Beautifier:
 
     def handle_string(self, current_token):
         if (
-            current_token.text[0]
-            == "`"
+            current_token.text[0] == "`"
             and (
-                self._flags.last_token.type == TOKEN.WORD 
+                self._flags.last_token.type == TOKEN.WORD
                 or (
-                    self._flags.last_token.type == TOKEN.END_EXPR 
+                    self._flags.last_token.type == TOKEN.END_EXPR
                     and current_token.previous.text == ")"
                 )
             )
             and current_token.newlines == 0
-            and current_token.whitespace_before == ''
+            and current_token.whitespace_before == ""
         ):
             # This conditionial checks backtick strings and makes no changes
             pass
@@ -1220,10 +1219,9 @@ class Beautifier:
                 if not self.start_of_object_property():
                     self.allow_wrap_or_preserved_newline(current_token)
             elif (
-                current_token.text[0]
-                == '`'
-                and self._flags.last_token.type == TOKEN.END_EXPR 
-                and current_token.previous.text == ']'
+                current_token.text[0] == '`'
+                and self._flags.last_token.type == TOKEN.END_EXPR
+                and current_token.previous.text == "]"
                 and current_token.newlines == 0
             ):
                 self._output.space_before_token = True
