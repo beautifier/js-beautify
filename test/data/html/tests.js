@@ -2144,6 +2144,28 @@ exports.test_data = {
         s: '{%',
         e: '%}'
       },
+      // smarty {...} and {/* ... */} and {literal} ... {/literal}
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{a',
+        e: 'a}'
+      },
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{*',
+        e: '*}'
+      },
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{literal}',
+        e: '{/literal}'
+      },
       // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
       {
         options: [

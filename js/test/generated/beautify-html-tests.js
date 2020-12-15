@@ -7251,6 +7251,111 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         bth('<{% html_element(); %} {%language_attributes();%}>abc</{% html_element(); %}>');
         bth('<input type="text" value="{%$x["test"] . $x[\'test\']%}">');
 
+        // minimal template handling - (templating = ""smarty"")
+        reset_options();
+        set_name('minimal template handling - (templating = ""smarty"")');
+        opts.templating = 'smarty';
+        bth('<h1  class="content-page-header">{a$view["name"]; a}</h1>', '<h1 class="content-page-header">{a$view["name"]; a}</h1>');
+        bth(
+            '{a\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            'a}');
+        test_fragment(
+            '{a a}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{a "A" a}abc{a "D" a}\n' +
+            '{a "B" a}\n' +
+            '{a "C" a}');
+        bth(
+            '{a\n' +
+            'echo "A";\n' +
+            'a}\n' +
+            '<span>Test</span>');
+        bth('<{a html_element(); a} {alanguage_attributes();a}>abc</{a html_element(); a}>');
+        bth('<input type="text" value="{a$x["test"] . $x[\'test\']a}">');
+
+        // minimal template handling - (templating = ""smarty"")
+        reset_options();
+        set_name('minimal template handling - (templating = ""smarty"")');
+        opts.templating = 'smarty';
+        bth('<h1  class="content-page-header">{*$view["name"]; *}</h1>', '<h1 class="content-page-header">{*$view["name"]; *}</h1>');
+        bth(
+            '{*\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '*}');
+        test_fragment(
+            '{* *}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{* "A" *}abc{* "D" *}\n' +
+            '{* "B" *}\n' +
+            '{* "C" *}');
+        bth(
+            '{*\n' +
+            'echo "A";\n' +
+            '*}\n' +
+            '<span>Test</span>');
+        bth('<{* html_element(); *} {*language_attributes();*}>abc</{* html_element(); *}>');
+        bth('<input type="text" value="{*$x["test"] . $x[\'test\']*}">');
+
+        // minimal template handling - (templating = ""smarty"")
+        reset_options();
+        set_name('minimal template handling - (templating = ""smarty"")');
+        opts.templating = 'smarty';
+        bth('<h1  class="content-page-header">{literal}$view["name"]; {/literal}</h1>', '<h1 class="content-page-header">{literal}$view["name"]; {/literal}</h1>');
+        bth(
+            '{literal}\n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '{/literal}');
+        test_fragment(
+            '{literal} {/literal}\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '{literal} "A" {/literal}abc{literal} "D" {/literal}\n' +
+            '{literal} "B" {/literal}\n' +
+            '{literal} "C" {/literal}');
+        bth(
+            '{literal}\n' +
+            'echo "A";\n' +
+            '{/literal}\n' +
+            '<span>Test</span>');
+        bth('<{literal} html_element(); {/literal} {literal}language_attributes();{/literal}>abc</{literal} html_element(); {/literal}>');
+        bth('<input type="text" value="{literal}$x["test"] . $x[\'test\']{/literal}">');
+
         // minimal template handling - (indent_handlebars = "false")
         reset_options();
         set_name('minimal template handling - (indent_handlebars = "false")');

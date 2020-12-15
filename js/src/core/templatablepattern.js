@@ -63,8 +63,9 @@ function TemplatablePattern(input_scanner, parent) {
     django: pattern.starting_with(/{%/).until_after(/%}/),
     django_value: pattern.starting_with(/{{/).until_after(/}}/),
     django_comment: pattern.starting_with(/{#/).until_after(/#}/),
-    smarty: pattern.starting_with(/{(?=[^}\s\n])/).until_after(/}/),
-    smarty_comment: pattern.starting_with(/{\*/).until_after(/\*}/)
+    smarty: pattern.starting_with(/{(?=[^}{\s\n])/).until_after(/[^\s\n]}/),
+    smarty_comment: pattern.starting_with(/{\*/).until_after(/\*}/),
+    smarty_literal: pattern.starting_with(/{literal}/).until_after(/{\/literal}/)
   };
 }
 TemplatablePattern.prototype = new Pattern();
@@ -138,12 +139,13 @@ TemplatablePattern.prototype.__set_templated_pattern = function() {
   }
   if (!this._disabled.django) {
     items.push(this.__patterns.django._starting_pattern.source);
+    // The starting pattern for django is more complex because it has different
+    // patterns for value, comment, and other sections
     items.push(this.__patterns.django_value._starting_pattern.source);
     items.push(this.__patterns.django_comment._starting_pattern.source);
   }
   if (!this._disabled.smarty) {
     items.push(this.__patterns.smarty._starting_pattern.source);
-    items.push(this.__patterns.smarty_comment._starting_pattern.source);
   }
 
   if (this._until_pattern) {
@@ -191,9 +193,12 @@ TemplatablePattern.prototype._read_template = function() {
       }
     }
     if (!this._disabled.smarty) {
-      if (!this._excluded.smarty && !this._excluded.handlebars) {
+      // smarty cannot be enabled with django or handlebars enabled
+      if (this._disabled.django && this._disabled.handlebars) {
         resulting_string = resulting_string ||
           this.__patterns.smarty_comment.read();
+        resulting_string = resulting_string ||
+          this.__patterns.smarty_literal.read();
         resulting_string = resulting_string ||
           this.__patterns.smarty.read();
       }
