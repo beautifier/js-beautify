@@ -3218,10 +3218,6 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '} else {\n' +
             '    c;\n' +
             '}');
-        bt('fn`tagged`');
-        bt('fn()`tagged`');
-        bt('fn`${algo} ${`6string`}`');
-        bt('fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`');
 
 
         //============================================================
