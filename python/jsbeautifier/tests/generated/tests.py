@@ -4168,6 +4168,17 @@ class TestJSBeautifier(unittest.TestCase):
             '       {children}\n' +
             '    </{a + b}>\n' +
             ');')
+        bt(
+            'class Columns extends React.Component {\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <a>\n' +
+            '              <td>Hello</td>\n' +
+            '              <td>World</td>\n' +
+            '            </a>\n' +
+            '        );\n' +
+            '    }\n' +
+            '}')
 
 
         #============================================================
