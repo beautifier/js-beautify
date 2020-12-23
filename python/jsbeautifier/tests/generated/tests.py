@@ -4172,10 +4172,10 @@ class TestJSBeautifier(unittest.TestCase):
             'class Columns extends React.Component {\n' +
             '    render() {\n' +
             '        return (\n' +
-            '            <a>\n' +
+            '            <>\n' +
             '              <td>Hello</td>\n' +
             '              <td>World</td>\n' +
-            '            </a>\n' +
+            '            </>\n' +
             '        );\n' +
             '    }\n' +
             '}')

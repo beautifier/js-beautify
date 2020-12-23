@@ -2496,10 +2496,10 @@ exports.test_data = {
             'class Columns extends React.Component {',
             '    render() {',
             '        return (',
-            '            <a>',
+            '            <>',
             '              <td>Hello</td>',
             '              <td>World</td>',
-            '            </a>',
+            '            </>',
             '        );',
             '    }',
             '}'

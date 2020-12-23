@@ -4422,10 +4422,10 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'class Columns extends React.Component {\n' +
             '    render() {\n' +
             '        return (\n' +
-            '            <a>\n' +
+            '            <>\n' +
             '              <td>Hello</td>\n' +
             '              <td>World</td>\n' +
-            '            </a>\n' +
+            '            </>\n' +
             '        );\n' +
             '    }\n' +
             '}');
