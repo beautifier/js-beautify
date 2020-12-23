@@ -163,6 +163,37 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <h1>Block</h1>\n' +
             '</body>');
         test_fragment('<body><i>Inline</i></body>');
+        bth(
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '<circle id="mycircle" \n' +
+            'cx="182.901" cy="91.4841" \n' +
+            'style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" /></svg>',
+            //  -- output --
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">\n' +
+            '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />\n' +
+            '</svg>');
+        bth(
+            '<div class="col-xs-2">\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '<label for="coli" class="control-label">Collision</label></div>',
+            //  -- output --
+            '<div class="col-xs-2">\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '    <label for="coli" class="control-label">Collision</label>\n' +
+            '</div>');
+        bth(
+            '<label class="col-xs-2">Collision\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>',
+            //  -- output --
+            '<label class="col-xs-2">Collision\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>');
+        bth(
+            '<div class="col-xs-2">Collision\n' +
+            '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></div>',
+            //  -- output --
+            '<div class="col-xs-2">Collision\n' +
+            '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />\n' +
+            '</div>');
 
 
         //============================================================
@@ -670,10 +701,18 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '\n' +
             '<input type="submit"></input>');
         bth(
-            '<script type="text/javascript">var foo = "bar";</script>',
+            '<script type="text/javascript">console.log(1  +  1);</script>',
             //  -- output --
             '<script type="text/javascript">\n' +
-            '    var foo = "bar";\n' +
+            '    console.log(1 + 1);\n' +
+            '</script>');
+        
+        // Issue #1706 - es script module
+        bth(
+            '<script type="module">console.log(1  +  1);</script>',
+            //  -- output --
+            '<script type="module">\n' +
+            '    console.log(1 + 1);\n' +
             '</script>');
         bth(
             '<script type="application/javascript">var foo = "bar";</script>',
@@ -6534,6 +6573,16 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{^inverted-condition}}\n' +
             '    <p>Unfortunately this condition is false.</p>\n' +
             '{{/inverted-condition}}');
+        
+        // Issue #1756 - Fix indentation of partials
+        bth(
+            '{{#*inline "myPartial"}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/inline}}');
+        bth(
+            '{{#> myPartial}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/myPartial}}');
 
 
         //============================================================
@@ -6664,7 +6713,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <optgroup>\n' +
             '        test content\n' +
             '        <option>\n' +
-            '            test content\n' +
+            '            <p>test content\n' +
             '        <option>\n' +
             '            test content\n' +
             '</select>');
@@ -6724,7 +6773,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '                    <thead>\n' +
             '                        <tr>\n' +
             '                            <th>Function\n' +
-            '                            <th>Control Unit\n' +
+            '                            <th>\n' +
+            '                                <p>Control Unit\n' +
             '                            <th>Central Station\n' +
             '                    <tbody>\n' +
             '                        <tr>\n' +
@@ -6794,6 +6844,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <dt>gh\n' +
             '    <dt>gh</dt>\n' +
             '</dl>');
+        
+        // P element optional closing tag - #1503
+        bth(
+            '<p><p><dl><dt>ef<dt><p>gh</dt><dt>gh</dt></dl><p><h3>headers are outside paragraphs</h3>\n' +
+            '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea><p>.<p>.</p>',
+            //  -- output --
+            '<p>\n' +
+            '<p>\n' +
+            '<dl>\n' +
+            '    <dt>ef\n' +
+            '    <dt>\n' +
+            '        <p>gh\n' +
+            '    </dt>\n' +
+            '    <dt>gh</dt>\n' +
+            '</dl>\n' +
+            '<p>\n' +
+            '<h3>headers are outside paragraphs</h3>\n' +
+            '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea>\n' +
+            '<p>.\n' +
+            '<p>.</p>');
 
 
         //============================================================
@@ -6968,6 +7038,12 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '</a>\n' +
             '\n' +
             '<?php include_once $_SERVER[\'DOCUMENT_ROOT\'] . "/shared/helpModal.php";  ?>');
+        
+        // #1736 - unquoted attribute with slashes
+        bth(
+            '<div>\n' +
+            '    <a href=http://www.example.com></a>\n' +
+            '</div>');
 
 
         //============================================================
@@ -7873,7 +7949,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>----1---------2---------3---------4---------5---------6---------7-----<hr />-</div>',
             //  -- output --
             '<div>----1---------2---------3---------4---------5---------6---------7-----\n' +
-            '    <hr />-</div>');
+            '    <hr />-\n' +
+            '</div>');
         bth(
             '<div>----1---------2---------3---------4---------5---------6---------7 --------81 ----2---------3---------4---------5---------6---------7-----</div>',
             //  -- output --
@@ -8346,9 +8423,63 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // unformatted to prevent formatting changes
         reset_options();
         set_name('unformatted to prevent formatting changes');
-        opts.unformatted = ['u', 'span', 'textarea'];
+        opts.unformatted = ['h1', 'br', 'u', 'span', 'textarea'];
         bth('<u><div><div>Ignore block tags in unformatted regions</div></div></u>');
-        bth('<div><u>Don\'t wrap unformatted regions with extra newlines</u></div>');
+        bth('<div><u>Do not wrap unformatted regions with extra newlines</u></div>');
+        bth(
+            '<div>\n' +
+            '<u>Do not wrap unformatted regions with extra newlines</u></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <u>Do not wrap unformatted regions with extra newlines</u>\n' +
+            '</div>');
+        bth('<div><br /></div>');
+        bth(
+            '<div>\n' +
+            '<br /></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <br />\n' +
+            '</div>');
+        bth('<div><h1 /></div>');
+        bth(
+            '<div>\n' +
+            '<h1 /></div>',
+            //  -- output --
+            '<div>\n' +
+            '    <h1 />\n' +
+            '</div>');
+        bth('<label><br /></label>');
+        
+        // Inline parent should not add newline unlike block
+        bth(
+            '<label>\n' +
+            '<br /></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <br /></label>');
+        
+        // Inline parent with unformatted non-inline child
+        bth('<label><h1>Unformatted non-inline</h1></label>');
+        
+        // Inline parent with unformatted non-inline child
+        bth(
+            '<label>\n' +
+            '<h1>Unformatted non-inline</h1></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <h1>Unformatted non-inline</h1></label>');
+        
+        // Inline parent with unformatted non-inline empty child
+        bth('<label><h1 /></label>');
+        
+        // Inline parent with unformatted non-inline empty child
+        bth(
+            '<label>\n' +
+            '<h1 /></label>',
+            //  -- output --
+            '<label>\n' +
+            '    <h1 /></label>');
         bth(
             '<u>  \n' +
             '\n' +
@@ -8442,7 +8573,8 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '<div>\n' +
             '    <br>\n' +
             '    <br />\n' +
-            '    <br></div>');
+            '    <br>\n' +
+            '</div>');
         
         // Regression test #1534 - interaction between unformatted, content_unformatted, and inline
         bth(
@@ -8529,7 +8661,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <p>Beautify me</p>\n' +
             '</div>\n' +
             '<p>\n' +
-            '    <p>But not me</p>\n' +
+            '<p>But not me</p>\n' +
             '</p>');
         bth(
             '<div><p\n' +
@@ -8542,7 +8674,7 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '    <p class="beauty-me">Beautify me</p>\n' +
             '</div>\n' +
             '<p>\n' +
-            '    <p class="iamalreadybeauty">But not me</p>\n' +
+            '<p class="iamalreadybeauty">But not me</p>\n' +
             '</p>');
         bth('<div><span>blabla<div>something here</div></span></div>');
         bth('<div><br /></div>');

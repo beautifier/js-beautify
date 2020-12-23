@@ -17,7 +17,11 @@ release_python()
     git clean -xfd || exit 1
     cd python
     # python setup.py register -r pypi
+    cp setup-js.py setup.py || exit 1
     python setup.py sdist || exit 1
+    cp setup-css.py setup.py || exit 1
+    python setup.py sdist || exit 1
+    rm setup.py || exit 1
     python -m twine upload dist/* || exit 1
 }
 
@@ -67,7 +71,8 @@ update_versions()
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's/\((README\.md:.js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
 
-    echo "__version__ = '$NEW_VERSION'" > python/jsbeautifier/__version__.py
+    echo "__version__ = \"$NEW_VERSION\"" > python/jsbeautifier/__version__.py
+    echo "__version__ = \"$NEW_VERSION\"" > python/cssbeautifier/__version__.py
     git add .
     git commit -am "Bump version numbers for $NEW_VERSION"
     git push
@@ -96,7 +101,7 @@ main()
     NEW_VERSION=$1
 
     git checkout master || exit 1
-    
+
     npm --version > /dev/null || {
         echo ERROR: npm must be installed before attempting release
         exit 1
@@ -106,7 +111,7 @@ main()
         echo ERROR: twine must be installed before attempting release
         exit 1
     }
-    
+
     update_versions
     update_release_branch
 

@@ -56,6 +56,53 @@ exports.test_data = {
     }, {
       fragment: true,
       unchanged: '<body><i>Inline</i></body>'
+    }, {
+      // Issue #1718 - Empty, non-inline tags with newlines should break parent ending tag into another line
+      input: [
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">',
+        '<circle id="mycircle" ',
+        'cx="182.901" cy="91.4841" ',
+        'style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" /></svg>'
+      ],
+      output: [
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0" y="0" viewBox="0 0 900 710" width="100%" height="100%">',
+        '    <circle id="mycircle" cx="182.901" cy="91.4841" style="fill:rosybrown;stroke:black;stroke-width:1px;" r="48" />',
+        '</svg>'
+      ]
+    }, {
+      // Issue #1365 -- Inline tags with newlines should break block parent ending tags into another line
+      input: [
+        '<div class="col-xs-2">',
+        '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />',
+        '<label for="coli" class="control-label">Collision</label></div>'
+      ],
+      output: [
+        '<div class="col-xs-2">',
+        '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />',
+        '    <label for="coli" class="control-label">Collision</label>',
+        '</div>'
+      ]
+    }, {
+      // Issue #1365 -- Inline tags with newlines should not break inline parent ending tags into another line
+      input: [
+        '<label class="col-xs-2">Collision',
+        '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>'
+      ],
+      output: [
+        '<label class="col-xs-2">Collision',
+        '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></label>'
+      ]
+    }, {
+      // Issue #1365 -- Inline tags with newlines should not break inline parent ending tags into another line
+      input: [
+        '<div class="col-xs-2">Collision',
+        '<input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" /></div>'
+      ],
+      output: [
+        '<div class="col-xs-2">Collision',
+        '    <input type="radio" class="control-label" ng-disabled="!col" ng-model="col" value="2" class="form-control" id="coli" name="coli" />',
+        '</div>'
+      ]
     }]
   }, {
     name: "End With Newline",
@@ -516,10 +563,18 @@ exports.test_data = {
           '<input type="submit"></input>'
         ]
       }, {
-        input: '<script type="text/javascript">var foo = "bar";</script>',
+        input: '<script type="text/javascript">console.log(1  +  1);</script>',
         output: [
           '<script type="text/javascript">',
-          '    var foo = "bar";',
+          '    console.log(1 + 1);',
+          '</script>'
+        ]
+      }, {
+        comment: 'Issue #1706 - es script module',
+        input: '<script type="module">console.log(1  +  1);</script>',
+        output: [
+          '<script type="module">',
+          '    console.log(1 + 1);',
           '</script>'
         ]
       }, {
@@ -1624,6 +1679,22 @@ exports.test_data = {
           '    <p>Unfortunately this condition is false.</p>',
           '{{/inverted-condition}}'
         ]
+      },
+      // Indentation of partials
+      {
+        comment: "Issue #1756 - Fix indentation of partials",
+        unchanged: [
+          '{{#*inline "myPartial"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/inline}}'
+        ]
+      },
+      {
+        unchanged: [
+          '{{#> myPartial}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
       }
     ]
   }, {
@@ -1716,7 +1787,7 @@ exports.test_data = {
         '    <optgroup>',
         '        test content',
         '        <option>',
-        '            test content',
+        '            <p>test content',
         '        <option>',
         '            test content',
         '</select>'
@@ -1779,7 +1850,8 @@ exports.test_data = {
         '                    <thead>',
         '                        <tr>',
         '                            <th>Function',
-        '                            <th>Control Unit',
+        '                            <th>',
+        '                                <p>Control Unit',
         '                            <th>Central Station',
         '                    <tbody>',
         '                        <tr>',
@@ -1851,6 +1923,28 @@ exports.test_data = {
         '    <dt>gh',
         '    <dt>gh</dt>',
         '</dl>'
+      ]
+    }, {
+      comment: 'P element optional closing tag - #1503',
+      input: [
+        '<p><p><dl><dt>ef<dt><p>gh</dt><dt>gh</dt></dl><p><h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea><p>.<p>.</p>'
+      ],
+      output: [
+        '<p>',
+        '<p>',
+        '<dl>',
+        '    <dt>ef',
+        '    <dt>',
+        '        <p>gh',
+        '    </dt>',
+        '    <dt>gh</dt>',
+        '</dl>',
+        '<p>',
+        '<h3>headers are outside paragraphs</h3>',
+        '<p>.<textarea><p><p>.</textarea><textarea><p><p>.</textarea>',
+        '<p>.',
+        '<p>.</p>'
       ]
     }]
   }, {
@@ -2007,6 +2101,13 @@ exports.test_data = {
           '</a>',
           '',
           '<?php include_once $_SERVER[\\\'DOCUMENT_ROOT\\\'] . "/shared/helpModal.php";  ?>'
+        ]
+      }, {
+        comment: '#1736 - unquoted attribute with slashes',
+        unchanged: [
+          '<div>',
+          '    <a href=http://www.example.com></a>',
+          '</div>'
         ]
       }
     ]
@@ -2483,7 +2584,8 @@ exports.test_data = {
         //.---------1---------2---------3---------4---------5---------6---------7---------8---------9--------10--------11--------12--------13--------14--------15--------16--------17--------18--------19--------20--------21--------22--------23--------24--------25--------26--------27--------28--------29
         output: [
           '<div>----1---------2---------3---------4---------5---------6---------7-----',
-          '    <hr />-</div>'
+          '    <hr />-',
+          '</div>'
         ]
       }, {
         input: [
@@ -2941,12 +3043,84 @@ exports.test_data = {
     name: "unformatted to prevent formatting changes",
     description: "",
     options: [
-      { name: 'unformatted', value: "['u', 'span', 'textarea']" }
+      { name: 'unformatted', value: "['h1', 'br', 'u', 'span', 'textarea']" }
     ],
     tests: [{
       unchanged: '<u><div><div>Ignore block tags in unformatted regions</div></div></u>'
     }, {
-      unchanged: '<div><u>Don\\\'t wrap unformatted regions with extra newlines</u></div>'
+      unchanged: '<div><u>Do not wrap unformatted regions with extra newlines</u></div>'
+    }, {
+      input: [
+        '<div>',
+        '<u>Do not wrap unformatted regions with extra newlines</u></div>'
+      ],
+      output: [
+        '<div>',
+        '    <u>Do not wrap unformatted regions with extra newlines</u>',
+        '</div>'
+      ]
+    }, {
+      unchanged: '<div><br /></div>'
+    }, {
+      input: [
+        '<div>',
+        '<br /></div>'
+      ],
+      output: [
+        '<div>',
+        '    <br />',
+        '</div>'
+      ]
+    }, {
+      unchanged: '<div><h1 /></div>'
+    }, {
+      input: [
+        '<div>',
+        '<h1 /></div>'
+      ],
+      output: [
+        '<div>',
+        '    <h1 />',
+        '</div>'
+      ]
+    }, {
+      unchanged: '<label><br /></label>'
+    }, {
+      comment: "Inline parent should not add newline unlike block",
+      input: [
+        '<label>',
+        '<br /></label>'
+      ],
+      output: [
+        '<label>',
+        '    <br /></label>'
+      ]
+    }, {
+      comment: "Inline parent with unformatted non-inline child",
+      unchanged: '<label><h1>Unformatted non-inline</h1></label>'
+    }, {
+      comment: "Inline parent with unformatted non-inline child",
+      input: [
+        '<label>',
+        '<h1>Unformatted non-inline</h1></label>'
+      ],
+      output: [
+        '<label>',
+        '    <h1>Unformatted non-inline</h1></label>'
+      ]
+    }, {
+      comment: "Inline parent with unformatted non-inline empty child",
+      unchanged: '<label><h1 /></label>'
+    }, {
+      comment: "Inline parent with unformatted non-inline empty child",
+      input: [
+        '<label>',
+        '<h1 /></label>'
+      ],
+      output: [
+        '<label>',
+        '    <h1 /></label>'
+      ]
     }, {
       input_: '<u>  \n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>',
       output: '<u>\n\n\n  Ignore extra """whitespace mostly  \n\n\n  </u>'
@@ -3025,7 +3199,8 @@ exports.test_data = {
         '<div>',
         '    <br>',
         '    <br />',
-        '    <br></div>'
+        '    <br>',
+        '</div>'
       ]
     }, {
       comment: 'Regression test #1534 - interaction between unformatted, content_unformatted, and inline',
@@ -3118,7 +3293,7 @@ exports.test_data = {
         '    <p>Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p>But not me</p>',
+        '<p>But not me</p>',
         '</p>'
       ]
     }, {
@@ -3128,7 +3303,7 @@ exports.test_data = {
         '    <p class="beauty-me">Beautify me</p>',
         '</div>',
         '<p>',
-        '    <p class="iamalreadybeauty">But not me</p>',
+        '<p class="iamalreadybeauty">But not me</p>',
         '</p>'
       ]
     }, {

@@ -212,6 +212,25 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
+        # Private Class Fields
+        self.reset_options()
+        bt('#foo')
+        bt(
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '    get foo() {\n' +
+            '        return this.#foo;\n' +
+            '    }\n' +
+            '}')
+        bt(
+            'class X {#foo=null;}',
+            #  -- output --
+            'class X {\n' +
+            '    #foo = null;\n' +
+            '}')
+
+
+        #============================================================
         # ES7 Decorators
         self.reset_options()
         bt('@foo')
@@ -2006,6 +2025,43 @@ class TestJSBeautifier(unittest.TestCase):
             '.bar()',
             #  -- output --
             'this.something.xxx = foo.moo.bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this?.something = foo?.bar()?.baz()?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()')
 
         # break chained methods - (break_chained_methods = "false", preserve_newlines = "true")
         self.reset_options()
@@ -2057,6 +2113,54 @@ class TestJSBeautifier(unittest.TestCase):
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat);\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)\n' +
+            'foo?.bar()?.baz()?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()')
 
         # break chained methods - (break_chained_methods = "true", preserve_newlines = "false")
         self.reset_options()
@@ -2109,6 +2213,55 @@ class TestJSBeautifier(unittest.TestCase):
             '.bar()',
             #  -- output --
             'this.something.xxx = foo.moo.bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this?.something?.xxx = foo?.moo?.bar()')
 
         # break chained methods - (break_chained_methods = "true", preserve_newlines = "true")
         self.reset_options()
@@ -2168,6 +2321,62 @@ class TestJSBeautifier(unittest.TestCase):
             '    .something\n' +
             '    .xxx = foo.moo\n' +
             '    .bar()')
+        
+        # optional chaining operator
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat);\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'foo\n' +
+            '?.bar()\n' +
+            '?.baz()?.cucumber(fat)\n' +
+            ' foo?.bar()?.baz()?.cucumber(fat)',
+            #  -- output --
+            'foo\n' +
+            '    ?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)\n' +
+            'foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt(
+            'this\n' +
+            '?.something = foo?.bar()\n' +
+            '?.baz()?.cucumber(fat)',
+            #  -- output --
+            'this\n' +
+            '    ?.something = foo?.bar()\n' +
+            '    ?.baz()\n' +
+            '    ?.cucumber(fat)')
+        bt('this?.something?.xxx = foo?.moo?.bar()')
+        bt(
+            'this\n' +
+            '?.something\n' +
+            '?.xxx = foo?.moo\n' +
+            '?.bar()',
+            #  -- output --
+            'this\n' +
+            '    ?.something\n' +
+            '    ?.xxx = foo?.moo\n' +
+            '    ?.bar()')
 
 
         #============================================================
@@ -2773,13 +2982,13 @@ class TestJSBeautifier(unittest.TestCase):
 
 
         #============================================================
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (preserve_newlines = "false")
         self.reset_options()
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -2791,11 +3000,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -2815,20 +3026,20 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'before-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -2840,11 +3051,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -2864,20 +3077,20 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'after-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -2889,11 +3102,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -2913,20 +3128,20 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
 
-        # operator_position option - ensure no neswlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
+        # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
         self.reset_options()
         self.options.operator_position = 'preserve-newline'
         self.options.preserve_newlines = false
         bt(
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -2938,11 +3153,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -2962,8 +3179,8 @@ class TestJSBeautifier(unittest.TestCase):
             '-ad',
             #  -- output --
             'var res = a + b - c / d * e % f;\n' +
-            'var res = g & h | i ^ j;\n' +
-            'var res = (k && l || m) ? n : o;\n' +
+            'var res = g & h | i ^ j |> console.log;\n' +
+            'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
             'ac + -ad')
@@ -2982,11 +3199,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3011,11 +3230,13 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h |\n' +
             '    i ^\n' +
-            '    j;\n' +
+            '    j |>\n' +
+            '    console.log;\n' +
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3103,11 +3324,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3132,11 +3355,13 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h |\n' +
             '    i ^\n' +
-            '    j;\n' +
+            '    j |>\n' +
+            '    console.log;\n' +
             'var res = (k &&\n' +
             '        l ||\n' +
             '        m) ?\n' +
-            '    n :\n' +
+            '    n ??\n' +
+            '    nn :\n' +
             '    o;\n' +
             'var res = p >>\n' +
             '    q <<\n' +
@@ -3226,11 +3451,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3255,11 +3482,13 @@ class TestJSBeautifier(unittest.TestCase):
             '    % f;\n' +
             'var res = g & h\n' +
             '    | i\n' +
-            '    ^ j;\n' +
+            '    ^ j\n' +
+            '    |> console.log;\n' +
             'var res = (k\n' +
             '        && l\n' +
             '        || m)\n' +
             '    ? n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q\n' +
@@ -3348,11 +3577,13 @@ class TestJSBeautifier(unittest.TestCase):
             'f;\n' +
             '   var res = g & h\n' +
             '| i ^\n' +
-            'j;\n' +
+            'j\n' +
+            '|> console.log;\n' +
             'var res = (k &&\n' +
             'l\n' +
             '|| m) ?\n' +
             'n\n' +
+            '?? nn\n' +
             ': o\n' +
             ';\n' +
             'var res = p\n' +
@@ -3378,11 +3609,13 @@ class TestJSBeautifier(unittest.TestCase):
             '    f;\n' +
             'var res = g & h\n' +
             '    | i ^\n' +
-            '    j;\n' +
+            '    j\n' +
+            '    |> console.log;\n' +
             'var res = (k &&\n' +
             '        l\n' +
             '        || m) ?\n' +
             '    n\n' +
+            '    ?? nn\n' +
             '    : o;\n' +
             'var res = p\n' +
             '    >> q <<\n' +
@@ -6230,13 +6463,13 @@ class TestJSBeautifier(unittest.TestCase):
         # Issue 508
         bt('set["name"]')
         bt('get["name"]')
-        bt(
+        test_fragment(
             'a = {\n' +
             '    set b(x) {},\n' +
             '    c: 1,\n' +
             '    d: function() {}\n' +
             '};')
-        bt(
+        test_fragment(
             'a = {\n' +
             '    get b() {\n' +
             '        retun 0;\n' +
@@ -6423,6 +6656,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             '})')
         
+        # Issue 1727 - Optional chaining
+        bt('true?.1:.2', 'true ? .1 : .2')
+        
         # Issue 406 - Multiline array
         bt(
             'var tempName = [\n' +
@@ -6487,6 +6723,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    function(x) {\n' +
             '        return x;\n' +
             '    };')
+        
+        # Issue #1794 - support nullish-coalescing
+        bt('a = b ?? c')
         
         # Issue #569 - function should not have blank line in a number of cases
         bt(

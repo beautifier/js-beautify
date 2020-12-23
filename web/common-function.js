@@ -1,5 +1,5 @@
 /*jshint strict:false, node:false */
-/*exported run_tests, read_settings_from_cookie, beautify, submitIssue */
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll*/
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
@@ -314,4 +314,31 @@ function getSubmitIssueBody(trucate) {
     ''
   ];
   return submit_body.join('\n');
+}
+
+function copyText() {
+  if (the.editor) {
+    the.editor.execCommand('selectAll');
+    var currentText = the.editor.getValue();
+    var copyArea = $('<textarea />')
+      .text(currentText)
+      .attr('readonly', '')
+      .css({ 'position': 'absolute', 'left': '-9999px' });
+
+    $('body').append(copyArea);
+    copyArea.select();
+    document.execCommand('copy');
+    copyArea.remove();
+  } else {
+    $('#source').select();
+    document.execCommand('copy');
+  }
+}
+
+function selectAll() {
+  if (the.editor) {
+    the.editor.execCommand('selectAll');
+  } else {
+    $('#source').select();
+  }
 }

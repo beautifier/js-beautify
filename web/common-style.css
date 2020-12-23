@@ -24,8 +24,6 @@ a.turn-off-codemirror {
 }
 
 button.submit {
-  width: 100%;
-  padding: 10px 0;
   cursor: pointer;
   margin: 0;
 }
@@ -36,16 +34,17 @@ button.submit em {
   color: #999;
 }
 
+button.control {
+  cursor: pointer;
+  margin: 0;
+}
+
 label {
   cursor: pointer;
 }
 
 select {
   width: 220px;
-}
-
-table#options {
-  float: right;
 }
 
 table#options td {
@@ -56,14 +55,6 @@ table#options td {
 .col-6 {
   width: 50%;
   float: left;
-}
-
-#about {
-  float: left;
-}
-
-#about p {
-  margin: 0 6px 6px 0;
 }
 
 #version-number {

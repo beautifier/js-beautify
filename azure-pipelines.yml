@@ -2,21 +2,21 @@
 jobs:
 - job: 'Windows'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-latest'
   strategy:
     matrix:
-      Python34_Node8:
-        python.version: '3.4'
-        python.architecture: 'x86'
-        node_version: 8.x
       Python36_Node10:
         python.version: '3.6'
         python.architecture: 'x64'
         node_version: 10.x
-      Python37_Node11:
+      Python37_Node12:
         python.version: '3.7'
         python.architecture: 'x64'
-        node_version: 11.x
+        node_version: 12.x
+      Python38_Node13:
+        python.version: '3.8'
+        python.architecture: 'x64'
+        node_version: 13.x
     maxParallel: 6
 
   steps:
@@ -36,21 +36,21 @@ jobs:
 
 - job: 'Linux'
   pool:
-    vmImage: 'ubuntu-16.04' # other options: 'macOS-10.13', 'vs2017-win2016'
+    vmImage: 'ubuntu-latest'
   strategy:
     matrix:
-      Python27_Node6:
+      Python27_Node10:
         python.version: '2.7'
-        node_version: 6.x
-      Python34_Node8:
-        python.version: '3.4'
-        node_version: 8.x
-      Python36_Node10:
-        python.version: '3.6'
         node_version: 10.x
-      Python37_Node11:
+      Python36_Node12:
+        python.version: '3.6'
+        node_version: 12.x
+      Python37_Node13:
         python.version: '3.7'
-        node_version: 11.x
+        node_version: 13.x
+      Python38_Node13:
+        python.version: '3.8'
+        node_version: 13.x
     maxParallel: 6
 
   steps:
@@ -69,15 +69,18 @@ jobs:
 
 - job: 'MacOS'
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-latest'
   strategy:
     matrix:
-      Python27_Node6:
+      Python27_Node10:
         python.version: '2.7'
-        node_version: 6.x
-      Python37_Node11:
+        node_version: 10.x
+      Python37_Node12:
         python.version: '3.7'
-        node_version: 11.x
+        node_version: 12.x
+      Python38_Node13:
+        python.version: '3.8'
+        node_version: 13.x
     maxParallel: 6
 
   steps:

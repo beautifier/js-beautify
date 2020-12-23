@@ -5,8 +5,8 @@
 var operator_position = {
   sanity: [
     'var res = a + b - c / d * e % f;',
-    'var res = g & h | i ^ j;',
-    'var res = (k && l || m) ? n : o;',
+    'var res = g & h | i ^ j |> console.log;',
+    'var res = (k && l || m) ? n ?? nn : o;',
     'var res = p >> q << r >>> s;',
     'var res = t === u !== v != w == x >= y <= z > aa < ab;',
     'ac + -ad'
@@ -19,11 +19,13 @@ var operator_position = {
     'f;',
     '   var res = g & h',
     '| i ^',
-    'j;',
+    'j',
+    '|> console.log;',
     'var res = (k &&',
     'l',
     '|| m) ?',
     'n',
+    '?? nn',
     ': o',
     ';',
     'var res = p',

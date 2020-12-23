@@ -170,6 +170,30 @@ exports.test_data = {
         }
       ]
     }, {
+      name: "Private Class Fields",
+      description: "Permit private class fields which are declared with a leading \"#\".",
+      tests: [
+        { unchanged: '#foo' },
+        {
+          unchanged: [
+            'class X {',
+            '    #foo = null;',
+            '    get foo() {',
+            '        return this.#foo;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          input: 'class X {#foo=null;}',
+          output: [
+            'class X {',
+            '    #foo = null;',
+            '}'
+          ]
+        }
+      ]
+    }, {
       name: "ES7 Decorators",
       description: "Permit ES7 decorators, which are invoked with a leading \"@\".",
       tests: [
@@ -1025,6 +1049,30 @@ exports.test_data = {
         {
           input: 'this\n.something\n.xxx = foo.moo\n.bar()',
           output: 'this<pn1>.something<pn1>.xxx = foo.moo<pn1>.bar()'
+        },
+        {
+          comment: 'optional chaining operator',
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat); foo?.bar()?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat);\nfoo?.bar()<n1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'foo\n?.bar()\n?.baz()?.cucumber(fat)\n foo?.bar()?.baz()?.cucumber(fat)',
+          output: 'foo<pn1>?.bar()<pon1>?.baz()<n1>?.cucumber(fat)\nfoo?.bar()<n1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          input: 'this\n?.something = foo?.bar()\n?.baz()?.cucumber(fat)',
+          output: 'this<pn1>?.something = foo?.bar()<pon1>?.baz()<n1>?.cucumber(fat)'
+        },
+        {
+          unchanged: 'this?.something?.xxx = foo?.moo?.bar()'
+        },
+        {
+          input: 'this\n?.something\n?.xxx = foo?.moo\n?.bar()',
+          output: 'this<pn1>?.something<pn1>?.xxx = foo?.moo<pn1>?.bar()'
         }
       ]
     }, {
@@ -1663,7 +1711,7 @@ exports.test_data = {
         }
       ]
     }, {
-      name: "operator_position option - ensure no neswlines if preserve_newlines is false",
+      name: "operator_position option - ensure no newlines if preserve_newlines is false",
       matrix: [{
         options: [
           // test for default
@@ -1714,11 +1762,13 @@ exports.test_data = {
           '    f;',
           'var res = g & h |',
           '    i ^',
-          '    j;',
+          '    j |>',
+          '    console.log;',
           'var res = (k &&',
           '        l ||',
           '        m) ?',
-          '    n :',
+          '    n ??',
+          '    nn :',
           '    o;',
           'var res = p >>',
           '    q <<',
@@ -1786,11 +1836,13 @@ exports.test_data = {
           '    % f;',
           'var res = g & h',
           '    | i',
-          '    ^ j;',
+          '    ^ j',
+          '    |> console.log;',
           'var res = (k',
           '        && l',
           '        || m)',
           '    ? n',
+          '    ?? nn',
           '    : o;',
           'var res = p',
           '    >> q',
@@ -1858,11 +1910,13 @@ exports.test_data = {
           '    f;',
           'var res = g & h',
           '    | i ^',
-          '    j;',
+          '    j',
+          '    |> console.log;',
           'var res = (k &&',
           '        l',
           '        || m) ?',
           '    n',
+          '    ?? nn',
           '    : o;',
           'var res = p',
           '    >> q <<',
@@ -3421,7 +3475,7 @@ exports.test_data = {
           unchanged: 'get["name"]'
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    set b(x) {},',
@@ -3431,7 +3485,7 @@ exports.test_data = {
           ]
         },
         {
-          fragmeent: true,
+          fragment: true,
           unchanged: [
             'a = {',
             '    get b() {',
@@ -3664,6 +3718,15 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue 1727 - Optional chaining",
+          input: [
+            'true?.1:.2'
+          ],
+          output: [
+            'true ? .1 : .2'
+          ]
+        },
+        {
           comment: "Issue 406 - Multiline array",
           unchanged: [
             'var tempName = [',
@@ -3743,6 +3806,12 @@ exports.test_data = {
             '    function(x) {',
             '        return x;',
             '    };'
+          ]
+        },
+        {
+          comment: 'Issue #1794 - support nullish-coalescing',
+          unchanged: [
+            'a = b ?? c'
           ]
         },
         {
