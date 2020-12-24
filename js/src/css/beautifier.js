@@ -98,7 +98,7 @@ Beautifier.prototype.eatWhitespace = function(allowAtLeastOneNewLine) {
       if (newline_count === 0 || newline_count < this._options.max_preserve_newlines) {
         newline_count++;
         this._output.add_new_line(true);
-      } 
+      }
     }
   }
   return result;
