@@ -144,8 +144,8 @@ class Beautifier:
             self._ch = self._input.next()
             if allowAtLeastOneNewLine and self._ch == "\n":
                 if (
-                    newline_count == 0 or
-                    newline_count < self._options.max_preserve_newlines
+                    newline_count == 0
+                    or newline_count < self._options.max_preserve_newlines
                 ):
                     newline_count += 1
                     self._output.add_new_line(True)
