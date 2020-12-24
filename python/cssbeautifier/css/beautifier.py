@@ -139,13 +139,13 @@ class Beautifier:
     def eatWhitespace(self, allowAtLeastOneNewLine=False):
         result = whitespaceChar.search(self._input.peek() or "") is not None
         isFirstNewLine = True
-
+        newline_count = 0
         while whitespaceChar.search(self._input.peek() or "") is not None:
             self._ch = self._input.next()
             if allowAtLeastOneNewLine and self._ch == "\n":
-                if self._options.preserve_newlines or isFirstNewLine:
-                    isFirstNewLine = False
-                    self._output.add_new_line(True)
+                if newline_count == 0 or newline_count < self._options.max_preserve_newlines:
+                    newline_count += 1
+                    self._output.add_new_line(True)          
         return result
 
     # Nested pseudo-class if we are insideRule
