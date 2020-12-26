@@ -8916,6 +8916,26 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Smarty tests for extra whitespace in nested quotes
+        reset_options();
+        set_name('Smarty tests for extra whitespace in nested quotes');
+        opts.templating = 'smarty';
+        bth('<div class="foo{if $bar=="1"} bar{/if}">foo</div>');
+        bth('<input type="radio" name="foo" {if $bar==""}checked{/if}>');
+
+
+        //============================================================
+        // Smarty tests for script
+        reset_options();
+        set_name('Smarty tests for script');
+        opts.templating = 'smarty';
+        bth(
+            '<script>\n' +
+            '    var foo = {$bar|json_encode};\n' +
+            '</script>');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
         set_name('New Test Suite');
