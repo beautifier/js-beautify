@@ -1217,7 +1217,7 @@ class Beautifier:
             elif (
                 current_token.text[0] == "`"
                 and self._flags.last_token.type == TOKEN.END_EXPR
-                and current_token.previous.text == "]"
+                and current_token.previous.text in ["]", ")"]
                 and current_token.newlines == 0
             ):
                 self._output.space_before_token = True

@@ -1071,7 +1071,7 @@ Beautifier.prototype.handle_string = function(current_token) {
       if (!this.start_of_object_property()) {
         this.allow_wrap_or_preserved_newline(current_token);
       }
-    } else if ((current_token.text.startsWith("`") && (this._flags.last_token.type === TOKEN.END_EXPR && current_token.previous.text === ']') && current_token.newlines === 0)) {
+    } else if ((current_token.text.startsWith("`") && this._flags.last_token.type === TOKEN.END_EXPR && (current_token.previous.text === ']' || current_token.previous.text === ')') && current_token.newlines === 0)) {
       this._output.space_before_token = true;
     } else {
       this.print_newline();

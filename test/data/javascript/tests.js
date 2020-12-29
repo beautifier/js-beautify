@@ -1726,8 +1726,7 @@ exports.test_data = {
           output: '`untagged` + `untagged`'
         },
         {
-          input: "fun() `taggedd`",
-          output: "fun()\n`taggedd`"
+          unchanged: "fun() `taggedd`"
         },
         {
           input: 'fn[0]`tagged`',

@@ -3223,11 +3223,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
         bt('fn`${algo} ${`6string`}`');
         bt('fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`');
         bt('`untagged`+`untagged`', '`untagged` + `untagged`');
-        bt(
-            'fun() `taggedd`',
-            //  -- output --
-            'fun()\n' +
-            '`taggedd`');
+        bt('fun() `taggedd`');
         bt('fn[0]`tagged`', 'fn[0] `tagged`');
 
 
