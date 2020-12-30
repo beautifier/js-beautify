@@ -4425,6 +4425,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '       {children}\n' +
             '    </{a + b}>\n' +
             ');');
+        bt(
+            'class Columns extends React.Component {\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <>\n' +
+            '              <td>Hello</td>\n' +
+            '              <td>World</td>\n' +
+            '            </>\n' +
+            '        );\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================

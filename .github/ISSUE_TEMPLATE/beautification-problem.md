@@ -5,11 +5,12 @@ about: You tried using the beautifier and the resulting format was not what you 
 ---
 
 # Description
-> This is the default template for bug reports
->
-> NOTE: 
-> * Do not include screenshots! This library is a text processor, we need text inputs and outputs for debugging and fixing issues. 
-> * Check the list of open issues before filing a new issue. 
+<!--
+This is the default template for bug reports
+NOTE: 
+* Do not include screenshots! This library is a text processor, we need text inputs and outputs for debugging and fixing issues. 
+* Check the list of open issues before filing a new issue. 
+<!--
 
 # Input
 The code looked like this before beautification:
@@ -37,6 +38,7 @@ OS:
 
 
 ## Settings
+<!--
 Example:
 ```json
 {
@@ -58,3 +60,4 @@ Example:
     "wrap_line_length": 0
 }
 ```
+-->
