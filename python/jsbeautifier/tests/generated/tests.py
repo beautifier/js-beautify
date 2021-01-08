@@ -2979,6 +2979,13 @@ class TestJSBeautifier(unittest.TestCase):
             '} else {\n' +
             '    c;\n' +
             '}')
+        bt('fn`tagged`')
+        bt('fn()`tagged`')
+        bt('fn`${algo} ${`6string`}`')
+        bt('fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`')
+        bt('`untagged`+`untagged`', '`untagged` + `untagged`')
+        bt('fun() `taggedd`')
+        bt('fn[0]`tagged`', 'fn[0] `tagged`')
 
 
         #============================================================

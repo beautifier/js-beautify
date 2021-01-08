@@ -1708,6 +1708,29 @@ exports.test_data = {
         {
           input: 'if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
           output: 'if (a) {\n    b;\n} else {\n    c;\n}'
+        },
+        {
+          unchanged: 'fn`tagged`'
+        },
+        {
+          unchanged: 'fn()`tagged`'
+        },
+        {
+          unchanged: 'fn`${algo} ${`6string`}`'
+        },
+        {
+          unchanged: 'fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`'
+        },
+        {
+          input: '`untagged`+`untagged`',
+          output: '`untagged` + `untagged`'
+        },
+        {
+          unchanged: "fun() `taggedd`"
+        },
+        {
+          input: 'fn[0]`tagged`',
+          output: 'fn[0] `tagged`'
         }
       ]
     }, {
