@@ -21,8 +21,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Install python twine
-        run: pip install twine
       - name: Set git user
         run: |
           git config --global user.email "github-action@users.noreply.github.com"
@@ -38,18 +36,20 @@ jobs:
           ssh-add - <<< "${DEPLOY_KEY}"
           git remote add site git@github.com:beautifier/beautifier.io.git
           git fetch --all
+      - name: Install python twine and PyPI credentials 
+        env: 
+          PYPI_RC: ${{secrets.PYPI_RC}}
+        run: |
+          cat - > ~/.pypirc <<< "${PYPI_RC}"
+          pip install twine        
       - name: Update changelog.md
         run: |
-          ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
-          # git push
+           generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
+          git push
       - name: Run release script for ${{ github.event.milestone.title }}
         env: 
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-          PYPI_RC: ${{secrets.PYPI_RC}}
         run: |
-          echo ${{ github.event.milestone.title }}
-          npm whoami
-          cat - > ~/.pypirc <<< "${PYPI_RC}"
-          twine -h
+          ./tools/release-all.sh ${MILESTONE_VERSION}
