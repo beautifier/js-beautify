@@ -21,7 +21,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - run: echo ${{ github.event.milestone.title }}
+
+      - name: Set git user
+        run: |
+          git config --global user.email "github-action@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
       - name: Fetch beautifier/beautifier.io
         env:
           DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
@@ -36,4 +40,15 @@ jobs:
       - name: Update changelog.md
         run: |
           ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
-          git push
+          # git push
+      - name: Run release script for ${{ github.event.milestone.title }}
+        env: 
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          MILESTONE_VERSION: ${{ github.event.milestone.title }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          PYPI_RC: ${{secrets.PYPI_RC}}
+        run: |
+          echo ${{ github.event.milestone.title }}
+          npm whoami
+          cat - > ~/.pypirc <<< "${PYPI_RC}"
+          twine -h
