@@ -20,4 +20,4 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - run: echo ${{ github.event }}
+      - run: echo ${{ github.event.milestone.title }}
