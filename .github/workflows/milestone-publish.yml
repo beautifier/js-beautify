@@ -44,7 +44,7 @@ jobs:
           pip install twine        
       - name: Update changelog.md
         run: |
-           generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
+          ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
           git push
       - name: Run release script for ${{ github.event.milestone.title }}
         env: 
