@@ -25,12 +25,12 @@ jobs:
       - name: Fetch beautifier/beautifier.io
         env:
           DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           mkdir -p ~/.ssh
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           ssh-add - <<< "${DEPLOY_KEY}"
-          eval "$(ssh-agent -s)"
           git remote add site git@github.com:beautifier/beautifier.io.git
           git fetch --all
       - name: Update changelog.md
