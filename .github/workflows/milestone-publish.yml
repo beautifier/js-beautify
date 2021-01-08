@@ -16,8 +16,23 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
+          registry-url: https://registry.npmjs.org/
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
       - run: echo ${{ github.event.milestone.title }}
+      - name: Fetch beautifier/beautifier.io
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add - <<< "${DEPLOY_KEY}"
+          git remote add site git@github.com:beautifier/beautifier.io.git
+          git fetch --all
+      - name: Update changelog.md
+        run: |
+          ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
+          git push
+        
