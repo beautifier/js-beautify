@@ -39,14 +39,13 @@ release_node()
 
 release_web()
 {
-    echo release is now on beautifier/beautifier.io
-    # cd $SCRIPT_DIR/..
-    # git clean -xfd || exit 1
-    # git fetch || exit 1
-    # git checkout -B gh-pages origin/gh-pages || exit 1
-    # git merge origin/release --no-edit || exit 1
-    # git push || exit 1
-    # git checkout master
+    cd $SCRIPT_DIR/..
+    git clean -xfd || exit 1
+    git fetch --all || exit 1
+    git checkout -B gh-pages site/gh-pages || exit 1
+    git merge origin/release --no-edit || exit 1
+    git push || exit 1
+    git checkout master
 }
 
 sedi() {
@@ -97,10 +96,14 @@ main()
 {
     cd $SCRIPT_DIR/..
 
-    local NEW_VERSION=$1
-    NEW_VERSION=$1
 
-    git checkout master || exit 1
+    local NEW_VERSION=$1
+    NEW_VERSION=${NEW_VERSION/v/}
+
+    if [[ ! $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9].*$ ]]; then
+        echo Version number must start with MAJOR.MINOR.INCREMENTAL numbering.
+        exit 1
+    fi    
 
     npm --version > /dev/null || {
         echo ERROR: npm must be installed before attempting release
@@ -111,6 +114,8 @@ main()
         echo ERROR: twine must be installed before attempting release
         exit 1
     }
+
+    git checkout master || exit 1
 
     update_versions
     update_release_branch
