@@ -10915,6 +10915,34 @@ class CSSBeautifierTest(unittest.TestCase):
 
 
         #============================================================
+        # Preserve Newlines and max number of new lines
+        self.reset_options()
+        self.options.preserve_newlines = true
+        self.options.max_preserve_newlines = 2
+        t(
+            'p {\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}',
+            #  -- output --
+            'p {\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}')
+        t(
+            'p {\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}')
+        t(
+            'p {\n' +
+            '    color: blue;\n' +
+            '}')
+
+
+        #============================================================
         # 
         self.reset_options()
 
