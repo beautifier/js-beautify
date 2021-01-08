@@ -24,15 +24,15 @@ jobs:
       - run: echo ${{ github.event.milestone.title }}
       - name: Fetch beautifier/beautifier.io
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+          DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
         run: |
-          eval "$(ssh-agent -s)"
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${DEPLOY_KEY}"
+          eval "$(ssh-agent -s)"
           git remote add site git@github.com:beautifier/beautifier.io.git
           git fetch --all
       - name: Update changelog.md
         run: |
           ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
           git push
-        
