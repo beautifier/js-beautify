@@ -405,14 +405,22 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === '(') { // may be a url
       if (this._input.lookBack("url")) {
         this.print_string(this._ch);
-        this.eatWhitespace();
+        if (this._options.space_in_paren) {
+          this._output.space_before_token = true;
+        } else {
+          this.eatWhitespace();
+        }
         parenLevel++;
         this.indent();
         this._ch = this._input.next();
         if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
         } else if (this._ch) {
-          this.print_string(this._ch + this.eatString(')'));
+          if (this._options.space_in_paren) {
+            this.print_string(this._ch + this.eatString(')').slice(0, -1) + ' )');
+          } else {
+            this.print_string(this._ch + this.eatString(')'));
+          }
           if (parenLevel) {
             parenLevel--;
             this.outdent();
@@ -421,7 +429,11 @@ Beautifier.prototype.beautify = function() {
       } else {
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
-        this.eatWhitespace();
+        if (this._options.space_in_paren) {
+          this._output.space_before_token = true;
+        } else {
+          this.eatWhitespace();
+        }
         parenLevel++;
         this.indent();
       }
@@ -429,6 +441,9 @@ Beautifier.prototype.beautify = function() {
       if (parenLevel) {
         parenLevel--;
         this.outdent();
+      }
+      if (this._options.space_in_paren) {
+        this._output.space_before_token = true;
       }
       this.print_string(this._ch);
     } else if (this._ch === ',') {

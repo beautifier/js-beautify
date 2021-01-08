@@ -1800,6 +1800,48 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "space_in_paren true",
+      description: "",
+      options: [
+        { name: "space_in_paren", value: "true" }
+      ],
+      tests: [{
+        fragment: true,
+        input: [
+          'a {',
+          'width: min(100%,100vw);',
+          'height: calc( 100vh - 100px );',
+          '}'
+        ],
+        output: [
+          'a {',
+          '    width: min( 100%, 100vw );',
+          '    height: calc( 100vh - 100px );',
+          '}'
+        ]
+      }]
+    }, {
+      name: "space_in_paren false",
+      description: "",
+      options: [
+        { name: "space_in_paren", value: "false" }
+      ],
+      tests: [{
+        fragment: true,
+        input: [
+          'a {',
+          'width: min(100%,100vw);',
+          'height: calc( 100vh - 100px );',
+          '}'
+        ],
+        output: [
+          'a {',
+          '    width: min(100%, 100vw);',
+          '    height: calc(100vh - 100px);',
+          '}'
+        ]
+      }]
+    }, {
 
     }
   ]

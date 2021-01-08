@@ -429,27 +429,40 @@ class Beautifier:
                 # may be a url
                 if self._input.lookBack("url"):
                     self.print_string(self._ch)
-                    self.eatWhitespace()
+                    if self._options.space_in_paren:
+                        self._output.space_before_token = True
+                    else:
+                        self.eatWhitespace()
                     parenLevel += 1
                     self.indent()
                     self._ch = self._input.next()
                     if self._ch in {")", '"', "'"}:
                         self._input.back()
                     elif self._ch is not None:
-                        self.print_string(self._ch + self.eatString(")"))
+                        if self._options.space_in_paren:
+                            self.print_string(
+                                self._ch + self.eatString(")")[0:-1] + " )"
+                            )
+                        else:
+                            self.print_string(self._ch + self.eatString(")"))
                         if parenLevel:
                             parenLevel -= 1
                             self.outdent()
                 else:
                     self.preserveSingleSpace(isAfterSpace)
                     self.print_string(self._ch)
-                    self.eatWhitespace()
+                    if self._options.space_in_paren:
+                        self._output.space_before_token = True
+                    else:
+                        self.eatWhitespace()
                     parenLevel += 1
                     self.indent()
             elif self._ch == ")":
                 if parenLevel:
                     parenLevel -= 1
                     self.outdent()
+                if self._options.space_in_paren:
+                    self._output.space_before_token = True
                 self.print_string(self._ch)
             elif self._ch == ",":
                 self.print_string(self._ch)
