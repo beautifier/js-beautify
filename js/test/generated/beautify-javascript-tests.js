@@ -3218,6 +3218,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '} else {\n' +
             '    c;\n' +
             '}');
+        bt('fn`tagged`');
+        bt('fn()`tagged`');
+        bt('fn`${algo} ${`6string`}`');
+        bt('fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`');
+        bt('`untagged`+`untagged`', '`untagged` + `untagged`');
+        bt('fun() `taggedd`');
+        bt('fn[0]`tagged`', 'fn[0] `tagged`');
 
 
         //============================================================
@@ -4418,6 +4425,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '       {children}\n' +
             '    </{a + b}>\n' +
             ');');
+        bt(
+            'class Columns extends React.Component {\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <>\n' +
+            '              <td>Hello</td>\n' +
+            '              <td>World</td>\n' +
+            '            </>\n' +
+            '        );\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================

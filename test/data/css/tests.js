@@ -1800,6 +1800,21 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Preserve Newlines and max number of new lines",
+      options: [
+        { name: "preserve_newlines", value: "true" },
+        { name: "max_preserve_newlines", value: "2" }
+      ],
+      description: "",
+      tests: [{
+        input: 'p {\n\n\n\n    color: blue;\n}',
+        output: 'p {\n\n    color: blue;\n}'
+      }, {
+        unchanged: 'p {\n\n    color: blue;\n}'
+      }, {
+        unchanged: 'p {\n    color: blue;\n}'
+      }]
+    }, {
 
     }
   ]

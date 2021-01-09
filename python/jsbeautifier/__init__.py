@@ -132,7 +132,7 @@ Output options:
                                    NOTE: Line continues until next wrap point is found.
  -n,  --end-with-newline           End output with newline
  --indent-empty-lines              Keep indentation on empty lines
- --templating                      List of templating languages (auto,none,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html
+ --templating                      List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
  --editorconfig                    Enable setting configuration from EditorConfig
 
 Rarely needed options:

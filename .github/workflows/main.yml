@@ -1,0 +1,50 @@
+name: CI
+
+on: [push, pull_request]
+
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} (Node ${{ matrix.node-version }}, Python ${{ matrix.python-version }} )
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [ ubuntu, windows, macos ]
+        python-version: [2.7, 3.6, 3.7, 3.8, 3.9]
+        include:
+          - python-version: 2.7 
+            node-version: 10
+          - python-version: 3.6 
+            node-version: 10
+          - python-version: 3.7 
+            node-version: 12
+          - python-version: 3.8
+            node-version: 14
+          - python-version: 3.9
+            node-version: 15
+        exclude:
+          - os: windows
+            python-version: 2.7
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Cached node_modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Make all (Windows)
+        if: matrix.os == 'windows'
+        run: make all
+      - name: Make CI (Non-windows)
+        if: matrix.os != 'windows'
+        run: make ci
