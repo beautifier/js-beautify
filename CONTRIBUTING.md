@@ -71,8 +71,8 @@ Test data files and support files used to generate implementation-specific test 
 
 # Branches and Tags
 
-## Master
-We use the `master` branch as the primary development branch.
+## Main
+We use the `main` branch as the primary development branch.
 
 ## Release
 We use the `release` branch to hold releases, including built files for bower and the website.
