@@ -30,14 +30,17 @@ jobs:
           git config --global user.name "GitHub Action"
       - name: Fetch beautifier/beautifier.io
         env:
-          DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
+          BEAUTIFIER_IO_DEPLOY_KEY: ${{ secrets.BEAUTIFIER_IO_DEPLOY_KEY }}
+          JS_BEAUTIFY_DEPLOY_KEY: ${{ secrets.JS_BEAUTIFY_DEPLOY_KEY }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           mkdir -p ~/.ssh
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh-add - <<< "${DEPLOY_KEY}"
+          ssh-add - <<< "${BEAUTIFIER_IO_DEPLOY_KEY}"
+          ssh-add - <<< "${JS_BEAUTIFY_DEPLOY_KEY}"
           git remote add site git@github.com:beautifier/beautifier.io.git
+          git remote add trigger git@github.com:beautify-web/js-beautify.git
           git fetch --all
       - name: Install python twinE
         run: pip install twine        
