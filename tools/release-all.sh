@@ -67,7 +67,8 @@ sedi() {
 update_versions()
 {
     git fetch --all || exit 1
-    git checkout -B staging/main origin/staging/main || exit 1
+    # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
+    git checkout -B staging/main trigger/staging/main || exit 1
     git merge origin/main --no-edit || exit 1
     git clean -xfd || exit 1
 
@@ -90,7 +91,9 @@ update_release_branch()
 {
     git reset --hard
     git clean -xfd
-    git checkout -B staging/release origin/staging/release || exit 1
+    git fetch --all || exit 1
+    # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
+    git checkout -B staging/release trigger/staging/release || exit 1
     git merge origin/release --no-edit || exit 1
     git merge origin/staging/main --no-edit || exit 1
 
