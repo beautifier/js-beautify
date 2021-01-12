@@ -7,11 +7,14 @@ on:
   milestone:
     types: [closed]
 
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
@@ -38,12 +41,9 @@ jobs:
           git fetch --all
       - name: Install python twinE
         run: pip install twine        
-      - name: Update changelog.md
-        run: |
-          ./tools/generate-changelog.sh ${{ github.repository}} ${{ secrets.GITHUB_TOKEN }}
-          git push
       - name: Run release script for ${{ github.event.milestone.title }}
         env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           MILESTONE_VERSION: ${{ github.event.milestone.title }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

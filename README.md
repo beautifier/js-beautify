@@ -24,7 +24,7 @@ I'm putting this front and center above because existing owners have very limite
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both
 customer facing bugs and underlying problems with the internal design and implementation.
 
-If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/master/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
+If you are interested, please take a look at the [CONTRIBUTING.md](https://github.com/beautify-web/js-beautify/blob/main/CONTRIBUTING.md) then fix an issue marked with the ["Good first issue"](https://github.com/beautify-web/js-beautify/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) label and submit a PR. Repeat as often as possible.  Thanks!
 
 
 # Installation
@@ -61,17 +61,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.1/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.2/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.1/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.1/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.1/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.2/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.2/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.2/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -404,4 +404,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.13.1)
+(README.md: js-beautify@1.13.2)

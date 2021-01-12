@@ -1,4 +1,12 @@
 # Changelog
+## v1.13.2
+
+### Description
+Placeholder milestone for testing release scripts
+
+### Closed Issues
+
+
 ## v1.13.1
 
 ### Description
