@@ -62,7 +62,7 @@ update_versions()
 {
     git fetch --all || exit 1
     git checkout -B staging/main origin/staging/main || exit 1
-    git reset --hard origin/main || exit 1
+    git merge origin/main --no-edit || exit 1
     git clean -xfd || exit 1
 
     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN
@@ -85,7 +85,7 @@ update_release_branch()
     git reset --hard
     git clean -xfd
     git checkout -B staging/release origin/staging/release || exit 1
-    git reset --hard origin/release --no-edit || exit 1
+    git merge origin/release --no-edit || exit 1
     git merge origin/staging/main --no-edit || exit 1
 
     make js || exit 1
@@ -114,7 +114,6 @@ main()
     }
 
     twine -h > /dev/null || {
-        echo ERROR: twine must be installed before attempting release
         exit 1
     }
 
