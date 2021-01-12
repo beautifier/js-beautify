@@ -35,15 +35,15 @@ jobs:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           mkdir -p ~/.ssh
-          cat .github/workflows/ssh_config.txt >>.ssh/config
+          cat .github/workflows/ssh_config.txt > ~/.ssh/config
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           
-          cat >.ssh/deploy_beautifier_io <<< "${BEAUTIFIER_IO_DEPLOY_KEY}"
-          cat >.ssh/deploy_js_beautify <<< "${JS_BEAUTIFY_DEPLOY_KEY}"
+          cat > ~/.ssh/deploy_beautifier_io <<< "${BEAUTIFIER_IO_DEPLOY_KEY}"
+          cat > ~/.ssh/deploy_js_beautify <<< "${JS_BEAUTIFY_DEPLOY_KEY}"
           
-          ssh-add .ssh/deploy_beautifier_io
-          ssh-add .ssh/deploy_js_beautify
+          ssh-add ~/.ssh/deploy_beautifier_io
+          ssh-add ~/.ssh/deploy_js_beautify
                     
           git remote add site git@beautifier-github.com:beautifier/beautifier.io.git
           git remote add trigger git@js-beautify-github.com:beautify-web/js-beautify.git
