@@ -67,13 +67,14 @@ sedi() {
 update_versions()
 {
     git fetch --all || exit 1
-    git checkout -B staging/main origin/staging/main || exit 1
+    # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
+    git checkout -B staging/main trigger/staging/main || exit 1
     git merge origin/main --no-edit || exit 1
     git clean -xfd || exit 1
 
-    $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN
+    $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
 
-    npm version --no-git-tag-version $NEW_VERSION
+    npm version --no-git-tag-version $NEW_VERSION || exit 1
 
     sedi -E 's@(cdn.rawgit.+beautify/v)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
@@ -81,16 +82,18 @@ update_versions()
 
     echo "__version__ = \"$NEW_VERSION\"" > python/jsbeautifier/__version__.py
     echo "__version__ = \"$NEW_VERSION\"" > python/cssbeautifier/__version__.py
-    git add .
-    git commit -am "Bump version numbers for $NEW_VERSION"
-    git push
+    git add . || exit 1
+    git commit -am "Bump version numbers for $NEW_VERSION" || exit 1
+    git push || exit 1
 }
 
 update_release_branch()
 {
     git reset --hard
     git clean -xfd
-    git checkout -B staging/release origin/staging/release || exit 1
+    git fetch --all || exit 1
+    # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
+    git checkout -B staging/release trigger/staging/release || exit 1
     git merge origin/release --no-edit || exit 1
     git merge origin/staging/main --no-edit || exit 1
 
