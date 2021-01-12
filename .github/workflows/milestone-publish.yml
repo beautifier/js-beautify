@@ -41,7 +41,10 @@ jobs:
           
           cat > ~/.ssh/deploy_beautifier_io <<< "${BEAUTIFIER_IO_DEPLOY_KEY}"
           cat > ~/.ssh/deploy_js_beautify <<< "${JS_BEAUTIFY_DEPLOY_KEY}"
-          
+
+          chmod 400 ~/.ssh/deploy_beautifier_io
+          chmod 400 ~/.ssh/deploy_js_beautify
+
           ssh-add ~/.ssh/deploy_beautifier_io
           ssh-add ~/.ssh/deploy_js_beautify
                     
