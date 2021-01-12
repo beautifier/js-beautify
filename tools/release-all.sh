@@ -42,10 +42,16 @@ release_web()
     cd $SCRIPT_DIR/..
     git clean -xfd || exit 1
     git fetch --all || exit 1
+
     git checkout -B staging/gh-pages site/staging/gh-pages || exit 1
-    git reset --hard site/gh-pages --no-edit || exit 1
+    git reset --hard site/gh-pages || exit 1
     git merge origin/release --no-edit || exit 1
     git push || exit 1
+
+    git checkout -B staging/main site/staging/main || exit 1
+    git reset --hard site/main || exit 1
+    git merge origin/staging/main --no-edit || exit 1
+    git push || exit 1    
 }
 
 sedi() {
