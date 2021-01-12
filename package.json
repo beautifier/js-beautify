@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
