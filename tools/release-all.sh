@@ -65,7 +65,7 @@ update_versions()
     git reset --hard origin/main || exit 1
     git clean -xfd || exit 1
 
-    $SCRIPT_DIR/generate_changelog.sh beautify-web/js-beautify $GITHUB_TOKEN
+    $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN
 
     npm version --no-git-tag-version $NEW_VERSION
 
