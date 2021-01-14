@@ -147,7 +147,7 @@ var get_custom_beautifier_name = function(tag_check, raw_token) {
     return null;
   }
 
-  if (tag_check === 'script') {
+  if (tag_check === 'script' || tag_check === 'rumo-script') {
     typeAttribute = 'text/javascript';
   } else if (tag_check === 'style') {
     typeAttribute = 'text/css';
@@ -666,7 +666,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 
       this._tag_stack.record_tag(parser_token); //push it on the tag stack
 
-      if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'style') &&
+      if ((parser_token.tag_name === 'script' || parser_token.tag_name === 'rumo-script' || parser_token.tag_name === 'style') &&
         !(parser_token.is_unformatted || parser_token.is_content_unformatted)) {
         parser_token.custom_beautifier_name = get_custom_beautifier_name(parser_token.tag_check, raw_token);
       }

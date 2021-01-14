@@ -288,9 +288,9 @@ Tokenizer.prototype._read_raw_content = function(c, previous_token, open_token) 
     resulting_string = this.__patterns.handlebars_raw_close.read();
   } else if (previous_token.type === TOKEN.TAG_CLOSE &&
     previous_token.opened.text[0] === '<' && previous_token.text[0] !== '/') {
-    // ^^ empty tag has no content 
+    // ^^ empty tag has no content
     var tag_name = previous_token.opened.text.substr(1).toLowerCase();
-    if (tag_name === 'script' || tag_name === 'style') {
+    if (tag_name === 'script' || tag_name === 'rumo-script' || tag_name === 'style') {
       // Script and style tags are allowed to have comments wrapping their content
       // or just have regular content.
       var token = this._read_comment_or_cdata(c);
