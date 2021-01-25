@@ -552,7 +552,7 @@ class Beautifier:
                         self._options.space_before_conditional
                     )
                     next_mode = MODE.ForInitializer
-                elif self._flags.last_token.text in ["if", "while"]:
+                elif self._flags.last_token.text in ["if", "while", "switch"]:
                     self._output.space_before_token = (
                         self._options.space_before_conditional
                     )

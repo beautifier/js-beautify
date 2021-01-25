@@ -4481,6 +4481,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while(a) b()');
+        bt('switch(a) b()');
         bt(
             'if(a)\n' +
             'b();',
@@ -4501,6 +4502,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while(a);');
+        bt(
+            'switch(a)\n' +
+            'b()',
+            //  -- output --
+            'switch(a)\n' +
+            '    b()');
         bt('return [];');
         bt('return ();');
 
@@ -4514,6 +4521,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while (a) b()');
+        bt('switch (a) b()');
         bt(
             'if(a)\n' +
             'b();',
@@ -4534,6 +4542,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while (a);');
+        bt(
+            'switch(a)\n' +
+            'b()',
+            //  -- output --
+            'switch (a)\n' +
+            '    b()');
         bt('return [];');
         bt('return ();');
 
