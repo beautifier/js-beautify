@@ -4227,6 +4227,7 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while(a) b()')
+        bt('switch(a) b()')
         bt(
             'if(a)\n' +
             'b();',
@@ -4247,6 +4248,12 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while(a);')
+        bt(
+            'switch(a)\n' +
+            'b()',
+            #  -- output --
+            'switch(a)\n' +
+            '    b()')
         bt('return [];')
         bt('return ();')
 
@@ -4259,6 +4266,7 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while (a) b()')
+        bt('switch (a) b()')
         bt(
             'if(a)\n' +
             'b();',
@@ -4279,6 +4287,12 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while (a);')
+        bt(
+            'switch(a)\n' +
+            'b()',
+            #  -- output --
+            'switch (a)\n' +
+            '    b()')
         bt('return [];')
         bt('return ();')
 
