@@ -2576,7 +2576,7 @@ exports.test_data = {
         { unchanged: 'if{{s}}(a) b()' },
         { unchanged: 'while{{s}}(a) b()' },
         { unchanged: 'do\n    c();\nwhile{{s}}(a) b()' },
-        { unchanged: 'switch{{s}}(a) b()'},
+        { unchanged: 'switch{{s}}(a) b()' },
         {
           input: 'if(a)\nb();',
           output: 'if{{s}}(a)\n    b();'
