@@ -2576,6 +2576,7 @@ exports.test_data = {
         { unchanged: 'if{{s}}(a) b()' },
         { unchanged: 'while{{s}}(a) b()' },
         { unchanged: 'do\n    c();\nwhile{{s}}(a) b()' },
+        { unchanged: 'switch{{s}}(a) b()' },
         {
           input: 'if(a)\nb();',
           output: 'if{{s}}(a)\n    b();'
@@ -2587,6 +2588,10 @@ exports.test_data = {
         {
           input: 'do\nc();\nwhile(a);',
           output: 'do\n    c();\nwhile{{s}}(a);'
+        },
+        {
+          input: 'switch(a)\nb()',
+          output: 'switch{{s}}(a)\n    b()'
         },
         { unchanged: 'return [];' },
         { unchanged: 'return ();' }
@@ -3772,6 +3777,13 @@ exports.test_data = {
             '    (Math.random() * 0x1000000000).toString(36),',
             '    new Date().getTime()',
             '].join("-");'
+          ]
+        },
+        {
+          comment: "Issue 1801 - Optional chaining w/ obj?.[expr] syntax",
+          unchanged: [
+            'let nestedProp = obj?.["prop" + "Name"];',
+            'let arrayItem = arr?.[42];'
           ]
         },
         {
