@@ -45,7 +45,7 @@ release_web()
 
     git checkout -B staging/gh-pages site/staging/gh-pages || exit 1
     git reset --hard site/gh-pages || exit 1
-    git merge origin/release --no-edit || exit 1
+    git merge origin/staging/release --no-edit || exit 1
     git push || exit 1
 
     git checkout -B staging/main site/staging/main || exit 1
