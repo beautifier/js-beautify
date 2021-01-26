@@ -1,4 +1,14 @@
 # Changelog
+## v1.13.6
+
+### Description
+
+
+### Closed Issues
+* Fix space-before-conditional: false to work on switch-case statement ([#1881](https://github.com/beautify-web/js-beautify/pull/1881))
+* Optional chaining obj?.[expr] ([#1801](https://github.com/beautify-web/js-beautify/issues/1801))
+
+
 ## v1.13.5
 
 ### Description

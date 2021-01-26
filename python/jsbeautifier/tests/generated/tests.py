@@ -4227,6 +4227,7 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while(a) b()')
+        bt('switch(a) b()')
         bt(
             'if(a)\n' +
             'b();',
@@ -4247,6 +4248,12 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while(a);')
+        bt(
+            'switch(a)\n' +
+            'b()',
+            #  -- output --
+            'switch(a)\n' +
+            '    b()')
         bt('return [];')
         bt('return ();')
 
@@ -4259,6 +4266,7 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while (a) b()')
+        bt('switch (a) b()')
         bt(
             'if(a)\n' +
             'b();',
@@ -4279,6 +4287,12 @@ class TestJSBeautifier(unittest.TestCase):
             'do\n' +
             '    c();\n' +
             'while (a);')
+        bt(
+            'switch(a)\n' +
+            'b()',
+            #  -- output --
+            'switch (a)\n' +
+            '    b()')
         bt('return [];')
         bt('return ();')
 
@@ -6685,6 +6699,11 @@ class TestJSBeautifier(unittest.TestCase):
             '    (Math.random() * 0x1000000000).toString(36),\n' +
             '    new Date().getTime()\n' +
             '].join("-");')
+        
+        # Issue 1801 - Optional chaining w/ obj?.[expr] syntax
+        bt(
+            'let nestedProp = obj?.["prop" + "Name"];\n' +
+            'let arrayItem = arr?.[42];')
         
         # Issue 1374 - Parameters starting with ! or [ merged into single line
         bt(
