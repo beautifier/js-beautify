@@ -1,5 +1,5 @@
 # Description
-- [ ] Source branch in your fork has meaningful name (not `master`)
+- [ ] Source branch in your fork has meaningful name (not `main`)
 
 
 Fixes Issue: 

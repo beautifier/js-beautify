@@ -1,4 +1,35 @@
 # Changelog
+## v1.13.6
+
+### Description
+
+
+### Closed Issues
+* Fix space-before-conditional: false to work on switch-case statement ([#1881](https://github.com/beautify-web/js-beautify/pull/1881))
+* Optional chaining obj?.[expr] ([#1801](https://github.com/beautify-web/js-beautify/issues/1801))
+
+
+## v1.13.5
+
+### Description
+Placeholder milestone for testing release scripts
+
+### Closed Issues
+
+
+## v1.13.1
+
+### Description
+
+
+### Closed Issues
+* Option 'max_preserve_newlines' not working on beautify_css.js CSS Beautifier ([#1863](https://github.com/beautify-web/js-beautify/issues/1863))
+* React Fragment Short Syntax <></> issue ([#1854](https://github.com/beautify-web/js-beautify/issues/1854))
+* add  viewport meta tag to index.html ([#1843](https://github.com/beautify-web/js-beautify/pull/1843))
+* Add basic smarty templating support ([#1820](https://github.com/beautify-web/js-beautify/issues/1820))
+* Tagged Template literals ([#1244](https://github.com/beautify-web/js-beautify/issues/1244))
+
+
 ## v1.13.0
 
 ### Description

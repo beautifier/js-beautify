@@ -11045,6 +11045,35 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
 
 
         //============================================================
+        // Preserve Newlines and max number of new lines
+        reset_options();
+        set_name('Preserve Newlines and max number of new lines');
+        opts.preserve_newlines = true;
+        opts.max_preserve_newlines = 2;
+        t(
+            'p {\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}',
+            //  -- output --
+            'p {\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}');
+        t(
+            'p {\n' +
+            '\n' +
+            '    color: blue;\n' +
+            '}');
+        t(
+            'p {\n' +
+            '    color: blue;\n' +
+            '}');
+
+
+        //============================================================
         // 
         reset_options();
         set_name('');
