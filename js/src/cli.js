@@ -351,7 +351,7 @@ function usage(err) {
         '                                    [first newline in file, otherwise "\\n]',
         '  -n, --end-with-newline            End output with newline',
         '  --indent-empty-lines              Keep indentation on empty lines',
-        '  --templating                      List of templating languages (auto,none,django,erb,handlebars,php) ["auto"] auto = none in JavaScript, all in html',
+        '  --templating                      List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html',
         '  --editorconfig                    Use EditorConfig to set up the options'
     ];
 

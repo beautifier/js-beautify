@@ -1708,6 +1708,29 @@ exports.test_data = {
         {
           input: 'if (a)\n{\nb;\n}\nelse\n{\nc;\n}',
           output: 'if (a) {\n    b;\n} else {\n    c;\n}'
+        },
+        {
+          unchanged: 'fn`tagged`'
+        },
+        {
+          unchanged: 'fn()`tagged`'
+        },
+        {
+          unchanged: 'fn`${algo} ${`6string`}`'
+        },
+        {
+          unchanged: 'fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`'
+        },
+        {
+          input: '`untagged`+`untagged`',
+          output: '`untagged` + `untagged`'
+        },
+        {
+          unchanged: "fun() `taggedd`"
+        },
+        {
+          input: 'fn[0]`tagged`',
+          output: 'fn[0] `tagged`'
         }
       ]
     }, {
@@ -2490,6 +2513,20 @@ exports.test_data = {
             '    </{a + b}>',
             ');'
           ]
+        },
+        {
+          unchanged: [
+            'class Columns extends React.Component {',
+            '    render() {',
+            '        return (',
+            '            <>',
+            '              <td>Hello</td>',
+            '              <td>World</td>',
+            '            </>',
+            '        );',
+            '    }',
+            '}'
+          ]
         }
       ]
     },
@@ -2539,6 +2576,7 @@ exports.test_data = {
         { unchanged: 'if{{s}}(a) b()' },
         { unchanged: 'while{{s}}(a) b()' },
         { unchanged: 'do\n    c();\nwhile{{s}}(a) b()' },
+        { unchanged: 'switch{{s}}(a) b()' },
         {
           input: 'if(a)\nb();',
           output: 'if{{s}}(a)\n    b();'
@@ -2550,6 +2588,10 @@ exports.test_data = {
         {
           input: 'do\nc();\nwhile(a);',
           output: 'do\n    c();\nwhile{{s}}(a);'
+        },
+        {
+          input: 'switch(a)\nb()',
+          output: 'switch{{s}}(a)\n    b()'
         },
         { unchanged: 'return [];' },
         { unchanged: 'return ();' }
@@ -3735,6 +3777,13 @@ exports.test_data = {
             '    (Math.random() * 0x1000000000).toString(36),',
             '    new Date().getTime()',
             '].join("-");'
+          ]
+        },
+        {
+          comment: "Issue 1801 - Optional chaining w/ obj?.[expr] syntax",
+          unchanged: [
+            'let nestedProp = obj?.["prop" + "Name"];',
+            'let arrayItem = arr?.[42];'
           ]
         },
         {

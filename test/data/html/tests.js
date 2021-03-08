@@ -2144,6 +2144,28 @@ exports.test_data = {
         s: '{%',
         e: '%}'
       },
+      // smarty {...} and {/* ... */} and {literal} ... {/literal}
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{a',
+        e: 'a}'
+      },
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{*',
+        e: '*}'
+      },
+      {
+        options: [
+          { name: "templating", value: "'smarty'" }
+        ],
+        s: '{literal}',
+        e: '{/literal}'
+      },
       // handlebars {{ ... }} and {{# ... }} and {{! ... }} and {{!-- --}}
       {
         options: [
@@ -3452,6 +3474,30 @@ exports.test_data = {
         '    </div>',
         '',
         '</div>'
+      ]
+    }]
+  }, {
+    name: "Smarty tests for extra whitespace in nested quotes",
+    description: "Check beautifier adds extra whitespace in nested quotes by assuming as the end of the attribute",
+    options: [
+      { name: "templating", value: "'smarty'" }
+    ],
+    tests: [{
+      unchanged: '<div class="foo{if $bar=="1"} bar{/if}">foo</div>'
+    }, {
+      unchanged: '<input type="radio" name="foo" {if $bar==""}checked{/if}>'
+    }]
+  }, {
+    name: "Smarty tests for script",
+    description: "",
+    options: [
+      { name: "templating", value: "'smarty'" }
+    ],
+    tests: [{
+      unchanged: [
+        '<script>',
+        '    var foo = {$bar|json_encode};',
+        '</script>'
       ]
     }]
   }, {

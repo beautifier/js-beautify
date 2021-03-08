@@ -3218,6 +3218,13 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '} else {\n' +
             '    c;\n' +
             '}');
+        bt('fn`tagged`');
+        bt('fn()`tagged`');
+        bt('fn`${algo} ${`6string`}`');
+        bt('fn`${fn2()} more text ${`${`more text`}`} banana ${fn3`test`} ${fn4()`moretest banana2`}`');
+        bt('`untagged`+`untagged`', '`untagged` + `untagged`');
+        bt('fun() `taggedd`');
+        bt('fn[0]`tagged`', 'fn[0] `tagged`');
 
 
         //============================================================
@@ -4418,6 +4425,17 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '       {children}\n' +
             '    </{a + b}>\n' +
             ');');
+        bt(
+            'class Columns extends React.Component {\n' +
+            '    render() {\n' +
+            '        return (\n' +
+            '            <>\n' +
+            '              <td>Hello</td>\n' +
+            '              <td>World</td>\n' +
+            '            </>\n' +
+            '        );\n' +
+            '    }\n' +
+            '}');
 
 
         //============================================================
@@ -4463,6 +4481,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while(a) b()');
+        bt('switch(a) b()');
         bt(
             'if(a)\n' +
             'b();',
@@ -4483,6 +4502,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while(a);');
+        bt(
+            'switch(a)\n' +
+            'b()',
+            //  -- output --
+            'switch(a)\n' +
+            '    b()');
         bt('return [];');
         bt('return ();');
 
@@ -4496,6 +4521,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while (a) b()');
+        bt('switch (a) b()');
         bt(
             'if(a)\n' +
             'b();',
@@ -4516,6 +4542,12 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             'do\n' +
             '    c();\n' +
             'while (a);');
+        bt(
+            'switch(a)\n' +
+            'b()',
+            //  -- output --
+            'switch (a)\n' +
+            '    b()');
         bt('return [];');
         bt('return ();');
 
@@ -6956,6 +6988,11 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
             '    (Math.random() * 0x1000000000).toString(36),\n' +
             '    new Date().getTime()\n' +
             '].join("-");');
+        
+        // Issue 1801 - Optional chaining w/ obj?.[expr] syntax
+        bt(
+            'let nestedProp = obj?.["prop" + "Name"];\n' +
+            'let arrayItem = arr?.[42];');
         
         // Issue 1374 - Parameters starting with ! or [ merged into single line
         bt(
