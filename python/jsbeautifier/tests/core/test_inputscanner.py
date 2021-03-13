@@ -85,6 +85,7 @@ class TestInputScanner(unittest.TestCase):
         patternmatch = self.inputscanner.match(pattern)
         self.assertEqual(self.inputscanner.peek(), self.value[3])
         self.assertNotEqual(patternmatch, None)
+        self.assertEqual(patternmatch.group(0), "how")
 
         self.inputscanner.restart()
 
@@ -118,6 +119,15 @@ class TestInputScanner(unittest.TestCase):
 
         self.inputscanner.restart()
 
+        # should return the substring matched for startPattern when untilPattern is given but unitilAfter is false
+        startPattern = re.compile(r"how")
+        untilPattern = re.compile(r"dy")
+        untilAfter = False
+        patternmatch = self.inputscanner.read(startPattern, untilPattern, untilAfter)
+        self.assertEqual(patternmatch, "how")
+
+        self.inputscanner.restart()
+
         # should return substring matched for untilPattern when startPattern is None
         startPattern = None
         untilPattern = re.compile(r"how")
@@ -142,7 +152,15 @@ class TestInputScanner(unittest.TestCase):
 
         self.inputscanner.restart()
 
-        # should not return substring matched for pattern when untilAfter is false
+        # should return substring from index 0 to start index of matched substring when untilAfter is false
+        pattern = re.compile(r"wd")
+        untilAfter = False
+        patternmatch = self.inputscanner.readUntil(pattern, untilAfter)
+        self.assertEqual(patternmatch, "ho")
+
+        self.inputscanner.restart()
+
+        # should return empty string when start index of matched substring is 0 and untilAfter is false
         pattern = re.compile(r"how")
         untilAfter = False
         patternmatch = self.inputscanner.readUntil(pattern, untilAfter)

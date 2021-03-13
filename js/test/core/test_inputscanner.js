@@ -129,6 +129,7 @@ describe('IndexScanner', function() {
       var patternmatch = inputText.match(/how/);
       assert.strictEqual(inputText.peek(), value[3]);
       assert.notStrictEqual(patternmatch, null);
+      assert.strictEqual(patternmatch[0], 'how');
     });
 
     it('should return null and not move index if there is no match', function() {
@@ -162,6 +163,15 @@ describe('IndexScanner', function() {
       assert.strictEqual(patternmatch, "howdy");
     });
 
+    it('should return the substring matched for startPattern when untilPattern is given but unitilAfter is false', function() {
+      var inputText = new InputScanner("howdy");
+      var startPattern = /how/;
+      var untilPattern = /dy/;
+      var untilAfter = false;
+      var patternmatch = inputText.read(startPattern, untilPattern, untilAfter);
+      assert.strictEqual(patternmatch, "how");
+    });
+
     it('should return substring matched for untilPattern when startPattern is null', function() {
       var inputText = new InputScanner("howdy");
       var startPattern = null;
@@ -190,7 +200,15 @@ describe('IndexScanner', function() {
       assert.strictEqual(patternmatch, "how");
     });
 
-    it('should not return substring matched for pattern when untilAfter is false', function() {
+    it('should return substring from index 0 to start index of matched substring when untilAfter is false', function() {
+      var inputText = new InputScanner("howdy");
+      var pattern = /wd/;
+      var untilAfter = false;
+      var patternmatch = inputText.readUntil(pattern, untilAfter);
+      assert.strictEqual(patternmatch, "ho");
+    });
+
+    it('should return empty string when start index of matched substring is 0 and untilAfter is false', function() {
       var inputText = new InputScanner("howdy");
       var pattern = /how/;
       var untilAfter = false;
