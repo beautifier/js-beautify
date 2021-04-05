@@ -2117,7 +2117,7 @@ exports.test_data = {
     template: "^^^ $$$",
     matrix: [
 
-      // Php (<?php ... ?> and <?= ... ?>) =.
+      // Php (<?php ... ?> and <?= ... ?> and <? ... ?>) =.
       {
         s: '<?php',
         e: '?>'
@@ -2125,6 +2125,10 @@ exports.test_data = {
       {
         s: '<?=',
         e: '?>'
+      },
+      {
+      	s: '<?',
+      	e: '>?'
       },
       // erb, ejs, asp: <% ... %>
       {
