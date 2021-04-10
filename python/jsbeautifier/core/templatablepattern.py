@@ -43,7 +43,7 @@ class TemplatePatterns:
         self.handlebars_comment = pattern.starting_with(r"{{!--").until_after(r"--}}")
         self.handlebars_unescaped = pattern.starting_with(r"{{{").until_after(r"}}}")
         self.handlebars = pattern.starting_with(r"{{").until_after(r"}}")
-        self.php = pattern.starting_with(r"<\?(?:[=]|php)").until_after(r"\?>")
+        self.php = pattern.starting_with(r"<\?(?:[=]|php| )").until_after(r"\?>")
         self.erb = pattern.starting_with(r"<%[^%]").until_after(r"[^%]%>")
         # django coflicts with handlebars a bit.
         self.django = pattern.starting_with(r"{%").until_after(r"%}")
