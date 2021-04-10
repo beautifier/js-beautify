@@ -7118,6 +7118,40 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
         // minimal template handling - ()
         reset_options();
         set_name('minimal template handling - ()');
+        bth('<h1  class="content-page-header"><? $view["name"]; ?></h1>', '<h1 class="content-page-header"><? $view["name"]; ?></h1>');
+        bth(
+            '<? \n' +
+            'for($i = 1; $i <= 100; $i++;) {\n' +
+            '    #count to 100!\n' +
+            '    echo($i . "</br>");\n' +
+            '}\n' +
+            '?>');
+        test_fragment(
+            '<?  ?>\n' +
+            '<!DOCTYPE html>\n' +
+            '\n' +
+            '<html>\n' +
+            '\n' +
+            '<head></head>\n' +
+            '\n' +
+            '<body></body>\n' +
+            '\n' +
+            '</html>');
+        bth(
+            '<?  "A" ?>abc<?  "D" ?>\n' +
+            '<?  "B" ?>\n' +
+            '<?  "C" ?>');
+        bth(
+            '<? \n' +
+            'echo "A";\n' +
+            '?>\n' +
+            '<span>Test</span>');
+        bth('<<?  html_element(); ?> <? language_attributes();?>>abc</<?  html_element(); ?>>');
+        bth('<input type="text" value="<? $x["test"] . $x[\'test\']?>">');
+
+        // minimal template handling - ()
+        reset_options();
+        set_name('minimal template handling - ()');
         bth('<h1  class="content-page-header"><%$view["name"]; %></h1>', '<h1 class="content-page-header"><%$view["name"]; %></h1>');
         bth(
             '<%\n' +
