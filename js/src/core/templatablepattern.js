@@ -57,7 +57,7 @@ function TemplatablePattern(input_scanner, parent) {
     handlebars_comment: pattern.starting_with(/{{!--/).until_after(/--}}/),
     handlebars_unescaped: pattern.starting_with(/{{{/).until_after(/}}}/),
     handlebars: pattern.starting_with(/{{/).until_after(/}}/),
-    php: pattern.starting_with(/<\?(?:[=]|php)/).until_after(/\?>/),
+    php: pattern.starting_with(/<\?(?:[= ]|php)/).until_after(/\?>/),
     erb: pattern.starting_with(/<%[^%]/).until_after(/[^%]%>/),
     // django coflicts with handlebars a bit.
     django: pattern.starting_with(/{%/).until_after(/%}/),

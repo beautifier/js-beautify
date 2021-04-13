@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.13.6",
+  "version": "1.13.7",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -62,8 +62,8 @@
     "minimist": ">=1.2.5",
     "mocha": "^8.1.1",
     "mustache": "^4.0.1",
-    "serve": "^11.3.2",
     "requirejs": "^2.3.6",
+    "serve": "^11.3.2",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   }

@@ -1,4 +1,13 @@
 # Changelog
+## v1.13.7
+
+### Description
+
+
+### Closed Issues
+* Support short PHP tags ([#1840](https://github.com/beautify-web/js-beautify/issues/1840))
+
+
 ## v1.13.6
 
 ### Description
