@@ -34,7 +34,7 @@ release_node()
     if [[ $NEW_VERSION =~ .*(rc|beta).* ]]; then
     NPM_TAG='--tag next'
     fi
-    npm publish . $NPM_TAG || exit 1
+    $SCRIPT_DIR/npm publish . $NPM_TAG || exit 1
 }
 
 release_web()
@@ -74,7 +74,7 @@ update_versions()
 
     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
 
-    npm version --no-git-tag-version $NEW_VERSION || exit 1
+    $SCRIPT_DIR/npm version --no-git-tag-version $NEW_VERSION || exit 1
 
     sedi -E 's@(cdn.rawgit.+beautify/v)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
@@ -99,6 +99,7 @@ update_release_branch()
 
     make js || exit 1
     git add -f js/lib/ || exit 1
+    git add . 
     git commit -m "Release: $NEW_VERSION"
     git tag "v$NEW_VERSION" || exit 1
     git push || exit 1
