@@ -18,6 +18,5 @@ target
 dist/
 build/
 js/lib/
-generated/
 .idea/
 .vscode/
