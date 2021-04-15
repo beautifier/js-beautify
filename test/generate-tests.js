@@ -60,6 +60,7 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
   template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
   set_formatters(test_data, test_method, '// ');
   set_generated_header(test_data, data_file_path, template_file_path);
+  fs.mkdirSync(path.resolve(__dirname, '..', node_output, '..'), { recursive: true });
   fs.writeFileSync(path.resolve(__dirname, '..', node_output),
     mustache.render(template, test_data), { encoding: 'utf-8' });
 
@@ -68,6 +69,7 @@ function generate_test_files(data_folder, test_method, node_output, python_outpu
     template = fs.readFileSync(template_file_path, { encoding: 'utf-8' });
     set_formatters(test_data, test_method, '# ');
     set_generated_header(test_data, data_file_path, template_file_path);
+    fs.mkdirSync(path.resolve(__dirname, '..', python_output, '..'), { recursive: true });
     fs.writeFileSync(path.resolve(__dirname, '..', python_output),
       mustache.render(template, test_data), { encoding: 'utf-8' });
   }

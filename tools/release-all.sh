@@ -13,6 +13,9 @@ esac
 release_python()
 {
     cd $SCRIPT_DIR/..
+    git clean -xfd || exit 1
+    git fetch --all || exit 1
+
     git checkout -B staging/release origin/staging/release
     git clean -xfd || exit 1
     cd python
@@ -28,6 +31,9 @@ release_python()
 release_node()
 {
     cd $SCRIPT_DIR/..
+    git clean -xfd || exit 1
+    git fetch --all || exit 1
+
     git checkout -B staging/release origin/staging/release
     git clean -xfd || exit 1
     unset NPM_TAG
@@ -66,7 +72,10 @@ sedi() {
 
 update_versions()
 {
+    cd $SCRIPT_DIR/..
+    git clean -xfd || exit 1
     git fetch --all || exit 1
+
     # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
     git checkout -B staging/main trigger/staging/main || exit 1
     git merge origin/main --no-edit || exit 1
@@ -89,9 +98,11 @@ update_versions()
 
 update_release_branch()
 {
-    git reset --hard
-    git clean -xfd
+    cd $SCRIPT_DIR/..
+    git clean -xfd || exit 1
     git fetch --all || exit 1
+
+    git reset --hard
     # trigger remote uses deploy key, push will cause downstream GitHub Actions to fire
     git checkout -B staging/release trigger/staging/release || exit 1
     git merge origin/release --no-edit || exit 1
