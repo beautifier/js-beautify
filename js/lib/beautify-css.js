@@ -66,13 +66,13 @@
 
 /* GENERATED_BUILD_OUTPUT */
 var legacy_beautify_css;
-/******/ (() => { // webpackBootstrap
+/******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
 /* 0 */,
 /* 1 */,
 /* 2 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -500,7 +500,7 @@ module.exports.Output = Output;
 /* 4 */,
 /* 5 */,
 /* 6 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -700,7 +700,7 @@ module.exports.mergeOpts = _mergeOpts;
 /***/ }),
 /* 7 */,
 /* 8 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -902,7 +902,7 @@ module.exports.InputScanner = InputScanner;
 /* 11 */,
 /* 12 */,
 /* 13 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -971,7 +971,7 @@ module.exports.Directives = Directives;
 /***/ }),
 /* 14 */,
 /* 15 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -1019,7 +1019,7 @@ module.exports.defaultOptions = function() {
 
 /***/ }),
 /* 16 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -1505,7 +1505,7 @@ module.exports.Beautifier = Beautifier;
 
 /***/ }),
 /* 17 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*

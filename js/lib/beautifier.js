@@ -8,11 +8,11 @@
 	else
 		root["beautifier"] = factory();
 })(typeof self !== 'undefined' ? self : typeof windows !== 'undefined' ? window : typeof global !== 'undefined' ? global : this, function() {
-return /******/ (() => { // webpackBootstrap
+return /******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
 /* 0 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -62,7 +62,7 @@ module.exports.html = style_html;
 
 /***/ }),
 /* 1 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -110,7 +110,7 @@ module.exports.defaultOptions = function() {
 
 /***/ }),
 /* 2 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -1575,7 +1575,7 @@ module.exports.Beautifier = Beautifier;
 
 /***/ }),
 /* 3 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2000,7 +2000,7 @@ module.exports.Output = Output;
 
 /***/ }),
 /* 4 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2060,7 +2060,7 @@ module.exports.Token = Token;
 
 /***/ }),
 /* 5 */
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 /* jshint node: true, curly: false */
 // Parts of this section of code is taken from acorn.
@@ -2123,7 +2123,7 @@ exports.allLineBreaks = new RegExp(exports.lineBreak.source, 'g');
 
 /***/ }),
 /* 6 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -2222,7 +2222,7 @@ module.exports.Options = Options;
 
 /***/ }),
 /* 7 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2421,7 +2421,7 @@ module.exports.mergeOpts = _mergeOpts;
 
 /***/ }),
 /* 8 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -2993,7 +2993,7 @@ module.exports.line_starters = line_starters.slice();
 
 /***/ }),
 /* 9 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3191,7 +3191,7 @@ module.exports.InputScanner = InputScanner;
 
 /***/ }),
 /* 10 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3337,7 +3337,7 @@ module.exports.TOKEN = TOKEN;
 
 /***/ }),
 /* 11 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3421,7 +3421,7 @@ module.exports.TokenStream = TokenStream;
 
 /***/ }),
 /* 12 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3532,7 +3532,7 @@ module.exports.WhitespacePattern = WhitespacePattern;
 
 /***/ }),
 /* 13 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3632,7 +3632,7 @@ module.exports.Pattern = Pattern;
 
 /***/ }),
 /* 14 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3700,7 +3700,7 @@ module.exports.Directives = Directives;
 
 /***/ }),
 /* 15 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3917,7 +3917,7 @@ module.exports.TemplatablePattern = TemplatablePattern;
 
 /***/ }),
 /* 16 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3965,7 +3965,7 @@ module.exports.defaultOptions = function() {
 
 /***/ }),
 /* 17 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -4451,7 +4451,7 @@ module.exports.Beautifier = Beautifier;
 
 /***/ }),
 /* 18 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -4513,7 +4513,7 @@ module.exports.Options = Options;
 
 /***/ }),
 /* 19 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -4561,7 +4561,7 @@ module.exports.defaultOptions = function() {
 
 /***/ }),
 /* 20 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -5432,7 +5432,7 @@ module.exports.Beautifier = Beautifier;
 
 /***/ }),
 /* 21 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -5529,7 +5529,7 @@ module.exports.Options = Options;
 
 /***/ }),
 /* 22 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
