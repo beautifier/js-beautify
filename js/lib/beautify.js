@@ -89,11 +89,11 @@
 
 /* GENERATED_BUILD_OUTPUT */
 var legacy_beautify_js;
-/******/ (() => { // webpackBootstrap
+/******/ (function() { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
 /* 0 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -141,7 +141,7 @@ module.exports.defaultOptions = function() {
 
 /***/ }),
 /* 1 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -1606,7 +1606,7 @@ module.exports.Beautifier = Beautifier;
 
 /***/ }),
 /* 2 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2031,7 +2031,7 @@ module.exports.Output = Output;
 
 /***/ }),
 /* 3 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2091,7 +2091,7 @@ module.exports.Token = Token;
 
 /***/ }),
 /* 4 */
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 /* jshint node: true, curly: false */
 // Parts of this section of code is taken from acorn.
@@ -2154,7 +2154,7 @@ exports.allLineBreaks = new RegExp(exports.lineBreak.source, 'g');
 
 /***/ }),
 /* 5 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -2253,7 +2253,7 @@ module.exports.Options = Options;
 
 /***/ }),
 /* 6 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -2452,7 +2452,7 @@ module.exports.mergeOpts = _mergeOpts;
 
 /***/ }),
 /* 7 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3024,7 +3024,7 @@ module.exports.line_starters = line_starters.slice();
 
 /***/ }),
 /* 8 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3222,7 +3222,7 @@ module.exports.InputScanner = InputScanner;
 
 /***/ }),
 /* 9 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3368,7 +3368,7 @@ module.exports.TOKEN = TOKEN;
 
 /***/ }),
 /* 10 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3452,7 +3452,7 @@ module.exports.TokenStream = TokenStream;
 
 /***/ }),
 /* 11 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
@@ -3563,7 +3563,7 @@ module.exports.WhitespacePattern = WhitespacePattern;
 
 /***/ }),
 /* 12 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3663,7 +3663,7 @@ module.exports.Pattern = Pattern;
 
 /***/ }),
 /* 13 */
-/***/ ((module) => {
+/***/ (function(module) {
 
 /*jshint node:true */
 /*
@@ -3731,7 +3731,7 @@ module.exports.Directives = Directives;
 
 /***/ }),
 /* 14 */
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 /*jshint node:true */
 /*
