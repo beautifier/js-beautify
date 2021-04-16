@@ -47,6 +47,7 @@
   "engines": {
     "node": ">=10"
   },
+  "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.12",
     "editorconfig": "^0.15.3",
