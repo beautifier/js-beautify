@@ -1,4 +1,13 @@
 # Changelog
+## v1.13.13
+
+### Description
+
+
+### Closed Issues
+* IE11 compatibility failure v>1.13.5 ([#1918](https://github.com/beautify-web/js-beautify/issues/1918))
+
+
 ## v1.13.11
 
 ### Description
