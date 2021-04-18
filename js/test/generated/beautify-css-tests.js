@@ -10747,6 +10747,10 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '.item-warning-wrong {\n' +
             '    @extend btn-warning: hover;\n' +
             '}');
+        t(
+            '.item-warning {\n' +
+            '    @extend .color1, .hover2;\n' +
+            '}');
 
 
         //============================================================
