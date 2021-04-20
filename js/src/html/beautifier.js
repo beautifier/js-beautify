@@ -392,7 +392,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
 
       // Wrap for 'force' options, and if the number of attributes is at least that specified in 'wrap_attributes_min_attrs':
       // 1. always wrap the second and beyond attributes
-      // 2. wrap the first attribute only if 'force-expand-multiline' is used and there are more than 1 attributes
+      // 2. wrap the first attribute only if 'force-expand-multiline' is specified
       if (this._is_wrap_attributes_force &&
         last_tag_token.attr_count >= this._options.wrap_attributes_min_attrs &&
         (last_token.type !== TOKEN.TAG_OPEN || // ie. second attribute and beyond
