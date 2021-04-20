@@ -1226,31 +1226,31 @@ exports.test_data = {
     }],
     tests: [{
       input: [
-        '<input type="text"     class="form-control"  autocomplete="off"',
+        '<input type="four attributes should wrap"     class="form-control"  autocomplete="off"',
         '[(ngModel)]="myValue" />'
       ],
       output: [
-        '<input{{indent_attr_first}}type="text"',
+        '<input{{indent_attr_first}}type="four attributes should wrap"',
         '{{indent_attr}}class="form-control"',
         '{{indent_attr}}autocomplete="off"',
         '{{indent_attr}}[(ngModel)]="myValue"{{indent_end}}/>'
       ]
     }, {
       input: [
-        '<input type="text"    autocomplete="off"',
+        '<input type="three attributes should not wrap"    autocomplete="off"',
         '[(ngModel)]="myValue" />'
       ],
-      output: '<input type="text" autocomplete="off" [(ngModel)]="myValue" />'
+      output: '<input type="three attributes should not wrap" autocomplete="off" [(ngModel)]="myValue" />'
     }, {
       input: [
-        '<cmpnt v-bind:xx="xx"  ' +
+        '<cmpnt v-bind:xx="four attributes with valueless attribute should wrap"  ' +
         '@someevent="dosomething"  someprop',
         'class="xx-button">',
         '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
         '</cmpnt>'
       ],
       output: [
-        '<cmpnt{{indent_attr_first}}v-bind:xx="xx"',
+        '<cmpnt{{indent_attr_first}}v-bind:xx="four attributes with valueless attribute should wrap"',
         '{{indent_attr}}@someevent="dosomething"',
         '{{indent_attr}}someprop',
         '{{indent_attr}}class="xx-button"{{newline_end}}>',
