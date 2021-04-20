@@ -396,7 +396,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
       if (this._is_wrap_attributes_force &&
         last_tag_token.attr_count >= this._options.wrap_attributes_min_attrs &&
         (last_token.type !== TOKEN.TAG_OPEN || // ie. second attribute and beyond
-          (this._is_wrap_attributes_force_expand_multiline && last_tag_token.attr_count > 1))) {
+          this._is_wrap_attributes_force_expand_multiline)) {
         printer.print_newline(false);
         wrapped = true;
       }

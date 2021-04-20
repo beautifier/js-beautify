@@ -1259,6 +1259,40 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Test wrap_attributes_min_attrs = 1 with force/force-xx options",
+    description: "",
+    matrix: [{
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should not wrap, by design
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: ' ',
+      newline_end: ' '
+    }, {
+      // Should wrap
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "1" }
+      ],
+      indent_attr: '\n    ',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="one attribute"/>'
+      ],
+      output: '<input{{indent_attr}}type="one attribute"{{newline_end}}/>'
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
