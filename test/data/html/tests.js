@@ -1194,6 +1194,71 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Test wrap_attributes_min_attrs with force/force-xx options",
+    description: "",
+    matrix: [{
+      options: [
+        { name: "wrap_attributes", value: "'force'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-aligned'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '       ',
+      indent_attr_first: ' ',
+      indent_end: ' ',
+      newline_end: ''
+    }, {
+      options: [
+        { name: "wrap_attributes", value: "'force-expand-multiline'" },
+        { name: "wrap_attributes_min_attrs", value: "4" }
+      ],
+      indent_attr: '    ',
+      indent_attr_first: '\n    ',
+      indent_end: '\n',
+      newline_end: '\n'
+    }],
+    tests: [{
+      input: [
+        '<input type="text"     class="form-control"  autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: [
+        '<input{{indent_attr_first}}type="text"',
+        '{{indent_attr}}class="form-control"',
+        '{{indent_attr}}autocomplete="off"',
+        '{{indent_attr}}[(ngModel)]="myValue"{{indent_end}}/>'
+      ]
+    }, {
+      input: [
+        '<input type="text"    autocomplete="off"',
+        '[(ngModel)]="myValue" />'
+      ],
+      output: '<input type="text" autocomplete="off" [(ngModel)]="myValue" />'
+    }, {
+      input: [
+        '<cmpnt v-bind:xx="xx"  ' +
+        '@someevent="dosomething"  someprop',
+        'class="xx-button">',
+        '<div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ],
+      output: [
+        '<cmpnt{{indent_attr_first}}v-bind:xx="xx"',
+        '{{indent_attr}}@someevent="dosomething"',
+        '{{indent_attr}}someprop',
+        '{{indent_attr}}class="xx-button"{{newline_end}}>',
+        '    <div class="alert alert-info" style="margin-left: 1px;" role="alert">lorem ipsum</div>',
+        '</cmpnt>'
+      ]
+    }]
+  }, {
     name: "Handlebars Indenting Off",
     description: "Test handlebar behavior when indenting is off",
     template: "^^^ $$$",
