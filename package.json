@@ -1,6 +1,6 @@
 {
   "name": "js-beautify",
-  "version": "1.13.6",
+  "version": "1.13.13",
   "description": "beautifier.io for node",
   "main": "js/index.js",
   "bin": {
@@ -47,6 +47,7 @@
   "engines": {
     "node": ">=10"
   },
+  "browserslist": "ie 11",
   "dependencies": {
     "config-chain": "^1.1.12",
     "editorconfig": "^0.15.3",
@@ -64,7 +65,7 @@
     "mustache": "^4.0.1",
     "requirejs": "^2.3.6",
     "serve": "^11.3.2",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.32.0",
+    "webpack-cli": "^4.6.0"
   }
 }

@@ -79,7 +79,7 @@ js/lib/*.js: $(BUILD_DIR)/node $(BUILD_DIR)/generate $(wildcard js/src/*) $(wild
 
 
 # python package generation
-python/dist/*: $(BUILD_DIR)/python $(wildcard python/**/*.py) python/jsbeautifier/* python/cssbeautifier/*
+python/dist/*: $(BUILD_DIR)/python $(BUILD_DIR)/generate $(wildcard python/**/*.py) python/jsbeautifier/* python/cssbeautifier/*
 	@echo Building python package...
 	@rm -f python/dist/*
 	@cd python && \
@@ -129,7 +129,7 @@ $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	$(NPM) --version
 	@touch $(BUILD_DIR)/node
 
-$(BUILD_DIR)/python: python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
+$(BUILD_DIR)/python: $(BUILD_DIR)/generate python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
 	@$(PYTHON) --version
 	# Order matters here! Install css then js to make sure the local dist version of js is used
 	@cp ./python/setup-css.py ./python/setup.py
