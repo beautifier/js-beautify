@@ -216,7 +216,7 @@ def main():
             filepath_params.append(arg)
         elif opt in ("--keep-array-indentation", "-k"):
             js_options.keep_array_indentation = True
-        elif opt in ("--keep-function-indentation"):
+        elif opt in ("--keep-function-indentation",):
             js_options.keep_function_indentation = True
         elif opt in ("--outfile", "-o"):
             outfile_param = arg
@@ -242,11 +242,11 @@ def main():
             js_options.jslint_happy = True
         elif opt in ("--space-after-anon-function", "-a"):
             js_options.space_after_anon_function = True
-        elif opt in ("--space-after-named-function"):
+        elif opt in ("--space-after-named-function",):
             js_options.space_after_named_function = True
-        elif opt in ("--eval-code"):
+        elif opt in ("--eval-code",):
             js_options.eval_code = True
-        elif opt in ("--quiet"):
+        elif opt in ("--quiet",):
             js_options.keep_quiet = True
         elif opt in ("--brace-style", "-b"):
             js_options.brace_style = arg
@@ -262,14 +262,14 @@ def main():
             js_options.operator_position = arg
         elif opt in ("--wrap-line-length ", "-w"):
             js_options.wrap_line_length = int(arg)
-        elif opt in ("--indent-empty-lines"):
+        elif opt in ("--indent-empty-lines",):
             js_options.indent_empty_lines = True
-        elif opt in ("--templating"):
+        elif opt in ("--templating",):
             js_options.templating = arg.split(",")
         elif opt in ("--stdin", "-i"):
             # stdin is the default if no files are passed
             filepath_params = []
-        elif opt in ("--editorconfig"):
+        elif opt in ("--editorconfig",):
             js_options.editorconfig = True
         elif opt in ("--version", "-v"):
             return print(__version__)
