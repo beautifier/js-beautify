@@ -61,6 +61,7 @@ var JavascriptObfuscator = {
   },
 
   _fix_quotes: function(str) {
+    str = str.replace('$', '$$$$');
     var matches = /^"(.*)"$/.exec(str);
     if (matches) {
       str = matches[1];
@@ -127,6 +128,5 @@ var JavascriptObfuscator = {
     t.expect('var _0x1234=["a","b"]', true);
     return t;
   }
-
 
 };
