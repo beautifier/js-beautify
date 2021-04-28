@@ -342,3 +342,26 @@ function selectAll() {
     $('#source').select();
   }
 }
+
+function clearAll(){
+  if (the.editor){
+    the.editor.setValue('')
+  } else {
+    $('#source').val('');    
+  }
+}
+
+function changeToFileContent(input){
+  var file = input.files[0];
+  if (file) {
+    var reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+    reader.onload = function(event){
+      if (the.editor){
+        the.editor.setValue(event.target.result)
+      } else {
+        $('#source').val(event.target.result);    
+      }
+    }
+  }
+}
