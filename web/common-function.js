@@ -356,12 +356,13 @@ function changeToFileContent(input){
   if (file) {
     var reader = new FileReader();
     reader.readAsText(file, "UTF-8");
+
     reader.onload = function(event){
       if (the.editor) {
         the.editor.setValue(event.target.result);
       } else {
         $('#source').val(event.target.result);    
       }
-    }
+    };
   }
 }
