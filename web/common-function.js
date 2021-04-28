@@ -1,5 +1,5 @@
 /*jshint strict:false, node:false */
-/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll*/
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changedToFileContent*/
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
@@ -344,8 +344,8 @@ function selectAll() {
 }
 
 function clearAll(){
-  if (the.editor){
-    the.editor.setValue('')
+  if (the.editor) {
+    the.editor.setValue('');
   } else {
     $('#source').val('');    
   }
@@ -357,8 +357,8 @@ function changeToFileContent(input){
     var reader = new FileReader();
     reader.readAsText(file, "UTF-8");
     reader.onload = function(event){
-      if (the.editor){
-        the.editor.setValue(event.target.result)
+      if (the.editor) {
+        the.editor.setValue(event.target.result);
       } else {
         $('#source').val(event.target.result);    
       }
