@@ -36,7 +36,7 @@ def detect(source):
         begin_offset = mystr.start()
         beginstr = source[:begin_offset]
     if begin_offset != -1:
-        """ Find endstr"""
+        """Find endstr"""
         source_end = source[begin_offset:]
         if source_end.split("')))", 1)[0] == source_end:
             try:
