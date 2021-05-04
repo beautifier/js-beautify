@@ -185,16 +185,20 @@
   <div>
     <div style="text-align: center;">
       <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em></button>
+      <input type="file" onchange="changeToFileContent(this)">
       <button class="control" type="button" onclick="copyText()"><strong>Copy to Clipboard</strong></button>
       <button class="control" type="button" onclick="selectAll()"><strong>Select All</strong></button>
+      <button class="control" type="button" onclick="clearAll()"><strong>Clear</strong></button>
     </div>
 
     <textarea id="source" rows="30" cols="160"></textarea>
 
     <div style="text-align: center;">
       <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em></button>
+      <input type="file" onchange="changeToFileContent(this)">
       <button class="control" type="button" onclick="copyText()"><strong>Copy to Clipboard</strong></button>
       <button class="control" type="button" onclick="selectAll()"><strong>Select All</strong></button>
+      <button class="control" type="button" onclick="clearAll()"><strong>Clear</strong></button>
     </div>
   </div>
 
