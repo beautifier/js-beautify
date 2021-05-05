@@ -162,21 +162,21 @@ def main():
             css_options.eol = arg
         elif opt in ("--indent-with-tabs", "-t"):
             css_options.indent_with_tabs = True
-        elif opt in ("--preserve-newlines"):
+        elif opt in ("--preserve-newlines",):
             css_options.preserve_newlines = True
-        elif opt in ("--disable-selector-separator-newline"):
+        elif opt in ("--disable-selector-separator-newline",):
             css_options.selector_separator_newline = False
         elif opt in ("--brace-style", "-b"):
             css_options.brace_style = arg
         elif opt in ("--end-with-newline", "-n"):
             css_options.end_with_newline = True
-        elif opt in ("--disable-newline-between-rules"):
+        elif opt in ("--disable-newline-between-rules",):
             css_options.newline_between_rules = False
-        elif opt in ("--space-around-combinator"):
+        elif opt in ("--space-around-combinator",):
             css_options.space_around_combinator = True
-        elif opt in ("--indent-empty-lines"):
+        elif opt in ("--indent-empty-lines",):
             css_options.indent_empty_lines = True
-        elif opt in ("--editorconfig"):
+        elif opt in ("--editorconfig",):
             css_options.editorconfig = True
 
     try:
