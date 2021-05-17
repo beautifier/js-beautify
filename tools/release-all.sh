@@ -17,7 +17,7 @@ release_python()
     git fetch --all || exit 1
 
     git checkout -B staging/release origin/staging/release
-    git clean -xfd || exit 1
+    git clean -xfd || exit 1 
     cd python
     # python setup.py register -r pypi
     cp setup-js.py setup.py || exit 1
@@ -110,7 +110,10 @@ update_release_branch()
 
     make js || exit 1
     git add -f js/lib/ || exit 1
-    git add . 
+    git add -f js/test/generated/
+    git add -f python/jsbeautifier/tests/generated/
+    git add -f python/cssbeautifier/tests/generated/
+    
     git commit -m "Release: $NEW_VERSION"
     git tag "v$NEW_VERSION" || exit 1
     git push || exit 1

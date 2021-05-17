@@ -147,9 +147,20 @@ test_cli_js_beautify()
         cleanup 1
     }
 
+
     # ensure new line settings work
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n.js -e '\n' $SCRIPT_DIR/../../../js/bin/js-beautify.js
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify-rn.js -e '\r\n' $TEST_TEMP/js-beautify-n.js
+
+    # regression check #1925, short option failed due to string search instead of tuple
+    # before fix -n would match inside "--space-after**-n**amed-function"
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-eof.js -n -f $TEST_TEMP/js-beautify-n.js
+    $CLI_SCRIPT -o $TEST_TEMP/js-beautify-eof2.js --end-with-newline -f $TEST_TEMP/js-beautify-n.js
+    diff -q $TEST_TEMP/js-beautify-eof.js $TEST_TEMP/js-beautify-eof2.js || {
+        diff $TEST_TEMP/js-beautify-eof.js $TEST_TEMP/js-beautify-eof2.js | cat -t -e
+        echo "js-beautify output for $TEST_TEMP/js-beautify-eof.js and $TEST_TEMP/js-beautify-eof2.js was expected to be the same."
+        cleanup 1
+    }
 
     # ensure eol processed correctly
     $CLI_SCRIPT -o $TEST_TEMP/js-beautify-n-dash.js --indent-size 2 --eol '\n' $TEST_TEMP/js-beautify-n.js
