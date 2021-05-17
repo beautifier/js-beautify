@@ -62,7 +62,7 @@ TOKEN = TokenTypes()
 dot_pattern = re.compile(r"[^\d\.]")
 
 number_pattern = re.compile(
-    r"0[xX][0123456789abcdefABCDEF]*|0[oO][01234567]*|0[bB][01_]*|\d+n|(?:\.\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?"
+    r"0[xX][0123456789abcdefABCDEF_]*|0[oO][01234567_]*|0[bB][01_]*|\d[\d_]*n|(?:\.\d[\d_]*|\d[\d_]*\.?[\d_]*)(?:[eE][+-]?[\d_]+)?"
 )
 digit = re.compile(r"[0-9]")
 
