@@ -3968,7 +3968,18 @@ exports.test_data = {
         { input: 'a=0x.g-12345.3e-10', output: 'a = 0x.g - 12345.3e-10' },
         { input: 'a=0x0.g-12345.3e-10', output: 'a = 0x0.g - 12345.3e-10' },
         { input: 'a=0x0.0g-12345.3e-10', output: 'a = 0x0 .0 g - 12345.3e-10' },
-
+        {
+          comment: 'exponent literals with underscore',
+          unchanged: 'a = 1_1e10'
+        },
+        { unchanged: 'a = 1_.3e10' },
+        { unchanged: 'a = 1_1.3e10' },
+        { unchanged: 'a = 1__1.3e10' },
+        { unchanged: 'a = 1._3e10' },
+        { unchanged: 'a = 1.3_e10' },
+        { unchanged: 'a = 1.3e_10' },
+        { unchanged: 'a = 1.3e1_0' },
+        { unchanged: 'a = 1.3e10_' },
         {
           comment: 'Decimal literals',
           unchanged: 'a = 0123456789;'
@@ -3986,6 +3997,14 @@ exports.test_data = {
         { input: 'a=00B0x0b0', output: 'a = 00 B0x0b0' },
         { input: 'a=0090x0', output: 'a = 0090 x0' },
         { input: 'a=0g0b0o0', output: 'a = 0 g0b0o0' },
+        {
+          comment: 'Decimal literals with underscore',
+          unchanged: 'a = 0_123456789'
+        },
+        { unchanged: 'a = 0__123456789' },
+        { unchanged: 'a = 0__' },
+        { unchanged: 'a = 0_1_2_3' },
+        { unchanged: 'a = 0_1_2_3_' },
 
         {
           comment: 'Hexadecimal literals',
@@ -4005,6 +4024,15 @@ exports.test_data = {
         { input: 'a=0x0B0x0b0', output: 'a = 0x0B0 x0b0' },
         { input: 'a=0X090x0', output: 'a = 0X090 x0' },
         { input: 'a=0Xg0b0o0', output: 'a = 0X g0b0o0' },
+        {
+          comment: 'Hexadecimal literals with underscore',
+          unchanged: 'a = 0x0_123456789abcdef'
+        },
+        { unchanged: 'a = 0x0__0123456789abcdef' },
+        { unchanged: 'a = 0x_0123456789abcdef' },
+        { unchanged: 'a = 0x__' },
+        { unchanged: 'a = 0x0_1_a_3' },
+        { unchanged: 'a = 0x_1_2_F_' },
 
         {
           comment: 'Octal literals',
@@ -4023,6 +4051,15 @@ exports.test_data = {
         { input: 'a=0o0B0x0b0', output: 'a = 0o0 B0x0b0' },
         { input: 'a=0O090x0', output: 'a = 0O0 90 x0' },
         { input: 'a=0Og0b0o0', output: 'a = 0O g0b0o0' },
+        {
+          comment: 'Octal literals with underscore',
+          unchanged: 'a = 0o0_1234567'
+        },
+        { unchanged: 'a = 0o0__1234567' },
+        { unchanged: 'a = 0o_01234567' },
+        { unchanged: 'a = 0o__' },
+        { unchanged: 'a = 0o0_1_2_3' },
+        { unchanged: 'a = 0o_1_2_3_' },
 
         {
           comment: 'Binary literals',
@@ -4041,6 +4078,17 @@ exports.test_data = {
         { input: 'a=0b0B0x0b0', output: 'a = 0b0 B0x0b0' },
         { input: 'a=0B090x0', output: 'a = 0B0 90 x0' },
         { input: 'a=0Bg0b0o0', output: 'a = 0B g0b0o0' },
+        {
+          comment: 'Binary literals with underscore',
+          unchanged: 'a = 0b0_10011'
+        },
+        { unchanged: 'a = 0b0__10011' },
+        { unchanged: 'a = 0b_010011' },
+        { unchanged: 'a = 0b__' },
+        { unchanged: 'a = 0b0_1_1_1' },
+        { unchanged: 'a = 0b_1_0_1_' },
+        { unchanged: 'a = 0B010_0_11;' },
+        { unchanged: 'a = 0b01_0011_0000_1111;' },
 
         {
           comment: 'BigInt literals',
@@ -4053,7 +4101,16 @@ exports.test_data = {
         { input: 'a=.0n', output: 'a = .0 n' },
         { input: 'a=1.0n', output: 'a = 1.0 n' },
         { input: 'a=1e0n', output: 'a = 1e0 n' },
-        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' }
+        { input: 'a=0n11a+4', output: 'a = 0n 11 a + 4' },
+        {
+          comment: 'BigInt literals with underscore',
+          unchanged: 'a = 0_123456789n'
+        },
+        { unchanged: 'a = 0__123456789n' },
+        { unchanged: 'a = 0__n' },
+        { unchanged: 'a = 0_1_2_3n' },
+        { unchanged: 'a = 0_1_2_3_n' }
+
       ]
     }, {
       //Relies on the tab being four spaces as default for the tests
