@@ -66,7 +66,7 @@ var TOKEN = {
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
-var number_pattern = /0[xX][0123456789abcdefABCDEF_]*|0[oO][01234567_]*|0[bB][01_]*|\d[\d_]*n|(?:\.\d[\d_]*|\d[\d_]*\.?[\d_]*)(?:[eE][+-]?[\d_]+)?/;
+var number_pattern = /0[xX][0123456789abcdefABCDEF_]*n?|0[oO][01234567_]*n?|0[bB][01_]*n?|\d[\d_]*n|(?:\.\d[\d_]*|\d[\d_]*\.?[\d_]*)(?:[eE][+-]?[\d_]+)?/;
 
 var digit = /[0-9]/;
 

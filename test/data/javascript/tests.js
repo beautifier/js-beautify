@@ -4109,8 +4109,87 @@ exports.test_data = {
         { unchanged: 'a = 0__123456789n' },
         { unchanged: 'a = 0__n' },
         { unchanged: 'a = 0_1_2_3n' },
-        { unchanged: 'a = 0_1_2_3_n' }
+        { unchanged: 'a = 0_1_2_3_n' },
 
+        {
+          comment: 'BigInt hexadecimal literals',
+          unchanged: 'a = 0x0123456789abcdefn;'
+        },
+        { unchanged: 'a = 0X0123456789ABCDEFn;' },
+        { unchanged: 'a = 0xFeDcBa9876543210n;' },
+        { input: 'a=0x30en-5', output: 'a = 0x30en - 5' },
+        { input: 'a=0xF0n+4', output: 'a = 0xF0n + 4' },
+        { input: 'a=0Xffn+4', output: 'a = 0Xffn + 4' },
+        { input: 'a=0Xffng+4', output: 'a = 0Xffn g + 4' },
+        { input: 'a=0x01n.10', output: 'a = 0x01n .10' },
+        { unchanged: 'a = 0xb0cen;' },
+        { unchanged: 'a = 0x0b0n;' },
+        { input: 'a=0x0B0nx0', output: 'a = 0x0B0n x0' },
+        { input: 'a=0x0B0nxb0', output: 'a = 0x0B0n xb0' },
+        { input: 'a=0x0B0nx0b0', output: 'a = 0x0B0n x0b0' },
+        { input: 'a=0X090nx0', output: 'a = 0X090n x0' },
+        {
+          comment: 'BigInt hexadecimal literals with underscore',
+          unchanged: 'a = 0x0_123456789abcdefn'
+        },
+        { unchanged: 'a = 0x0__0123456789abcdefn' },
+        { unchanged: 'a = 0x_0123456789abcdefn' },
+        { unchanged: 'a = 0x__n' },
+        { unchanged: 'a = 0x0_1_a_3n' },
+        { unchanged: 'a = 0x_1_2_F_n' },
+
+        {
+          comment: 'BigInt octal literals',
+          unchanged: 'a = 0o01234567n;'
+        },
+        { unchanged: 'a = 0O01234567n;' },
+        { unchanged: 'a = 0o34120675n;' },
+        { input: 'a=0o30ne-5', output: 'a = 0o30n e - 5' },
+        { input: 'a=0o70n+4', output: 'a = 0o70n + 4' },
+        { input: 'a=0O77n+4', output: 'a = 0O77n + 4' },
+        { input: 'a=0O77n8+4', output: 'a = 0O77n 8 + 4' },
+        { input: 'a=0O77na+4', output: 'a = 0O77n a + 4' },
+        { input: 'a=0o01n.10', output: 'a = 0o01n .10' },
+        { input: 'a=0o0nB0x0', output: 'a = 0o0n B0x0' },
+        { input: 'a=0o0nB0xb0', output: 'a = 0o0n B0xb0' },
+        { input: 'a=0o0nB0x0b0', output: 'a = 0o0n B0x0b0' },
+        { input: 'a=0O0n90x0', output: 'a = 0O0n 90 x0' },
+        {
+          comment: 'BigInt octal literals with underscore',
+          unchanged: 'a = 0o0_1234567n'
+        },
+        { unchanged: 'a = 0o0__1234567n' },
+        { unchanged: 'a = 0o_01234567n' },
+        { unchanged: 'a = 0o__n' },
+        { unchanged: 'a = 0o0_1_2_3n' },
+        { unchanged: 'a = 0o_1_2_3_n' },
+        {
+          comment: 'BigInt binary literals',
+          unchanged: 'a = 0b010011n;'
+        },
+        { unchanged: 'a = 0B010011n;' },
+        { unchanged: 'a = 0b01001100001111n;' },
+        { input: 'a=0b10ne-5', output: 'a = 0b10n e - 5' },
+        { input: 'a=0b10n+4', output: 'a = 0b10n + 4' },
+        { input: 'a=0B11n+4', output: 'a = 0B11n + 4' },
+        { input: 'a=0B11n2+4', output: 'a = 0B11n 2 + 4' },
+        { input: 'a=0B11na+4', output: 'a = 0B11n a + 4' },
+        { input: 'a=0b01n.10', output: 'a = 0b01n .10' },
+        { input: 'a=0b0nB0x0', output: 'a = 0b0n B0x0' },
+        { input: 'a=0b0nB0xb0', output: 'a = 0b0n B0xb0' },
+        { input: 'a=0b0nB0x0b0', output: 'a = 0b0n B0x0b0' },
+        { input: 'a=0B0n90x0', output: 'a = 0B0n 90 x0' },
+        {
+          comment: 'BigInt binary literals with underscore',
+          unchanged: 'a = 0b0_10011n'
+        },
+        { unchanged: 'a = 0b0__10011n' },
+        { unchanged: 'a = 0b_010011' },
+        { unchanged: 'a = 0b__n' },
+        { unchanged: 'a = 0b0_1_1_1n' },
+        { unchanged: 'a = 0b_1_0_1_n' },
+        { unchanged: 'a = 0B010_0_11n;' },
+        { unchanged: 'a = 0b01_0011_0000_1111n;' }
       ]
     }, {
       //Relies on the tab being four spaces as default for the tests
