@@ -1559,6 +1559,12 @@ exports.test_data = {
           '    @extend btn-warning: hover;',
           '}'
         ]
+      }, {
+        unchanged: [
+          '.item-warning {',
+          '    @extend .color1, .hover2;',
+          '}'
+        ]
       }]
     }, {
       name: "Import Tests",
