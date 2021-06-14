@@ -228,7 +228,9 @@ def write_beautified_output(pretty, local_options, outfile):
             # python automatically converts newlines in text to "\r\n" when on windows
             # set newline to empty to prevent this
             with io.open(outfile, "wt", newline="", encoding="UTF-8") as f:
-                print("beautified " + outfile, file=sys.stdout)
+                if not local_options.keep_quiet:
+                    print("beautified " + outfile, file=sys.stdout)
+
                 try:
                     f.write(pretty)
                 except TypeError:

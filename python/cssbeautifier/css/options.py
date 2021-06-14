@@ -57,3 +57,4 @@ class BeautifierOptions(BaseOptions):
             self._get_boolean("space_around_combinator")
             or space_around_selector_separator
         )
+        self.keep_quiet = False

@@ -10626,6 +10626,10 @@ class CSSBeautifierTest(unittest.TestCase):
             '.item-warning-wrong {\n' +
             '    @extend btn-warning: hover;\n' +
             '}')
+        t(
+            '.item-warning {\n' +
+            '    @extend .color1, .hover2;\n' +
+            '}')
 
 
         #============================================================

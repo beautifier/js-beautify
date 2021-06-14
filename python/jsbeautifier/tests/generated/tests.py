@@ -6863,6 +6863,17 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=0x0.g-12345.3e-10', 'a = 0x0.g - 12345.3e-10')
         bt('a=0x0.0g-12345.3e-10', 'a = 0x0 .0 g - 12345.3e-10')
         
+        # exponent literals with underscore
+        bt('a = 1_1e10')
+        bt('a = 1_.3e10')
+        bt('a = 1_1.3e10')
+        bt('a = 1__1.3e10')
+        bt('a = 1._3e10')
+        bt('a = 1.3_e10')
+        bt('a = 1.3e_10')
+        bt('a = 1.3e1_0')
+        bt('a = 1.3e10_')
+        
         # Decimal literals
         bt('a = 0123456789;')
         bt('a = 9876543210;')
@@ -6878,6 +6889,13 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=00B0x0b0', 'a = 00 B0x0b0')
         bt('a=0090x0', 'a = 0090 x0')
         bt('a=0g0b0o0', 'a = 0 g0b0o0')
+        
+        # Decimal literals with underscore
+        bt('a = 0_123456789')
+        bt('a = 0__123456789')
+        bt('a = 0__')
+        bt('a = 0_1_2_3')
+        bt('a = 0_1_2_3_')
         
         # Hexadecimal literals
         bt('a = 0x0123456789abcdef;')
@@ -6896,6 +6914,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=0X090x0', 'a = 0X090 x0')
         bt('a=0Xg0b0o0', 'a = 0X g0b0o0')
         
+        # Hexadecimal literals with underscore
+        bt('a = 0x0_123456789abcdef')
+        bt('a = 0x0__0123456789abcdef')
+        bt('a = 0x_0123456789abcdef')
+        bt('a = 0x__')
+        bt('a = 0x0_1_a_3')
+        bt('a = 0x_1_2_F_')
+        
         # Octal literals
         bt('a = 0o01234567;')
         bt('a = 0O01234567;')
@@ -6911,6 +6937,14 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=0o0B0x0b0', 'a = 0o0 B0x0b0')
         bt('a=0O090x0', 'a = 0O0 90 x0')
         bt('a=0Og0b0o0', 'a = 0O g0b0o0')
+        
+        # Octal literals with underscore
+        bt('a = 0o0_1234567')
+        bt('a = 0o0__1234567')
+        bt('a = 0o_01234567')
+        bt('a = 0o__')
+        bt('a = 0o0_1_2_3')
+        bt('a = 0o_1_2_3_')
         
         # Binary literals
         bt('a = 0b010011;')
@@ -6928,6 +6962,16 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=0B090x0', 'a = 0B0 90 x0')
         bt('a=0Bg0b0o0', 'a = 0B g0b0o0')
         
+        # Binary literals with underscore
+        bt('a = 0b0_10011')
+        bt('a = 0b0__10011')
+        bt('a = 0b_010011')
+        bt('a = 0b__')
+        bt('a = 0b0_1_1_1')
+        bt('a = 0b_1_0_1_')
+        bt('a = 0B010_0_11;')
+        bt('a = 0b01_0011_0000_1111;')
+        
         # BigInt literals
         bt('a = 1n;')
         bt('a = 1234567890123456789n;')
@@ -6938,6 +6982,85 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=1.0n', 'a = 1.0 n')
         bt('a=1e0n', 'a = 1e0 n')
         bt('a=0n11a+4', 'a = 0n 11 a + 4')
+        
+        # BigInt literals with underscore
+        bt('a = 0_123456789n')
+        bt('a = 0__123456789n')
+        bt('a = 0__n')
+        bt('a = 0_1_2_3n')
+        bt('a = 0_1_2_3_n')
+        
+        # BigInt hexadecimal literals
+        bt('a = 0x0123456789abcdefn;')
+        bt('a = 0X0123456789ABCDEFn;')
+        bt('a = 0xFeDcBa9876543210n;')
+        bt('a=0x30en-5', 'a = 0x30en - 5')
+        bt('a=0xF0n+4', 'a = 0xF0n + 4')
+        bt('a=0Xffn+4', 'a = 0Xffn + 4')
+        bt('a=0Xffng+4', 'a = 0Xffn g + 4')
+        bt('a=0x01n.10', 'a = 0x01n .10')
+        bt('a = 0xb0cen;')
+        bt('a = 0x0b0n;')
+        bt('a=0x0B0nx0', 'a = 0x0B0n x0')
+        bt('a=0x0B0nxb0', 'a = 0x0B0n xb0')
+        bt('a=0x0B0nx0b0', 'a = 0x0B0n x0b0')
+        bt('a=0X090nx0', 'a = 0X090n x0')
+        
+        # BigInt hexadecimal literals with underscore
+        bt('a = 0x0_123456789abcdefn')
+        bt('a = 0x0__0123456789abcdefn')
+        bt('a = 0x_0123456789abcdefn')
+        bt('a = 0x__n')
+        bt('a = 0x0_1_a_3n')
+        bt('a = 0x_1_2_F_n')
+        
+        # BigInt octal literals
+        bt('a = 0o01234567n;')
+        bt('a = 0O01234567n;')
+        bt('a = 0o34120675n;')
+        bt('a=0o30ne-5', 'a = 0o30n e - 5')
+        bt('a=0o70n+4', 'a = 0o70n + 4')
+        bt('a=0O77n+4', 'a = 0O77n + 4')
+        bt('a=0O77n8+4', 'a = 0O77n 8 + 4')
+        bt('a=0O77na+4', 'a = 0O77n a + 4')
+        bt('a=0o01n.10', 'a = 0o01n .10')
+        bt('a=0o0nB0x0', 'a = 0o0n B0x0')
+        bt('a=0o0nB0xb0', 'a = 0o0n B0xb0')
+        bt('a=0o0nB0x0b0', 'a = 0o0n B0x0b0')
+        bt('a=0O0n90x0', 'a = 0O0n 90 x0')
+        
+        # BigInt octal literals with underscore
+        bt('a = 0o0_1234567n')
+        bt('a = 0o0__1234567n')
+        bt('a = 0o_01234567n')
+        bt('a = 0o__n')
+        bt('a = 0o0_1_2_3n')
+        bt('a = 0o_1_2_3_n')
+        
+        # BigInt binary literals
+        bt('a = 0b010011n;')
+        bt('a = 0B010011n;')
+        bt('a = 0b01001100001111n;')
+        bt('a=0b10ne-5', 'a = 0b10n e - 5')
+        bt('a=0b10n+4', 'a = 0b10n + 4')
+        bt('a=0B11n+4', 'a = 0B11n + 4')
+        bt('a=0B11n2+4', 'a = 0B11n 2 + 4')
+        bt('a=0B11na+4', 'a = 0B11n a + 4')
+        bt('a=0b01n.10', 'a = 0b01n .10')
+        bt('a=0b0nB0x0', 'a = 0b0n B0x0')
+        bt('a=0b0nB0xb0', 'a = 0b0n B0xb0')
+        bt('a=0b0nB0x0b0', 'a = 0b0n B0x0b0')
+        bt('a=0B0n90x0', 'a = 0B0n 90 x0')
+        
+        # BigInt binary literals with underscore
+        bt('a = 0b0_10011n')
+        bt('a = 0b0__10011n')
+        bt('a = 0b_010011')
+        bt('a = 0b__n')
+        bt('a = 0b0_1_1_1n')
+        bt('a = 0b_1_0_1_n')
+        bt('a = 0B010_0_11n;')
+        bt('a = 0b01_0011_0000_1111n;')
 
 
         #============================================================
