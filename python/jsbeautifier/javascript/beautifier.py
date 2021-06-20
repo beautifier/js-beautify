@@ -54,6 +54,7 @@ class BeautifierFlags:
         self.in_case = False
         self.in_case_statement = False
         self.case_body = False
+        self.case_block = False
         self.indentation_level = 0
         self.alignment = 0
         self.line_indent_level = 0
@@ -945,9 +946,11 @@ class Beautifier:
             current_token, ["case", "default"]
         ):
             self.print_newline()
-            if self._flags.last_token.type != TOKEN.END_BLOCK and (
-                self._flags.case_body or self._options.jslint_happy
-            ):
+            if (
+                self._flags.last_token.type != TOKEN.END_BLOCK
+                or self._flags.last_token.type == TOKEN.END_BLOCK
+                and not self._flags.case_block
+            ) and (self._flags.case_body or self._options.jslint_happy):
                 self.deindent()
             self._flags.case_body = False
             self.print_token(current_token)
@@ -1331,8 +1334,10 @@ class Beautifier:
             if self._tokens.peek().type != TOKEN.START_BLOCK:
                 self.indent()
                 self.print_newline()
+                self._flags.case_block = False
             else:
                 self._output.space_before_token = True
+                self._flags.case_block = True
 
             return
 
