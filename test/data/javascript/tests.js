@@ -3444,6 +3444,11 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue #1683 - switch-case wrong indentation",
+          input: 'switch (x) { case 0: if (y == z) { a(); } else { b(); } case 1: c(); }',
+          output: 'switch (x) {\n    case 0:\n        if (y == z) {\n            a();\n        } else {\n            b();\n        }\n    case 1:\n        c();\n}'
+        },
+        {
           comment: "Issue 485 - ensure function declarations behave the same in arrays as elsewhere",
           unchanged: [
             'var v = ["a",',
