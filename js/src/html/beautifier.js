@@ -612,7 +612,7 @@ var TagOpenParserToken = function(parent, raw_token) {
 
       // handle "{{#> myPartial}}
       if (raw_token.text === '{{#>' && this.tag_check === '>' && raw_token.next !== null) {
-        this.tag_check = raw_token.next.text;
+        this.tag_check = raw_token.next.text.split(' ')[0];
       }
     }
     this.tag_check = this.tag_check.toLowerCase();
