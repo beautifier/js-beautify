@@ -1695,6 +1695,30 @@ exports.test_data = {
           '    <p>Unfortunately this condition is false.</p>',
           '{{/myPartial}}'
         ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of partial blocks with whitespace following partial name",
+        unchanged: [
+          '{{#> myPartial }}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of partial blocks with parameters",
+        unchanged: [
+          '{{#> myPartial param="test"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/myPartial}}'
+        ]
+      },
+      {
+        comment: "Issue #1946 - Indentation of inline partials with parameters",
+        unchanged: [
+          '{{#*inline "myPartial" param="test"}}',
+          '    <p>Unfortunately this condition is false.</p>',
+          '{{/inline}}'
+        ]
       }
     ]
   }, {
