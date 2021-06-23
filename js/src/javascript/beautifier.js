@@ -870,7 +870,7 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
     this.print_newline();
-    if ((this._flags.last_token.type !== TOKEN.END_BLOCK || (this._flags.last_token.type === TOKEN.END_BLOCK && !this._flags.case_block)) && (this._flags.case_body || this._options.jslint_happy)) {
+    if (!this._flags.case_block && (this._flags.case_body || this._options.jslint_happy)) {
       // switch cases following one another
       this.deindent();
     }

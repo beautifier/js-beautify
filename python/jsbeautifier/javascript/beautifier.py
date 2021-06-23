@@ -946,11 +946,9 @@ class Beautifier:
             current_token, ["case", "default"]
         ):
             self.print_newline()
-            if (
-                self._flags.last_token.type != TOKEN.END_BLOCK
-                or self._flags.last_token.type == TOKEN.END_BLOCK
-                and not self._flags.case_block
-            ) and (self._flags.case_body or self._options.jslint_happy):
+            if (not self._flags.case_block) and (
+                self._flags.case_body or self._options.jslint_happy
+            ):
                 self.deindent()
             self._flags.case_body = False
             self.print_token(current_token)
