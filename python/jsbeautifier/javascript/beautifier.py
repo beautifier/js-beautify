@@ -60,6 +60,7 @@ class BeautifierFlags:
         self.line_indent_level = 0
         self.start_line_index = 0
         self.ternary_depth = 0
+        self.last_case_pos = 0
 
     def apply_base(self, flags_base, added_newline):
         next_indent_level = flags_base.indentation_level
@@ -946,10 +947,14 @@ class Beautifier:
             current_token, ["case", "default"]
         ):
             self.print_newline()
-            if (not self._flags.case_block) and (
-                self._flags.case_body or self._options.jslint_happy
-            ):
+            if(self._options.jslint_happy and not self._flags.case_body):
                 self.deindent()
+    
+
+            if self._flags.case_body:
+                while(self._flags.indentation_level > self._flags.last_case_pos):
+                    self.deindent()
+            
             self._flags.case_body = False
             self.print_token(current_token)
             self._flags.in_case = True
@@ -1327,6 +1332,7 @@ class Beautifier:
 
         if current_token.text == ":" and self._flags.in_case:
             self.print_token(current_token)
+            self._flags.last_case_pos = self._flags.indentation_level
             self._flags.in_case = False
             self._flags.case_body = True
             if self._tokens.peek().type != TOKEN.START_BLOCK:

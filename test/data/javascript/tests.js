@@ -5004,7 +5004,17 @@ exports.test_data = {
           ]
         }
       ]
-    }, {
+    },
+    {
+      name: "Indentation between consecutive case statements without break",
+      description: "Indentation between consecutive case statements without break",
+      options: [],
+      tests: [{
+        input: 'switch(x){case 0:case 1: if(x==1){func();}default:break;}',
+        output: 'switch (x) {\n    case 0:\n    case 1:\n        if (x == 1) {\n            func();\n        }\n    default:\n        break;\n}'
+      }]
+    },
+    {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting

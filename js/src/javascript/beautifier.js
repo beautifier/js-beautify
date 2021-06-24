@@ -196,7 +196,8 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
     alignment: 0,
     line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
     start_line_index: this._output.get_line_number(),
-    ternary_depth: 0
+    ternary_depth: 0,
+    last_case_pos: 0
   };
   return next_flags;
 };
@@ -870,10 +871,17 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
     this.print_newline();
-    if (!this._flags.case_block && (this._flags.case_body || this._options.jslint_happy)) {
-      // switch cases following one another
+
+    if (this._options.jslint_happy && !this._flags.case_body) {
       this.deindent();
     }
+
+    if (this._flags.case_body) {
+      while (this._flags.indentation_level > this._flags.last_case_pos) {
+        this.deindent();
+      }
+    }
+
     this._flags.case_body = false;
 
     this.print_token(current_token);
@@ -1178,7 +1186,7 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
   if (current_token.text === ':' && this._flags.in_case) {
     this.print_token(current_token);
-
+    this._flags.last_case_pos = this._flags.indentation_level;
     this._flags.in_case = false;
     this._flags.case_body = true;
     if (this._tokens.peek().type !== TOKEN.START_BLOCK) {
