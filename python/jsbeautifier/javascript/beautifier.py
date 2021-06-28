@@ -1445,7 +1445,9 @@ class Beautifier:
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
             if current_token.newlines and (
-                current_token.text == "--" or current_token.text == "++"
+                current_token.text == "--"
+                or current_token.text == "++"
+                or current_token.text == "~"
             ):
                 self.print_newline(preserve_statement_flags=True)
 
