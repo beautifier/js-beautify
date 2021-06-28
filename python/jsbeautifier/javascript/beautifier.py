@@ -1439,7 +1439,7 @@ class Beautifier:
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
             if current_token.newlines and (
-                current_token.text == "--" 
+                current_token.text == "--"
                 or current_token.text == "++"
                 or current_token.text == "~"
             ):
