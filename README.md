@@ -1,5 +1,8 @@
-# JS Beautifier
-![CI](https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg)
+<center><img src="https://raw.githubusercontent.com/4086606/js-beautify/branding/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier" /></center>
+
+<center>
+
+![CI](https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
 
 [![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
 [![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
@@ -9,8 +12,9 @@
 [![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Twitter Follow](https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow)](https://twitter.com/intent/user?screen_name=js_beautifier)
 
-[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
+[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify)
 
+</center>
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
