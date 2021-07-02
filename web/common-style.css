@@ -14,6 +14,14 @@ a.self {
   border-bottom: 1px solid #aaa
 }
 
+h1 {
+  margin-bottom: 0;
+}
+
+h1 img {
+  margin-left: 40px;
+}
+
 p, select, label, .blurb, a.turn-off-codemirror {
   font: 13px/1.231 arial, sans-serif;
   *font-size: small;
