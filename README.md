@@ -1,4 +1,4 @@
-<center><img src="https://raw.githubusercontent.com/4086606/js-beautify/branding/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier" /></center>
+<center><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/main/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier" /></center>
 
 <center>
 
