@@ -85,7 +85,7 @@ table#options td {
 
 #testresults {
   display: none;
-  font-family: monaco, "lucida console", "courier new", monospace;
+  font-family: monaco, consolas, "lucida console", "courier new", monospace;
 }
 
 .CodeMirror {
