@@ -21,6 +21,8 @@ h1 {
 }
 
 h1 img {
+  font-family: montserrat, nexa, gotham, sans-serif;
+  font-weight: 600;
   margin-left: 40px;
 }
 
