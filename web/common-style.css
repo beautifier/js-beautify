@@ -15,7 +15,9 @@ a.self {
 }
 
 h1 {
+  display: flex;
   margin-bottom: 0;
+  line-height: 1em;
 }
 
 h1 img {
@@ -24,7 +26,7 @@ h1 img {
 
 p, select, label, .blurb, a.turn-off-codemirror {
   font: 13px/1.231 arial, sans-serif;
-  *font-size: small;
+  font-size: small;
 }
 
 a.turn-off-codemirror {
@@ -66,7 +68,10 @@ table#options td {
 }
 
 #version-number {
+  align-self: flex-end;
+  font-family: arial, sans-serif;
   font-size: .5em;
+  margin-left: 10px;
 }
 
 .uses li {
