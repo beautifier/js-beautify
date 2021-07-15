@@ -1,4 +1,15 @@
 # Changelog
+## v1.14.0
+
+### Description
+
+
+### Closed Issues
+* Added buttons to website ([#1930](https://github.com/beautify-web/js-beautify/pull/1930))
+* Numbers should be allowed to contain underscores ([#1836](https://github.com/beautify-web/js-beautify/issues/1836))
+* Use native mkdirSync instead of 'mkdirp' package ([#1833](https://github.com/beautify-web/js-beautify/pull/1833))
+
+
 ## v1.13.13
 
 ### Description
