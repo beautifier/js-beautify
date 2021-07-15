@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/b4dfac4/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
 <p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
 
