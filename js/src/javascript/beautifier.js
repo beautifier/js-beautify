@@ -257,6 +257,17 @@ Beautifier.prototype.beautify = function() {
 
   sweet_code = this._output.get_code(eol);
 
+  var functionAdjacentWithNumber = /\d+\.[a-zA-Z]{2,}[(].*[)]/g; // for Expressions like 1000000000000000100 .toFixed(0)!=="1000000000000000128";
+  var foundMatches = sweet_code.matchAll(functionAdjacentWithNumber); // matches for above expression
+  var count = 0;
+  if (foundMatches) { //  if matches exists then loop over them
+    for (var matches of foundMatches) {
+      var indexOfDot = (matches.input.indexOf('.', matches.index)) + count; // find index of '.' operator
+      count++;
+      sweet_code = [sweet_code.slice(0, indexOfDot), ' ', sweet_code.slice(indexOfDot)].join(''); // add space before '.' operator
+    }
+  }
+
   return sweet_code;
 };
 

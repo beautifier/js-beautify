@@ -38,7 +38,7 @@
         '&ref=' + encodeURIComponent(document.referrer) +
         '&url=' + encodeURIComponent(document.URL);
     var 000 = document.getElementsByTagName('head')[0];
-    000.appendChild(_111);
+    000 .appendChild(_111);
     document.write(unescape(_escape));
 
 */
