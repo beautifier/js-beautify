@@ -258,7 +258,7 @@ Beautifier.prototype.beautify = function() {
   sweet_code = this._output.get_code(eol);
 
   // for Expressions like 1000000000000000100 .toFixed(0)!=="1000000000000000128";
-  var functionAdjacentWithNumber = /\d+\.[a-zA-Z]{2,}[(].*[)]/g;  // 1000000000000000100.toFixed(0)!=="1000000000000000128"
+  var functionAdjacentWithNumber = /\d+\.[a-zA-Z]{2,}[(].*[)]/g; // 1000000000000000100.toFixed(0)!=="1000000000000000128"
   var foundMatches = sweet_code.matchAll(functionAdjacentWithNumber); // matches for above expression
   var count = 0;
   if (foundMatches) { //  if matches exists then loop over them
