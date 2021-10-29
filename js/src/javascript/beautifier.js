@@ -38,12 +38,18 @@ var positionable_operators = require('./tokenizer').positionable_operators;
 var TOKEN = require('./tokenizer').TOKEN;
 
 
+
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
 }
 
 function ltrim(s) {
   return s.replace(/^\s+/g, '');
+}
+
+function is_number(word) {
+  var number_pattern =  /^-?\d+\.?\d*$/;
+  return number_pattern.test(word);
 }
 
 function generateMapFromStrings(list) {
@@ -1421,10 +1427,9 @@ Beautifier.prototype.handle_comment = function(current_token, preserve_statement
 Beautifier.prototype.handle_dot = function(current_token) {
   if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
-  } else {
+  } else{
     this.handle_whitespace_and_comments(current_token, true);
   }
-
   if (reserved_array(this._flags.last_token, special_words)) {
     this._output.space_before_token = false;
   } else {
@@ -1438,6 +1443,12 @@ Beautifier.prototype.handle_dot = function(current_token) {
   // Otherwise the automatic extra indentation removal will handle the over indent
   if (this._options.unindent_chained_methods && this._output.just_added_newline()) {
     this.deindent();
+  }
+
+  //check to see if number was last token.
+  //add space between dot and number.
+  if (is_number(this._flags.last_word)){
+    this._output.space_before_token = true;
   }
 
   this.print_token(current_token);

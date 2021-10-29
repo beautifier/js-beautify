@@ -599,6 +599,19 @@ exports.test_data = {
           ]
         }
       ]
+    },
+    {
+      name: "Issue #1950: Do not remove whitespace after number, before dot ",
+      description: "ensure that whitespace is preserved after chaining dot to number",
+      tests: [
+        {
+          unchanged: '1000000000000000100 .toFixed(0) !== "1000000000000000128";'
+        },
+        {
+          input: '1000000000000000100              .toFixed(0) !== "1000000000000000128";',
+          output: '1000000000000000100 .toFixed(0) !== "1000000000000000128";'
+        }
+      ]
     }, {
       name: "Unindent chained functions",
       description: "Don't indent chained functions if unindent_chained_functions is true",
@@ -4807,7 +4820,7 @@ exports.test_data = {
         //   ]
         // }
       ]
-    }, {
+    },{
       name: "indent_empty_lines true",
       description: "",
       options: [
@@ -5004,7 +5017,8 @@ exports.test_data = {
           ]
         }
       ]
-    }, {
+    }, 
+    {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting

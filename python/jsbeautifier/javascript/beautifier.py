@@ -134,7 +134,9 @@ _special_word_set = frozenset(
         "async",
     ]
 )
-
+def is_number(word):
+  number_pattern =  "/^-?\d+\.?\d*$/"
+  return re.match(number_pattern, word)
 
 class Beautifier:
     def __init__(self, opts=None):
@@ -1608,7 +1610,8 @@ class Beautifier:
         # will handle any over indent
         if self._options.unindent_chained_methods and self._output.just_added_newline():
             self.deindent()
-
+        if is_number(self._flags.last_word):
+            self.space_before_token = True
         self.print_token(current_token)
 
     def handle_unknown(self, current_token, preserve_statement_flags):
