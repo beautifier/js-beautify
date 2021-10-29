@@ -19,6 +19,7 @@ as well as partly deobfuscate scripts processed by the npm package
 
 Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
 
+
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
 This is a popular project and widely used but it desperately needs contributors who have time to commit to fixing both
