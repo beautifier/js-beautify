@@ -54,6 +54,7 @@ class BeautifierFlags:
         self.in_case = False
         self.in_case_statement = False
         self.case_body = False
+        self.case_block = False
         self.indentation_level = 0
         self.alignment = 0
         self.line_indent_level = 0
@@ -948,7 +949,7 @@ class Beautifier:
             current_token, ["case", "default"]
         ):
             self.print_newline()
-            if self._flags.last_token.type != TOKEN.END_BLOCK and (
+            if (not self._flags.case_block) and (
                 self._flags.case_body or self._options.jslint_happy
             ):
                 self.deindent()
@@ -1334,8 +1335,10 @@ class Beautifier:
             if self._tokens.peek().type != TOKEN.START_BLOCK:
                 self.indent()
                 self.print_newline()
+                self._flags.case_block = False
             else:
                 self._output.space_before_token = True
+                self._flags.case_block = True
 
             return
 
@@ -1439,7 +1442,9 @@ class Beautifier:
             # if there is a newline between -- or ++ and anything else we
             # should preserve it.
             if current_token.newlines and (
-                current_token.text == "--" or current_token.text == "++"
+                current_token.text == "--"
+                or current_token.text == "++"
+                or current_token.text == "~"
             ):
                 self.print_newline(preserve_statement_flags=True)
 

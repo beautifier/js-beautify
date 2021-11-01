@@ -462,6 +462,7 @@ class Beautifier:
                     and not insidePropertyValue
                     and parenLevel == 0
                     and not insideAtImport
+                    and not insideAtExtend
                 ):
                     self._output.add_new_line()
                 else:
