@@ -603,8 +603,7 @@ exports.test_data = {
     {
       name: "Issue #1950: Do not remove whitespace after number, before dot ",
       description: "ensure that whitespace is preserved after chaining dot to number",
-      tests: [
-        {
+      tests: [{
           unchanged: '1000000000000000100 .toFixed(0) !== "1000000000000000128";'
         },
         {
@@ -4820,7 +4819,7 @@ exports.test_data = {
         //   ]
         // }
       ]
-    },{
+    }, {
       name: "indent_empty_lines true",
       description: "",
       options: [
@@ -5017,7 +5016,7 @@ exports.test_data = {
           ]
         }
       ]
-    }, 
+    },
     {
       // =======================================================
       // New tests groups should be added above this line.

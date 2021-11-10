@@ -48,7 +48,7 @@ function ltrim(s) {
 }
 
 function is_number(word) {
-  var number_pattern =  /^-?\d+\.?\d*$/;
+  var number_pattern = /^-?\d+\.?\d*$/;
   return number_pattern.test(word);
 }
 
@@ -1427,7 +1427,7 @@ Beautifier.prototype.handle_comment = function(current_token, preserve_statement
 Beautifier.prototype.handle_dot = function(current_token) {
   if (this.start_of_statement(current_token)) {
     // The conditional starts the statement if appropriate.
-  } else{
+  } else {
     this.handle_whitespace_and_comments(current_token, true);
   }
   if (reserved_array(this._flags.last_token, special_words)) {
@@ -1447,7 +1447,7 @@ Beautifier.prototype.handle_dot = function(current_token) {
 
   //check to see if number was last token.
   //add space between dot and number.
-  if (is_number(this._flags.last_word)){
+  if (is_number(this._flags.last_word)) {
     this._output.space_before_token = true;
   }
 

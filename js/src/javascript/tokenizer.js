@@ -564,3 +564,4 @@ module.exports.Tokenizer = Tokenizer;
 module.exports.TOKEN = TOKEN;
 module.exports.positionable_operators = positionable_operators.slice();
 module.exports.line_starters = line_starters.slice();
+module.exports.number_pattern = number_pattern;
