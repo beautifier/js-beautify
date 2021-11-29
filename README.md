@@ -1,16 +1,12 @@
-# JS Beautifier
-![CI](https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg)
+<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-[![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
-[![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
-[![NPM @latest](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
-[![NPM @next](https://img.shields.io/npm/v/js-beautify/next.svg)](https://www.npmjs.com/package/js-beautify?activeTab=versions)
+<p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
 
-[![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Twitter Follow](https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow)](https://twitter.com/intent/user?screen_name=js_beautifier)
+<p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
-[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
+<p align="center"><a href="https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautify-web/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
 
+<p align="center"><a href="https://www.npmjs.org/package/js-beautify" target="_blank"><img alt="NPM stats" src=https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true"/></a></p>
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
