@@ -1,16 +1,12 @@
-# JS Beautifier
-![CI](https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg)
+<p align="center"><img src="https://raw.githubusercontent.com/beautify-web/js-beautify/7db71fc/web/wordmark-light.svg" height="200px" align="center" alt="JS Beautifier"/></p>
 
-[![PyPI version](https://img.shields.io/pypi/v/jsbeautifier.svg)](https://pypi.python.org/pypi/jsbeautifier)
-[![CDNJS version](https://img.shields.io/cdnjs/v/js-beautify.svg)](https://cdnjs.com/libraries/js-beautify)
-[![NPM @latest](https://img.shields.io/npm/v/js-beautify.svg)](https://www.npmjs.com/package/js-beautify)
-[![NPM @next](https://img.shields.io/npm/v/js-beautify/next.svg)](https://www.npmjs.com/package/js-beautify?activeTab=versions)
+<p align="center"><a href="https://github.com/beautify-web/js-beautify/actions/workflows/main.yml"><img alt="CI" src="https://github.com/beautify-web/js-beautify/workflows/CI/badge.svg"/></a>&#32;<a href="https://greenkeeper.io/" target="_blank"><img alt="Greenkeeper badge" src="https://badges.greenkeeper.io/beautify-web/js-beautify.svg"/></a></p>
 
-[![Join the chat at https://gitter.im/beautify-web/js-beautify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Twitter Follow](https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow)](https://twitter.com/intent/user?screen_name=js_beautifier)
+<p align="center"><a href="https://pypi.python.org/pypi/jsbeautifier" target="_blank"><img alt="PyPI version" src="https://img.shields.io/pypi/v/jsbeautifier.svg"/></a>&#32;<a href="https://cdnjs.com/libraries/js-beautify" target="_blank"><img alt="CDNJS version" src="https://img.shields.io/cdnjs/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify" target="_blank"><img alt="NPM @latest" src="https://img.shields.io/npm/v/js-beautify.svg"/></a>&#32;<a href="https://www.npmjs.com/package/js-beautify?activeTab=versions" target="_blank"><img alt="NPM @next" src="https://img.shields.io/npm/v/js-beautify/next.svg"/></a></p>
 
-[![NPM stats](https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true)](https://www.npmjs.org/package/js-beautify) [![Greenkeeper badge](https://badges.greenkeeper.io/beautify-web/js-beautify.svg)](https://greenkeeper.io/)
+<p align="center"><a href="https://gitter.im/beautify-web/js-beautify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img alt="Join the chat at https://gitter.im/beautify-web/js-beautify" src="https://badges.gitter.im/Join%20Chat.svg"></a>&#32;<a href="https://twitter.com/intent/user?screen_name=js_beautifier" target="_blank"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/js_beautifier.svg?style=social&label=Follow"/></a></p>
 
+<p align="center"><a href="https://www.npmjs.org/package/js-beautify" target="_blank"><img alt="NPM stats" src=https://nodei.co/npm/js-beautify.svg?downloadRank=true&downloads=true"/></a></p>
 
 This little beautifier will reformat and re-indent bookmarklets, ugly
 JavaScript, unpack scripts packed by Dean Edward’s popular packer,
@@ -18,6 +14,7 @@ as well as partly deobfuscate scripts processed by the npm package
 [javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator).
 
 Open [beautifier.io](https://beautifier.io/) to try it out.  Options are available via the UI.
+
 
 # Contributors Needed
 I'm putting this front and center above because existing owners have very limited time to work on this project currently.
@@ -61,17 +58,17 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.13.6/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.min.js"></script>
 
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.6/js/lib/beautify.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.6/js/lib/beautify-css.js"></script>
-<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.13.6/js/lib/beautify-html.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.14.0/js/lib/beautify.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.14.0/js/lib/beautify-css.js"></script>
+<script src="https://cdn.rawgit.com/beautify-web/js-beautify/v1.14.0/js/lib/beautify-html.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -404,4 +401,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.13.6)
+(README.md: js-beautify@1.14.0)
