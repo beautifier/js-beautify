@@ -119,7 +119,7 @@ reserved_word_pattern = re.compile(r"^(?:" + "|".join(reserved_words) + r")$")
 directives_core = Directives(r"/\*", r"\*/")
 
 xmlRegExp = re.compile(
-    r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\]|)(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>'
+    r'[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[^}]+?}|!\[CDATA\[[\s\S]*?\]\]|)(\s*{[^}]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"))*\s*(/?)\s*>'
 )
 
 
