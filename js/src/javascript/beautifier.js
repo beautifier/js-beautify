@@ -37,7 +37,6 @@ var line_starters = require('./tokenizer').line_starters;
 var positionable_operators = require('./tokenizer').positionable_operators;
 var TOKEN = require('./tokenizer').TOKEN;
 
-
 function in_array(what, arr) {
   return arr.indexOf(what) !== -1;
 }
@@ -256,8 +255,26 @@ Beautifier.prototype.beautify = function() {
   }
 
   sweet_code = this._output.get_code(eol);
-
+  var myRegex = /\d+[\.|\,][^0-9.\s]/g; 
+  // matches any regex with number+(. or ,)+(anything except whitespace or number)
+  var matches = sweet_code.matchAll(myRegex); 
+  var currentIndex = 0;
+  //loop over match ones
+  if (matches) { 
+    for (var match of matches) {
+      var splitIndex = (match.input.indexOf('.')); 
+      var anotherIndex = match.input.indexOf(',');
+    //check which one of , or . character we should space after
+    if(anotherIndex != -1)
+      if(anotherIndex < splitIndex || splitIndex==-1) splitIndex = anotherIndex;
+      splitIndex += currentIndex;
+      sweet_code = [sweet_code.slice(0, splitIndex), ' ', sweet_code.slice(splitIndex)].join(''); 
+      //index of match string is different from index of the whole string so we should add indexes together
+      currentIndex+=match.input.length
+    }
+  }
   return sweet_code;
+  
 };
 
 Beautifier.prototype.handle_token = function(current_token, preserve_statement_flags) {
