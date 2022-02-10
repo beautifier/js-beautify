@@ -1425,7 +1425,7 @@ Beautifier.prototype.handle_dot = function(current_token) {
     this.handle_whitespace_and_comments(current_token, true);
   }
 
-  if (!isNaN(this._flags.last_token.text)) {
+  if (this._flags.last_token.text.match('^[0-9]*$')) {
     this._output.space_before_token = true;
   }
 
