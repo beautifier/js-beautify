@@ -875,7 +875,10 @@ class Beautifier:
                 and self._flags.mode != MODE.ObjectLiteral
             ):
                 current_token.type = TOKEN.WORD
-            elif current_token.text == "import" and self._tokens.peek().text == "(":
+            elif current_token.text == "import" and self._tokens.peek().text in [
+                "(",
+                ".",
+            ]:
                 current_token.type = TOKEN.WORD
             elif current_token.text in ["as", "from"] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD

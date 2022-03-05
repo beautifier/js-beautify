@@ -4403,6 +4403,11 @@ exports.test_data = {
           output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
         },
         {
+          comment: "Issue #1978 - import.meta syntax support",
+          input: 'let       x =      import.meta',
+          output: 'let x = import.meta'
+        },
+        {
           comment: "Issue 858 - from is a keyword only after import",
           unchanged: [
             'if (from < to) {',
