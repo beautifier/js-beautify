@@ -39,10 +39,14 @@ $(function() {
 
 
   $(window).bind('keydown', function(e) {
-    if (e.ctrlKey && e.keyCode === 13) {
+    if ((e.ctrlKey || e.metaKey) && e.keyCode === 13) {
       beautify();
     }
   });
+
+  if(typeof window.navigator !== "undefined" && typeof window.navigator.platform === "string" && window.navigator.platform.includes("Mac")) {
+    $(".submit em").text("(cmd-enter)");
+  }
 
   $('.submit').click(beautify);
   $('select').change(beautify);
