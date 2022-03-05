@@ -1805,6 +1805,9 @@ exports.test_data = {
           '    x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -1878,6 +1881,9 @@ exports.test_data = {
           '    == x',
           '    >= y <= z > aa',
           '    < ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac',
           '    + -ad'
         ]
@@ -1953,6 +1959,9 @@ exports.test_data = {
           '    == x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
