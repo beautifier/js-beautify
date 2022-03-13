@@ -44,7 +44,7 @@ $(function() {
     }
   });
 
-  if(typeof window.navigator !== "undefined" && typeof window.navigator.platform === "string" && window.navigator.platform.includes("Mac")) {
+  if (typeof window.navigator !== "undefined" && typeof window.navigator.platform === "string" && window.navigator.platform.includes("Mac")) {
     $(".submit em").text("(cmd-enter)");
   }
 
