@@ -24,7 +24,7 @@ While developing, you may locally build and test the JavaScript or Python (or bo
 * Make changes to the implementation of your choice.
 * If working in the JavaScript implementation:
   * Run `make js` to build and run unit tests
-  * Run `make static` to manually test changes locally at `http://localhost:8080`
+  * Run `make serve` to manually test changes locally at `http://localhost:8080`
   * To load a debug (human readable) version of the beautifier source, open `http://localhost:8080/?debug`
 * If working in the Python implementation:
   * Run `make py` to build and run unit tests 

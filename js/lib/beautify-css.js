@@ -1003,8 +1003,8 @@ module.exports.Directives = Directives;
 
 
 
-var Beautifier = __webpack_require__(16).Beautifier,
-  Options = __webpack_require__(17).Options;
+var Beautifier = (__webpack_require__(16).Beautifier),
+  Options = (__webpack_require__(17).Options);
 
 function css_beautify(source_text, options) {
   var beautifier = new Beautifier(source_text, options);
@@ -1051,10 +1051,10 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(17).Options;
-var Output = __webpack_require__(2).Output;
-var InputScanner = __webpack_require__(8).InputScanner;
-var Directives = __webpack_require__(13).Directives;
+var Options = (__webpack_require__(17).Options);
+var Output = (__webpack_require__(2).Output);
+var InputScanner = (__webpack_require__(8).InputScanner);
+var Directives = (__webpack_require__(13).Directives);
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
@@ -1537,7 +1537,7 @@ module.exports.Beautifier = Beautifier;
 
 
 
-var BaseOptions = __webpack_require__(6).Options;
+var BaseOptions = (__webpack_require__(6).Options);
 
 function Options(options) {
   BaseOptions.call(this, options, 'css');

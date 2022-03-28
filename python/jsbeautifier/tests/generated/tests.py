@@ -6441,6 +6441,21 @@ class TestJSBeautifier(unittest.TestCase):
             '    c();\n' +
             '}')
         
+        # Issue #1683 - switch-case wrong indentation
+        bt(
+            'switch (x) { case 0: if (y == z) { a(); } else { b(); } case 1: c(); }',
+            #  -- output --
+            'switch (x) {\n' +
+            '    case 0:\n' +
+            '        if (y == z) {\n' +
+            '            a();\n' +
+            '        } else {\n' +
+            '            b();\n' +
+            '        }\n' +
+            '    case 1:\n' +
+            '        c();\n' +
+            '}')
+        
         # Issue 485 - ensure function declarations behave the same in arrays as elsewhere
         bt(
             'var v = ["a",\n' +
@@ -9212,6 +9227,18 @@ class TestJSBeautifier(unittest.TestCase):
             '    },\n' +
             '    b = 2,\n' +
             '    c = 3;')
+        
+        # Issue #1896: Handle newlines with bitwise ~ operator
+        bt(
+            'if (foo) {\n' +
+            'var bar = 1;\n' +
+            '~bar ? 0 : 1\n' +
+            ' }',
+            #  -- output --
+            'if (foo) {\n' +
+            '    var bar = 1;\n' +
+            '    ~bar ? 0 : 1\n' +
+            '}')
 
 
 

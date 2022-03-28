@@ -3444,6 +3444,22 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue #1683 - switch-case wrong indentation",
+          input: 'switch (x) { case 0: if (y == z) { a(); } else { b(); } case 1: c(); }',
+          output: [
+            'switch (x) {',
+            '    case 0:',
+            '        if (y == z) {',
+            '            a();',
+            '        } else {',
+            '            b();',
+            '        }',
+            '    case 1:',
+            '        c();',
+            '}'
+          ]
+        },
+        {
           comment: "Issue 485 - ensure function declarations behave the same in arrays as elsewhere",
           unchanged: [
             'var v = ["a",',
@@ -5420,7 +5436,13 @@ exports.test_data = {
         { unchanged: 'if (1 + foo() && bar(baz()) / 2) one();\ntwo();\nthree();' },
 
         { input: 'var a=1,b={bang:2},c=3;', output: 'var a = 1,\n    b = {\n        bang: 2\n    },\n    c = 3;' },
-        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' }
+        { input: 'var a={bing:1},b=2,c=3;', output: 'var a = {\n        bing: 1\n    },\n    b = 2,\n    c = 3;' },
+
+        {
+          comment: 'Issue #1896: Handle newlines with bitwise ~ operator',
+          input: 'if (foo) {\nvar bar = 1;\n~bar ? 0 : 1\n }',
+          output: 'if (foo) {\n    var bar = 1;\n    ~bar ? 0 : 1\n}'
+        }
       ]
     }
   ],
