@@ -14,9 +14,21 @@ a.self {
   border-bottom: 1px solid #aaa
 }
 
+h1 {
+  display: flex;
+  margin-bottom: 0;
+  line-height: 1em;
+}
+
+h1 img {
+  font-family: montserrat, nexa, gotham, sans-serif;
+  font-weight: 600;
+  margin-left: 40px;
+}
+
 p, select, label, .blurb, a.turn-off-codemirror {
   font: 13px/1.231 arial, sans-serif;
-  *font-size: small;
+  font-size: small;
 }
 
 a.turn-off-codemirror {
@@ -58,7 +70,10 @@ table#options td {
 }
 
 #version-number {
+  align-self: flex-end;
+  font-family: arial, sans-serif;
   font-size: .5em;
+  margin-left: 10px;
 }
 
 .uses li {
@@ -72,7 +87,7 @@ table#options td {
 
 #testresults {
   display: none;
-  font-family: monaco, "lucida console", "courier new", monospace;
+  font-family: monaco, consolas, "lucida console", "courier new", monospace;
 }
 
 .CodeMirror {
