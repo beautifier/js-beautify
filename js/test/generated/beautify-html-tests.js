@@ -6583,6 +6583,24 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
             '{{#> myPartial}}\n' +
             '    <p>Unfortunately this condition is false.</p>\n' +
             '{{/myPartial}}');
+        
+        // Issue #1946 - Indentation of partial blocks with whitespace following partial name
+        bth(
+            '{{#> myPartial }}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/myPartial}}');
+        
+        // Issue #1946 - Indentation of partial blocks with parameters
+        bth(
+            '{{#> myPartial param="test"}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/myPartial}}');
+        
+        // Issue #1946 - Indentation of inline partials with parameters
+        bth(
+            '{{#*inline "myPartial" param="test"}}\n' +
+            '    <p>Unfortunately this condition is false.</p>\n' +
+            '{{/inline}}');
 
 
         //============================================================

@@ -125,8 +125,8 @@ var legacy_beautify_js;
 
 
 
-var Beautifier = __webpack_require__(1).Beautifier,
-  Options = __webpack_require__(5).Options;
+var Beautifier = (__webpack_require__(1).Beautifier),
+  Options = (__webpack_require__(5).Options);
 
 function js_beautify(js_source_text, options) {
   var beautifier = new Beautifier(js_source_text, options);
@@ -173,14 +173,14 @@ module.exports.defaultOptions = function() {
 
 
 
-var Output = __webpack_require__(2).Output;
-var Token = __webpack_require__(3).Token;
+var Output = (__webpack_require__(2).Output);
+var Token = (__webpack_require__(3).Token);
 var acorn = __webpack_require__(4);
-var Options = __webpack_require__(5).Options;
-var Tokenizer = __webpack_require__(7).Tokenizer;
-var line_starters = __webpack_require__(7).line_starters;
-var positionable_operators = __webpack_require__(7).positionable_operators;
-var TOKEN = __webpack_require__(7).TOKEN;
+var Options = (__webpack_require__(5).Options);
+var Tokenizer = (__webpack_require__(7).Tokenizer);
+var line_starters = (__webpack_require__(7).line_starters);
+var positionable_operators = (__webpack_require__(7).positionable_operators);
+var TOKEN = (__webpack_require__(7).TOKEN);
 
 
 function in_array(what, arr) {
@@ -336,6 +336,7 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
     in_case_statement: false, // switch(..){ INSIDE HERE }
     in_case: false, // we're on the exact line with "case 0:"
     case_body: false, // the indented case-action block
+    case_block: false, // the indented case-action block is wrapped with {}
     indentation_level: next_indent_level,
     alignment: 0,
     line_indent_level: flags_base ? flags_base.line_indent_level : next_indent_level,
@@ -1014,7 +1015,7 @@ Beautifier.prototype.handle_word = function(current_token) {
 
   if (this._flags.in_case_statement && reserved_array(current_token, ['case', 'default'])) {
     this.print_newline();
-    if (this._flags.last_token.type !== TOKEN.END_BLOCK && (this._flags.case_body || this._options.jslint_happy)) {
+    if (!this._flags.case_block && (this._flags.case_body || this._options.jslint_happy)) {
       // switch cases following one another
       this.deindent();
     }
@@ -1328,7 +1329,9 @@ Beautifier.prototype.handle_operator = function(current_token) {
     if (this._tokens.peek().type !== TOKEN.START_BLOCK) {
       this.indent();
       this.print_newline();
+      this._flags.case_block = false;
     } else {
+      this._flags.case_block = true;
       this._output.space_before_token = true;
     }
     return;
@@ -1426,7 +1429,7 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
     // http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.1
     // if there is a newline between -- or ++ and anything else we should preserve it.
-    if (current_token.newlines && (current_token.text === '--' || current_token.text === '++')) {
+    if (current_token.newlines && (current_token.text === '--' || current_token.text === '++' || current_token.text === '~')) {
       this.print_newline(false, true);
     }
 
@@ -2186,7 +2189,7 @@ exports.allLineBreaks = new RegExp(exports.lineBreak.source, 'g');
 
 
 
-var BaseOptions = __webpack_require__(6).Options;
+var BaseOptions = (__webpack_require__(6).Options);
 
 var validPositionValues = ['before-newline', 'after-newline', 'preserve-newline'];
 
@@ -2484,13 +2487,13 @@ module.exports.mergeOpts = _mergeOpts;
 
 
 
-var InputScanner = __webpack_require__(8).InputScanner;
-var BaseTokenizer = __webpack_require__(9).Tokenizer;
-var BASETOKEN = __webpack_require__(9).TOKEN;
-var Directives = __webpack_require__(13).Directives;
+var InputScanner = (__webpack_require__(8).InputScanner);
+var BaseTokenizer = (__webpack_require__(9).Tokenizer);
+var BASETOKEN = (__webpack_require__(9).TOKEN);
+var Directives = (__webpack_require__(13).Directives);
 var acorn = __webpack_require__(4);
-var Pattern = __webpack_require__(12).Pattern;
-var TemplatablePattern = __webpack_require__(14).TemplatablePattern;
+var Pattern = (__webpack_require__(12).Pattern);
+var TemplatablePattern = (__webpack_require__(14).TemplatablePattern);
 
 
 function in_array(what, arr) {
@@ -2582,7 +2585,7 @@ var Tokenizer = function(input_string, options) {
     html_comment_end: pattern_reader.matching(/-->/),
     include: pattern_reader.starting_with(/#include/).until_after(acorn.lineBreak),
     shebang: pattern_reader.starting_with(/#!/).until_after(acorn.lineBreak),
-    xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\]|)(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{[\s\S]+?}))*\s*(\/?)\s*>/),
+    xml: pattern_reader.matching(/[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[^}]+?}|!\[CDATA\[[^\]]*?\]\]|)(\s*{[^}]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*('[^']*'|"[^"]*"|{([^{}]|{[^}]+?})+?}))*\s*(\/?)\s*>/),
     single_quote: templatable.until(/['\\\n\r\u2028\u2029]/),
     double_quote: templatable.until(/["\\\n\r\u2028\u2029]/),
     template_text: templatable.until(/[`\\$]/),
@@ -3254,10 +3257,10 @@ module.exports.InputScanner = InputScanner;
 
 
 
-var InputScanner = __webpack_require__(8).InputScanner;
-var Token = __webpack_require__(3).Token;
-var TokenStream = __webpack_require__(10).TokenStream;
-var WhitespacePattern = __webpack_require__(11).WhitespacePattern;
+var InputScanner = (__webpack_require__(8).InputScanner);
+var Token = (__webpack_require__(3).Token);
+var TokenStream = (__webpack_require__(10).TokenStream);
+var WhitespacePattern = (__webpack_require__(11).WhitespacePattern);
 
 var TOKEN = {
   START: 'TK_START',
@@ -3484,7 +3487,7 @@ module.exports.TokenStream = TokenStream;
 
 
 
-var Pattern = __webpack_require__(12).Pattern;
+var Pattern = (__webpack_require__(12).Pattern);
 
 function WhitespacePattern(input_scanner, parent) {
   Pattern.call(this, input_scanner, parent);
@@ -3763,7 +3766,7 @@ module.exports.Directives = Directives;
 
 
 
-var Pattern = __webpack_require__(12).Pattern;
+var Pattern = (__webpack_require__(12).Pattern);
 
 
 var template_names = {

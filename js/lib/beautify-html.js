@@ -999,10 +999,10 @@ module.exports.InputScanner = InputScanner;
 
 
 
-var InputScanner = __webpack_require__(8).InputScanner;
-var Token = __webpack_require__(3).Token;
-var TokenStream = __webpack_require__(10).TokenStream;
-var WhitespacePattern = __webpack_require__(11).WhitespacePattern;
+var InputScanner = (__webpack_require__(8).InputScanner);
+var Token = (__webpack_require__(3).Token);
+var TokenStream = (__webpack_require__(10).TokenStream);
+var WhitespacePattern = (__webpack_require__(11).WhitespacePattern);
 
 var TOKEN = {
   START: 'TK_START',
@@ -1229,7 +1229,7 @@ module.exports.TokenStream = TokenStream;
 
 
 
-var Pattern = __webpack_require__(12).Pattern;
+var Pattern = (__webpack_require__(12).Pattern);
 
 function WhitespacePattern(input_scanner, parent) {
   Pattern.call(this, input_scanner, parent);
@@ -1508,7 +1508,7 @@ module.exports.Directives = Directives;
 
 
 
-var Pattern = __webpack_require__(12).Pattern;
+var Pattern = (__webpack_require__(12).Pattern);
 
 
 var template_names = {
@@ -1728,8 +1728,8 @@ module.exports.TemplatablePattern = TemplatablePattern;
 
 
 
-var Beautifier = __webpack_require__(19).Beautifier,
-  Options = __webpack_require__(20).Options;
+var Beautifier = (__webpack_require__(19).Beautifier),
+  Options = (__webpack_require__(20).Options);
 
 function style_html(html_source, options, js_beautify, css_beautify) {
   var beautifier = new Beautifier(html_source, options, js_beautify, css_beautify);
@@ -1776,10 +1776,10 @@ module.exports.defaultOptions = function() {
 
 
 
-var Options = __webpack_require__(20).Options;
-var Output = __webpack_require__(2).Output;
-var Tokenizer = __webpack_require__(21).Tokenizer;
-var TOKEN = __webpack_require__(21).TOKEN;
+var Options = (__webpack_require__(20).Options);
+var Output = (__webpack_require__(2).Output);
+var Tokenizer = (__webpack_require__(21).Tokenizer);
+var TOKEN = (__webpack_require__(21).TOKEN);
 
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
@@ -2360,7 +2360,7 @@ var TagOpenParserToken = function(parent, raw_token) {
 
       // handle "{{#> myPartial}}
       if (raw_token.text === '{{#>' && this.tag_check === '>' && raw_token.next !== null) {
-        this.tag_check = raw_token.next.text;
+        this.tag_check = raw_token.next.text.split(' ')[0];
       }
     }
     this.tag_check = this.tag_check.toLowerCase();
@@ -2647,7 +2647,7 @@ module.exports.Beautifier = Beautifier;
 
 
 
-var BaseOptions = __webpack_require__(6).Options;
+var BaseOptions = (__webpack_require__(6).Options);
 
 function Options(options) {
   BaseOptions.call(this, options, 'html');
@@ -2744,11 +2744,11 @@ module.exports.Options = Options;
 
 
 
-var BaseTokenizer = __webpack_require__(9).Tokenizer;
-var BASETOKEN = __webpack_require__(9).TOKEN;
-var Directives = __webpack_require__(13).Directives;
-var TemplatablePattern = __webpack_require__(14).TemplatablePattern;
-var Pattern = __webpack_require__(12).Pattern;
+var BaseTokenizer = (__webpack_require__(9).Tokenizer);
+var BASETOKEN = (__webpack_require__(9).TOKEN);
+var Directives = (__webpack_require__(13).Directives);
+var TemplatablePattern = (__webpack_require__(14).TemplatablePattern);
+var Pattern = (__webpack_require__(12).Pattern);
 
 var TOKEN = {
   TAG_OPEN: 'TK_TAG_OPEN',
