@@ -17,10 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu, windows, macos ]
-        python-version: [2.7, 3.7, 3.8, 3.9, '3.10']
+        python-version: [3.7, 3.8, 3.9, '3.10']
         include:
-          - python-version: 2.7 
-            node-version: 12
           - python-version: 3.7 
             node-version: 12
           - python-version: 3.8 
