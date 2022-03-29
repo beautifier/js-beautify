@@ -120,7 +120,7 @@ depends: $(BUILD_DIR)/node $(BUILD_DIR)/python
 # update dependencies information
 update: depends
 	@rm package-lock.json
-	$(NPM) update
+	$(NPM) update --save
 
 # when we pull dependencies also pull docker image
 # without this images can get stale and out of sync from CI system
