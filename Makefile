@@ -119,6 +119,7 @@ depends: $(BUILD_DIR)/node $(BUILD_DIR)/python
 
 # update dependencies information
 update: depends
+	@rm package-lock.json
 	$(NPM) update
 
 # when we pull dependencies also pull docker image
@@ -126,7 +127,7 @@ update: depends
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	@$(NODE) --version
 	$(NPM) --version
-	$(NPM) ci
+	$(NPM) install 
 	@touch $(BUILD_DIR)/node
 
 $(BUILD_DIR)/python: $(BUILD_DIR)/generate python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
