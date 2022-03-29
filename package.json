@@ -63,7 +63,6 @@
     "minimist": "^1.2.6",
     "mocha": "^9.2.2",
     "mustache": "^4.0.1",
-    "npm": "^8.5.5",
     "requirejs": "^2.3.6",
     "serve": "^13.0.2",
     "strip-ansi": ">=7.0.1",
