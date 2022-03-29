@@ -74,7 +74,7 @@ var digit = /[0-9]/;
 var dot_pattern = /[^\d\.]/;
 
 var positionable_operators = (
-  ">>> === !== " +
+  ">>> === !== &&= ??= ||= " +
   "<< && >= ** != == <= >> || ?? |> " +
   "< / - + > : & % ? ^ | *").split(' ');
 
@@ -82,7 +82,7 @@ var positionable_operators = (
 // Also, you must update possitionable operators separately from punct
 var punct =
   ">>>= " +
-  "... >>= <<= === >>> !== **= " +
+  "... >>= <<= === >>> !== **= &&= ??= ||= " +
   "=> ^= :: /= << <= == && -= >= >> != -- += ** || ?? ++ %= &= *= |= |> " +
   "= ! ? > < : / ^ - + * & % ~ |";
 
