@@ -22,6 +22,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ast import Str
+from lib2to3.pgen2.token import STRING
 import re
 from ..core.inputscanner import InputScanner
 from ..core.tokenizer import TokenTypes as BaseTokenTypes
@@ -265,7 +267,10 @@ class Tokenizer(BaseTokenizer):
                     and (previous_token.text == "set" or previous_token.text == "get")
                 )
             ) and reserved_word_pattern.match(resulting_string):
-                if resulting_string == "in" or resulting_string == "of":
+                if (resulting_string == "in" or resulting_string == "of") and (
+                    previous_token.type == TOKEN.WORD
+                    or previous_token.type == TOKEN.STRING
+                ):
                     # in and of are operators, need to hack
                     return self._create_token(TOKEN.OPERATOR, resulting_string)
 
