@@ -143,7 +143,7 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
-	$(SCRIPT_DIR)/python-dev3 pip install black==21.12b0
+	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 
 
