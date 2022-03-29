@@ -125,7 +125,7 @@ update: depends
 # without this images can get stale and out of sync from CI system
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	@$(NODE) --version
-	$(NPM) install
+	$(NPM) install --no-save
 	$(NPM) --version
 	@touch $(BUILD_DIR)/node
 
