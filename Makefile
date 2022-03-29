@@ -126,7 +126,7 @@ update: depends
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	@$(NODE) --version
 	$(NPM) --version
-	$(NPM) install
+	$(NPM) ci
 	@touch $(BUILD_DIR)/node
 
 $(BUILD_DIR)/python: $(BUILD_DIR)/generate python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
