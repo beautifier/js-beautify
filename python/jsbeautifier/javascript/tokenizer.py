@@ -22,8 +22,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ast import Str
-from lib2to3.pgen2.token import STRING
 import re
 from ..core.inputscanner import InputScanner
 from ..core.tokenizer import TokenTypes as BaseTokenTypes
