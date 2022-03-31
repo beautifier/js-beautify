@@ -4,6 +4,12 @@ REL_SCRIPT_DIR="`dirname \"$0\"`"
 SCRIPT_DIR="`( cd \"$REL_SCRIPT_DIR\" && pwd )`"
 PROJECT_DIR="`( cd \"$SCRIPT_DIR/..\" && pwd )`"
 
+# if you ask for the version from this script it will force an update to the latest version
+if [ "$1" == "--version" ]; then
+    echo Ensuring npm is up-to-date...
+    /usr/bin/env npm i npm --no-save
+fi
+
 if [ ! -f ${PROJECT_DIR}/node_modules/.bin/npm ]; then
     /usr/bin/env npm i npm --no-save
 fi

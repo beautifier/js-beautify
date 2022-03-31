@@ -1805,6 +1805,9 @@ exports.test_data = {
           '    x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -1878,6 +1881,9 @@ exports.test_data = {
           '    == x',
           '    >= y <= z > aa',
           '    < ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac',
           '    + -ad'
         ]
@@ -1953,6 +1959,9 @@ exports.test_data = {
           '    == x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -4401,6 +4410,11 @@ exports.test_data = {
           comment: "Issue #1197 - dynamic import() arrow syntax",
           input: 'frontend = Async(() => import("../frontend").then(m => m.default      ))',
           output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
+        },
+        {
+          comment: "Issue #1978 - import.meta syntax support",
+          input: 'let       x =      import.meta',
+          output: 'let x = import.meta'
         },
         {
           comment: "Issue 858 - from is a keyword only after import",

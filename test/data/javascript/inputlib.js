@@ -9,6 +9,9 @@ var operator_position = {
     'var res = (k && l || m) ? n ?? nn : o;',
     'var res = p >> q << r >>> s;',
     'var res = t === u !== v != w == x >= y <= z > aa < ab;',
+    'res ??= a;',
+    'res ||= b;',
+    'res &&= c;',
     'ac + -ad'
   ],
   comprehensive: [
@@ -41,6 +44,7 @@ var operator_position = {
     '== x >=',
     'y <= z > aa <',
     'ab;',
+    'res??=a;res||=b;res&&=c;',
     'ac +',
     '-ad'
   ],
