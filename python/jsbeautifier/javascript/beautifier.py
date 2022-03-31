@@ -1462,16 +1462,12 @@ class Beautifier:
             elif self._flags.last_token.type == TOKEN.OPERATOR:
                 # a++ + ++b
                 # a - -b
-                space_before = (
-                    current_token.text
-                    in [
-                        "--",
-                        "-",
-                        "++",
-                        "+",
-                    ]
-                    and self._flags.last_token.text in ["--", "-", "++", "+"]
-                )
+                space_before = current_token.text in [
+                    "--",
+                    "-",
+                    "++",
+                    "+",
+                ] and self._flags.last_token.text in ["--", "-", "++", "+"]
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
@@ -1590,6 +1586,9 @@ class Beautifier:
             pass
         else:
             self.handle_whitespace_and_comments(current_token, True)
+
+        if re.search(self._flags.last_token.text, "^[0-9]+$"):
+            self._flags.whitespace_before = True
 
         if reserved_array(self._flags.last_token, _special_word_set):
             self._output.space_before_token = False
