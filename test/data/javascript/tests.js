@@ -230,7 +230,18 @@ exports.test_data = {
     }, {
       name: "Object literal shorthand functions",
       description: "Object literal shorthand functions",
-      tests: [
+      tests: [{
+          comment: "#1838 - handle class word as an object property",
+          unchanged: [
+            '{\n',
+            '    class: {\n',
+            '        a: 1,\n',
+            '        b: 2,\n',
+            '        c: 3,\n',
+            '    }\n',
+            '}'
+          ]
+        },
         { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
         {
           unchanged: [

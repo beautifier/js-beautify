@@ -729,10 +729,13 @@ class Beautifier:
         ):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
-            if self._last_last_text not in ["class", "interface"]:
-                self.set_mode(MODE.ObjectLiteral)
-            else:
+            if (
+                self._last_last_text in ["class", "interface"]
+                and second_token.whitespace_before
+            ):
                 self.set_mode(MODE.BlockStatement)
+            else:
+                self.set_mode(MODE.ObjectLiteral)
         elif (
             self._flags.last_token.type == TOKEN.OPERATOR
             and self._flags.last_token.text == "=>"
