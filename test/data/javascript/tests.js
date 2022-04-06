@@ -230,18 +230,7 @@ exports.test_data = {
     }, {
       name: "Object literal shorthand functions",
       description: "Object literal shorthand functions",
-      tests: [{
-          comment: "#1838 - handle class word as an object property",
-          unchanged: [
-            '{\n',
-            '    class: {\n',
-            '        a: 1,\n',
-            '        b: 2,\n',
-            '        c: 3,\n',
-            '    }\n',
-            '}'
-          ]
-        },
+      tests: [
         { unchanged: 'return {\n    foo() {\n        return 42;\n    }\n}' },
         {
           unchanged: [
@@ -3301,6 +3290,42 @@ exports.test_data = {
             '    /* howdy',
             '    ',
             '    */',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class and interface word as an object property",
+          unchanged: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '    interface: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but with space after colon",
+          input: [
+            '{',
+            '    class : { a: 1,',
+            'b: 2,c : 3',
+            '    }',
+            '}'
+          ],
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3',
+            '    }',
             '}'
           ]
         },

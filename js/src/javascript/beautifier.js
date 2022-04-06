@@ -691,7 +691,7 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     )) {
     // We don't support TypeScript,but we didn't break it for a very long time.
     // We'll try to keep not breaking it.
-    if (in_array(this._last_last_text, ['class', 'interface']) && !!second_token.whitespace_before) {
+    if (in_array(this._last_last_text, ['class', 'interface']) && !in_array(second_token.text, [':', ','])) {
       this.set_mode(MODE.BlockStatement);
     } else {
       this.set_mode(MODE.ObjectLiteral);

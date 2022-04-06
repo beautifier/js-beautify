@@ -729,10 +729,10 @@ class Beautifier:
         ):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
-            if (
-                self._last_last_text in ["class", "interface"]
-                and second_token.whitespace_before
-            ):
+            if self._last_last_text in [
+                "class",
+                "interface",
+            ] and second_token.text not in [":", ","]:
                 self.set_mode(MODE.BlockStatement)
             else:
                 self.set_mode(MODE.ObjectLiteral)
