@@ -3330,6 +3330,32 @@ exports.test_data = {
           ]
         },
         {
+          comment: "#1838 - handle class word as an object property but without spaces",
+          input: '{class:{a:1,b:2,c:3,}}',
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as a nested object property",
+          input: '{x:{a:1,class:2,c:3,}}',
+          output: [
+            '{',
+            '    x: {',
+            '        a: 1,',
+            '        class: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
           unchanged: [
             'obj',
             '    .last(a, function() {',
