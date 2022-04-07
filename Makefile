@@ -119,14 +119,15 @@ depends: $(BUILD_DIR)/node $(BUILD_DIR)/python
 
 # update dependencies information
 update: depends
-	npm update
+	@rm package-lock.json
+	$(NPM) update --save
 
 # when we pull dependencies also pull docker image
 # without this images can get stale and out of sync from CI system
 $(BUILD_DIR)/node: package.json package-lock.json | $(BUILD_DIR)
 	@$(NODE) --version
-	$(NPM) install
 	$(NPM) --version
+	$(NPM) install 
 	@touch $(BUILD_DIR)/node
 
 $(BUILD_DIR)/python: $(BUILD_DIR)/generate python/setup-js.py python/setup-css.py | $(BUILD_DIR) $(BUILD_DIR)/virtualenv
@@ -143,7 +144,9 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
-	$(SCRIPT_DIR)/python-dev3 pip install black==21.12b0
+	$(SCRIPT_DIR)/python-dev pip install pip --upgrade
+	$(SCRIPT_DIR)/python-rel pip install pip --upgrade
+	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 
 

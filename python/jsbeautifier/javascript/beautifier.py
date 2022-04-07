@@ -729,10 +729,13 @@ class Beautifier:
         ):
             # We don't support TypeScript,but we didn't break it for a very long time.
             # We'll try to keep not breaking it.
-            if self._last_last_text not in ["class", "interface"]:
-                self.set_mode(MODE.ObjectLiteral)
-            else:
+            if self._last_last_text in [
+                "class",
+                "interface",
+            ] and second_token.text not in [":", ","]:
                 self.set_mode(MODE.BlockStatement)
+            else:
+                self.set_mode(MODE.ObjectLiteral)
         elif (
             self._flags.last_token.type == TOKEN.OPERATOR
             and self._flags.last_token.text == "=>"
@@ -875,7 +878,10 @@ class Beautifier:
                 and self._flags.mode != MODE.ObjectLiteral
             ):
                 current_token.type = TOKEN.WORD
-            elif current_token.text == "import" and self._tokens.peek().text == "(":
+            elif current_token.text == "import" and self._tokens.peek().text in [
+                "(",
+                ".",
+            ]:
                 current_token.type = TOKEN.WORD
             elif current_token.text in ["as", "from"] and not self._flags.import_block:
                 current_token.type = TOKEN.WORD
@@ -1462,16 +1468,12 @@ class Beautifier:
             elif self._flags.last_token.type == TOKEN.OPERATOR:
                 # a++ + ++b
                 # a - -b
-                space_before = (
-                    current_token.text
-                    in [
-                        "--",
-                        "-",
-                        "++",
-                        "+",
-                    ]
-                    and self._flags.last_token.text in ["--", "-", "++", "+"]
-                )
+                space_before = current_token.text in [
+                    "--",
+                    "-",
+                    "++",
+                    "+",
+                ] and self._flags.last_token.text in ["--", "-", "++", "+"]
                 # + and - are not unary when preceeded by -- or ++ operator
                 # a-- + b
                 # a * +b
