@@ -1360,9 +1360,8 @@ exports.test_data = {
             '}',
             '.set {',
             '    each(@set, {',
-            '            @{key}-@{index}: @value;',
-            '        }',
-            '    );',
+            '        @{key}-@{index}: @value;',
+            '    });',
             '}'
           ]
         },
@@ -1733,6 +1732,20 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: 'mixins call with object notation, and brace_style="expand"',
+        input: [
+          '.example({',
+          '    color:red;',
+          '});'
+        ],
+        output: [
+          '.example(',
+          '    {',
+          '        color:red;',
+          '    }',
+          ');'
+        ]
+      }, {
         comment: 'integration test of newline_between_rules, imports, and brace_style="expand"',
         input: '.a{} @import "custom.css";.rule{}',
         output: [
@@ -1756,6 +1769,28 @@ exports.test_data = {
           '}',
           'strong {',
           '    &:extend(a:hover);',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '.test {',
+          '    .example({',
+          '        color:red;',
+          '    });',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '.example2({',
+          '    display:none;',
+          '});'
+        ]
+      }, {
+        unchanged: [
+          '.aa {',
+          '    .mq-medium(a, {',
+          '        background: red;',
+          '    });',
           '}'
         ]
       }, {
