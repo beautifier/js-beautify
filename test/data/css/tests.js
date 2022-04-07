@@ -1799,7 +1799,7 @@ exports.test_data = {
           '',
           'each(@selectors, {',
           '    .sel-@{value} {',
-          '          a: b;',
+          '        a: b;',
           '    }',
           '});'
         ]    
