@@ -1796,7 +1796,6 @@ exports.test_data = {
       }, {
         unchanged: [
           '@selectors: blue, green, red;',
-          '',
           'each(@selectors, {',
           '    .sel-@{value} {',
           '        a: b;',
