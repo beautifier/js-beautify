@@ -119,6 +119,7 @@ class Beautifier:
             "@document",
         }
         self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
+        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template"]
 
     def eatString(self, endChars):
         result = ""
@@ -223,6 +224,7 @@ class Beautifier:
         insideAtExtend = False
         insideAtImport = False
         topCharacter = self._ch
+        insideNonSemiColonValues = False
 
         while True:
             whitespace = self._input.read(whitespacePattern)
@@ -373,6 +375,12 @@ class Beautifier:
                     if self._input.peek() != "}":
                         self._output.add_new_line(True)
             elif self._ch == ":":
+
+                for i in range(0, len(self.NON_SEMICOLON_NEWLINE_PROPERTY)):
+                    if self._input.lookBack(self.NON_SEMICOLON_NEWLINE_PROPERTY[i]):
+                        insideNonSemiColonValues = True
+                        break
+
                 if (
                     (insideRule or enteringConditionalGroup)
                     and not (self._input.lookBack("&") or self.foundNestedPseudoClass())
@@ -409,6 +417,7 @@ class Beautifier:
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ";":
+                insideNonSemiColonValues = False
                 if parenLevel == 0:
                     if insidePropertyValue:
                         self.outdent()
@@ -499,8 +508,16 @@ class Beautifier:
                 self.print_string(" ")
                 self.print_string(self._ch)
             else:
-                self.preserveSingleSpace(isAfterSpace)
+                preserveAfterSpace = previous_ch == '"' or previous_ch == "'"
+                self.preserveSingleSpace(preserveAfterSpace or isAfterSpace)
                 self.print_string(self._ch)
+
+                if (
+                    not self._output.just_added_newline()
+                    and self._input.peek() == "\n"
+                    and insideNonSemiColonValues
+                ):
+                    self._output.add_new_line()
 
         sweet_code = self._output.get_code(self._options.eol)
 
