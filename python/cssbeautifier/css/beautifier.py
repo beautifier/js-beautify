@@ -345,7 +345,11 @@ class Beautifier:
                     self.indent()
                     self._output.set_indent(self._indentLevel)
                 else:
-                    self.indent()
+                    # inside mixin and first param is object
+                    if previous_ch == "(":
+                        self._output.space_before_token = False
+                    elif previous_ch != ",":
+                        self.indent()
                     self.print_string(self._ch)
 
                 self.eatWhitespace(True)
@@ -373,6 +377,10 @@ class Beautifier:
                     and not self._output.just_added_blankline()
                 ):
                     if self._input.peek() != "}":
+                        self._output.add_new_line(True)
+                if self._input.peek() == ")":
+                    self._output.trim(True)
+                    if self._options.brace_style == "expand":
                         self._output.add_new_line(True)
             elif self._ch == ":":
 

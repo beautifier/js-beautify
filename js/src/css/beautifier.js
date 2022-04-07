@@ -318,7 +318,12 @@ Beautifier.prototype.beautify = function() {
         this.indent();
         this._output.set_indent(this._indentLevel);
       } else {
-        this.indent();
+        // inside mixin and first param is object
+        if (previous_ch === '(') {
+          this._output.space_before_token = false;
+        } else if (previous_ch !== ',') {
+          this.indent();
+        }
         this.print_string(this._ch);
       }
 
@@ -347,6 +352,12 @@ Beautifier.prototype.beautify = function() {
 
       if (this._options.newline_between_rules && !this._output.just_added_blankline()) {
         if (this._input.peek() !== '}') {
+          this._output.add_new_line(true);
+        }
+      }
+      if (this._input.peek() === ')') {
+        this._output.trim(true);
+        if (this._options.brace_style === "expand") {
           this._output.add_new_line(true);
         }
       }
