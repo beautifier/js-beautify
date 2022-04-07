@@ -1801,7 +1801,7 @@ exports.test_data = {
           '        a: b;',
           '    }',
           '});'
-        ]    
+        ]
       }, {
         comment: 'Ensure simple closing parens do not break behavior',
         unchanged: [
