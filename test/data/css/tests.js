@@ -1793,7 +1793,7 @@ exports.test_data = {
           '    });',
           '}'
         ]
-    }, {
+      }, {
         unchanged: [
           '@selectors: blue, green, red;',
           '',
