@@ -1467,6 +1467,44 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Issue #1817",
+      description: "",
+      tests: [{
+        comment: "ensure that properties that are expected to have multiline values persist new lines",
+        unchanged: [
+          '.grid {',
+          '    grid-template:',
+          '        "top-bar top-bar" 100px',
+          '        "left-bar center" 100px;',
+          '}'
+        ]
+      }, {
+        comment: "property values that have string followed by other identifiers should persist spacing",
+        input: [
+          '.grid {grid-template: "top-bar" 100px;}'
+        ],
+        output: [
+          '.grid {',
+          '    grid-template: "top-bar" 100px;',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template: "a a a" 20%',
+          ' [main-top] "b b b" 1fr',
+          '                    "b b b" auto;',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template: "a a a" 20%',
+          '        [main-top] "b b b" 1fr',
+          '        "b b b" auto;',
+          '}'
+        ]
+      }]
+    }, {
       name: "Issue #645, #1233",
       description: "",
       options: [
