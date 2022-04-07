@@ -1793,6 +1793,16 @@ exports.test_data = {
           '    });',
           '}'
         ]
+    }, {
+        unchanged: [
+          '@selectors: blue, green, red;',
+          '',
+          'each(@selectors, {',
+          '    .sel-@{value} {',
+          '          a: b;',
+          '    }',
+          '});'
+        ]    
       }, {
         comment: 'Ensure simple closing parens do not break behavior',
         unchanged: [
