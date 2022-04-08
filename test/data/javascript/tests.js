@@ -755,6 +755,25 @@ exports.test_data = {
           output: 'a = f[{{s}}b{{s}}];'
         },
         {
+          comment: 'Issue #1151 - inside class methods',
+          input: [
+            'export default class Test extends Component {',
+            '    render() {',
+            '        someOther();',
+            '        return null;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'export default class Test extends Component {',
+            '    render({{e}}) {',
+            '        someOther({{e}});',
+            '        return null;',
+            '    }',
+            '}'
+          ]
+        },
+        {
           input: [
             '{',
             '    files: a[][ {',
