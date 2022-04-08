@@ -223,6 +223,7 @@ class Beautifier:
         enteringConditionalGroup = False
         insideAtExtend = False
         insideAtImport = False
+        insideScssMap = False
         topCharacter = self._ch
         insideNonSemiColonValues = False
 
@@ -270,7 +271,7 @@ class Beautifier:
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
-            elif self._ch == "@":
+            elif self._ch == "@" or self._ch == "$":
                 self.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
@@ -463,20 +464,39 @@ class Beautifier:
                 else:
                     self.preserveSingleSpace(isAfterSpace)
                     self.print_string(self._ch)
-                    self.eatWhitespace()
-                    parenLevel += 1
-                    self.indent()
+
+                    # handle scss/sass map
+                    if (
+                        insidePropertyValue
+                        and previous_ch == "$"
+                        and self._options.selector_separator_newline
+                    ):
+                        self._output.add_new_line()
+                        insideScssMap = True
+                    else:
+                        self.eatWhitespace()
+                        parenLevel += 1
+                        self.indent()
             elif self._ch == ")":
                 if parenLevel:
                     parenLevel -= 1
                     self.outdent()
+
+                if (
+                    insideScssMap
+                    and self._input.peek() == ";"
+                    and self._options.selector_separator_newline
+                ):
+                    insideScssMap = False
+                    self.outdent()
+                    self._output.add_new_line()
                 self.print_string(self._ch)
             elif self._ch == ",":
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
                 if (
                     self._options.selector_separator_newline
-                    and not insidePropertyValue
+                    and (not insidePropertyValue or insideScssMap)
                     and parenLevel == 0
                     and not insideAtImport
                     and not insideAtExtend

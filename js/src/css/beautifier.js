@@ -194,6 +194,7 @@ Beautifier.prototype.beautify = function() {
   var enteringConditionalGroup = false;
   var insideAtExtend = false;
   var insideAtImport = false;
+  var insideScssMap = false;
   var topCharacter = this._ch;
   var insideNonSemiColonValues = false;
   var whitespace;
@@ -247,7 +248,7 @@ Beautifier.prototype.beautify = function() {
 
       // Ensures any new lines following the comment are preserved
       this.eatWhitespace(true);
-    } else if (this._ch === '@') {
+    } else if (this._ch === '@' || this._ch === '$') {
       this.preserveSingleSpace(isAfterSpace);
 
       // deal with less propery mixins @{...}
@@ -444,20 +445,32 @@ Beautifier.prototype.beautify = function() {
       } else {
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
-        this.eatWhitespace();
-        parenLevel++;
-        this.indent();
+
+        // handle scss/sass map
+        if (insidePropertyValue && previous_ch === "$" && this._options.selector_separator_newline) {
+          this._output.add_new_line();
+          insideScssMap = true;
+        } else {
+          this.eatWhitespace();
+          parenLevel++;
+          this.indent();
+        }
       }
     } else if (this._ch === ')') {
       if (parenLevel) {
         parenLevel--;
         this.outdent();
       }
+      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
+        insideScssMap = false;
+        this.outdent();
+        this._output.add_new_line();
+      }
       this.print_string(this._ch);
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
+      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;

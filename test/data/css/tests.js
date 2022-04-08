@@ -1387,6 +1387,40 @@ exports.test_data = {
           unchanged: '&:first-of-type:not(:last-child) {}'
         },
         {
+          comment: "#1236 - maps standard",
+          unchanged: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps single line",
+          input: '$theme-colors:(primary: $blue,     secondary: "$gray-600");',
+          output: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "$gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps with functions",
+          input: [
+            '$maps:(x: 80px,     y: "something",    ',
+            'z: calc(10 + 10)',
+            ');'
+          ],
+          output: [
+            '$maps: (',
+            '    x: 80px,',
+            '    y: "something",',
+            '    z: calc(10 + 10)',
+            ');'
+          ]
+        },
+        {
           unchanged: [
             'div {',
             '    &:not(:first-of-type) {',
@@ -1459,6 +1493,9 @@ exports.test_data = {
           '    }',
           '}'
         ]
+      }, {
+        comment: "#1236 - SCSS/SASS Maps with selector_separator_newline = false",
+        unchanged: '$font-weights: ("regular": 400, "medium": 500, "bold": 700);'
       }, {
         unchanged: [
           '.fa-rotate-270 {',
