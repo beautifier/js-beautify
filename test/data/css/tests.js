@@ -1504,6 +1504,12 @@ exports.test_data = {
         ]
       }]
     }, {
+      name: "Issue #1798 - space after strings in preserved",
+      description: "",
+      tests: [{
+        unchanged: '@use "variables" as *;'
+      }]
+    }, {
       name: "Issue #1817",
       description: "",
       tests: [{
