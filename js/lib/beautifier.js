@@ -805,10 +805,10 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     )) {
     // We don't support TypeScript,but we didn't break it for a very long time.
     // We'll try to keep not breaking it.
-    if (!in_array(this._last_last_text, ['class', 'interface'])) {
-      this.set_mode(MODE.ObjectLiteral);
-    } else {
+    if (in_array(this._last_last_text, ['class', 'interface']) && !in_array(second_token.text, [':', ','])) {
       this.set_mode(MODE.BlockStatement);
+    } else {
+      this.set_mode(MODE.ObjectLiteral);
     }
   } else if (this._flags.last_token.type === TOKEN.OPERATOR && this._flags.last_token.text === '=>') {
     // arrow function: (param1, paramN) => { statements }
@@ -924,7 +924,7 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.type === TOKEN.RESERVED) {
     if (in_array(current_token.text, ['set', 'get']) && this._flags.mode !== MODE.ObjectLiteral) {
       current_token.type = TOKEN.WORD;
-    } else if (current_token.text === 'import' && this._tokens.peek().text === '(') {
+    } else if (current_token.text === 'import' && in_array(this._tokens.peek().text, ['(', '.'])) {
       current_token.type = TOKEN.WORD;
     } else if (in_array(current_token.text, ['as', 'from']) && !this._flags.import_block) {
       current_token.type = TOKEN.WORD;
@@ -2502,7 +2502,7 @@ var digit = /[0-9]/;
 var dot_pattern = /[^\d\.]/;
 
 var positionable_operators = (
-  ">>> === !== " +
+  ">>> === !== &&= ??= ||= " +
   "<< && >= ** != == <= >> || ?? |> " +
   "< / - + > : & % ? ^ | *").split(' ');
 
@@ -2510,7 +2510,7 @@ var positionable_operators = (
 // Also, you must update possitionable operators separately from punct
 var punct =
   ">>>= " +
-  "... >>= <<= === >>> !== **= " +
+  "... >>= <<= === >>> !== **= &&= ??= ||= " +
   "=> ^= :: /= << <= == && -= >= >> != -- += ** || ?? ++ %= &= *= |= |> " +
   "= ! ? > < : / ^ - + * & % ~ |";
 
@@ -4039,6 +4039,9 @@ function Beautifier(source_text, options) {
     "@supports": true,
     "@document": true
   };
+  this.NON_SEMICOLON_NEWLINE_PROPERTY = [
+    "grid-template"
+  ];
 
 }
 
@@ -4163,7 +4166,9 @@ Beautifier.prototype.beautify = function() {
   var enteringConditionalGroup = false;
   var insideAtExtend = false;
   var insideAtImport = false;
+  var insideScssMap = false;
   var topCharacter = this._ch;
+  var insideNonSemiColonValues = false;
   var whitespace;
   var isAfterSpace;
   var previous_ch;
@@ -4215,7 +4220,7 @@ Beautifier.prototype.beautify = function() {
 
       // Ensures any new lines following the comment are preserved
       this.eatWhitespace(true);
-    } else if (this._ch === '@') {
+    } else if (this._ch === '@' || this._ch === '$') {
       this.preserveSingleSpace(isAfterSpace);
 
       // deal with less propery mixins @{...}
@@ -4286,7 +4291,12 @@ Beautifier.prototype.beautify = function() {
         this.indent();
         this._output.set_indent(this._indentLevel);
       } else {
-        this.indent();
+        // inside mixin and first param is object
+        if (previous_ch === '(') {
+          this._output.space_before_token = false;
+        } else if (previous_ch !== ',') {
+          this.indent();
+        }
         this.print_string(this._ch);
       }
 
@@ -4318,7 +4328,21 @@ Beautifier.prototype.beautify = function() {
           this._output.add_new_line(true);
         }
       }
+      if (this._input.peek() === ')') {
+        this._output.trim(true);
+        if (this._options.brace_style === "expand") {
+          this._output.add_new_line(true);
+        }
+      }
     } else if (this._ch === ":") {
+
+      for (var i = 0; i < this.NON_SEMICOLON_NEWLINE_PROPERTY.length; i++) {
+        if (this._input.lookBack(this.NON_SEMICOLON_NEWLINE_PROPERTY[i])) {
+          insideNonSemiColonValues = true;
+          break;
+        }
+      }
+
       if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
@@ -4351,6 +4375,7 @@ Beautifier.prototype.beautify = function() {
       this.print_string(this._ch + this.eatString(this._ch));
       this.eatWhitespace(true);
     } else if (this._ch === ';') {
+      insideNonSemiColonValues = false;
       if (parenLevel === 0) {
         if (insidePropertyValue) {
           this.outdent();
@@ -4392,20 +4417,32 @@ Beautifier.prototype.beautify = function() {
       } else {
         this.preserveSingleSpace(isAfterSpace);
         this.print_string(this._ch);
-        this.eatWhitespace();
-        parenLevel++;
-        this.indent();
+
+        // handle scss/sass map
+        if (insidePropertyValue && previous_ch === "$" && this._options.selector_separator_newline) {
+          this._output.add_new_line();
+          insideScssMap = true;
+        } else {
+          this.eatWhitespace();
+          parenLevel++;
+          this.indent();
+        }
       }
     } else if (this._ch === ')') {
       if (parenLevel) {
         parenLevel--;
         this.outdent();
       }
+      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
+        insideScssMap = false;
+        this.outdent();
+        this._output.add_new_line();
+      }
       this.print_string(this._ch);
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && !insidePropertyValue && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
+      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;
@@ -4439,8 +4476,13 @@ Beautifier.prototype.beautify = function() {
       this.print_string(' ');
       this.print_string(this._ch);
     } else {
-      this.preserveSingleSpace(isAfterSpace);
+      var preserveAfterSpace = previous_ch === '"' || previous_ch === '\'';
+      this.preserveSingleSpace(preserveAfterSpace || isAfterSpace);
       this.print_string(this._ch);
+
+      if (!this._output.just_added_newline() && this._input.peek() === '\n' && insideNonSemiColonValues) {
+        this._output.add_new_line();
+      }
     }
   }
 

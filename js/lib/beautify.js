@@ -836,10 +836,10 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     )) {
     // We don't support TypeScript,but we didn't break it for a very long time.
     // We'll try to keep not breaking it.
-    if (!in_array(this._last_last_text, ['class', 'interface'])) {
-      this.set_mode(MODE.ObjectLiteral);
-    } else {
+    if (in_array(this._last_last_text, ['class', 'interface']) && !in_array(second_token.text, [':', ','])) {
       this.set_mode(MODE.BlockStatement);
+    } else {
+      this.set_mode(MODE.ObjectLiteral);
     }
   } else if (this._flags.last_token.type === TOKEN.OPERATOR && this._flags.last_token.text === '=>') {
     // arrow function: (param1, paramN) => { statements }
@@ -955,7 +955,7 @@ Beautifier.prototype.handle_word = function(current_token) {
   if (current_token.type === TOKEN.RESERVED) {
     if (in_array(current_token.text, ['set', 'get']) && this._flags.mode !== MODE.ObjectLiteral) {
       current_token.type = TOKEN.WORD;
-    } else if (current_token.text === 'import' && this._tokens.peek().text === '(') {
+    } else if (current_token.text === 'import' && in_array(this._tokens.peek().text, ['(', '.'])) {
       current_token.type = TOKEN.WORD;
     } else if (in_array(current_token.text, ['as', 'from']) && !this._flags.import_block) {
       current_token.type = TOKEN.WORD;
@@ -2533,7 +2533,7 @@ var digit = /[0-9]/;
 var dot_pattern = /[^\d\.]/;
 
 var positionable_operators = (
-  ">>> === !== " +
+  ">>> === !== &&= ??= ||= " +
   "<< && >= ** != == <= >> || ?? |> " +
   "< / - + > : & % ? ^ | *").split(' ');
 
@@ -2541,7 +2541,7 @@ var positionable_operators = (
 // Also, you must update possitionable operators separately from punct
 var punct =
   ">>>= " +
-  "... >>= <<= === >>> !== **= " +
+  "... >>= <<= === >>> !== **= &&= ??= ||= " +
   "=> ^= :: /= << <= == && -= >= >> != -- += ** || ?? ++ %= &= *= |= |> " +
   "= ! ? > < : / ^ - + * & % ~ |";
 

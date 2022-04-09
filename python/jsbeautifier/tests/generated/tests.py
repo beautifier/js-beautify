@@ -1140,6 +1140,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
+        
+        # Issue #1151 - inside class methods
+        bt(
+            'export default class Test extends Component {\n' +
+            '    render() {\n' +
+            '        someOther();\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '}')
         bt(
             '{\n' +
             '    files: a[][ {\n' +
@@ -1190,6 +1199,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [b, c, d];')
         bt('a= f[b];', 'a = f[b];')
+        
+        # Issue #1151 - inside class methods
+        bt(
+            'export default class Test extends Component {\n' +
+            '    render() {\n' +
+            '        someOther();\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '}')
         bt(
             '{\n' +
             '    files: a[][ {\n' +
@@ -1240,6 +1258,15 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=()(    )[  ];', 'a = ()()[];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
+        
+        # Issue #1151 - inside class methods
+        bt(
+            'export default class Test extends Component {\n' +
+            '    render() {\n' +
+            '        someOther();\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '}')
         bt(
             '{\n' +
             '    files: a[][ {\n' +
@@ -1290,6 +1317,22 @@ class TestJSBeautifier(unittest.TestCase):
         bt('a=()(    )[  ];', 'a = ( )( )[ ];')
         bt('a=[b,c,d];', 'a = [ b, c, d ];')
         bt('a= f[b];', 'a = f[ b ];')
+        
+        # Issue #1151 - inside class methods
+        bt(
+            'export default class Test extends Component {\n' +
+            '    render() {\n' +
+            '        someOther();\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'export default class Test extends Component {\n' +
+            '    render( ) {\n' +
+            '        someOther( );\n' +
+            '        return null;\n' +
+            '    }\n' +
+            '}')
         bt(
             '{\n' +
             '    files: a[][ {\n' +
@@ -2998,6 +3041,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
         bt(
             'var res = a + b\n' +
@@ -3029,6 +3075,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3037,6 +3084,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
 
         # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""before-newline"", preserve_newlines = "false")
@@ -3049,6 +3099,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
         bt(
             'var res = a + b\n' +
@@ -3080,6 +3133,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3088,6 +3142,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
 
         # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""after-newline"", preserve_newlines = "false")
@@ -3100,6 +3157,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
         bt(
             'var res = a + b\n' +
@@ -3131,6 +3191,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3139,6 +3200,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
 
         # operator_position option - ensure no newlines if preserve_newlines is false - (operator_position = ""preserve-newline"", preserve_newlines = "false")
@@ -3151,6 +3215,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
         bt(
             'var res = a + b\n' +
@@ -3182,6 +3249,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3190,6 +3258,9 @@ class TestJSBeautifier(unittest.TestCase):
             'var res = (k && l || m) ? n ?? nn : o;\n' +
             'var res = p >> q << r >>> s;\n' +
             'var res = t === u !== v != w == x >= y <= z > aa < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac + -ad')
 
 
@@ -3228,6 +3299,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3257,6 +3329,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    x >=\n' +
             '    y <= z > aa <\n' +
             '    ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac +\n' +
             '    -ad')
         
@@ -3353,6 +3428,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3382,6 +3458,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    x >=\n' +
             '    y <= z > aa <\n' +
             '    ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac +\n' +
             '    -ad')
         
@@ -3480,6 +3559,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3508,6 +3588,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    == x\n' +
             '    >= y <= z > aa\n' +
             '    < ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac\n' +
             '    + -ad')
         
@@ -3606,6 +3689,7 @@ class TestJSBeautifier(unittest.TestCase):
             '== x >=\n' +
             'y <= z > aa <\n' +
             'ab;\n' +
+            'res??=a;res||=b;res&&=c;\n' +
             'ac +\n' +
             '-ad',
             #  -- output --
@@ -3636,6 +3720,9 @@ class TestJSBeautifier(unittest.TestCase):
             '    == x >=\n' +
             '    y <= z > aa <\n' +
             '    ab;\n' +
+            'res ??= a;\n' +
+            'res ||= b;\n' +
+            'res &&= c;\n' +
             'ac +\n' +
             '    -ad')
         
@@ -6312,6 +6399,61 @@ class TestJSBeautifier(unittest.TestCase):
             '    \n' +
             '    */\n' +
             '}')
+        
+        # #1838 - handle class and interface word as an object property
+        bt(
+            '{\n' +
+            '    class: {\n' +
+            '        a: 1,\n' +
+            '        b: 2,\n' +
+            '        c: 3,\n' +
+            '    }\n' +
+            '    interface: {\n' +
+            '        a: 1,\n' +
+            '        b: 2,\n' +
+            '        c: 3,\n' +
+            '    }\n' +
+            '}')
+        
+        # #1838 - handle class word as an object property but with space after colon
+        bt(
+            '{\n' +
+            '    class : { a: 1,\n' +
+            'b: 2,c : 3\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            '{\n' +
+            '    class: {\n' +
+            '        a: 1,\n' +
+            '        b: 2,\n' +
+            '        c: 3\n' +
+            '    }\n' +
+            '}')
+        
+        # #1838 - handle class word as an object property but without spaces
+        bt(
+            '{class:{a:1,b:2,c:3,}}',
+            #  -- output --
+            '{\n' +
+            '    class: {\n' +
+            '        a: 1,\n' +
+            '        b: 2,\n' +
+            '        c: 3,\n' +
+            '    }\n' +
+            '}')
+        
+        # #1838 - handle class word as a nested object property
+        bt(
+            '{x:{a:1,class:2,c:3,}}',
+            #  -- output --
+            '{\n' +
+            '    x: {\n' +
+            '        a: 1,\n' +
+            '        class: 2,\n' +
+            '        c: 3,\n' +
+            '    }\n' +
+            '}')
         bt(
             'obj\n' +
             '    .last(a, function() {\n' +
@@ -7354,6 +7496,9 @@ class TestJSBeautifier(unittest.TestCase):
         
         # Issue #1197 - dynamic import() arrow syntax
         bt('frontend = Async(() => import("../frontend").then(m => m.default      ))', 'frontend = Async(() => import("../frontend").then(m => m.default))')
+        
+        # Issue #1978 - import.meta syntax support
+        bt('let       x =      import.meta', 'let x = import.meta')
         
         # Issue 858 - from is a keyword only after import
         bt(

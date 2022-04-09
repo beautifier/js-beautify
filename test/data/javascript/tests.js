@@ -755,6 +755,25 @@ exports.test_data = {
           output: 'a = f[{{s}}b{{s}}];'
         },
         {
+          comment: 'Issue #1151 - inside class methods',
+          input: [
+            'export default class Test extends Component {',
+            '    render() {',
+            '        someOther();',
+            '        return null;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'export default class Test extends Component {',
+            '    render({{e}}) {',
+            '        someOther({{e}});',
+            '        return null;',
+            '    }',
+            '}'
+          ]
+        },
+        {
           input: [
             '{',
             '    files: a[][ {',
@@ -1805,6 +1824,9 @@ exports.test_data = {
           '    x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -1878,6 +1900,9 @@ exports.test_data = {
           '    == x',
           '    >= y <= z > aa',
           '    < ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac',
           '    + -ad'
         ]
@@ -1953,6 +1978,9 @@ exports.test_data = {
           '    == x >=',
           '    y <= z > aa <',
           '    ab;',
+          'res ??= a;',
+          'res ||= b;',
+          'res &&= c;',
           'ac +',
           '    -ad'
         ]
@@ -3285,6 +3313,68 @@ exports.test_data = {
           ]
         },
         {
+          comment: "#1838 - handle class and interface word as an object property",
+          unchanged: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '    interface: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but with space after colon",
+          input: [
+            '{',
+            '    class : { a: 1,',
+            'b: 2,c : 3',
+            '    }',
+            '}'
+          ],
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but without spaces",
+          input: '{class:{a:1,b:2,c:3,}}',
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as a nested object property",
+          input: '{x:{a:1,class:2,c:3,}}',
+          output: [
+            '{',
+            '    x: {',
+            '        a: 1,',
+            '        class: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
           unchanged: [
             'obj',
             '    .last(a, function() {',
@@ -4401,6 +4491,11 @@ exports.test_data = {
           comment: "Issue #1197 - dynamic import() arrow syntax",
           input: 'frontend = Async(() => import("../frontend").then(m => m.default      ))',
           output: 'frontend = Async(() => import("../frontend").then(m => m.default))'
+        },
+        {
+          comment: "Issue #1978 - import.meta syntax support",
+          input: 'let       x =      import.meta',
+          output: 'let x = import.meta'
         },
         {
           comment: "Issue 858 - from is a keyword only after import",

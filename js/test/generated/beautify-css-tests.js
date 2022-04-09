@@ -10567,9 +10567,8 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '}\n' +
             '.set {\n' +
             '    each(@set, {\n' +
-            '            @{key}-@{index}: @value;\n' +
-            '        }\n' +
-            '    );\n' +
+            '        @{key}-@{index}: @value;\n' +
+            '    });\n' +
             '}');
         t('@light-blue: @nice-blue + #111;');
 
@@ -10595,6 +10594,34 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
         
         // Multiple filed issues in LESS due to not(:blah)
         t('&:first-of-type:not(:last-child) {}');
+        
+        // #1236 - maps standard
+        t(
+            '$theme-colors: (\n' +
+            '    primary: $blue,\n' +
+            '    secondary: "gray-600"\n' +
+            ');');
+        
+        // #1236 - maps single line
+        t(
+            '$theme-colors:(primary: $blue,     secondary: "$gray-600");',
+            //  -- output --
+            '$theme-colors: (\n' +
+            '    primary: $blue,\n' +
+            '    secondary: "$gray-600"\n' +
+            ');');
+        
+        // #1236 - maps with functions
+        t(
+            '$maps:(x: 80px,     y: "something",    \n' +
+            'z: calc(10 + 10)\n' +
+            ');',
+            //  -- output --
+            '$maps: (\n' +
+            '    x: 80px,\n' +
+            '    y: "something",\n' +
+            '    z: calc(10 + 10)\n' +
+            ');');
         t(
             'div {\n' +
             '    &:not(:first-of-type) {\n' +
@@ -10661,9 +10688,53 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '        /* property: value */\n' +
             '    }\n' +
             '}');
+        
+        // #1236 - SCSS/SASS Maps with selector_separator_newline = false
+        t('$font-weights: ("regular": 400, "medium": 500, "bold": 700);');
         t(
             '.fa-rotate-270 {\n' +
             '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
+            '}');
+
+
+        //============================================================
+        // Issue #1798 - space after strings in preserved
+        reset_options();
+        set_name('Issue #1798 - space after strings in preserved');
+        t('@use "variables" as *;');
+
+
+        //============================================================
+        // Issue #1817
+        reset_options();
+        set_name('Issue #1817');
+        
+        // ensure that properties that are expected to have multiline values persist new lines
+        t(
+            '.grid {\n' +
+            '    grid-template:\n' +
+            '        "top-bar top-bar" 100px\n' +
+            '        "left-bar center" 100px;\n' +
+            '}');
+        
+        // property values that have string followed by other identifiers should persist spacing
+        t(
+            '.grid {grid-template: "top-bar" 100px;}',
+            //  -- output --
+            '.grid {\n' +
+            '    grid-template: "top-bar" 100px;\n' +
+            '}');
+        t(
+            'div {\n' +
+            'grid-template: "a a a" 20%\n' +
+            ' [main-top] "b b b" 1fr\n' +
+            '                    "b b b" auto;\n' +
+            '}',
+            //  -- output --
+            'div {\n' +
+            '    grid-template: "a a a" 20%\n' +
+            '        [main-top] "b b b" 1fr\n' +
+            '        "b b b" auto;\n' +
             '}');
 
 
@@ -10893,6 +10964,18 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '    width: auto;\n' +
             '}');
         
+        // mixins call with object notation, and brace_style="expand"
+        t(
+            '.example({\n' +
+            '    color:red;\n' +
+            '});',
+            //  -- output --
+            '.example(\n' +
+            '    {\n' +
+            '        color:red;\n' +
+            '    }\n' +
+            ');');
+        
         // integration test of newline_between_rules, imports, and brace_style="expand"
         t(
             '.a{} @import "custom.css";.rule{}',
@@ -10937,6 +11020,18 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '    \n    width: auto;\n' +
             '}');
         
+        // mixins call with object notation, and brace_style="expand"
+        t(
+            '.example({\n' +
+            '    color:red;\n' +
+            '});',
+            //  -- output --
+            '.example(\n' +
+            '    {\n' +
+            '        color:red;\n' +
+            '    }\n' +
+            ');');
+        
         // integration test of newline_between_rules, imports, and brace_style="expand"
         t(
             '.a{} @import "custom.css";.rule{}',
@@ -10979,6 +11074,18 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             '\n    width: auto;\n' +
             '}');
         
+        // mixins call with object notation, and brace_style="expand"
+        t(
+            '.example({\n' +
+            '    color:red;\n' +
+            '});',
+            //  -- output --
+            '.example(\n' +
+            '    {\n' +
+            '        color:red;\n' +
+            '    }\n' +
+            ');');
+        
         // integration test of newline_between_rules, imports, and brace_style="expand"
         t(
             '.a{} @import "custom.css";.rule{}',
@@ -11004,6 +11111,29 @@ function run_css_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_bea
             'strong {\n' +
             '    &:extend(a:hover);\n' +
             '}');
+        t(
+            '.test {\n' +
+            '    .example({\n' +
+            '        color:red;\n' +
+            '    });\n' +
+            '}');
+        t(
+            '.example2({\n' +
+            '    display:none;\n' +
+            '});');
+        t(
+            '.aa {\n' +
+            '    .mq-medium(a, {\n' +
+            '        background: red;\n' +
+            '    });\n' +
+            '}');
+        t(
+            '@selectors: blue, green, red;\n' +
+            'each(@selectors, {\n' +
+            '    .sel-@{value} {\n' +
+            '        a: b;\n' +
+            '    }\n' +
+            '});');
         
         // Ensure simple closing parens do not break behavior
         t(

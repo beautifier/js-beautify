@@ -119,6 +119,7 @@ class Beautifier:
             "@document",
         }
         self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
+        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template"]
 
     def eatString(self, endChars):
         result = ""
@@ -222,7 +223,9 @@ class Beautifier:
         enteringConditionalGroup = False
         insideAtExtend = False
         insideAtImport = False
+        insideScssMap = False
         topCharacter = self._ch
+        insideNonSemiColonValues = False
 
         while True:
             whitespace = self._input.read(whitespacePattern)
@@ -268,7 +271,7 @@ class Beautifier:
 
                 # Ensures any new lines following the comment are preserved
                 self.eatWhitespace(True)
-            elif self._ch == "@":
+            elif self._ch == "@" or self._ch == "$":
                 self.preserveSingleSpace(isAfterSpace)
 
                 # deal with less propery mixins @{...}
@@ -343,7 +346,11 @@ class Beautifier:
                     self.indent()
                     self._output.set_indent(self._indentLevel)
                 else:
-                    self.indent()
+                    # inside mixin and first param is object
+                    if previous_ch == "(":
+                        self._output.space_before_token = False
+                    elif previous_ch != ",":
+                        self.indent()
                     self.print_string(self._ch)
 
                 self.eatWhitespace(True)
@@ -372,7 +379,17 @@ class Beautifier:
                 ):
                     if self._input.peek() != "}":
                         self._output.add_new_line(True)
+                if self._input.peek() == ")":
+                    self._output.trim(True)
+                    if self._options.brace_style == "expand":
+                        self._output.add_new_line(True)
             elif self._ch == ":":
+
+                for i in range(0, len(self.NON_SEMICOLON_NEWLINE_PROPERTY)):
+                    if self._input.lookBack(self.NON_SEMICOLON_NEWLINE_PROPERTY[i]):
+                        insideNonSemiColonValues = True
+                        break
+
                 if (
                     (insideRule or enteringConditionalGroup)
                     and not (self._input.lookBack("&") or self.foundNestedPseudoClass())
@@ -409,6 +426,7 @@ class Beautifier:
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ";":
+                insideNonSemiColonValues = False
                 if parenLevel == 0:
                     if insidePropertyValue:
                         self.outdent()
@@ -446,20 +464,39 @@ class Beautifier:
                 else:
                     self.preserveSingleSpace(isAfterSpace)
                     self.print_string(self._ch)
-                    self.eatWhitespace()
-                    parenLevel += 1
-                    self.indent()
+
+                    # handle scss/sass map
+                    if (
+                        insidePropertyValue
+                        and previous_ch == "$"
+                        and self._options.selector_separator_newline
+                    ):
+                        self._output.add_new_line()
+                        insideScssMap = True
+                    else:
+                        self.eatWhitespace()
+                        parenLevel += 1
+                        self.indent()
             elif self._ch == ")":
                 if parenLevel:
                     parenLevel -= 1
                     self.outdent()
+
+                if (
+                    insideScssMap
+                    and self._input.peek() == ";"
+                    and self._options.selector_separator_newline
+                ):
+                    insideScssMap = False
+                    self.outdent()
+                    self._output.add_new_line()
                 self.print_string(self._ch)
             elif self._ch == ",":
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
                 if (
                     self._options.selector_separator_newline
-                    and not insidePropertyValue
+                    and (not insidePropertyValue or insideScssMap)
                     and parenLevel == 0
                     and not insideAtImport
                     and not insideAtExtend
@@ -499,8 +536,16 @@ class Beautifier:
                 self.print_string(" ")
                 self.print_string(self._ch)
             else:
-                self.preserveSingleSpace(isAfterSpace)
+                preserveAfterSpace = previous_ch == '"' or previous_ch == "'"
+                self.preserveSingleSpace(preserveAfterSpace or isAfterSpace)
                 self.print_string(self._ch)
+
+                if (
+                    not self._output.just_added_newline()
+                    and self._input.peek() == "\n"
+                    and insideNonSemiColonValues
+                ):
+                    self._output.add_new_line()
 
         sweet_code = self._output.get_code(self._options.eol)
 
