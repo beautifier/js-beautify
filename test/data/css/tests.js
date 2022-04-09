@@ -1360,9 +1360,8 @@ exports.test_data = {
             '}',
             '.set {',
             '    each(@set, {',
-            '            @{key}-@{index}: @value;',
-            '        }',
-            '    );',
+            '        @{key}-@{index}: @value;',
+            '    });',
             '}'
           ]
         },
@@ -1386,6 +1385,40 @@ exports.test_data = {
         {
           comment: "Multiple filed issues in LESS due to not(:blah)",
           unchanged: '&:first-of-type:not(:last-child) {}'
+        },
+        {
+          comment: "#1236 - maps standard",
+          unchanged: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps single line",
+          input: '$theme-colors:(primary: $blue,     secondary: "$gray-600");',
+          output: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "$gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps with functions",
+          input: [
+            '$maps:(x: 80px,     y: "something",    ',
+            'z: calc(10 + 10)',
+            ');'
+          ],
+          output: [
+            '$maps: (',
+            '    x: 80px,',
+            '    y: "something",',
+            '    z: calc(10 + 10)',
+            ');'
+          ]
         },
         {
           unchanged: [
@@ -1461,9 +1494,56 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: "#1236 - SCSS/SASS Maps with selector_separator_newline = false",
+        unchanged: '$font-weights: ("regular": 400, "medium": 500, "bold": 700);'
+      }, {
         unchanged: [
           '.fa-rotate-270 {',
           '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
+          '}'
+        ]
+      }]
+    }, {
+      name: "Issue #1798 - space after strings in preserved",
+      description: "",
+      tests: [{
+        unchanged: '@use "variables" as *;'
+      }]
+    }, {
+      name: "Issue #1817",
+      description: "",
+      tests: [{
+        comment: "ensure that properties that are expected to have multiline values persist new lines",
+        unchanged: [
+          '.grid {',
+          '    grid-template:',
+          '        "top-bar top-bar" 100px',
+          '        "left-bar center" 100px;',
+          '}'
+        ]
+      }, {
+        comment: "property values that have string followed by other identifiers should persist spacing",
+        input: [
+          '.grid {grid-template: "top-bar" 100px;}'
+        ],
+        output: [
+          '.grid {',
+          '    grid-template: "top-bar" 100px;',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template: "a a a" 20%',
+          ' [main-top] "b b b" 1fr',
+          '                    "b b b" auto;',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template: "a a a" 20%',
+          '        [main-top] "b b b" 1fr',
+          '        "b b b" auto;',
           '}'
         ]
       }]
@@ -1733,6 +1813,20 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: 'mixins call with object notation, and brace_style="expand"',
+        input: [
+          '.example({',
+          '    color:red;',
+          '});'
+        ],
+        output: [
+          '.example(',
+          '    {',
+          '        color:red;',
+          '    }',
+          ');'
+        ]
+      }, {
         comment: 'integration test of newline_between_rules, imports, and brace_style="expand"',
         input: '.a{} @import "custom.css";.rule{}',
         output: [
@@ -1757,6 +1851,37 @@ exports.test_data = {
           'strong {',
           '    &:extend(a:hover);',
           '}'
+        ]
+      }, {
+        unchanged: [
+          '.test {',
+          '    .example({',
+          '        color:red;',
+          '    });',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '.example2({',
+          '    display:none;',
+          '});'
+        ]
+      }, {
+        unchanged: [
+          '.aa {',
+          '    .mq-medium(a, {',
+          '        background: red;',
+          '    });',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '@selectors: blue, green, red;',
+          'each(@selectors, {',
+          '    .sel-@{value} {',
+          '        a: b;',
+          '    }',
+          '});'
         ]
       }, {
         comment: 'Ensure simple closing parens do not break behavior',
