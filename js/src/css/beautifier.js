@@ -73,6 +73,20 @@ function Beautifier(source_text, options) {
 
 }
 
+Beautifier.prototype._lookBack = function(testVal) {
+  var go_back_space = testVal.length;
+
+  var j = 0;
+  for (var i = go_back_space + 1; i > go_back_space; i--) {
+    var text = this._input.peek(-i);
+    if(text === null || text.toLowerCase() !== testVal[j]) {
+      return false;
+    }
+    j += 1;
+  }
+  return true;
+};
+
 Beautifier.prototype.eatString = function(endChars) {
   var result = '';
   this._ch = this._input.next();
@@ -365,13 +379,13 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ":") {
 
       for (var i = 0; i < this.NON_SEMICOLON_NEWLINE_PROPERTY.length; i++) {
-        if (this._input.lookBack(this.NON_SEMICOLON_NEWLINE_PROPERTY[i])) {
+        if (this._lookBack(this.NON_SEMICOLON_NEWLINE_PROPERTY[i])) {
           insideNonSemiColonValues = true;
           break;
         }
       }
 
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
+      if ((insideRule || enteringConditionalGroup) && !(this._lookBack("&") || this.foundNestedPseudoClass()) && !this._lookBack("(") && !insideAtExtend && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');
@@ -386,7 +400,7 @@ Beautifier.prototype.beautify = function() {
         // sass nested pseudo-class don't use a space
 
         // preserve space before pseudoclasses/pseudoelements, as it means "in any child"
-        if (this._input.lookBack(" ")) {
+        if (this._lookBack(" ")) {
           this._output.space_before_token = true;
         }
         if (this._input.peek() === ":") {
@@ -427,7 +441,7 @@ Beautifier.prototype.beautify = function() {
         this._output.space_before_token = true;
       }
     } else if (this._ch === '(') { // may be a url
-      if (this._input.lookBack("url")) {
+      if (this._lookBack("url")) {
         this.print_string(this._ch);
         this.eatWhitespace();
         parenLevel++;
@@ -500,7 +514,7 @@ Beautifier.prototype.beautify = function() {
       if (whitespaceChar.test(this._ch)) {
         this._ch = '';
       }
-    } else if (this._ch === '!' && !this._input.lookBack("\\")) { // !important
+    } else if (this._ch === '!' && !this._lookBack("\\")) { // !important
       this.print_string(' ');
       this.print_string(this._ch);
     } else {
