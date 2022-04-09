@@ -87,6 +87,25 @@ Beautifier.prototype._lookBack = function(testVal) {
   return true;
 };
 
+Beautifier.prototype._peekUntilAfter = function(pattern) {
+
+  var i = 0;
+  var resulting_string = '';
+
+  var ch = this._input.peek(i);
+  while (ch) {
+    resulting_string += ch;
+    if(pattern.test(ch)) {
+      break;
+    }
+
+    i += 1;
+    ch = this._input.peek(i);
+  }
+  return resulting_string;
+};
+
+
 Beautifier.prototype.eatString = function(endChars) {
   var result = '';
   this._ch = this._input.next();
@@ -272,7 +291,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
 
         // strip trailing space, if present, for hash property checks
-        var variableOrRule = this._input.peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
+        var variableOrRule = this._peekUntilAfter(/[: ,;{}()[\]\/='"]/g);
 
         if (variableOrRule.match(/[ :]$/)) {
           // we have a variable or pseudo-class, add it and insert one space before continuing
