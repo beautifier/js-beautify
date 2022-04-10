@@ -97,6 +97,7 @@ var path = require('path'),
         "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
         "space_around_combinator": Boolean,
+        "separate_CSS_selectors": Boolean,
         //deprecated - replaced with space_around_combinator, remove in future version
         "space_around_selector_separator": Boolean,
         // HTML-only
@@ -180,6 +181,7 @@ var path = require('path'),
         // no shorthand for "editorconfig"
         // no shorthand for "indent_empty_lines"
         // not shorthad for "templating"
+        // no shorthand for "separate_CSS_selectors"
     });
 
 function verifyExists(fullPath) {

@@ -323,6 +323,7 @@ CSS Beautifier Options:
   -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
   --indent-empty-lines               Keep indentation on empty lines
+  --separate_CSS_selectors           Add a space between CSS selectors
 
 HTML Beautifier Options:
   -s, --indent-size                  Indentation size [4]
