@@ -1821,7 +1821,25 @@ exports.test_data = {
         unchanged: 'p {\n    color: blue;\n}'
       }]
     }, {
-
+      name: "Issue #1862 -- separate_CSS_selectors option adds space between CSS selectors if true",
+      options: [
+        { name: "separate_CSS_selectors", value: "true" }
+      ],
+      description: "",
+      tests: [{
+        input: '#main,#section,a {\n    color: blue;\n}',
+        output: '#main, #section, a {\n    color: blue;\n}'
+      }]
+    }, {
+      name: "Issue #1862 -- separate_CSS_selectors option adds space between CSS selectors if false",
+      options: [
+        { name: "separate_CSS_selectors", value: "false" }
+      ],
+      description: "",
+      tests: [{
+        input: '#main,#section,a {\n    color: blue;\n}',
+        output: '#main,\n#section,\na {\n    color: blue;\n}'
+      }]
     }
   ]
 };

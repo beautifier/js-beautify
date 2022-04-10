@@ -58,3 +58,5 @@ class BeautifierOptions(BaseOptions):
             or space_around_selector_separator
         )
         self.keep_quiet = False
+
+        self.separate_CSS_selectors = self._get_boolean("separate_CSS_selectors")

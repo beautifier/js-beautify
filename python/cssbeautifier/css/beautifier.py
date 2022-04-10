@@ -463,6 +463,7 @@ class Beautifier:
                     and parenLevel == 0
                     and not insideAtImport
                     and not insideAtExtend
+                    and not self._options.separate_CSS_selectors
                 ):
                     self._output.add_new_line()
                 else:
