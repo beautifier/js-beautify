@@ -62,6 +62,11 @@ Tokenizer.prototype.tokenize = function() {
 
   while (previous.type !== TOKEN.EOF) {
     current = this._get_next_token(previous, open_token);
+    // returning the same token means we're iterating on the previous token 
+    if (current === previous) {
+      continue;
+    }
+
     while (this._is_comment(current)) {
       comments.add(current);
       current = this._get_next_token(previous, open_token);

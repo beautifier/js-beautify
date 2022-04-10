@@ -32,6 +32,12 @@ var Options = require('./options').Options;
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Directives = require('../core/directives').Directives;
+// var Token = require('../core/token').Token;
+var Tokenizer = require('./tokenizer').Tokenizer;
+var lineBreak = require('./tokenizer').lineBreak;
+var allLineBreaks = require('./tokenizer').allLineBreaks;
+
+var TOKEN = require('./tokenizer').TOKEN;
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
@@ -73,6 +79,8 @@ function Beautifier(source_text, options) {
 
 }
 
+
+
 Beautifier.prototype.eatString = function(endChars) {
   var result = '';
   this._ch = this._input.next();
@@ -107,7 +115,7 @@ Beautifier.prototype.eatWhitespace = function(allowAtLeastOneNewLine) {
   return result;
 };
 
-// Nested pseudo-class if we are insideRule
+// Nested pseudo-class if we are this._insideRule
 // and the next special character found opens
 // a new block
 Beautifier.prototype.foundNestedPseudoClass = function() {
@@ -158,12 +166,40 @@ Beautifier.prototype.outdent = function() {
 
 /*_____________________--------------------_____________________*/
 
+Beautifier.prototype._reset = function(source_text) {
+  // reset
+  var baseIndentString = source_text.match(/^[\t ]*/)[0];
+
+  this._output = new Output(this._options, baseIndentString);
+  var tokenizer = new Tokenizer(source_text, this._options);
+  this._tokens = tokenizer.tokenize();
+
+  this._indentLevel = 0;
+  this._nestedLevel = 0;
+
+  this._ch = null;
+  this._parenLevel = 0;
+
+  this._insideRule = false;
+  // This is the value side of a property value pair (blue in the following ex)
+  // label { content: blue }
+  this._insidePropertyValue = false;
+  this._enteringConditionalGroup = false;
+  this._insideAtExtend = false;
+  this._insideAtImport = false;
+  this._insideScssMap = false;
+  this._topCharacter = this._ch;
+  this._insideNonSemiColonValues = false;
+  return source_text;
+};
+
+
 Beautifier.prototype.beautify = function() {
   if (this._options.disabled) {
     return this._source_text;
   }
 
-  var source_text = this._source_text;
+  var source_text = this._reset(this._source_text);
   var eol = this._options.eol;
   if (eol === 'auto') {
     eol = '\n';
@@ -172,44 +208,54 @@ Beautifier.prototype.beautify = function() {
     }
   }
 
+  var current_token = this._tokens.next();
+  while (current_token) {
+    this.handle_token(current_token);
+    current_token = this._tokens.next();
+  }
 
+  var sweet_code = this._output.get_code(eol);
+
+  return sweet_code;
+};
+
+Beautifier.prototype.handle_token = function(current_token, preserve_statement_flags) {
+  if (current_token.type === TOKEN.LEGACY) {
+    this.handle_legacy(current_token);
+  } else if (current_token.type === TOKEN.EOF) {
+    this.handle_eof(current_token);
+  } else if (current_token.type === TOKEN.UNKNOWN) {
+    this.handle_unknown(current_token, preserve_statement_flags);
+  } else {
+    this.handle_unknown(current_token, preserve_statement_flags);
+  }
+};
+
+Beautifier.prototype.handle_whitespace_and_comments = function(current_token, preserve_statement_flags) {
+  // no-op for the moment
+  return !current_token && !preserve_statement_flags;
+};
+
+Beautifier.prototype.handle_legacy = function(current_token) {
   // HACK: newline parsing inconsistent. This brute force normalizes the this._input.
-  source_text = source_text.replace(allLineBreaks, '\n');
+  var source_text = current_token.text.replace(allLineBreaks, '\n');
 
   // reset
-  var baseIndentString = source_text.match(/^[\t ]*/)[0];
-
-  this._output = new Output(this._options, baseIndentString);
-  this._input = new InputScanner(source_text);
-  this._indentLevel = 0;
-  this._nestedLevel = 0;
-
-  this._ch = null;
-  var parenLevel = 0;
-
-  var insideRule = false;
-  // This is the value side of a property value pair (blue in the following ex)
-  // label { content: blue }
-  var insidePropertyValue = false;
-  var enteringConditionalGroup = false;
-  var insideAtExtend = false;
-  var insideAtImport = false;
-  var insideScssMap = false;
-  var topCharacter = this._ch;
-  var insideNonSemiColonValues = false;
   var whitespace;
   var isAfterSpace;
   var previous_ch;
 
+  this._input = new InputScanner(source_text);
+
   while (true) {
     whitespace = this._input.read(whitespacePattern);
     isAfterSpace = whitespace !== '';
-    previous_ch = topCharacter;
+    previous_ch = this._topCharacter;
     this._ch = this._input.next();
     if (this._ch === '\\' && this._input.hasNext()) {
       this._ch += this._input.next();
     }
-    topCharacter = this._ch;
+    this._topCharacter = this._ch;
 
     if (!this._ch) {
       break;
@@ -270,20 +316,20 @@ Beautifier.prototype.beautify = function() {
         variableOrRule = variableOrRule.replace(/\s$/, '');
 
         if (variableOrRule === 'extend') {
-          insideAtExtend = true;
+          this._insideAtExtend = true;
         } else if (variableOrRule === 'import') {
-          insideAtImport = true;
+          this._insideAtImport = true;
         }
 
         // might be a nesting at-rule
         if (variableOrRule in this.NESTED_AT_RULE) {
           this._nestedLevel += 1;
           if (variableOrRule in this.CONDITIONAL_GROUP_RULE) {
-            enteringConditionalGroup = true;
+            this._enteringConditionalGroup = true;
           }
           // might be less variable
-        } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
-          insidePropertyValue = true;
+        } else if (!this._insideRule && this._parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
+          this._insidePropertyValue = true;
           this.indent();
         }
       }
@@ -291,20 +337,20 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(isAfterSpace);
       this.print_string(this._ch + this.eatString('}'));
     } else if (this._ch === '{') {
-      if (insidePropertyValue) {
-        insidePropertyValue = false;
+      if (this._insidePropertyValue) {
+        this._insidePropertyValue = false;
         this.outdent();
       }
 
       // when entering conditional groups, only rulesets are allowed
-      if (enteringConditionalGroup) {
-        enteringConditionalGroup = false;
-        insideRule = (this._indentLevel >= this._nestedLevel);
+      if (this._enteringConditionalGroup) {
+        this._enteringConditionalGroup = false;
+        this._insideRule = (this._indentLevel >= this._nestedLevel);
       } else {
         // otherwise, declarations are also allowed
-        insideRule = (this._indentLevel >= this._nestedLevel - 1);
+        this._insideRule = (this._indentLevel >= this._nestedLevel - 1);
       }
-      if (this._options.newline_between_rules && insideRule) {
+      if (this._options.newline_between_rules && this._insideRule) {
         if (this._output.previous_line && this._output.previous_line.item(-1) !== '{') {
           this._output.ensure_empty_line_above('/', ',');
         }
@@ -336,14 +382,14 @@ Beautifier.prototype.beautify = function() {
       if (previous_ch === '{') {
         this._output.trim(true);
       }
-      insideAtImport = false;
-      insideAtExtend = false;
-      if (insidePropertyValue) {
+      this._insideAtImport = false;
+      this._insideAtExtend = false;
+      if (this._insidePropertyValue) {
         this.outdent();
-        insidePropertyValue = false;
+        this._insidePropertyValue = false;
       }
       this.print_string(this._ch);
-      insideRule = false;
+      this._insideRule = false;
       if (this._nestedLevel) {
         this._nestedLevel--;
       }
@@ -366,17 +412,17 @@ Beautifier.prototype.beautify = function() {
 
       for (var i = 0; i < this.NON_SEMICOLON_NEWLINE_PROPERTY.length; i++) {
         if (this._input.lookBack(this.NON_SEMICOLON_NEWLINE_PROPERTY[i])) {
-          insideNonSemiColonValues = true;
+          this._insideNonSemiColonValues = true;
           break;
         }
       }
 
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
+      if ((this._insideRule || this._enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !this._insideAtExtend && this._parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');
-        if (!insidePropertyValue) {
-          insidePropertyValue = true;
+        if (!this._insidePropertyValue) {
+          this._insidePropertyValue = true;
           this._output.space_before_token = true;
           this.eatWhitespace(true);
           this.indent();
@@ -403,14 +449,14 @@ Beautifier.prototype.beautify = function() {
       this.print_string(this._ch + this.eatString(this._ch));
       this.eatWhitespace(true);
     } else if (this._ch === ';') {
-      insideNonSemiColonValues = false;
-      if (parenLevel === 0) {
-        if (insidePropertyValue) {
+      this._insideNonSemiColonValues = false;
+      if (this._parenLevel === 0) {
+        if (this._insidePropertyValue) {
           this.outdent();
-          insidePropertyValue = false;
+          this._insidePropertyValue = false;
         }
-        insideAtExtend = false;
-        insideAtImport = false;
+        this._insideAtExtend = false;
+        this._insideAtImport = false;
         this.print_string(this._ch);
         this.eatWhitespace(true);
 
@@ -430,15 +476,15 @@ Beautifier.prototype.beautify = function() {
       if (this._input.lookBack("url")) {
         this.print_string(this._ch);
         this.eatWhitespace();
-        parenLevel++;
+        this._parenLevel++;
         this.indent();
         this._ch = this._input.next();
         if (this._ch === ')' || this._ch === '"' || this._ch === '\'') {
           this._input.back();
         } else if (this._ch) {
           this.print_string(this._ch + this.eatString(')'));
-          if (parenLevel) {
-            parenLevel--;
+          if (this._parenLevel) {
+            this._parenLevel--;
             this.outdent();
           }
         }
@@ -447,22 +493,22 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
 
         // handle scss/sass map
-        if (insidePropertyValue && previous_ch === "$" && this._options.selector_separator_newline) {
+        if (this._insidePropertyValue && previous_ch === "$" && this._options.selector_separator_newline) {
           this._output.add_new_line();
-          insideScssMap = true;
+          this._insideScssMap = true;
         } else {
           this.eatWhitespace();
-          parenLevel++;
+          this._parenLevel++;
           this.indent();
         }
       }
     } else if (this._ch === ')') {
-      if (parenLevel) {
-        parenLevel--;
+      if (this._parenLevel) {
+        this._parenLevel--;
         this.outdent();
       }
-      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
-        insideScssMap = false;
+      if (this._insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
+        this._insideScssMap = false;
         this.outdent();
         this._output.add_new_line();
       }
@@ -470,12 +516,12 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
+      if (this._options.selector_separator_newline && (!this._insidePropertyValue || this._insideScssMap) && this._parenLevel === 0 && !this._insideAtImport && !this._insideAtExtend) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;
       }
-    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !insidePropertyValue && parenLevel === 0) {
+    } else if ((this._ch === '>' || this._ch === '+' || this._ch === '~') && !this._insidePropertyValue && this._parenLevel === 0) {
       //handle combinator spacing
       if (this._options.space_around_combinator) {
         this._output.space_before_token = true;
@@ -508,15 +554,23 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(preserveAfterSpace || isAfterSpace);
       this.print_string(this._ch);
 
-      if (!this._output.just_added_newline() && this._input.peek() === '\n' && insideNonSemiColonValues) {
+      if (!this._output.just_added_newline() && this._input.peek() === '\n' && this._insideNonSemiColonValues) {
         this._output.add_new_line();
       }
     }
   }
+};
 
-  var sweetCode = this._output.get_code(eol);
+Beautifier.prototype.handle_unknown = function(current_token, preserve_statement_flags) {
+  this.print_token(current_token);
 
-  return sweetCode;
+  if (current_token.text[current_token.text.length - 1] === '\n') {
+    this.print_newline(false, preserve_statement_flags);
+  }
+};
+
+Beautifier.prototype.handle_eof = function(current_token) {
+  this.handle_whitespace_and_comments(current_token);
 };
 
 module.exports.Beautifier = Beautifier;
