@@ -78,7 +78,7 @@ Beautifier.prototype._lookBack = function(testVal) {
 
   var j = 0;
   for (var i = go_back_space + 1; i > go_back_space; i--) {
-    var text = this._input.peek(-i);
+    var text = this.peekString(-i);
     if(text === null || text.toLowerCase() !== testVal[j]) {
       return false;
     }
@@ -92,7 +92,7 @@ Beautifier.prototype._peekUntilAfter = function(pattern) {
   var i = 0;
   var resulting_string = '';
 
-  var ch = this._input.peek(i);
+  var ch = this.peekString(i);
   while (ch) {
     resulting_string += ch;
     if(pattern.test(ch)) {
@@ -100,7 +100,15 @@ Beautifier.prototype._peekUntilAfter = function(pattern) {
     }
 
     i += 1;
-    ch = this._input.peek(i);
+    ch = this.peekString(i);
+  }
+  return resulting_string;
+};
+
+Beautifier.prototype.peekString = function (index) {
+  var resulting_string = '';
+  if(this._input.peek(index)) {
+    resulting_string = this._input.peek(index);
   }
   return resulting_string;
 };
@@ -126,9 +134,9 @@ Beautifier.prototype.eatString = function(endChars) {
 // newline character found; if the user has preserve_newlines off, only
 // the first newline will be output
 Beautifier.prototype.eatWhitespace = function(allowAtLeastOneNewLine) {
-  var result = whitespaceChar.test(this._input.peek());
+  var result = whitespaceChar.test(this.peekString());
   var newline_count = 0;
-  while (whitespaceChar.test(this._input.peek())) {
+  while (whitespaceChar.test(this.peekString())) {
     this._ch = this._input.next();
     if (allowAtLeastOneNewLine && this._ch === '\n') {
       if (newline_count === 0 || newline_count < this._options.max_preserve_newlines) {
@@ -146,7 +154,7 @@ Beautifier.prototype.eatWhitespace = function(allowAtLeastOneNewLine) {
 Beautifier.prototype.foundNestedPseudoClass = function() {
   var openParen = 0;
   var i = 1;
-  var ch = this._input.peek(i);
+  var ch = this.peekString(i);
   while (ch) {
     if (ch === "{") {
       return true;
@@ -162,7 +170,7 @@ Beautifier.prototype.foundNestedPseudoClass = function() {
       return false;
     }
     i++;
-    ch = this._input.peek(i);
+    ch = this.peekString(i);
   }
   return false;
 };
@@ -246,7 +254,7 @@ Beautifier.prototype.beautify = function() {
 
     if (!this._ch) {
       break;
-    } else if (this._ch === '/' && this._input.peek() === '*') {
+    } else if (this._ch === '/' && this.peekString() === '*') {
       // /* css comment */
       // Always start block comments on a new line.
       // This handles scenarios where a block comment immediately
@@ -271,7 +279,7 @@ Beautifier.prototype.beautify = function() {
       // Block comments are followed by a new line so they don't
       // share a line with other properties
       this._output.add_new_line();
-    } else if (this._ch === '/' && this._input.peek() === '/') {
+    } else if (this._ch === '/' && this.peekString() === '/') {
       // // single line comment
       // Preserves the space before a comment
       // on the same line as a rule
@@ -285,7 +293,7 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(isAfterSpace);
 
       // deal with less propery mixins @{...}
-      if (this._input.peek() === '{') {
+      if (this.peekString() === '{') {
         this.print_string(this._ch + this.eatString('}'));
       } else {
         this.print_string(this._ch);
@@ -320,7 +328,7 @@ Beautifier.prototype.beautify = function() {
           this.indent();
         }
       }
-    } else if (this._ch === '#' && this._input.peek() === '{') {
+    } else if (this._ch === '#' && this.peekString() === '{') {
       this.preserveSingleSpace(isAfterSpace);
       this.print_string(this._ch + this.eatString('}'));
     } else if (this._ch === '{') {
@@ -385,11 +393,11 @@ Beautifier.prototype.beautify = function() {
       this._output.add_new_line();
 
       if (this._options.newline_between_rules && !this._output.just_added_blankline()) {
-        if (this._input.peek() !== '}') {
+        if (this.peekString() !== '}') {
           this._output.add_new_line(true);
         }
       }
-      if (this._input.peek() === ')') {
+      if (this.peekString() === ')') {
         this._output.trim(true);
         if (this._options.brace_style === "expand") {
           this._output.add_new_line(true);
@@ -422,7 +430,7 @@ Beautifier.prototype.beautify = function() {
         if (this._lookBack(" ")) {
           this._output.space_before_token = true;
         }
-        if (this._input.peek() === ":") {
+        if (this.peekString() === ":") {
           // pseudo-element
           this._ch = this._input.next();
           this.print_string("::");
@@ -451,7 +459,7 @@ Beautifier.prototype.beautify = function() {
         // line. Block comments are also affected, but
         // a new line is always output before one inside
         // that section
-        if (this._input.peek() !== '/') {
+        if (this.peekString() !== '/') {
           this._output.add_new_line();
         }
       } else {
@@ -494,7 +502,7 @@ Beautifier.prototype.beautify = function() {
         parenLevel--;
         this.outdent();
       }
-      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
+      if (insideScssMap && this.peekString() === ";" && this._options.selector_separator_newline) {
         insideScssMap = false;
         this.outdent();
         this._output.add_new_line();
@@ -541,7 +549,7 @@ Beautifier.prototype.beautify = function() {
       this.preserveSingleSpace(preserveAfterSpace || isAfterSpace);
       this.print_string(this._ch);
 
-      if (!this._output.just_added_newline() && this._input.peek() === '\n' && insideNonSemiColonValues) {
+      if (!this._output.just_added_newline() && this.peekString() === '\n' && insideNonSemiColonValues) {
         this._output.add_new_line();
       }
     }
