@@ -755,6 +755,25 @@ exports.test_data = {
           output: 'a = f[{{s}}b{{s}}];'
         },
         {
+          comment: 'Issue #1151 - inside class methods',
+          input: [
+            'export default class Test extends Component {',
+            '    render() {',
+            '        someOther();',
+            '        return null;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'export default class Test extends Component {',
+            '    render({{e}}) {',
+            '        someOther({{e}});',
+            '        return null;',
+            '    }',
+            '}'
+          ]
+        },
+        {
           input: [
             '{',
             '    files: a[][ {',
@@ -3290,6 +3309,68 @@ exports.test_data = {
             '    /* howdy',
             '    ',
             '    */',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class and interface word as an object property",
+          unchanged: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '    interface: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but with space after colon",
+          input: [
+            '{',
+            '    class : { a: 1,',
+            'b: 2,c : 3',
+            '    }',
+            '}'
+          ],
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as an object property but without spaces",
+          input: '{class:{a:1,b:2,c:3,}}',
+          output: [
+            '{',
+            '    class: {',
+            '        a: 1,',
+            '        b: 2,',
+            '        c: 3,',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "#1838 - handle class word as a nested object property",
+          input: '{x:{a:1,class:2,c:3,}}',
+          output: [
+            '{',
+            '    x: {',
+            '        a: 1,',
+            '        class: 2,',
+            '        c: 3,',
+            '    }',
             '}'
           ]
         },
