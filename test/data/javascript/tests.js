@@ -4550,11 +4550,12 @@ exports.test_data = {
         {
           comment: 'Issue #1950: Do not remove whitespace after number - test scenario: number before a dot',
           input: '1000000000000001000 .toFixed(0)!==1000000000000001024',
-          output: '1000000000000000100 .toFixed(0) !== 1000000000000001024'
+          output: '1000000000000001000 .toFixed(0) !== 1000000000000001024'
         },
         {
           comment: 'Issue #1950: Do not remove whitespace after number - test scenario: variable ends with a number before a dot',
-          unchanged: 'a.b21.performAction()'
+          input: 'a.b21 . performAction()',
+          output: 'a.b21.performAction()'
         }
       ]
     }, {
