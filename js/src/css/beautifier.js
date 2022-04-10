@@ -412,7 +412,7 @@ Beautifier.prototype.beautify = function() {
         }
       }
 
-      if ((insideRule || enteringConditionalGroup) && !(this._lookBack("&") || this.foundNestedPseudoClass()) && !this._lookBack("(") && !insideAtExtend && parenLevel === 0) {
+      if ((insideRule || enteringConditionalGroup) && !(this.peekString(-2) === "&" || this.foundNestedPseudoClass()) && this.peekString(-2) !== "(" && !insideAtExtend && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
         this.print_string(':');
@@ -541,7 +541,7 @@ Beautifier.prototype.beautify = function() {
       if (whitespaceChar.test(this._ch)) {
         this._ch = '';
       }
-    } else if (this._ch === '!' && !this._lookBack("\\")) { // !important
+    } else if (this._ch === '!' && this.peekString(-2) !== "\\") { // !important
       this.print_string(' ');
       this.print_string(this._ch);
     } else {
