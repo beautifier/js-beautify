@@ -32,6 +32,7 @@ var Options = require('./options').Options;
 var Output = require('../core/output').Output;
 var InputScanner = require('../core/inputscanner').InputScanner;
 var Directives = require('../core/directives').Directives;
+var Tokenizer = require('./tokenizer').Tokenizer;
 
 var directives_core = new Directives(/\/\*/, /\*\//);
 
@@ -68,6 +69,7 @@ function Beautifier(source_text, options) {
     "@document": true
   };
   this.NON_SEMICOLON_NEWLINE_PROPERTY = [
+    "grid-template-areas",
     "grid-template"
   ];
 
@@ -197,6 +199,16 @@ Beautifier.prototype.outdent = function() {
   }
 };
 
+Beautifier.prototype.get_token_on_position = function() {
+  var token = this._position_map[this._input.__position - 1];
+  this._update_pos_to_end_of_token(token);
+  return token;
+};
+
+Beautifier.prototype._update_pos_to_end_of_token = function(token) {
+  this._input.__position = token.position[1] + 1;
+};
+
 /*_____________________--------------------_____________________*/
 
 Beautifier.prototype.beautify = function() {
@@ -222,10 +234,14 @@ Beautifier.prototype.beautify = function() {
 
   this._output = new Output(this._options, baseIndentString);
   this._input = new InputScanner(source_text);
+  var tokenizer = new Tokenizer(source_text, this._options);
+  this._tokens = tokenizer.tokenize();
+  this._position_map = tokenizer.get_positional_map();
   this._indentLevel = 0;
   this._nestedLevel = 0;
 
   this._ch = null;
+  var current_token = null;
   var parenLevel = 0;
 
   var insideRule = false;
@@ -440,9 +456,13 @@ Beautifier.prototype.beautify = function() {
         }
       }
     } else if (this._ch === '"' || this._ch === '\'') {
+      current_token = this.get_token_on_position();
       this.preserveSingleSpace(isAfterSpace);
-      this.print_string(this._ch + this.eatString(this._ch));
-      this.eatWhitespace(true);
+      this.print_string(current_token.text);
+
+      if (!this._output.just_added_newline() && this._input.peek() === '\n' && insideNonSemiColonValues) {
+        this._output.add_new_line();
+      }
     } else if (this._ch === ';') {
       insideNonSemiColonValues = false;
       if (parenLevel === 0) {
@@ -553,6 +573,8 @@ Beautifier.prototype.beautify = function() {
         this._output.add_new_line();
       }
     }
+
+    current_token = null;
   }
 
   var sweetCode = this._output.get_code(eol);
