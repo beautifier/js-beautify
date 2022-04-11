@@ -68,6 +68,7 @@ function Beautifier(source_text, options) {
     "@document": true
   };
   this.NON_SEMICOLON_NEWLINE_PROPERTY = [
+    "grid-template-areas",
     "grid-template"
   ];
 
