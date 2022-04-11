@@ -3192,6 +3192,29 @@ exports.test_data = {
           output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y: {\n{{c}}    break;\n{{c}}\}\n}'
         },
         {
+          comment: "Issue #1622",
+          input: [
+            'class blah {',
+            '    constructor() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah {',
+            '    constructor{{nf}}() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff{{nf}}() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ]
+        },
+        {
           comment: 'typical greasemonkey start',
           fragment: true,
           unchanged: '// comment 2\n(function{{f}}()'

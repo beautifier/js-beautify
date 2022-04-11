@@ -185,6 +185,7 @@ Beautifier.prototype.create_flags = function(flags_base, mode) {
     inline_frame: false,
     if_block: false,
     else_block: false,
+    class_start_block: false, // class A { INSIDE HERE } or class B extends C { INSIDE HERE }
     do_block: false,
     do_while: false,
     import_block: false,
@@ -597,6 +598,8 @@ Beautifier.prototype.handle_start_expr = function(current_token) {
             (peek_back_two.text === '*' && (peek_back_three.text === '{' || peek_back_three.text === ','))) {
             this._output.space_before_token = true;
           }
+        } else if (this._flags.parent && this._flags.parent.class_start_block) {
+          this._output.space_before_token = true;
         }
       }
     } else {
@@ -709,6 +712,11 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     this.set_mode(MODE.ObjectLiteral);
   } else {
     this.set_mode(MODE.BlockStatement);
+  }
+
+  if (in_array(this._last_last_text, ['class', 'extends'])) {
+    // class A { INSIDE HERE } or class B extends C { INSIDE HERE }
+    this._flags.class_start_block = true;
   }
 
   var empty_braces = !next_token.comments_before && next_token.text === '}';
