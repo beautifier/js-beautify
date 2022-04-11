@@ -1307,12 +1307,6 @@ class Beautifier:
             preserve_statement_flags = not isGeneratorAsterisk
             self.handle_whitespace_and_comments(current_token, preserve_statement_flags)
 
-        if reserved_array(self._flags.last_token, _special_word_set):
-            # return had a special handling in TK_WORD
-            self._output.space_before_token = True
-            self.print_token(current_token)
-            return
-
         # hack for actionscript's import .*;
         if current_token.text == "*" and self._flags.last_token.type == TOKEN.DOT:
             self.print_token(current_token)
@@ -1449,7 +1443,15 @@ class Beautifier:
                 or current_token.text == "++"
                 or current_token.text == "~"
             ):
-                self.print_newline(preserve_statement_flags=True)
+                new_line_needed = (
+                    reserved_array(self._flags.last_token, _special_word_set)
+                    and current_token.newlines
+                )
+                if new_line_needed and (
+                    self._previous_flags.if_block or self._previous_flags.else_block
+                ):
+                    self.restore_mode()
+                self.print_newline(new_line_needed, True)
 
             if self._flags.last_token.text == ";" and self.is_expression(
                 self._flags.mode

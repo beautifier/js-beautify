@@ -3331,6 +3331,81 @@ exports.test_data = {
           ]
         },
         {
+          comment: "#1095 - Return without semicolon followed by prefix on a new line",
+          input: [
+            'function x(){',
+            'return',
+            '++a',
+            '}',
+            '',
+            'while(true) {',
+            'return',
+            '--b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return',
+            '    --b',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095",
+          input: [
+            'function test(){',
+            'if(x) return',
+            '++x',
+            'var y= 1;',
+            '}',
+            'function t1(){',
+            'if(cc) return;',
+            'else return',
+            '--cc',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    if (x) return',
+            '    ++x',
+            '    var y = 1;',
+            '}',
+            '',
+            'function t1() {',
+            '    if (cc) return;',
+            '    else return',
+            '    --cc',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return with semicolon followed by a prefix on a new line",
+          input: [
+            'function x(){',
+            'return; ++a',
+            '}',
+            '',
+            'while(true){return; --b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return;',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return;',
+            '    --b',
+            '}'
+          ]
+        },
+        {
           comment: "#1838 - handle class and interface word as an object property",
           unchanged: [
             '{',
