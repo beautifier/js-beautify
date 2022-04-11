@@ -33,6 +33,7 @@ var BASETOKEN = require('../core/tokenizer').TOKEN;
 
 var TOKEN = {
     STRING: 'TK_STRING',
+    COMMA: 'TK_COMMA',
     UNKNOWN: 'TK_UNKNOWN',
     START: BASETOKEN.START,
     RAW: BASETOKEN.RAW,
@@ -58,6 +59,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
     }
 
     token = token || this._read_strings(c);
+    token = token || this._read_commas(c);
     if(!token) {
         pos = this._input.__position;
         token = this._create_token_with_pos(TOKEN.UNKNOWN, this._input.next(), [pos, pos]);
@@ -75,6 +77,18 @@ Tokenizer.prototype._create_token_with_pos = function (type, text, position) {
 
 Tokenizer.prototype.get_positional_map = function () {
     return this._position_map;
+};
+
+Tokenizer.prototype._read_commas = function (c) {
+    var token = null;
+
+    if (c === ',') {
+        var pos = this._input.__position;
+        this._input.next();
+        token = this._create_token_with_pos(TOKEN.COMMA, c, [pos, pos]);
+    }
+
+    return token;
 };
 
 Tokenizer.prototype._read_strings = function(c) {

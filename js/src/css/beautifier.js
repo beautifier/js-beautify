@@ -529,7 +529,8 @@ Beautifier.prototype.beautify = function() {
       }
       this.print_string(this._ch);
     } else if (this._ch === ',') {
-      this.print_string(this._ch);
+      current_token = this.get_token_on_position();
+      this.print_string(current_token.text);
       this.eatWhitespace(true);
       if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
         this._output.add_new_line();
