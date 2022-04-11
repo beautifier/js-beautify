@@ -3303,6 +3303,24 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #772",
+          input: [
+            'this.initAttributes([',
+            '"name",',
+            '["parent", null, "parentName"],',
+            '"length",',
+            '["id", this.name],',
+            ']);'
+          ],
+          output: [
+            'this.initAttributes([',
+            '    "name",',
+            '    ["parent", null, "parentName"],',
+            '    "length",',
+            '    ["id", this.name],',
+            ']);'
+          ]
+        }, {
           comment: "Issue #1663",
           unchanged: [
             '{',
