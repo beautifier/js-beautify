@@ -762,7 +762,12 @@ class Beautifier:
         else:
             self.set_mode(MODE.BlockStatement)
 
-        if self._last_last_text in ["class", "extends"]:
+        if (
+            self._last_last_text in ["class", "extends"]
+            and current_token.previous != None
+            and current_token.previous.type == TOKEN.WORD
+        ):
+            # class A { INSIDE HERE } or class B extends C { INSIDE HERE }
             self._flags.class_start_block = True
 
         empty_braces = (

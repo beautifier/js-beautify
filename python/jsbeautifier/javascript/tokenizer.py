@@ -114,6 +114,7 @@ reserved_words = line_starters | frozenset(
         "from",
         "as",
         "class",
+        "extends",
     ]
 )
 
