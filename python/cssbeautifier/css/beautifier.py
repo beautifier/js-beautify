@@ -119,7 +119,7 @@ class Beautifier:
             "@document",
         }
         self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
-        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template"]
+        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template-areas", "grid-template"]
 
     def eatString(self, endChars):
         result = ""

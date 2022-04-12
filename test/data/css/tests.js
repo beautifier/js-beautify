@@ -1543,6 +1543,21 @@ exports.test_data = {
       }, {
         input: [
           'div {',
+          'grid-template-areas: "a"',
+          ' "b" ',
+          '                    "c";',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template-areas: "a"',
+          '        "b"',
+          '        "c";',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
           'grid-template: "a a a" 20%',
           ' [main-top] "b b b" 1fr',
           '                    "b b b" auto;',
