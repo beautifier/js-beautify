@@ -1595,6 +1595,9 @@ class Beautifier:
         else:
             self.handle_whitespace_and_comments(current_token, True)
 
+        if re.search("^([0-9])+$", self._flags.last_token.text):
+            self._flags.whitespace_before = True
+
         if reserved_array(self._flags.last_token, _special_word_set):
             self._output.space_before_token = False
         else:
