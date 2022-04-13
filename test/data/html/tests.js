@@ -3528,8 +3528,7 @@ exports.test_data = {
           '</script>'
         ]
       }]
-    },
-    {
+    }, {
       name: "Recognize handlebars with whitespace control",
       description: "Maintains handlebar properties even when whitespace control ~ is at the start of handlebar statements",
       template: "^^^ $$$",
@@ -3592,9 +3591,7 @@ exports.test_data = {
           '{{/if}}'
         ]
       }]
-    },
-    {
+    }, {
       name: "New Test Suite"
-    }
-  ]
+    }]
 };
