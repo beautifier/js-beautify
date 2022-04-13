@@ -3529,6 +3529,69 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Recognize handlebars with whitespace control",
+    description: "Maintains handlebar properties even when whitespace control ~ is at the start of handlebar statements",
+    template: "^^^ $$$",
+    options: [
+      { name: "indent_handlebars", value: "true" }
+    ],
+    tests: [{
+      input: [
+        '{{#if true}}<div><div>',
+        '{{~#if true ~}}<p>true</p>{{/if}}',
+        '</div></div>{{/if}}'
+      ],
+      output: [
+        '{{#if true}}',
+        '    <div>',
+        '        <div>',
+        '            {{~#if true ~}}',
+        '                <p>true</p>',
+        '            {{/if}}',
+        '        </div>',
+        '    </div>',
+        '{{/if}}'
+      ]
+    }, {
+      input: [
+        '{{~#*inline "MyInlinePartial"}}',
+        '{{MyIdentifier}}',
+        '{{/inline}}'
+      ],
+      output: [
+        '{{~#*inline "MyInlinePartial"}}',
+        '    {{MyIdentifier}}',
+        '{{/inline}}'
+      ]
+    }, {
+      input: [
+        '{{~#> myPartial }}',
+        '<span>format correctly</span>',
+        '{{/myPartial}}'
+      ],
+      output: [
+        '{{~#> myPartial }}',
+        '    <span>format correctly</span>',
+        '{{/myPartial}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#if callOn}}',
+        '    {{translate "onText"}}',
+        '{{~else if (eq callOn false)}}',
+        '    {{translate "offText"}}',
+        '{{/if}}'
+      ]
+    }, {
+      unchanged: [
+        '{{~#if callOn}}',
+        '    {{translate "onText"}}',
+        '{{~else if (eq callOn false)}}',
+        '    {{translate "offText"}}',
+        '{{/if}}'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };
