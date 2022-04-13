@@ -714,9 +714,10 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     this.set_mode(MODE.BlockStatement);
   }
 
-  if (in_array(this._last_last_text, ['class', 'extends']) && current_token.previous && current_token.previous.type === TOKEN.WORD) {
-    // class A { INSIDE HERE } or class B extends C { INSIDE HERE }
-    this._flags.class_start_block = true;
+  if (this._flags.last_token) {
+    if (reserved_array(this._flags.last_token.previous, ['class', 'extends'])) {
+      this._flags.class_start_block = true;
+    }
   }
 
   var empty_braces = !next_token.comments_before && next_token.text === '}';

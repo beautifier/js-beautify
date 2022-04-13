@@ -762,13 +762,9 @@ class Beautifier:
         else:
             self.set_mode(MODE.BlockStatement)
 
-        if (
-            self._last_last_text in ["class", "extends"]
-            and current_token.previous != None
-            and current_token.previous.type == TOKEN.WORD
-        ):
-            # class A { INSIDE HERE } or class B extends C { INSIDE HERE }
-            self._flags.class_start_block = True
+        if self._flags.last_token:
+            if reserved_array(self._flags.last_token.previous, ["class", "extends"]):
+                self._flags.class_start_block = True
 
         empty_braces = (
             (next_token is not None)
