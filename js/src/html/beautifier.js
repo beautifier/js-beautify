@@ -608,11 +608,17 @@ var TagOpenParserToken = function(parent, raw_token) {
       this.tag_check = tag_check_match ? tag_check_match[1] : '';
     } else {
       tag_check_match = raw_token.text.match(/^{{~?(?:[\^]|#\*?)?([^\s}]+)/);
+
       this.tag_check = tag_check_match ? tag_check_match[1] : '';
 
       // handle "{{#> myPartial}}" or "{{~#> myPartial}}"
       if ((raw_token.text === '{{#>' || raw_token.text === '{{~#>') && this.tag_check === '>' && raw_token.next !== null) {
         this.tag_check = raw_token.next.text.split(' ')[0];
+      } else {
+        // handle "{{#>myPartial}}" or "{{~#>myPartial}}"
+        if (raw_token.text.slice(0, 4) === ('{{#>') || raw_token.text.slice(0, 5) === ('{{~#>') && this.tag_check[0] === '>') {
+          this.tag_check = raw_token.text.split('>')[1];
+        }
       }
     }
     this.tag_check = this.tag_check.toLowerCase();

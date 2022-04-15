@@ -3592,6 +3592,60 @@ exports.test_data = {
       ]
     }]
   }, {
+    name: "Handle Partials Not Seperated by Spaces",
+    description: "Handles partials that do not have a space before the tag",
+    template: "^^^ $$$",
+    options: [
+      { name: "nospace_partials", value: "true" }
+    ],
+    tests: [{
+      input: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '        {{/column}}',
+        '        {{/row}}'
+      ],
+      output: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      input: [
+        '{{~#>row}}',
+        '{{#>column}}',
+        '<p>content</p>',
+        '{{/column}}',
+        '{{/row}}'
+      ],
+      output: [
+        '{{~#>row}}',
+        '    {{#>column}}',
+        '        <p>content</p>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#>row}}',
+        '    {{#>column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }, {
+      unchanged: [
+        '{{#> row}}',
+        '    {{#> column}}',
+        '        <span>content</span>',
+        '    {{/column}}',
+        '{{/row}}'
+      ]
+    }]
+  }, {
     name: "New Test Suite"
   }]
 };
