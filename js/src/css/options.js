@@ -37,7 +37,12 @@ function Options(options) {
   this.newline_between_rules = this._get_boolean('newline_between_rules', true);
   var space_around_selector_separator = this._get_boolean('space_around_selector_separator');
   this.space_around_combinator = this._get_boolean('space_around_combinator') || space_around_selector_separator;
-  this.separate_CSS_selectors = this._get_boolean('separate_CSS_selectors');
+
+  var selector_separator_list = this._get_selection_list('selector_separator', ['', 'none', 'space', 'newline']);
+  if (!selector_separator_list[0]) {
+    selector_separator_list = ['default'];
+  }
+  this.selector_separator = selector_separator_list[0];
 
   var brace_style_split = this._get_selection_list('brace_style', ['collapse', 'expand', 'end-expand', 'none', 'preserve-inline']);
   this.brace_style = 'collapse';
@@ -51,7 +56,5 @@ function Options(options) {
   }
 }
 Options.prototype = new BaseOptions();
-
-
 
 module.exports.Options = Options;

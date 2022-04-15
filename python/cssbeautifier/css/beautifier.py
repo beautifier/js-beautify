@@ -457,15 +457,22 @@ class Beautifier:
             elif self._ch == ",":
                 self.print_string(self._ch)
                 self.eatWhitespace(True)
+
+                selector_separator = (
+                    self._options.selector_separator == "default"
+                ) or (self._options.selector_separator == "newline")
+
                 if (
                     self._options.selector_separator_newline
                     and not insidePropertyValue
                     and parenLevel == 0
                     and not insideAtImport
                     and not insideAtExtend
-                    and not self._options.separate_CSS_selectors
+                    and selector_separator
                 ):
                     self._output.add_new_line()
+                elif self._options.selector_separator == "none":
+                    self._output.space_before_token = False
                 else:
                     self._output.space_before_token = True
             elif (

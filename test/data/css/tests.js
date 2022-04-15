@@ -1821,9 +1821,9 @@ exports.test_data = {
         unchanged: 'p {\n    color: blue;\n}'
       }]
     }, {
-      name: "Issue #1862 -- separate_CSS_selectors option adds space between CSS selectors if true",
+      name: "Issue #1862 -- selector-separator option adds space between CSS selectors if value is space",
       options: [
-        { name: "separate_CSS_selectors", value: "true" }
+        { name: "selector_separator", value: "'space'" }
       ],
       description: "",
       tests: [{
@@ -1831,14 +1831,24 @@ exports.test_data = {
         output: '#main, #section, a {\n    color: blue;\n}'
       }]
     }, {
-      name: "Issue #1862 -- separate_CSS_selectors option adds space between CSS selectors if false",
+      name: "Issue #1862 -- selector-separator option adds newline between CSS selectors if value is newline",
       options: [
-        { name: "separate_CSS_selectors", value: "false" }
+        { name: "selector_separator", value: "'newline'" }
       ],
       description: "",
       tests: [{
         input: '#main,#section,a {\n    color: blue;\n}',
         output: '#main,\n#section,\na {\n    color: blue;\n}'
+      }]
+    },
+    {
+      name: "Issue #1862 -- selector-separator option adds no whitespace between CSS selectors if value is none",
+      options: [
+        { name: "selector_separator", value: "'none'" }
+      ],
+      description: "",
+      tests: [{
+        unchanged: '#main,#section,a {\n    color: blue;\n}'
       }]
     }
   ]

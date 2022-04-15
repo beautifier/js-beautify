@@ -94,12 +94,12 @@ var path = require('path'),
         "indent_empty_lines": Boolean,
         "templating": [String, Array],
         // CSS-only
-        "selector_separator_newline": Boolean,
         "newline_between_rules": Boolean,
         "space_around_combinator": Boolean,
-        "separate_CSS_selectors": Boolean,
+        "selector_separator": String,
         //deprecated - replaced with space_around_combinator, remove in future version
         "space_around_selector_separator": Boolean,
+        "selector_separator_newline": Boolean,
         // HTML-only
         "max_char": Number, // obsolete since 1.3.5
         "inline": [String, Array],
@@ -181,7 +181,7 @@ var path = require('path'),
         // no shorthand for "editorconfig"
         // no shorthand for "indent_empty_lines"
         // not shorthad for "templating"
-        // no shorthand for "separate_CSS_selectors"
+        // no shorthand for "selector_separator"
     });
 
 function verifyExists(fullPath) {
@@ -394,8 +394,8 @@ function usage(err) {
             break;
         case "css":
             msg.push('  -b, --brace-style                       [collapse|expand] ["collapse"]');
-            msg.push('  -L, --selector-separator-newline        Add a newline between multiple selectors.');
             msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
+            msg.push('  --selector_separator                    Whitespace between selectors [none|newline|space] [space]');
     }
 
     if (err) {

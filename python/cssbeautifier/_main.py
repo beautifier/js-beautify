@@ -128,7 +128,7 @@ def main():
                 "disable-newline-between-rules",
                 "space-around-combinator",
                 "indent-empty-lines",
-                "separate-CSS-selectors",
+                "selector-separator",
             ],
         )
     except getopt.GetoptError as ex:
@@ -179,8 +179,8 @@ def main():
             css_options.indent_empty_lines = True
         elif opt in ("--editorconfig",):
             css_options.editorconfig = True
-        elif opt in ("--separate-CSS-selectors"):
-            css_options.separate_CSS_selectors = True
+        elif opt in ("--selector-separator"):
+            css_options.selector_separator = True
 
     try:
         filepaths, replace = get_filepaths_from_params(filepath_params, replace)

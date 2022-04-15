@@ -320,10 +320,9 @@ CSS Beautifier Options:
   -e, --eol                          Character(s) to use as line terminators. (default newline - "\\n")
   -n, --end-with-newline             End output with newline
   -b, --brace-style                  [collapse|expand] ["collapse"]
-  -L, --selector-separator-newline   Add a newline between multiple selectors
   -N, --newline-between-rules        Add a newline between CSS rules
   --indent-empty-lines               Keep indentation on empty lines
-  --separate_CSS_selectors           Add a space between CSS selectors
+  --selector_separator               Whitespace between selectors [none|newline|space] [space]
 
 HTML Beautifier Options:
   -s, --indent-size                  Indentation size [4]

@@ -59,4 +59,10 @@ class BeautifierOptions(BaseOptions):
         )
         self.keep_quiet = False
 
-        self.separate_CSS_selectors = self._get_boolean("separate_CSS_selectors")
+        selector_separator_list = self._get_selection_list(
+            "selector_separator", ["", "none", "space", "newline"]
+        )
+        if not selector_separator_list[0]:
+            selector_separator_list = ["default"]
+
+        self.selector_separator = selector_separator_list[0]

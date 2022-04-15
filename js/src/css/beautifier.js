@@ -433,9 +433,15 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
+      
+      var selector_separator = (this._options.selector_separator === "default") || 
+      (this._options.selector_separator === "newline");
+
       if (this._options.selector_separator_newline && !insidePropertyValue &&
-        parenLevel === 0 && !insideAtImport && !insideAtExtend && !this._options.separate_CSS_selectors) {
+        parenLevel === 0 && !insideAtImport && !insideAtExtend && selector_separator) {
         this._output.add_new_line();
+      } else if (this._options.selector_separator === "none") {
+        this._output.space_before_token = false;
       } else {
         this._output.space_before_token = true;
       }
