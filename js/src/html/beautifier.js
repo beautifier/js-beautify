@@ -612,7 +612,7 @@ var TagOpenParserToken = function(parent, raw_token) {
 
       // handle "{{#> myPartial}}" or "{{~#> myPartial}}"
       if ((raw_token.text.startsWith('{{#>') || raw_token.text.startsWith('{{~#>')) && this.tag_check[0] === '>') {
-        if(this.tag_check === '>' && raw_token.next !== null) {
+        if (this.tag_check === '>' && raw_token.next !== null) {
             this.tag_check = raw_token.next.text.split(' ')[0];
         } else {
              this.tag_check = raw_token.text.split('>')[1];

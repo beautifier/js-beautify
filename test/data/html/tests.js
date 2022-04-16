@@ -3595,9 +3595,6 @@ exports.test_data = {
     name: "Corrects Partial Behavior Involving Whitespace",
     description: "Handles partials that do not have a space before the tag",
     template: "^^^ $$$",
-    options: [
-      { name: "nospace_partials", value: "true" }
-    ],
     tests: [{
       input: [
         '{{#>row}}',
