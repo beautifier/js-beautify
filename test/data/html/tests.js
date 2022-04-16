@@ -3592,7 +3592,7 @@ exports.test_data = {
       ]
     }]
   }, {
-    name: "Handle Partials Not Seperated by Spaces",
+    name: "Corrects Partial Behavior Involving Whitespace",
     description: "Handles partials that do not have a space before the tag",
     template: "^^^ $$$",
     options: [
