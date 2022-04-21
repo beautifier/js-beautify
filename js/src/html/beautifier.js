@@ -611,10 +611,15 @@ var TagOpenParserToken = function(parent, raw_token) {
       this.tag_check = tag_check_match ? tag_check_match[1] : '';
 
       // handle "{{#> myPartial}}" or "{{~#> myPartial}}"
-      if ((raw_token.text === '{{#>' || raw_token.text === '{{~#>') && this.tag_check === '>' && raw_token.next !== null) {
-        this.tag_check = raw_token.next.text.split(' ')[0];
+      if ((raw_token.text.startsWith('{{#>') || raw_token.text.startsWith('{{~#>')) && this.tag_check[0] === '>') {
+        if (this.tag_check === '>' && raw_token.next !== null) {
+          this.tag_check = raw_token.next.text.split(' ')[0];
+        } else {
+          this.tag_check = raw_token.text.split('>')[1];
+        }
       }
     }
+
     this.tag_check = this.tag_check.toLowerCase();
 
     if (raw_token.type === TOKEN.COMMENT) {
