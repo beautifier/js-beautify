@@ -1504,10 +1504,19 @@ exports.test_data = {
         ]
       }]
     }, {
-      name: "Issue #1798 - space after strings in preserved",
+      name: "Regression tests - with default options",
       description: "",
       tests: [{
+        comment: "Issue #1798 - space after strings in preserved",
         unchanged: '@use "variables" as *;'
+      }, {
+        comment: "Issue #1976 - support the new @forwards syntax",
+        input: [
+          '@forwards "a" with (',
+          '   $a: 2',
+          ');'
+        ],
+        output: '@forwards "a" with ($a: 2);'
       }]
     }, {
       name: "Issue #1817",
@@ -1529,6 +1538,21 @@ exports.test_data = {
         output: [
           '.grid {',
           '    grid-template: "top-bar" 100px;',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template-areas: "a"',
+          ' "b" ',
+          '                    "c";',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template-areas: "a"',
+          '        "b"',
+          '        "c";',
           '}'
         ]
       }, {

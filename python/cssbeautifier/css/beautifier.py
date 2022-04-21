@@ -119,7 +119,7 @@ class Beautifier:
             "@document",
         }
         self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
-        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template"]
+        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template-areas", "grid-template"]
 
     def eatString(self, endChars):
         result = ""
@@ -462,7 +462,11 @@ class Beautifier:
                             parenLevel -= 1
                             self.outdent()
                 else:
-                    self.preserveSingleSpace(isAfterSpace)
+                    space_needed = False
+                    if self._input.lookBack("with"):
+                        # look back is not an accurate solution, we need tokens to confirm without whitespaces
+                        space_needed = True
+                    self.preserveSingleSpace(isAfterSpace or space_needed)
                     self.print_string(self._ch)
 
                     # handle scss/sass map
