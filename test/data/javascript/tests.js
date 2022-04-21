@@ -755,6 +755,25 @@ exports.test_data = {
           output: 'a = f[{{s}}b{{s}}];'
         },
         {
+          comment: 'Issue #1151 - inside class methods',
+          input: [
+            'export default class Test extends Component {',
+            '    render() {',
+            '        someOther();',
+            '        return null;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'export default class Test extends Component {',
+            '    render({{e}}) {',
+            '        someOther({{e}});',
+            '        return null;',
+            '    }',
+            '}'
+          ]
+        },
+        {
           input: [
             '{',
             '    files: a[][ {',
@@ -3284,12 +3303,105 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #772",
+          input: [
+            'this.initAttributes([',
+            '"name",',
+            '["parent", null, "parentName"],',
+            '"length",',
+            '["id", this.name],',
+            ']);'
+          ],
+          output: [
+            'this.initAttributes([',
+            '    "name",',
+            '    ["parent", null, "parentName"],',
+            '    "length",',
+            '    ["id", this.name],',
+            ']);'
+          ]
+        }, {
           comment: "Issue #1663",
           unchanged: [
             '{',
             '    /* howdy',
             '    ',
             '    */',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return without semicolon followed by prefix on a new line",
+          input: [
+            'function x(){',
+            'return',
+            '++a',
+            '}',
+            '',
+            'while(true) {',
+            'return',
+            '--b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return',
+            '    --b',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095",
+          input: [
+            'function test(){',
+            'if(x) return',
+            '++x',
+            'var y= 1;',
+            '}',
+            'function t1(){',
+            'if(cc) return;',
+            'else return',
+            '--cc',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    if (x) return',
+            '    ++x',
+            '    var y = 1;',
+            '}',
+            '',
+            'function t1() {',
+            '    if (cc) return;',
+            '    else return',
+            '    --cc',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return with semicolon followed by a prefix on a new line",
+          input: [
+            'function x(){',
+            'return; ++a',
+            '}',
+            '',
+            'while(true){return; --b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return;',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return;',
+            '    --b',
             '}'
           ]
         },
@@ -4691,6 +4803,16 @@ exports.test_data = {
             '    }',
             '}'
           ]
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: number before a dot',
+          input: '1000000000000001000 .toFixed(0)!==1000000000000001024',
+          output: '1000000000000001000 .toFixed(0) !== 1000000000000001024'
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: variable ends with a number before a dot',
+          input: 'a.b21 . performAction()',
+          output: 'a.b21.performAction()'
         }
       ]
     }, {

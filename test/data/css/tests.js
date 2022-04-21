@@ -1387,6 +1387,40 @@ exports.test_data = {
           unchanged: '&:first-of-type:not(:last-child) {}'
         },
         {
+          comment: "#1236 - maps standard",
+          unchanged: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps single line",
+          input: '$theme-colors:(primary: $blue,     secondary: "$gray-600");',
+          output: [
+            '$theme-colors: (',
+            '    primary: $blue,',
+            '    secondary: "$gray-600"',
+            ');'
+          ]
+        },
+        {
+          comment: "#1236 - maps with functions",
+          input: [
+            '$maps:(x: 80px,     y: "something",    ',
+            'z: calc(10 + 10)',
+            ');'
+          ],
+          output: [
+            '$maps: (',
+            '    x: 80px,',
+            '    y: "something",',
+            '    z: calc(10 + 10)',
+            ');'
+          ]
+        },
+        {
           unchanged: [
             'div {',
             '    &:not(:first-of-type) {',
@@ -1460,9 +1494,80 @@ exports.test_data = {
           '}'
         ]
       }, {
+        comment: "#1236 - SCSS/SASS Maps with selector_separator_newline = false",
+        unchanged: '$font-weights: ("regular": 400, "medium": 500, "bold": 700);'
+      }, {
         unchanged: [
           '.fa-rotate-270 {',
           '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
+          '}'
+        ]
+      }]
+    }, {
+      name: "Regression tests - with default options",
+      description: "",
+      tests: [{
+        comment: "Issue #1798 - space after strings in preserved",
+        unchanged: '@use "variables" as *;'
+      }, {
+        comment: "Issue #1976 - support the new @forwards syntax",
+        input: [
+          '@forwards "a" with (',
+          '   $a: 2',
+          ');'
+        ],
+        output: '@forwards "a" with ($a: 2);'
+      }]
+    }, {
+      name: "Issue #1817",
+      description: "",
+      tests: [{
+        comment: "ensure that properties that are expected to have multiline values persist new lines",
+        unchanged: [
+          '.grid {',
+          '    grid-template:',
+          '        "top-bar top-bar" 100px',
+          '        "left-bar center" 100px;',
+          '}'
+        ]
+      }, {
+        comment: "property values that have string followed by other identifiers should persist spacing",
+        input: [
+          '.grid {grid-template: "top-bar" 100px;}'
+        ],
+        output: [
+          '.grid {',
+          '    grid-template: "top-bar" 100px;',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template-areas: "a"',
+          ' "b" ',
+          '                    "c";',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template-areas: "a"',
+          '        "b"',
+          '        "c";',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template: "a a a" 20%',
+          ' [main-top] "b b b" 1fr',
+          '                    "b b b" auto;',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template: "a a a" 20%',
+          '        [main-top] "b b b" 1fr',
+          '        "b b b" auto;',
           '}'
         ]
       }]
