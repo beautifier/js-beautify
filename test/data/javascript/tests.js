@@ -3192,6 +3192,71 @@ exports.test_data = {
           output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y: {\n{{c}}    break;\n{{c}}\}\n}'
         },
         {
+          comment: "Issue #1622 - basic class with function definitions",
+          input: [
+            'class blah {',
+            '    constructor() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah {',
+            '    constructor{{nf}}() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff{{nf}}() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class with extends and function definitions",
+          input: [
+            'class blah extends something {',
+            '    constructor() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction() {',
+            'this.y = 1;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah extends something {',
+            '    constructor{{nf}}() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction{{nf}}() {',
+            '        this.y = 1;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class/extends as a property",
+          input: [
+            'var a.class = {',
+            ' ...abc(),',
+            '}',
+            'b.extends({',
+            ' bb.s(),',
+            '})'
+          ],
+          output: [
+            'var a.class = {',
+            '    ...abc(),',
+            '}',
+            'b.extends({',
+            '    bb.s(),',
+            '})'
+          ]
+        },
+        {
           comment: 'typical greasemonkey start',
           fragment: true,
           unchanged: '// comment 2\n(function{{f}}()'

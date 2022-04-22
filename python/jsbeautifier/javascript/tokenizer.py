@@ -113,6 +113,8 @@ reserved_words = line_starters | frozenset(
         "await",
         "from",
         "as",
+        "class",
+        "extends",
     ]
 )
 
