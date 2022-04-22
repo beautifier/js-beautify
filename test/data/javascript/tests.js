@@ -4787,6 +4787,89 @@ exports.test_data = {
           ]
         },
         {
+          comment: "Issue ##1846 - in keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  in() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    in() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - Do not indent 'in' keyword if not a class method",
+          input: [
+            'function test() {',
+            'for x in nums {}',
+            '"make" in car',
+            '3 in number;',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    for x in nums {}',
+            '    "make" in car',
+            '    3 in number;',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - of keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  of() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    of() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
           comment: 'Issue #1950: Do not remove whitespace after number - test scenario: number before a dot',
           input: '1000000000000001000 .toFixed(0)!==1000000000000001024',
           output: '1000000000000001000 .toFixed(0) !== 1000000000000001024'
