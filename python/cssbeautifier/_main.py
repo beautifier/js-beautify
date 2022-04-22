@@ -180,7 +180,7 @@ def main():
         elif opt in ("--editorconfig",):
             css_options.editorconfig = True
         elif opt in ("--selector-separator"):
-            css_options.selector_separator = True
+            css_options.selector_separator = arg
 
     try:
         filepaths, replace = get_filepaths_from_params(filepath_params, replace)
