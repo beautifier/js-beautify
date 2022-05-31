@@ -365,3 +365,13 @@ function changeToFileContent(input) {
     };
   }
 }
+
+function checkForDarkTheme() {
+  var prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  if (prefersDarkScheme.matches) {
+    $('.CodeMirror').addClass('cm-s-monokai');
+    $('body').addClass('dark-mode');
+  } else {
+    $('.CodeMirror').removeClass('cm-s-monokai');
+  }
+}
