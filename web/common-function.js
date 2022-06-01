@@ -1,5 +1,5 @@
 /*jshint strict:false, node:false */
-/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changeToFileContent*/
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changeToFileContent, checkForDarkTheme*/
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
