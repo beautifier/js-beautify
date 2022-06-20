@@ -1,10 +1,8 @@
 body {
   background: #eee;
   color: #333;
-}
-
-img {
-  border: 0;
+  height: 95vh;
+  font: 13px/1.231 arial, sans-serif;
 }
 
 a.self {
@@ -14,59 +12,40 @@ a.self {
   border-bottom: 1px solid #aaa
 }
 
-h1 {
+h1.logo {
   display: flex;
-  margin-bottom: 0;
   line-height: 1em;
+  margin: 0;
 }
 
 h1 img {
   font-family: montserrat, nexa, gotham, sans-serif;
   font-weight: 600;
-  margin-left: 40px;
 }
 
 p, select, label, .blurb, a.turn-off-codemirror {
-  font: 13px/1.231 arial, sans-serif;
   font-size: small;
+}
+
+.sub-title {
+  margin-bottom: 30px;
+}
+
+.title {
+  margin-left: 40px;
+}
+
+textarea#source {
+  width: 100%;
+  height: 100%;
 }
 
 a.turn-off-codemirror {
   margin-left: 25px;
 }
 
-button.submit {
+input[type="checkbox"], select, button {
   cursor: pointer;
-  margin: 0;
-}
-
-button.submit em {
-  font-size: 11px;
-  font-style: normal;
-  color: #999;
-}
-
-button.control {
-  cursor: pointer;
-  margin: 0;
-}
-
-label {
-  cursor: pointer;
-}
-
-select {
-  width: 220px;
-}
-
-table#options td {
-  vertical-align: top;
-  padding-left: 10px;
-}
-
-.col-6 {
-  width: 50%;
-  float: left;
 }
 
 #version-number {
@@ -76,15 +55,6 @@ table#options td {
   margin-left: 10px;
 }
 
-.uses li {
-  padding-top: 3px;
-  line-height: 150%;
-}
-
-.uses li.sep {
-  margin-top: 8px;
-}
-
 #testresults {
   display: none;
   font-family: monaco, consolas, "lucida console", "courier new", monospace;
@@ -92,32 +62,106 @@ table#options td {
 
 .CodeMirror {
   border: 1px solid #ccc;
-  height: 450px;
+  height: 100%;
   font-size: 90%;
   margin-bottom: 6px;
   background: white;
 }
 
-p {
-  margin-left: 40px;
-  margin-right: 40px;
+.hide {
+  display: none;
 }
 
-a {
-  white-space: nowrap;
-  color: #36d;
+.container {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr;
+  grid-template-rows: 0.2fr 1.8fr;
+  gap: 0 14px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "title options"
+    "editor options";
 }
 
-.contributor-sep {
-  clear: left;
-  border-top: 1px solid #ccc;
-  padding-top: 8px;
+.title {
+  grid-area: title;
 }
 
-h2 {
-  margin-top: 32px;
-  margin-left: 40px;
-  margin-bottom: 0;
+.editor {
+  grid-area: editor;
+}
+
+.options {
+  grid-area: options;
+}
+
+select, .buttons-box button {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  line-height: 1.5em;
+  padding: 0.5em;
+  margin: 0 0 5px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+select {
+  display: block;
+}
+
+.options-checkboxes, .options-select {
+  display: inline-table;
+}
+
+#language {
   font-size: 20px;
-  font-weight: normal;
+  width: 100%;
+  padding-left: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.buttons-box {
+  margin-top: 20px;
+}
+
+.buttons-box .submit {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
+  font-size: 1.5em;
+  width: 100%;
+  background-color: #7cffcb;
+  background-image: linear-gradient(315deg, #7cffcb 0%, #74f2ce 74%);
+}
+
+.buttons-box .control {
+  background-color: #2e3138;
+  color: white;
+  display: inline-flex;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    grid-template-areas:
+      "title"
+      "editor"
+      "options";
+    grid-template-rows: 0.1fr 1.8fr 0.1fr;
+    width: 100vw;
+  }
+
+  .title {
+    margin-left: 10px;
+  }
+
+  .editor, .title, .options {
+    width: 95vw;
+  }
+
+  .CodeMirror {
+    height: 50vh;
+  }
 }
