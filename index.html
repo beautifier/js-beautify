@@ -39,6 +39,7 @@
 
   <!-- Codemirror from https://cdnjs.com/libraries/codemirror -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css" integrity="sha256-vZ3SaLOjnKO/gGvcUWegySoDU6ff33CS5i9ot8J9Czk=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/theme/monokai.min.css" media="screen and (prefers-color-scheme: dark)" integrity="sha256-jAukb65gp2gG6t4FtxpHgB3eFwM/rDUwrE2OaAp6+o8=" crossorigin="anonymous" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.js" integrity="sha256-dPTL2a+npIonoK5i0Tyes0txCMUWZBf8cfKRfACRotc=" crossorigin="anonymous"></script>
 
   <!-- Codemirror Modes -->
@@ -56,6 +57,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js" integrity="sha256-oE03O+I6Pzff4fiMqwEGHbdfcW7a3GRRxlL+U49L5sA=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha256-1fEPhSsRKlFKGfK3eO710tEweHh1fwokU5wFGDHO+vg=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/css-vars-ponyfill/2.4.7/css-vars-ponyfill.min.js" integrity="sha512-Ys0nqkfLoBPEdNiZ1caXeUlN6HOMkBbLvTnzFGjMmc+vgi7c5rTjzs8iuwZawKwk7RaRljUpQ7qjGX5S7rVGKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script src="js/lib/unpackers/javascriptobfuscator_unpacker.js"></script>
   <script src="js/lib/unpackers/urlencode_unpacker.js"></script>
@@ -69,7 +71,11 @@
 <body class="container">
 
   <div class="title">
-    <h1 class="logo"><img alt="js-beautify" src="web/banner-light.svg" height="54px" /> <span id="version-number"></span></h1>
+    <h1 class="logo">
+      <img class="logo-light" alt="js-beautify" src="web/banner-light.svg" height="54px" />
+      <img class="logo-dark" alt="js-beautify" src="web/banner-dark.svg" height="54px" />
+      <span id="version-number"></span>
+    </h1>
     <div class="sub-title">
       <p>
         <a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a>
