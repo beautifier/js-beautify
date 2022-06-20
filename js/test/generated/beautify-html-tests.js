@@ -8988,6 +8988,97 @@ function run_html_tests(test_obj, Urlencoded, js_beautify, html_beautify, css_be
 
 
         //============================================================
+        // Recognize handlebars with whitespace control
+        reset_options();
+        set_name('Recognize handlebars with whitespace control');
+        opts.indent_handlebars = true;
+        bth(
+            '{{#if true}}<div><div>\n' +
+            '{{~#if true ~}}<p>true</p>{{/if}}\n' +
+            '</div></div>{{/if}}',
+            //  -- output --
+            '{{#if true}}\n' +
+            '    <div>\n' +
+            '        <div>\n' +
+            '            {{~#if true ~}}\n' +
+            '                <p>true</p>\n' +
+            '            {{/if}}\n' +
+            '        </div>\n' +
+            '    </div>\n' +
+            '{{/if}}');
+        bth(
+            '{{~#*inline "MyInlinePartial"}}\n' +
+            '{{MyIdentifier}}\n' +
+            '{{/inline}}',
+            //  -- output --
+            '{{~#*inline "MyInlinePartial"}}\n' +
+            '    {{MyIdentifier}}\n' +
+            '{{/inline}}');
+        bth(
+            '{{~#> myPartial }}\n' +
+            '<span>format correctly</span>\n' +
+            '{{/myPartial}}',
+            //  -- output --
+            '{{~#> myPartial }}\n' +
+            '    <span>format correctly</span>\n' +
+            '{{/myPartial}}');
+        bth(
+            '{{#if callOn}}\n' +
+            '    {{translate "onText"}}\n' +
+            '{{~else if (eq callOn false)}}\n' +
+            '    {{translate "offText"}}\n' +
+            '{{/if}}');
+        bth(
+            '{{~#if callOn}}\n' +
+            '    {{translate "onText"}}\n' +
+            '{{~else if (eq callOn false)}}\n' +
+            '    {{translate "offText"}}\n' +
+            '{{/if}}');
+
+
+        //============================================================
+        // Corrects Partial Behavior Involving Whitespace
+        reset_options();
+        set_name('Corrects Partial Behavior Involving Whitespace');
+        bth(
+            '{{#>row}}\n' +
+            '    {{#>column}}\n' +
+            '        <span>content</span>\n' +
+            '        {{/column}}\n' +
+            '        {{/row}}',
+            //  -- output --
+            '{{#>row}}\n' +
+            '    {{#>column}}\n' +
+            '        <span>content</span>\n' +
+            '    {{/column}}\n' +
+            '{{/row}}');
+        bth(
+            '{{~#>row}}\n' +
+            '{{#>column}}\n' +
+            '<p>content</p>\n' +
+            '{{/column}}\n' +
+            '{{/row}}',
+            //  -- output --
+            '{{~#>row}}\n' +
+            '    {{#>column}}\n' +
+            '        <p>content</p>\n' +
+            '    {{/column}}\n' +
+            '{{/row}}');
+        bth(
+            '{{#>row}}\n' +
+            '    {{#>column}}\n' +
+            '        <span>content</span>\n' +
+            '    {{/column}}\n' +
+            '{{/row}}');
+        bth(
+            '{{#> row}}\n' +
+            '    {{#> column}}\n' +
+            '        <span>content</span>\n' +
+            '    {{/column}}\n' +
+            '{{/row}}');
+
+
+        //============================================================
         // New Test Suite
         reset_options();
         set_name('New Test Suite');

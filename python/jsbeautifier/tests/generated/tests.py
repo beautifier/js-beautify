@@ -5400,6 +5400,53 @@ class TestJSBeautifier(unittest.TestCase):
             '}\n' +
             '}')
         
+        # Issue #1622 - basic class with function definitions
+        bt(
+            'class blah {\n' +
+            '    constructor() {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff() {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class with extends and function definitions
+        bt(
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            'this.y = 1;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            '        this.y = 1;\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class/extends as a property
+        bt(
+            'var a.class = {\n' +
+            ' ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            ' bb.s(),\n' +
+            '})',
+            #  -- output --
+            'var a.class = {\n' +
+            '    ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            '    bb.s(),\n' +
+            '})')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5613,6 +5660,53 @@ class TestJSBeautifier(unittest.TestCase):
             '}\n' +
             '}')
         
+        # Issue #1622 - basic class with function definitions
+        bt(
+            'class blah {\n' +
+            '    constructor() {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff() {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class with extends and function definitions
+        bt(
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            'this.y = 1;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            '        this.y = 1;\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class/extends as a property
+        bt(
+            'var a.class = {\n' +
+            ' ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            ' bb.s(),\n' +
+            '})',
+            #  -- output --
+            'var a.class = {\n' +
+            '    ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            '    bb.s(),\n' +
+            '})')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -5825,6 +5919,53 @@ class TestJSBeautifier(unittest.TestCase):
             '        break;\n' +
             '    }\n' +
             '}')
+        
+        # Issue #1622 - basic class with function definitions
+        bt(
+            'class blah {\n' +
+            '    constructor() {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff() {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class with extends and function definitions
+        bt(
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            'this.y = 1;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            '        this.y = 1;\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class/extends as a property
+        bt(
+            'var a.class = {\n' +
+            ' ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            ' bb.s(),\n' +
+            '})',
+            #  -- output --
+            'var a.class = {\n' +
+            '    ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            '    bb.s(),\n' +
+            '})')
         
         # typical greasemonkey start
         test_fragment(
@@ -6044,6 +6185,53 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             '}')
         
+        # Issue #1622 - basic class with function definitions
+        bt(
+            'class blah {\n' +
+            '    constructor() {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff() {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class with extends and function definitions
+        bt(
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            'this.y = 1;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            '        this.y = 1;\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class/extends as a property
+        bt(
+            'var a.class = {\n' +
+            ' ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            ' bb.s(),\n' +
+            '})',
+            #  -- output --
+            'var a.class = {\n' +
+            '    ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            '    bb.s(),\n' +
+            '})')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -6257,6 +6445,62 @@ class TestJSBeautifier(unittest.TestCase):
             '    }\n' +
             '}')
         
+        # Issue #1622 - basic class with function definitions
+        bt(
+            'class blah {\n' +
+            '    constructor() {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff() {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah {\n' +
+            '    constructor () {\n' +
+            '        this.doStuff()\n' +
+            '    }\n' +
+            '    doStuff () {\n' +
+            '        console.log("stuff")\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class with extends and function definitions
+        bt(
+            'class blah extends something {\n' +
+            '    constructor() {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction() {\n' +
+            'this.y = 1;\n' +
+            '    }\n' +
+            '}',
+            #  -- output --
+            'class blah extends something {\n' +
+            '    constructor () {\n' +
+            '        this.zz = 2 + 2;\n' +
+            '    }\n' +
+            '    someOtherFunction () {\n' +
+            '        this.y = 1;\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1622 - class/extends as a property
+        bt(
+            'var a.class = {\n' +
+            ' ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            ' bb.s(),\n' +
+            '})',
+            #  -- output --
+            'var a.class = {\n' +
+            '    ...abc(),\n' +
+            '}\n' +
+            'b.extends({\n' +
+            '    bb.s(),\n' +
+            '})')
+        
         # typical greasemonkey start
         test_fragment(
             '// comment 2\n' +
@@ -6392,12 +6636,94 @@ class TestJSBeautifier(unittest.TestCase):
             '    });\n' +
             'var test = 1;')
         
+        # Issue #772
+        bt(
+            'this.initAttributes([\n' +
+            '"name",\n' +
+            '["parent", null, "parentName"],\n' +
+            '"length",\n' +
+            '["id", this.name],\n' +
+            ']);',
+            #  -- output --
+            'this.initAttributes([\n' +
+            '    "name",\n' +
+            '    ["parent", null, "parentName"],\n' +
+            '    "length",\n' +
+            '    ["id", this.name],\n' +
+            ']);')
+        
         # Issue #1663
         bt(
             '{\n' +
             '    /* howdy\n' +
             '    \n' +
             '    */\n' +
+            '}')
+        
+        # #1095 - Return without semicolon followed by prefix on a new line
+        bt(
+            'function x(){\n' +
+            'return\n' +
+            '++a\n' +
+            '}\n' +
+            '\n' +
+            'while(true) {\n' +
+            'return\n' +
+            '--b\n' +
+            '}',
+            #  -- output --
+            'function x() {\n' +
+            '    return\n' +
+            '    ++a\n' +
+            '}\n' +
+            '\n' +
+            'while (true) {\n' +
+            '    return\n' +
+            '    --b\n' +
+            '}')
+        
+        # #1095
+        bt(
+            'function test(){\n' +
+            'if(x) return\n' +
+            '++x\n' +
+            'var y= 1;\n' +
+            '}\n' +
+            'function t1(){\n' +
+            'if(cc) return;\n' +
+            'else return\n' +
+            '--cc\n' +
+            '}',
+            #  -- output --
+            'function test() {\n' +
+            '    if (x) return\n' +
+            '    ++x\n' +
+            '    var y = 1;\n' +
+            '}\n' +
+            '\n' +
+            'function t1() {\n' +
+            '    if (cc) return;\n' +
+            '    else return\n' +
+            '    --cc\n' +
+            '}')
+        
+        # #1095 - Return with semicolon followed by a prefix on a new line
+        bt(
+            'function x(){\n' +
+            'return; ++a\n' +
+            '}\n' +
+            '\n' +
+            'while(true){return; --b\n' +
+            '}',
+            #  -- output --
+            'function x() {\n' +
+            '    return;\n' +
+            '    ++a\n' +
+            '}\n' +
+            '\n' +
+            'while (true) {\n' +
+            '    return;\n' +
+            '    --b\n' +
             '}')
         
         # #1838 - handle class and interface word as an object property
@@ -7603,6 +7929,106 @@ class TestJSBeautifier(unittest.TestCase):
             '        let extraParams = {}\n' +
             '    }\n' +
             ')')
+        
+        # Issue ##1846 - in keyword in class method causes indentation problem
+        bt(
+            'class {\n' +
+            '  get a() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '\n' +
+            '\n' +
+            '  in() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '\n' +
+            '\n' +
+            '  b() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '}',
+            #  -- output --
+            'class {\n' +
+            '    get a() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '\n' +
+            '    in() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '\n' +
+            '    b() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '}')
+        
+        # Related to Issue ##1846 - Do not indent 'in' keyword if not a class method
+        bt(
+            'function test() {\n' +
+            'for x in nums {}\n' +
+            '"make" in car\n' +
+            '3 in number;\n' +
+            '}',
+            #  -- output --
+            'function test() {\n' +
+            '    for x in nums {}\n' +
+            '    "make" in car\n' +
+            '    3 in number;\n' +
+            '}')
+        
+        # Related to Issue ##1846 - of keyword in class method causes indentation problem
+        bt(
+            'class {\n' +
+            '  get a() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '\n' +
+            '\n' +
+            '  of() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '\n' +
+            '\n' +
+            '  b() {\n' +
+            '\n' +
+            '\n' +
+            '  }\n' +
+            '}',
+            #  -- output --
+            'class {\n' +
+            '    get a() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '\n' +
+            '    of() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '\n' +
+            '\n' +
+            '    b() {\n' +
+            '\n' +
+            '\n' +
+            '    }\n' +
+            '}')
+        
+        # Issue #1950: Do not remove whitespace after number - test scenario: number before a dot
+        bt('1000000000000001000 .toFixed(0)!==1000000000000001024', '1000000000000001000 .toFixed(0) !== 1000000000000001024')
+        
+        # Issue #1950: Do not remove whitespace after number - test scenario: variable ends with a number before a dot
+        bt('a.b21 . performAction()', 'a.b21.performAction()')
 
 
         #============================================================

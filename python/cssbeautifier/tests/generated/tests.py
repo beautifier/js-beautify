@@ -10576,12 +10576,43 @@ class CSSBeautifierTest(unittest.TestCase):
             '.fa-rotate-270 {\n' +
             '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);\n' +
             '}')
+        
+        # #2056 - Extra space before !important added
+        t(
+            '.x {\n' +
+            '    $d: a !default;\n' +
+            '}')
+        t(
+            '.x {\n' +
+            '    $d: a !default;\n' +
+            '    @if $x !=0 {\n' +
+            '        color: $var !important;\n' +
+            '    }\n' +
+            '}')
+        
+        # #2051 - css format removes space after quoted value
+        t(
+            'q {\n' +
+            '    quotes: \'"\' \'"\' "\'" "\'";\n' +
+            '    quotes: "some" \'thing\' "different";\n' +
+            '    quotes: \'some\' "thing" \'different\';\n' +
+            '}')
 
 
         #============================================================
-        # Issue #1798 - space after strings in preserved
+        # Regression tests - with default options
         self.reset_options()
+        
+        # Issue #1798 - space after strings in preserved
         t('@use "variables" as *;')
+        
+        # Issue #1976 - support the new @forwards syntax
+        t(
+            '@forwards "a" with (\n' +
+            '   $a: 2\n' +
+            ');',
+            #  -- output --
+            '@forwards "a" with ($a: 2);')
 
 
         #============================================================
@@ -10602,6 +10633,18 @@ class CSSBeautifierTest(unittest.TestCase):
             #  -- output --
             '.grid {\n' +
             '    grid-template: "top-bar" 100px;\n' +
+            '}')
+        t(
+            'div {\n' +
+            'grid-template-areas: "a"\n' +
+            ' "b" \n' +
+            '                    "c";\n' +
+            '}',
+            #  -- output --
+            'div {\n' +
+            '    grid-template-areas: "a"\n' +
+            '        "b"\n' +
+            '        "c";\n' +
             '}')
         t(
             'div {\n' +
