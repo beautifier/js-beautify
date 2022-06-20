@@ -318,7 +318,7 @@ CSS Beautifier Options:
   -b, --brace-style                  [collapse|expand] ["collapse"]
   -N, --newline-between-rules        Add a newline between CSS rules
   --indent-empty-lines               Keep indentation on empty lines
-  --selector_separator               Whitespace between selectors [none|newline|space] [space]
+  --selector-separator               Whitespace between selectors [none|newline|space] [space]
 
 HTML Beautifier Options:
   -s, --indent-size                  Indentation size [4]

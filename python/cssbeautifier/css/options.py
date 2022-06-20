@@ -33,6 +33,16 @@ class BeautifierOptions(BaseOptions):
         self.selector_separator_newline = self._get_boolean(
             "selector_separator_newline", True
         )
+        # allow "\n" and " " but treat both as default.
+        self.selector_separator = self._get_selection(
+            "selector_separator", [" ", "none", "space", "newline"]
+        )
+        if self.selector_separator == "default":
+            if self.selector_separator_newline:
+                self.selector_separator = "newline"
+            else:
+                self.selector_separator = "space"
+
         self.newline_between_rules = self._get_boolean("newline_between_rules", True)
 
         brace_style_split = self._get_selection_list(
@@ -58,11 +68,3 @@ class BeautifierOptions(BaseOptions):
             or space_around_selector_separator
         )
         self.keep_quiet = False
-
-        selector_separator_list = self._get_selection_list(
-            "selector_separator", ["", "none", "space", "newline"]
-        )
-        if not selector_separator_list[0]:
-            selector_separator_list = ["default"]
-
-        self.selector_separator = selector_separator_list[0]

@@ -76,8 +76,7 @@ Output options:
                                    (default first newline in file, otherwise "\\n")
  -t,  --indent-with-tabs           Indent with tabs, overrides -s and -c
       --preserve-newlines          Preserve existing line breaks.
-      --disable-selector-separator-newline
-                                   Do not print each selector on a separate line.
+      --selector-separator         Whitespace between selectors [none|newline|space] [space]
  -b,  --brace-style=collapse       Brace style (collapse, expand)
  -n,  --end-with-newline           End output with newline
       --disable-newline-between-rules

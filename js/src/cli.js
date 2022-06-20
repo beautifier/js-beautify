@@ -395,7 +395,7 @@ function usage(err) {
         case "css":
             msg.push('  -b, --brace-style                       [collapse|expand] ["collapse"]');
             msg.push('  -N, --newline-between-rules             Add a newline between CSS rules.');
-            msg.push('  --selector_separator                    Whitespace between selectors [none|newline|space] [space]');
+            msg.push('  --selector-separator                    Whitespace between selectors [none|newline|space] [space]');
     }
 
     if (err) {

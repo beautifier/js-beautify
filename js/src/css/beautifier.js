@@ -454,7 +454,7 @@ Beautifier.prototype.beautify = function() {
         this.print_string(this._ch);
 
         // handle scss/sass map
-        if (insidePropertyValue && previous_ch === "$" && this._options.selector_separator_newline) {
+        if (insidePropertyValue && previous_ch === "$" && this._options.selector_separator === "newline") {
           this._output.add_new_line();
           insideScssMap = true;
         } else {
@@ -468,7 +468,7 @@ Beautifier.prototype.beautify = function() {
         parenLevel--;
         this.outdent();
       }
-      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator_newline) {
+      if (insideScssMap && this._input.peek() === ";" && this._options.selector_separator === "newline") {
         insideScssMap = false;
         this.outdent();
         this._output.add_new_line();
@@ -477,12 +477,9 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      
-      var selector_separator = (this._options.selector_separator === "default") || 
-      (this._options.selector_separator === "newline");
 
-      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) &&
-        parenLevel === 0 && !insideAtImport && !insideAtExtend && selector_separator) {
+      if (this._options.selector_separator === "newline" && (!insidePropertyValue || insideScssMap) &&
+        parenLevel === 0 && !insideAtImport && !insideAtExtend) {
         this._output.add_new_line();
       } else if (this._options.selector_separator === "none") {
         this._output.space_before_token = false;
