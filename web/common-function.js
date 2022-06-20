@@ -1,5 +1,5 @@
 /*jshint strict:false, node:false */
-/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changeToFileContent, checkForDarkTheme*/
+/*exported run_tests, read_settings_from_cookie, beautify, submitIssue, copyText, selectAll, clearAll, changeToFileContent*/
 var the = {
   use_codemirror: !window.location.href.match(/without-codemirror/),
   beautifier_file: window.location.href.match(/debug/) ? 'beautifier' : './beautifier.min',
@@ -363,15 +363,5 @@ function changeToFileContent(input) {
         $('#source').val(event.target.result);
       }
     };
-  }
-}
-
-function checkForDarkTheme() {
-  var prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-  if (prefersDarkScheme.matches) {
-    $('.CodeMirror').addClass('cm-s-monokai');
-    $('body').addClass('dark-mode');
-  } else {
-    $('.CodeMirror').removeClass('cm-s-monokai');
   }
 }
