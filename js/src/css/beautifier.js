@@ -222,6 +222,10 @@ Beautifier.prototype.beautify = function() {
 Beautifier.prototype.handle_token = function(current_token, preserve_statement_flags) {
   if (current_token.type === TOKEN.LEGACY) {
     this.handle_legacy(current_token);
+  } else if (current_token.type === TOKEN.BLOCK_COMMENT) {
+    this.handle_block_comment(current_token, preserve_statement_flags);
+  } else if (current_token.type === TOKEN.COMMENT) {
+    this.handle_comment(current_token, preserve_statement_flags);
   } else if (current_token.type === TOKEN.EOF) {
     this.handle_eof(current_token);
   } else if (current_token.type === TOKEN.UNKNOWN) {
@@ -232,9 +236,128 @@ Beautifier.prototype.handle_token = function(current_token, preserve_statement_f
 };
 
 Beautifier.prototype.handle_whitespace_and_comments = function(current_token, preserve_statement_flags) {
-  // no-op for the moment
-  return !current_token && !preserve_statement_flags;
+  var newlines = current_token.newlines;
+
+  if (current_token.comments_before) {
+    var comment_token = current_token.comments_before.next();
+    while (comment_token) {
+      // The cleanest handling of inline comments is to treat them as though they aren't there.
+      // Just continue formatting and the behavior should be logical.
+      // Also ignore unknown tokens.  Again, this should result in better behavior.
+      this.handle_whitespace_and_comments(comment_token, preserve_statement_flags);
+      this.handle_token(comment_token, preserve_statement_flags);
+      comment_token = current_token.comments_before.next();
+    }
+  }
+
+  if (this._options.max_preserve_newlines && newlines > this._options.max_preserve_newlines) {
+    newlines = this._options.max_preserve_newlines;
+  }
+
+  if (this._options.preserve_newlines) {
+    if (newlines > 1) {
+      this.print_newline(false, preserve_statement_flags);
+      for (var j = 1; j < newlines; j += 1) {
+        this.print_newline(true, preserve_statement_flags);
+      }
+    }
+  }
 };
+
+Beautifier.prototype.handle_block_comment = function(current_token, preserve_statement_flags) {
+  if (this._output.raw) {
+    this._output.add_raw_token(current_token);
+    if (current_token.directives && current_token.directives.preserve === 'end') {
+      // If we're testing the raw output behavior, do not allow a directive to turn it off.
+      this._output.raw = this._options.test_output_raw;
+    }
+    return;
+  }
+
+  if (current_token.directives) {
+    this.print_newline(false, preserve_statement_flags);
+    this.print_token(current_token);
+    if (current_token.directives.preserve === 'start') {
+      this._output.raw = true;
+    }
+    this.print_newline(false, true);
+    return;
+  }
+
+  // inline block
+  if (!acorn.newline.test(current_token.text) && !current_token.newlines) {
+    this._output.space_before_token = true;
+    this.print_token(current_token);
+    this._output.space_before_token = true;
+    return;
+  } else {
+    this.print_block_commment(current_token, preserve_statement_flags);
+  }
+};
+
+Beautifier.prototype.print_block_commment = function(current_token, preserve_statement_flags) {
+  var lines = split_linebreaks(current_token.text);
+  var j; // iterator for this case
+  var javadoc = false;
+  var starless = false;
+  var lastIndent = current_token.whitespace_before;
+  var lastIndentLength = lastIndent.length;
+
+  // block comment starts with a new line
+  this.print_newline(false, preserve_statement_flags);
+
+  // first line always indented
+  this.print_token_line_indentation(current_token);
+  this._output.add_token(lines[0]);
+  this.print_newline(false, preserve_statement_flags);
+
+
+  if (lines.length > 1) {
+    lines = lines.slice(1);
+    javadoc = all_lines_start_with(lines, '*');
+    starless = each_line_matches_indent(lines, lastIndent);
+
+    if (javadoc) {
+      this._flags.alignment = 1;
+    }
+
+    for (j = 0; j < lines.length; j++) {
+      if (javadoc) {
+        // javadoc: reformat and re-indent
+        this.print_token_line_indentation(current_token);
+        this._output.add_token(ltrim(lines[j]));
+      } else if (starless && lines[j]) {
+        // starless: re-indent non-empty content, avoiding trim
+        this.print_token_line_indentation(current_token);
+        this._output.add_token(lines[j].substring(lastIndentLength));
+      } else {
+        // normal comments output raw
+        this._output.current_line.set_indent(-1);
+        this._output.add_token(lines[j]);
+      }
+
+      // for comments on their own line or  more than one line, make sure there's a new line after
+      this.print_newline(false, preserve_statement_flags);
+    }
+
+    this._flags.alignment = 0;
+  }
+};
+
+
+Beautifier.prototype.handle_comment = function(current_token, preserve_statement_flags) {
+  if (current_token.newlines) {
+    this.print_newline(false, preserve_statement_flags);
+  } else {
+    this._output.trim(true);
+  }
+
+  this._output.space_before_token = true;
+  this.print_token(current_token);
+  this.print_newline(false, preserve_statement_flags);
+};
+
+
 
 Beautifier.prototype.handle_legacy = function(current_token) {
   // HACK: newline parsing inconsistent. This brute force normalizes the this._input.

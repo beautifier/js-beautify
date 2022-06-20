@@ -114,7 +114,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
   }
 
   // token = token || this._read_string(c);
-  // token = token || this._read_comment(c);
+  token = token || this._read_comment(c);
   token = token || this._read_legacy(previous_token);
   token = token || this._create_token(TOKEN.UNKNOWN, this._input.next());
 
@@ -124,16 +124,15 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
 Tokenizer.prototype._read_legacy = function(previous_token) {
   var token = this._create_token(TOKEN.LEGACY, this._input.next());
 
-  // legacy doesn't understand the whitespace before text
-  token.text = token.whitespace_before + token.text;
-  for (var x = 0; x < token.newlines; x++) {
-    token.text = '\n' + token.text;
-  }
-
   // it also is the fall through of other tokens
   // so we attempt to match other tokens and
   // start or add to legacy if no other token is matched
   if (previous_token.type === TOKEN.LEGACY) {
+    // legacy doesn't understand the whitespace before text
+    for (var x = 0; x < token.newlines; x++) {
+      previous_token.text += '\n';
+    }
+    previous_token.text += token.whitespace_before;
     previous_token.text += token.text;
     token = previous_token;
   }
