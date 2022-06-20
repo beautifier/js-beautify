@@ -82,11 +82,10 @@ update_versions()
     git clean -xfd || exit 1
 
     # Disabled due to build break
-    # $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
+     $SCRIPT_DIR/generate-changelog.sh beautify-web/js-beautify $GITHUB_TOKEN || exit 1
 
     $SCRIPT_DIR/npm version --no-git-tag-version $NEW_VERSION || exit 1
 
-    sedi -E 's@(cdn.rawgit.+beautify/v)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's@(cdnjs.cloudflare.+beautify/)[^/]+@\1'$NEW_VERSION'@' README.md
     sedi -E 's/\((README\.md:.js-beautify@).+\)/(\1'$NEW_VERSION')/' README.md
 

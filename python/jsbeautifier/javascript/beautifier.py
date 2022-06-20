@@ -48,6 +48,7 @@ class BeautifierFlags:
         self.inline_frame = False
         self.if_block = False
         self.else_block = False
+        self.class_start_block = False
         self.do_block = False
         self.do_while = False
         self.import_block = False
@@ -609,6 +610,8 @@ class Beautifier:
                             )
                         ):
                             self._output.space_before_token = True
+                    elif self._flags.parent and self._flags.parent.class_start_block:
+                        self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -758,6 +761,10 @@ class Beautifier:
             self.set_mode(MODE.ObjectLiteral)
         else:
             self.set_mode(MODE.BlockStatement)
+
+        if self._flags.last_token:
+            if reserved_array(self._flags.last_token.previous, ["class", "extends"]):
+                self._flags.class_start_block = True
 
         empty_braces = (
             (next_token is not None)
@@ -1307,12 +1314,6 @@ class Beautifier:
             preserve_statement_flags = not isGeneratorAsterisk
             self.handle_whitespace_and_comments(current_token, preserve_statement_flags)
 
-        if reserved_array(self._flags.last_token, _special_word_set):
-            # return had a special handling in TK_WORD
-            self._output.space_before_token = True
-            self.print_token(current_token)
-            return
-
         # hack for actionscript's import .*;
         if current_token.text == "*" and self._flags.last_token.type == TOKEN.DOT:
             self.print_token(current_token)
@@ -1449,7 +1450,15 @@ class Beautifier:
                 or current_token.text == "++"
                 or current_token.text == "~"
             ):
-                self.print_newline(preserve_statement_flags=True)
+                new_line_needed = (
+                    reserved_array(self._flags.last_token, _special_word_set)
+                    and current_token.newlines
+                )
+                if new_line_needed and (
+                    self._previous_flags.if_block or self._previous_flags.else_block
+                ):
+                    self.restore_mode()
+                self.print_newline(new_line_needed, True)
 
             if self._flags.last_token.text == ";" and self.is_expression(
                 self._flags.mode
@@ -1592,6 +1601,9 @@ class Beautifier:
             pass
         else:
             self.handle_whitespace_and_comments(current_token, True)
+
+        if re.search("^([0-9])+$", self._flags.last_token.text):
+            self._flags.whitespace_before = True
 
         if reserved_array(self._flags.last_token, _special_word_set):
             self._output.space_before_token = False

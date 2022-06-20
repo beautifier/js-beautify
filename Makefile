@@ -144,8 +144,8 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
-	$(SCRIPT_DIR)/python-dev pip install pip --upgrade
-	$(SCRIPT_DIR)/python-rel pip install pip --upgrade
+	$(SCRIPT_DIR)/python-dev python -m pip install --upgrade pip || exit 0
+	$(SCRIPT_DIR)/python-rel python -m pip install --upgrade pip || exit 0
 	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 

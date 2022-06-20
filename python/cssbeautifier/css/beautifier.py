@@ -119,7 +119,7 @@ class Beautifier:
             "@document",
         }
         self.CONDITIONAL_GROUP_RULE = {"@media", "@supports", "@document"}
-        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template"]
+        self.NON_SEMICOLON_NEWLINE_PROPERTY = ["grid-template-areas", "grid-template"]
 
     def eatString(self, endChars):
         result = ""
@@ -422,7 +422,8 @@ class Beautifier:
                         # pseudo-element
                         self.print_string(":")
             elif self._ch == '"' or self._ch == "'":
-                self.preserveSingleSpace(isAfterSpace)
+                preserveQuoteSpace = previous_ch == '"' or previous_ch == "'"
+                self.preserveSingleSpace(preserveQuoteSpace or isAfterSpace)
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ";":
@@ -462,7 +463,11 @@ class Beautifier:
                             parenLevel -= 1
                             self.outdent()
                 else:
-                    self.preserveSingleSpace(isAfterSpace)
+                    space_needed = False
+                    if self._input.lookBack("with"):
+                        # look back is not an accurate solution, we need tokens to confirm without whitespaces
+                        space_needed = True
+                    self.preserveSingleSpace(isAfterSpace or space_needed)
                     self.print_string(self._ch)
 
                     # handle scss/sass map
@@ -533,7 +538,7 @@ class Beautifier:
                     self._ch = ""
             elif self._ch == "!" and not (self._input.lookBack("\\")):
                 # !important
-                self.print_string(" ")
+                self._output.space_before_token = True
                 self.print_string(self._ch)
             else:
                 preserveAfterSpace = previous_ch == '"' or previous_ch == "'"

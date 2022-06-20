@@ -3192,6 +3192,71 @@ exports.test_data = {
           output: 'switch (x) {\n{{c}}case -1:\n{{c}}    break;\n{{c}}case !y: {\n{{c}}    break;\n{{c}}\}\n}'
         },
         {
+          comment: "Issue #1622 - basic class with function definitions",
+          input: [
+            'class blah {',
+            '    constructor() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah {',
+            '    constructor{{nf}}() {',
+            '        this.doStuff()',
+            '    }',
+            '    doStuff{{nf}}() {',
+            '        console.log("stuff")',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class with extends and function definitions",
+          input: [
+            'class blah extends something {',
+            '    constructor() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction() {',
+            'this.y = 1;',
+            '    }',
+            '}'
+          ],
+          output: [
+            'class blah extends something {',
+            '    constructor{{nf}}() {',
+            '        this.zz = 2 + 2;',
+            '    }',
+            '    someOtherFunction{{nf}}() {',
+            '        this.y = 1;',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Issue #1622 - class/extends as a property",
+          input: [
+            'var a.class = {',
+            ' ...abc(),',
+            '}',
+            'b.extends({',
+            ' bb.s(),',
+            '})'
+          ],
+          output: [
+            'var a.class = {',
+            '    ...abc(),',
+            '}',
+            'b.extends({',
+            '    bb.s(),',
+            '})'
+          ]
+        },
+        {
           comment: 'typical greasemonkey start',
           fragment: true,
           unchanged: '// comment 2\n(function{{f}}()'
@@ -3303,12 +3368,105 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #772",
+          input: [
+            'this.initAttributes([',
+            '"name",',
+            '["parent", null, "parentName"],',
+            '"length",',
+            '["id", this.name],',
+            ']);'
+          ],
+          output: [
+            'this.initAttributes([',
+            '    "name",',
+            '    ["parent", null, "parentName"],',
+            '    "length",',
+            '    ["id", this.name],',
+            ']);'
+          ]
+        }, {
           comment: "Issue #1663",
           unchanged: [
             '{',
             '    /* howdy',
             '    ',
             '    */',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return without semicolon followed by prefix on a new line",
+          input: [
+            'function x(){',
+            'return',
+            '++a',
+            '}',
+            '',
+            'while(true) {',
+            'return',
+            '--b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return',
+            '    --b',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095",
+          input: [
+            'function test(){',
+            'if(x) return',
+            '++x',
+            'var y= 1;',
+            '}',
+            'function t1(){',
+            'if(cc) return;',
+            'else return',
+            '--cc',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    if (x) return',
+            '    ++x',
+            '    var y = 1;',
+            '}',
+            '',
+            'function t1() {',
+            '    if (cc) return;',
+            '    else return',
+            '    --cc',
+            '}'
+          ]
+        },
+        {
+          comment: "#1095 - Return with semicolon followed by a prefix on a new line",
+          input: [
+            'function x(){',
+            'return; ++a',
+            '}',
+            '',
+            'while(true){return; --b',
+            '}'
+          ],
+          output: [
+            'function x() {',
+            '    return;',
+            '    ++a',
+            '}',
+            '',
+            'while (true) {',
+            '    return;',
+            '    --b',
             '}'
           ]
         },
@@ -4627,6 +4785,99 @@ exports.test_data = {
             '    }',
             ')'
           ]
+        },
+        {
+          comment: "Issue ##1846 - in keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  in() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    in() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - Do not indent 'in' keyword if not a class method",
+          input: [
+            'function test() {',
+            'for x in nums {}',
+            '"make" in car',
+            '3 in number;',
+            '}'
+          ],
+          output: [
+            'function test() {',
+            '    for x in nums {}',
+            '    "make" in car',
+            '    3 in number;',
+            '}'
+          ]
+        },
+        {
+          comment: "Related to Issue ##1846 - of keyword in class method causes indentation problem",
+          input: [
+            'class {',
+            '  get a() {',
+            '\n',
+            '  }',
+            '\n',
+            '  of() {',
+            '\n',
+            '  }',
+            '\n',
+            '  b() {',
+            '\n',
+            '  }',
+            '}'
+          ],
+          output: [
+            'class {',
+            '    get a() {',
+            '\n',
+            '    }',
+            '\n',
+            '    of() {',
+            '\n',
+            '    }',
+            '\n',
+            '    b() {',
+            '\n',
+            '    }',
+            '}'
+          ]
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: number before a dot',
+          input: '1000000000000001000 .toFixed(0)!==1000000000000001024',
+          output: '1000000000000001000 .toFixed(0) !== 1000000000000001024'
+        },
+        {
+          comment: 'Issue #1950: Do not remove whitespace after number - test scenario: variable ends with a number before a dot',
+          input: 'a.b21 . performAction()',
+          output: 'a.b21.performAction()'
         }
       ]
     }, {

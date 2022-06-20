@@ -1502,12 +1502,46 @@ exports.test_data = {
           '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
           '}'
         ]
+      }, {
+        comment: "#2056 - Extra space before !important added",
+        unchanged: [
+          '.x {',
+          '    $d: a !default;',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '.x {',
+          '    $d: a !default;',
+          '    @if $x !=0 {',
+          '        color: $var !important;',
+          '    }',
+          '}'
+        ]
+      }, {
+        comment: "#2051 - css format removes space after quoted value",
+        unchanged: [
+          'q {',
+          '    quotes: \\\'"\\\' \\\'"\\\' "\\\'" "\\\'";',
+          '    quotes: "some" \\\'thing\\\' "different";',
+          '    quotes: \\\'some\\\' "thing" \\\'different\\\';',
+          '}'
+        ]
       }]
     }, {
-      name: "Issue #1798 - space after strings in preserved",
+      name: "Regression tests - with default options",
       description: "",
       tests: [{
+        comment: "Issue #1798 - space after strings in preserved",
         unchanged: '@use "variables" as *;'
+      }, {
+        comment: "Issue #1976 - support the new @forwards syntax",
+        input: [
+          '@forwards "a" with (',
+          '   $a: 2',
+          ');'
+        ],
+        output: '@forwards "a" with ($a: 2);'
       }]
     }, {
       name: "Issue #1817",
@@ -1529,6 +1563,21 @@ exports.test_data = {
         output: [
           '.grid {',
           '    grid-template: "top-bar" 100px;',
+          '}'
+        ]
+      }, {
+        input: [
+          'div {',
+          'grid-template-areas: "a"',
+          ' "b" ',
+          '                    "c";',
+          '}'
+        ],
+        output: [
+          'div {',
+          '    grid-template-areas: "a"',
+          '        "b"',
+          '        "c";',
           '}'
         ]
       }, {
