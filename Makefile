@@ -144,8 +144,9 @@ $(BUILD_DIR)/virtualenv: | $(BUILD_DIR)
 	virtualenv --version || pip install virtualenv
 	virtualenv build/python-dev
 	virtualenv build/python-rel
-	$(SCRIPT_DIR)/python-dev pip install pip --upgrade
-	$(SCRIPT_DIR)/python-rel pip install pip --upgrade
+	# ignore pip upgrade failure to allow windows builds to continue
+	$(SCRIPT_DIR)/python-dev pip install pip --upgrade || exit 0
+	$(SCRIPT_DIR)/python-rel pip install pip --upgrade || exit 0
 	$(SCRIPT_DIR)/python-dev3 pip install black
 	@touch $(BUILD_DIR)/virtualenv
 
