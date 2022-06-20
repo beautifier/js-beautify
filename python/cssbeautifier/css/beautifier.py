@@ -422,7 +422,8 @@ class Beautifier:
                         # pseudo-element
                         self.print_string(":")
             elif self._ch == '"' or self._ch == "'":
-                self.preserveSingleSpace(isAfterSpace)
+                preserveQuoteSpace = previous_ch == '"' or previous_ch == "'"
+                self.preserveSingleSpace(preserveQuoteSpace or isAfterSpace)
                 self.print_string(self._ch + self.eatString(self._ch))
                 self.eatWhitespace(True)
             elif self._ch == ";":
@@ -545,7 +546,7 @@ class Beautifier:
                     self._ch = ""
             elif self._ch == "!" and not (self._input.lookBack("\\")):
                 # !important
-                self.print_string(" ")
+                self._output.space_before_token = True
                 self.print_string(self._ch)
             else:
                 preserveAfterSpace = previous_ch == '"' or previous_ch == "'"

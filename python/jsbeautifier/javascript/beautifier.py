@@ -48,6 +48,7 @@ class BeautifierFlags:
         self.inline_frame = False
         self.if_block = False
         self.else_block = False
+        self.class_start_block = False
         self.do_block = False
         self.do_while = False
         self.import_block = False
@@ -609,6 +610,8 @@ class Beautifier:
                             )
                         ):
                             self._output.space_before_token = True
+                    elif self._flags.parent and self._flags.parent.class_start_block:
+                        self._output.space_before_token = True
             else:
                 # Support preserving wrapped arrow function expressions
                 # a.b('c',
@@ -758,6 +761,10 @@ class Beautifier:
             self.set_mode(MODE.ObjectLiteral)
         else:
             self.set_mode(MODE.BlockStatement)
+
+        if self._flags.last_token:
+            if reserved_array(self._flags.last_token.previous, ["class", "extends"]):
+                self._flags.class_start_block = True
 
         empty_braces = (
             (next_token is not None)

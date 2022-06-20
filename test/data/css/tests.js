@@ -1502,6 +1502,31 @@ exports.test_data = {
           '    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);',
           '}'
         ]
+      }, {
+        comment: "#2056 - Extra space before !important added",
+        unchanged: [
+          '.x {',
+          '    $d: a !default;',
+          '}'
+        ]
+      }, {
+        unchanged: [
+          '.x {',
+          '    $d: a !default;',
+          '    @if $x !=0 {',
+          '        color: $var !important;',
+          '    }',
+          '}'
+        ]
+      }, {
+        comment: "#2051 - css format removes space after quoted value",
+        unchanged: [
+          'q {',
+          '    quotes: \\\'"\\\' \\\'"\\\' "\\\'" "\\\'";',
+          '    quotes: "some" \\\'thing\\\' "different";',
+          '    quotes: \\\'some\\\' "thing" \\\'different\\\';',
+          '}'
+        ]
       }]
     }, {
       name: "Regression tests - with default options",
