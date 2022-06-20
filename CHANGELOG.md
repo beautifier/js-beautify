@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.14.4
+* Extra space before `!important` added ([#2056](https://github.com/beautify-web/js-beautify/issues/2056))
+* css format removes space after quoted value  ([#2051](https://github.com/beautify-web/js-beautify/issues/2051))
+* Add grid-template-areas to NON\_SEMICOLON\_NEWLINE\_PROPERTY list ([#2035](https://github.com/beautify-web/js-beautify/pull/2035))
+* CSS formatter removes useful space ([#2024](https://github.com/beautify-web/js-beautify/issues/2024))
+* CHANGELOG.md file was wiped out in v1.14.2 ([#2022](https://github.com/beautify-web/js-beautify/issues/2022))
+* Fails to recognize Handlebars block with whitespace control, e.g. {{~#if true ~}} ([#1988](https://github.com/beautify-web/js-beautify/issues/1988))
+* Support new sass `@use` syntax ([#1976](https://github.com/beautify-web/js-beautify/issues/1976))
+* Do not remove whitespace after number ([#1950](https://github.com/beautify-web/js-beautify/issues/1950))
+* html formatter doesn't support handlebars partial blocks (`#>`) ([#1869](https://github.com/beautify-web/js-beautify/issues/1869))
+* in keyword in class method causes indentation problem ([#1846](https://github.com/beautify-web/js-beautify/issues/1846))
+* space\_after\_named\_function not working inside an ES6 class ([#1622](https://github.com/beautify-web/js-beautify/issues/1622))
+* Restyle website ([#1444](https://github.com/beautify-web/js-beautify/issues/1444))
+* improper line concatenation between 'return' and a prefix expression ([#1095](https://github.com/beautify-web/js-beautify/issues/1095))
+
 ## v1.14.3
 * [LESS] Fixing issues with spacing when an object literal lives inside a mixin ([#2017](https://github.com/beautify-web/js-beautify/pull/2017))
 * Overindentation when using "class" as a key in an object ([#1838](https://github.com/beautify-web/js-beautify/issues/1838))
