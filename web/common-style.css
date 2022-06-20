@@ -1,32 +1,15 @@
-@import "colors.css";
-
 body {
-  background: var(--body-bg-color);
-  color: var(--body-text-color);
+  background: #eee;
+  color: #333;
   height: 95vh;
   font: 13px/1.231 arial, sans-serif;
 }
 
-a {
-  color: var(--link-text-color);
-}
-
-a:visited {
-  color: var(--link-seen-text-color);
-}
-
-a.self,
-a.self:visited {
+a.self {
   font-weight: bold;
   text-decoration: none;
-  color: var(--self-link-text-color);
-  border-bottom: 1px solid var(--link-border-color)
-}
-
-textarea {
-  color: var(--textarea-text-color);
-  background-color: var(--textarea-bg-color);
-  border-color: var(--form-controls-border-color);
+  color: #444;
+  border-bottom: 1px solid #aaa
 }
 
 h1.logo {
@@ -78,11 +61,11 @@ input[type="checkbox"], select, button {
 }
 
 .CodeMirror {
-  border: 1px solid var(--codemirror-border-color);
+  border: 1px solid #ccc;
   height: 100%;
   font-size: 90%;
   margin-bottom: 6px;
-  background: var(--codemirror-background-color);
+  background: white;
 }
 
 .hide {
@@ -113,10 +96,8 @@ input[type="checkbox"], select, button {
 }
 
 select, .buttons-box button {
-  background-color: var(--form-controls-bg-color);
-  border: 1px solid var(--form-controls-border-color);
-  color: var(--select-text-color);
-  border-color: var(--select-border-color);
+  background-color: white;
+  border: 1px solid #ccc;
   border-radius: 4px;
   line-height: 1.5em;
   padding: 0.5em;
@@ -152,13 +133,13 @@ select {
   display: block;
   font-size: 1.5em;
   width: 100%;
-  background-color: var(--submit-button-bg-color);
-  background-image: var(--submit-button-bg-image);
+  background-color: #7cffcb;
+  background-image: linear-gradient(315deg, #7cffcb 0%, #74f2ce 74%);
 }
 
 .buttons-box .control {
-  background-color: var(--control-button-bg-color);
-  color: var(--control-button-text-color);
+  background-color: #2e3138;
+  color: white;
   display: inline-flex;
 }
 
