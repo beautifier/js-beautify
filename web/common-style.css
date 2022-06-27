@@ -165,3 +165,27 @@ select {
     height: 50vh;
   }
 }
+
+.dark-mode {
+  background: #202124;
+  color: #f8f9fa;
+}
+
+.dark-mode a {
+  color: #9da2ff;
+}
+
+.dark-mode a:visited {
+  color: #d7affb;
+}
+
+.dark-mode a.self {
+  color: #d2d3d7;
+}
+
+.dark-mode select,
+.dark-mode textarea {
+  background-color: #2e3037;
+  color: #e8eaed;
+  border: 1px solid #333333;
+}
