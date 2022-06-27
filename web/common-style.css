@@ -74,7 +74,7 @@ input[type="checkbox"], select, button {
 
 .container {
   display: grid;
-  grid-template-columns: 1.6fr 0.9fr;
+  grid-template-columns: minmax(auto, 1209px) 0.9fr;
   grid-template-rows: 0.2fr 1.8fr;
   gap: 0 14px;
   grid-auto-flow: row;
