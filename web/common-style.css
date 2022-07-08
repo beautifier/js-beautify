@@ -66,6 +66,7 @@ input[type="checkbox"], select, button {
   font-size: 90%;
   margin-bottom: 6px;
   background: white;
+  word-break: break-word;
 }
 
 .hide {
