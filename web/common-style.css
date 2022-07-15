@@ -89,6 +89,7 @@ input[type="checkbox"], select, button {
 
 .editor {
   grid-area: editor;
+  width: 62vw;
 }
 
 .options {
