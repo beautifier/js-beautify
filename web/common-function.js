@@ -367,10 +367,26 @@ function changeToFileContent(input) {
 }
 
 function setPreferredColorScheme() {
+  var themeToggleBtn = document.querySelector('#theme-toggle-btn');
+  themeToggleBtn.addEventListener('change', switchTheme, false);
   var isPreferredColorSchemeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   if (isPreferredColorSchemeDark) {
+    themeToggleBtn.checked = true;
     $('.CodeMirror').addClass('cm-s-darcula');
     $('body').addClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-dark.svg");
+  }
+}
+
+function switchTheme(themeToggleEvent) {
+  if (themeToggleEvent.target.checked) {
+    $('.CodeMirror').addClass('cm-s-darcula');
+    $('body').addClass('dark-mode');
+    $('.logo').children('img').attr("src", "web/banner-dark.svg");
+  }
+  else {
+    $('.CodeMirror').removeClass('cm-s-darcula');
+    $('body').removeClass('dark-mode');
+    $('.logo').children('img').attr("src", "web/banner-light.svg");
   }
 }

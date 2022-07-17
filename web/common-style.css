@@ -189,3 +189,58 @@ select {
   color: #e8eaed;
   border: 1px solid #333333;
 }
+
+#theme-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 5px;
+}
+
+#theme-toggle-wrapper span {
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+#theme-toggle-label {
+  display: inline-block;
+  height: 20px;
+  position: relative;
+  width: 40px;
+}
+
+#theme-toggle-slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+}
+
+#theme-toggle-slider:before {
+  background-color: #fff;
+  content: "";
+  height: 20px;
+  position: absolute;
+  transition: .4s;
+  width: 20px;
+}
+
+input:checked + #theme-toggle-slider {
+  background-color: #66bb6a;
+}
+
+input:checked + #theme-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+#theme-toggle-slider {
+  border-radius: 20px;
+}
+
+#theme-toggle-slider:before {
+  border-radius: 50%;
+}
