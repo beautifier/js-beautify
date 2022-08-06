@@ -2,7 +2,6 @@
 $(function() {
 
   read_settings_from_cookie();
-
   $.getJSON("./package.json", function(data) {
     $('#version-number').text('(v' + data.version + ')');
   });
@@ -17,6 +16,7 @@ $(function() {
     the.editor = CodeMirror.fromTextArea(textArea, {
       lineNumbers: true
     });
+    setPreferredColorScheme();
     set_editor_mode();
     the.editor.focus();
 
