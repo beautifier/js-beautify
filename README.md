@@ -26,7 +26,7 @@ If you are interested, please take a look at the [CONTRIBUTING.md](https://githu
 
 # Installation
 
-You can install the beautifier for node.js or python.
+You can install the beautifier for Node.js or Python.
 
 ## Node.js JavaScript
 
@@ -58,13 +58,13 @@ JS Beautifier is hosted on two CDN services: [cdnjs](https://cdnjs.com/libraries
 
 To pull the latest version from one of these services include one set of the script tags below in your document:
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify-css.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify-html.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify-css.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify-html.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify-css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify-html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify-css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.5/beautify-html.min.js"></script>
 ```
 
 Older versions are available by changing the version number.
@@ -85,7 +85,7 @@ $ pip install cssbeautifier
 ```
 
 # Usage
-You can beautify javascript using JS Beautifier in your web browser, or on the command-line using node.js or python.
+You can beautify JavaScript using JS Beautifier in your web browser, or on the command-line using Node.js or Python.
 
 ## Web Browser
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
@@ -101,7 +101,7 @@ When installed globally, the beautifier provides an executable `js-beautify` scr
 $ js-beautify foo.js
 ```
 
-To use `js-beautify` as a `node` library (after install locally), import and call the appropriate beautifier method for javascript (js), css, or html.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.
+To use `js-beautify` as a `node` library (after install locally), import and call the appropriate beautifier method for JavaScript (JS), CSS, or HTML.  All three method signatures are `beautify(code, options)`. `code` is the string of code to be beautified. options is an object with the settings you would like used to beautify the code.
 
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  For example, `--indent-size 2 --space-in-empty-paren` would be `{ indent_size: 2, space_in_empty_paren: true }`.
 
@@ -130,7 +130,7 @@ To use `jsbeautifier` as a library is simple:
 
 ```python
 import jsbeautifier
-res = jsbeautifier.beautify('your javascript string')
+res = jsbeautifier.beautify('your JavaScript string')
 res = jsbeautifier.beautify_file('some_file.js')
 ```
 
@@ -140,7 +140,7 @@ res = jsbeautifier.beautify_file('some_file.js')
 opts = jsbeautifier.default_options()
 opts.indent_size = 2
 opts.space_in_empty_paren = True
-res = jsbeautifier.beautify('some javascript', opts)
+res = jsbeautifier.beautify('some JavaScript', opts)
 ```
 
 The configuration option names are the same as the CLI names but with underscores instead of dashes.  The example above would be set on the command-line as `--indent-size 2 --space-in-empty-paren`.
@@ -188,7 +188,7 @@ Beautifier Options:
   -C, --comma-first                 Put commas at the beginning of new line instead of end
   -O, --operator-position           Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
   --indent-empty-lines              Keep indentation on empty lines
-  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
+  --templating                      List of templating languages (auto,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in HTML
 ```
 
 Which correspond to the underscored option keys for both library interfaces
@@ -251,7 +251,7 @@ Configuration sources provided earlier in this stack will override later ones.
 
 The settings are a shallow tree whose values are inherited for all languages, but
 can be overridden.  This works for settings passed directly to the API in either implementation.
-In the Javascript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.
+In the JavaScript implementation, settings loaded from a config file, such as .jsbeautifyrc, can also use inheritance/overriding.
 
 Below is an example configuration tree showing all the supported locations
 for language override nodes.  We'll use `indent_size` to discuss how this configuration would behave, but any number of settings can be inherited or overridden:
@@ -397,4 +397,4 @@ Thanks also to Jason Diamond, Patrick Hof, Nochum Sossonko, Andreas Schneider, D
 Vasilevsky, Vital Batmanov, Ron Baldwin, Gabriel Harrison, Chris J. Shull,
 Mathias Bynens, Vittorio Gambaletta and others.
 
-(README.md: js-beautify@1.14.4)
+(README.md: js-beautify@1.14.5)
