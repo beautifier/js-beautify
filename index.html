@@ -70,14 +70,13 @@
 <body class="container">
 
   <div class="title">
-    <h1 class="logo"><img alt="js-beautify" src="web/banner-light.svg" height="54px" /> <span id="version-number"></span></h1>
+    <h1 class="logo">
+      <img alt="js-beautify" src="web/banner-light.svg" height="54px" />
+      <span id="version-number"></span>
+    </h1>
     <div class="sub-title">
       <p>
-        <a class="self" href="./">Beautify, unpack or deobfuscate JavaScript and HTML, make JSON/JSONP readable, etc.</a>
-      </p>
-      <p>
-        All of the source code is completely free and open, available on <a href="https://github.com/beautify-web/js-beautify">GitHub</a> under MIT licence,
-        <br>and we have a command-line version, <a href="https://pypi.org/project/jsbeautifier/">python library</a> and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+        <strong>Beautify JavaScript, JSON, React.js, HTML, CSS, SCSS, and SASS</strong>
       </p>
     </div>
   </div>
@@ -89,15 +88,22 @@
       </label>
       <span>Enable Dark Mode</span>
     </div>
-    <h1>Options</h1>
     <select name="language" id="language">
       <option value="css">Beautify CSS</option>
       <option value="html">Beautify HTML</option>
       <option value="js">Beautify JavaScript</option>
     </select>
 
-    <h2>Config Options</h2>
+    <div class="buttons-box">
+      <button class="submit"><strong>Beautify Code</strong> <em>(ctrl&#8209;enter)</em></button>
+      <button class="control" type="button" onclick="copyText()"><strong>Copy to Clipboard</strong></button>
+      <button class="control" type="button" onclick="selectAll()"><strong>Select All</strong></button>
+      <button class="control" type="button" onclick="clearAll()"><strong>Clear</strong></button>
+      <input type="file" onchange="changeToFileContent(this)">
+    </div>
+
     <div class="config-options">
+      <h2>Options</h2>
       <div id="options">
 
         <div class="options-select">
@@ -182,32 +188,35 @@
 
         <div>
           <p style="margin:6px 0 0 0">Additional Settings (JSON):</p>
-          <textarea id="additional-options" rows="5" style="width: 100%">{}</textarea>
+          <textarea id="additional-options" rows="5">{}</textarea>
         </div>
         <p id="additional-options-error" hidden style="margin:6px 0 0 0; color:red ">Could Not Parse JSON!</p>
         <p style="margin:6px 0 0 0">Your Selected Options (JSON):</p>
         <div>
-          <textarea readonly id="options-selected" rows="5" style="width: 100%"></textarea>
+          <textarea readonly id="options-selected" rows="5"></textarea>
         </div>
       </div>
     </div>
-    <div class="buttons-box">
-      <button class="control" type="button" onclick="copyText()"><strong>Copy to Clipboard</strong></button>
-      <button class="control" type="button" onclick="selectAll()"><strong>Select All</strong></button>
-      <button class="control" type="button" onclick="clearAll()"><strong>Clear</strong></button>
-      <input type="file" onchange="changeToFileContent(this)">
-      <button class="submit"><strong>Beautify Code</strong> <em>(ctrl-enter)</em></button>
-    </div>
 
     <div class="contributions">
-      <p class="contributor-sep">Written by <a href="https://github.com/einars">Einar Lielmanis</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
+      <p class="contributor-sep">Created by <a href="https://github.com/einars">Einar Lielmanis</a>, maintained and evolved by <a href="https://github.com/bitwiseman/">Liam Newman</a>.</p>
+      </p>
+      <p>
+        All of the source code is completely free and open, available on <a href="https://github.com/beautify-web/js-beautify">GitHub</a> under MIT licence,
+        and we have a command-line version, <a href="https://pypi.org/project/jsbeautifier/">python library</a> and a <a href="https://npmjs.org/package/js-beautify">node package</a> as well.
+      </p>
       <p>We use the wonderful <a href="http://codemirror.net">CodeMirror</a> syntax highlighting editor, written by Marijn Haverbeke.</p>
-      <p class="contributors">Made with a great help of Jason&nbsp;Diamond, Patrick&nbsp;Hof, Nochum&nbsp;Sossonko, Andreas&nbsp;Schneider,
-        <br>Dave&nbsp;Vasilevsky,
-        <a href="https://moikrug.ru/vital">Vital&nbsp;Batmanov</a>, Ron&nbsp;Baldwin, Gabriel&nbsp;Harrison,
+      <p class="contributors">Made with a great help of many contributors. Special thanks to:<br>
+        Jason&nbsp;Diamond,
+        Patrick&nbsp;Hof,
+        Nochum&nbsp;Sossonko,
+        Andreas&nbsp;Schneider,
+        Dave&nbsp;Vasilevsky,
+        <a href="https://moikrug.ru/vital">Vital&nbsp;Batmanov</a>,
+        Ron&nbsp;Baldwin,
+        Gabriel&nbsp;Harrison,
         <a href="http://shullian.com">Chris J. Shull</a>,
         <a href="http://mathiasbynens.be/">Mathias Bynens</a>,
-        <br>
         <a href="https://www.vittgam.net/">Vittorio Gambaletta</a>,
         <a href="https://github.com/esseks">Stefano Sanfilippo</a> and
         <a href="https://github.com/evocateur">Daniel Stockman</a>.

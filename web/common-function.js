@@ -383,8 +383,7 @@ function switchTheme(themeToggleEvent) {
     $('.CodeMirror').addClass('cm-s-darcula');
     $('body').addClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-dark.svg");
-  }
-  else {
+  } else {
     $('.CodeMirror').removeClass('cm-s-darcula');
     $('body').removeClass('dark-mode');
     $('.logo').children('img').attr("src", "web/banner-light.svg");
