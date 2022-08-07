@@ -2,6 +2,8 @@ body {
   background: #eee;
   color: #333;
   height: 95vh;
+  margin: 8px;
+  max-width: 100%;
   font: 13px/1.231 arial, sans-serif;
 }
 
@@ -28,11 +30,15 @@ p, select, label, .blurb, a.turn-off-codemirror {
 }
 
 .sub-title {
-  margin-bottom: 30px;
+  margin-bottom: 8px;
 }
 
 .title {
   margin-left: 40px;
+}
+
+textarea {
+  width: 100%;
 }
 
 textarea#source {
@@ -64,7 +70,6 @@ input[type="checkbox"], select, button {
   border: 1px solid #ccc;
   height: 100%;
   font-size: 90%;
-  margin-bottom: 6px;
   background: white;
 }
 
@@ -73,8 +78,9 @@ input[type="checkbox"], select, button {
 }
 
 .container {
+  max-width: 95%;
   display: grid;
-  grid-template-columns: calc(100vw/1.6) calc(100vw/0.9);
+  grid-template-columns: 65% 35%;
   grid-template-rows: 0.2fr 1.8fr;
   gap: 0 14px;
   grid-auto-flow: row;
@@ -113,6 +119,7 @@ select {
 
 .options-checkboxes, .options-select {
   display: inline-table;
+  max-width: 100%;
 }
 
 #language {
@@ -143,14 +150,19 @@ select {
   display: inline-flex;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
   .container {
+    grid-template-columns: 100%;
     grid-template-areas:
       "title"
       "editor"
       "options";
     grid-template-rows: 0.1fr 1.8fr 0.1fr;
-    width: 100vw;
+    max-width: 100%;
+  }
+
+  .options-checkboxes, .options-select {
+    max-width: 50%;
   }
 
   .title {
@@ -158,7 +170,7 @@ select {
   }
 
   .editor, .title, .options {
-    width: 95vw;
+    max-width: 100%;
   }
 
   .CodeMirror {
@@ -229,11 +241,11 @@ select {
   width: 20px;
 }
 
-input:checked + #theme-toggle-slider {
+input:checked+#theme-toggle-slider {
   background-color: #66bb6a;
 }
 
-input:checked + #theme-toggle-slider:before {
+input:checked+#theme-toggle-slider:before {
   transform: translateX(20px);
 }
 
