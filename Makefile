@@ -1,4 +1,4 @@
-PROJECT_ROOT=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+PROJECT_ROOT=$(subst \,/,$(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
 BUILD_DIR=$(PROJECT_ROOT)build
 SCRIPT_DIR=$(PROJECT_ROOT)tools
 SHELL=/bin/bash
