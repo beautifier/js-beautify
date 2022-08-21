@@ -63,6 +63,19 @@ nopt.typeDefs.brace_style = {
         return true;
     }
 };
+nopt.typeDefs.glob = {
+    type: "glob",
+    validate: function(data, key, val) {
+        if (typeof val === 'string' && glob.hasMagic(val)) {
+            // Preserve value if it contains glob magic
+            data[key] = val;
+            return true;
+        } else {
+            // Otherwise validate it as regular path
+            return nopt.typeDefs.path.validate(data, key, val);
+        }
+    }
+};
 var path = require('path'),
     editorconfig = require('editorconfig'),
     knownOpts = {
@@ -112,7 +125,7 @@ var path = require('path'),
         // CLI
         "version": Boolean,
         "help": Boolean,
-        "files": [path, Array],
+        "files": ["glob", Array],
         "outfile": path,
         "replace": Boolean,
         "quiet": Boolean,
