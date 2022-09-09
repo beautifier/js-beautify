@@ -1,5 +1,5 @@
 # Description
-- [ ] Source branch in your fork has meaningful name (not `main`)
+- [ Iss2062_records ] Source branch in your fork has meaningful name (not `main`)
 
 
 Fixes Issue: 
@@ -11,9 +11,9 @@ These items can be completed after PR is created.
 
 (Check any items that are not applicable (NA) for this PR)
 
-- [ ] JavaScript implementation
-- [ ] Python implementation (NA if HTML beautifier)
-- [ ] Added Tests to data file(s)
-- [ ] Added command-line option(s) (NA if
-- [ ] README.md documents new feature/option(s)
+- [X] JavaScript implementation
+- [X] Python implementation (NA if HTML beautifier)
+- [X] Added Tests to data file(s)
+- [NA] Added command-line option(s) (NA if
+- [NA] README.md documents new feature/option(s)
 

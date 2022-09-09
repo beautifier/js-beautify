@@ -5368,6 +5368,7 @@ exports.test_data = {
         { fragment: true, unchanged: '   < div' },
         { input: 'a        =          1', output: 'a = 1' },
         { input: 'a=1', output: 'a = 1' },
+        { input: '#{ hello: "world" }', output: '#{\n    hello: "world"\n}' },
         { unchanged: '(3) / 2' },
         { unchanged: '["a", "b"].join("")' },
         { unchanged: 'a();\n\nb();' },
