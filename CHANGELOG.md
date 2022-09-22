@@ -53,6 +53,7 @@
 
 ## v1.13.11
 * Support short PHP tags ([#1840](https://github.com/beautify-web/js-beautify/issues/1840))
+
 ## v1.13.6
 * Fix space-before-conditional: false to work on switch-case statement ([#1881](https://github.com/beautify-web/js-beautify/pull/1881))
 * Optional chaining obj?.[expr] ([#1801](https://github.com/beautify-web/js-beautify/issues/1801))
