@@ -3642,6 +3642,46 @@ exports.test_data = {
         '{{/row}}'
       ]
     }]
+  },{
+    name: "Does not add whitespace around custom elements ",
+    description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><div>.</div',
+        '        ><section>27</section>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <div>.</div>',
+        '        <section>27</section>',
+        '    </span>',
+        '</span>'
+      ]
+    }, {
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ]
+    }]
   }, {
     name: "New Test Suite"
   }]
