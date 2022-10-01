@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.14.6
+* Globs no longer work on Windows in 1.14.5 ([#2093](https://github.com/beautify-web/js-beautify/issues/2093))
+
+## v1.14.5
+* Dependency updates and UI tweaks ([#2088](https://github.com/beautify-web/js-beautify/pull/2088))
+* Bump terser from 5.12.1 to 5.14.2 ([#2084](https://github.com/beautify-web/js-beautify/pull/2084))
+* new layout breaks everything on long lines ([#2071](https://github.com/beautify-web/js-beautify/issues/2071))
+* Dark mode ([#2057](https://github.com/beautify-web/js-beautify/issues/2057))
+
 ## v1.14.4
 * Extra space before `!important` added ([#2056](https://github.com/beautify-web/js-beautify/issues/2056))
 * css format removes space after quoted value  ([#2051](https://github.com/beautify-web/js-beautify/issues/2051))
