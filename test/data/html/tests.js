@@ -3642,7 +3642,7 @@ exports.test_data = {
         '{{/row}}'
       ]
     }]
-  },{
+  }, {
     name: "Does not add whitespace around custom elements ",
     description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
     tests: [{
