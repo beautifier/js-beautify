@@ -67,6 +67,20 @@ To pull the latest version from one of these services include one set of the scr
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-html.min.js"></script>
 ```
 
+Example usage of a JS tag in html:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+
+. . .
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
+```
 Older versions are available by changing the version number.
 
 Disclaimer: These are free services, so there are [no uptime or support guarantees](https://github.com/rgrove/rawgit/wiki/Frequently-Asked-Questions#i-need-guaranteed-100-uptime-should-i-use-cdnrawgitcom).
@@ -91,7 +105,28 @@ You can beautify JavaScript using JS Beautifier in your web browser, or on the c
 Open [beautifier.io](https://beautifier.io/).  Options are available via the UI.
 
 ## Web Library
-The script tags above expose three functions: `js_beautify`, `css_beautify`, and `html_beautify`.
+After you embed the `<script>` tags in your `html` file, they expose three functions: `js_beautify`, `css_beautify`, and `html_beautify` 
+
+Example usage of beautifying a json string:
+
+```js
+const options = { indent_size: 2, space_in_empty_paren: true }
+
+const dataObj = {completed: false,id: 1,title: "delectus aut autem",userId: 1,}
+
+const dataJson = JSON.stringify(dataObj)
+
+js_beautify(dataJson, options)
+
+/* OUTPUT
+{
+  "completed": false,
+  "id": 1,
+  "title": "delectus aut autem",
+  "userId": 1,
+}
+*/
+```
 
 ## Node.js JavaScript
 
