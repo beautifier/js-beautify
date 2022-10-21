@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.14.7
+* Doc: Updates web browser implementation examples ([#2107](https://github.com/beautify-web/js-beautify/pull/2107))
+* HTML formatter breaks layout by introducing newlines ([#1989](https://github.com/beautify-web/js-beautify/issues/1989))
+
 ## v1.14.6
 * Globs no longer work on Windows in 1.14.5 ([#2093](https://github.com/beautify-web/js-beautify/issues/2093))
 
