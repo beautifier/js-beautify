@@ -1760,6 +1760,14 @@ exports.test_data = {
       ]
     }, {
       unchanged: [
+        '<menu>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</menu>'
+      ]
+    }, {
+      unchanged: [
         '<ol>',
         '    <li>',
         '        test content',
@@ -1772,6 +1780,30 @@ exports.test_data = {
         '    <li>',
         '        test content',
         '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<menu>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        <ol>',
+        '            <li> level 1 check',
+        '            <li>',
+        '                <menu>',
+        '                    <li> level 2 check',
+        '                    <li>',
+        '                        <ul>',
+        '                            <li> level 3 check',
+        '                        </ul>',
+        '                    <li>',
+        '                        test content',
+        '                </menu>',
+        '        </ol>',
+        '    <li> test content',
+        '    <li>',
+        '        test content',
+        '</menu>'
       ]
     }, {
       unchanged: [
