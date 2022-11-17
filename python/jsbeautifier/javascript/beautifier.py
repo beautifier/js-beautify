@@ -974,7 +974,12 @@ class Beautifier:
             TOKEN.EQUALS,
             TOKEN.OPERATOR,
         ]:
-            if not self.start_of_object_property():
+            if not self.start_of_object_property() and not (
+                # start of object property is different for numeric values with +/- prefix operators
+                self._flags.last_token.text in ["+", "-"]
+                and self._last_last_text == ":"
+                and self._flags.parent.mode == MODE.ObjectLiteral
+            ):
                 self.allow_wrap_or_preserved_newline(current_token)
 
         if reserved_word(current_token, "function"):
@@ -1321,6 +1326,11 @@ class Beautifier:
 
         if current_token.text == "::":
             # no spaces around the exotic namespacing syntax operator
+            self.print_token(current_token)
+            return
+
+        if current_token.text in ["-", "+"] and self.start_of_object_property():
+            # numeric value with +/- symbol in front as a property
             self.print_token(current_token)
             return
 

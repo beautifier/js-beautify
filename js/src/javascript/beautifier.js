@@ -891,7 +891,9 @@ Beautifier.prototype.handle_word = function(current_token) {
   }
 
   if (this._flags.last_token.type === TOKEN.COMMA || this._flags.last_token.type === TOKEN.START_EXPR || this._flags.last_token.type === TOKEN.EQUALS || this._flags.last_token.type === TOKEN.OPERATOR) {
-    if (!this.start_of_object_property()) {
+    if (!this.start_of_object_property() && !(
+        // start of object property is different for numeric values with +/- prefix operators
+        in_array(this._flags.last_token.text, ['+', '-']) && this._last_last_text === ':' && this._flags.parent.mode === MODE.ObjectLiteral)) {
       this.allow_wrap_or_preserved_newline(current_token);
     }
   }
@@ -1168,6 +1170,12 @@ Beautifier.prototype.handle_operator = function(current_token) {
 
   if (current_token.text === '::') {
     // no spaces around exotic namespacing syntax operator
+    this.print_token(current_token);
+    return;
+  }
+
+  if (in_array(current_token.text, ['-', '+']) && this.start_of_object_property()) {
+    // numeric value with +/- symbol in front as a property
     this.print_token(current_token);
     return;
   }
