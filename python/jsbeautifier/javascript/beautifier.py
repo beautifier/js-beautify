@@ -835,7 +835,7 @@ class Beautifier:
 
             elif self._flags.last_token.type not in [TOKEN.OPERATOR, TOKEN.START_EXPR]:
                 if (
-                    self._flags.last_token.type == TOKEN.START_BLOCK
+                    self._flags.last_token.type in [TOKEN.START_BLOCK, TOKEN.SEMICOLON]
                     and not self._flags.inline_frame
                 ):
                     self.print_newline()

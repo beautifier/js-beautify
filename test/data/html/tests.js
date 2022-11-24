@@ -1760,6 +1760,14 @@ exports.test_data = {
       ]
     }, {
       unchanged: [
+        '<menu>',
+        '    <li>test content',
+        '    <li>test content',
+        '    <li>test content',
+        '</menu>'
+      ]
+    }, {
+      unchanged: [
         '<ol>',
         '    <li>',
         '        test content',
@@ -1772,6 +1780,30 @@ exports.test_data = {
         '    <li>',
         '        test content',
         '</ol>'
+      ]
+    }, {
+      unchanged: [
+        '<menu>',
+        '    <li>',
+        '        test content',
+        '    <li>',
+        '        <ol>',
+        '            <li> level 1 check',
+        '            <li>',
+        '                <menu>',
+        '                    <li> level 2 check',
+        '                    <li>',
+        '                        <ul>',
+        '                            <li> level 3 check',
+        '                        </ul>',
+        '                    <li>',
+        '                        test content',
+        '                </menu>',
+        '        </ol>',
+        '    <li> test content',
+        '    <li>',
+        '        test content',
+        '</menu>'
       ]
     }, {
       unchanged: [
@@ -3640,6 +3672,46 @@ exports.test_data = {
         '        <span>content</span>',
         '    {{/column}}',
         '{{/row}}'
+      ]
+    }]
+  }, {
+    name: "Does not add whitespace around custom elements ",
+    description: "Regression test for https://github.com/beautify-web/js-beautify/issues/1989",
+    tests: [{
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><div>.</div',
+        '        ><section>27</section>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span>',
+        '        <div>.</div>',
+        '        <section>27</section>',
+        '    </span>',
+        '</span>'
+      ]
+    }, {
+      input: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span',
+        '        ><time-dot>.</time-dot',
+        '        ><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
+      ],
+      output: [
+        '<span>',
+        '    <span>',
+        '        <span>The time for this result is 1:02</span><time-dot>.</time-dot><time-decimals>27</time-decimals>',
+        '    </span>',
+        '</span>'
       ]
     }]
   }, {

@@ -3368,6 +3368,33 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #1852 - semicolon followed by block statement",
+          unchanged: [
+            '(function() {',
+            '    some_code_here();',
+            '    {',
+            '        /* IE11 let bug bypass */',
+            '        let index;',
+            '        for (index in a) {',
+            '            a[index];',
+            '        }',
+            '    }',
+            '})();'
+          ]
+        }, {
+          comment: "Issue #1852 - semicolon followed by block statement 2",
+          input: [
+            'let x = { A: 1 }; { console.log("hello"); }'
+          ],
+          output: [
+            'let x = {',
+            '    A: 1',
+            '};',
+            '{',
+            '    console.log("hello");',
+            '}'
+          ]
+        }, {
           comment: "Issue #772",
           input: [
             'this.initAttributes([',
