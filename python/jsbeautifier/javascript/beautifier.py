@@ -766,10 +766,6 @@ class Beautifier:
             if reserved_array(self._flags.last_token.previous, ["class", "extends"]):
                 self._flags.class_start_block = True
 
-            # Issue #2062 check to see if defining a new Record type - #{}
-        # Conditional on line 843 uses this variable
-        is_record = self._flags.last_token.text == "#"
-
         empty_braces = (
             (next_token is not None)
             and next_token.comments_before is None
@@ -840,7 +836,7 @@ class Beautifier:
                 ):
                     self.print_newline()
                 else:
-                    self._output.space_before_token = not is_record
+                    self._output.space_before_token = True
 
         self.print_token(current_token)
         self.indent()

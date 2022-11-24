@@ -720,9 +720,6 @@ Beautifier.prototype.handle_start_block = function(current_token) {
     }
   }
 
-  // Issue #2062 check to see if defining a new Record type - #{}
-  // Conditional on line 774 uses this variable
-  var is_record = this._flags.last_word === '#';
   var empty_braces = !next_token.comments_before && next_token.text === '}';
   var empty_anonymous_function = empty_braces && this._flags.last_word === 'function' &&
     this._flags.last_token.type === TOKEN.END_EXPR;
@@ -771,7 +768,7 @@ Beautifier.prototype.handle_start_block = function(current_token) {
       if (in_array(this._flags.last_token.type, [TOKEN.START_BLOCK, TOKEN.SEMICOLON]) && !this._flags.inline_frame) {
         this.print_newline();
       } else {
-        this._output.space_before_token = !is_record;
+        this._output.space_before_token = true;
       }
     }
   }
