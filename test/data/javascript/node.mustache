@@ -192,7 +192,7 @@ function run_javascript_tests(test_obj, Urlencoded, js_beautify, html_beautify, 
                     'if (foo)' + eo + '{}' + ec + 'else /regex/.test();');
                 test_fragment('if (foo)' + to + '{', 'if (foo)' + eo + '{');
                 test_fragment('foo' + to + '{', 'foo' + eo + '{');
-                test_fragment('return;' + to + '{', 'return;' + eo + '{');
+                test_fragment('return;' + to + '{', 'return;\n{');
                 bt( 'function x()' + to + '{\n    foo();\n}zzz', 'function x()' + eo +'{\n    foo();\n}\nzzz');
                 bt( 'var a = new function a()' + to + '{};', 'var a = new function a()' + eo + '{};');
                 bt( 'var a = new function a()' + to + '    {},\n    b = new function b()' + to + '    {};',
