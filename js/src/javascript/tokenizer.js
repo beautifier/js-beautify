@@ -229,7 +229,7 @@ Tokenizer.prototype._read_singles = function(c) {
 Tokenizer.prototype._read_pair = function(c, d) {
   var token = null;
   if (c === '#' && d === '{') {
-    token = this._create_token(TOKEN.START_BLOCK, c+d);
+    token = this._create_token(TOKEN.START_BLOCK, c + d);
   }
 
   if (token) {
