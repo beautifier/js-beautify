@@ -167,6 +167,7 @@ Tokenizer.prototype._get_next_token = function(previous_token, open_token) { // 
 
   token = token || this._read_non_javascript(c);
   token = token || this._read_string(c);
+  token = token || this._read_pair(c, this._input.peek(1)); // Issue #2062 hack for record type '#{'
   token = token || this._read_word(previous_token);
   token = token || this._read_singles(c);
   token = token || this._read_comment(c);
@@ -220,6 +221,19 @@ Tokenizer.prototype._read_singles = function(c) {
   }
 
   if (token) {
+    this._input.next();
+  }
+  return token;
+};
+
+Tokenizer.prototype._read_pair = function(c, d) {
+  var token = null;
+  if (c === '#' && d === '{') {
+    token = this._create_token(TOKEN.START_BLOCK, c + d);
+  }
+
+  if (token) {
+    this._input.next();
     this._input.next();
   }
   return token;

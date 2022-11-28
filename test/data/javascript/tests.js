@@ -3383,6 +3383,33 @@ exports.test_data = {
             'var test = 1;'
           ]
         }, {
+          comment: "Issue #1852 - semicolon followed by block statement",
+          unchanged: [
+            '(function() {',
+            '    some_code_here();',
+            '    {',
+            '        /* IE11 let bug bypass */',
+            '        let index;',
+            '        for (index in a) {',
+            '            a[index];',
+            '        }',
+            '    }',
+            '})();'
+          ]
+        }, {
+          comment: "Issue #1852 - semicolon followed by block statement 2",
+          input: [
+            'let x = { A: 1 }; { console.log("hello"); }'
+          ],
+          output: [
+            'let x = {',
+            '    A: 1',
+            '};',
+            '{',
+            '    console.log("hello");',
+            '}'
+          ]
+        }, {
           comment: "Issue #772",
           input: [
             'this.initAttributes([',
@@ -5362,6 +5389,52 @@ exports.test_data = {
             '    var b = 1;',
             '',
             '}'
+          ]
+        }
+      ]
+    }, {
+      name: "Record data type",
+      description: "",
+      tests: [{
+          comment: 'regular record with primitive',
+          input: 'a = #{ b:"c", d:1, e:true };',
+          output: [
+            'a = #{',
+            '    b: "c",',
+            '    d: 1,',
+            '    e: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'nested record',
+          input: 'a = #{b:#{ c:1,d:2,}, e:"f"};',
+          output: [
+            'a = #{',
+            '    b: #{',
+            '        c: 1,',
+            '        d: 2,',
+            '    },',
+            '    e: "f"',
+            '};'
+          ]
+        },
+        {
+          comment: '# not directly followed by { is not handled as record',
+          unchanged: [
+            'a = # {',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'example of already valid and beautified record',
+          unchanged: [
+            'a = #{',
+            '    b: 1,',
+            '    d: true',
+            '};'
           ]
         }
       ]
