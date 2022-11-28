@@ -5378,6 +5378,52 @@ exports.test_data = {
         }
       ]
     }, {
+      name: "Record data type",
+      description: "",
+      tests: [{
+          comment: 'regular record with primitive',
+          input: 'a = #{ b:"c", d:1, e:true };',
+          output: [
+            'a = #{',
+            '    b: "c",',
+            '    d: 1,',
+            '    e: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'nested record',
+          input: 'a = #{b:#{ c:1,d:2,}, e:"f"};',
+          output: [
+            'a = #{',
+            '    b: #{',
+            '        c: 1,',
+            '        d: 2,',
+            '    },',
+            '    e: "f"',
+            '};'
+          ]
+        },
+        {
+          comment: '# not directly followed by { is not handled as record',
+          unchanged: [
+            'a = # {',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        },
+        {
+          comment: 'example of already valid and beautified record',
+          unchanged: [
+            'a = #{',
+            '    b: 1,',
+            '    d: true',
+            '};'
+          ]
+        }
+      ]
+    }, {
       // =======================================================
       // New tests groups should be added above this line.
       // Everything below is a work in progress - converting
