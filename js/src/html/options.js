@@ -81,6 +81,7 @@ function Options(options) {
     'pre', 'textarea'
   ]);
   this.unformatted_content_delimiter = this._get_characters('unformatted_content_delimiter');
+  this.hyphen_attributes = this._get_boolean('hyphen_attributes', false);
   this.indent_scripts = this._get_selection('indent_scripts', ['normal', 'keep', 'separate']);
 
 }

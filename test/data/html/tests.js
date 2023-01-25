@@ -814,6 +814,23 @@ exports.test_data = {
       output: '<span>0 0001 0002 0003 0004 0005 0006 0007 0008 0009 0^^0 0011 0012 0013 0014\n    0015 0016 0^^7 0018 0019 0020</span>'
     }]
   }, {
+    name: "hyphen_attributes:false",
+    description: "Ensure HTML attributes are hypenated and lowercased (not camelCased)",
+    options: [
+      { name: "hyphen_attributes", value: "false" }
+    ],
+    tests: [{ unchanged: '<span some="attribute" is-not="camelCase" butThis="is"></span>' }]
+  }, {
+    name: "hyphen_attributes:true",
+    description: "Ensure HTML attributes are hypenated and lowercased (not camelCased)",
+    options: [
+      { name: "hyphen_attributes", value: "true" }
+    ],
+    tests: [{
+      input: '<span some="attribute" is-not="camelCase" butThis="is"></span>',
+      output: '<span some="attribute" is-not="camelCase" but-this="is"></span>'
+    }]
+  }, {
     name: "Attribute Wrap",
     description: "Wraps attributes inside of html tags",
     matrix: [{

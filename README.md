@@ -376,6 +376,7 @@ HTML Beautifier Options:
   --editorconfig                     Use EditorConfig to set up the options
   --indent_scripts                   Sets indent level inside script tags ("normal", "keep", "separate")
   --unformatted_content_delimiter    Keep text content together between this string [""]
+  --hyphen_attributes                Ensure HTML attributes are hypenated and lowercased (not camelCased)
   --indent-empty-lines               Keep indentation on empty lines
   --templating                       List of templating languages (auto,none,django,erb,handlebars,php,smarty) ["auto"] auto = none in JavaScript, all in html
 ```

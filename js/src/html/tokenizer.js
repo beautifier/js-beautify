@@ -266,6 +266,12 @@ Tokenizer.prototype._read_attribute = function(c, previous_token, open_token) {
         } else {
           token = this._create_token(TOKEN.ATTRIBUTE, resulting_string);
         }
+
+        if (this._options.hyphen_attributes) {
+          token.text = token.text.replace(/[A-Z]/g, function(match, offset) {
+            return (offset > 0 ? '-' : '') + match.toLowerCase();
+          });
+        }
       }
     }
   }
