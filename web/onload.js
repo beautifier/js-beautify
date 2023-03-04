@@ -16,7 +16,7 @@ $(function() {
     the.editor = CodeMirror.fromTextArea(textArea, {
       lineNumbers: true
     });
-    setPreferredColorScheme();
+
     set_editor_mode();
     the.editor.focus();
 
@@ -36,7 +36,8 @@ $(function() {
       }
     });
   }
-
+  
+  setPreferredColorScheme();
 
   $(window).bind('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.keyCode === 13) {
