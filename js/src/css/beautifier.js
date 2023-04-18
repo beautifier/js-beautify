@@ -195,6 +195,7 @@ Beautifier.prototype.beautify = function() {
   var enteringConditionalGroup = false;
   var insideAtExtend = false;
   var insideAtImport = false;
+  var insideAtApply = false;
   var insideScssMap = false;
   var topCharacter = this._ch;
   var insideNonSemiColonValues = false;
@@ -276,6 +277,11 @@ Beautifier.prototype.beautify = function() {
           insideAtImport = true;
         }
 
+        // might be a tailwindcss ruleset
+        if (variableOrRule === 'apply') {
+          insideAtApply = true;
+        }
+
         // might be a nesting at-rule
         if (variableOrRule in this.NESTED_AT_RULE) {
           this._nestedLevel += 1;
@@ -339,6 +345,7 @@ Beautifier.prototype.beautify = function() {
       }
       insideAtImport = false;
       insideAtExtend = false;
+      insideAtApply = false;
       if (insidePropertyValue) {
         this.outdent();
         insidePropertyValue = false;
@@ -372,9 +379,10 @@ Beautifier.prototype.beautify = function() {
         }
       }
 
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && parenLevel === 0) {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && !insideAtApply && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
+
         this.print_string(':');
         if (!insidePropertyValue) {
           insidePropertyValue = true;
