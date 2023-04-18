@@ -345,7 +345,6 @@ Beautifier.prototype.beautify = function() {
       }
       insideAtImport = false;
       insideAtExtend = false;
-      insideAtApply = false;
       if (insidePropertyValue) {
         this.outdent();
         insidePropertyValue = false;
@@ -421,6 +420,7 @@ Beautifier.prototype.beautify = function() {
         }
         insideAtExtend = false;
         insideAtImport = false;
+        insideAtApply = false;
         this.print_string(this._ch);
         this.eatWhitespace(true);
 
