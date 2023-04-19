@@ -195,7 +195,7 @@ Beautifier.prototype.beautify = function() {
   var enteringConditionalGroup = false;
   var insideAtExtend = false;
   var insideAtImport = false;
-  var insideAtApply = false;
+  var insideNonNestedAtRule = false;
   var insideScssMap = false;
   var topCharacter = this._ch;
   var insideNonSemiColonValues = false;
@@ -277,11 +277,6 @@ Beautifier.prototype.beautify = function() {
           insideAtImport = true;
         }
 
-        // might be a tailwindcss ruleset
-        if (variableOrRule === 'apply') {
-          insideAtApply = true;
-        }
-
         // might be a nesting at-rule
         if (variableOrRule in this.NESTED_AT_RULE) {
           this._nestedLevel += 1;
@@ -292,6 +287,10 @@ Beautifier.prototype.beautify = function() {
         } else if (!insideRule && parenLevel === 0 && variableOrRule.indexOf(':') !== -1) {
           insidePropertyValue = true;
           this.indent();
+        }
+          // might be a non-nested at-rule
+        } else if( ! ( variableOrRule in this.NESTED_AT_RULE ) ) {
+          insideNonNestedAtRule = true;
         }
       }
     } else if (this._ch === '#' && this._input.peek() === '{') {
@@ -345,6 +344,7 @@ Beautifier.prototype.beautify = function() {
       }
       insideAtImport = false;
       insideAtExtend = false;
+      insideNonNestedAtRule = false;
       if (insidePropertyValue) {
         this.outdent();
         insidePropertyValue = false;
@@ -378,7 +378,7 @@ Beautifier.prototype.beautify = function() {
         }
       }
 
-      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && !insideAtApply && parenLevel === 0) {
+      if ((insideRule || enteringConditionalGroup) && !(this._input.lookBack("&") || this.foundNestedPseudoClass()) && !this._input.lookBack("(") && !insideAtExtend && !insideNonNestedAtRule && parenLevel === 0) {
         // 'property: value' delimiter
         // which could be in a conditional group query
 
@@ -420,7 +420,7 @@ Beautifier.prototype.beautify = function() {
         }
         insideAtExtend = false;
         insideAtImport = false;
-        insideAtApply = false;
+        insideNonNestedAtRule = false;
         this.print_string(this._ch);
         this.eatWhitespace(true);
 
@@ -485,7 +485,7 @@ Beautifier.prototype.beautify = function() {
     } else if (this._ch === ',') {
       this.print_string(this._ch);
       this.eatWhitespace(true);
-      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend) {
+      if (this._options.selector_separator_newline && (!insidePropertyValue || insideScssMap) && parenLevel === 0 && !insideAtImport && !insideAtExtend && !insideNonNestedAtRule) {
         this._output.add_new_line();
       } else {
         this._output.space_before_token = true;
